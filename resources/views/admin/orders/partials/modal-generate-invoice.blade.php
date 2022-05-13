@@ -1,0 +1,113 @@
+<div class="modal fade modal-generate-invoice" id="modal-generate-invoice" tabindex="-1" role="dialog" aria-labelledby="editLine" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="editLine">{!! ucfirst(trans('textos.factura_generar')) !!} <b></b></h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <form method="post" autocomplete="off" action="{{ route('invoices.create-from-order') }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
+                    {{ csrf_field() }}
+                    <input type="hidden" name="order_id" id="newInvoiceOrderId" value="@isset($order) {{ $order->id }} @endisset">
+
+                    <p class="text-warning">{{ trans('textos.factura_generar_aviso') }}</p>
+
+                    <div class="form-group row mt-4">
+                    	<div class="col-12">
+                    		{{-- Factura íntegra --}}
+	                    	<label class="custom-chk-rdb mr-5" style="margin-top: 2px;">
+			    				<input type="radio" name="modality" class="rdbInvoiceModality" value="t" required>
+			    				<span class="rdb"></span>
+								{{ trans('textos.factura_integra') }}								
+							</label>
+
+							{{-- Factura parcial --}}
+							<label class="custom-chk-rdb mr-5" style="margin-top: 2px;">
+			    				<input type="radio" name="modality" class="rdbInvoiceModality" value="p" required>
+			    				<span class="rdb"></span>
+								{{ trans('textos.factura_avance') }}
+							</label>
+
+							{{-- Previsión de facturación --}}
+							@if($next_prevision)
+								<label class="custom-chk-rdb" style="margin-top: 2px;">
+				    				<input type="radio" name="modality" class="rdbInvoiceModality" value="{{ $next_prevision->id }}" required>
+				    				<span class="rdb"></span>
+									{{ trans('textos.prevision_facturacion') }} {{ $next_prevision->percent }}%
+								</label>
+							@endif
+						</div>
+
+						@if($errors->has('modality'))
+							<div class="col-12">
+			                	<span class="invalid-feedback" role="alert">
+			                  		<strong>{{ $errors->first('modality') }}</strong>
+			                	</span>
+			                </div>
+			            @endif
+
+			            @if($errors->has('advance_amount'))
+			            	<div class="col-12">
+			                	<span class="invalid-feedback" role="alert">
+			                  		<strong>{{ $errors->first('advance_amount') }}</strong>
+			                	</span>
+			                </div>
+			            @endif
+                    </div>
+
+                    <div class="advance-invoice-fields mt-4" style="display: none;">
+                    	<p class="text-warning">{{ trans('textos.factura_avance_aviso') }}</p>
+
+	                    <div class="form-group row">
+	                    	{{-- Por cantidad --}}
+	                    	<label for="advance_amount" class="col-lg-3 col-form-label">{!! ucfirst(trans('textos.importe')) !!}</label>
+							<div class="col-lg-3">
+								<x-input type="text" name="advance_amount" id="advance_amount" class="text-right set-decimals" autocomplete="off" maxlength="15" value="" group="right" groupvalue="{{ $currency->symbol }}"/>
+							</div>
+
+							{{-- Por porcentaje --}}
+							<label for="advance_percent" class="col-lg-3 col-form-label">{!! ucfirst(trans('textos.porcentaje')) !!}</label>
+							<div class="col-lg-3">
+								<x-input type="text" name="advance_percent" id="advance_percent" class="text-right set-decimals percent" autocomplete="off" maxlength="15" value="" group="right" groupvalue="%"/>
+							</div>
+	                    </div>
+                    </div>
+
+                    <x-btn-submit name="submit_generate_invoice" label="{{ trans('textos.guardar') }}"/>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@push('scripts')
+<script>
+$(function(){
+	//Selector de opción de facturación:
+	$('.rdbInvoiceModality').on('change', function(){
+        var value = $(this).val();
+        if(value == 'p'){
+            $('.advance-invoice-fields').slideDown();
+
+        }else{
+            $('#advance_amount, #advance_percent').val('');
+            $('.advance-invoice-fields').slideUp();
+        }
+    });
+
+	//Toogle entre importe íntegro o por porcentaje:
+	$('#advance_amount').on('change', function(){
+		var valor = $(this).val();
+		if(valor != ''){
+			$('#advance_percent').val('').prop("disabled", true);
+		}else{
+			$('#advance_percent').prop("disabled", false);
+		}
+	});
+});
+</script>
+
+@endpush

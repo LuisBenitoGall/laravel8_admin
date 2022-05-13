@@ -1,0 +1,85 @@
+<div class="row">
+	<div class="table-responsive">
+		<table class="table table-hover dTable" id="tblProjectBudgets">
+			<thead>
+				<tr>
+					<th class="text-center wdt100">#</th>
+					<th class="text-center wdt100">{!! ucfirst(trans('textos.numero_antiguo')) !!}</th>
+					<th class="wdt150">{!! ucfirst(trans('textos.pedido')) !!}</th>
+					<th class="wdt100">{!! ucfirst(trans('textos.presupuesto')) !!}</th>
+					<th class="text-center wdt100">{!! ucfirst(trans('textos.importe')) !!}</th>
+					<th class="text-center wdt100">{!! ucfirst(trans('textos.entrega_prevista')) !!}</th>
+					<th class="text-center wdt100">{!! ucfirst(trans('textos.fecha_entrega')) !!}</th>
+					<th class="wdt100">{!! ucfirst(trans('textos.estado')) !!}</th>
+					<th class="text-center wdt100">{!! ucfirst(trans('textos.acciones')) !!}</th>
+				</tr>
+			</thead>
+
+			<tbody>
+				@php
+				$total_amount = 0;
+				@endphp
+
+				@foreach($budgets_orders as $bo)
+					@if($bo->orderId)
+						@php
+						$total_amount = $total_amount + $bo->amount;
+						@endphp
+
+						<tr>
+							<td class="text-right">
+								<a target="_blank" href="{{ route('orders.edit', $bo->orderId) }}"> 
+									@if($bo->budget_num)
+										{{ $bo->budget_num }}	
+									@else
+										{{ $bo->budgetId }}
+									@endif
+								</a>
+							</td>
+							<td class="text-right">{{ $bo->order_old_num }}</td>
+							{{-- Título --}}
+							<td>{{ $bo->order_name }}</td>	
+							{{-- Presupuesto --}}
+							<td class="text-right">
+								@if($bo->budgetId)
+									<a target="_blank" href="{{ route('budgets.edit', $bo->budgetId) }}"> 
+										@if($bo->budget_num)
+											{{ $bo->budget_num }}	
+										@else
+											{{ $bo->budgetId }}
+										@endif
+									</a>
+								@endif
+							</td>
+							{{-- Importe --}}
+							<td class="text-right">{{ $bo->amount }}{{ $currency->symbol }}</td>
+							{{-- Entrega prevista --}}
+							<td class="text-right">{{ $bo->fechaEntregaPrevista }}</td>
+							{{-- Fecha entrega --}}
+							<td class="text-right">{{ $bo->fechaEntrega }}</td>
+							{{-- Estado --}}
+							<td>{{ $bo->order_status }}</td>
+							{{-- Acciones --}}
+							<td class="text-right">
+								{{-- Editar --}}
+								<a target="_blank" href="{{ route('orders.edit', $bo->orderId) }}" class="btn btn-xs btn-info btn-module" rel="tooltip" title="{{ ucfirst(trans('textos.editar')) }}"><i class="fa fa-edit"></i></a>
+							</td>
+						</tr>
+					@endif
+				@endforeach
+			</tbody>
+
+			<tfoot>
+				<tr>
+					<td colspan="4" class="text-right">
+						{{ ucfirst(trans('textos.importe')) }}
+					</td>
+					<td class="text-right">
+						{{ $total_amount }}{{ $currency->symbol }}	
+					</td>
+					<td colspan="4"></td>
+				</tr>
+			</tfoot>
+		</table>
+	</div>
+</div>

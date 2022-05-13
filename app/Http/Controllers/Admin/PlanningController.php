@@ -1,0 +1,49 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Helpers\Helpers;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
+use File;
+use Carbon\Carbon;
+
+//Models:
+use App\Models\Planning;
+
+class PlanningController extends Controller{
+    /**
+     * 1. Planificación.
+     */
+    
+    private $option = 'planning';
+    private $module = 'production';
+    private $languages;
+
+    public function __construct(){
+        //Idiomas:
+        $this->languages = Helpers::languages();
+
+        $this->middleware('module_setted:production');
+        //$this->middleware('work_order_pattern_get', ['only' => ['edit', 'update', 'destroy']]);
+    }    
+
+    /**
+     * 1. Planificación.
+     */
+    public function index(){
+        $header = [
+            'option' => $this->option, 
+            'suboption' => 'textos.planificacion_mi',
+            'module' => $this->module,
+            'slug' => 'planning'
+        ];    
+
+        return view('admin.planning.index')->with(compact('header'));
+    }
+}
