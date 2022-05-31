@@ -3,8 +3,8 @@
 @section('content')
 
 <div class="row mb-3">
+	{{-- Acciones: --}}
 	<div class="col-12">
-		{{-- Acciones: --}}
 		{{-- Toggle vista - cuadrícula --}}
         @include('admin.partials.toggle-views', ['cookie' => 'products'])
 

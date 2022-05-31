@@ -15,10 +15,10 @@
 			<x-input-file name="file"/>
 
 			@if($errors->has('file'))
-                <span class="invalid-feedback" role="alert">
-                  <strong>{{ $errors->first('file') }}</strong>
-                </span>
-            @endif
+          		<span class="invalid-feedback" role="alert">
+            		<strong>{{ $errors->first('file') }}</strong>
+          		</span>
+      		@endif
 		</div>	
 	
 		<x-btn-submit name="submit_image" label="{{ trans('textos.guardar') }}" inline="true"/>

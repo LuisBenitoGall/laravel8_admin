@@ -50,12 +50,13 @@ return [
     'QUESTION_FREE_TEXT_' => 20,
     'QUESTION_TEST_' => 10,
 	'ROLE_' => 'usuario',			//role sin permisos.
+    'ROLE_BASICO_' => 'basico',
 	'ROLE_ID_' => 3,				//id role sin permisos (extraído de la tabla 'roles').
     'ROLE_COMPANY_MANAGER_' => 2,   //id role manager empresa (extraído de la tabla 'roles'). 
     'ROLE_SUPERADMIN_' => 1,        //id role con permisos absolutos (extraído de la tabla 'roles').
     'SET_ORDER_PREVISIONS_' => false,
     'SUPER_ADMIN_' => 'Super Admin',
-    'UNDEFINED_DATE_' => '9999-12-31'
+    'UNDEFINED_DATE_' => '9999-12-31',
     
 ];
 ?>

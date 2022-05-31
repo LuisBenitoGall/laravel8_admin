@@ -18,6 +18,8 @@ class Employee extends Model{
     use Notifiable;
     use SoftDeletes;
 
+    protected $dates = ['deleted_at']; 
+
     protected $table = 'employees';
 
     protected $fillable = ['user_id', 'company_id', 'job_title', 'start_date', 'end_date', 'weekly_hours', 'time_control', 'state'. 'observations']; 

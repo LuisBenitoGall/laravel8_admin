@@ -3,7 +3,7 @@
 namespace App\View\Components;
 
 use Illuminate\View\Component;
-use App\Helpers\Helpers;
+use App\Helpers\helpers;
 
 class lightboxGalleryProducts extends Component{
     public $docs;
@@ -20,7 +20,7 @@ class lightboxGalleryProducts extends Component{
         $other_files = []
     ){
         $this->docs = $docs;
-        $this->image_mimes = Helpers::imgMimeTypes();
+        $this->image_mimes = helpers::imgMimeTypes();
         $this->other_files = $other_files;
     }
 

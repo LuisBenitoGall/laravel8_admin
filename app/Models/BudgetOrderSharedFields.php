@@ -6,6 +6,7 @@ use App\Helpers\Helpers;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 
 class BudgetOrderSharedFields extends Model{
     /**
@@ -13,6 +14,7 @@ class BudgetOrderSharedFields extends Model{
      * 2. Cálculo importe items.
      * 3. Suma importe de líneas por presupuesto - pedido.
      * 4. Importe del presupuesto-pedido.
+     * 5. Importe facturado.
      */
      
     use HasFactory;
@@ -102,6 +104,31 @@ class BudgetOrderSharedFields extends Model{
 
         $data['amount_without_discount'] = $amount;
         $data['amount_with_discount'] = $amount_discount;
+
+        return $data;
+    }
+
+    /**
+     * 5. Importe facturado.
+     */
+    public function getInvoicedAmount(){
+        $data = Invoice::select('id',
+            DB::raw("(SELECT SUM(amount) FROM invoices WHERE shared_id = ".$this->id.") AS invoiced_amount"),
+            DB::raw("(SELECT SUM(amount_with_iva) FROM invoices WHERE shared_id = ".$this->id.") AS invoiced_amount_with_iva")
+        )
+        ->where('shared_id', $this->id)
+        ->first();
+        // 
+
+        // $data = Invoice::where('shared_id', $this->id)
+        // ->get();
+         
+        // $data = Invoice::where('shared_id', $this->id)
+        // ->get()
+        // ->sum('amount_with_iva')
+        // ->sum('amount'); 
+        
+        //dd($data);
 
         return $data;
     }

@@ -9,22 +9,22 @@ use Illuminate\Support\Facades\DB;
 
 class Product extends Model{
     /**
-     * 1. Relación con documentos del producto. 
+     * 1. Documentos del producto. 
      * 2. Relación con empresa. 
      * 3. Productos por empresa.
      */
      
     use HasFactory;
-    use SoftDeletes; //Implementamos borrado lógico
+    use SoftDeletes; 
 
-    protected $dates = ['deleted_at']; //Columna de borrado lógico
+    protected $dates = ['deleted_at']; 
     
     protected $fillable = [
         'product', 'description', 'long_description', 'price',
     ];   
 
     /**
-     * 1. Relación con documentos del producto.
+     * 1. Documentos del producto.
      */
     public function docs(){
         return $this->hasMany(ProductDocs::class);
@@ -41,7 +41,7 @@ class Product extends Model{
      * 3. Productos por empresa.
      */
     public static function companyProducts($company_id, $sale = true, $status = true, $limit = false){
-        $q = Product::select('id', 'name', 'price', 'translations', 'description', 'on_sale', 'batch', 'status', DB::raw('(SELECT doc FROM product_docs WHERE product_id = products.id AND featured = 1) AS Image'))
+        $q = Product::select('id', 'name', 'price', 'translations', 'description', 'on_sale', 'batch', 'status', DB::raw('(SELECT doc FROM product_docs WHERE product_id = products.id AND featured = 1 LIMIT 1) AS Image'))
         ->where('company_id', $company_id);
         if($sale){
             $q->where('on_sale', 1);

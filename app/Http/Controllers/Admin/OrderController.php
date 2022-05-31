@@ -25,6 +25,7 @@ use App\Models\CustomerProviders;
 use App\Models\Delivery;
 use App\Models\DeliveryOrders;
 use App\Models\Employee;
+use App\Models\Invoice;
 use App\Models\Item;
 use App\Models\Order;
 use App\Models\OrderDocs;
@@ -625,17 +626,24 @@ class OrderController extends Controller{
         //CLIENTE:
         $customer = Company::select('id', 'name', 'tradename')->find($shared->customer_id);
 
-        $customer_managers = Employee::select(
-            DB::raw("CONCAT(users.name,' ',users.surname) AS user"), 'users.id')
-        ->join('users', 'employees.user_id', '=', 'users.id')
-        ->join('contracts', 'employees.contract_id', '=', 'contracts.id')
-        ->where('users.status', 1)
-        ->where('users.isAdmin', 1)
-        ->where('employees.status', 1)
-        ->where('contracts.company_id', $shared->customer_id)
-        ->orderBy('users.name')
-        ->pluck('user', 'users.id')
-        ->toArray();
+        //31/05/22: duda sobre si obtener sólo empleados o usuarios del cliente. Por el momento modifico la query para obtener usuarios.
+        // $customer_managers = Employee::select(
+        //     DB::raw("CONCAT(users.name,' ',users.surname) AS user"), 'users.id')
+        // ->join('users', 'employees.user_id', '=', 'users.id')
+        // ->join('contracts', 'employees.contract_id', '=', 'contracts.id')
+        // ->where('users.status', 1)
+        // ->where('users.isAdmin', 1)
+        // ->where('employees.status', 1)
+        // ->where('contracts.company_id', $shared->customer_id)
+        // ->orderBy('users.name')
+        // ->pluck('user', 'users.id')
+        // ->toArray();
+        
+        $customer_managers_ = UserCompanies::getCompanyUsers($shared->customer_id, 1); 
+        $customer_managers = [];
+        foreach($customer_managers_ as $cm){
+            $customer_managers[$cm->id] = $cm->name.' '.$cm->surname;
+        }
 
         $customer_business_areas = BusinessAreas::where('company_id', $shared->customer_id)
         ->pluck('name', 'id')
@@ -682,6 +690,14 @@ class OrderController extends Controller{
             $order_amount_without_discount = $arr_amounts['amount_without_discount'];
         } 
 
+        //Importe facturado:
+        $invoiced = $shared->getInvoicedAmount();
+
+        //Facturas:
+        $invoices = Invoice::select('id', 'amount', 'amount_with_iva')
+        ->where('shared_id', $shared->id)
+        ->get();
+
         //Previsiones de facturación del pedido:      
         $previsions = OrderPrevisions::where('order_id', $order->id)->get();
 
@@ -705,7 +721,7 @@ class OrderController extends Controller{
             ->join('projects', 'project_purchases.project_id', '=', 'projects.id')
             ->where('project_purchases.order_id', $order->id)
             ->get();    
-        }
+        } 
 
         //Entregas del pedido:
         $deliveries = DeliveryOrders::select('delivery_orders.id', 'deliveries.id AS deliveryId', 'deliveries.delivery_num', 'deliveries.delivery_old_num')
@@ -740,7 +756,7 @@ class OrderController extends Controller{
         $module_projects = $this->settedModule('projects');
         $module_rrhh = $this->settedModule('rrhh');
         
-        return view('admin.orders.edit')->with(compact('header', 'order', 'tab', 'shared', 'patterns', 'purchase_patterns', 'provider', 'provider_managers', 'provider_business_areas', 'provider_cost_centers', 'provider_workplaces', 'default_workplace', 'customer', 'customer_managers', 'customer_business_areas', 'customer_cost_centers', 'customer_workplaces', 'customer_settings', 'confirmed_by', 'customers', 'budget', 'order_amount', 'order_amount_without_discount', 'previsions', 'products', 'projects', 'project_linked', 'project_purchases', 'deliveries', 'currency', 'items', 'iva', 'order_type', 'languages', 'permitted', 'module_accounting', 'module_budgets', 'module_products', 'module_projects', 'module_rrhh', 'module_logistics'));
+        return view('admin.orders.edit')->with(compact('header', 'order', 'tab', 'shared', 'patterns', 'purchase_patterns', 'provider', 'provider_managers', 'provider_business_areas', 'provider_cost_centers', 'provider_workplaces', 'default_workplace', 'customer', 'customer_managers', 'customer_business_areas', 'customer_cost_centers', 'customer_workplaces', 'customer_settings', 'confirmed_by', 'customers', 'budget', 'order_amount', 'order_amount_without_discount', 'invoiced', 'invoices', 'previsions', 'products', 'projects', 'project_linked', 'project_purchases', 'deliveries', 'currency', 'items', 'iva', 'order_type', 'languages', 'permitted', 'module_accounting', 'module_budgets', 'module_products', 'module_projects', 'module_rrhh', 'module_logistics'));
     }
 
     /**
@@ -772,8 +788,8 @@ class OrderController extends Controller{
         $slug = Str::slug($request->name);
 
         //Formateando fechas:
-        $estimated_delivery_date = $request->estimated_delivery_date != ''? (session()->get('locale') != 'en')? Helpers::convertFecha($request->estimated_delivery_date):$request->estimated_delivery_date:NULL;
-        $delivery_date = $request->delivery_date != ''? (session()->get('locale') != 'en')? Helpers::convertFecha($request->delivery_date):$request->delivery_date:NULL;
+        $estimated_delivery_date = $request->estimated_delivery_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->estimated_delivery_date):$request->estimated_delivery_date:NULL;
+        $delivery_date = $request->delivery_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->delivery_date):$request->delivery_date:NULL;
 
         //Actualizando datos:
         if($request->pattern_id && $shared->provider_id == session('currentCompany')){

@@ -21,17 +21,19 @@ class StaffPickController extends Controller{
      * 2. Crear nuevo proceso.
      * 3. Editar proceso.
      * 4. Actualizar proceso.
+     * 5. Actualizar status.
      */
     
     private $option = 'seleccion_personal';
     private $module = 'rrhh';
     private $languages;
 
-     public function __construct(){
+    public function __construct(){
         //Idiomas:
         $this->languages = Helpers::languages();
 
         $this->middleware('module_setted:rrhh');
+        $this->middleware('staff_pick_get', ['only' => ['edit', 'update', 'destroy']]);
     }
 
     //0. Validator:
@@ -126,15 +128,40 @@ class StaffPickController extends Controller{
 
         //Slug:
         $slug = Str::slug($request->name);
+        $published_at = $request->input('published_at') != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->input('published_at')):$request->input('published_at'):NULL;
+        $published_end = ($request->input('published_end') != '')? (session()->get('locale') != 'en')? helpers::convertFecha($request->input('published_end')):$request->input('published_end'):NULL;
 
         $process->name = $request->name;
         $process->slug = $slug;
         $process->excerpt = $request->excerpt;
         $process->content = $request->content;
+        $process->published_at = $published_at;
+        $process->published_end = $published_end;
         $process->updated_by = Auth::user()->id;
         $process->status = $request->status? 1:0;
         $process->save();
 
-        dd($request->all(), $process);
+        $msg = trans('textos.proceso_actualizado');
+        return redirect()->route('staff-pick.edit', $process)->with(compact('msg'));
+    }
+
+    /**
+     * 5. Actualizar status.
+     */
+    public function status(Request $request, StaffPick $process, $status){
+        $process->status = $status;
+        $process->save();
+
+        return response()->json(true);
+    }
+
+    /**
+     * 6. Eliminar proceso.
+     */
+    public function destroy(StaffPick $process){
+        $process->delete();
+        
+        $msg = trans('textos.proceso_deleted');
+        return redirect()->route('staff-pick.index')->with(compact('msg'));    
     }
 }

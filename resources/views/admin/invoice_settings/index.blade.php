@@ -3,8 +3,8 @@
 @section('content')
 
 <div class="row mb-3">
+	{{-- Acciones: --}}
 	<div class="col-12">
-		{{-- Acciones: --}}
 		@can('invoices.edit')
 			<a class="btn btn-info" href="{{ route('invoice-settings.create') }}"><i class="fa fa-plus"></i> {!! ucfirst(trans('textos.plantilla_nueva')) !!}</a>
 		@endcan

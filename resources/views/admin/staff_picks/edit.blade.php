@@ -2,13 +2,24 @@
 
 @section('content')
 
+<input type="hidden" id="processId" value="{{ $process->id }}">
+
 <div class="row mb-3">
 	{{-- Acciones: --}}
 	<div class="col-12">
+		{{-- Listado de procesos --}}
 		@can('staff-pick.index')
 			<a href="{{ route('staff-pick.index') }}" class="btn btn-info">
 				<i class="fa fa-angle-left"></i>
 				{!! trans('textos.volver_seleccion_procesos') !!}
+			</a>
+		@endcan
+
+		{{-- Nuevo candidato --}}
+		@can('staff-pick.edit')
+			<a href="{{ route('staff-pick-candidates.create', $process) }}" class="btn btn-info">
+				<i class="fa fa-plus"></i>
+				{!! trans('textos.candidato_nuevo') !!}
 			</a>
 		@endcan
 	</div>

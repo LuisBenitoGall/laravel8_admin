@@ -1,3 +1,5 @@
+@props(['accepted_files' => false, 'name' => false])
+
 <div class="input-group image-preview">
     <input type="text" class="form-control image-preview-filename" disabled="disabled"> 
     <span class="input-group-btn">

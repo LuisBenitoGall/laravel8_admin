@@ -307,6 +307,10 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::post('employees/cancel', 'EmployeeController@cancel')->name('employees.cancel')->middleware('permission:employees.edit');
     Route::get('employees/{company_id}/company-employees/{status?}', 'EmployeeController@getCompanyEmployeesAjax')->name('employees.company-employees');
 
+    // Files:
+    Route::get('files', 'FileController@index')->name('files.index');
+    Route::post('files/store', 'FileController@store')->name('files.store');
+
     // Functionalities:
     Route::post('functionalities/store', 'FunctionalityController@store')->name('functionalities.store')->middleware('permission:modules.edit');
     Route::post('functionalities/update', 'FunctionalityController@update')->name('functionalities.update')->middleware('permission:modules.edit');
@@ -327,6 +331,11 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     // Handbook:
     Route::get('handbook', 'HandbookController@index')->name('handbook.index');
     Route::get('handbook/{code}/show', 'HandbookController@show')->name('handbook.show');
+
+    // Import Old DB:
+    Route::get('import_db', 'ImportOldDBController@index')->name('import_db.index');
+    Route::get('import_db/start', 'ImportOldDBController@start')->name('import_db.start');
+    Route::get('import_db/{prev}/messages', 'ImportOldDBController@messages')->name('import_db.messages');
 
     // Incidences:
     Route::get('incidences', 'IncidenceController@index')->name('incidences.index');
@@ -354,6 +363,13 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::get('invoices/list/{year?}/{customer_id?}/{provider_id?}', 'InvoiceController@index')->name('invoices.index')->middleware('permission:invoices.index');
     Route::post('invoices', 'InvoiceController@getInvoicesBy')->name('invoices.list')->middleware('permission:invoices.index');
     Route::post('invoices/create-from-order', 'InvoiceController@createFromOrder')->name('invoices.create-from-order')->middleware('permission:invoices.create');
+    Route::get('invoices/{invoice}/edit/{tab?}', 'InvoiceController@edit')->name('invoices.edit')->middleware('permission:invoices.edit');
+    Route::put('invoices/{invoice}/update', 'InvoiceController@update')->name('invoices.update')->middleware('permission:invoices.edit');
+    Route::get('invoices/{inovice}/print', 'InvoiceController@print')->name('invoices.print');
+    Route::get('invoices/{invoice}/status/{status}', 'InvoiceController@status')->name('invoices.status');
+    Route::get('invoices/{invoice}/block', 'InvoiceController@block')->name('invoices.block')->middleware('permission:invoices.edit');
+    Route::delete('invoices/{invoice}', 'InvoiceController@destroy')->name('invoices.destroy')->middleware('permission:invoices.destroy');
+    Route::put('invoices/{invoice}/update-template', 'InvoiceController@updateTemplate')->name('invoices.update-template')->middleware('permission:invoices.edit');
 
     // IP Access:
     Route::get('ip-access', 'IpAccessController@index')->name('ip-access.index');
@@ -402,6 +418,10 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::delete('notifications/{notification}', 'NotificationController@destroy')->name('notifications.destroy');
     Route::get('notifications/status/{notification}/{status}', 'NotificationController@readStatus')->name('notifications.status');
     Route::get('new-notifications', 'NotificationController@newNotifications')->name('new-notifications');
+
+    // Order Docs:
+    Route::post('orders-docs/{order}/store', 'OrderDocsController@store')->name('orders-docs.store');
+    Route::get('order-docs/{doc}/destroy', 'OrderDocsController@destroy')->name('order-docs.destroy')->middleware('permission:order-docs.destroy');
 
     // Order Groups:
     Route::get('order-groups/list/{customer_id?}/{year?}', 'OrderGroupsController@index')->name('order-groups.index')->middleware('permission:orders.edit');
@@ -478,6 +498,28 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     // Planning:
     Route::get('planning', 'PlanningController@index')->name('planning.index')->middleware('permission:planning.index');
     Route::get('planning/create', 'PlanningController@create')->name('planning.create')->middleware('permission:planning.create');
+
+    // Procedure Patterns:
+    Route::get('procedure-patterns', 'ProcedurePatternsController@index')->name('procedure-patterns.index')->middleware('permission:procedure-patterns.index');
+    Route::get('procedure-patterns/create', 'ProcedurePatternsController@create')->name('procedure-patterns.create')->middleware('permission:procedure-patterns.create');
+    Route::post('procedure-patterns/store', 'ProcedurePatternsController@store')->name('procedure-patterns.store')->middleware('permission:procedure-patterns.create');
+    Route::get('procedure-patterns/{pattern}/edit', 'ProcedurePatternsController@edit')->name('procedure-patterns.edit')->middleware('permission:procedures.edit');
+    Route::delete('procedure-patterns/{pattern}', 'ProcedurePatternsController@destroy')->name('procedure-patterns.destroy')->middleware('permission:procedures.edit');
+    Route::post('procedure-patterns/{pattern}/update', 'ProcedurePatternsController@update')->name('procedure-patterns.update')->middleware('permission:procedures.edit');
+    Route::get('procedure-patterns/status/{id}/{status}', 'ProcedurePatternsController@status')->name('procedure-patterns.status')->middleware('permission:procedure-patterns.edit');
+
+    // Procedure Revisions:
+    Route::get('procedure-revisions', 'ProcedureRevisionsController@index')->name('procedure-revisions.index')->middleware('permission:procedure-revisions.index');
+    Route::post('procedure-revisions/store', 'ProcedureRevisionsController@store')->name('procedure-revisions.store')->middleware('permission:procedures.edit');
+    Route::get('procedure-revisions/{revision}/print', 'ProcedureRevisionsController@print')->name('procedure-revisions.print');
+
+    // Procedures:
+    Route::get('procedures', 'ProcedureController@index')->name('procedures.index')->middleware('permission:procedures.index');
+    Route::get('procedures/create', 'ProcedureController@create')->name('procedures.create')->middleware('permission:procedures.create');
+    Route::post('procedures/store', 'ProcedureController@store')->name('procedures.store')->middleware('permission:procedures.create');
+     Route::get('procedures/{procedure}/edit/{tab?}/{revision?}', 'ProcedureController@edit')->name('procedures.edit')->middleware('permission:procedures.edit');
+     Route::put('procedures/{procedure}/update', 'ProcedureController@update')->name('procedures.update')->middleware('permission:procedures.edit');
+     Route::delete('procedures/{procedure}', 'ProcedureController@destroy')->name('procedures.destroy')->middleware('permission:procedures.destroy');
 
     // Product Docs:
     Route::post('product-docs/{product}/store', 'ProductDocsController@store')->name('product-docs.store');
@@ -634,6 +676,20 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::get('staff-pick/create', 'StaffPickController@create')->name('staff-pick.create')->middleware('permission:staff-pick.create');
     Route::get('staff-pick/{process}/edit/{tab?}', 'StaffPickController@edit')->name('staff-pick.edit')->middleware('permission:staff-pick.edit')->middleware('permission:staff-pick.edit');
     Route::put('staff-pick/{process}/update', 'StaffPickController@update')->name('staff-pick.update')->middleware('permission:staff-pick.edit');
+    Route::get('staff-pick/status/{process}/{status}', 'StaffPickController@status')->name('staff-pick.status')->middleware('permission:staff-pick.edit');
+    Route::delete('staff-pick/{process}', 'StaffPickController@destroy')->name('staff-pick.destroy')->middleware('permission:staff-pick.destroy');
+
+    // Staff Pick Candidates:
+    Route::get('staff-pick-candidates/{process}/create', 'StaffPickCandidatesController@create')->name('staff-pick-candidates.create')->middleware('permission:staff-pick.edit');
+    Route::post('staff-pick-candidates/store', 'StaffPickCandidatesController@store')->name('staff-pick-candidates.store')->middleware('permission:staff-pick.edit');
+    Route::get('staff-pick-candidates/{candidate}/edit/{tab?}', 'StaffPickCandidatesController@edit')->name('staff-pick-candidates.edit')->middleware('permission:staff-pick.edit');
+    Route::put('staff-pick-candidates/{candidate}/update', 'StaffPickCandidatesController@update')->name('staff-pick-candidates.update')->middleware('permission:staff-pick.edit');
+    Route::get('staff-pick-candidates/{candidate}/destroy', 'StaffPickCandidatesController@destroy')->name('staff-pick-candidates.destroy')->middleware('permission:staff-pick.edit');
+    Route::delete('staff-pick-candidates/{candidate}', 'StaffPickCandidatesController@destroy')->name('staff-pick-candidates.destroy')->middleware('permission:staff-pick.edit');
+
+    // Staff Pick Observations:
+    Route::post('staff-pick-observations/store', 'StaffPickObservationsController@store')->name('staff-pick-observations.store')->middleware('permission:staff-pick.edit');
+    Route::get('staff-pick-observations/{observation}/destroy', 'StaffPickObservationsController@destroy')->name('staff-pick-observations.destroy')->middleware('permission:staff-pick.edit');
 
     // Stock Movements:
     Route::get('stock-movements', 'StockMovementsController@index')->name('stock-movements.index');
@@ -742,6 +798,9 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::post('user-cost-centers/store', 'UserCostCentersController@store')->name('user-cost-centers.store');
     Route::get('user-cost-centers/{cost_center}/delete', 'UserCostCentersController@destroy')->name('user-cost-centers.delete');
 
+    // User Docs:
+    Route::get('user-docs/{doc}/destroy/{return?}', 'UserDocsController@destroy')->name('user-docs.destroy');
+
     // User Timetables:
     //Route::post('user-timetable/update-hour', 'UserTimetablesController@update')->name('user-timetable.update-hour');
 
@@ -758,11 +817,12 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::get('users/status/{id}/{status}', 'UserController@status')->name('users.status')->middleware('permission:users.edit');
     Route::get('users/delete-signature/{signature}', 'UserController@deleteSignature')->name('users.delete-signature');
     Route::post('users/{user}/store-image', 'UserController@storeImage')->name('users.store-image');
-    Route::get('users/delete-image/{image}', 'UserController@deleteImage')->name('users.delete-image');
+    Route::get('users/delete-image/{image}/{return?}', 'UserController@deleteImage')->name('users.delete-image');
     Route::get('users/set-featured/{image}', 'UserController@setFeatured')->name('users.set-featured');
     Route::get('users/set-public/{image}', 'UserController@setPublic')->name('users.set-public');
     Route::get('users/{user?}/timetables/{add_register?}', 'UserController@userTimetables')->name('users.timetables');
     Route::post('users/filter-timetables', 'UserController@userTimetables')->name('users.filter-timetables');
+    Route::get('users/{user}/from-candidate', 'UserController@fromCandidate')->name('users.from-candidate');
 
     // Users All:
     Route::get('users-all', 'UserController@usersAll')->name('users-all.index')->middleware('permission:users-all.index');
@@ -829,3 +889,6 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
 });
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+// Import Old DB:
+//Route::get('/admin/import_db/{activate?}', 'Admin\ImportOldDBController@index')->name('import_db.index');

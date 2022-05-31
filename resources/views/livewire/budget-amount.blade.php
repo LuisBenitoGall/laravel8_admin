@@ -5,6 +5,8 @@
                 {!! trans('textos.importe_presupuesto') !!}
             @elseif($environment == 'orders')
                 {!! trans('textos.importe_pedido') !!}
+            @elseif($environment == 'invoices')
+                {!! trans('textos.importe_factura') !!}
             @endif
 
             <span class="totalAmount">
@@ -12,7 +14,7 @@
             </span>
             <input type="hidden" id="totalAmount_"> 
 
-            @if($budget_amount_without_discount && $budget_amount_without_discount > 0)
+            @if($budget_amount_without_discount && $budget_amount_without_discount > $budget_amount)
                 {!! trans('textos.importe_sin_descuento') !!}
                 <br>
                 <b>

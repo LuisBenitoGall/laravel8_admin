@@ -132,8 +132,9 @@ class ModuleController extends Controller{
         }
 
         $module = Module::create([
-            'name' => $request->name,
+            'name' => strtolower($request->name),
             'slug' => $slug,
+            'label' => strtolower($request->name),
             'color' => $request->color,
             'icon' => $request->icon,
             'level' => $request->level   

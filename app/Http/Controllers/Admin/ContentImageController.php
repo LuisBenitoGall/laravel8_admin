@@ -30,7 +30,7 @@ class ContentImageController extends Controller{
             if($request->hasFile('file')){
                 $file = $request->file('file');
                 $path = public_path().'/img/contents';
-                $fileName = Helpers::slugFiles(uniqid().$file->getClientOriginalName());
+                $fileName = helpers::slugFiles(uniqid().$file->getClientOriginalName());
                 $moved = $file->move($path, $fileName);
 
                 //si el archivo ha sido guardado correctamente:

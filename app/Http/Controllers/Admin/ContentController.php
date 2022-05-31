@@ -61,7 +61,7 @@ class ContentController extends Controller{
             'code' => 'unique:contents'
         ],
         [
-            'unique' => trans('textos.contenido_nombre_existe')
+            'code.unique' => trans('textos.contenido_nombre_existe')
         ]);    
     }
 
@@ -208,8 +208,8 @@ class ContentController extends Controller{
         }
 
         $status = $request->input('status')? 1:0;
-        $published_at = $request->input('published_at') != ''? (session()->get('locale') != 'en')? Helpers::convertFecha($request->input('published_at')):$request->input('published_at'):NULL;
-        $published_end = ($request->input('published_end') != '')? (session()->get('locale') != 'en')? Helpers::convertFecha($request->input('published_end')):$request->input('published_end'):NULL;
+        $published_at = $request->input('published_at') != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->input('published_at')):$request->input('published_at'):NULL;
+        $published_end = ($request->input('published_end') != '')? (session()->get('locale') != 'en')? helpers::convertFecha($request->input('published_end')):$request->input('published_end'):NULL;
 
         //Desactivamos contenido si ha llegado fecha de fin de publicación:
         if($published_end != NULL && $published_end < date("Y-m-d H:i:s")) $status = 0;

@@ -1,6 +1,6 @@
 <div class="row">
 	<div class="table-responsive">
-		<table class="table table-hover dTable" id="tblProjectBudgets">
+		<table class="table table-hover dTable" id="tblProjectOrders">
 			<thead>
 				<tr>
 					<th class="text-center wdt100">#</th>
@@ -27,12 +27,13 @@
 						@endphp
 
 						<tr>
+							{{-- Pedido --}}
 							<td class="text-right">
 								<a target="_blank" href="{{ route('orders.edit', $bo->orderId) }}"> 
-									@if($bo->budget_num)
-										{{ $bo->budget_num }}	
+									@if($bo->order_num)
+										{{ $bo->order_num }}	
 									@else
-										{{ $bo->budgetId }}
+										{{ $bo->orderId }}
 									@endif
 								</a>
 							</td>

@@ -13,6 +13,7 @@ class CreateInvoicesTable extends Migration{
     public function up(){
         Schema::create('invoices', function (Blueprint $table){
             $table->id();
+            $table->bigInteger('refund')->nullable();
             $table->string('invoice_num')->nullable();
             $table->string('num_cardinal')->nullable();
             //FK:

@@ -28,6 +28,7 @@
 						@endphp
 					
 						<tr>
+							{{-- Presupuesto --}}
 							<td class="text-right">
 								<a target="_blank" href="{{ route('budgets.edit', $bo->budgetId) }}"> 
 									@if($bo->budget_num)

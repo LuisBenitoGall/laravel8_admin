@@ -23,7 +23,7 @@ class CreateProductsTable extends Migration{
             $table->text('translations')->nullable();
             $table->text('tags')->nullable();
             $table->text('description')->nullable();
-            $table->text('long_description')->nullable();
+            $table->longText('long_description')->nullable();
             //FK:
             $table->unsignedBigInteger('company_id')->nullable();
             $table->foreign('company_id')->references('id')->on('companies');

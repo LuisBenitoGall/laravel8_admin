@@ -1,6 +1,6 @@
-@props(['url'])
+@props(['icon' => '', 'id' => false, 'msg' => '', 'mimes_img' => [], 'url' => false])
 
-<div class="dropzone"></div>
+<div class="dropzone" @if($id) id="{{ $id }}" @endif></div>
 
 @once
 @push('styles')
@@ -13,6 +13,9 @@
 <script src="{{ asset('js/plugins/dropzone/dropzone.js') }}"></script>
 
 <script>
+var mimes_img = {!! $mimes_img !!};
+var icons = {!! $icons !!};
+
 //Dropzone imágenes:
 var myDropzone = new Dropzone('.dropzone', {
     url: '{{ $url }}',
@@ -23,9 +26,15 @@ var myDropzone = new Dropzone('.dropzone', {
     headers: {
         'X-CSRF-TOKEN': '{{ csrf_token() }}'
     },
-    dictDefaultMessage: '<i class="fa fa-camera-retro"></i> {{ trans("textos.arrastra_fotos") }}'
+    dictDefaultMessage: '<i class="fa fa-{{ $icon }}"></i> {{ trans("textos.".$msg) }}'
 });
 
+//Envío correcto:
+myDropzone.on('success', function(file, res, done){
+    //Sin acciones definidas.
+});
+
+//Error:
 myDropzone.on('error', function(file, res){
     var msg = res.errors.photo[0];
     $('.dz-error-message:last > span').text(msg);

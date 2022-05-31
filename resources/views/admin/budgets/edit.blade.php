@@ -134,9 +134,9 @@
 		--}}
 		@if($module_projects)
 			{{-- Acceso a proyecto --}}
-			@if($project_linked)
+			@if($project)
 				@can('projects.edit')
-					<a target="_blank" href="{{ route('projects.edit', $project_linked->project_id) }}" class="btn btn-info">
+					<a target="_blank" href="{{ route('projects.edit', $project->id) }}" class="btn btn-info">
 						<i class="fa fa-rocket"></i>
 						{!! ucfirst(trans('textos.proyecto')) !!}
 					</a>
@@ -288,35 +288,7 @@
 @include('admin.budgets.partials.modal-new-customer-manager', ['return_view' => 'edit'])
 
 {{-- New items block --}}
-<div class="modal fade modal-add-block" id="modal-add-block" tabindex="-1" role="dialog" aria-labelledby="addBlock" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title" id="addBlock">{!! ucfirst(trans('textos.bloque_nuevo')) !!}</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-
-            <div class="modal-body">
-            	<form method="post" autocomplete="off" action="{{ route('budget-form-items.add-block') }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
-                    {{ csrf_field() }}
-                    <input type="hidden" name="budget_id" value="{{ $budget->id }}">
-
-                    <div class="form-group row">
-                    	{{-- Bloque --}}
-						<label for="name" class="col-lg-12">{!! ucfirst(trans('textos.bloque')) !!} *</label>
-                        <div class="col-lg-12">
-                        	<x-input type="text" name="name" autocomplete="off" maxlength="100" required />
-                        </div>
-                    </div>
-
-                    <x-btn-submit name="submit-add-block" label="{{ trans('textos.guardar') }}"/>
-                </form>  
-            </div>
-        </div>
-    </div>
-</div>
+@include('admin.budgets.partials.modal-add-block')
 
 {{-- Discount --}}
 @include('admin.budget_order_shared_fields.partials.modal-discount', ['return' => 'budgets'])
@@ -341,44 +313,7 @@
 @include('admin.budget_order_shared_fields.partials.modal-see-catalogue')
 
 {{-- Change provider --}}
-@if($shared->provider_id == session('currentCompany') && count(session('companies')) > 1 && !$shared->order_id)
-	<div class="modal fade modal-set-provider" id="modal-set-provider" tabindex="-1" role="dialog" aria-labelledby="setProvider" aria-hidden="true">
-	    <div class="modal-dialog" role="document">
-	        <div class="modal-content">
-	            <div class="modal-header">
-	                <h4 class="modal-title" id="setProvider">{!! ucfirst(trans('textos.proveedor_cambio')) !!}</h4>
-	                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-	                    <span aria-hidden="true">&times;</span>
-	                </button>
-	            </div>
-
-	            <div class="modal-body">
-	            	<form method="post" autocomplete="off" action="{{ route('budgets.set-provider', $budget) }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
-	                    {{ csrf_field() }}
-	                    <input type="hidden" name="budget_id" value="{{ $budget->id }}">
-
-	                    <div class="form-group row">
-	                    	{{-- Empresas --}}
-							<label for="company_id" class="col-lg-12">{!! ucfirst(trans('textos.empresas')) !!} *</label>
-	                        <div class="col-lg-12">
-	                        	@php
-	                        	$companies_ = [];
-	                        	foreach(session('companies') as $c){
-	                        		$companies_[$c->id] = $c->name;	
-	                        	}
-	                        	@endphp
-
-								<x-select name="company_id" class="select2" label="empresa_selec" :options="$companies_" required/>
-							</div>
-						</div>
-
-	                    <x-btn-submit name="submit-set-provider" label="{{ trans('textos.guardar') }}"/>
-	                </form>  
-	            </div>
-	        </div>
-	    </div>
-	</div>
-@endif
+@include('admin.budgets.partials.modal-change-provider')
 
 {{-- Budget modality --}}
 @if(!$budget->modality)

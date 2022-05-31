@@ -45,6 +45,8 @@ class Helpers{
 	 *  3.16. Marcas de vehículo.
 	 *  3.17. Estados de orden de trabajo.
 	 *  3.18. Estados de productos de orden de trabajo.
+	 *  3.19. Modalidades de factura.
+	 *  3.20. Estados de factura.
 	 *
 	 * 4. Strings:
 	 * 	4.1. Truncar texto.
@@ -55,6 +57,7 @@ class Helpers{
 	 * 5. Archivos:
 	 *  5.1. Allowed Image Mime Types.
 	 *  5.2. Extensiones según Mime Types.
+	 *  5.3. Iconos vinculados a archivos.
 	 *
 	 * 6. Cálculos:
 	 *  6.1. Porcentaje.
@@ -820,6 +823,32 @@ class Helpers{
 		];
 		if($status){
 			return ucfirst($data[$status]);
+		}else{
+			return $data;
+		}		
+	}
+
+	/**
+	 * 3.19. Modalidades de factura.
+	 */
+	public static function invoiceModalities(){
+		// t = total;
+		// p = parcial;
+		$data = ['t', 'p'];
+		return $data;
+	}
+
+	/**
+	 * 3.20. Estados de factura.
+	 */
+	public static function invoiceStatus($status = false){
+		$data = [
+			1 => trans('textos.pendiente'),
+			10 => trans('textos.abonada'),
+			20 => trans('textos.devuelta')
+		];
+		if($status){
+			return $data[$status];
 		}else{
 			return $data;
 		}		
@@ -1770,6 +1799,43 @@ class Helpers{
 			return $data[$mime];
 		}else{
 			return $data;
+		}
+	}
+
+	/**
+	 * 5.3. Iconos vinculados a archivos.
+	 */
+	public static function fileIcons($file = false){
+		$data = [
+			'doc' => 'file-word',
+			'docx' => 'file-word',
+			'gif' => 'image',
+			'jpeg' => 'image',
+			'jpg' => 'image',
+			'ods' => 'file-excel',
+			'pdf' => 'file-pdf',
+			'png' => 'image',
+			'txt' => 'file',
+			'xls' => 'file-excel',
+			'xlsx' => 'file-excel'
+		];
+
+		if($file){
+			$icon = false;
+			foreach($data as $i => $r){
+				if($i == $file){
+					$icon = $r;
+					break;
+				}
+			}
+
+			if($icon){
+				return $icon;
+			}else{
+				return 'file';
+			}
+		}else{
+			return $data;	
 		}
 	}
 

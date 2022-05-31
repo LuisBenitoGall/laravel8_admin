@@ -5,12 +5,23 @@
 <div class="row mb-3">
 	{{-- Acciones: --}}
 	<div class="col-12">
+		{{-- Listado de contenidos --}}
 		<a href="{{ route('contents.index') }}" class="btn btn-info">
 			<i class="fa fa-angle-left"></i>
 			{!! trans('textos.volver_contenidos') !!}
 		</a>
 
+		{{-- Nuevo contenido --}}
 		<a class="btn btn-info" href="{{ route('contents.create') }}"><i class="fa fa-plus"></i> {!! ucfirst(trans('textos.contenido_nuevo')) !!}</a>
+
+		{{-- Eliminar contenido --}}
+		@can('contents.destroy')
+			<form method="POST" action="{{ route('contents.destroy', $content) }}" class="frm-inline" role="form" accept-charset="UTF-8">
+                <input name="_method" type="hidden" value="DELETE">
+                {{ csrf_field() }}
+                <button type="submit" class="btn btn-danger frm-confirm" rel="tooltip" title="{{ ucfirst(trans('textos.contenido_eliminar')) }}" data-msg="{{ trans('textos.contenido_confirm_eliminar') }}"><i class="fa fa-trash"></i></button>
+            </form>
+		@endcan
 	</div>
 </div>
 

@@ -125,6 +125,11 @@ class FunctionalitiesTableSeeder extends Seeder{
             'label' => 'centros_trabajo',
             'module' => 'companies'
             ],
+            ['name' => 'files',
+            'slug' => 'files',
+            'label' => 'archivos',
+            'module' => 'companies'
+            ],
             ['name' => 'customers',
             'slug' => 'customers',
             'label' => 'clientes',
@@ -400,7 +405,18 @@ class FunctionalitiesTableSeeder extends Seeder{
             'slug' => 'questions',
             'label' => 'cuestiones',
             'module' => 'quizzes'
-            ]    
+            ],
+
+            ['name' => 'procedures',
+            'slug' => 'procedures',
+            'label' => 'procedimientos',
+            'module' => 'procedures'
+            ],
+            ['name' => 'procedure patterns',
+            'slug' => 'procedure-patterns',
+            'label' => 'procedimientos_patrones',
+            'module' => 'procedures'
+            ]
         ];
 
         //Módulos:

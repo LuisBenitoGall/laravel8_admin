@@ -19,14 +19,24 @@ $(function() {
     });
     // Clear event
     $('.image-preview-clear').click(function(){
-        $('.image-preview').attr("data-content","").popover('hide');
-        $('.image-preview-filename').val("");
-        $('.image-preview-clear').hide();
-        $('.image-preview-input input:file').val("");
-        $(".image-preview-input-title").text(txtBuscar); 
+        var parent = $(this).closest('.image-preview');
+
+        // $('.image-preview').attr("data-content","").popover('hide');
+        // $('.image-preview-filename').val("");
+        // $('.image-preview-clear').hide();
+        // $('.image-preview-input input:file').val("");
+        // $(".image-preview-input-title").text(txtBuscar);
+
+        parent.find('.image-preview').attr("data-content","").popover('hide');
+        parent.find('.image-preview-filename').val("");
+        parent.find('.image-preview-clear').hide();
+        parent.find('.image-preview-input input:file').val("");
+        parent.find(".image-preview-input-title").text(txtBuscar); 
     }); 
     // Create the preview image
-    $(".image-preview-input input:file").change(function (){     
+    $(".image-preview-input input:file").change(function (){    
+        var parent = $(this).closest('.image-preview');
+
         var img = $('<img/>', {
             id: 'dynamic',
             width:150
@@ -36,11 +46,17 @@ $(function() {
         var reader = new FileReader();
         // Set preview image into the popover data-content
         reader.onload = function (e) {
-            $(".image-preview-input-title").text(txtCambiar);
-            $(".image-preview-clear").show();
-            $(".image-preview-filename").val(file.name);            
+            // $(".image-preview-input-title").text(txtCambiar);
+            // $(".image-preview-clear").show();
+            // $(".image-preview-filename").val(file.name);            
+            // img.attr('src', e.target.result);
+            // $(".image-preview").attr("data-content",$(img)[0].outerHTML).popover("show");
+
+            parent.find(".image-preview-input-title").text(txtCambiar);
+            parent.find(".image-preview-clear").show();
+            parent.find(".image-preview-filename").val(file.name);            
             img.attr('src', e.target.result);
-            $(".image-preview").attr("data-content",$(img)[0].outerHTML).popover("show");
+            parent.attr("data-content",$(img)[0].outerHTML).popover("show");
         }        
         reader.readAsDataURL(file);
     });  
@@ -231,6 +247,7 @@ $(window).on('load', function(){
         6.2. Leer cookie proyectos.
         6.3. Leer cookie usuarios.
     7. Copiar a portapapeles.
+        7.1. Copiar a portapapeles desde link.
     8. Destacar imagen.
         8.1. Imagen pública.
     9. Seleccionar empresa.
@@ -252,11 +269,13 @@ $(window).on('load', function(){
     23. Histórico de horas trabajadas en tarea.
     24. Selector de modalidad de presupuesto.
     25. Seleccionar icono.
+    26. Modal editar item.
     */
    
     // 1. Eliminar preview imagen seleccionada:
     $(document).on('click', '#close-preview', function(){ 
-        $('.image-preview').popover('hide');
+        //$('.image-preview').popover('hide');
+        $(this).closest('.popover').popover('hide');
         // Hover before close the preview
         /*$('.image-preview').hover(
             function () {
@@ -474,6 +493,42 @@ $(window).on('load', function(){
         $('.warning-copy').delay(1000).fadeOut();
     });
 
+    // 7.1. Copiar a portapapeles desde link.
+    $('.copia2').on('click', function(e){
+        e.preventDefault();
+        var elem = $(this);
+        var text1 = elem.data('text');
+        text = text1.trim();
+        var $temp = $("<input>");
+        //lo agregamos a nuestro body
+        $("body").append($temp);
+        //agregamos en el atributo value del input el contenido html encontrado
+        //en el td que se dio click
+        //y seleccionamos el input temporal
+        $temp.val(text).select();
+        //ejecutamos la funcion de copiado
+        document.execCommand("copy");
+        //eliminamos el input temporal
+        $temp.remove();
+        elem.append('<span class="warning-copy">'+txtTextoCopiado+'</span>');
+        $('.warning-copy').delay(1000).fadeOut();
+    });
+
+    $('.copia3').on('click', function(e){
+        e.preventDefault();
+        var copyText = $(this).data('text');
+
+          /* Select the text field */
+        //copyText.select();
+        //copyText.setSelectionRange(0, 99999); /* For mobile devices */
+
+           /* Copy the text inside the text field */
+          navigator.clipboard.writeText(copyText);
+
+          /* Alert the copied text */
+          alert("Copied the text: " + copyText);
+    });
+
     // 8. Destacar imagen.
     $('.btn-featured').on('click', function(e){
         e.preventDefault();
@@ -654,41 +709,41 @@ $(window).on('load', function(){
     });
 
     // 17. Búsqueda nuevas notificaciones + mensajes chat.
-    var newNotifications = setInterval(function(){
-        //Notificaciones:
-        $.get("/admin/new-notifications", function(response, state){
-            if(response){
-                $('#notificationsList .notification_').remove();
-                var html = '';
-                var qty = 0;
+    // var newNotifications = setInterval(function(){
+    //     //Notificaciones:
+    //     $.get("/admin/new-notifications", function(response, state){
+    //         if(response){
+    //             $('#notificationsList .notification_').remove();
+    //             var html = '';
+    //             var qty = 0;
 
-                for(var notif in response){
-                    html += '<li class="notification_">';
-                        html += '<a href="/admin/notifications/'+response[notif].id+'/show">';
-                            html += '<i class="fa fa-envelope"></i> ';
-                            html += response[notif].data.title;
-                            html += '<small class="text-warning pull-right">';
-                                html += response[notif].time_ago;
-                            html += '</small>';
-                        html += '</a>';
-                    html += '</li>';
+    //             for(var notif in response){
+    //                 html += '<li class="notification_">';
+    //                     html += '<a href="/admin/notifications/'+response[notif].id+'/show">';
+    //                         html += '<i class="fa fa-envelope"></i> ';
+    //                         html += response[notif].data.title;
+    //                         html += '<small class="text-warning pull-right">';
+    //                             html += response[notif].time_ago;
+    //                         html += '</small>';
+    //                     html += '</a>';
+    //                 html += '</li>';
 
-                    qty++;
-                }
+    //                 qty++;
+    //             }
 
-                $('#withoutNotifications').fadeOut();
-                $('#notificationsList').prepend(html);
-                $('#notificationsQty').text(qty).fadeIn();
-            }
-        });
+    //             $('#withoutNotifications').fadeOut();
+    //             $('#notificationsList').prepend(html);
+    //             $('#notificationsQty').text(qty).fadeIn();
+    //         }
+    //     });
 
-        //Mensajes Chat:
-        $.get("/admin/chat/new-messages", function(response, state){
-            if(response){
-                $('#chat-messages-num').text(response).fadeIn();
-            }
-        });
-    }, 30000);
+    //     //Mensajes Chat:
+    //     $.get("/admin/chat/new-messages", function(response, state){
+    //         if(response){
+    //             $('#chat-messages-num').text(response).fadeIn();
+    //         }
+    //     });
+    // }, 30000);
 
     // 18. Rotación caret arrow.
     $(document).on('click', '.toggle-arrow', function(){
@@ -927,18 +982,13 @@ $(window).on('load', function(){
         }, 2500);
     }
 
-
-
-    
-
-    // ?. Modal editar item.   ???????????????
+    // 26. Modal editar item.   
     $(document).on('click', '.btnEditItem', function(){
         var id = $(this).data('id');
         $('#frmEditItem').trigger("reset");
         $('#itemObservations_').trumbowyg('html','');
         $.get("/admin/items/"+id+"/edit", function(response, state){
             if(response){
-                console.log(response);
                 $('#itemId_').val(id);
                 $('#itemConcept_').val(response.concept);
                 $('#itemQty_').val(response.qty);

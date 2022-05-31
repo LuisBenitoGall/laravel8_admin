@@ -44,7 +44,7 @@ class ProductUnitsController extends Controller{
 
         //Ampliación de información de los objetos:
         foreach($units as $row){
-            $row->selected = in_array($row->id, $product_units)? true:false;
+            $row->selected = in_array($row->id, $product_units)? 1:'0';
 
             //Enviamos el nombre de la unidad ya traducido:
             $trans = unserialize($row->translations);

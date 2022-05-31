@@ -22,6 +22,7 @@ use App\Models\Company;
 use App\Models\CostCenters;
 use App\Models\Employee;
 use App\Models\Phone;
+use App\Models\StaffPickCandidates;
 use App\Models\Stock;
 use App\Models\Timetable;
 use App\Models\TimetableItems;
@@ -60,6 +61,7 @@ class UserController extends Controller{
      * 14. Eliminar usuario.
      * 15. Listado de todos los usuarios.
      * 15.1. Listado de todos los usuarios para DataTable.
+     * 16. Incorporar candidato como usuario.
      */
     
     private $option = 'usuarios';
@@ -586,7 +588,7 @@ class UserController extends Controller{
      * @param  obj $request string $image
      * @return \Illuminate\Http\Response
      */
-    public function deleteImage(Request $request, $image){
+    public function deleteImage(Request $request, $image, $return = false){
         if($image != ''){
             $userImage = UserImage::select('id', 'user_id')->where('image', $image)->first();
 
@@ -595,7 +597,13 @@ class UserController extends Controller{
             File::delete(public_path().'/img/users/'.$image);
 
             $msg = trans('textos.imagen_deleted');
-            return redirect()->route('users.edit', [$userImage->user_id, 'images'])->with(compact('msg'));  
+
+            if($return){
+                $p = explode('|', $return);
+                return redirect()->route($p[0], $p[1])->with(compact('msg'));    
+            }else{
+                return redirect()->route('users.edit', [$userImage->user_id, 'images'])->with(compact('msg'));  
+            }
         
         }else{
             return redirect('/');
@@ -826,5 +834,29 @@ class UserController extends Controller{
         return datatables($users)->toJson(); 
     }
 
+    /**
+     * 16. Incorporar candidato como usuario.
+     */
+    public function fromCandidate(User $user){
+        $user->status = 1;
+        $user->save();
 
+        //Guardamos rol:
+        $user->assignRole(config('constants.ROLE_BASICO_'));
+
+        //Vinculamos usuario a empresa:
+        $uc = new UserCompanies();
+        $uc->user_id = $user->id;
+        $uc->company_id = session('currentCompany');
+        $uc->save();
+
+        //Eliminamos la condición de candidato:
+        StaffPickCandidates::join('staff_picks', 'staff_pick_candidates.staff_pick_id', '=', 'staff_picks.id')
+        ->where('staff_pick_candidates.user_id', $user->id)
+        ->where('staff_picks.company_id', session('currentCompany'))
+        ->update(['staff_pick_candidates.status' => 1]);
+
+        $msg = trans('textos.usuario_incorporado');
+        return redirect()->route('users.edit', $user->id)->with(compact('msg'));
+    }
 }

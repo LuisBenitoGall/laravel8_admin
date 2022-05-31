@@ -17,7 +17,7 @@ class User extends Authenticatable{
     /**
      * 1. Empresas del usuario.
      * 2. Imágenes del usuario.
-     * 3. Permisos del usuario.
+     * 3. Documentos del usuario.
      * 4. Permisos del rol.
      * 5. Usuarios por empresa.
      * 6. Preferencias de usuario.
@@ -98,6 +98,13 @@ class User extends Authenticatable{
     }
 
     /**
+     * 3. Documentos del usuario.
+     */
+    public function docs(){
+        return $this->hasMany(UserDoc::class);
+    }
+
+    /**
      * 3. Permisos del usuario.
      */
     // static function userPermissions($user_id = false){
@@ -148,7 +155,7 @@ class User extends Authenticatable{
         if($limit){
             $q->limit($limit);
         }
-        $users= $q->get();
+        $users= $q->groupBy('users.id')->get();
 
         return $users;
     }

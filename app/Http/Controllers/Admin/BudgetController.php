@@ -26,6 +26,7 @@ use App\Models\Company;
 use App\Models\CompanySettings;
 use App\Models\CostCenters;
 use App\Models\CustomerProviders;
+use App\Models\Invoice;
 use App\Models\Item;
 use App\Models\Order;
 use App\Models\Phone;
@@ -398,8 +399,15 @@ class BudgetController extends Controller{
             'slug' => 'budgets'
         ]; 
         
-
         $shared = BudgetOrderSharedFields::where('budget_id', $budget->id)->first();
+
+        //Importe facturado:
+        $invoiced = $shared->getInvoicedAmount();
+
+        //Facturas:
+        $invoices = Invoice::select('id', 'amount', 'amount_with_iva')
+        ->where('shared_id', $shared->id)
+        ->get();
 
         //Patrones de numeración del presupuesto:
         $patterns = false;
@@ -463,12 +471,14 @@ class BudgetController extends Controller{
         $customer_business_areas = BusinessAreas::where('company_id', $shared->customer_id)
         ->get();
 
-        //Clientes finales: puede ser cualquier empresa aunque no sea cliente directo:
-        $final_customers = Company::select('id', 'name')
-        ->where('status', 1)
-        ->where('id', '!=', $shared->provider_id)
-        ->where('id', '!=', $shared->customer_id)
-        ->orderBy('name', 'ASC')
+        //Clientes finales. Sólo clientes del cliente primero:
+        $final_customers = Company::select('companies.id', 'companies.name')
+        ->join('customer_providers', 'companies.id', '=', 'customer_providers.customer_id')
+        ->where('companies.status', 1)
+        ->where('companies.id', '!=', $shared->provider_id)
+        ->where('companies.id', '!=', $shared->customer_id)
+        ->where('customer_providers.provider_id', $shared->provider_id)
+        ->orderBy('companies.name', 'ASC')
         ->get();
 
         //Clientes:
@@ -491,9 +501,6 @@ class BudgetController extends Controller{
 
         //Pedido:
         $order = $shared->order_id? Order::find($shared->order_id):false;
-
-        //Proyecto:
-        $project = $shared->project_id? Project::find($shared->project_id):false;
 
         //Importe:
         if($shared->free_amount){
@@ -518,8 +525,9 @@ class BudgetController extends Controller{
         ->get();
 
         //Proyecto vinculado:
-        $project_linked = ProjectShared::select('project_id')
-        ->where('shared_id', $shared->id)
+        $project = ProjectShared::select('projects.id', 'projects.code', 'projects.contest_code', 'projects.name')
+        ->join('projects', 'project_shareds.project_id', '=', 'projects.id')
+        ->where('project_shareds.shared_id', $shared->id)
         ->first();
 
         //Moneda:
@@ -543,7 +551,7 @@ class BudgetController extends Controller{
         $module_products = $this->settedModule('products');
         $module_projects = $this->settedModule('projects');
 
-        return view('admin.budgets.edit')->with(compact('header', 'budget', 'tab', 'shared', 'patterns', 'versions', 'budget_amount', 'budget_amount_without_discount', 'provider', 'provider_managers', 'provider_settings', 'provider_workplaces', 'provider_cost_centers', 'provider_business_areas', 'customer', 'customer_managers', 'customer_workplaces', 'customer_cost_centers', 'customer_business_areas', 'final_customers', 'customers', 'customer_settings', 'forms', 'order', 'project', 'products', 'projects', 'project_linked', 'currency', 'templates', 'budget_from', 'languages', 'module_orders', 'module_products', 'module_projects'));
+        return view('admin.budgets.edit')->with(compact('header', 'budget', 'tab', 'shared', 'invoiced', 'invoices', 'patterns', 'versions', 'budget_amount', 'budget_amount_without_discount', 'provider', 'provider_managers', 'provider_settings', 'provider_workplaces', 'provider_cost_centers', 'provider_business_areas', 'customer', 'customer_managers', 'customer_workplaces', 'customer_cost_centers', 'customer_business_areas', 'final_customers', 'customers', 'customer_settings', 'forms', 'order', 'products', 'projects', 'project', 'currency', 'templates', 'budget_from', 'languages', 'module_orders', 'module_products', 'module_projects'));
     }
 
     /**
@@ -1061,7 +1069,7 @@ class BudgetController extends Controller{
      */
     public function modify(Budget $budget){
         //Id del original:
-        $originalId = (!$budget->recid)? $budget->id:$budget->recid;
+        $originalId = !$budget->recid? $budget->id:$budget->recid;
 
         //Registro compartido:
         $shared = BudgetOrderSharedFields::where('budget_id', $budget->id)->first();
@@ -1078,7 +1086,7 @@ class BudgetController extends Controller{
 
         $ext = 'v'.($versions+1);
         
-        //Nombre y bkey deben modificarse desde el presupuesto original:
+        //Nombre y budget_num deben modificarse desde el presupuesto original:
         $origBudget = Budget::find($originalId);
         $name = $origBudget? $origBudget->name.' '.$ext:trans('textos.presupuesto');
         $budget_num = $origBudget? $origBudget->budget_num.'-'.$ext:'';
@@ -1143,48 +1151,49 @@ class BudgetController extends Controller{
                 //Los nuevos bloques deben corresponder a los bloques de la versión anterior para poder vincularles sus respectivos items:
                 $arrBlockId[$block->id] = $bk->id;
             }
-
-            $items = Item::where('budget_order_id', $shared->id)->get();
-            foreach($items as $row){
-                $blockId = isset($arrBlockId[$row->budget_form_block_id])? $arrBlockId[$row->budget_form_block_id]:$row->budget_form_block_id;
-
-                $vit = new Item();
-                $vit->product_id = $row->product_id;
-                $vit->budget_order_id = $shared_v->id;
-                $vit->budget_form_block_id = $blockId;
-                $vit->budget_form_item_id = $row->budget_form_item_id;
-                $vit->concept = $row->concept;
-                $vit->observations = $row->observations;
-                $vit->qty = $row->qty;
-                $vit->price = $row->price;
-                $vit->item_no_price = $row->item_no_price;
-                $vit->iva = $row->iva;
-                $vit->discount = $row->discount;
-                $vit->calculated_by_percent = $row->calculated_by_percent;
-                $vit->days = $row->days;
-                $vit->days_continue = $row->days_continue;
-                $vit->days_continue_discount = $row->days_continue_discount;
-                $vit->active = $row->active;
-                $vit->status = $row->status;
-                $vit->print = $row->print;
-                $vit->user_id = Auth::user()->id;
-                $vit->save();
-            }
         }
 
         //Copiamos products:
-        if($budget->modality == config('constants.BUDGET_CATALOGUE_MODALITY_')){
-            $products = BudgetProducts::where('budget_id', $originalId)->get();
-            foreach($products as $row){
-                $vp = new BudgetProducts();
-                $vp->budget_id = $version->id;
-                $vp->product_id = $row->product_id;
-                $vp->price = $row->price;
-                $vp->qty = $row->qty;
-                $vp->observations = $row->observations;
-                $vp->save();
-            }
+        $items = Item::where('budget_order_id', $shared->id)->get();
+        foreach($items as $row){
+            $blockId = isset($arrBlockId[$row->budget_form_block_id])? $arrBlockId[$row->budget_form_block_id]:$row->budget_form_block_id;
+
+            $vit = new Item();
+            $vit->product_id = $row->product_id? $row->product_id:NULL;
+            $vit->budget_order_id = $shared_v->id;
+            $vit->budget_form_block_id = $blockId;
+            $vit->budget_form_item_id = $row->budget_form_item_id;
+            $vit->concept = $row->concept;
+            $vit->observations = $row->observations;
+            $vit->qty = $row->qty;
+            $vit->price = $row->price;
+            $vit->item_no_price = $row->item_no_price;
+            $vit->iva = $row->iva;
+            $vit->discount = $row->discount;
+            $vit->calculated_by_percent = $row->calculated_by_percent;
+            $vit->days = $row->days;
+            $vit->days_continue = $row->days_continue;
+            $vit->days_continue_discount = $row->days_continue_discount;
+            $vit->active = $row->active;
+            $vit->status = $row->status;
+            $vit->print = $row->print;
+            $vit->user_id = Auth::user()->id;
+            $vit->save();
         }
+
+
+        // if($budget->modality == config('constants.BUDGET_CATALOGUE_MODALITY_')){
+        //     $products = BudgetProducts::where('budget_id', $originalId)->get();
+        //     foreach($products as $row){
+        //         $vp = new BudgetProducts();
+        //         $vp->budget_id = $version->id;
+        //         $vp->product_id = $row->product_id;
+        //         $vp->price = $row->price;
+        //         $vp->qty = $row->qty;
+        //         $vp->observations = $row->observations;
+        //         $vp->save();
+        //     }
+        // }
 
         $msg = trans('textos.presupuesto_versionado');
         return redirect()->route('budgets.edit', $version->id)->with(compact('msg')); 

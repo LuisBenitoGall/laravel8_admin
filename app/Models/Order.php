@@ -7,12 +7,23 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Order extends Model{
+    /**
+     * 1. Documentos del pedido.
+     */
+    
     use HasFactory;
     use SoftDeletes;
     
     protected $table = 'orders'; 
 
     protected $dates = ['deleted_at'];
+
+    /**
+     * 1. Documentos del pedido.
+     */
+    public function docs(){
+        return $this->hasMany(OrderDocs::class);
+    }
 
     /**
      * 4. Pedidos por agrupación.

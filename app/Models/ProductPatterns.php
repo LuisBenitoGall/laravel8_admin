@@ -8,9 +8,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ProductPatterns extends Model{
     use HasFactory;
-    use SoftDeletes; //Implementamos borrado lógico
+    use SoftDeletes; 
 
-    protected $dates = ['deleted_at']; //Columna de borrado lógico  
+    protected $dates = ['deleted_at']; 
 
     protected $table = 'product_patterns';
 }

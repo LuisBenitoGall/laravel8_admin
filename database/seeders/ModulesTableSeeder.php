@@ -215,6 +215,16 @@ class ModulesTableSeeder extends Seeder{
             'translations' => serialize(['es' => 'Concursos']),
             'status' => 0,
             'active' => true
+            ],
+            ['name' => 'procedures',
+            'slug' => 'procedures',
+            'label' => 'procedimientos',
+            'color' => '#e0e610',
+            'icon' => 'sitemap',
+            'level' => '3',
+            'translations' => serialize(['es' => 'Procedimientos']),
+            'status' => 0,
+            'active' => true
             ]           
         ];
 

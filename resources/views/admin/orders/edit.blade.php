@@ -5,6 +5,7 @@
 <div class="row mb-3">
 	{{-- Acciones: --}}
 	<div class="col-12">
+		{{-- Listado pedidos --}}
 		@can('orders.index')
 			<a href="{{ route('orders.index') }}" class="btn btn-info">
 				<i class="fa fa-angle-left"></i>
@@ -176,7 +177,7 @@
 		{{-- Facturar - condiciones: 
 			1. Disponer de permisos para generar facturas.
 			2. Estar activo el módulo de contabilidad.
-			3. Status apto para facturación.
+			3. Status apto para facturación: aprobado (10), entregado (40), finalizado (70)
 		--}}
 		@can('invoices.create')
 			@if($module_accounting && in_array($order->status, config('constants.ORDER_STATUS_INVOICED_')))
@@ -297,6 +298,10 @@ if($shared->provider_team){
 			  			<a class="nav-link @if($tab == 'items') active @endif" href="#tab-items" role="tab" data-toggle="tab">Items</a>	
 			  		</li>
 
+			  		<li class="nav-item @if($tab == 'docs') active @endif">
+			  			<a class="nav-link @if($tab == 'docs') active @endif" href="#tab-docs" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.documentos')) !!}</a>	
+			  		</li>
+
 			  		@if(count($project_purchases))
 			  			<li class="nav-item @if($tab == 'projects') active @endif">
 			  				<a class="nav-link @if($tab == 'projects') active @endif" href="#tab-projects" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.proyectos_compra')) !!}</a>	
@@ -305,19 +310,24 @@ if($shared->provider_team){
 			  	</ul>
 
 			  	<div class="tab-content pt-4">
-					{{-- Cabecera: --}}
+					{{-- Cabecera --}}
 					<div class="tab-pane fade @if(!$tab) show active @endif" role="tabpanel" id="tab-info">
 						@include('admin.orders.partials.order-info')	
 					</div>
 
-					{{-- Equipos: --}}
+					{{-- Equipos --}}
 					<div class="tab-pane fade @if($tab == 'teams') show active @endif" role="tabpanel" id="tab-teams">
 						@include('admin.orders.partials.order-teams')	
 					</div>
 
-					{{-- Items: --}}
+					{{-- Items --}}
 					<div class="tab-pane fade @if($tab == 'items') show active @endif" role="tabpanel" id="tab-items">
 						@include('admin.orders.partials.order-items')	
+					</div>
+
+					{{-- Documentos --}}
+					<div class="tab-pane fade @if($tab == 'docs') show active @endif" role="tabpanel" id="tab-docs">
+						@include('admin.orders.partials.order-docs')	
 					</div>
 
 					{{-- Proyectos de la compra --}}
@@ -402,66 +412,10 @@ if($shared->provider_team){
 @endif
 
 {{-- Add member customer --}}
-<div class="modal fade modal-add-member" id="modal-add-member" tabindex="-1" role="dialog" aria-labelledby="addMember" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title" id="addMember">{!! ucfirst(trans('textos.miembro_add')) !!}</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-
-            <div class="modal-body">
-            	<form method="post" autocomplete="off" action="{{ route('budget-orders.add-member', $shared) }}" id="frmSaveChangeRound" accept-charset="utf-8" enctype="multipart/form-data" role="form">
-                    {{ csrf_field() }}
-                    <input type="hidden" name="environment" id="myEnvironment">
-
-                    <div class="form-group row">
-                    	{{-- Usuario --}}
-                    	<label for="member" class="col-12">{{ ucfirst(trans('textos.usuario')) }}</label>
-                    	<div class="col-12">
-                    		<x-select name="member" id="member_id" class="select2" label="usuario_selec" :options="[]"/>
-                    	</div>
-                    </div>
-                    
-                    <x-btn-submit name="submit_member" label="{{ trans('textos.guardar') }}"/>
-                </form>   
-            </div>
-        </div>
-    </div>
-</div>
+@include('admin.orders.partials.modal-add-member-customer')
 
 {{-- Add member provider --}}
-<div class="modal fade modal-add-member" id="modal-add-member-provider" tabindex="-1" role="dialog" aria-labelledby="addMember" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title" id="addMember">{!! ucfirst(trans('textos.miembro_add')) !!}</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-
-            <div class="modal-body">
-            	<form method="post" autocomplete="off" action="{{ route('budget-orders.add-member', $shared) }}" id="frmSaveChangeRound" accept-charset="utf-8" enctype="multipart/form-data" role="form">
-                    {{ csrf_field() }}
-                    <input type="hidden" name="environment" id="myEnvironment">
-
-                    <div class="form-group row">
-                    	{{-- Usuario --}}
-                    	<label for="member" class="col-12">{{ ucfirst(trans('textos.usuario')) }}</label>
-                    	<div class="col-12">
-                    		<x-select name="member" id="member_id" class="select2" label="usuario_selec" :options="[]"/>
-                    	</div>
-                    </div>
-                    
-                    <x-btn-submit name="submit_member" label="{{ trans('textos.guardar') }}"/>
-                </form>   
-            </div>
-        </div>
-    </div>
-</div>
+@include('admin.orders.partials.modal-add-member-provider')
 
 {{-- Add item --}}
 @include('admin.budget_order_shared_fields.partials.modal-add-item', ['environment_' => 'orders', 'modality' => false])
@@ -477,6 +431,8 @@ if($shared->provider_team){
 
 {{-- Generate invoice --}}
 @php
+$next_prevision = false;
+
 foreach($previsions as $prev_){
 	if($prev_->invoiced == 0){
 		$next_prevision = $prev_;
@@ -579,7 +535,6 @@ $(function(){
             }
         }); 
     });
-    
 });
 </script>
 @endpush

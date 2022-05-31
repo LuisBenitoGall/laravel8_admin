@@ -147,9 +147,11 @@ class BudgetFormsController extends Controller{
         ->pluck('product_id')
         ->toArray();
 
-        //Sólo los productos que no pertenezcan al formulario.
+        //Sólo los productos que no pertenezcan al formulario, activos y en venta.
         $products = Product::select('id', 'name', 'translations', 'price')
         ->where('company_id', session('currentCompany'))
+        ->where('status', 1)
+        ->where('on_sale', 1)
         ->whereNotIn('id', $products_in)
         ->orderBy('name', 'ASC')
         ->get();

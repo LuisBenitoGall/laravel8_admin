@@ -149,6 +149,14 @@
 				"setted" : false
 			},
 			{
+				"suboption" : "archivos",
+				"label" : "archivos",
+				"url": "files.index",
+				"slug" : "files",
+				"permission" : "files.index",
+				"setted" : false
+			},
+			{
 				"suboption" : "clientes",
 				"label" : "clientes",
 				"url": "customers.index",

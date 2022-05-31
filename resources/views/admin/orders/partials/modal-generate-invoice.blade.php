@@ -15,6 +15,13 @@
 
                     <p class="text-warning">{{ trans('textos.factura_generar_aviso') }}</p>
 
+                    {{-- Importe pendiente de facturar --}}
+                    @php
+                    $invoiced_ = $invoiced? $invoiced->invoiced_amount:'0';
+                    @endphp
+
+                    <p>{{ trans('textos.pendiente_facturar') }} <b>{{ $order_amount - $invoiced_}}{{ $currency->symbol }}</b></p>
+
                     <div class="form-group row mt-4">
                     	<div class="col-12">
                     		{{-- Factura íntegra --}}
@@ -53,6 +60,14 @@
 			            	<div class="col-12">
 			                	<span class="invalid-feedback" role="alert">
 			                  		<strong>{{ $errors->first('advance_amount') }}</strong>
+			                	</span>
+			                </div>
+			            @endif
+
+			            @if($errors->has('advance_percent'))
+			            	<div class="col-12">
+			                	<span class="invalid-feedback" role="alert">
+			                  		<strong>{{ $errors->first('advance_percent') }}</strong>
 			                	</span>
 			                </div>
 			            @endif

@@ -242,6 +242,7 @@ $statusBudgetLinesNoPrice = App\Helpers\Helpers::statusBudgetLinesWithoutPrice()
                     {{-- Componemos previamente el html --}}
                     @php
                     $block_title = 0;
+                    $first_item = true;
                     
                     //Calculamos el importe total a partir de las líneas con precio fijo, sin considerar las líneas con importe porcentual
                     $amountWithoutPercentItems = 0;
@@ -279,9 +280,20 @@ $statusBudgetLinesNoPrice = App\Helpers\Helpers::statusBudgetLinesWithoutPrice()
                                     {{-- Concepto: --}}
                                     {{ $is->concept }}
                                 </h5>
+
                                 <div class="row">
                                     {{-- Controles --}}
                                     <div class="col-1 sinpadding-right">
+                                        {{-- Orden --}}
+                                        <span class="order-item mr-2" rel="tooltip" title="{{ ucfirst(trans('textos.ordenar')) }}">
+                                            {{-- Subir --}}
+                                            @if(!$first_item)
+                                                <a class="up" wire:click="itemUp({{ $is }})"><i class="fa fa-caret-up"></i></a>
+                                            @endif
+                                            {{-- Bajar --}}
+                                            <a class="down" wire:click="itemDown({{ $is }})"><i class="fa fa-caret-down"></i></a>
+                                        </span>
+
                                         {{-- 27/12/21: Incluir condicional para que la edición de items sólo sea posible si el pedido no ha sido facturado al 100% --}}
 
                                         {{-- Editar:  
@@ -382,6 +394,7 @@ $statusBudgetLinesNoPrice = App\Helpers\Helpers::statusBudgetLinesWithoutPrice()
 
                             @php
                             $block_title++;
+                            $first_item = false;
                             @endphp
                         @endif
                     @endforeach

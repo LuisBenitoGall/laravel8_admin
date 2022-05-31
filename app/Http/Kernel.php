@@ -116,6 +116,10 @@ class Kernel extends HttpKernel{
 
         'group_get' => \App\Http\Middleware\GroupGetMiddleware::class,
 
+        'invoice_get' => \App\Http\Middleware\InvoiceGetMiddleware::class,
+
+        'invoice_modality' => \App\Http\Middleware\InvoiceModalityMiddleware::class,
+
         'invoice_pattern_get' => \App\Http\Middleware\InvoicePatternGetMiddleware::class,
 
         'ip_access_get' => \App\Http\Middleware\IpAccessGetMiddleware::class,
@@ -130,12 +134,17 @@ class Kernel extends HttpKernel{
         'module_setted' => \App\Http\Middleware\ModuleSettedMiddleware::class,
 
         'order_get' => \App\Http\Middleware\OrderGetMiddleware::class,
+        'order_post' => \App\Http\Middleware\OrderPostMiddleware::class,
 
         'order_groups_get' => \App\Http\Middleware\OrderGroupsGetMiddleware::class,
 
         'order_pattern_get' => \App\Http\Middleware\OrderPatternGetMiddleware::class,
 
         'phone_get' => \App\Http\Middleware\PhoneGetMiddleware::class,
+
+        'procedure_get' => \App\Http\Middleware\ProcedureGetMiddleware::class,
+
+        'procedure_pattern_get' => \App\Http\Middleware\ProcedurePatternGetMiddleware::class,
 
         'product_get' => \App\Http\Middleware\ProductGetMiddleware::class,
 
@@ -160,6 +169,11 @@ class Kernel extends HttpKernel{
         'role_get' => \App\Http\Middleware\RoleGetMiddleware::class,
 
         'shipment_pattern_get' => \App\Http\Middleware\ShipmentPatternGetMiddleware::class,
+
+        'staff_pick_candidates_get' => \App\Http\Middleware\StaffPickCandidatesGetMiddleware::class,
+        'staff_pick_candidates_post' => \App\Http\Middleware\StaffPickCandidatesPostMiddleware::class,
+
+        'staff_pick_get' => \App\Http\Middleware\StaffPickGetMiddleware::class,
 
         'super_admin_validate' => \App\Http\Middleware\SuperAdminValidateMiddleware::class,
 

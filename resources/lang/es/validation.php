@@ -78,7 +78,7 @@ return [
     ],
     'max' => [
         'numeric' => 'El :attribute no puede ser superior a :max.',
-        'file' => 'The :attribute may not be greater than :max kilobytes.',
+        'file' => 'La :attribute no puede superar :max kilobytes.',
         'string' => 'The :attribute may not be greater than :max characters.',
         'array' => 'The :attribute may not have more than :max items.',
     ],

@@ -13,6 +13,7 @@ use Illuminate\Support\Str;
 
 //Models:
 use App\Models\BudgetFormItems;
+use App\Models\Product;
 
 class BudgetFormItemsController extends Controller{
     /**
@@ -129,6 +130,12 @@ class BudgetFormItemsController extends Controller{
         $item->qty_min = $request->qty_min;
         $item->calculated_by_percent = $request->calculated_by_percent? $request->calculated_by_percent:NULL;
         $item->save();
+
+        //Actualizamos precio en catálogo:
+        if($request->price_ > 0){
+            Product::where('id', $request->product_id)
+            ->update(['price' => $request->price_]);
+        }
     
         $msg = trans('textos.bloque_creado_ok');
         $tab = $request->input('recid') == 0? 'blocks':'items';

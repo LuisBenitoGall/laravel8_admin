@@ -98,6 +98,9 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     //InvoicePatterns:
     Route::get('invoice-patterns', 'InvoicePatternsController@getPatternsDT');
 
+    //Invoices:
+    Route::get('invoices/{year?}/{customer?}/{provider?}', 'InvoiceController@getInvoicesDT');
+
     //Invoice Settings:
     Route::get('invoice-settings', 'InvoiceSettingsController@getTemplatesDT');
     
@@ -131,6 +134,12 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
 
     //Permissions:
     Route::get('permissions', 'PermissionController@getPermissionsDT');
+
+    //ProcedurePatterns:
+    Route::get('procedure-patterns', 'ProcedurePatternsController@getPatternsDT');
+
+    //Procedures:
+    Route::get('procedures', 'ProcedureController@getProceduresDT');
 
     //ProductPatterns:
     Route::get('product-patterns', 'ProductPatternsController@getPatternsDT');
@@ -176,6 +185,9 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
 
     //ShipmentPatterns:
     Route::get('shipment-patterns', 'ShipmentPatternsController@getPatternsDT');
+
+    //StaffPickCandidates:
+    Route::get('staff-pick-candidates/{process}', 'StaffPickCandidatesController@getCandidatesDT');
 
     //StaffPicks:
     Route::get('staff-picks', 'StaffPickController@getProcessesDT');

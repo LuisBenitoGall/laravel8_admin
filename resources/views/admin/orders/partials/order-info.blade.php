@@ -39,7 +39,7 @@ $read_only_provider = $shared->customer_id == session('currentCompany')? true:fa
 					@else
 						{{ $order->id }}
 					@endif
-					</u></b></label>
+				</u></b></label>
 			@endif
 
 			{{-- Reset de número: 

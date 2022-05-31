@@ -2,6 +2,8 @@
 
 @section('content')
 
+<input type="hidden" id="dtController" value="invoices">
+
 {{-- Filtros --}}
 <div class="row mb-3">
 	<div class="col-12">						
@@ -50,16 +52,68 @@
 	</div>
 </div>
 
-{{-- Tabla --}}
-<div class="row">
-	<div class="col-12 mb-3">
-		<h3></h3>
+@if($customer || $provider)
+	<input type="hidden" id="myCustomer" value="@if($customer){{ $customer->id }}@endif">
+	<input type="hidden" id="myProvider" value="@if($provider){{ $provider->id }}@endif">
+	<input type="hidden" id="myYear" value="{{ $year }}">
+
+	@php
+	$totalInvoicesAmount = false;
+	@endphp
+
+	{{-- Tabla --}}
+	<div class="row">
+		<div class="col-12 mb-3">
+			<h3>
+				@if($customer && $provider)
+					{!! trans('textos.facturas_de') !!} 
+					<b>{{ $provider->name }}</b> 
+					{!! trans('textos.a') !!} 
+					<b>{{ $customer->name }}</b>
+				@endif
+			</h3>
+		</div>
+
+		<div class="table-responsive">
+			<table class="table table-hover dtabla" id="tblInvoices">
+				<thead>
+					<tr>
+						<th class="text-center wdt50">#</th>
+						<th class="text-center wdt150">{!! ucfirst(trans('textos.cliente')) !!}</th>
+						<th class="text-center wdt100">{!! ucfirst(trans('textos.responsable')) !!}</th>
+						<th class="text-center wdt50">{!! ucfirst(trans('textos.fecha')) !!}</th>
+						<th class="text-center wdt100">{!! ucfirst(trans('textos.fecha_vencimiento')) !!}</th>
+						<th class="text-center wdt100">{!! trans('textos.importe') !!}</th>
+						<th class="wdt100">{!! trans('textos.mes') !!}</th>
+						<th class="wdt100">{!! trans('textos.estado') !!}</th>
+						<th class="text-center wdt100">{!! ucfirst(trans('textos.acciones')) !!}</th>
+					</tr>
+				</thead>
+
+
+				<tfoot>
+					<tr>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td class="text-right"><b>{{ trans('textos.total') }}</b></td>
+						<td class="text-right">{{ $totalInvoicesAmount }}@if(isset($currency)){{ $currency->symbol }}@endif</td>
+						<td></td>
+						<td></td>
+						<td></td>
+					</tr>	
+				</tfoot>
+			</table>
+		</div>
 	</div>
 
-	<div class="table-responsive">
-
-
-	</div>
-</div>
+@else
+	<div class="row">
+		<div class="col-12 text-center pt-4">
+			<h2>{!! trans('textos.filtra_facturas') !!}.</h2>
+		</div>
+	</div>	
+@endif
 
 @endsection

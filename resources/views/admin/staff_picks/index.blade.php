@@ -5,7 +5,7 @@
 <div class="row mb-3">
 	<div class="col-12">
 		{{-- Acciones: --}}
-		@can('teams.create')
+		@can('staff-pick.create')
     		<a href="{{ route('staff-pick.create') }}" class="btn btn-info">
     			<i class="fa fa-plus"></i>
     			{!! ucfirst(trans('textos.proceso_nuevo')) !!}

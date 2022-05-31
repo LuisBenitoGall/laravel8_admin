@@ -24,6 +24,12 @@
 						<label for="name" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.contenido_nombre')) !!}*</label>
 						<div class="col-lg-10">
 							<x-input type="text" name="name" id="name" placeholder="{!! ucfirst(trans('textos.contenido_nombre')) !!}" autocomplete="off" maxlength="150" required warning="contenido_nombre_explain"/>
+
+							@if($errors->has('code'))
+                                <span class="invalid-feedback" role="alert">
+                                  	<strong>{{ $errors->first('code') }}</strong>
+                                </span>
+                            @endif
 						</div>
 					</div>
 

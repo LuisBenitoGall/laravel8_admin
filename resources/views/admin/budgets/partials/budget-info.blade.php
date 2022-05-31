@@ -266,17 +266,21 @@
 		{{-- Cliente final --}}
 		<label for="final_customer_id" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.cliente_final')) !!}</label>
 		<div class="col-lg-4">
-			@php
-			$final_customers_ = [];
-			@endphp
-
-			@foreach($final_customers as $fc)
+			@if($final_customers->count())
 				@php
-				$final_customers_[$fc->id] = $fc->name;
-				@endphp	
-			@endforeach
+				$final_customers_ = [];
+				@endphp
 
-			<x-select name="final_customer_id" class="select2" :options="$final_customers_" label="cliente_selec" value="{{ $shared->final_customer_id }}"/>
+				@foreach($final_customers as $fc)
+					@php
+					$final_customers_[$fc->id] = $fc->name;
+					@endphp	
+				@endforeach
+
+				<x-select name="final_customer_id" class="select2" :options="$final_customers_" label="cliente_selec" value="{{ $shared->final_customer_id }}"/>
+			@else
+				<p class="text-warning pt-2">{!! trans('textos.cliente_final_no_encontrados') !!}</p>
+			@endif
 		</div>
 	</div>
 

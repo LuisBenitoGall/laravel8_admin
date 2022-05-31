@@ -1071,7 +1071,10 @@ $(document).ready(function(){
 
         var tableCompanies = $('#tblCompanies').DataTable({
             "serverSide": true,
-            /*"processing": true,*/
+            "processing": true,
+            "language": {
+                processing: '<i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading..n.</span>'
+            },
             "ajax": {
                 "type": "GET",
                 "url": "/api/admin/companies",
@@ -2460,6 +2463,168 @@ $(document).ready(function(){
         });
     }
 
+    //Tabla Invoices:
+    if($('#tblInvoices').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        var customer = $('#myCustomer').val() != ''? $('#myCustomer').val():'0';
+        var provider = $('#myProvider').val() != ''? $('#myProvider').val():'0'; 
+        var year = $('#myYear').val();
+        var orderId = $('#orderId').val();
+        var poId = $('#poId').val();        //by purchase order.
+
+        //Filters:
+        $('#tblInvoices thead tr').clone(true).appendTo('#tblInvoices thead');
+        $('#tblInvoices thead tr:eq(1) th').each(function(i){
+            var title = $(this).text();
+            if(i == 8){
+                $(this).html('');
+            }else{
+                $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
+            }
+     
+            $('input', this).on('keyup change', function(){
+                if(tableInvoices.column(i).search() !== this.value){
+                    tableInvoices
+                        .column(i)
+                        .search(this.value)
+                        .draw();
+                }
+            });
+        });
+
+        var api_route = 'invoices/'+year+'/'+customer+'/'+provider;
+        if(orderId){
+            api_route = 'invoices-by-order/'+orderId;
+        }else if(poId){
+            api_route = 'invoices-by-purchase/'+poId;
+        }
+        
+        $('#tblInvoices').DataTable({
+            "order": [[ 3, "desc" ]],
+            "serverSide": false,
+            /*"processing": true,*/
+            drawCallback: function(){
+                $('.select2-dt').select2();
+            },
+            "ajax": {
+                "type": "GET",
+                "url": "/api/admin/"+api_route,
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            "columns": [
+                {data: 'invoice_num', className: 'text-right'},
+                {data: 'name'},
+                {data: 'id'},
+                {data: 'fechaFactura', className: 'text-right'},
+                {data: 'fechaVencimiento', className: 'text-right'},
+                {data: 'amount', className: 'text-right'},
+                {data: 'month'},
+                //{data: 'workplace'},
+                {data: 'estado'},
+                {data: 'id', className: 'text-right'}
+            ],
+            "columnDefs": [
+                {"targets": 0,
+                "render": function(data, type, row){
+                    var num = row['invoice_num']? row['invoice_num']:row['id'];
+                    var ninvoice = '<a target="_blank" href="/admin/invoices/'+row['id']+'/edit">'+num+'</a>';
+
+                    return ninvoice;
+                }
+                },
+                {"targets": 2,
+                "render": function(data, type, row){
+                    return row['Nombre']+' '+row['surname'];
+                }
+                },    
+                {"targets": 3,
+                "render": function(data, type, row){
+                    return '<span style="display: none">'+row['fiscal_date']+'</span>'+row['fechaFactura'];
+                }
+                },
+                {"targets": 5,
+                "render": function(data, type, row){
+                    return row['amount']+''+row['currency'];
+                }
+                },   
+                {"targets": -2,
+                "render": function(data, type, row){
+                    return '<span class="xoption-'+row['id']+'">'+row['estado']+'</span>'; 
+                }
+                }, 
+                {"targets": -1,
+                "render": function(data, type, row){
+                    //Estado múltiple:
+                    //1. Dispone de los permisos.
+                    //2. No se encuentra bloqueada.
+                    var estado = '';
+                    if(row['editar'] && row['blocked'] == '0'){
+                        estado += multipleStatus(row['estados'], row['status'], row['id']);
+                    }
+
+                    //Editar:
+                    var editar = '';
+                    if(row['editar']){
+                        editar += '<a href="/admin/invoices/'+row['id']+'/edit" class="btn btn-xs btn-info" rel="tooltip" title="'+txtEditar+'"><i class="fa fa-edit"></i></a>';
+                    }
+
+                    //Eliminar:
+                    //1. Si dispone de los permisos.
+                    //2. En estado pendiente.
+                    //3. Si no está bloqueada.
+                    var eliminar = '';
+                    if(row['eliminar'] && row['status'] == 1 && row['blocked'] == '0'){
+                        eliminar += '<form method="POST" action="/admin/invoices/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
+                            eliminar += '<input name="_method" type="hidden" value="DELETE">';
+                            eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
+                            eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtEliminar+'" data-msg="'+txtFacturaConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
+                        eliminar += '</form>';
+                    }
+
+                    return estado+' '+editar+' '+eliminar;
+                }
+                }
+            ],
+            "footerCallback": function(row, data, start, end, display){
+                if(typeof year != 'undefined'){
+                    var api = this.api(), data;
+
+                    var currency = false;
+                    var refund = false;
+                    api.rows().every(function(){
+                        var data = this.data();
+                        if(!currency){
+                            currency = data.currency;
+                        }
+                    });
+     
+                    // Remove the formatting to get integer data for summation
+                    var intVal = function(i){
+                        //console.log(i);
+                        return typeof i === 'string'? 
+                        i.replace(/[\'+currency+',]/g, '')*1 :
+                        typeof i === 'number' ?
+                            i : 0;
+                    };
+     
+                    //Total por filtro aplicado:
+                    total_amount = api
+                    .column(5, { search: 'applied' })
+                    .data()
+                    .reduce(function(a, b){
+                        return intVal(a) + intVal(b);
+                    }, 0);
+
+                    $(api.column(5).footer()).html(
+                        total_amount.toFixed(2)+currency    
+                    );
+                }
+            }
+        });
+    }
+
     //Tabla IP Access:
     if($('#tblIpAccess').length > 0){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
@@ -3257,7 +3422,7 @@ $(document).ready(function(){
         
         var tableOrders = $('#tblOrders').DataTable({
             "order": [[ 0, "desc" ]],
-            "serverSide": true,
+            "serverSide": false,
             //"processing": true,
             drawCallback: function(){
                 $('.select2-dt').select2();
@@ -3424,6 +3589,125 @@ $(document).ready(function(){
         });
     }
 
+    //Tabla Procedure Patterns:
+    if($('#tblProcedurePatterns').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        
+        $('#tblProcedurePatterns').DataTable({
+            "serverSide": true,
+            /*"processing": true,*/
+            "ajax": {
+                "type": "GET",
+                "url": "/api/admin/procedure-patterns",
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            "columns": [
+                {data: 'name', className: 'capitalize'},
+                {data: 'patron'},
+                {data: 'alta', className: 'text-right'},
+                {data: 'id', className: 'text-right'}
+            ],
+            "columnDefs": [
+                {"targets": -1,
+                "render": function(data, type, row){
+                    //Estado:
+                    if(row['editar']){
+                        var checked = (row['status'] == 1)? 'checked':'';
+                        estado = '<label class="custom-chk-rdb" rel="tooltip" title="'+txtOnOff+'">';
+                            estado += '<input type="checkbox" name="status" '+checked+' ><span class="chk chk-action" data-id="'+row['id']+'" data-ctrl="procedure-patterns/status"></span>';
+                        estado += '</label>';
+                    }
+
+                    //Editar:
+                    var editar = '';
+                    if(row['editar']){
+                        editar = '<a href="procedure-patterns/'+row['id']+'/edit" class="btn btn-xs btn-info" rel="tooltip" title="'+txtEditar+'"><i class="fa fa-edit"></i></a>';
+                    }
+
+                    //Eliminar:
+                    var eliminar = '';
+                    if(row['eliminar']){
+                        eliminar = '<form method="POST" action="procedure-patterns/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
+                            eliminar += '<input name="_method" type="hidden" value="DELETE">';
+                            eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
+                            eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtEliminar+'" data-msg="'+txtPatronProcedimientoConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
+                        eliminar += '</form>';
+                    }
+
+                    return estado+' '+editar+' '+eliminar;
+                }
+                }
+            ]
+        });
+    }
+
+    //Tabla Procedures:
+    if($('#tblProcedures').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+
+        $('#tblProcedures').DataTable({
+            "serverSide": true,
+            /*"processing": true,*/
+            "ajax": {
+                "type": "GET",
+                "url": "/api/admin/procedures",
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            "columns": [
+                {data: 'procedure_num', className: 'capitalize'},
+                {data: 'name'},
+                {data: 'alta', className: 'text-right'},
+                {data: 'last_revision', className: 'text-right'},
+                {data: 'id'},
+                {data: 'id', className: 'text-right'}
+            ],
+            "columnDefs": [
+                {"targets": 4,
+                "render": function(data, type, row){
+                    return row['nombre']+' '+row['surname'];
+                }
+                },
+                {"targets": -1,
+                "render": function(data, type, row){
+                    //Estado:
+                    var estado = '';
+                    // if(row['editar']){
+                    //     var checked = (row['status'] == 1)? 'checked':'';
+                    //     estado = '<label class="custom-chk-rdb" rel="tooltip" title="'+txtOnOff+'">';
+                    //         estado += '<input type="checkbox" name="status" '+checked+' ><span class="chk chk-action" data-id="'+row['id']+'" data-ctrl="procedures/status"></span>';
+                    //     estado += '</label>';
+                    // }
+
+                    //Imprimir:
+                    var print = '<a target="_blank" href="/admin/procedure-revisions/'+row['revisionId']+'/print" class="btn btn-xs btn-info"><i class="fa fa-print" rel="tooltip" title="'+txtDocumentoVer+'"></i></a>';
+
+                    //Editar:
+                    var editar = '';
+                    if(row['editar']){
+                        editar = '<a href="procedures/'+row['id']+'/edit" class="btn btn-xs btn-info" rel="tooltip" title="'+txtEditar+'"><i class="fa fa-edit"></i></a>';
+                    }
+
+                    //Eliminar:
+                    var eliminar = '';
+                    if(row['eliminar']){
+                        eliminar = '<form method="POST" action="procedures/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
+                            eliminar += '<input name="_method" type="hidden" value="DELETE">';
+                            eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
+                            eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtEliminar+'" data-msg="'+txtProcedimientoConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
+                        eliminar += '</form>';
+                    }
+
+                    return estado+' '+print+' '+editar+' '+eliminar;
+                }
+                }
+            ]
+        });
+    }
+
     //Tabla Product Patterns:
     if($('#tblProductPatterns').length > 0){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
@@ -3484,7 +3768,8 @@ $(document).ready(function(){
         var product_id = $('#productId').val();
         
         $('#tblProductUnits').DataTable({
-            "serverSide": true,
+            "order": [[ 2, "desc" ]],
+            "serverSide": false,
             /*"processing": true,*/
             "ajax": {
                 "type": "GET",
@@ -3502,12 +3787,12 @@ $(document).ready(function(){
                 {"targets": -1,
                 "render": function(data, type, row){
                     //Estado:
-                    var estado = '<span style="display: none">0</span>';
+                    var estado = '<span style="display: none">'+row['selected']+'</span>';
                     if(row['editar']){
-                        var checked = row['selected']? 'checked':'';
-                        estado = '<label class="custom-chk-rdb btnSetProductUnit" rel="tooltip" title="'+txtUnidadAdoptar+'">';
+                        var checked = row['selected'] == 1? 'checked':'';
+                        estado += '<label class="custom-chk-rdb btnSetProductUnit" rel="tooltip" title="'+txtUnidadAdoptar+'">';
                             estado += '<input type="checkbox" name="status" '+checked+' ><span class="chk chk-product-unit" data-productid="'+product_id+'" data-unitid="'+row['id']+'"></span>';
-                        estado += '</label><span style="display: none">1</span>';
+                        estado += '</label>';
                     }else{
                         if(row['selected']){
                             estado = '<i class="fa fa-check text-success"></i><span style="display: none">1</span>';
@@ -4381,6 +4666,69 @@ $(document).ready(function(){
         });
     }
 
+    //Tabla Staff Pick Candidates:
+    if($('#tblStaffPickCandidates').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        var process_id = $('#processId').val();
+        
+        $('#tblStaffPickCandidates').DataTable({
+            "serverSide": true,
+            /*"processing": true,*/
+            "ajax": {
+                "type": "GET",
+                "url": "/api/admin/staff-pick-candidates/"+process_id,
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            "columns": [
+                {data: 'name', className: 'capitalize'},
+                {data: 'id', className: 'text-center'},
+                {data: 'alta', className: 'text-right'},
+                {data: 'id', className: 'text-right'}
+            ],
+            "columnDefs": [
+                {"targets": 0,
+                "render": function(data, type, row){
+                    return row['name']+' '+row['surname'];
+                }
+                },
+                {"targets": 1,
+                "render": function(data, type, row){
+                    var stars = '<div class="rating">';
+                    for(i=1; i<=5; i++){
+                        var active = i <= row['assessment']? 'active':'';
+                        stars += '<i class="fa fa-star '+active+'"></i>';
+                    }  
+                    stars += '</div>';  
+                    return stars;
+                }
+                },
+                {"targets": -1,
+                "render": function(data, type, row){
+                    var editar = '';
+                    if(row['editar']){
+                        //Editar:
+                        editar = '<a href="/admin/staff-pick-candidates/'+row['id']+'/edit" class="btn btn-xs btn-info" rel="tooltip" title="'+txtEditar+'"><i class="fa fa-edit"></i></a>';
+                    }
+
+                    //Eliminar:
+                    var eliminar = '';
+                    if(row['editar']){
+                        eliminar = '<form method="POST" action="/admin/staff-pick-candidates/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
+                            eliminar += '<input name="_method" type="hidden" value="DELETE">';
+                            eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
+                            eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtEliminar+'" data-msg="'+txtCandidatoConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
+                        eliminar += '</form>';
+                    }
+
+                    return editar+' '+eliminar;
+                }
+                }
+            ]
+        });
+    }
+
     //Tabla Staff Picks:
     if($('#tblStaffPicks').length > 0){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
@@ -4397,7 +4745,7 @@ $(document).ready(function(){
             },
             "columns": [
                 {data: 'name', className: 'capitalize'},
-                {data: 'published_from', className: 'text-center'},
+                {data: 'published_from', className: 'text-right'},
                 {data: 'published_to', className: 'text-right'},
                 {data: 'id', className: 'text-right'}
             ],
@@ -4418,7 +4766,7 @@ $(document).ready(function(){
                     if(row['editar']){
                         //Estado:
                         var checked = (row['status'] == 1)? 'checked':'';
-                        var estado = '<label class="custom-chk-rdb" rel="tooltip" title="'+txtPatronOnOff+'">';
+                        var estado = '<label class="custom-chk-rdb" rel="tooltip" title="'+txtProcesoOnOff+'">';
                             estado += '<input type="checkbox" name="status" '+checked+'><span class="chk chk-action" data-id="'+row['id']+'" data-ctrl="staff-pick/status"></span>';
                         estado += '</label>';
 
@@ -4429,10 +4777,10 @@ $(document).ready(function(){
                     //Eliminar:
                     var eliminar = '';
                     if(row['eliminar']){
-                        eliminar = '<form method="POST" action="shipment-patterns/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
+                        eliminar = '<form method="POST" action="staff-pick/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
                             eliminar += '<input name="_method" type="hidden" value="DELETE">';
                             eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
-                            eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtEliminar+'" data-msg="'+txtPatronAlbaranConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
+                            eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtEliminar+'" data-msg="'+txtProcesoConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
                         eliminar += '</form>';
                     }
 
