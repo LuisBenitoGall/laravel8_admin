@@ -170,6 +170,7 @@ var txtNotificacionConfirmEliminar = "{!! trans("textos.notificacion_confirm_eli
 var txtNotificar = "{!! trans("textos.notificar") !!}";
 var txtNumValidoAviso = "{!! trans("textos.numero_valido_aviso") !!}";
 var txtObservaciones = "{!! ucfirst(trans("textos.observaciones")) !!}";
+var txtObservacionesSin = "{!! ucfirst(trans("textos.observaciones_sin")) !!}";
 var txtOnOff = "{!! ucfirst(trans("textos.activo_inactivo")) !!}";
 var txtOpcionesActivas = "{!! ucfirst(trans("textos.opciones_activas")) !!}";
 var txtOpcionesInactivas = "{!! ucfirst(trans("textos.opciones_inactivas")) !!}";

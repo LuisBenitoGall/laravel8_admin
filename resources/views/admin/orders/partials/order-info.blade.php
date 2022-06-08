@@ -47,7 +47,7 @@ $read_only_provider = $shared->customer_id == session('currentCompany')? true:fa
 				2. Sólo para el original, no para las versiones.  Estas se actualizan si cambia el número del original.
 				3. Exclusivo para proveedor.
 			--}}
-			@if($order->order_num && !$order->recid && $shared->provider_id == session('currentCompany'))
+			@if(!$invoiced && $order->order_num && !$order->recid && $shared->provider_id == session('currentCompany'))
 				<a href="{{ route('orders.reset-num', $order->id) }}" class="ml-3 btn-confirm" rel="tooltip" title="{{ trans('textos.numero_reset') }}" data-msg="{{ trans('textos.numero_reset_confirm') }}">
 					<i class="fa fa-redo"></i>
 				</a>
@@ -61,7 +61,7 @@ $read_only_provider = $shared->customer_id == session('currentCompany')? true:fa
 		</div>
 
 		{{-- Presupuesto --}}
-		@if($budget)
+		{{-- @if($budget)
 			<label class="col-md-3 col-lg-2 col-form-label">{!! ucfirst(trans('textos.presupuesto')) !!}</label>
 			<div class="col-md-3 col-lg-2">
 				<label class="text-warning mt-2"><b><u>@if($budget->budget_num) {{ $budget->budget_num }} @else {{ $budget->id }} @endif</u></b></label>
@@ -73,7 +73,7 @@ $read_only_provider = $shared->customer_id == session('currentCompany')? true:fa
 					<small class="text-warning ml-2">{{ trans('textos.bolsa_pedidos') }}</small>
 				@endif
 			</div>
-		@endif
+		@endif --}}
 	</div>
 
 	<div class="form-group row">
@@ -194,15 +194,19 @@ $read_only_provider = $shared->customer_id == session('currentCompany')? true:fa
 						@foreach($previsions as $prev)
 							@php
 							$totalPercent = $totalPercent + $prev->percent;
+							$disabled = $prev->invoice_id? 'disabled':'';
+							$disabled_ = $prev->invoice_id? true:false;
 							@endphp
 
 							<div class="form-group row prevision">
-								<input type="hidden" name="op_id[]" value="{{ $prev->id }}">
+								@if(!$disabled_)
+									<input type="hidden" name="op_id[]" value="{{ $prev->id }}">
+								@endif
 
 								{{-- Año --}}
 								<label for="year" class="col-md-2 col-lg-1 col-form-label mb-2">{!! ucfirst(trans('textos.any')) !!}</label>
 								<div class="col-md-4 col-lg-2 sinpadding">
-									<select name="year[]" class="form-control select2">
+									<select name="year[]" class="form-control select2" {{ $disabled }}>
 										@for($y=config('constants.MIN_YEAR_'); $y<=(date('Y')+3); $y++)
 											@php
 											$selected = $prev->year == $y? 'selected':date('Y'); 
@@ -226,7 +230,7 @@ $read_only_provider = $shared->customer_id == session('currentCompany')? true:fa
 									$months = App\Helpers\Helpers::yearMonths();
 									@endphp
 
-									<select name="month[]" class="form-control select2">
+									<select name="month[]" class="form-control select2" {{ $disabled }}>
 										@if(!$prev->month)
 											<option value="">{{ trans('textos.mes_selec') }}</option>
 										@else
@@ -253,20 +257,20 @@ $read_only_provider = $shared->customer_id == session('currentCompany')? true:fa
 								<label for="percent" class="col-md-2 col-lg-2 col-form-label">{!! ucfirst(trans('textos.porcentaje')) !!}</label>
 								<div class="col-md-4 col-lg-2 sinpadding">
 									@php
-									$percent = $totalPercent > 100? '':$prev->percent;
+									$percent = round($totalPercent, 2) > 100? '':$prev->percent;
 									@endphp
 
-									<x-input type="text" name="percent[]" class="text-right set-decimals percent" autocomplete="off" maxlength="5" value="{{ $percent }}" group="right" groupvalue="%" required/>
+									<x-input type="text" name="percent[]" class="text-right set-decimals percent" autocomplete="off" maxlength="5" value="{{ $percent }}" group="right" groupvalue="%" required disabled="{{ $disabled_ }}"/>
 
-						            @if($totalPercent > 100)
+						            @if(round($totalPercent, 2) > 100)
 						            	<span class="invalid-feedback" role="alert">
 						                  	<strong>{{ trans('textos.porcentaje_factura_error') }}</strong>
 						                </span>
 						            @endif
 								</div>
 
-								@if($previsions->count() > 1)
-									<div class="col-md-1 col-lg-1 pt-1">
+								@if($previsions->count() > 1 && !$disabled_)
+									<div class="col-md-1 col-lg-1 pt-2">
 										<a href="{{ route('order-prevision.delete', $prev->id) }}" class="btn btn-danger btn-circle btn-circle-mini btn-confirm" rel="tooltip" title="{{ trans('textos.prevision_eliminar') }}" data-msg="{{ trans('textos.prevision_eliminar_aviso') }}">
 											<i class="fa fa-times"></i>
 										</a>

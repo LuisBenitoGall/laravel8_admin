@@ -25,11 +25,19 @@
 						{{-- Nombre agrupación --}}
 						<label for="name" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.agrupacion_pedidos')) !!} *</label>
 						<div class="col-lg-4">
-							<x-input type="text" name="name" autocomplete="off" maxlength="150" required/>
+							<x-input type="text" name="name" autocomplete="off" maxlength="150" required info="order-group-name"/>
 						</div>
 
 						{{-- Selector clientes --}}
 						@include('admin.partials.selector-customer', ['all' => false, 'customer' => false, 'required' => true, 'selected' => ''])
+					</div>
+
+					<div class="form-group row">
+						{{-- Importe de la bolsa --}}
+						<label for="bag_amount" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.importe_bolsa')) !!}</label>
+						<div class="col-lg-2">
+							<x-input type="text" name="bag_amount" class="text-right set-decimals" autocomplete="off" maxlength="15" group="right" groupvalue="{{ $currency->symbol }}" info="order-group-bag"/>
+						</div>
 					</div>
 
 					<x-btn-submit name="submit_save" label="{{ trans('textos.crear') }}"/>

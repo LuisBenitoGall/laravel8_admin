@@ -2,6 +2,19 @@
 
 @section('content')
 
+@php
+//Comprobamos que las líneas de presupuesto tipo formulario pertenezcan a algún bloque:
+$setBlock = true;
+// if($budget->modality == config('constants.BUDGET_FORM_MODALITY_') && $itemsSelected->count() > 0){
+// 	foreach($itemsSelected as $is_){
+// 		if(!$is_->block_id){
+// 			$setBlock = false;
+// 			break;
+// 		}
+// 	}
+// }
+@endphp
+
 <input type="hidden" id="myShared" value="{{ $shared->id }}">
 
 <div class="row mb-3">
@@ -83,6 +96,14 @@
 			@endif
 		@endcan
 
+		{{-- Copiar presupuesto --}}
+		@can('budgets.create')
+			<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-copy">
+				<i class="fa fa-clone"></i>
+				{!! ucfirst(trans('textos.copiar')) !!}
+			</a>
+		@endcan
+
 		{{-- Imprimir --}}
 		<a href="{{ route('budgets.print', $budget->id) }}" class="btn btn-info close-animation" rel="tooltip" title="{!! ucfirst(trans('textos.imprimir')) !!}">
 			<i class="fa fa-print"></i>
@@ -119,7 +140,7 @@
 		@if($module_orders)
 			@can('orders.edit')
 				@if($shared->order_id)
-					<a href="{{ route('orders.edit', $shared->order_id) }}" class="btn btn-info">
+					<a target="_blank" href="{{ route('orders.edit', $shared->order_id) }}" class="btn btn-info">
 						<i class="fa fa-shopping-cart"></i>
 						{!! ucfirst(trans('textos.pedido')) !!}
 					</a>
@@ -164,6 +185,17 @@
 				@endif
 			@endcan
 		@endif
+
+		{{-- Eliminar presupuesto --}}
+		@can('budgets.destroy')
+        	@if($permitted)
+	        	<form method="POST" action="{{ route('budgets.destroy', $budget) }}" class="frm-inline" role="form" accept-charset="UTF-8">
+	                <input name="_method" type="hidden" value="DELETE">
+	                {{ csrf_field() }}
+	                <button type="submit" class="btn btn-danger frm-confirm" rel="tooltip" title="{{ ucfirst(trans('textos.presupuesto_eliminar')) }}" data-msg="{{ ucfirst(trans('textos.presupuesto_confirm_eliminar')) }}"><i class="fa fa-trash"></i></button>
+	            </form>
+	        @endif
+        @endcan
 	</div>
 </div>
 
@@ -225,7 +257,10 @@
 					</label>
 
 					{{-- Descuento aplicado --}}
-					@include('admin.budget_order_shared_fields.partials.data-discount-applied', ['return' => 'budgets'])
+					@php
+					$remove_discount = !$invoiced? true:false;
+					@endphp
+					@include('admin.budget_order_shared_fields.partials.data-discount-applied', ['return' => 'budgets', 'remove_discount' => $remove_discount])
 
 					{{-- Pedido --}}
 					@include('admin.budget_order_shared_fields.partials.link-order')
@@ -298,6 +333,11 @@
 	@include('admin.projects.partials.modal-add-project')
 @endcan
 
+{{-- Copy budget --}}
+@can('budgets.create')
+	@include('admin.budgets.partials.modal-copy')
+@endcan
+
 {{-- Modify customer --}}
 @if(!$order || $order->percentage_invoiced == 0)
 	@include('admin.budget_order_shared_fields.partials.modal-set-customer', ['environment_' => 'budgets'])	
@@ -318,6 +358,11 @@
 {{-- Budget modality --}}
 @if(!$budget->modality)
 	@include('admin.budgets.partials.modal-modality')	
+@endif
+
+{{-- Set items without form block --}}
+@if($blocks)
+	@include('admin.budgets.partials.modal-set-block')
 @endif
 
 @push('scripts')

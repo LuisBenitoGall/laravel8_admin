@@ -29,8 +29,11 @@ use App\Models\Invoice;
 use App\Models\Item;
 use App\Models\Order;
 use App\Models\OrderDocs;
+use App\Models\OrderGroupOrders;
+use App\Models\OrderGroups;
 use App\Models\OrderPatterns;
 use App\Models\OrderPrevisions;
+use App\Models\OrderSettings;
 use App\Models\Product;
 use App\Models\Project;
 use App\Models\ProjectPurchases;
@@ -61,6 +64,7 @@ class OrderController extends Controller{
      * 13. Vincular compra a proyecto.
      * 14. Desvincular compra a proyecto.
      * 15. Activar entrega de pedido.
+     * 16. Actualizar plantilla de pedido.
      */
     
     private $option = 'pedidos';
@@ -324,7 +328,7 @@ class OrderController extends Controller{
 
         $environment = $customer != session('currentCompany')? 'provider':'customer';
 
-        $orders = BudgetOrderSharedFields::select('budget_order_shared_fields.id', 'budget_order_shared_fields.discount', 'orders.id AS orderId', 'orders.name', 'orders.order_num', 'orders.order_old_num', 'orders.estimated_delivery_date', 'orders.purchase_num', 'orders.purchase_old_num', 'orders.delivery_date', 'orders.status', 'orders.percentage_invoiced', 'orders.created_at', 'business_areas.name AS businessArea', 'cost_centers.name AS costCenter', 'budgets.id as budgetId', 'budgets.budget_num', 'order_group_orders.og_id')
+        $orders = BudgetOrderSharedFields::select('budget_order_shared_fields.id', 'budget_order_shared_fields.discount', 'orders.id AS orderId', 'orders.name', 'orders.order_num', 'orders.order_old_num', 'orders.estimated_delivery_date', 'orders.purchase_num', 'orders.purchase_old_num', 'orders.delivery_date', 'orders.status', 'orders.invoiced', 'orders.created_at', 'business_areas.name AS businessArea', 'cost_centers.name AS costCenter', 'budgets.id as budgetId', 'budgets.budget_num', 'order_group_orders.og_id')
         ->join('orders', 'budget_order_shared_fields.order_id', '=', 'orders.id')
         ->leftJoin('business_areas', 'budget_order_shared_fields.customer_business_area_id', '=', 'business_areas.id')
         ->leftJoin('cost_centers', 'budget_order_shared_fields.customer_cost_center_id', '=', 'cost_centers.id')
@@ -567,6 +571,9 @@ class OrderController extends Controller{
             'slug' => 'orders'
         ]; 
 
+        //Cambios bloqueados: establece en función de si el pedido está facturado o no, las opciones que quedan bloqueadas.
+        $permitted = true;
+
         //Patrones de numeración del pedido:
         $patterns = false;
         if(!$order->pattern_id){
@@ -679,9 +686,10 @@ class OrderController extends Controller{
         //Presupuesto:
         $budget = $shared->budget_id? Budget::find($shared->budget_id):false;
 
-        //Importe:
+        //Importe del pedido:
         if($shared->free_amount){
             $order_amount = $shared->free_amount;
+            $order_amount_without_discount = false;
         }else{
             $items = $shared->getBudgetOrderItems();
             $arr_amounts = $shared->getAmount();    
@@ -690,6 +698,18 @@ class OrderController extends Controller{
             $order_amount_without_discount = $arr_amounts['amount_without_discount'];
         } 
 
+        //Agrupaciones de pedidos:
+        $order_groups = OrderGroups::where('provider_id', session('currentCompany'))
+        ->where('customer_id', $shared->customer_id)
+        ->where('status', config('constants.ORDER_GROUPS_OPENED_'))
+        ->get();
+
+        //Pertenencia a agrupación de pedidos:
+        $in_group = OrderGroupOrders::select('order_groups.id', 'order_groups.name', 'order_groups.status')
+        ->join('order_groups', 'order_group_orders.og_id', '=', 'order_groups.id')
+        ->where('order_group_orders.order_id', $order->id)
+        ->first();
+
         //Importe facturado:
         $invoiced = $shared->getInvoicedAmount();
 
@@ -697,9 +717,13 @@ class OrderController extends Controller{
         $invoices = Invoice::select('id', 'amount', 'amount_with_iva')
         ->where('shared_id', $shared->id)
         ->get();
+        if($invoices->count()) $permitted = false;
 
         //Previsiones de facturación del pedido:      
-        $previsions = OrderPrevisions::where('order_id', $order->id)->get();
+        $previsions = OrderPrevisions::where('order_id', $order->id)
+        ->orderBy('year', 'ASC')
+        ->orderBy('month', 'ASC')
+        ->get();
 
         //Productos. Activos y aptos para venta:
         $products = Product::companyProducts($shared->provider_id);
@@ -738,15 +762,27 @@ class OrderController extends Controller{
         ->orderBy('concept', 'ASC')
         ->get();
 
+        //Autor:
+        $author = User::select('name', 'surname')->find($order->created_by);
+
+        //Propietario:
+        $owner = User::select('name', 'surname')->find($shared->provider_manager_id);
+
         //IVA:
         $iva = CompanySettings::co_iva();
 
         $order_type = $shared->customer_id == session('currentCompany')? 'purchase':'sale';
 
-        $languages = $this->languages;
+        //Templates:
+        $templates = false;
+        if($shared->provider_id == session('currentCompany')){
+            $templates = OrderSettings::select('id', 'name', 'featured')
+            ->where('company_id', $shared->provider_id)
+            ->where('status', 1)
+            ->get();
+        }
 
-        //Cambios bloqueados: establece en función de si el pedido está facturado o no, las opciones que quedan bloqueadas.
-        $permitted = true;
+        $languages = $this->languages;
 
         //Módulos activos:
         $module_accounting = $this->settedModule('accounting');
@@ -756,7 +792,7 @@ class OrderController extends Controller{
         $module_projects = $this->settedModule('projects');
         $module_rrhh = $this->settedModule('rrhh');
         
-        return view('admin.orders.edit')->with(compact('header', 'order', 'tab', 'shared', 'patterns', 'purchase_patterns', 'provider', 'provider_managers', 'provider_business_areas', 'provider_cost_centers', 'provider_workplaces', 'default_workplace', 'customer', 'customer_managers', 'customer_business_areas', 'customer_cost_centers', 'customer_workplaces', 'customer_settings', 'confirmed_by', 'customers', 'budget', 'order_amount', 'order_amount_without_discount', 'invoiced', 'invoices', 'previsions', 'products', 'projects', 'project_linked', 'project_purchases', 'deliveries', 'currency', 'items', 'iva', 'order_type', 'languages', 'permitted', 'module_accounting', 'module_budgets', 'module_products', 'module_projects', 'module_rrhh', 'module_logistics'));
+        return view('admin.orders.edit')->with(compact('header', 'order', 'tab', 'shared', 'patterns', 'purchase_patterns', 'provider', 'provider_managers', 'provider_business_areas', 'provider_cost_centers', 'provider_workplaces', 'default_workplace', 'customer', 'customer_managers', 'customer_business_areas', 'customer_cost_centers', 'customer_workplaces', 'customer_settings', 'confirmed_by', 'customers', 'budget', 'order_amount', 'order_amount_without_discount', 'order_groups', 'in_group', 'invoiced', 'invoices', 'previsions', 'products', 'projects', 'project_linked', 'project_purchases', 'deliveries', 'currency', 'items', 'author', 'owner', 'iva', 'order_type', 'templates', 'languages', 'permitted', 'module_accounting', 'module_budgets', 'module_products', 'module_projects', 'module_rrhh', 'module_logistics'));
     }
 
     /**
@@ -851,10 +887,13 @@ class OrderController extends Controller{
                     //Actualizar o...
                     if(isset($request->op_id[$i])){
                         $op = OrderPrevisions::find($request->op_id[$i]);
-                        $op->year = $request->year[$i];
-                        $op->month = $request->month[$i]? $request->month[$i]:NULL;
-                        $op->percent = $request->percent[$i];
-                        $op->save();
+                        //Actualizamos si no se encuentra facturado:
+                        if(!$op->invoice_id){
+                            $op->year = $request->year[$i];
+                            $op->month = $request->month[$i]? $request->month[$i]:NULL;
+                            $op->percent = $request->percent[$i];
+                            $op->save();
+                        }
 
                     //...insertar
                     }else{
@@ -1125,5 +1164,70 @@ class OrderController extends Controller{
 
         $msg = trans('textos.pedido_entrega_activada');
         return redirect()->route('orders.edit', $order)->with(compact('msg'));
+    }
+
+    /**
+     * 16. Actualizar plantilla de pedido.
+     */
+    public function updateTemplate(Request $request, Order $order){
+        $validator = $this->validator($request->all());
+        if($validator->fails()){
+            return redirect('admin/orders/'.$order->id.'/edit/template')
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        //Si viene declarada la plantilla:
+        if($request->template_id){
+            //Plantilla original:
+            if($order->template_id == $request->template_id){
+                $template = [
+                    'conditions' => $request->conditions, 
+                    'payment_method' => $request->payment_method,
+                    'observations' => $request->observations,
+                    'footer_legend' => $request->footer_legend
+                ];
+            }else{
+                //Plantilla original:
+                $orig_template = OrderSettings::find($request->template_id);
+
+                $template = [
+                    'conditions' => $orig_template->conditions, 
+                    'payment_method' => $orig_template->payment_method,
+                    'observations' => $orig_template->observations,
+                    'footer_legend' => $orig_template->footer_legend
+                ];
+            }
+
+        //No viene declarada la plantilla:
+        }else{
+            $template = [
+                'conditions' => $request->conditions, 
+                'payment_method' => $request->payment_method,
+                'observations' => $request->observations,
+                'footer_legend' => $request->footer_legend
+            ];
+        }
+
+        $template = serialize($template);
+
+        $order->template_id = $request->template_id;
+        $order->template = $template;
+        $order->save();
+
+        $msg = trans('textos.pedido_updated');
+        return redirect()->route('orders.edit', [$order->id, 'template'])->with(compact('msg'));
+    } 
+
+    /**
+     * 17. Eliminar plantilla del pedido.
+     */
+    public function removeTemplate(Order $order){
+        $order->template_id = NULL;
+        $order->template = NULL;
+        $order->save();
+
+        $msg = trans('textos.pedido_updated');
+        return redirect()->route('orders.edit', [$order->id, 'template'])->with(compact('msg'));
     }
 }

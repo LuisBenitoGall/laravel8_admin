@@ -9,6 +9,8 @@
 docker-compose.override.yml
 Homestead.json
 Homestead.yaml
+laravel8_admin.sublime-project
+laravel8_admin.sublime-workspace
 npm-debug.log
 yarn-error.log
 /.idea

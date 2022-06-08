@@ -1,6 +1,9 @@
-{{-- Estados de líneas de presupuesto sin importe --}}
 @php
-$statusBudgetLinesNoPrice = App\Helpers\Helpers::statusBudgetLinesWithoutPrice();
+//Estados de líneas de presupuesto sin importe
+$statusBudgetLinesNoPrice = App\Helpers\helpers::statusBudgetLinesWithoutPrice();
+
+//Comprobamos que las líneas de presupuesto tipo formulario pertenezcan a algún bloque:
+$setBlock = 1;
 @endphp
 
 <div class="row">
@@ -35,7 +38,7 @@ $statusBudgetLinesNoPrice = App\Helpers\Helpers::statusBudgetLinesWithoutPrice()
                                         <h4 class="mb-0">
                                             <a data-toggle="collapse" href="#collapse{{ $i }}" aria-expanded="false" aria-controls="collapse{{ $i }}" class="toggle-arrow collapsed">
                                                 <i class="fa fa-caret-down"></i>
-                                                {{ $block->name }}
+                                                {{ ucfirst($block->name) }}
                                             </a>
                                         </h4>
                                     </div>  
@@ -243,6 +246,7 @@ $statusBudgetLinesNoPrice = App\Helpers\Helpers::statusBudgetLinesWithoutPrice()
                     @php
                     $block_title = 0;
                     $first_item = true;
+                    $k = 1;     //Contador para la ordenación de items;
                     
                     //Calculamos el importe total a partir de las líneas con precio fijo, sin considerar las líneas con importe porcentual
                     $amountWithoutPercentItems = 0;
@@ -250,6 +254,20 @@ $statusBudgetLinesNoPrice = App\Helpers\Helpers::statusBudgetLinesWithoutPrice()
                     @endphp
 
                     @foreach($items_selected as $is)
+                        {{-- Seteamos $setBlock si la línea NO pertenece a ningún bloque de formulario --}}
+                        @if(!$is->budget_form_block_id)
+                            @php
+                            $setBlock = '0';
+                            @endphp
+                        @endif
+
+                        {{-- Indicamos orden si no viene declarado --}}
+                        @if(!$is->budget_order)
+                            @php
+                            !$is->budget_order = $k;
+                            @endphp
+                        @endif
+
                         {{-- Líneas de template de presupuesto --}}
                         @if($block->id == $is->budget_form_block_id)
                             @php
@@ -260,7 +278,7 @@ $statusBudgetLinesNoPrice = App\Helpers\Helpers::statusBudgetLinesWithoutPrice()
                             @if($block_title == 1)
                                 <div class="block" data-block="{{ $block->id }}" id="block-{{ $block->id }}">
                                     <h3>
-                                        {{ $block->name }}
+                                        {{ ucfirst($block->name) }}
                                         <span class="block-amount ml-4 text-warning">{{ $amount_by_blocks[$block->id] }}{{ $currency->symbol }}</span>
                                     </h3>
                                 </div>
@@ -395,6 +413,7 @@ $statusBudgetLinesNoPrice = App\Helpers\Helpers::statusBudgetLinesWithoutPrice()
                             @php
                             $block_title++;
                             $first_item = false;
+                            $k++;
                             @endphp
                         @endif
                     @endforeach
@@ -406,6 +425,16 @@ $statusBudgetLinesNoPrice = App\Helpers\Helpers::statusBudgetLinesWithoutPrice()
     <script>
     //Sentencia para poder utilizar JQuery con Livewire:
     document.addEventListener('DOMContentLoaded', function(){
+        //Modal por si existen líneas que no pertenecen a ningún bloque de formulario:
+        var set_block = '{!! $setBlock !!}';
+        if(set_block == '0'){
+            $('#modal-set-block').modal({
+                backdrop: 'static', 
+                keyboard: false,
+                toggle: true
+            });
+        }
+
         //Nuevo item manual:
         $('.btnAddBudgetItem').on('click', function(){
             if($('.btnAddBudgetItem').hasClass('opened')){

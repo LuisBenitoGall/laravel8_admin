@@ -83,8 +83,9 @@ class BudgetItem extends Component{
         //Items del presupuesto:
         $this->items_selected = Item::where('budget_order_id', $this->shared->id)
         ->orderBy('budget_form_block_id', 'ASC')
-        ->orderBy('budget_order', 'ASC')
+        ->orderByRaw('ISNULL(budget_order), budget_order ASC')
         ->get();
+        //->orderBy('budget_order', 'ASC')
 
         //Importe total:
         $arr_amounts = $this->shared->getAmount();
@@ -196,6 +197,8 @@ class BudgetItem extends Component{
      * 3. Añadir item desde bloque.
      */
     public function addItem($item){
+        $this->resetForm();
+
         //Acción del formulario:
         $this->action = 'save';
 

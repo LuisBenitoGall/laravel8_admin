@@ -24183,6 +24183,10 @@ table.table-mail tr td {
   color: #ffffff;
 }
 
+.text-soft {
+  color: #C8C8C8;
+}
+
 .simple_tag {
   background-color: #f3f3f4;
   border: 1px solid #e7eaec;
@@ -29730,6 +29734,8 @@ ul li.rev .fa {
 
 .budget-items {
   margin-top: 15px;
+  max-height: 800px;
+  overflow-y: auto;
 }
 .budget-items .block {
   margin-bottom: 10px;
@@ -30387,4 +30393,53 @@ ul li.rev .fa {
 #galeria {
   position: relative;
   overflow-y: auto;
+}
+
+.switch {
+  display: inline-block;
+  height: 26px;
+  margin-bottom: 0 !important;
+  position: relative;
+  vertical-align: middle;
+  width: 50px;
+}
+.switch input {
+  height: 0;
+  opacity: 0;
+  width: 0;
+}
+.switch input:checked + .slider {
+  background-color: #23c6c8;
+}
+.switch input:focus + .slider {
+  box-shadow: 0 0 1px #23c6c8;
+}
+.switch input:checked + .slider:before {
+  transform: translateX(22px);
+}
+.switch .slider {
+  background-color: #ccc;
+  bottom: 0;
+  cursor: pointer;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  transition: 0.4s;
+}
+.switch .slider:before {
+  background-color: white;
+  bottom: 3px;
+  content: "";
+  height: 20px;
+  left: 4px;
+  position: absolute;
+  transition: 0.4s;
+  width: 20px;
+}
+.switch .slider.round {
+  border-radius: 26px;
+}
+.switch .slider.round:before {
+  border-radius: 50%;
 }

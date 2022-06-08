@@ -3,8 +3,8 @@
 @section('content')
 
 <div class="row mb-3">
+	{{-- Acciones --}}
 	<div class="col-12">
-		{{-- Acciones: --}}
 		<a href="{{ route('users.edit', $user->id) }}" class="btn btn-info">
 			<i class="fa fa-angle-left"></i>
 			{!! trans('textos.volver_editar_usuario') !!}

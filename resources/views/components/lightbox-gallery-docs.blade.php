@@ -46,25 +46,5 @@
 @once
 @push('scripts')
 <script src="{{ asset('js/plugins/blueimp/jquery.blueimp-gallery.min.js') }}"></script>
-
-<script>
-$(function(){
-    // Destacar imagen.
-    $('.btnDestacar').on('click', function(e){
-        e.preventDefault();
-        var este = $(this);
-        var img = $(this).data('img');
-        var product = $(this).data('product');
-        var modulo = $(this).data('modulo');
-
-        if(img && product){
-            $.get("/admin/"+modulo+"/set-featured/"+product+"/"+img, function(response, state){
-                $('.btnDestacar').removeClass('destacado');
-                este.addClass('destacado');
-            });
-        }
-    });    
-});
-</script>
 @endpush
 @endonce

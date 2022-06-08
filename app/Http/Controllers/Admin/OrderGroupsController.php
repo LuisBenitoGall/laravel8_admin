@@ -13,6 +13,7 @@ use File;
 
 //Models:
 use App\Models\Budget;
+use App\Models\BudgetOrderSharedFields;
 use App\Models\Company;
 use App\Models\CompanySettings;
 use App\Models\CustomerProviders;
@@ -33,6 +34,7 @@ class OrderGroupsController extends Controller{
      * 4. Editar agrupación.
      * 5. Actualizar agrupación.
      * 6. Eliminar agrupación.
+     * 7. Actualizar estado de la agrupación.
      */ 
     
     private $option = 'pedidos';
@@ -59,7 +61,8 @@ class OrderGroupsController extends Controller{
         }elseif(isset($data['submit_save'])){
             return Validator::make($data, [
                 'name' => 'required|max:255',
-                'customer_id' => 'required|integer'
+                'customer_id' => 'required|integer',
+                'bag_amount' => 'nullable|numeric'
             ]);
 
         //Validación actualizar:
@@ -147,6 +150,10 @@ class OrderGroupsController extends Controller{
             $strEstados .= $idx.'|'.$est.';';
         }
 
+        //Permisos del usuario:
+        $editar = Auth::user()->can('orders.edit');
+        $eliminar = Auth::user()->can('orders.destroy');
+
         //Ampliación de información de los objetos:
         if($groups){
             //Comprobamos si tiene activo el módulo de contabilidad para poder facturar el pedido:
@@ -156,13 +163,18 @@ class OrderGroupsController extends Controller{
                 $row->alta = $row->created_at->format('d/m/Y');
 
                 //Estado del pedido:
-                $row->estado = $row->status? $row->status.';'.$strEstados:'0;'.$strEstados;
+                $row->estado = $row->status? ucfirst($arrEstados[$row->status]):'';
+                $row->estados = $row->status.';'.$strEstados;
 
                 //Agrupación abierta:
                 $row->opened = $row->status == config('constants.ORDER_GROUPS_OPENED_')? true:false;
 
                 //Facturación de pedido. El pedido debe estar en algún status que permita su facturación:
                 $row->invoice = in_array($row->status, config('constants.ORDER_STATUS_INVOICED_'))? $invoice:false;
+
+                //Permisos para las acciones:
+                $row->editar = $editar;
+                $row->eliminar = $eliminar;
             }  
         }
 
@@ -187,7 +199,10 @@ class OrderGroupsController extends Controller{
             $customers = false;
         }   
 
-        return view('admin.order_groups.create')->with(compact('header', 'customers')); 
+        //Moneda:
+        $currency = CompanySettings::co_currency(0);
+
+        return view('admin.order_groups.create')->with(compact('header', 'customers', 'currency')); 
     }
 
     /**
@@ -205,6 +220,7 @@ class OrderGroupsController extends Controller{
         $group->name = $request->name;
         $group->customer_id = $request->customer_id;
         $group->provider_id = session('currentCompany');
+        $group->bag_amount = $request->bag_amount;
         $group->status = config('constants.ORDER_GROUPS_OPENED_');
         $group->user_id = Auth::user()->id;
         $group->save();
@@ -237,7 +253,18 @@ class OrderGroupsController extends Controller{
         //Pedidos de la agrupación:
         $orders = Order::getGroupOrders($group->id);
 
-        //Pedidos sin agrupación, sólo los pedidos pendientes de facturación que no pertenezcan a ninguna otra agrupación. ¡Atención! a los pasos a seguir y a la sintaxis para obtener los pedidos que no se encuentran en la tabla order_groups_orders ni en order_previsions:
+        //Ampliación de la info:
+        foreach($orders as $order){
+            //Importe por pedido:
+            $shared = BudgetOrderSharedFields::select('id', 'discount')
+            ->where('order_id', $order->id)
+            ->first();
+
+            $order->amount = $shared->getAmount();
+        }
+
+
+        //Pedidos sin agrupación, sólo los pedidos pendientes de facturación que no pertenezcan a ninguna otra agrupación. ¡Atención! a los pasos a seguir y a la sintaxis para obtener los pedidos que no se encuentran en la tabla order_group_orders ni en order_previsions:
         /*$ordersInGroup = OrderGroupsOrders::pluck('order_id')->all();
         $ordersInPrevisions = OrderPrevisions::join('orders', 'order_previsions.order_id', '=', 'orders.id')
         ->where('orders.customer_id', $group->customer_id)
@@ -254,28 +281,29 @@ class OrderGroupsController extends Controller{
         ->get(); */
 
         //01-03-21: Se modifica la lógica para que devuelva previsiones de facturación de un pedido en lugar del pedido, pues uno de éstos puede tener más de 1 previsión de facturación. Se descartan los pedidos en otras agrupaciones y en otras bolsas.
-        // $ordersInGroup = OrderGroupsOrders::join('orders', 'order_groups_orders.order_id', '=', 'orders.id')
-        // ->where('orders.customer_id', $group->customer_id) 
-        // ->where('orders.provider_id', session('currentCompany'))
-        // ->pluck('order_id')
-        // ->all();
+        $ordersInGroup = OrderGroupOrders::join('orders', 'order_group_orders.order_id', '=', 'orders.id')
+        ->join('budget_order_shared_fields', 'orders.id', '=', 'budget_order_shared_fields.order_id')
+        ->where('budget_order_shared_fields.customer_id', $group->customer_id) 
+        ->where('budget_order_shared_fields.provider_id', session('currentCompany'))
+        ->pluck('order_group_orders.order_id')
+        ->all();
 
-        // $ordersInBudgets = Order::leftJoin('budgets', 'orders.budget_id', '=', 'budgets.id')
-        // ->where('budgets.modality', config('constants.BUDGET_FREE_MODALITY_'))
-        // ->pluck('orders.id')
-        // ->all();
+        $ordersInBudgets = BudgetOrderSharedFields::join('budgets', 'budget_order_shared_fields.budget_id', '=', 'budgets.id')
+        ->where('budgets.modality', config('constants.BUDGET_FREE_MODALITY_'))
+        ->pluck('budget_order_shared_fields.order_id')
+        ->all();
 
-        // $orders_off = OrderPrevisions::select('orders.order_num', 'orders.old_order', 'orders.name', 'orders.delivery_date', 'order_previsions.id', 'order_previsions.order_id', 'order_previsions.year', 'order_previsions.month', 'order_previsions.percent')
-        // ->join('orders', 'order_previsions.order_id', '=', 'orders.id')
-        // ->whereNotIn('orders.id', $ordersInGroup)
-        // ->whereNotIn('orders.id', $ordersInBudgets)
-        // ->where('orders.customer_id', $group->customer_id)
-        // ->where('orders.provider_id', session('currentCompany'))
-        // ->where('order_previsions.invoiced', 0)
-        // ->whereNull('orders.deleted_at')
-        // ->orderBy('orders.order_num', 'ASC')
-        // ->get();
-        $orders_off = [];
+        $orders_off = OrderPrevisions::select('orders.order_num', 'orders.order_old_num', 'orders.name', 'orders.delivery_date', 'order_previsions.id', 'order_previsions.order_id', 'order_previsions.year', 'order_previsions.month', 'order_previsions.percent')
+        ->join('orders', 'order_previsions.order_id', '=', 'orders.id')
+        ->leftJoin('budget_order_shared_fields', 'orders.id', '=', 'budget_order_shared_fields.order_id')
+        ->whereNotIn('orders.id', $ordersInGroup)
+        ->whereNotIn('orders.id', $ordersInBudgets)
+        ->where('budget_order_shared_fields.customer_id', $group->customer_id)
+        ->where('budget_order_shared_fields.provider_id', session('currentCompany'))
+        ->whereNull('order_previsions.invoice_id')
+        ->whereNull('orders.deleted_at')
+        ->orderBy('orders.order_num', 'ASC')
+        ->get();
 
         //Facturas de la agrupación:
         //$invoices = Invoice::select('id', 'refund', 'total_amount', 'discount_amount')->where('og_id', $group->id)->get();
@@ -287,11 +315,7 @@ class OrderGroupsController extends Controller{
         $languages = $this->languages;
 
         //Módulos activos:
-        $module_accounting = $this->settedModule('contabilidad');
-
-
-        //  
-        
+        $module_accounting = $this->settedModule('accounting');
 
         return view('admin.order_groups.edit')->with(compact('header', 'group', 'tab', 'customer', 'provider', 'author', 'budget', 'orders', 'invoices', 'orders_off', 'currency', 'languages', 'module_accounting'));
     }
@@ -336,12 +360,14 @@ class OrderGroupsController extends Controller{
     }
     
     /**
-     * 7. Actualizar estado de grupo de pedidos.
+     * 7. Actualizar estado de la agrupación.
      */
     public function status(Request $request, OrderGroups $group, $status){
         if($request->ajax()){       
             $group->status = $status;
             $group->save();
+
+            return response()->json(true);
         }
     }
 }

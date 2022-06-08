@@ -14,6 +14,8 @@
     </div>
 </div>
 
+<input type="hidden" id="dtController" value="order-groups">
+
 {{-- Formulario filtro --}}
 <div class="row">
 	<div class="col-12">						
@@ -31,8 +33,8 @@
 						@include('admin.partials.selector-customer', ['all' => false, 'selected' => ''])
 
 						{{-- Agrupación --}}
-						<label for="og_id" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.agrupacion_pedidos')) !!} </label>
-						<div class="col-lg-4">
+						<label for="og_id" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.agrupacion_num')) !!} </label>
+						<div class="col-lg-2">
 							<x-input type="text" name="og_id" autocomplete="off" maxlength="25"/>
 						</div>
 					</div>
@@ -72,7 +74,7 @@
 						<!-- <th>{!! trans('textos.area_negocio') !!}</th> 
 						<th class="wdt200">{!! trans('textos.area') !!}</th> -->
 						<!-- <th>{!! trans('textos.centro_trabajo') !!}</th> -->
-						<th class="wdt150">{!! trans('textos.estado') !!}</th>
+						<th class="wdt100">{!! trans('textos.estado') !!}</th>
 						<th class="text-center wdt150">{!! ucfirst(trans('textos.acciones')) !!}</th>
 					</tr>
 				</thead>

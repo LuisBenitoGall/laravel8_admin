@@ -21,13 +21,17 @@
 			</a>
 		@endcan
 
-		{{-- Nueva línea --}}
 		@can('orders.edit')
-			@if($permitted)
-				<a href="#" class="btn btn-info btnAddItem" data-toggle="modal" data-target="#modal-new-line">
-					<i class="fa fa-plus"></i> {!! ucfirst(trans('textos.linea_nueva')) !!}
-				</a>
-			@endif
+			{{-- Nueva línea --}}
+			<a href="#" class="btn btn-info btnAddItem" data-toggle="modal" data-target="#modal-new-line">
+				<i class="fa fa-plus"></i> {!! ucfirst(trans('textos.linea_nueva')) !!}
+			</a>
+
+			{{-- Importar líneas --}}
+	    	<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-import-items">
+    			<i class="fa fa-file-import"></i>
+    			{!! ucfirst(trans('textos.lineas_importar')) !!}
+    		</a>
 		@endcan
 
 		{{-- Imprimir --}}
@@ -66,7 +70,7 @@
 		@if($module_budgets)
 			@can('budgets.edit')
 				@if($shared->budget_id)
-					<a href="{{ route('budgets.edit', $shared->budget_id) }}" class="btn btn-info">
+					<a target="_blank" href="{{ route('budgets.edit', $shared->budget_id) }}" class="btn btn-info">
 						<i class="fa fa-file-alt"></i>
 						{!! ucfirst(trans('textos.presupuesto')) !!}
 					</a>
@@ -113,7 +117,7 @@
 			@endcan
 		@endif
 
-		{{-- Vincular compra a un pedido - condiciones: 
+		{{-- Vincular compra a un proyecto - condiciones: 
 			1. Estar activo el módulo de Proyectos.
 			2. Tratarse de una compra. 
 			3. Disponer de permisos para editar proyectos.
@@ -127,6 +131,33 @@
 				</a>	
 			@endcan
 		@endif
+
+		{{-- Agrupación de pedidos --}}
+		@can('orders.edit')
+			{{-- Link agrupación --}}
+			@if($in_group)
+				<a target="_blank" href="{{ route('order-groups.edit', $in_group->id) }}" class="btn btn-info">
+					<i class="fa fa-object-group"></i>
+					{!! ucfirst(trans('textos.agrupacion_pedidos')) !!}
+				</a>
+
+				{{-- Desvincular de agrupación --}}
+				<a href="" class="btn btn-danger btn-confirm" rel="tooltip" title="{!! ucfirst(trans('textos.pedido_desvincular')) !!}" data-msg="{{ trans('textos.pedido_desvincular_confirm') }}">
+					<i class="fa fa-unlink"></i>
+				</a>
+				
+			{{-- Vincular a agrupación - condiciones: 
+				1. Pedido no facturado.
+			--}}
+			@else
+				@if(!$order->invoiced && !$invoices->count())
+					<a href="#" class="btn btn-warning" data-toggle="modal" data-target="#modal-link-order-group">
+						<i class="fa fa-object-group"></i>
+						{!! ucfirst(trans('textos.agrupacion_vincular')) !!}
+					</a>
+				@endif
+			@endif
+		@endcan
 
 		{{-- Preparar entrega - condiciones: 
 			1. Estar activo el módulo de Logística.
@@ -178,14 +209,58 @@
 			1. Disponer de permisos para generar facturas.
 			2. Estar activo el módulo de contabilidad.
 			3. Status apto para facturación: aprobado (10), entregado (40), finalizado (70)
+			4. El importe facturado debe ser menor al importe total del pedido.
+			5. No debe pertenecer a ninguna agrupación de pedidos.
+			...
 		--}}
 		@can('invoices.create')
-			@if($module_accounting && in_array($order->status, config('constants.ORDER_STATUS_INVOICED_')))
+			@if($module_accounting 
+				&& in_array($order->status, config('constants.ORDER_STATUS_INVOICED_'))
+				&& (!$invoiced || round($order_amount, 2) > round($invoiced['invoiced_amount'], 2))
+				&& !$in_group
+			)
 				<a href="#" class="btn btn-info" rel="tooltip" title="{{ ucfirst(trans('textos.facturar')) }}" data-toggle="modal" data-target="#modal-generate-invoice"><i class="fa fa-file-invoice-dollar"></i></a>
 			@endif
 		@endcan
 
-		{{-- Eliminar pedido --}}
+		{{-- Facturas del pedido --}}
+		@can('invoices.index')
+			@if($invoices->count())	
+				<a href="{{ route('invoices.by-order', $order) }}" class="btn btn-info" rel="tooltip">
+					<i class="fa fa-file-invoice-dollar"></i>
+					{{ ucfirst(trans('textos.facturas_pedido')) }}
+				</a>	
+			@endif
+		@endcan
+
+		{{-- Recalcular previsiones de facturación. Cuando se ha modificado el importe del pedido y los porcentajes de previsión de facturación no se ajustan al planteamiento original - condiciones:
+			1. No quedan previsiones de facturación pendientes de facturar.
+			2. El importe del pedido supera al facturado.
+		--}}
+		@can('invoices.edit')
+			{{-- Controlamos que no existan previsiones sin facturar --}}
+			@php
+			$no_previsions = true;
+			foreach($previsions as $prv){
+				if(!$prv->invoice_id){
+					$no_previsions = false;
+					break;
+				}
+			}
+			@endphp
+
+			@if($no_previsions && round($order_amount, 2) > round($invoiced->invoiced_amount, 2))
+				<a href="{{ route('order-previsions.recalculate-previsions', $order) }}" class="btn btn-info btn-confirm" data-msg="{{ ucfirst(trans('textos.facturaciones_previstas_recalculo_texto')) }}">
+					<i class="fa fa-calculator"></i>
+					{{ ucfirst(trans('textos.facturaciones_previstas_recalculo')) }}
+				</a>
+			@endif	
+		@endcan
+
+		{{-- Eliminar pedido - condiciones 
+			1. Disponer de permisos para eliminar facturas.
+			2. Que se cumplan las condiciones: $permitted = true.
+		--}}
         @can('orders.destroy')
         	@if($permitted)
 	        	<form method="POST" action="{{ route('orders.destroy', $order) }}" class="frm-inline" role="form" accept-charset="UTF-8">
@@ -256,6 +331,26 @@ if($shared->provider_team){
 						</b>
 					</label>
 
+					{{-- Autor --}}
+					<label class="mr-5">
+						{!! ucfirst(trans('textos.autor')) !!}: 
+						<b>
+							@if($author)
+								{{ ucfirst($author->name) }} {{ ucfirst($author->surname) }}
+							@endif
+						</b>
+					</label>
+
+					{{-- Propietario --}}
+					<label class="mr-5">
+						{!! ucfirst(trans('textos.propietario')) !!}: 
+						<b>
+							@if($owner)
+								{{ ucfirst($owner->name) }} {{ ucfirst($owner->surname) }}
+							@endif
+						</b>
+					</label>
+
 					{{-- Confirmación pedido --}}
 					@if($confirmed_by)
 						@php
@@ -275,7 +370,10 @@ if($shared->provider_team){
 					</label>
 
 					{{-- Descuento aplicado --}}
-					@include('admin.budget_order_shared_fields.partials.data-discount-applied', ['return' => 'orders'])
+					@php
+					$remove_discount = !$invoiced? true:false;
+					@endphp
+					@include('admin.budget_order_shared_fields.partials.data-discount-applied', ['return' => 'orders', 'remove_discount' => $remove_discount])
 
 					{{-- Presupuesto --}}
 					@include('admin.budget_order_shared_fields.partials.link-budget')
@@ -300,6 +398,10 @@ if($shared->provider_team){
 
 			  		<li class="nav-item @if($tab == 'docs') active @endif">
 			  			<a class="nav-link @if($tab == 'docs') active @endif" href="#tab-docs" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.documentos')) !!}</a>	
+			  		</li>
+
+			  		<li class="nav-item @if($tab == 'template') active @endif">
+			  			<a class="nav-link @if($tab == 'template') active @endif" href="#tab-template" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.plantilla')) !!}</a>	
 			  		</li>
 
 			  		@if(count($project_purchases))
@@ -328,6 +430,11 @@ if($shared->provider_team){
 					{{-- Documentos --}}
 					<div class="tab-pane fade @if($tab == 'docs') show active @endif" role="tabpanel" id="tab-docs">
 						@include('admin.orders.partials.order-docs')	
+					</div>
+
+					{{-- Plantilla --}}
+					<div class="tab-pane fade @if($tab == 'template') show active @endif" role="tabpanel" id="tab-template">
+						@include('admin.orders.partials.order-template')	
 					</div>
 
 					{{-- Proyectos de la compra --}}
@@ -432,9 +539,8 @@ if($shared->provider_team){
 {{-- Generate invoice --}}
 @php
 $next_prevision = false;
-
 foreach($previsions as $prev_){
-	if($prev_->invoiced == 0){
+	if(!$prev_->invoice_id){
 		$next_prevision = $prev_;
 		break;
 	}	
@@ -442,15 +548,24 @@ foreach($previsions as $prev_){
 @endphp
 @include('admin.orders.partials.modal-generate-invoice', ['next_prevision' => $next_prevision])
 
+{{-- Import items --}}
+@include('admin.orders.partials.modal-import-items')
+
+{{-- Link to order group --}}
+@if(!$in_group)
+	@include('admin.order_groups.partials.modal-link-order-group')
+@endif
+
 @push('scripts')
 <script>
 //Control del porcentaje de facturación:
+var percent = '0';
 function percentController(){
 	var total = '0';
 	$('.previsions .prevision .percent').each(function(){
     	var percent = $(this).val();
     	if(percent > 0){
-    		total = parseFloat(total) + parseFloat(percent);
+    		total = (parseFloat(total) + parseFloat(percent)).toFixed(2);
     	}
     });	
 

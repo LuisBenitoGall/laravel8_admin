@@ -19,7 +19,7 @@ class lightboxGalleryDocs extends Component{
     public function __construct(
         $docs = false,
         $other_files = [],
-        $schema = false;
+        $schema = false
     ){
         $this->docs = $docs;
         $this->image_mimes = helpers::imgMimeTypes();

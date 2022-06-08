@@ -57,7 +57,7 @@
 		</div>
 
 		{{-- Fecha vencimiento --}}
-		<label for="fiscal_date" class="col-md-2 col-form-label">{!! ucfirst(trans('textos.fecha_fiscal')) !!}</label>
+		<label for="expiration_date" class="col-md-2 col-form-label">{!! ucfirst(trans('textos.fecha_vencimiento')) !!}</label>
 		<div class="col-md-4 col-lg-2">
 			@php
 			$expiration_date = $invoice->expiration_date != ''? \Carbon\Carbon::parse($invoice->expiration_date)->format($languages[session()->get('locale')][4]):'';

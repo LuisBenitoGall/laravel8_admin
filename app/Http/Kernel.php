@@ -137,6 +137,7 @@ class Kernel extends HttpKernel{
         'order_post' => \App\Http\Middleware\OrderPostMiddleware::class,
 
         'order_groups_get' => \App\Http\Middleware\OrderGroupsGetMiddleware::class,
+        'order_groups_post' => \App\Http\Middleware\OrderGroupsPostMiddleware::class,
 
         'order_pattern_get' => \App\Http\Middleware\OrderPatternGetMiddleware::class,
 

@@ -539,9 +539,10 @@ $(document).ready(function(){
     if($('#tblBudgetItems').length > 0){
         function format(d){
             // `d` is the original data object for the row
+            var obvs = d.observations? d.observations:txtObservacionesSin;
             return '<table cellpadding="0" cellspacing="0" border="0">'+
                 '<tr>'+
-                    '<td colspan="8" class="no-border">'+d.observations+'</td>'+
+                    '<td colspan="8" class="no-border">'+obvs+'</td>'+
                 '</tr>'+
             '</table>';
         }
@@ -1482,7 +1483,7 @@ $(document).ready(function(){
         });
         
         var tableCurrencies = $('#tblCurrencies').DataTable({
-            "serverSide": true,
+            "serverSide": false,
             /*"processing": true,*/
             "ajax": {
                 "type": "GET",
@@ -2973,7 +2974,11 @@ $(document).ready(function(){
         $('#tblOrderGroups thead tr').clone(true).appendTo('#tblOrderGroups thead');
         $('#tblOrderGroups thead tr:eq(1) th').each(function(i){
             var title = $(this).text();
-            $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
+            if(i == 5){
+                $(this).html('');
+            }else{
+                $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
+            }
      
             $('input', this).on('keyup change', function(){
                 if(tableOrderGroups.column(i).search() !== this.value){
@@ -2986,7 +2991,7 @@ $(document).ready(function(){
         });
         
         var tableOrderGroups = $('#tblOrderGroups').DataTable({
-            "serverSide": true,
+            "serverSide": false,
             /*"processing": true,*/
             drawCallback: function() {
                 $('.select2-dt').select2();
@@ -3024,22 +3029,14 @@ $(document).ready(function(){
                 },
                 {"targets": -2,
                 "render": function(data, type, row){
-                    var arr = row['estado'].split(";");
-                    var estado = '<select class="form-control select-xs comboEstadoGroup select2-dt">';
-                        for(j=0; j<arr.length; j++){
-                            if(j>0 && arr[j] != ''){
-                                var p = arr[j].split('|');
-                                var selected = p[0] == arr[0]? 'selected':'';
-                                estado += '<option value="'+p[0]+'" data-id="'+row['id']+'" '+selected+'>'+p[1]+'</option>';
-                            }
-                        }
-                    estado += '</select>';
-
-                    return estado;
+                    return '<span class="xoption-'+row['id']+'">'+row['estado']+'</span>'; 
                 }
-                },
+                }, 
                 {"targets": -1,
                 "render": function(data, type, row){
+                    //Estado múltiple:
+                    var estado = multipleStatus(row['estados'], row['status'], row['id']);
+
                     //Facturar:
                     var facturar = '';
                     if(row['invoice']){
@@ -3060,7 +3057,7 @@ $(document).ready(function(){
                         var eliminar = '';
                     }
 
-                    return facturar+' '+editar+' '+eliminar;
+                    return estado+' '+facturar+' '+editar+' '+eliminar;
                 }
                 }
             ]
@@ -3513,7 +3510,7 @@ $(document).ready(function(){
 
                     //Eliminar:
                     var eliminar = '';
-                    if(row['eliminar']){
+                    if(row['eliminar'] && !row['invoiced']){
                         var eliminar = '<form method="POST" action="/admin/orders/'+row['orderId']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
                             eliminar += '<input name="_method" type="hidden" value="DELETE">';
                             eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';

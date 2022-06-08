@@ -61,6 +61,8 @@ class BudgetController extends Controller{
      * 16. Actualizar estado de presupuesto.
      * 17. Cambio de proveedor.
      * 18. Definir modalidad de presupuesto.
+     * 19. Copiar presupuesto.
+     * 20. Setear bloque para líneas de formulario.
      */
     
     private $option = 'presupuestos';
@@ -73,7 +75,7 @@ class BudgetController extends Controller{
 
         $this->middleware('module_setted:budgets');
         $this->middleware('budget_get', ['only' => ['edit', 'update', 'destroy', 'resetNum', 'removeOcDoc', 'createOrder', 'removeTemplate', 'print', 'modify']]);
-        $this->middleware('budget_post', ['only' => ['updateComments', 'updateTemplate', 'setProvider']]);
+        $this->middleware('budget_post', ['only' => ['updateComments', 'updateTemplate', 'setProvider', 'setModality', 'copy', 'setBlock']]);
     }
 
     //0. Validator:
@@ -126,6 +128,20 @@ class BudgetController extends Controller{
                 'budget_id' => 'required|integer',
                 'modality' => 'required'
             ]);
+
+        //Validación copia presupuesto:
+        }elseif(isset($data['submit_copy'])){
+            return Validator::make($data, [   
+                'budget_id' => 'required|integer',
+                'customer' => 'required|integer'
+            ]);
+
+        //Validación set bloque de líneas de formulario: 
+        }elseif(isset($data['submit_set_block'])){
+            return Validator::make($data, [
+                'budget_id' => 'required|integer',
+                'block_id' => 'required|integer'
+            ]); 
         }
     }
 
@@ -530,6 +546,12 @@ class BudgetController extends Controller{
         ->where('project_shareds.shared_id', $shared->id)
         ->first();
 
+        //Bloques para presupuesto tipo formulario:
+        $blocks = false;
+        if($budget->modality == config('constants.BUDGET_FORM_MODALITY_')){
+            $blocks = BudgetFormItems::getBudgetBlocks($budget->form_id, $budget->id);
+        }
+
         //Moneda:
         $currency = CompanySettings::co_currency(0);
 
@@ -546,12 +568,15 @@ class BudgetController extends Controller{
 
         $languages = $this->languages;
 
+        //Cambios bloqueados: establecer en función de parámetros por definir que opciones quedan bloqueadas.
+        $permitted = true;
+
         //Módulos activos:
         $module_orders = $this->settedModule('orders');
         $module_products = $this->settedModule('products');
         $module_projects = $this->settedModule('projects');
 
-        return view('admin.budgets.edit')->with(compact('header', 'budget', 'tab', 'shared', 'invoiced', 'invoices', 'patterns', 'versions', 'budget_amount', 'budget_amount_without_discount', 'provider', 'provider_managers', 'provider_settings', 'provider_workplaces', 'provider_cost_centers', 'provider_business_areas', 'customer', 'customer_managers', 'customer_workplaces', 'customer_cost_centers', 'customer_business_areas', 'final_customers', 'customers', 'customer_settings', 'forms', 'order', 'products', 'projects', 'project', 'currency', 'templates', 'budget_from', 'languages', 'module_orders', 'module_products', 'module_projects'));
+        return view('admin.budgets.edit')->with(compact('header', 'budget', 'tab', 'shared', 'invoiced', 'invoices', 'patterns', 'versions', 'budget_amount', 'budget_amount_without_discount', 'provider', 'provider_managers', 'provider_settings', 'provider_workplaces', 'provider_cost_centers', 'provider_business_areas', 'customer', 'customer_managers', 'customer_workplaces', 'customer_cost_centers', 'customer_business_areas', 'final_customers', 'customers', 'customer_settings', 'forms', 'order', 'products', 'projects', 'project', 'blocks', 'currency', 'templates', 'budget_from', 'languages', 'permitted', 'module_orders', 'module_products', 'module_projects'));
     }
 
     /**
@@ -657,7 +682,9 @@ class BudgetController extends Controller{
      * @return \Illuminate\Http\Response
      */
     public function destroy(Budget $budget){
-        BudgetOrderSharedFields::where('budget_id', $budget->id)->delete();
+        //Actualizamos registro compartido:
+        BudgetOrderSharedFields::where('budget_id', $budget->id)
+        ->update(['budget_id' => NULL]);
 
         $budget->delete();
 
@@ -1266,6 +1293,110 @@ class BudgetController extends Controller{
 
         $msg = trans('textos.presupuesto_updated');
         return redirect()->route('budgets.edit', $budget)->with(compact('msg'));
+    }
+
+    /**
+     * 19. Copiar presupuesto.
+     */
+    public function copy(Request $request){
+        $validator = $this->validator($request->all());
+        if($validator->fails()){
+            return redirect('admin/budgets/'.$request->budget_id.'/edit')
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        //Datos presupuesto original:
+        $budget = Budget::find($request->budget_id);
+        $shared = BudgetOrderSharedFields::where('budget_id', $request->budget_id)->first();
+        $items = Item::where('budget_order_id', $shared->id)->get();
+
+        //Nuevo presupuesto:
+        $new_budget = new Budget();
+        $new_budget->name = $budget->name.' - '.trans('textos.copia');
+        $new_budget->slug = $budget->slug.'-'.trans('textos.copia');
+        $new_budget->modality = $budget->modality;
+        $new_budget->description = $budget->description;
+        $new_budget->comments = $budget->comments;
+        $new_budget->form_id = $budget->form_id;    
+        $new_budget->created_by = Auth::user()->id; 
+        $new_budget->template_id = $budget->template_id;
+        $new_budget->template = $budget->template;
+        $new_budget->updated_by = Auth::user()->id;
+        $new_budget->save();
+
+        $bosf = new BudgetOrderSharedFields();
+        $bosf->budget_id = $new_budget->id;
+        $bosf->customer_id = $request->customer;
+        $bosf->provider_id = session('currentCompany');
+        $bosf->provider_manager_id = Auth::user()->id;
+        $bosf->provider_workplace_id = $shared->provider_workplace_id;
+        $bosf->provider_cost_center_id = $shared->provider_cost_center_id;
+        $bosf->provider_business_area_id = $shared->provider_business_area_id;
+        $bosf->provider_team = $shared->provider_team;
+        $bosf->free_amount = $shared->free_amount;
+        $bosf->discount = $shared->discount;
+        $bosf->discount_amount = $shared->discount_amount;
+        $bosf->save();
+
+        foreach($items as $i){
+            $it = new Item();
+            $it->product_id = $i->product_id;
+            $it->budget_order_id = $bosf->id;
+            $it->budget_form_block_id = $i->budget_form_block_id;
+            $it->budget_form_item_id = $i->budget_form_item_id;
+            $it->budget_form_block_id = $i->budget_form_block_id;
+            $it->budget_order = $i->budget_order;
+            $it->concept = $i->concept;
+            $it->observations = $i->observations;
+            $it->qty = $i->qty;
+            $it->price = $i->price;
+            $it->item_no_price = $i->item_no_price;
+            $it->iva = $i->iva;
+            $it->discount = $i->discount;
+            $it->calculated_by_percent = $i->calculated_by_percent;
+            $it->invoiced = $i->invoiced;
+            $it->deposit_used = $i->deposit_used;
+            $it->days = $i->days;
+            $it->days_continue = $i->days_continue;
+            $it->days_continue_discount = $i->days_continue_discount;
+            $it->active = $i->active;
+            $it->status = $i->status;
+            $it->print = $i->print;
+            $it->user_id = Auth::user()->id;
+            $it->save();
+        }
+
+        $msg = trans('textos.presupuesto_copiado');
+        return redirect()->route('budgets.edit', $new_budget)->with(compact('msg'));
+    }
+
+    /**
+     * 20. Setear bloque para líneas de formulario.
+     */
+    public function setBlock(Request $request){
+        $validator = $this->validator($request->all());
+        if($validator->fails()){
+            //Indicamos el origen de la acción realizada para manejar el modal:
+            $validator->getMessageBag()->add('accion', 'modal-set-block');
+
+            return redirect('/admin/budgets/'.$request->budget_id.'/edit')
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        $shared = BudgetOrderSharedFields::select('id')
+        ->where('budget_id', $request->budget_id)
+        ->first();
+
+        if($shared){
+            Item::where('budget_order_id', $shared->id)
+            ->whereNull('budget_form_block_id')
+            ->update(['budget_form_block_id' => $request->block_id, '']);
+        }
+
+        $msg = trans('textos.presupuesto_lineas_vinculadas');
+        return redirect()->route('budgets.edit', $request->budget_id)->with(compact('msg'));
     }
 
 }

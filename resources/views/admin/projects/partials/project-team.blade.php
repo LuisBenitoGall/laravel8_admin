@@ -24,8 +24,8 @@
 							@if($tm->id != $project->owner)
 								<a href="{{ route('projects.delete-member', [$project->id, $tm->id]) }}" class="btn btn-xs btn-danger btn-confirm" rel="tooltip" title="{{ ucfirst(trans('textos.miembro_quitar')) }}" data-msg="{{ trans('textos.miembro_quitar_confirm') }}"><i class="fa fa-trash"></i></a>
 							@else
-								<span class="text-warning mr-2 ml-2" rel="tooltip" title="{{ trans('textos.propietario') }}">
-									<i class="fa fa-bookmark"></i>	
+								<span class="btn btn-xs" rel="tooltip" title="{{ trans('textos.propietario') }}">
+									<i class="fa fa-bookmark text-warning"></i>	
 								</span>	
 							@endif
 						</td>

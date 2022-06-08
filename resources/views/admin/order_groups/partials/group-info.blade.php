@@ -1,4 +1,4 @@
-<form method="post" autocomplete="off" action="{{ route('order-groups.update', $group->id) }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
+<form method="post" autocomplete="off" action="{{ route('order-groups.update', $group) }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
 	@method('PUT')
 	{{ csrf_field() }}
 

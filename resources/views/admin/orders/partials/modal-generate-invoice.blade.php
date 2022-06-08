@@ -20,7 +20,7 @@
                     $invoiced_ = $invoiced? $invoiced->invoiced_amount:'0';
                     @endphp
 
-                    <p>{{ trans('textos.pendiente_facturar') }} <b>{{ $order_amount - $invoiced_}}{{ $currency->symbol }}</b></p>
+                    <p>{{ trans('textos.pendiente_facturar') }} <b>{{ round($order_amount - $invoiced_, 2) }}{{ $currency->symbol }}</b></p>
 
                     <div class="form-group row mt-4">
                     	<div class="col-12">

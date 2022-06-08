@@ -1,4 +1,4 @@
-@extends ('admin.partials.layout')
+@extends('admin.partials.layout')
 
 @section('content')
 
@@ -20,7 +20,11 @@
     		</a>
     	@endcan
 
-    	{{-- Agregar pedidos: --}}
+    	{{-- Agregar pedidos - condiciones: 
+			1. Permisos de edición de pedidos.
+			2. El estado de la agrupación debe permitir su edición.
+			...
+    	--}}
     	@can('orders.edit')
 			@if($group->status == config('constants.ORDER_GROUPS_OPENED_'))
 				<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-add-orders">
@@ -29,6 +33,43 @@
 				</a>
 			@endif
 		@endcan
+
+		{{-- Imprimir --}}
+	    <a href="{{ route('order-groups.print', $group->id) }}" class="btn btn-info close-animation" rel="tooltip" title="{{ trans('textos.pedido_imprimir') }}">
+			<i class="fa fa-print"></i>
+		</a>
+
+		{{-- Facturar - condiciones:
+			0. El botón se oculta inicialmente y se muestra al seleccionar pedidos a facturar.
+			1. Activo el módulo de contabilidad.
+			2. Permisos para generación de facturas.
+			3. El estado de la agrupación debe permitir su facturación.
+			...
+		--}}
+		@if($module_accounting)
+			{{-- Generar facturas --}}
+			@can('invoices.create')
+				{{-- Debe quedar importe por facturar. Se oculta o muestra por .js, se ejecuta en el archivo views/admin/order_groups/partials/group-orders.blade.php --}}
+				@if($group->status == config('constants.ORDER_GROUPS_OPENED_'))
+					<form method="POST" action="{{ route('invoices.create-from-group') }}" class="frm-inline d-none" role="form" accept-charset="UTF-8" id="frmGroupInvoice">
+	                	{{ csrf_field() }}
+	                	<input type="hidden" name="group_id" value="{{ $group->id }}">
+	                	<input type="hidden" name="orders" id="setOrders">
+	                	<input type="hidden" name="submit_generate_by_group" value="true">
+
+	                	<button type="submit"  class="btn btn-info frm-confirm" rel="tooltip" title="{{ ucfirst(trans('textos.facturar')) }}" data-msg="{{ ucfirst(trans('textos.facturar_grupo_confirm')) }}"><i class="fa fa-file-invoice-dollar"></i></button>
+	            	</form>
+				@endif
+			@endcan
+
+			{{-- Facturas de la agrupación --}}
+			{{-- @if(count($invoices->count)) --}}
+				<a href="{{ route('invoices.by-order-group', $group->id) }}" class="btn btn-info">
+	    			<i class="fa fa-file-invoice-dollar"></i>
+					{{ trans('textos.facturas_agrupacion') }}
+				</a>
+			{{-- @endif --}}
+		@endif
 	</div>
 </div>
 
@@ -50,7 +91,12 @@
 				{{-- Info --}}
 				<div class="mb-3">
 					{{-- Cliente --}}
-					@include('admin.budget_order_shared_fields.partials.data-customer')
+					<label class="mr-5">
+						{!! ucfirst(trans('textos.cliente')) !!}: 
+						<b>
+							{{ ucfirst($customer->name) }}
+						</b>
+					</label>
 
 					{{-- Proveedor --}}
 					@include('admin.budget_order_shared_fields.partials.data-provider')
@@ -102,78 +148,40 @@
 {{-- Modals: --}}
 {{-- Add orders: --}}
 @if($group->status == config('constants.ORDER_GROUPS_OPENED_'))
-	<div class="modal fade modal-add-orders" id="modal-add-orders" tabindex="-1" role="dialog" aria-labelledby="newOrder" aria-hidden="true">
-	    <div class="modal-dialog modal-xl" role="document">
-	        <div class="modal-content">
-	            <div class="modal-header">
-	                <h4 class="modal-title" id="newOrder">{!! ucfirst(trans('textos.pedidos_agregar')) !!}</h4>
-	                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-	                    <span aria-hidden="true">&times;</span>
-	                </button>
-	            </div>
-
-	            <div class="modal-body">
-	            	@if(count($orders_off))
-		                <form method="post" autocomplete="off" action="{{ route('order-groups-orders.store') }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
-		                    {{ csrf_field() }}
-		                    <input type="hidden" name="group_id" value="{{ $group->id }}">
-
-		                    <table class="modal-table" id="tblOrdersOff">
-			            		<thead>
-			            			<tr>
-			            				<th class="text-center">#</th>
-			            				<th class="text-center">{!! ucfirst(trans('textos.numero_antiguo')) !!}</th>
-			            				<th>{!! ucfirst(trans('textos.pedido_titulo')) !!}</th>
-			            				<th class="text-center" style="width: 125px;">{!! ucfirst(trans('textos.fecha_entrega')) !!}</th>
-			            				<th class="text-center">{!! ucfirst(trans('textos.facturacion')) !!}</th>
-			            				<th class="text-center">{!! ucfirst(trans('textos.seleccionar')) !!}</th>
-			            			</tr>
-			            		</thead>
-
-			            		<tbody>
-			            			@foreach($orders_off as $off)
-			            				<tr>
-			            					<td class="text-right">
-			            						@php
-												$num = $off->order_num? $off->order_num:$off->order_id;
-												@endphp
-												<a target="_blank" href="{{ route('orders.edit', $off->order_id) }}">{{ $num }}</a>
-			            					</td>
-			            					<td class="text-right">{{ $off->old_order }}</td>
-			            					<td>{{ $off->name }}</td>
-			            					<td class="text-right">
-			            						@php
-			            						$fechaEntrega = $off->delivery_date && $off->delivery_date != config('constants.DATE_NULL_')? Carbon\Carbon::parse($off->delivery_date)->format(config('locale.languages.'.config('app.locale'))[4]):'';
-			            						@endphp
-
-			            						{{ $fechaEntrega }}
-			            					</td>
-			            					<td>
-			            						@php
-			            						$month = $off->month? App\Helpers\Helpers::yearMonths($off->month):'';
-			            						@endphp
-			            						{{ $off->year }} {{ $month }} @if($off->percent) <small>({{ $off->percent }}%)</small> @endif
-			            					</td>
-			            					<td class="text-center">
-			            						<label class="custom-chk-rdb">
-                            						<input type="checkbox" name="previsions[]" value="{{ $off->id }}"><span class="chk chksmall" style="margin-top: 2px;"></span>
-                        						</label>
-			            					</td>
-			            				</tr>
-			            			@endforeach	
-			            		</tbody>
-			            	</table>
-
-			            	<x-btn-submit name="submit_save" label="{{ trans('textos.guardar') }}"/>
-		                </form>   
-
-		            @else
-		            	<h4 class="text-center text-warning mb-4 mt-4">{{ trans('textos.no_pedidos_agrupables') }}</h4>
-		            @endif 
-	            </div>
-	        </div>
-	    </div>
-	</div>
+	@can('orders.edit')
+		@include('admin.order_groups.partials.modal-add-orders')
+	@endcan
 @endif
+
+@push('scripts')
+<script>
+$(function(){
+	//Órdenes a facturar:
+	var orders_arr = [];
+	$('.addOrder input:checkbox').on('change', function(){
+		var id = $(this).val();
+		//Agregar pedido:
+		if($(this).is(':checked')){
+			orders_arr.push(id);
+
+		//Quitar pedido:
+		}else{
+			orders_arr = orders_arr.filter(function(e){
+        		return e !== id;
+        	});
+		}
+
+		console.log(orders_arr);
+
+		if(orders_arr.length > 0){
+			$('#frmGroupInvoice').removeClass('d-none');
+		}else{
+			$('#frmGroupInvoice').addClass('d-none');
+		}
+		$('#setOrders').val(orders_arr);
+	});
+});
+</script>
+@endpush	
 
 @endsection

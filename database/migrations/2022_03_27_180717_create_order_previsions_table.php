@@ -19,7 +19,9 @@ class CreateOrderPrevisionsTable extends Migration{
             $table->char('year', 4)->nullable();
             $table->char('month', 2)->nullable();
             $table->float('percent', 5, 2)->nullable();
-            $table->boolean('invoiced')->default(0);
+            //FK:
+            $table->bigInteger('invoice_id')->unsigned()->nullable();
+            $table->foreign('invoice_id')->references('id')->on('invoices');
             $table->softDeletes();
             $table->timestamps();
         });

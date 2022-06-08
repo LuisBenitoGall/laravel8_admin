@@ -23,7 +23,7 @@
 				@endphp	
 			@endforeach
 
-			<x-select name="template_id" class="select2" :options="$templates_" label="plantilla_selec" value="{{ $budget->template_id }}"/>
+			<x-select name="template_id" class="select2" :options="$templates_" label="plantilla_selec" value="{{ $budget->template_id }}" required/>
 		</div>
 
 		{{-- Reset valores originales de la plantilla --}}

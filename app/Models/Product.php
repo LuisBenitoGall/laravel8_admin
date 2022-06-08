@@ -41,7 +41,7 @@ class Product extends Model{
      * 3. Productos por empresa.
      */
     public static function companyProducts($company_id, $sale = true, $status = true, $limit = false){
-        $q = Product::select('id', 'name', 'price', 'translations', 'description', 'on_sale', 'batch', 'status', DB::raw('(SELECT doc FROM product_docs WHERE product_id = products.id AND featured = 1 LIMIT 1) AS Image'))
+        $q = Product::select('id', 'name', 'price', 'iva', 'translations', 'description', 'on_sale', 'batch', 'status', DB::raw('(SELECT doc FROM product_docs WHERE product_id = products.id AND featured = 1 LIMIT 1) AS Image'))
         ->where('company_id', $company_id);
         if($sale){
             $q->where('on_sale', 1);

@@ -26,7 +26,6 @@ class CreateInvoicesTable extends Migration{
             $table->float('amount',12,2)->default(0);
             $table->float('with_iva',5,2)->nullable();
             $table->float('amount_with_iva',12,2)->default(0);
-            $table->float('percentage_invoiced',5,2)->nullable();
             $table->date('fiscal_date')->nullable();
             $table->date('expiration_date')->nullable();
             //FK:

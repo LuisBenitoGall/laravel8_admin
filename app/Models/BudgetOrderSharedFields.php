@@ -2,11 +2,11 @@
 
 namespace App\Models;
 
-use App\Helpers\Helpers;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
+use App\Helpers\Helpers;
 
 class BudgetOrderSharedFields extends Model{
     /**
@@ -14,7 +14,7 @@ class BudgetOrderSharedFields extends Model{
      * 2. Cálculo importe items.
      * 3. Suma importe de líneas por presupuesto - pedido.
      * 4. Importe del presupuesto-pedido.
-     * 5. Importe facturado.
+     * 5. Importe facturado por pedido.
      */
      
     use HasFactory;
@@ -109,7 +109,7 @@ class BudgetOrderSharedFields extends Model{
     }
 
     /**
-     * 5. Importe facturado.
+     * 5. Importe facturado por pedido.
      */
     public function getInvoicedAmount(){
         $data = Invoice::select('id',

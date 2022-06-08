@@ -38,6 +38,14 @@ $readonly = $invoice->blocked? true:false;
 			@endif
 		@endcan
 
+		{{-- Facturas del pedido. Pasamos el shared_id --}}
+		@if($invoices->count() > 1)
+			<a href="{{ route('invoices.by-order', $shared->id) }}" class="btn btn-info" rel="tooltip">
+				<i class="fa fa-file-invoice-dollar"></i>
+				{{ ucfirst(trans('textos.facturas_pedido')) }}
+			</a>	
+		@endif
+
 		{{-- Imprimir --}}
 		<a href="{{ route('invoices.print', $invoice) }}" class="btn btn-info close-animation" rel="tooltip" title="{!! ucfirst(trans('textos.imprimir')) !!}">
 			<i class="fa fa-print"></i>
@@ -115,16 +123,37 @@ $readonly = $invoice->blocked? true:false;
 						</b>
 					</label>
 
-					{{-- Importe pedido --}}
+					{{-- Importe facturado --}}
 					<label class="mr-5">
-						{!! ucfirst(trans('textos.importe_pedido')) !!}: 
+						{!! ucfirst(trans('textos.importe_facturado')) !!}: 
     					<b>{!! $invoice->amount !!}{{ $currency->symbol }}</b>
 					</label>
 
-					{{-- Importe factura --}}
+					{{-- Total factura --}}
 					<label class="mr-5">
-						{!! ucfirst(trans('textos.importe_factura')) !!}: 
+						{!! ucfirst(trans('textos.factura_total')) !!}: 
     					<b>{!! $invoice->amount_with_iva !!}{{ $currency->symbol }}</b>
+					</label>
+
+					{{-- Incluir IVA: --}}
+					<label class="mr-5">
+						{!! ucfirst(trans('textos.incluye_iva')) !!}:
+
+						@if(!$invoice->blocked)
+							<label class="custom-chk-rdb" rel="tooltip">
+				                <input type="checkbox" name="with_iva" @if($invoice->with_iva) checked @endif>
+				                <span class="chk chksmall btnWithIva mt-1 ml-2" data-invoice="{{ $invoice->id }}"></span>
+				            </label>
+
+						@else
+				        	@if($invoice->with_iva)
+				        		<i class="fa fa-check text-success ml-2"></i>
+				        	@else
+				        		<i class="fa fa-times text-danger ml-2"></i>
+				        	@endif
+				        @endif
+
+				        @if(!$invoice->with_iva) <small class="text-warning">{!! ucfirst(trans('textos.facturado_sin_iva')) !!}</small> @endif
 					</label>
 				</div>
 
@@ -135,7 +164,7 @@ $readonly = $invoice->blocked? true:false;
 			  		</li>
 
 			  		<li class="nav-item @if($tab == 'items') active @endif">
-			  			<a class="nav-link @if($tab == 'items') active @endif" href="#tab-items" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.lineas')) !!}</a>	
+			  			<a class="nav-link @if($tab == 'items') active @endif" href="#tab-items" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.lineas_pedido')) !!}</a>	
 			  		</li>
 
 			  		<li class="nav-item @if($tab == 'template') active @endif">
@@ -177,5 +206,27 @@ $readonly = $invoice->blocked? true:false;
 {{-- Modals: --}}
 {{-- Edit item --}}
 {{-- @include('admin.budget_order_shared_fields.partials.modal-edit-item', ['environment_' => 'invoices']) --}}
+
+@push('scripts')
+<script>
+$(function(){
+	//Activar - desactivar IVA en factura.
+    $('.btnWithIva').on('click', function(){
+        var status = '';
+        var elem = $(this);
+        var invoice = elem.data('invoice');
+        //Atención!!: detecta el estado previo a la acción, de modo que :checked es si queda deseleccionado:
+        if(elem.siblings('input').is(':checked')){
+            status = 0;
+        }else{
+            status = 1;
+        }  
+        $.get("/admin/invoices/"+invoice+"/with_iva/"+status, function(response, state){
+             window.location.href = '/admin/invoices/'+invoice+'/edit';
+        });
+    });
+});
+</script>
+@endpush
 
 @endsection

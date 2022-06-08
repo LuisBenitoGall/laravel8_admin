@@ -1,6 +1,5 @@
 @php
 $columns_index = [];
-//dd($task_status);
 @endphp
 
 @foreach($task_status as $ps)
@@ -9,7 +8,7 @@ $columns_index = [];
 	@endphp
 @endforeach
 
-@if($tasks->count())
+@if($tasks->count() && !empty($columns_index))
 	@foreach($tasks as $task)
 		@if($task->status)
 			@php

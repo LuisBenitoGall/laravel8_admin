@@ -13,6 +13,8 @@ class CreateOrdersTable extends Migration{
     public function up(){
         Schema::create('orders', function (Blueprint $table){
             $table->id();
+            $table->bigInteger('parent')->nullable();
+            $table->boolean('is_group')->default(0);
 
             //About Order:
             $table->string('order_num')->nullable();
@@ -42,8 +44,10 @@ class CreateOrdersTable extends Migration{
             $table->date('delivery_date')->nullable();
             $table->string('confirm_code')->nullable();
             $table->dateTime('confirm_code_date')->nullable();
-            $table->boolean('invoiceable')->default(0);
-            $table->float('percentage_invoiced', 5, 2)->default(0);
+            $table->boolean('invoiced')->default(0);
+            $table->string('pay_order')->nullable();
+            $table->timestamp('pay_order_received')->nullable();
+            $table->float('bag_amount',12,2)->default(0);   //Para bolsas de pedidos con importe predefinido.
             //FK:
             $table->unsignedBigInteger('template_id')->nullable();
             $table->foreign('template_id')->references('id')->on('order_settings');

@@ -19,6 +19,11 @@ use App\Models\CompanySettings;
 use App\Models\Item;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\TempImportOrderItems;
+
+//Import XLS:
+use App\Imports\OrderItemsImport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ItemController extends Controller{
     /**
@@ -27,6 +32,7 @@ class ItemController extends Controller{
      * 3. Guardar item.
      * 4. Obtener item por ajax.
      * 5. Actualizar item.
+     * 6. Importar líneas de pedido desde .xls.
      */
     
     private $languages;
@@ -168,7 +174,11 @@ class ItemController extends Controller{
         //Bloque al que pertenece el item:
         $budget_form_block_id = NULL;
 
-        if($budget->modality == config('constants.BUDGET_FORM_MODALITY_')){
+        //Orden en el bloque:
+        $budget_order = NULL;
+
+        //Presupuesto por formulario:
+        if($budget && $budget->modality == config('constants.BUDGET_FORM_MODALITY_')){
             //Obtenemos bloque genérico del presupuesto:
             $block = BudgetFormItems::select('id')
             ->where('recid', '0')
@@ -184,19 +194,30 @@ class ItemController extends Controller{
                 $block->save();
             }
             $budget_form_block_id = $block->id; 
+
+            //Orden en el bloque:
+            $last_order = Item::select('budget_order')
+            ->where('budget_order_id', $request->shared_id)
+            ->where('budget_form_block_id', $budget_form_block_id)
+            ->whereNotNull('budget_order')
+            ->orderBy('budget_order', 'DESC')
+            ->first();
+
+            $budget_order = $last_order? $last_order->budget_order+1:1;
         }
 
         $item = new Item();
         $item->product_id = $request->product_id? $request->product_id:NULL;
         $item->budget_order_id = $request->shared_id;
         $item->budget_form_block_id = $budget_form_block_id;
+        $item->budget_order = $budget_order;
         $item->concept = $product? $product->name:$request->concept;
         $item->observations = $request->observations;
         $item->qty = $request->qty;
         $item->price = $request->price;
         $item->days = $request->days? $request->days:'0';
         $item->iva = $request->iva? $request->iva:CompanySettings::co_iva();
-        $item->discount = $request->discount;
+        $item->discount = $request->discount > 0? $request->discount:NULL;
         $item->user_id = Auth::user()->id;
         $item->save();
 
@@ -246,6 +267,47 @@ class ItemController extends Controller{
         }else{
             return redirect()->route('budgets.edit', [$request->budget_id, 'items'])->with(compact('msg'));    
         }
+    }
+
+    /**
+     * 6. Importar líneas de pedido desde .xls.
+     */
+    public function importOrderItems(Request $request){
+        $file = $request->file('items');
+
+        //Eliminamos registros anteriores del pedido:
+        TempImportOrderItems::where('budget_order_id', $request->shared_id)->delete();
+
+        //Importación:
+        Excel::import(new OrderItemsImport($request->shared_id), $file);
+
+        $shared = BudgetOrderSharedFields::select('id', 'provider_id', 'order_id')->find($request->shared_id);
+
+        //Procesamos los datos temporales hacia la tabla items:
+        $data = TempImportOrderItems::where('budget_order_id', $request->shared_id)
+        ->orderBy('id', 'ASC')
+        ->get();
+        if($data->count() > 0){
+            foreach($data as $r){
+                $item = new Item();
+                $item->budget_order_id = $r->budget_order_id;
+                //$item->ref = $r->ref;
+                $item->concept = $r->concept;
+                $item->observations = $r->observations;
+                $item->qty = $r->qty;
+                $item->price = $r->price;
+                $item->iva = $r->iva;
+                $item->discount = $r->discount;
+                $item->user_id = Auth::user()->id;
+                $item->save();
+            }    
+        }
+
+        //Eliminamos -de nuevo- registros anteriores del pedido:
+        //TempImportOrderItems::where('budget_order_id', $request->shared_id)->delete();
+
+        $msg = trans('textos.importacion_ok');
+        return redirect()->route('orders.edit', $shared->order_id)->with(compact('msg'));
     }
 
 }

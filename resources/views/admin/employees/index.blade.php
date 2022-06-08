@@ -3,8 +3,8 @@
 @section('content')
 
 <div class="row mb-3">
+	{{-- Acciones --}}
 	<div class="col-12">
-		{{-- Acciones: --}}
 		@can('employees.create')
 			<a class="btn btn-info" href="{{ route('users.create') }}"><i class="fa fa-plus"></i> {!! ucfirst(trans('textos.empleado_nuevo')) !!}</a>
 		@endcan
