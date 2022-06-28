@@ -17,6 +17,7 @@
 			<thead>
 				<tr>
 					<th>{!! ucfirst(trans('textos.grupo')) !!}</th>
+					<th class="text-center">{!! ucfirst(trans('textos.fecha_alta')) !!}</th>
 					<th>{!! ucfirst(trans('textos.descripcion')) !!}</th>
 					<th class="text-center">{!! ucfirst(trans('textos.acciones')) !!}</th>
 				</tr>

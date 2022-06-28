@@ -116,7 +116,7 @@ $(document).ready(function(){
             'excel', 'print', 'pdf'
         ],
         "language" : {
-            "url": "/js/plugins/datatables/lang/"+idm+".json"
+            "url": "/js/plugins/dataTables/lang/"+idm+".json"
         },
         stateSave: false,    //Guarda página al refrescar. 
         initComplete: function(){
@@ -2361,6 +2361,7 @@ $(document).ready(function(){
             },
             "columns": [
                 {data: 'name'},
+                {data: 'alta', className: 'text-right'},
                 {data: 'description'},
                 {data: 'id', className: 'text-right'}
             ],
