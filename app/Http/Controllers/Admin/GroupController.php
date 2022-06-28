@@ -33,7 +33,7 @@ class GroupController extends Controller{
 
     public function __construct(){
         //Idiomas:
-        $this->languages = Helpers::languages();
+        $this->languages = helpers::languages();
 
         $this->middleware('module_setted:rrhh');
         $this->middleware('group_get', ['only' => ['edit', 'update', 'destroy']]);
@@ -81,6 +81,8 @@ class GroupController extends Controller{
             $row->editar = $editar;
             $row->eliminar = $eliminar;
         }
+
+        dd($groups);
 
         return datatables($groups)->toJson();
     }

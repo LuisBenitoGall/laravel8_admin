@@ -206,8 +206,6 @@ class BudgetController extends Controller{
             20 => trans('textos.catalogo')
         ];
 
-
-
         //Ampliación de información de los objetos:
         if($budgets){
             foreach($budgets as $row){
