@@ -44,7 +44,7 @@
     @endif
 
     @if($info)
-        {!! App\Helpers\Helpers::info($info) !!}
+        {!! App\Helpers\helpers::info($info) !!}
     @endif
 
     <x-input-errors name="{{ $name }}"/>

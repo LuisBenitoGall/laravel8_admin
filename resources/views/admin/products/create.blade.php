@@ -34,13 +34,13 @@
 							<label class="custom-chk-rdb">
 				    			<input class="rdb-access" type="radio" name="type" value="p" required>
 				    			<span class="rdb"></span>
-				    			{!! trans('textos.producto') !!}
+				    			{!! ucfirst(trans('textos.producto')) !!}
 							</label>	
 
 							<label class="custom-chk-rdb ml-5">
 				    			<input class="rdb-access" type="radio" name="type" value="s" required>
 				    			<span class="rdb"></span>
-				    			{!! trans('textos.servicio') !!}
+				    			{!! ucfirst(trans('textos.servicio')) !!}
 							</label>
 
 							<x-input-errors name="type"/>

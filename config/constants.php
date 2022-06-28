@@ -43,8 +43,10 @@ return [
     'NOTIFICATION_PERIOD_' => 30,
     'NUM_OF_YEARS_' => 10,           //valor para el cálculo de fechas durante un período de años.
     'OMNI_USERS_' => [1],
-    'ORDER_GROUPS_OPENED_' => 10,
+    'ORDER_GROUPS_DEFAULT_' => 10,
+    'ORDER_GROUPS_OPENED_' => [10],
     'ORDER_STATUS_INVOICED_' => [10, 40, 70],           //Status de pedidos facturables. 
+    'ORDER_STATUS_NOT_DELETED_' => [15, 40, 50, 70],    //Status de pedidos no eliminables.
     'ORDER_STATUS_NOT_INVOICED_' => [30],               //Status de pedidos no facturables.
     'QUESTION_CROSSWORD_' => 30,
     'QUESTION_FREE_TEXT_' => 20,

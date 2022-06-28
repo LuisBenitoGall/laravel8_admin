@@ -91,11 +91,11 @@ class Project extends Model{
             $path_docs = storage_path()."/json/project-docs.json";
             $docs = json_decode(file_get_contents($path_docs), true);
 
-            $path_tasks = storage_path()."/json/tasks.json";
-            $tasks = json_decode(file_get_contents($path_tasks), true);
-
             $path_task_status = storage_path()."/json/task-status.json";
             $task_status = json_decode(file_get_contents($path_task_status), true);
+
+            $path_tasks = storage_path()."/json/tasks.json";
+            $tasks = json_decode(file_get_contents($path_tasks), true);
 
             //Truncate de las tablas:
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
@@ -103,7 +103,6 @@ class Project extends Model{
             DB::table('task_status')->truncate();
             DB::table('tasks')->truncate();
             DB::table('projects')->truncate();
-            DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
             foreach($projects as $p){
                 $project = new Project();
@@ -173,6 +172,9 @@ class Project extends Model{
                     $status->save();
                 }
             }
+
+            //Realizamos toda la importación sin considerar las Foreign Key para evitar errores.
+            DB::statement('SET FOREIGN_KEY_CHECKS=1;');
         }  
     }
 }

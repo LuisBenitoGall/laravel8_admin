@@ -9,7 +9,7 @@
             </div>
 
             <div class="modal-body">
-            	<form method="post" autocomplete="off" action="{{ route('budget-orders.add-member', $shared) }}" id="frmSaveChangeRound" accept-charset="utf-8" enctype="multipart/form-data" role="form">
+            	<form method="post" autocomplete="off" action="{{ route('orders.add-member', $order) }}" id="frmSaveChangeRound" accept-charset="utf-8" enctype="multipart/form-data" role="form">
                     {{ csrf_field() }}
                     <input type="hidden" name="environment" id="myEnvironment">
 

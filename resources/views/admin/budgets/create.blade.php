@@ -67,7 +67,7 @@
 									@endphp
 								@endforeach
 
-								<x-select name="customer_id" id="formCustomerId" class="select2" label="selec_cliente" :options="$customers_" required/>
+								<x-select name="customer_id" id="formCustomerId" class="select2" label="selec_cliente" :options="$customers_" value="{{ $customer_id }}" required/>
 							</div>
 						</div>
 

@@ -1,4 +1,4 @@
-@props(['class' => '', 'disabled' => false, 'id' => false, 'info' => false, 'label' => false, 'multiple' => false, 'name', 'options', 'readonly' => false, 'required' => false, 'value' => '', 'values' => []])
+@props(['class' => '', 'disabled' => false, 'id' => false, 'info' => false, 'label' => false, 'multiple' => false, 'name', 'options', 'readonly' => false, 'required' => false, 'value' => '', 'values' => [], 'warning' => false])
 
 <div>
     {{-- <div wire:ignore> --}}
@@ -32,7 +32,7 @@
     </div>
 
     @if($info)
-        {!! App\Helpers\Helpers::info($info) !!}
+        {!! App\Helpers\helpers::info($info) !!}
     @endif
 
     <x-input-errors name="{{ $name }}"/>

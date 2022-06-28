@@ -282,14 +282,33 @@ class Controller extends BaseController{
         if($table == 'purchase'){ 
             $table = 'order';
             $change_again = 'purchase';
+        }elseif($table == 'budget'){
+            $table = 'order';
+            $change_again = 'budget';
         }elseif($table == 'delivery'){
             $table = 'deliverie';
             $change_again = 'delivery';
         }else{
             $change_again = $table;
         }
-        $cardinal_ = $change_again == 'purchase'? 'purchase_num_cardinal':'num_cardinal';
-        $pattern_ = $change_again == 'purchase'? 'purchase_pattern_id':'pattern_id';
+
+        switch($change_again){
+            case 'purchase':    
+                $cardinal_ = 'purchase_num_cardinal';
+                $pattern_ = 'purchase_pattern_id';
+                break;
+            case 'budget':
+                $cardinal_ = 'budget_num_cardinal';
+                $pattern_ = 'budget_pattern_id';
+                break;
+            default:
+                $cardinal_ = 'num_cardinal';
+                $pattern_ = 'pattern_id';
+                break;    
+        }
+
+        // $cardinal_ = $change_again == 'purchase'? 'purchase_num_cardinal':'num_cardinal';
+        // $pattern_ = $change_again == 'purchase'? 'purchase_pattern_id':'pattern_id';
 
         if($pattern->yearly_reset == 1){
             $last_num = DB::table($table.'s')->select($change_again.'_num', $cardinal_, $pattern_)

@@ -1,4 +1,4 @@
-<form method="post" autocomplete="off" action="{{ route('budgets.update', $budget) }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
+<form method="post" autocomplete="off" action="{{ route('budgets.update', $order) }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
 	@method('PUT')
 	{{ csrf_field() }}
 
@@ -6,31 +6,37 @@
 		{{-- Nº de presupuesto --}}
 		<label for="pattern_id" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.presupuesto_num')) !!}</label>
 		<div class="col-lg-2">
-			{{-- Patrón de numeración si existen patrones y no se trata de una versión --}}
-			@if($patterns && !$budget->recid)
-				@if($patterns->count())
-					@php
-					$patterns_ = [];
-					foreach($patterns as $ptn){
-						$patterns_[$ptn->id] = $ptn->name;
-					}
-					@endphp
-
-					<x-select name="pattern_id" class="select2" label="patron_selecciona" :options="$patterns_" info="budget-pattern-num"/>
-				@else
-					<label class="text-warning mt-2">{{ trans('textos.patrones_no_hay') }}</label>
-				@endif
+			@if($order->budget_num)
+				<label class="text-warning mt-1" style="font-size: 16px;"><b><u>{{ $order->budget_num }}</u></b></label>
 
 			@else
-				<label class="text-warning mt-1" style="font-size: 16px;"><b><u>{{ $budget->budget_num }}</u></b></label>
+				{{-- Patrón de numeración si existen patrones y no se trata de una versión --}}
+				@if($patterns && !$order->recid)
+					@if($patterns->count())
+						@php
+						$patterns_ = [];
+						foreach($patterns as $ptn){
+							$patterns_[$ptn->id] = $ptn->name;
+						}
+						@endphp
+
+						<x-select name="pattern_id" class="select2" label="patron_selecciona" :options="$patterns_" info="budget-pattern-num"/>
+					@else
+						<label class="text-warning mt-2">{{ trans('textos.patrones_no_hay') }}</label>
+					@endif
+				@endif
+			
+				
 			@endif
 
 			{{-- Reset de número: 
 				1. Sólo si los pedidos vinculados no están facturados 
 				2. Sólo para el original, no para las versiones.  Estas se actualizan si cambia el número del original.
+				3. El pedido no debe estar facturado.
+				...
 			--}}
-			@if($budget->budget_num && !$budget->recid)
-				<a href="{{ route('budgets.reset-num', $budget->id) }}" class="ml-3 btn-confirm" rel="tooltip" title="{{ trans('textos.numero_reset') }}" data-msg="{{ trans('textos.numero_reset_confirm') }}">
+			@if($order->budget_num && !$order->recid && ($order && !$order->invoiced))
+				<a href="{{ route('budgets.reset-num', $order->id) }}" class="ml-3 btn-confirm" rel="tooltip" title="{{ trans('textos.numero_reset') }}" data-msg="{{ trans('textos.numero_reset_confirm') }}">
 					<i class="fa fa-redo"></i>
 				</a>
 			@endif
@@ -39,29 +45,25 @@
 		{{-- Presupuesto nº manual --}}
 		<label for="budget_old_num" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.presupuesto_num_manual')) !!}</label>
 		<div class="col-lg-2">
-			<x-input type="text" name="budget_old_num" value="{{ $budget->budget_old_num }}" autocomplete="off" maxlength="150" info="budget-old-num"/>
+			<x-input type="text" name="budget_old_num" value="{{ $order->budget_old_num }}" autocomplete="off" maxlength="150" info="budget-old-num"/>
 		</div>
 
 		{{-- Pedido --}}
-		@if($order)
+		{{-- @if($order)
 			<label class="col-md-3 col-lg-2 col-form-label">{!! ucfirst(trans('textos.pedido')) !!}</label>
 			<div class="col-md-3 col-lg-2">
 				<label class="text-warning mt-2"><b><u>@if($order->order_num) {{ $order->order_num }} @else {{ $order->id }} @endif</u></b></label>
 				<a href="{{ route('orders.edit', $order->id) }}" class="ml-2" rel="tooltip" title="{{ ucfirst(trans('textos.pedido_editar')) }}">
 					<i class="fa fa-edit"></i>
 				</a>
-
-				{{-- @if($order->modality == config('constants.BUDGET_FREE_MODALITY_'))
-					<small class="text-warning ml-2">{{ trans('textos.bolsa_pedidos') }}</small>
-				@endif --}}
 			</div>
-		@endif
+		@endif --}}
 
 		{{-- Importe para presupuestos libres --}}
-		{{-- @if($budget->modality == config('constants.BUDGET_BASIC_MODALITY_'))
+		{{-- @if($order->modality == config('constants.BUDGET_BASIC_MODALITY_'))
 			<label for="budget_free_amount" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.importe_bolsa')) !!}</label>
 			<div class="col-lg-2">
-				<x-input type="text" name="budget_free_amount" class="text-right set-decimals" value="{{ $shared->budget_free_amount }}" autocomplete="off" maxlength="11" group="right" groupvalue="{{ $currency->symbol }}" info="budget-free-amount"/>
+				<x-input type="text" name="budget_free_amount" class="text-right set-decimals" value="{{ $order->budget_free_amount }}" autocomplete="off" maxlength="11" group="right" groupvalue="{{ $currency->symbol }}" info="budget-free-amount"/>
 			</div>	
 		@endif --}}
 	</div>
@@ -70,40 +72,40 @@
 		{{-- Presupuesto título --}}
 		<label for="name" class="col-lg-2 col-form-label">{{ ucfirst(trans('textos.presupuesto_titulo')) }}</label>
 		<div class="col-lg-4">
-			<x-input type="text" name="name" value="{{ $budget->name }}" autocomplete="off" maxlength="255"/>
+			<x-input type="text" name="name" value="{{ $order->name }}" autocomplete="off" maxlength="255"/>
 		</div>
 
 		{{-- Estado --}}
 		<label for="status" class="col-lg-2 col-form-label">{{ ucfirst(trans('textos.estado')) }}</label>
 		<div class="col-lg-4">
 			@php
-			$status = App\Helpers\Helpers::budgetStatus();
+			$status = App\Helpers\helpers::budgetStatus();
 			@endphp
 
-			<x-select name="status" class="select2" :options="$status" label="estado_selec" value="{{ $budget->status }}"/>
+			<x-select name="status" class="select2" :options="$status" label="estado_selec" value="{{ $order->budget_status }}"/>
 		</div>
 	</div>
 
 	{{-- Orden de compra si el presupuesto está aprobado --}}
-	@if($budget->status >= config('constants.BUDGET_STATUS_APPROVED_'))
+	@if($order->status >= config('constants.BUDGET_STATUS_APPROVED_'))
 		<div class="form-group row">
 			{{-- Orden de compra --}}
 			<label for="customer_order" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.orden_compra')) !!}</label>
 			<div class="col-lg-2">
-				<x-input type="text" name="customer_order" value="{{ $shared->customer_order }}" autocomplete="off" maxlength="50" info="budget-customer-order"/>
+				<x-input type="text" name="customer_order" value="{{ $order->customer_order }}" autocomplete="off" maxlength="50" info="budget-customer-order"/>
 			</div>
 
 			{{-- Documento de compra --}}
 			<label for="customer_order_doc" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.orden_compra_doc')) !!}</label>
 			<div class="col-lg-4">
-				@if($shared->customer_order_doc)
+				@if($order->customer_order_doc)
 					{{-- Descargar archivo --}}
-					<a href="{{ asset('img/purchase-orders/'.$shared->customer_order_doc) }}" download="{{ trans('textos.documento_compra') }}" class="btn-download" rel="tooltip" title="{{ trans('textos.archivo_descargar') }}">
+					<a href="{{ asset('img/purchase-orders/'.$order->customer_order_doc) }}" download="{{ trans('textos.documento_compra') }}" class="btn-download" rel="tooltip" title="{{ trans('textos.archivo_descargar') }}">
 						<i class="fa fa-file"></i>
 					</a>
 
 					{{-- Eliminar archivo --}}
-					<a href="{{ route('budgets.delete-doc', $budget) }}" rel="tooltip" title="{{ trans('textos.archivo_eliminar') }}" class="text-danger ml-3 btn-confirm" data-msg="{{ trans('textos.documento_eliminar_confirm') }}">
+					<a href="{{ route('budgets.delete-doc', $order) }}" rel="tooltip" title="{{ trans('textos.archivo_eliminar') }}" class="text-danger ml-3 btn-confirm" data-msg="{{ trans('textos.documento_eliminar_confirm') }}">
 						<i class="fa fa-trash"></i>
 					</a>
 				@else
@@ -125,13 +127,13 @@
 		{{-- Project Manager --}}
 		<label for="provider_manager_id" class="col-lg-2 col-form-label">Project Manager</label>
 		<div class="col-lg-4">	
-			<x-select name="provider_manager_id" class="select2" :options="$provider_managers" label="manager_selec" value="{{ $shared->provider_manager_id }}"/>
+			<x-select name="provider_manager_id" class="select2" :options="$provider_managers" label="manager_selec" value="{{ $order->provider_manager_id }}"/>
 		</div>
 
 		{{-- Manager del cliente --}}
 		<label for="provider_manager_id" class="col-lg-2 col-form-label">{{ ucfirst(trans('textos.responsable_cliente')) }}</label>
 		<div class="col-lg-3">	
-			<x-select name="customer_manager_id" class="select2" :options="$customer_managers" label="manager_selec" value="{{ $shared->customer_manager_id }}"/>
+			<x-select name="customer_manager_id" class="select2" :options="$customer_managers" label="manager_selec" value="{{ $order->customer_manager_id }}"/>
 		</div>
 
 		{{-- Añadir nuevo responsable de cliente --}}
@@ -157,7 +159,7 @@
 					@endphp	
 				@endforeach
 
-				<x-select name="provider_workplace_id" class="select2" :options="$provider_workplaces_" label="centro_trabajo_selec" value="{{ $shared->provider_workplace_id }}"/>
+				<x-select name="provider_workplace_id" class="select2" :options="$provider_workplaces_" label="centro_trabajo_selec" value="{{ $order->provider_workplace_id }}"/>
 
 			@elseif($provider_workplaces->count() == 1)
 				<input type="hidden" name="provider_workplace_id" value="{{ $provider_workplaces[0]->id }}">
@@ -179,7 +181,7 @@
 					@endphp	
 				@endforeach
 
-				<x-select name="customer_workplace_id" class="select2" :options="$customer_workplaces_" label="centro_trabajo_selec" value="{{ $shared->customer_workplace_id }}"/>
+				<x-select name="customer_workplace_id" class="select2" :options="$customer_workplaces_" label="centro_trabajo_selec" value="{{ $order->customer_workplace_id }}"/>
 
 			@elseif($customer_workplaces->count() == 1)
 				<input type="hidden" name="customer_workplace_id" value="{{ $customer_workplaces[0]->id }}">
@@ -203,7 +205,7 @@
 					@endphp	
 				@endforeach
 
-				<x-select name="provider_cost_center_id" class="select2" :options="$provider_cost_centers_" label="centro_coste_selec" value="{{ $shared->provider_cost_center_id }}"/>
+				<x-select name="provider_cost_center_id" class="select2" :options="$provider_cost_centers_" label="centro_coste_selec" value="{{ $order->provider_cost_center_id }}"/>
 			</div>
 		@endif
 
@@ -221,7 +223,7 @@
 					@endphp	
 				@endforeach
 
-				<x-select name="customer_cost_center_id" class="select2" :options="$customer_cost_centers_" label="centro_coste_selec" value="{{ $shared->customer_cost_center_id }}"/>
+				<x-select name="customer_cost_center_id" class="select2" :options="$customer_cost_centers_" label="centro_coste_selec" value="{{ $order->customer_cost_center_id }}"/>
 			</div>
 		@endif
 	
@@ -239,7 +241,7 @@
 					@endphp	
 				@endforeach
 
-				<x-select name="provider_business_area_id" class="select2" :options="$provider_business_areas_" label="area_negocio_selec" value="{{ $shared->provider_business_area_id }}"/>
+				<x-select name="provider_business_area_id" class="select2" :options="$provider_business_areas_" label="area_negocio_selec" value="{{ $order->provider_business_area_id }}"/>
 			</div>
 		@endif
 
@@ -257,7 +259,7 @@
 					@endphp	
 				@endforeach
 
-				<x-select name="customer_business_area_id" class="select2" :options="$customer_business_areas_" label="area_negocio_selec" value="{{ $shared->customer_business_area_id }}"/>
+				<x-select name="customer_business_area_id" class="select2" :options="$customer_business_areas_" label="area_negocio_selec" value="{{ $order->customer_business_area_id }}"/>
 			</div>
 		@endif
 	</div>
@@ -277,7 +279,7 @@
 					@endphp	
 				@endforeach
 
-				<x-select name="final_customer_id" class="select2" :options="$final_customers_" label="cliente_selec" value="{{ $shared->final_customer_id }}"/>
+				<x-select name="final_customer_id" class="select2" :options="$final_customers_" label="cliente_selec" value="{{ $order->final_customer_id }}"/>
 			@else
 				<p class="text-warning pt-2">{!! trans('textos.cliente_final_no_encontrados') !!}</p>
 			@endif
@@ -286,9 +288,9 @@
 
 	{{-- Nombre del archivo --}}
 	<div class="form-group row">
-		<label for="file_name" class="col-lg-2 col-form-label">{{ ucfirst(trans('textos.nombre_archivo')) }}</label>
+		<label for="budget_file_name" class="col-lg-2 col-form-label">{{ ucfirst(trans('textos.nombre_archivo')) }}</label>
 		<div class="col-lg-4">
-			<x-input type="text" name="file_name" value="{{ $budget->file_name }}" autocomplete="off" maxlength="255" info="budget-file-name"/>
+			<x-input type="text" name="budget_file_name" value="{{ $order->budget_file_name }}" autocomplete="off" maxlength="255" info="budget-file-name"/>
 		</div>
 	</div>
 
@@ -296,7 +298,7 @@
 	<div class="form-group row">
 		<label for="description" class="col-lg-2 col-form-label">{{ ucfirst(trans('textos.descripcion')) }}</label>
 		<div class="col-lg-10">
-			<x-input-textarea name="description" class="editor" value="{{ $budget->description }}"/>
+			<x-input-textarea name="description" class="editor" value="{{ $order->description }}"/>
 		</div>
 	</div>
 

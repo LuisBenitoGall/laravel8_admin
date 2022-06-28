@@ -225,6 +225,14 @@
 				"setted" : false
 			},
 			{
+				"suboption" : "bancos",
+				"label" : "bancos",
+				"url": "banks.index",
+				"slug" : "banks",
+				"permission" : "banks.index",
+				"setted" : false
+			},
+			{
 				"suboption" : "paises",
 				"label" : "paises",
 				"url": "countries.index",

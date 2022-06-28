@@ -14,8 +14,8 @@ class CreateTempImportOrderItemsTable extends Migration{
         Schema::create('temp_import_order_items', function (Blueprint $table){
             $table->id();
             //FK:
-            $table->unsignedBigInteger('budget_order_id');
-            $table->foreign('budget_order_id')->references('id')->on('budget_order_shared_fields');
+            $table->unsignedBigInteger('order_id');
+            $table->foreign('order_id')->references('id')->on('orders');
             $table->string('ref')->nullable();
             $table->text('concept')->nullable();
             $table->float('qty',10,2)->default(0);

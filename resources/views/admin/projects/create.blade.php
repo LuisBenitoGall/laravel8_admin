@@ -26,6 +26,25 @@
 							<x-input type="text" name="name" id="name" placeholder="{!! ucfirst(trans('textos.nombre')) !!}" autocomplete="off" maxlength="255" required/>
 						</div>
 					</div>
+
+					{{-- Selecciona cliente --}}
+					<div class="form-group row">
+						<label for="customer_id" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.cliente')) !!}</label>
+						<div class="col-lg-4">
+							@php
+							$customers_ = [];
+							@endphp
+
+							@foreach($customers as $ctm)
+								@php
+								$company = $ctm->tradename? $ctm->name.' ('.$ctm->tradename.')':$ctm->name;
+								$customers_[$ctm->id] = $company;
+								@endphp
+							@endforeach
+
+							<x-select name="customer_id" id="formCustomerId" class="select2" label="selec_cliente" :options="$customers_" info="project-customer"/>
+						</div>
+					</div>
 					
 					<x-btn-submit name="submit_save" label="{{ trans('textos.guardar') }}"/>
 				</form>

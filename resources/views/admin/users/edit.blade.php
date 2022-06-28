@@ -4,8 +4,9 @@
 
 @if(isset($user))
 	<div class="row mb-3">
+		{{-- Acciones --}}
 		<div class="col-12">
-			{{-- Acciones --}}
+			{{-- Listado usuarios --}}
 			@can('users.index')
 				<a href="{{ route('users.index') }}" class="btn btn-info">
 					<i class="fa fa-angle-left"></i>

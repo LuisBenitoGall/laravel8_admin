@@ -5,264 +5,358 @@
 <div class="row mb-3">
 	{{-- Acciones: --}}
 	<div class="col-12">
-		{{-- Listado pedidos --}}
-		@can('orders.index')
-			<a href="{{ route('orders.index') }}" class="btn btn-info">
-				<i class="fa fa-angle-left"></i>
-				{!! trans('textos.volver_pedidos') !!}
-			</a>
-		@endcan
+		{{-- Acciones agrupaciones --}}
+		@if($order->is_group)
+			{{-- Listado agrupaciones --}}
+			@can('orders.index')
+				<a href="{{ route('order-groups.index') }}" class="btn btn-info">
+					<i class="fa fa-angle-left"></i>
+					{!! trans('textos.volver_agrupaciones') !!}
+				</a>
+			@endcan
 
-		{{-- Nuevo pedido --}}
-		@can('orders.create')
-			<a href="{{ route('orders.create', $order_type) }}" class="btn btn-info">
-				<i class="fa fa-plus"></i>
-				@if($order_type == 'sale') {!! ucfirst(trans('textos.venta_nueva')) !!} @else {!! ucfirst(trans('textos.compra_nueva')) !!} @endif
-			</a>
-		@endcan
+			{{-- Nueva agrupación --}}
+			@can('orders.create')
+				<a href="{{ route('order-groups.create') }}" class="btn btn-info">
+	    			<i class="fa fa-plus"></i>
+	    			{!! ucfirst(trans('textos.agrupacion_nueva')) !!}
+	    		</a>
+	    	@endcan
 
-		@can('orders.edit')
-			{{-- Nueva línea --}}
-			<a href="#" class="btn btn-info btnAddItem" data-toggle="modal" data-target="#modal-new-line">
-				<i class="fa fa-plus"></i> {!! ucfirst(trans('textos.linea_nueva')) !!}
-			</a>
+	    	{{-- Agregar pedidos - condiciones: 
+				1. Permisos de edición de pedidos.
+				2. El estado de la agrupación debe permitir su edición.
+				...
+	    	--}}
+	    	@can('orders.edit')
+				@if(in_array($order->status, config('constants.ORDER_GROUPS_OPENED_')))
+					<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-add-orders">
+						<i class="fa fa-plus"></i>
+						{!! trans('textos.pedidos_agregar') !!}
+					</a>
+				@endif
+			@endcan
 
-			{{-- Importar líneas --}}
-	    	<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-import-items">
-    			<i class="fa fa-file-import"></i>
-    			{!! ucfirst(trans('textos.lineas_importar')) !!}
-    		</a>
-		@endcan
+			{{-- Facturar - condiciones: 
+				1. Disponer de permisos para generar facturas.
+				2. Estar activo el módulo de contabilidad.
+				3. Status apto para facturación: abierto (10)
+				...
+			--}}
+			@can('invoices.create')
+				@if($module_accounting 
+					&& in_array($order->status, config('constants.ORDER_GROUPS_OPENED_'))
+				)
+					<a href="{{ route('order-groups.to-invoice', $order) }}" class="btn btn-info" rel="tooltip" title="{{ ucfirst(trans('textos.agrupacion_facturar')) }}"><i class="fa fa-file-invoice-dollar"></i></a>
+				@endif
+			@endcan
 
-		{{-- Imprimir --}}
-		<a href="{{ route('orders.print', $order) }}" class="btn btn-info close-animation" rel="tooltip" title="{!! ucfirst(trans('textos.imprimir')) !!}">
-			<i class="fa fa-print"></i>
-		</a>
+		{{-- Acciones pedidos simples --}}
+		@else
+			{{-- Listado pedidos --}}
+			@can('orders.index')
+				<a href="{{ route('orders.index') }}" class="btn btn-info">
+					<i class="fa fa-angle-left"></i>
+					{!! trans('textos.volver_pedidos') !!}
+				</a>
+			@endcan
 
-		{{-- Descuento --}}
-		@can('orders.edit')
-			@if($permitted)
-				@if($shared->provider_id == session('currentCompany') && !$shared->discount)
-					<a href="#" class="btn btn-warning" data-toggle="modal" data-target="#modal-budget-discount" rel="tooltip" title="{{ trans('textos.descuento_pedido') }}">
-		    			<i class="fa fa-percent"></i>
+			{{-- Nuevo pedido --}}
+			@can('orders.create')
+				<a href="{{ route('orders.create', $order_type) }}" class="btn btn-info">
+					<i class="fa fa-plus"></i>
+					@if($order_type == 'sale') {!! ucfirst(trans('textos.venta_nueva')) !!} @else {!! ucfirst(trans('textos.compra_nueva')) !!} @endif
+				</a>
+			@endcan
+
+			{{-- Factura - condiciones: 
+				1. Pedido facturado.
+				2. Facturas declaradas.
+			--}}
+			{{-- @if($order->invoiced && $invoices->count())
+				@if($invoices->count() == 1)
+					<a target="_blank" href="{{ route('invoices.edit', $invoices[0]->id) }}" class="btn btn-info">
+						<i class="fa fa-file-invoice-dollar"></i>
+						{{ trans('textos.factura') }}
+					</a>
+
+				@elseif($invoices->count() > 1)
+					<div class="several-invoices">
+						<select class="form-control select2">
+							<option value="">
+								{!! ucfirst(trans('textos.facturas')) !!}
+							</option>
+
+							@foreach($invoices as $inv)
+								<option value="{{ $inv->id }}">@if($inv->num) {{ $inv->num }} @else {{ $inv->id }} @endif</option>
+							@endforeach
+						</select>
+					</div>
+				@endif
+			@endif --}}
+
+			@can('orders.edit')
+				@if(!$order->invoiced)
+					{{-- Nueva línea --}}
+					<a href="#" class="btn btn-info btnAddItem" data-toggle="modal" data-target="#modal-new-line">
+						<i class="fa fa-plus"></i> {!! ucfirst(trans('textos.linea_nueva')) !!}
+					</a>
+
+					{{-- Importar líneas --}}
+			    	<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-import-items">
+		    			<i class="fa fa-file-import"></i>
+		    			{!! ucfirst(trans('textos.lineas_importar')) !!}
 		    		</a>
 		    	@endif
-		    @endif
-	    @endcan
-
-	    {{-- Generar presupuesto - condiciones 
-	    	1. Estar activo el módulo de Presupuestos.
-			2. Disponer de permisos para generar presupuestos.
-			3. No debe existir un presupuesto previo.
-			4. Exclusivo del proveedor.
-			...
-		--}}
-		@if($module_budgets && !$shared->budget_id && $shared->provider_id == session('currentCompany'))
-			@can('budgets.create')
-				<a href="{{ route('budgets.budget-from-order', $order) }}" class="btn btn-warning btn-confirm" data-msg="{!! trans('textos.presupuesto_confirm_generar') !!}">
-					<i class="fa fa-file-alt"></i>
-					{!! ucfirst(trans('textos.presupuesto_generar')) !!}
-				</a>
 			@endcan
-		@endif
 
-		{{-- Acceso a presupuesto --}}
-		@if($module_budgets)
-			@can('budgets.edit')
-				@if($shared->budget_id)
-					<a target="_blank" href="{{ route('budgets.edit', $shared->budget_id) }}" class="btn btn-info">
-						<i class="fa fa-file-alt"></i>
-						{!! ucfirst(trans('textos.presupuesto')) !!}
-					</a>
-				@endif
-			@endcan
-		@endif
+			{{-- Imprimir --}}
+			<a href="{{ route('orders.print', $order) }}" class="btn btn-info close-animation" rel="tooltip" title="{!! ucfirst(trans('textos.imprimir')) !!}">
+				<i class="fa fa-print"></i>
+			</a>
 
-		{{-- Generar proyecto / link a proyecto - condiciones: 
-			1. Estar activo el módulo de Proyectos.
-			2. Tratarse de una venta.
-			3. Disponer de permisos para generar proyectos.
-			...
-		--}}
-		@if($module_projects && $shared->provider_id == session('currentCompany'))
-			{{-- Acceso a proyecto --}}
-			@if($project_linked)
-				@can('projects.edit')
-					<a target="_blank" href="{{ route('projects.edit', $project_linked->project_id) }}" class="btn btn-info">
-						<i class="fa fa-rocket"></i>
-						{!! ucfirst(trans('textos.proyecto')) !!}
-					</a>
-				@endcan
-
-			{{-- Vincular proyecto --}}
-			@else
-				@can('projects.create')
-					<a href="#" class="btn btn-warning" data-toggle="modal" data-target="#modal-add-project">
-						<i class="fa fa-rocket"></i>
-						{!! ucfirst(trans('textos.proyecto_vincular')) !!}
-					</a>
-				@endcan
-			@endif
-		@endif
-
-		{{-- Acceso a proyecto --}}
-		@if($module_projects)
-			@can('projects.edit')
-				@if($shared->project_id)
-					<a href="{{ route('projects.edit', $shared->project_id) }}" class="btn btn-info">
-						<i class="fa fa-rocket"></i>
-						{!! ucfirst(trans('textos.proyecto')) !!}
-					</a>
-				@endif
-			@endcan
-		@endif
-
-		{{-- Vincular compra a un proyecto - condiciones: 
-			1. Estar activo el módulo de Proyectos.
-			2. Tratarse de una compra. 
-			3. Disponer de permisos para editar proyectos.
-			...
-		--}}
-		@if($module_projects && $shared->customer_id == session('currentCompany'))
-			@can('projects.edit')
-				<a href="#" class="btn btn-warning" data-toggle="modal" data-target="#modal-add-purchase-to-project">
-					<i class="fa fa-rocket"></i>
-					{!! ucfirst(trans('textos.proyecto_vincular_compra')) !!}
-				</a>	
-			@endcan
-		@endif
-
-		{{-- Agrupación de pedidos --}}
-		@can('orders.edit')
-			{{-- Link agrupación --}}
-			@if($in_group)
-				<a target="_blank" href="{{ route('order-groups.edit', $in_group->id) }}" class="btn btn-info">
-					<i class="fa fa-object-group"></i>
-					{!! ucfirst(trans('textos.agrupacion_pedidos')) !!}
-				</a>
-
-				{{-- Desvincular de agrupación --}}
-				<a href="" class="btn btn-danger btn-confirm" rel="tooltip" title="{!! ucfirst(trans('textos.pedido_desvincular')) !!}" data-msg="{{ trans('textos.pedido_desvincular_confirm') }}">
-					<i class="fa fa-unlink"></i>
-				</a>
-				
-			{{-- Vincular a agrupación - condiciones: 
-				1. Pedido no facturado.
+			{{-- Descuento - condiciones: 
+				1. Permitted = true.
+				2. No facturado.
 			--}}
-			@else
-				@if(!$order->invoiced && !$invoices->count())
-					<a href="#" class="btn btn-warning" data-toggle="modal" data-target="#modal-link-order-group">
-						<i class="fa fa-object-group"></i>
-						{!! ucfirst(trans('textos.agrupacion_vincular')) !!}
+			@can('orders.edit')
+				@if($permitted && !$order->invoiced && !$order->order_parent)
+					@if($order->provider_id == session('currentCompany') && !$order->discount)
+						<a href="#" class="btn btn-warning" data-toggle="modal" data-target="#modal-budget-discount" rel="tooltip" title="{{ trans('textos.descuento_pedido') }}">
+			    			<i class="fa fa-percent"></i>
+			    		</a>
+			    	@endif
+			    @endif
+		    @endcan
+
+		    {{-- Generar presupuesto - condiciones 
+		    	1. Estar activo el módulo de Presupuestos.
+				2. Disponer de permisos para generar presupuestos.
+				3. No debe existir un presupuesto previo.
+				4. Exclusivo del proveedor.
+				5. El pedido no está declarado como presupuesto.
+				...
+			--}}
+			@if($module_budgets && !$order->budget_id && $order->provider_id == session('currentCompany') && !$order->is_budget)
+				@can('budgets.create')
+					<a href="{{ route('budgets.budget-from-order', $order) }}" class="btn btn-warning btn-confirm" data-msg="{!! trans('textos.presupuesto_confirm_generar') !!}">
+						<i class="fa fa-file-alt"></i>
+						{!! ucfirst(trans('textos.presupuesto_generar')) !!}
 					</a>
+				@endcan
+			@endif
+
+			{{-- Acceso a presupuesto --}}
+			@if($module_budgets)
+				@can('budgets.edit')
+					@if($order->budget_id)
+						<a target="_blank" href="{{ route('budgets.edit', $order->budget_id) }}" class="btn btn-info">
+							<i class="fa fa-file-alt"></i>
+							{!! ucfirst(trans('textos.presupuesto')) !!}
+						</a>
+					@endif
+				@endcan
+			@endif
+
+			{{-- Generar proyecto / link a proyecto - condiciones: 
+				1. Estar activo el módulo de Proyectos.
+				2. Tratarse de una venta.
+				3. Disponer de permisos para generar proyectos.
+				...
+			--}}
+			@if($module_projects && $order->provider_id == session('currentCompany'))
+				{{-- Acceso a proyecto --}}
+				@if($project_linked)
+					@can('projects.edit')
+						<a target="_blank" href="{{ route('projects.edit', $project_linked->project_id) }}" class="btn btn-info">
+							<i class="fa fa-rocket"></i>
+							{!! ucfirst(trans('textos.proyecto')) !!}
+						</a>
+					@endcan
+
+				{{-- Vincular proyecto --}}
+				@else
+					@can('projects.create')
+						<a href="#" class="btn btn-warning" data-toggle="modal" data-target="#modal-add-project">
+							<i class="fa fa-rocket"></i>
+							{!! ucfirst(trans('textos.proyecto_vincular')) !!}
+						</a>
+					@endcan
 				@endif
 			@endif
-		@endcan
 
-		{{-- Preparar entrega - condiciones: 
-			1. Estar activo el módulo de Logística.
-			2. Pedido sin preparar.
-			3. Exclusivo para proveedor.
-			4. Disponer de permisos para editar pedidos.
-			...
-		--}}
-		@if($module_logistics)
-			{{-- Iniciar preparación de la entrega del pedido --}}
-			@if($order->prepare_delivery == 0 && $shared->provider_id == session('currentCompany'))
-				@can('orders.edit')
-					<a href="{{ route('orders.set-delivery', $order) }}" class="btn btn-info btn-confirm" data-msg="{{ trans('textos.pedido_preparar_entrega_confirm') }}">
-						<i class="fa fa-truck-loading"></i>
-						{!! ucfirst(trans('textos.entrega_preparar')) !!}
+			{{-- Acceso a proyecto --}}
+			@if($module_projects)
+				@can('projects.edit')
+					@if($order->project_id)
+						<a href="{{ route('projects.edit', $order->project_id) }}" class="btn btn-info">
+							<i class="fa fa-rocket"></i>
+							{!! ucfirst(trans('textos.proyecto')) !!}
+						</a>
+					@endif
+				@endcan
+			@endif
+
+			{{-- Vincular compra a un proyecto - condiciones: 
+				1. Estar activo el módulo de Proyectos.
+				2. Tratarse de una compra. 
+				3. Disponer de permisos para editar proyectos.
+				...
+			--}}
+			@if($module_projects && $order->customer_id == session('currentCompany'))
+				@can('projects.edit')
+					<a href="#" class="btn btn-warning" data-toggle="modal" data-target="#modal-add-purchase-to-project">
+						<i class="fa fa-rocket"></i>
+						{!! ucfirst(trans('textos.proyecto_vincular_compra')) !!}
 					</a>	
 				@endcan
 			@endif
 
-			{{-- Pedido en preparación para entregar --}}
-			@if($order->prepare_delivery == 1)
-				<a target="_blank" href="" class="btn btn-warning btn-confirm" data-msg="{{ trans('textos.entrega_preparar_confirm') }}">
-					<i class="fa fa-tasks"></i>
-					{!! ucfirst(trans('textos.entrega_en_preparacion')) !!}
-				</a>	
-			@endif
+			{{-- Agrupación de pedidos --}}
+			@can('orders.edit')
+				{{-- Link agrupación --}}
+				@if($order->parent)
+					<a target="_blank" href="{{ route('orders.edit', $order->parent) }}" class="btn btn-info">
+						<i class="fa fa-object-group"></i>
+						{!! ucfirst(trans('textos.agrupacion_pedidos')) !!}
+					</a>
 
-			{{-- Entregas del pedido: 
-				1. Existir entregas vinculadas.
-				2. El pedido debe estar validado para su preparación.
+					{{-- Desvincular de agrupación - condiciones: 
+						1. Pedido no facturado.
+					--}}
+					@if(!$order->invoiced)
+						<form method="POST" action="{{ route('order-groups.destroy', $order->id) }}" class="frm-inline" role="form" accept-charset="UTF-8">
+	            			<input name="_method" type="hidden" value="DELETE">
+	            			<input type="hidden" name="return" value="order-single">
+	            			{{ csrf_field() }}
+	            			<button type="submit" class="btn btn-danger frm-confirm" rel="tooltip" title="{!! ucfirst(trans('textos.pedido_desvincular')) !!}" data-msg="{!! ucfirst(trans('textos.pedido_desvincular_confirm')) !!}"><i class="fa fa-unlink"></i></button>
+	        			</form>
+	        		@endif
+					
+				{{-- Vincular a agrupación - condiciones: 
+					1. Pedido no facturado.
+				--}}
+				@else
+					@if(!$order->invoiced && !$invoices->count())
+						<a href="#" class="btn btn-warning" data-toggle="modal" data-target="#modal-link-order-group">
+							<i class="fa fa-object-group"></i>
+							{!! ucfirst(trans('textos.agrupacion_vincular')) !!}
+						</a>
+					@endif
+				@endif
+			@endcan
+
+			{{-- Preparar entrega - condiciones: 
+				1. Estar activo el módulo de Logística.
+				2. Pedido sin preparar.
+				3. Exclusivo para proveedor.
+				4. Disponer de permisos para editar pedidos.
 				...
 			--}}
-			@if($deliveries->count() && $order->prepare_delivery)
+			@if($module_logistics)
+				{{-- Iniciar preparación de la entrega del pedido --}}
+				@if($order->prepare_delivery == 0 && $order->provider_id == session('currentCompany'))
+					@can('orders.edit')
+						<a href="{{ route('orders.set-delivery', $order) }}" class="btn btn-info btn-confirm" data-msg="{{ trans('textos.pedido_preparar_entrega_confirm') }}">
+							<i class="fa fa-truck-loading"></i>
+							{!! ucfirst(trans('textos.entrega_preparar')) !!}
+						</a>	
+					@endcan
+				@endif
+
+				{{-- Pedido en preparación para entregar --}}
+				@if($order->prepare_delivery == 1)
+					<a target="_blank" href="" class="btn btn-warning btn-confirm" data-msg="{{ trans('textos.entrega_preparar_confirm') }}">
+						<i class="fa fa-tasks"></i>
+						{!! ucfirst(trans('textos.entrega_en_preparacion')) !!}
+					</a>	
+				@endif
+
+				{{-- Entregas del pedido: 
+					1. Existir entregas vinculadas.
+					2. El pedido debe estar validado para su preparación.
+					...
+				--}}
+				@if($deliveries->count() && $order->prepare_delivery)
+					@php
+					$deliveries_ = [];
+					foreach($deliveries as $dlv){
+						$num = $dlv->delivery_num? $dlv->delivery_num:($dlv->delivery_old_num? $dlv->delivery_old_num:$dlv->deliveryId);
+						$deliveries_[$dlv->deliveryId] = $num;
+					}	
+					@endphp
+
+					<div class="d-inline-block align-top">
+	        			<x-select name="delivery_id" class="select2" id="linkDelivery" label="entrega_ir" :options="$deliveries_"/>
+	        		</div>
+				@endif
+			@endif
+
+			{{-- Facturar - condiciones: 
+				1. Disponer de permisos para generar facturas.
+				2. Estar activo el módulo de contabilidad.
+				3. Status apto para facturación: aprobado (10), entregado (40), finalizado (70)
+				4. El importe facturado debe ser menor al importe total del pedido.
+				5. No debe pertenecer a ninguna agrupación de pedidos.
+				...
+			--}}
+			@can('invoices.create')
+				@if($module_accounting 
+					&& in_array($order->status, config('constants.ORDER_STATUS_INVOICED_'))
+					&& (!$invoiced || round($order_amount, 2) > round($invoiced['invoiced_amount'], 2))
+					&& !$order->parent
+				)
+					<a href="#" class="btn btn-info" rel="tooltip" title="{{ ucfirst(trans('textos.facturar')) }}" data-toggle="modal" data-target="#modal-generate-invoice"><i class="fa fa-file-invoice-dollar"></i></a>
+				@endif
+			@endcan
+
+			{{-- Facturas del pedido - condiciones: 
+				1. Permisos de listar facturas.
+				2. Existen facturas declaradas.
+				3. Pedido facturado.
+			--}}
+			@can('invoices.index')
+				@if($invoices->count() && $order->invoiced)	
+					<a href="{{ route('invoices.by-order', $order) }}" class="btn btn-info" rel="tooltip">
+						<i class="fa fa-file-invoice-dollar"></i>
+						{{ ucfirst(trans('textos.facturas_pedido')) }}
+					</a>	
+				@endif
+			@endcan
+
+			{{-- Recalcular previsiones de facturación. Cuando se ha modificado el importe del pedido y los porcentajes de previsión de facturación no se ajustan al planteamiento original - condiciones:
+				1. No quedan previsiones de facturación pendientes de facturar.
+				2. El importe del pedido supera al facturado.
+			--}}
+			@can('invoices.edit')
+				{{-- Controlamos que no existan previsiones sin facturar --}}
 				@php
-				$deliveries_ = [];
-				foreach($deliveries as $dlv){
-					$num = $dlv->delivery_num? $dlv->delivery_num:($dlv->delivery_old_num? $dlv->delivery_old_num:$dlv->deliveryId);
-					$deliveries_[$dlv->deliveryId] = $num;
-				}	
+				$no_previsions = true;
+				foreach($previsions as $prv){
+					if(!$prv->invoice_id){
+						$no_previsions = false;
+						break;
+					}
+				}
 				@endphp
 
-				<div class="d-inline-block align-top">
-        			<x-select name="delivery_id" class="select2" id="linkDelivery" label="entrega_ir" :options="$deliveries_"/>
-        		</div>
-			@endif
+				@if($no_previsions && $invoiced && round($order_amount, 2) > round($invoiced->invoiced_amount, 2))
+					<a href="{{ route('order-previsions.recalculate-previsions', $order) }}" class="btn btn-info btn-confirm" data-msg="{{ ucfirst(trans('textos.facturaciones_previstas_recalculo_texto')) }}">
+						<i class="fa fa-calculator"></i>
+						{{ ucfirst(trans('textos.facturaciones_previstas_recalculo')) }}
+					</a>
+				@endif	
+			@endcan
 		@endif
-
-		{{-- Facturar - condiciones: 
-			1. Disponer de permisos para generar facturas.
-			2. Estar activo el módulo de contabilidad.
-			3. Status apto para facturación: aprobado (10), entregado (40), finalizado (70)
-			4. El importe facturado debe ser menor al importe total del pedido.
-			5. No debe pertenecer a ninguna agrupación de pedidos.
-			...
-		--}}
-		@can('invoices.create')
-			@if($module_accounting 
-				&& in_array($order->status, config('constants.ORDER_STATUS_INVOICED_'))
-				&& (!$invoiced || round($order_amount, 2) > round($invoiced['invoiced_amount'], 2))
-				&& !$in_group
-			)
-				<a href="#" class="btn btn-info" rel="tooltip" title="{{ ucfirst(trans('textos.facturar')) }}" data-toggle="modal" data-target="#modal-generate-invoice"><i class="fa fa-file-invoice-dollar"></i></a>
-			@endif
-		@endcan
-
-		{{-- Facturas del pedido --}}
-		@can('invoices.index')
-			@if($invoices->count())	
-				<a href="{{ route('invoices.by-order', $order) }}" class="btn btn-info" rel="tooltip">
-					<i class="fa fa-file-invoice-dollar"></i>
-					{{ ucfirst(trans('textos.facturas_pedido')) }}
-				</a>	
-			@endif
-		@endcan
-
-		{{-- Recalcular previsiones de facturación. Cuando se ha modificado el importe del pedido y los porcentajes de previsión de facturación no se ajustan al planteamiento original - condiciones:
-			1. No quedan previsiones de facturación pendientes de facturar.
-			2. El importe del pedido supera al facturado.
-		--}}
-		@can('invoices.edit')
-			{{-- Controlamos que no existan previsiones sin facturar --}}
-			@php
-			$no_previsions = true;
-			foreach($previsions as $prv){
-				if(!$prv->invoice_id){
-					$no_previsions = false;
-					break;
-				}
-			}
-			@endphp
-
-			@if($no_previsions && round($order_amount, 2) > round($invoiced->invoiced_amount, 2))
-				<a href="{{ route('order-previsions.recalculate-previsions', $order) }}" class="btn btn-info btn-confirm" data-msg="{{ ucfirst(trans('textos.facturaciones_previstas_recalculo_texto')) }}">
-					<i class="fa fa-calculator"></i>
-					{{ ucfirst(trans('textos.facturaciones_previstas_recalculo')) }}
-				</a>
-			@endif	
-		@endcan
+		{{-- / Acciones pedidos simples --}}
 
 		{{-- Eliminar pedido - condiciones 
 			1. Disponer de permisos para eliminar facturas.
 			2. Que se cumplan las condiciones: $permitted = true.
+			3. Pedido no facturado.
 		--}}
         @can('orders.destroy')
-        	@if($permitted)
+        	@if($permitted && !$order->invoiced)
 	        	<form method="POST" action="{{ route('orders.destroy', $order) }}" class="frm-inline" role="form" accept-charset="UTF-8">
 	                <input name="_method" type="hidden" value="DELETE">
 	                {{ csrf_field() }}
@@ -273,19 +367,20 @@
 	</div>
 </div>
 
-<input type="hidden" id="myShared" value="{{ $shared->id }}">
+<input type="hidden" id="dtController" value="orders">
+<input type="hidden" id="myShared" value="{{ $order->id }}">
 
 @php
 //Customer Team:
-$customer_team = $shared->customer_manager_id? [$shared->customer_manager_id]:[];
-if($shared->customer_team){
-	$customer_team = array_merge($customer_team, unserialize($shared->customer_team));
+$customer_team = $order->customer_manager_id? [$order->customer_manager_id]:[];
+if($order->customer_team){
+	$customer_team = array_merge($customer_team, unserialize($order->customer_team));
 }
 
 //Provider Team:
-$provider_team = $shared->provider_manager_id? [$shared->provider_manager_id]:[];
-if($shared->provider_team){
-	$provider_team = array_merge($provider_team, unserialize($shared->provider_team));
+$provider_team = $order->provider_manager_id? [$order->provider_manager_id]:[];
+if($order->provider_team){
+	$provider_team = array_merge($provider_team, unserialize($order->provider_team));
 }
 @endphp
 
@@ -294,10 +389,21 @@ if($shared->provider_team){
 		<div class="card mb-3">
 			<div class="card-body">
 				{{-- Componente importe pedido flotante: --}}
-				@livewire('budget-amount', ['budget_amount' => number_format($order_amount, 2), 'currency' => $currency->symbol, 'budget_amount_without_discount' => number_format($order_amount_without_discount, 2), 'environment' => 'orders'])
+				{{-- Pedido simple --}}
+				@if(!$order->is_group)
+					@livewire('budget-amount', ['budget_amount' => $order_amount, 'currency' => $currency->symbol, 'budget_amount_without_discount' => number_format($order_amount_without_discount, 2), 'environment' => 'orders'])
+
+				{{-- Agrupación --}}
+				@else
+					@livewire('budget-amount', ['budget_amount' => $group_amount, 'currency' => $currency->symbol, 'budget_amount_without_discount' => '', 'environment' => 'orders', 'bag_amount' => $order->bag_amount])	
+				@endif
 
 				<h3 class="mb-3">
-					{!! ucfirst(trans('textos.pedido')) !!} 
+					@if($order->is_group)
+						{!! ucfirst(trans('textos.agrupacion')) !!}
+					@else
+						{!! ucfirst(trans('textos.pedido')) !!} 
+					@endif
 					<u>
 						@if($order->order_num)
 							{{ $order->order_num }}
@@ -305,15 +411,22 @@ if($shared->provider_team){
 							{{ $order->id }}
 						@endif
 					</u>
+
+					{{-- Pedido en agrupación --}}
+					@if($order->parent && !$order->is_group)
+						<small class="ml-3 text-warning">
+							({{ trans('textos.agrupacion_en') }})
+						</small>	
+					@endif
 				</h3>
 
 				{{-- Info --}}
-				<div class="mb-3">
+				<div class="mb-3" style="width: 90%;">
 					{{-- Cliente --}}
-					@include('admin.budget_order_shared_fields.partials.data-customer')
+					@include('admin.orders.partials.data-customer')
 
 					{{-- Proveedor --}}
-					@include('admin.budget_order_shared_fields.partials.data-provider')
+					@include('admin.orders.partials.data-provider')
 					
 					{{-- Fecha alta --}}
 					<label class="mr-5">
@@ -364,22 +477,40 @@ if($shared->provider_team){
 						</label>
 					@endif
 
+					{{-- Bolsa --}}
+					@if($order->is_group && $order->bag_amount > 0)
+						<label class="mr-5">
+							{!! ucfirst(trans('textos.bolsa')) !!}:
+							<b>
+								{{ round($order->bag_amount, 2) }}{{ $currency->symbol }} 	
+							</b>
+						</label>
+					@endif
+
 					{{-- Importe --}}
 					<label class="mr-5">
-						@livewire('budget-amount-mini', ['budget_amount' => $order_amount, 'currency' => $currency->symbol])
+						@php
+						$this_amount = $order->is_group? $group_amount:$order_amount;
+						@endphp
+						@livewire('budget-amount-mini', ['budget_amount' => $this_amount, 'currency' => $currency->symbol])
 					</label>
 
-					{{-- Descuento aplicado --}}
-					@php
-					$remove_discount = !$invoiced? true:false;
-					@endphp
-					@include('admin.budget_order_shared_fields.partials.data-discount-applied', ['return' => 'orders', 'remove_discount' => $remove_discount])
+					{{-- Descuento aplicado - condiciones: 
+						1. El pedido no debe estar facturado.
+						...
+					--}}
+					@if(!$order->invoiced)
+						@php
+						$remove_discount = !$invoiced? true:false;
+						@endphp
+						@include('admin.orders.partials.data-discount-applied', ['return' => 'orders', 'remove_discount' => $remove_discount])
+					@endif
 
 					{{-- Presupuesto --}}
-					@include('admin.budget_order_shared_fields.partials.link-budget')
+					@include('admin.orders.partials.link-budget')
 
 					{{-- Proyecto --}}
-					{{-- @include('admin.budget_order_shared_fields.partials.link-project') --}}
+					{{-- @include('admin.orders.partials.link-project') --}}
 				</div>
 
 				{{-- Tabs: --}}
@@ -392,17 +523,27 @@ if($shared->provider_team){
 			  			<a class="nav-link @if($tab == 'teams') active @endif" href="#tab-teams" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.equipos')) !!}</a>	
 			  		</li>
 
-			  		<li class="nav-item @if($tab == 'items') active @endif">
-			  			<a class="nav-link @if($tab == 'items') active @endif" href="#tab-items" role="tab" data-toggle="tab">Items</a>	
-			  		</li>
+			  		@if($order->is_group)
+			  			<li class="nav-item @if($tab == 'orders') active @endif">
+				  			<a class="nav-link @if($tab == 'orders') active @endif" href="#tab-orders" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.pedidos')) !!}</a>	
+				  		</li>
+				  	@endif
+
+			  		@if(!$order->is_group)
+				  		<li class="nav-item @if($tab == 'items') active @endif">
+				  			<a class="nav-link @if($tab == 'items') active @endif" href="#tab-items" role="tab" data-toggle="tab">{{ ucfirst(trans('textos.lineas')) }}</a>	
+				  		</li>
+				  	@endif
 
 			  		<li class="nav-item @if($tab == 'docs') active @endif">
 			  			<a class="nav-link @if($tab == 'docs') active @endif" href="#tab-docs" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.documentos')) !!}</a>	
 			  		</li>
 
-			  		<li class="nav-item @if($tab == 'template') active @endif">
-			  			<a class="nav-link @if($tab == 'template') active @endif" href="#tab-template" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.plantilla')) !!}</a>	
-			  		</li>
+			  		@if(!$order->is_group)
+				  		<li class="nav-item @if($tab == 'template') active @endif">
+				  			<a class="nav-link @if($tab == 'template') active @endif" href="#tab-template" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.plantilla')) !!}</a>	
+				  		</li>
+				  	@endif
 
 			  		@if(count($project_purchases))
 			  			<li class="nav-item @if($tab == 'projects') active @endif">
@@ -422,10 +563,19 @@ if($shared->provider_team){
 						@include('admin.orders.partials.order-teams')	
 					</div>
 
+					{{-- Pedidos --}}
+					@if($order->is_group)
+						<div class="tab-pane fade @if($tab == 'orders') show active @endif" role="tabpanel" id="tab-orders">
+							@include('admin.orders.partials.order-orders')	
+						</div>
+					@endif
+
 					{{-- Items --}}
-					<div class="tab-pane fade @if($tab == 'items') show active @endif" role="tabpanel" id="tab-items">
-						@include('admin.orders.partials.order-items')	
-					</div>
+					@if(!$order->is_group)
+						<div class="tab-pane fade @if($tab == 'items') show active @endif" role="tabpanel" id="tab-items">
+							@include('admin.orders.partials.order-items')	
+						</div>
+					@endif
 
 					{{-- Documentos --}}
 					<div class="tab-pane fade @if($tab == 'docs') show active @endif" role="tabpanel" id="tab-docs">
@@ -433,9 +583,11 @@ if($shared->provider_team){
 					</div>
 
 					{{-- Plantilla --}}
-					<div class="tab-pane fade @if($tab == 'template') show active @endif" role="tabpanel" id="tab-template">
-						@include('admin.orders.partials.order-template')	
-					</div>
+					@if(!$order->is_group)
+						<div class="tab-pane fade @if($tab == 'template') show active @endif" role="tabpanel" id="tab-template">
+							@include('admin.orders.partials.order-template')	
+						</div>
+					@endif
 
 					{{-- Proyectos de la compra --}}
 					@if(count($project_purchases))
@@ -470,12 +622,12 @@ if($shared->provider_team){
 
 		{{-- Mes --}}
 		<label for="month" class="col-md-2 col-lg-1 col-form-label">{!! ucfirst(trans('textos.mes')) !!}</label>
-		<div class="col-md-4 col-lg-3 sinpadding">
+		<div class="col-md-4 col-lg-2 sinpadding">
 			@php
 			$months = App\Helpers\Helpers::yearMonths();
 			@endphp
 
-			<select name="month[]" class="form-control">
+			<select name="month[]" class="form-control" required>
 				<option value="">{{ trans('textos.mes_selec') }}</option>
 
 				@foreach($months as $i => $month)
@@ -506,7 +658,7 @@ if($shared->provider_team){
 
 {{-- Modals: --}}
 {{-- Discount --}}
-@include('admin.budget_order_shared_fields.partials.modal-discount', ['return' => 'orders'])
+@include('admin.orders.partials.modal-discount', ['return' => 'orders'])
 
 {{-- Add Project --}}
 @can('projects.create')
@@ -515,7 +667,7 @@ if($shared->provider_team){
 
 {{-- Modify customer --}}
 @if($order->percentage_invoiced == 0)
-	@include('admin.budget_order_shared_fields.partials.modal-set-customer', ['environment_' => 'orders'])	
+	@include('admin.orders.partials.modal-set-customer', ['environment_' => 'orders'])	
 @endif
 
 {{-- Add member customer --}}
@@ -525,13 +677,13 @@ if($shared->provider_team){
 @include('admin.orders.partials.modal-add-member-provider')
 
 {{-- Add item --}}
-@include('admin.budget_order_shared_fields.partials.modal-add-item', ['environment_' => 'orders', 'modality' => false])
+@include('admin.orders.partials.modal-add-item', ['environment_' => 'orders', 'modality' => false])
 
 {{-- Edit item --}}
-@include('admin.budget_order_shared_fields.partials.modal-edit-item', ['environment_' => 'orders'])
+@include('admin.orders.partials.modal-edit-item', ['environment_' => 'orders'])
 
 {{-- See catalogue --}}
-@include('admin.budget_order_shared_fields.partials.modal-see-catalogue')
+@include('admin.orders.partials.modal-see-catalogue')
 
 {{-- Add purchase to project --}}
 @include('admin.orders.partials.modal-add-purchase-to-project')
@@ -552,8 +704,15 @@ foreach($previsions as $prev_){
 @include('admin.orders.partials.modal-import-items')
 
 {{-- Link to order group --}}
-@if(!$in_group)
+@if(!$order->parent)
 	@include('admin.order_groups.partials.modal-link-order-group')
+@endif
+
+{{-- Add orders to group --}}
+@if($order->is_group && in_array($order->status, config('constants.ORDER_GROUPS_OPENED_')))
+	@can('orders.edit')
+		@include('admin.orders.partials.modal-group-add-orders')
+	@endcan
 @endif
 
 @push('scripts')
@@ -562,6 +721,8 @@ foreach($previsions as $prev_){
 var percent = '0';
 function percentController(){
 	var total = '0';
+	var min = 0.02;
+	var diff = '0';
 	$('.previsions .prevision .percent').each(function(){
     	var percent = $(this).val();
     	if(percent > 0){
@@ -569,10 +730,12 @@ function percentController(){
     	}
     });	
 
+	diff = 100 - total;
+
 	//Bloqueamos o habilitamos la inclusión de nuevas previsiones de facturación en función del porcentaje alcanzado:
-    if(total >= 100){
+    if(diff < min || parseFloat(total) >= 100){
     	$('.btnAddPrevision').fadeOut();
-    }else{
+    }else if(diff >= min && parseFloat(total) < 100){
     	$('.btnAddPrevision').fadeIn();	
     }
     
@@ -618,13 +781,42 @@ $(function(){
    		}
     });
 
+    //Validación previsiones de facturación:
+    var validate_previsions = true;
+    $('#frmOrderInfo').on('submit', function(){
+    	$('.prevision-data').each(function(){
+    		if($(this).val() == ''){
+    			validate_previsions = false;
+    		}
+    	});
+
+    	if(!validate_previsions){
+    		swal.fire({
+	            title: txtFacturacionPrevisionesAviso, 
+	            text: "",
+	            icon: 'warning',
+	            iconColor: color_warning,
+	            showCancelButton: false,
+	            confirmButtonColor: color_primary,
+	            cancelButtonColor: color_danger,
+	            confirmButtonText: txtAceptar,
+	            //cancelButtonText: txtCancelar
+	        }).then((result) => {
+	            if(result.isConfirmed){
+	                
+	            }
+	        });       
+    		return false;
+    	}
+    });
+
     //Link a entregas.
     $('#linkDelivery').on('change', function(event){
     	var id = event.target.value;
     	window.open("/admin/deliveries/"+id+"/edit", "_blank");
     });
 
-    //Modal añadir miembro:
+    //Modal añadir miembro.
     $('.btnAddMember').on('click', function(e){
         e.preventDefault(); 
         var company = $(this).data('company');
@@ -649,6 +841,16 @@ $(function(){
              	}    	
             }
         }); 
+    });
+
+    //Selector de factura.
+    $('.several-invoices select').on('change', function(event){
+        var id = event.target.value;
+        if(id != ''){
+        	window.location.href = '/admin/invoices/'+id+'/edit';
+        }else{
+        	return false;
+        }
     });
 });
 </script>

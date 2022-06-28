@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Helpers\Helpers;
+use App\Helpers\helpers;
 use App\Notifications\PurchaseMessage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -20,7 +20,9 @@ use App\Models\Company;
 use App\Models\CompanySettings;
 use App\Models\CustomerProviders;
 use App\Models\Invoice;
+use App\Models\InvoiceOrders;
 use App\Models\InvoicePatterns;
+use App\Models\InvoicePayments;
 use App\Models\InvoiceSettings;
 use App\Models\Item;
 use App\Models\Order;
@@ -43,6 +45,7 @@ class InvoiceController extends Controller{
      * 10. Facturas por pedido.
      * 11. Cancelar factura.
      * 12. Activar - desactivar IVA en factura.
+     * 13. Generar factura de abono.
      */
     
     private $option = 'contabilidad';
@@ -51,7 +54,7 @@ class InvoiceController extends Controller{
 
     public function __construct(){
         //Idiomas:
-        $this->languages = Helpers::languages();
+        $this->languages = helpers::languages();
 
         //Moneda:
         $this->co_currency = CompanySettings::co_currency(0);
@@ -61,9 +64,10 @@ class InvoiceController extends Controller{
 
         $this->middleware('module_setted:accounting');
         $this->middleware('invoice_get', ['only' => ['edit', 'update', 'print', 'block', 'updateTemplate', 'destroy']]);
+        $this->middleware('invoice_post', ['only' => ['refund']]);
         $this->middleware('invoice_modality', ['only' => ['createFromOrder']]);
-        $this->middleware('order_post', ['only' => ['createFromOrder']]);
-        $this->middleware('order_groups_post', ['only' => ['createFromGroup']]);
+        $this->middleware('order_post', ['only' => ['createFromOrder', 'createFromGroup']]);
+        $this->middleware('budget_order_get', ['only' => ['invoicesByOrder']]);
     }
 
     //0. Validator:
@@ -86,8 +90,10 @@ class InvoiceController extends Controller{
         //Validación generación factura agrupación:
         }elseif(isset($data['submit_generate_by_group'])){
             return Validator::make($data, [
-                'group_id' => 'required|numeric',
+                'order_id' => 'required|numeric',
                 'orders' => 'required'
+            ],[
+                'orders.required' => trans('textos.pedidos_requeridos')
             ]); 
 
         //Validación template:
@@ -95,6 +101,18 @@ class InvoiceController extends Controller{
             return Validator::make($data, [
                 'template_id' => 'required|numeric'
             ]); 
+
+        //Validación abono:
+        }elseif(isset($data['submit_generate_refund'])){
+            return Validator::make($data, [
+                'invoice_id' => 'required|numeric',
+                'refund' => 'required',
+                'concept' => 'required_if:refund,==,p',
+                'refund_amount' => 'required_if:refund,==,p'
+            ],[
+                'concept.required_if' => trans('textos.concepto_obligatorio'),
+                'refund_amount.required_if' => trans('textos.importe_obligatorio'),
+            ]);
 
         }
     }
@@ -324,6 +342,8 @@ class InvoiceController extends Controller{
         $other_invoices = Invoice::select('id', 'amount', 'with_iva', 'amount_with_iva')
         ->where('shared_id', $shared->id)
         ->whereNull('deleted_at')
+        ->whereNull('refund')
+        ->where('status', '!=', config('constants.INVOICE_REFUNDED_'))
         ->get();
         //Importe ya facturado con anterioridad:
         $previous_amount = 0;
@@ -437,10 +457,26 @@ class InvoiceController extends Controller{
         if($next_previsions_to_invoice){
             $next_previsions_to_invoice->invoice_id = $invoice->id;
             if($percentage_invoiced){
+                $next_previsions_to_invoice->month = $next_previsions_to_invoice->month? $next_previsions_to_invoice->month:Date('m');
                 $next_previsions_to_invoice->percent = $percentage_invoiced;
             }
             $next_previsions_to_invoice->save();
+
+        //Si no existe previsión, generamos una nueva:
+        }else{
+            $percent = ($invoice->amount * 100) / $order_amount['amount_with_discount'];
+
+            $new_prev = new OrderPrevisions();
+            $new_prev->order_id = $order->id;
+            $new_prev->year = Date('Y');
+            $new_prev->month = Date('m');
+            $new_prev->percent = round($percent, 2);
+            $new_prev->invoice_id = $invoice->id;
+            $new_prev->save();    
         }
+
+        //Recalculando porcentaje de las previsiones de facturación:
+        OrderPrevisions::recalculatePrevisionsPercent($order->id);
 
         $msg = trans('textos.factura_creada');
         return redirect()->route('invoices.edit', [$invoice->id, false])->with(compact('msg'));
@@ -452,19 +488,109 @@ class InvoiceController extends Controller{
     public function createFromGroup(Request $request){
         $validator = $this->validator($request->all());
         if($validator->fails()){
-            return redirect('/admin/order-groups/'.$request->group_id.'/edit/orders')
+            return redirect('/admin/order-groups/'.$request->order_id.'/to-invoice')
                 ->withErrors($validator)
                 ->withInput();
         }
 
+        //Pedido:
+        $order = Order::find($request->order_id);
 
-        dd($request->all());
+        //Facturación de pedido. El pedido debe estar en algún status que permita su facturación:
+        if(!in_array($order->status, config('constants.ORDER_GROUPS_OPENED_'))){
+            $alert = trans('textos.pedido_no_facturable');
+            return redirect()->route('orders.edit', $order->id)->with(compact('alert'));
+            exit;
+        }
+
+        //Presupuesto - pedido:
+        $shared = BudgetOrderSharedFields::where('order_id', $order->id)->first();
+
+        //Importe total de los pedidos seleccionados:
+        $orders_amount = 0;
+        foreach($request->orders as $o){
+            $o_ = BudgetOrderSharedFields::select('id')->where('order_id', $o)->first();
+            $o_amount = $o_->getAmount();
+            $orders_amount = $orders_amount + $o_amount['amount_without_discount'];
+        }
+
+        //Importe total de la agrupación:
+        $group_amount = $order->getGroupAmount($order->id);
+
+
+        //dd($request->all(), $orders_amount, $group_amount);
 
 
 
         //Buscamos otras facturas del mismo $group y obtenemos el importe restante pendiente:
-        $invoices = Invoice::where('og_id', $group->id)->get();
+        //$invoices = Invoice::where('og_id', $group->id)->get();
 
+
+
+
+
+
+
+
+
+
+        //Cálculo IVA:
+        if($orders_amount > 0){
+            $iva_amount = helpers::percent($orders_amount, $this->co_iva);
+            $amount_with_iva = $orders_amount + $iva_amount;
+        }
+
+        //Creamos cabecera de la factura, para poder utilizar su id:
+        $invoice = new Invoice();
+        $invoice->shared_id = $shared->id;
+        $invoice->user_id = Auth::user()->id;
+        $invoice->amount = $orders_amount;
+        $invoice->with_iva = $this->co_iva;
+        $invoice->amount_with_iva = $amount_with_iva;
+        $invoice->fiscal_date = date('Y-m-d');
+        $invoice->status = config('constants.INVOICE_OPEN_');
+        $invoice->save();
+
+        //11/06/22: ¿SE UTILIZAN TAMBIÉN PARA LAS AGRUPACIONES LAS PREVISIONES DE FACTURACIÓN?
+        //Actualizamos los valores de la siguiente previsión no facturada:
+        $next_previsions_to_invoice = OrderPrevisions::where('order_id', $order->id)
+        ->whereNull('invoice_id')
+        ->orderBy('year', 'ASC')
+        ->orderBy('month', 'ASC')
+        ->first();
+
+        if($next_previsions_to_invoice){
+            $next_previsions_to_invoice->invoice_id = $invoice->id;
+            // if($percentage_invoiced){
+            //     $next_previsions_to_invoice->percent = $percentage_invoiced;
+            // }
+            $next_previsions_to_invoice->save();
+        }
+
+        //Si existe bolsa y la suma de las facturas de la agrupación iguala o supera el importe de la bolsa, lo marcamos como facturado:
+        if($order->bag_amount > 0){
+            $invoices_amount = Invoice::where('shared_id', $shared->id)
+            ->sum('amount');
+
+            if($invoices_amount >= $order->bag_amount){
+                $order->invoiced = true;
+                $order->save(); 
+            }
+        }
+
+        //Marcamos los pedidos seleccionados como facturados y vinculamos a la factura:
+        foreach($request->orders as $o){
+            Order::where('id', $o)
+            ->update(['invoiced' => true]);
+
+            $io = new InvoiceOrders();
+            $io->invoice_id = $invoice->id;
+            $io->order_id = $o;
+            $io->save();
+        }
+
+        $msg = trans('textos.factura_creada');
+        return redirect()->route('invoices.edit', [$invoice->id, false])->with(compact('msg'));
     }
 
     /**
@@ -483,6 +609,17 @@ class InvoiceController extends Controller{
         //Pedido:
         $order = Order::find($shared->order_id);
 
+        //Si se trata de una agrupación, obtenemos los pedidos vinculados:
+        $suborders = false;
+        if($order->is_group){
+            $suborders = BudgetOrderSharedFields::select('budget_order_shared_fields.id', 'orders.id AS orderId', 'orders.order_num', 'orders.name', 'orders.purchase_num', 'budgets.id AS budgetId', 'budgets.budget_num')
+            ->join('orders', 'budget_order_shared_fields.order_id', '=', 'orders.id')
+            ->join('invoice_orders', 'orders.id', '=', 'invoice_orders.order_id')
+            ->leftJoin('budgets', 'budget_order_shared_fields.budget_id', '=', 'budgets.id')
+            ->where('invoice_orders.invoice_id', $invoice->id)
+            ->get();
+        }
+
         //Importe facturado:
         $invoiced = $shared->getInvoicedAmount();
 
@@ -490,6 +627,9 @@ class InvoiceController extends Controller{
         $invoices = Invoice::select('id', 'amount', 'amount_with_iva')
         ->where('shared_id', $shared->id)
         ->get();
+
+        //Factura de abono vinculada:
+        $refund = Invoice::select('id', 'invoice_num')->where('refund', $invoice->id)->first();
 
         //CLIENTE:
         $customer = Company::select('id', 'name', 'tradename')->find($shared->customer_id); 
@@ -510,6 +650,11 @@ class InvoiceController extends Controller{
             ->where('status', 1)
             ->get();
         }
+
+        //Pagos:
+        $payments = InvoicePayments::where('invoice_id', $invoice->id)
+        ->orderBy('created_at', 'DESC')
+        ->get();
 
         //Templates:
         $templates = [];
@@ -563,7 +708,7 @@ class InvoiceController extends Controller{
             $order_amount_without_discount = $arr_amounts['amount_without_discount'];
         } 
 
-        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'shared', 'order', 'invoiced', 'invoices', 'customer', 'provider', 'items', 'patterns', 'templates', 'featuredTemplate', 'currency', 'languages', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'order_amount_without_discount'));
+        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'shared', 'order', 'suborders', 'invoiced', 'invoices', 'refund', 'customer', 'provider', 'items', 'patterns', 'payments', 'templates', 'featuredTemplate', 'currency', 'languages', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'order_amount_without_discount'));
     }
 
     /**
@@ -788,7 +933,7 @@ class InvoiceController extends Controller{
     /**
      * 11. Cancelar factura.
      */
-    public function destroy(Invoice $invoice){
+    public function destroy(Request $request, Invoice $invoice){
         //Comprobamos que reuna las condiciones para ser eliminada.
         /**
          * 1. La factura no debe estar bloqueda.
@@ -797,6 +942,14 @@ class InvoiceController extends Controller{
             $alert = trans('textos.accion_no_permitida');
             return redirect()->route('invoices.edit', $invoice)->with(compact('alert'));    
         }
+
+        //Dejamos los pedidos como NO facturados:
+        Order::join('budget_order_shared_fields', 'orders.id', '=', 'budget_order_shared_fields.order_id')
+        ->where('budget_order_shared_fields.id', $invoice->shared_id)
+        ->update(['orders.invoiced' => false]);
+
+        //Eliminamos las previsiones de facturación asociadas a la factura:
+        OrderPrevisions::where('invoice_id', $invoice->id)->delete();
 
         //Eliminamos la numeración customizada:
         $invoice->invoice_num = NULL;
@@ -827,6 +980,81 @@ class InvoiceController extends Controller{
             //Cálculo importe factura:
             $invoice->calculateAmount();
         }
+    }
+
+    /**
+     * 13. Generar factura de abono.
+     */
+    public function refund(Request $request){
+        $validator = $this->validator($request->all());
+        if($validator->fails()){
+            //Indicamos el origen de la acción realizada para manejar el modal:
+            $validator->getMessageBag()->add('accion', 'modal-generate-refund');
+
+            return redirect('/admin/invoices/'.$request->invoice_id.'/edit')
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        //Info de la factura:
+        $invoice = Invoice::find($request->invoice_id);
+
+        if(!$invoice || $invoice->deleted_at){
+            $alert = trans('textos.factura_no_existe');
+            return redirect()->route('invoices.index')->with(compact('alert')); 
+            exit;       
+        }
+        
+        //Importe de la factura de abono:
+        if($request->refund == 'p'){    
+            $refund_amount = $request->refund_amount;
+
+            $iva_amount = helpers::percent($refund_amount, $this->co_iva);
+            $refund_amount_with_iva = $refund_amount + $iva_amount;
+  
+            $refund_discount_amount = NULL;
+        }else{
+            $refund_amount = $invoice->amount;
+            $refund_amount_with_iva = $invoice->amount_with_iva;
+            $refund_discount_amount = $invoice->discount_amount;
+        }
+
+        //Factura de abono:
+        $refund = new Invoice();
+        $refund->refund = $invoice->id;
+        $refund->invoice_old_num = $invoice->invoice_old_num;
+        $refund->shared_id = $invoice->shared_id;
+        $refund->amount = $refund_amount;
+        $refund->with_iva = $invoice->with_iva;
+        $refund->amount_with_iva = $refund_amount_with_iva;
+        $refund->fiscal_date = $invoice->fiscal_date;
+        $refund->expiration_date = $invoice->expiration_date;
+        $refund->user_id = Auth::user()->id;
+        $refund->template_id = $invoice->template_id;
+        $refund->template = $invoice->template;
+        $refund->save();
+                
+        //Al generarse una factura de abono, sólo si el abono es íntegro, el pedido original vuelve a estado de pendiente de facturación y la factura a estado de devuelta:
+        if($request->refund == 't'){
+            $order = Order::select('orders.id', 'orders.invoiced')
+            ->join('budget_order_shared_fields', 'orders.id', '=', 'budget_order_shared_fields.order_id')
+            ->where('budget_order_shared_fields.id', $invoice->shared_id)
+            ->first();
+
+            $order->invoiced = false;
+            $order->save();
+        }
+
+        //Actualizando factura original:
+        $invoice->status = config('constants.INVOICE_REFUNDED_');
+        $invoice->save();
+
+        //Actualizando previsiones de facturación: la desvinculamos de la factura y eliminamos el porcentaje.
+        OrderPrevisions::where('invoice_id', $invoice->id)
+        ->update(['percent' => NULL, 'invoice_id' => NULL]);
+
+        $msg = trans('textos.factura_abono_creada');
+        return redirect()->route('invoices.edit', $refund->id)->with(compact('msg'));
     }
 }
 

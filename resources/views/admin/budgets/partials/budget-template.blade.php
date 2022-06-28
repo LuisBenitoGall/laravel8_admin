@@ -1,7 +1,7 @@
-<form method="post" autocomplete="off" action="{{ route('budgets.update-template', $budget) }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
+<form method="post" autocomplete="off" action="{{ route('budgets.update-template', $order) }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
 	@method('PUT')
     {{ csrf_field() }}
-    <input type="hidden" name="budget_id" value="{{ $budget->id }}">
+    <input type="hidden" name="budget_id" value="{{ $order->id }}">
 
     <div class="row">
     	<div class="col-md-10 offset-md-2">
@@ -23,13 +23,13 @@
 				@endphp	
 			@endforeach
 
-			<x-select name="template_id" class="select2" :options="$templates_" label="plantilla_selec" value="{{ $budget->template_id }}" required/>
+			<x-select name="template_id" class="select2" :options="$templates_" label="plantilla_selec" value="{{ $order->template_id }}" required/>
 		</div>
 
 		{{-- Reset valores originales de la plantilla --}}
-		@if($budget->template_id && $templates->count() > 0)
+		@if($order->template_id && $templates->count() > 0)
 			<div class="col-lg-2">
-				<a href="{{ route('budgets.remove-template', $budget) }}" class="btn btn-warning btn-confirm" rel="tooltip" title="{!! ucfirst(trans('textos.plantilla_reestablecer')) !!}" data-msg="{!! ucfirst(trans('textos.plantilla_reestablecer_confirm')) !!}">
+				<a href="{{ route('budgets.remove-template', $order) }}" class="btn btn-warning btn-confirm" rel="tooltip" title="{!! ucfirst(trans('textos.plantilla_reestablecer')) !!}" data-msg="{!! ucfirst(trans('textos.plantilla_reestablecer_confirm')) !!}">
 					<i class="fa fa-redo-alt"></i>
 				</a>
 			</div>
@@ -38,7 +38,7 @@
 	<hr>
 
 	@php
-	$template = $budget->template? unserialize($budget->template):false;
+	$template = $order->template? unserialize($order->template):false;
 	@endphp
 
 	{{-- Condiciones --}}

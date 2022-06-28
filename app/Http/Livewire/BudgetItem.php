@@ -182,10 +182,10 @@ class BudgetItem extends Component{
 
             //Importe del presupuesto:
             $arr_amounts = $this->shared->getAmount();
-            $budget_amount = number_format($arr_amounts['amount_with_discount'],2);
+            $budget_amount = $arr_amounts['amount_with_discount'];
 
             //Importe sin descuento:
-            $budget_amount_without_discount = number_format($arr_amounts['amount_without_discount'],2);    
+            $budget_amount_without_discount = $arr_amounts['amount_without_discount'];    
 
             //Enviando importe al componente budget-amount:
             $this->emit('updateAmount', $budget_amount, $budget_amount_without_discount);

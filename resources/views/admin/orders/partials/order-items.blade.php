@@ -77,10 +77,10 @@
 			</tbody> --}}
 
 			<tfoot>
-				@if($shared->discount)
+				@if($order->discount)
 					<tr>
 		                <td colspan="6" class="text-right"><b>{{ ucfirst(trans('textos.descuento')) }}</b></td>
-		                <td class="text-right">{{ $shared->discount }}%</td>
+		                <td class="text-right">{{ $order->discount }}%</td>
 		                <td></td>
 		                <td></td>
 		            </tr>

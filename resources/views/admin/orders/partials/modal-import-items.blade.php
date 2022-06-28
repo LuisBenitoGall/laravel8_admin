@@ -16,7 +16,7 @@
 
                 <form method="post" autocomplete="off" action="{{ route('items.import-items') }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
                     {{ csrf_field() }}
-                    <input type="hidden" name="shared_id" value="{{ $shared->id }}">
+                    <input type="hidden" name="order_id" value="{{ $order->id }}">
 
 					<div class="form-group row">
 						{{-- Archivo .xls --}}

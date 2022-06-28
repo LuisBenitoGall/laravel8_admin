@@ -20,98 +20,107 @@
 			<div class="card-body">				
 				<h3 class="mb-4"><u>{!! ucfirst(trans('textos.contrato_nuevo')) !!} {{ $user->name }} {{ $user->surname }}</u></h3>	
 
-				@if($contracts->count())
-					<form method="post" autocomplete="off" action="{{ route('employees.store', $user->id) }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
-						{{ csrf_field() }}
+				{{-- Validando existencia de centros de trabajo --}}
+				@if(count($workplaces))
+					@if($contracts->count())
+						<form method="post" autocomplete="off" action="{{ route('employees.store', $user->id) }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
+							{{ csrf_field() }}
 
-						@if(count($workplaces) == 1)
-							@php
-							$array_keys = array_keys($workplaces);
-							@endphp
-							<input type="hidden" name="workplace_id" value="{{ $array_keys[0] }}">
-						@endif
-
-						<div class="form-group row">
-							{{-- Centro de trabajo --}}
-							@if(count($workplaces) > 1)
-								<label for="workplace_id" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.centro_trabajo')) !!}*</label>
-								<div class="col-lg-3">
-									<x-select name="workplace_id" class="select2" label="centro_trabajo_selec" :options="$workplaces" required/>
-								</div>
+							@if(count($workplaces) == 1)
+								@php
+								$array_keys = array_keys($workplaces);
+								@endphp
+								<input type="hidden" name="workplace_id" value="{{ $array_keys[0] }}">
 							@endif
 
-							{{-- Fecha inicio --}}
-							<label for="start_date" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.inicio')) !!}*</label>
-							<div class="col-lg-2">
-								<x-date-picker name="start_date" :format="$languages[config('app.locale')][4]" required/>
+							<div class="form-group row">
+								{{-- Centro de trabajo --}}
+								@if(count($workplaces) > 1)
+									<label for="workplace_id" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.centro_trabajo')) !!}*</label>
+									<div class="col-lg-3">
+										<x-select name="workplace_id" class="select2" label="centro_trabajo_selec" :options="$workplaces" required/>
+									</div>
+								@endif
+
+								{{-- Fecha inicio --}}
+								<label for="start_date" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.inicio')) !!}*</label>
+								<div class="col-lg-2">
+									<x-date-picker name="start_date" :format="$languages[config('app.locale')][4]" required/>
+								</div>
+
+								{{-- Fecha fin --}}
+								<label for="end_date" class="col-lg-1 col-form-label">{!! ucfirst(trans('textos.fin')) !!}</label>
+								<div class="col-lg-2">
+									<x-date-picker name="end_date" :format="$languages[config('app.locale')][4]"/>
+								</div>
 							</div>
 
-							{{-- Fecha fin --}}
-							<label for="end_date" class="col-lg-1 col-form-label">{!! ucfirst(trans('textos.fin')) !!}</label>
-							<div class="col-lg-2">
-								<x-date-picker name="end_date" :format="$languages[config('app.locale')][4]"/>
-							</div>
-						</div>
+							<div class="form-group row">
+								{{-- Tipo de contrato --}}
+								<label for="contract_id" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.contrato')) !!}*</label>
+								<div class="col-lg-4">
+									@php
+									$contracts_ = [];
+									foreach($contracts as $contract){
+										$contracts_[$contract->id] = $contract->name;
+									}
+									@endphp
 
-						<div class="form-group row">
-							{{-- Tipo de contrato --}}
-							<label for="contract_id" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.contrato')) !!}*</label>
-							<div class="col-lg-4">
-								@php
-								$contracts_ = [];
-								foreach($contracts as $contract){
-									$contracts_[$contract->id] = $contract->name;
-								}
-								@endphp
+									<x-select name="contract_id" class="select2" label="contrato_selecciona" :options="$contracts_"/>
+								</div>
 
-								<x-select name="contract_id" class="select2" label="contrato_selecciona" :options="$contracts_"/>
-							</div>
-
-							{{-- Puesto laboral --}}
-							<label for="job_title" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.puesto')) !!}</label>
-							<div class="col-lg-4">
-								<x-input type="text" name="job_title"  autocomplete="off" maxlength="150"/>
-							</div>
-						</div>
-
-						<div class="form-group row">
-							{{-- Horas semanales --}}
-							<label for="weekly_hours" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.horas_semanales')) !!}*</label>
-							<div class="col-lg-2">
-								<x-input type="text" name="weekly_hours" class="set-decimals text-right" id="weekly_hours" autocomplete="off" placeholder="0" maxlength="2" required/>
+								{{-- Puesto laboral --}}
+								<label for="job_title" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.puesto')) !!}</label>
+								<div class="col-lg-4">
+									<x-input type="text" name="job_title"  autocomplete="off" maxlength="150"/>
+								</div>
 							</div>
 
-							{{-- Control horario --}}
-							<label for="time_control" class="col-lg-2 col-form-label">{!! trans('textos.control_horario') !!}</label>
-							<div class="col-lg-2">
-								<label class="custom-chk-rdb" rel="tooltip">
-					                <input type="checkbox" name="time_control" checked>
-					                <span class="chk" style="top: 5px;"></span>
-					            </label>
+							<div class="form-group row">
+								{{-- Horas semanales --}}
+								<label for="weekly_hours" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.horas_semanales')) !!}*</label>
+								<div class="col-lg-2">
+									<x-input type="text" name="weekly_hours" class="set-decimals text-right" id="weekly_hours" autocomplete="off" placeholder="0" maxlength="2" required/>
+								</div>
+
+								{{-- Control horario --}}
+								<label for="time_control" class="col-lg-2 col-form-label">{!! trans('textos.control_horario') !!}</label>
+								<div class="col-lg-2">
+									<label class="custom-chk-rdb" rel="tooltip">
+						                <input type="checkbox" name="time_control" checked>
+						                <span class="chk" style="top: 5px;"></span>
+						            </label>
+								</div>
+
+								{{-- Salario anual --}}
+								<label for="year_salary" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.salario_anual')) !!}</label>
+								<div class="col-lg-2">
+									<x-input type="text" name="year_salary" class="text-right set-decimals" id="year_salary" autocomplete="off" placeholder="0" maxlength="9" group="right" groupvalue="{{ $currency->symbol }}"/>
+								</div>
 							</div>
 
-							{{-- Salario anual --}}
-							<label for="year_salary" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.salario_anual')) !!}</label>
-							<div class="col-lg-2">
-								<x-input type="text" name="year_salary" class="text-right set-decimals" id="year_salary" autocomplete="off" placeholder="0" maxlength="9" group="right" groupvalue="{{ $currency->symbol }}"/>
+							<div class="form-group row">
+								{{-- Observaciones --}}
+								<label for="observations" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.observaciones')) !!}</label>
+								<div class="col-lg-10">
+									<x-input-textarea name="observations" class="editor"/>
+								</div>
 							</div>
-						</div>
+							
+							<x-btn-submit name="submit_save" label="{{ trans('textos.guardar') }}"/>
+						</form>
 
-						<div class="form-group row">
-							{{-- Observaciones --}}
-							<label for="observations" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.observaciones')) !!}</label>
-							<div class="col-lg-10">
-								<x-input-textarea name="observations" class="editor"/>
-							</div>
-						</div>
-						
-						<x-btn-submit name="submit_save" label="{{ trans('textos.guardar') }}"/>
-					</form>
+					@else
+						<br><br>
+						<h5 class="text-warning">{{ trans('textos.contratos_no_hay_aviso') }}
+							<a href="{{ route('contracts.create') }}" class="btn btn-info ml-4">{{ trans('textos.contrato_crear') }}</a>
+						</h5>
+					@endif
 
 				@else
 					<br><br>
-					<h5 class="text-warning">{{ trans('textos.contratos_no_hay_aviso') }}
-						<a href="{{ route('contracts.create') }}" class="btn btn-info ml-4">{{ trans('textos.contrato_crear') }}</a>
+					<h5 class="text-warning">{{ trans('textos.centros_trabajo_no_existen') }}
+						<a target="_blank" href="{{ route('workplaces.index') }}" class="btn btn-info ml-4">{{ ucfirst(trans('textos.centros_trabajo')) }}</a>
 					</h5>
 				@endif
 			</div>

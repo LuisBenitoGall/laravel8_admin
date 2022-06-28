@@ -16,17 +16,17 @@
         <tbody></tbody>
 
         <tfoot>
-            @if($shared->discount)
+            @if($order->discount)
                 <tr>
                     <td colspan="6" class="text-right"><b>{{ ucfirst(trans('textos.descuento')) }}</b></td>
-                    <td class="text-right">{{ $shared->discount }}%</td>
+                    <td class="text-right">{{ $order->discount }}%</td>
                     <td></td>
                 </tr>
             @endif
 
             <tr>
                 <td colspan="6" class="text-right"><b>{{ trans('textos.importe_total') }}</b></td>
-                <td class="text-right">{{ number_format($budget_amount, 2) }}{{ $currency->symbol }}</td>
+                <td class="text-right">{{ round($order_amount, 2) }}{{ $currency->symbol }}</td>
                 <td></td>
             </tr>
         </tfoot>

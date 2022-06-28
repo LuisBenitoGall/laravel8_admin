@@ -117,6 +117,7 @@ class Kernel extends HttpKernel{
         'group_get' => \App\Http\Middleware\GroupGetMiddleware::class,
 
         'invoice_get' => \App\Http\Middleware\InvoiceGetMiddleware::class,
+        'invoice_post' => \App\Http\Middleware\InvoicePostMiddleware::class,
 
         'invoice_modality' => \App\Http\Middleware\InvoiceModalityMiddleware::class,
 
@@ -153,6 +154,8 @@ class Kernel extends HttpKernel{
 
         'project_get' => \App\Http\Middleware\ProjectGetMiddleware::class,
         'project_post' => \App\Http\Middleware\ProjectPostMiddleware::class,
+
+        'project_pattern_get' => \App\Http\Middleware\ProjectPatternGetMiddleware::class,
 
         'project_purchases' => \App\Http\Middleware\ProjectPurchasesMiddleware::class,
 

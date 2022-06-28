@@ -185,6 +185,60 @@ $(document).ready(function(){
         });
     }
 
+    //Tabla Banks:
+    if($('#tblBanks').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        
+        $('#tblBanks').DataTable({
+            "serverSide": true,
+            /*"processing": true,*/
+            "ajax": {
+                "type": "GET",
+                "url": "/api/admin/banks",
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            "columns": [
+                {data: 'name'},
+                {data: 'tradename'},
+                {data: 'eu_code'},
+                {data: 'lei'},
+                {data: 'id', className: 'text-right'}
+            ],
+            "columnDefs": [
+                {"targets": -1,
+                "render": function(data, type, row){
+                    var estado = '';
+                    var editar = '';
+                    if(row['editar']){
+                        //Estado:
+                        var checked = row['status'] == 1? 'checked':'';
+                        var estado = '<label class="custom-chk-rdb" rel="tooltip" title="'+txtBancoOnOff+'">';
+                            estado += '<input type="checkbox" name="status" '+checked+'><span class="chk chk-action" data-id="'+row['id']+'" data-ctrl="banks/status"></span>';
+                        estado += '</label>';
+
+                        //Editar:
+                        editar = '<a href="banks/'+row['id']+'/edit" class="btn btn-xs btn-info" rel="tooltip" title="'+txtEditar+'"><i class="fa fa-edit"></i></a>';
+                    }
+
+                    //Eliminar:
+                    var eliminar = '';
+                    if(row['eliminar']){
+                        eliminar = '<form method="POST" action="banks/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
+                            eliminar += '<input name="_method" type="hidden" value="DELETE">';
+                            eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
+                            eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtEliminar+'" data-msg="'+txtBancoConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
+                        eliminar += '</form>';
+                    }
+
+                    return estado+' '+editar+' '+eliminar;
+                }
+                }
+            ]
+        });
+    }
+
     //Tabla Batch Patterns:
     if($('#tblBatchPatterns').length > 0){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
@@ -548,7 +602,7 @@ $(document).ready(function(){
         }
 
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
-        var shared = $('#myShared').val();
+        var order = $('#myOrderId').val();
 
         var tableBudgetItems = $('#tblBudgetItems').DataTable({
             "serverSide": true,
@@ -558,7 +612,7 @@ $(document).ready(function(){
             },
             "ajax": {
                 "type": "GET",
-                "url": "/api/admin/order-items/"+shared,
+                "url": "/api/admin/order-items/"+order,
                 "error": function(reason){
                     console.log(reason);
                 }
@@ -883,22 +937,22 @@ $(document).ready(function(){
             "columnDefs": [
                 {"targets": 0,
                 "render": function(data, type, row){
-                    var num = row['budget_num']? row['budget_num']:row['budgetId'];
+                    var num = row['budget_num']? row['budget_num']:row['id'];
                     if(row['from'] == 'customers'){
-                        var nbudget = '<a href="/admin/budgets/'+row['budgetId']+'/edit">'+num+'</a>';
+                        var nbudget = '<a href="/admin/budgets/'+row['id']+'/edit">'+num+'</a>';
                     }else{
-                        var nbudget = '<a href="/admin/budgets/'+row['budgetId']+'/show">'+num+'</a>';    
+                        var nbudget = '<a href="/admin/budgets/'+row['id']+'/show">'+num+'</a>';    
                     }                    
                     return nbudget;
                 }
                 },
                 {"targets": 3,
                 "render": function(data, type, row){
-                    if(!row['order_num'] && !row['orderId']){
+                    if(!row['order_num'] && !row['id']){
                         return '<span class="text-warning">'+txtPendiente+'</span>';   
                     }else{
-                        var order_num = row['order_num']? row['order_num']:row['orderId'];
-                        return '<a target="_blank" href="/admin/orders/'+row['orderId']+'/edit">'+order_num+'</a>';
+                        var order_num = row['order_num']? row['order_num']:row['id'];
+                        return '<a target="_blank" href="/admin/orders/'+row['id']+'/edit">'+order_num+'</a>';
                     }
                 }
                 },
@@ -933,27 +987,13 @@ $(document).ready(function(){
                 },
                 {"targets": -2,
                 "render": function(data, type, row){
-                    return '<span class="xoption-'+row['budgetId']+'">'+row['estado']+'</span>'; 
+                    return '<span class="xoption-'+row['id']+'">'+row['estado']+'</span>'; 
                 }
                 },
                 {"targets": -1,
                 "render": function(data, type, row){
                     //Estado múltiple:
-                    // var estado = '<div class="mini-modal"><a href="#" class="btn btn-xs btn-info btnMiniModal" rel="tooltip" title="'+txtEstado+'"><i class="fa fa-filter"></i></a>';
-                    //     estado += '<div class="mini-modal-content"><div class="mini-modal-items">';
-                    //         estado += '<span class="arrow"></span>';
-                    //         var arr = row['estados'].split(";");
-                    //         for(j=0; j<arr.length; j++){
-                    //             var p = arr[j].split('|');
-                    //             var selected = (row['status'] == p[0])? 'selected':'';
-                    //             if(p[1]){
-                    //                 estado += '<p class="mm-option '+selected+'" data-id="'+row['budgetId']+'" data-option="'+p[0]+'">'+p[1]+'</p>';
-                    //             }
-                    //         }
-                    //     estado += '</div></div>';
-                    // estado += '</div>';
-
-                    var estado = multipleStatus(row['estados'], row['status'], row['budgetId']);
+                    var estado = multipleStatus(row['estados'], row['budget_status'], row['id']);
 
                     //Editar:
                     var editar = '';
@@ -967,13 +1007,13 @@ $(document).ready(function(){
                             var icon = 'eye';
                             var txt_ = txtVer;
                         }                        
-                        var editar = '<a href="/admin/budgets/'+row['budgetId']+'/'+action+'" class="btn btn-xs btn-info btn-module" rel="tooltip" title="'+txt_+'"><i class="fa fa-'+icon+'"></i></a>';
+                        var editar = '<a href="/admin/budgets/'+row['id']+'/'+action+'" class="btn btn-xs btn-info btn-module" rel="tooltip" title="'+txt_+'"><i class="fa fa-'+icon+'"></i></a>';
                     }
 
                     //Eliminar:
                     var eliminar = '';
-                    if(row['from'] == 'customers' && row['eliminar']){
-                        var eliminar = '<form method="POST" action="/admin/budgets/'+row['budgetId']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
+                    if(row['from'] == 'customers' && row['eliminar'] && !row['invoiced']){
+                        var eliminar = '<form method="POST" action="/admin/budgets/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
                             eliminar += '<input name="_method" type="hidden" value="DELETE">';
                             eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
                             eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtEliminar+'" data-msg="'+txtPresupuestoConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
@@ -2311,7 +2351,7 @@ $(document).ready(function(){
         
         $('#tblGroups').DataTable({
             "serverSide": true,
-            /*"processing": true,*/
+            "processing": true,
             "ajax": {
                 "type": "GET",
                 "url": "/api/admin/groups",
@@ -2974,7 +3014,7 @@ $(document).ready(function(){
         $('#tblOrderGroups thead tr').clone(true).appendTo('#tblOrderGroups thead');
         $('#tblOrderGroups thead tr:eq(1) th').each(function(i){
             var title = $(this).text();
-            if(i == 5){
+            if(i == 7){
                 $(this).html('');
             }else{
                 $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
@@ -3008,7 +3048,8 @@ $(document).ready(function(){
                 {data: 'id', className: 'text-right'},
                 {data: 'name'},
                 {data: 'alta', className: 'text-right'},
-                //{data: 'businessArea'},
+                {data: 'group_amount', className: 'text-right'},
+                {data: 'bag_amount', className: 'text-right'},
                 //{data: 'costCenter'},
                 //{data: 'workplace'},
                 {data: 'estado'},
@@ -3017,7 +3058,7 @@ $(document).ready(function(){
             "columnDefs": [
                 {"targets": 0,
                 "render": function(data, type, row){
-                    var norder = '<a href="/admin/order-groups/'+row['id']+'/edit">'+row['id']+'</a>';
+                    var norder = '<a href="/admin/orders/'+row['id']+'/edit">'+row['id']+'</a>';
                     return norder;
                 }
                 },
@@ -3025,6 +3066,20 @@ $(document).ready(function(){
                 "render": function(data, type, row){
                     var old_num = row['old_order_group']? row['old_order_group']:'';
                     return old_num;    
+                }
+                },
+                {"targets": 4,
+                "render": function(data, type, row){
+                    return row['group_amount']+row['currency'];
+                }
+                },
+                {"targets": 5,
+                "render": function(data, type, row){
+                    if(row['bag_amount']){
+                        return row['bag_amount']+row['currency'];
+                    }else{
+                        return '';
+                    }
                 }
                 },
                 {"targets": -2,
@@ -3044,11 +3099,11 @@ $(document).ready(function(){
                     }
                     
                     //Editar:
-                    var editar = '<a href="/admin/order-groups/'+row['id']+'/edit" class="btn btn-xs btn-info" rel="tooltip" title="'+txtEditar+'"><i class="fa fa-edit"></i></a>';
+                    var editar = '<a href="/admin/orders/'+row['id']+'/edit" class="btn btn-xs btn-info" rel="tooltip" title="'+txtEditar+'"><i class="fa fa-edit"></i></a>';
 
                     if(row['opened']){
                         //Eliminar:
-                        var eliminar = '<form method="POST" action="/admin/order-groups/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
+                        var eliminar = '<form method="POST" action="/admin/orders/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
                             eliminar += '<input name="_method" type="hidden" value="DELETE">';
                             eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
                             eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtAgrupacionEliminar+'" data-msg="'+txtAgrupacionEliminarConfirm+'"><i class="fa fa-trash"></i></button>';
@@ -3135,16 +3190,20 @@ $(document).ready(function(){
                 },
                 {"targets": -1,
                 "render": function(data, type, row){
-                    //Editar:
+                    //Editar - condiciones:
+                    //1. Disponer de permisos.
+                    //2. No debe ser pedido vinculado a agrupación ni estar facturado.
                     var editar = '';
-                    if(row['editar']){
+                    if(row['editar'] && (!row['order'].parent && !row['order'].invoiced)){
                         //Editar:
                         editar = '<a href="#" class="btn btn-xs btn-info btnEditItem" rel="tooltip" title="'+txtEditar+'" data-toggle="modal" data-target="#modal-edit-line" data-id="'+row['id']+'"><i class="fa fa-edit"></i></a>';
                     }
 
-                    //Eliminar:
+                    //Eliminar - condiciones:
+                    //1. Disponer de permisos.
+                    //2. No debe ser pedido vinculado a agrupación ni estar facturado.
                     var eliminar = '';
-                    if(row['editar']){
+                    if(row['editar'] && (!row['order'].parent && !row['order'].invoiced)){
                         eliminar = '<form method="POST" action="/admin/items/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
                             eliminar += '<input name="_method" type="hidden" value="DELETE">';
                             eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
@@ -3399,7 +3458,7 @@ $(document).ready(function(){
         $('#tblOrders thead tr').clone(true).appendTo('#tblOrders thead');
         $('#tblOrders thead tr:eq(1) th').each(function(i){
             var title = $(this).text(); 
-            if(i == 9){
+            if(i == 10){
                 $(this).html('');
             }else{
                 $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
@@ -3435,6 +3494,7 @@ $(document).ready(function(){
                 {data: 'order_num', className: 'text-right'},
                 {data: 'order_old_num', className: 'text-right'},
                 {data: 'budget', className: 'text-right'},
+                {data: 'parent', className: 'text-center'},
                 {data: 'purchase_number', className: 'text-right'},
                 {data: 'name'},
                 {data: 'amount', className: 'text-right'},
@@ -3448,26 +3508,35 @@ $(document).ready(function(){
             "columnDefs": [
                 {"targets": 0,
                 "render": function(data, type, row){
-                    var num = row['order_num']? row['order_num']:row['orderId'];
-                    var norder = '<a target="_blank" href="/admin/orders/'+row['orderId']+'/edit">'+num+'</a>';
+                    var num = row['order_num']? row['order_num']:row['id'];
+                    var norder = '<a target="_blank" href="/admin/orders/'+row['id']+'/edit">'+num+'</a>';
                     return norder;
                 }
                 },
                 {"targets": 2,
                 "render": function(data, type, row){
-                    var budget = '<a target="_blank" href="/admin/budgets/'+row['budgetId']+'/edit">'+row['budget']+'</a>';
+                    var budget = '<a target="_blank" href="/admin/budgets/'+row['id']+'/edit">'+row['budget']+'</a>';
                     return budget;
+                }
+                },
+                {"targets": 3,
+                "render": function(data, type, row){
+                    if(row['parent']){
+                        return '<a target="_blank" href="/admin/orders/'+row['parent']+'/edit">'+txtAgrupacionVer+'</a>';
+                    }else{
+                        return '';
+                    }
                 }
                 },
                 {"targets": -2,
                 "render": function(data, type, row){
-                    return '<span class="xoption-'+row['orderId']+'">'+row['estado']+'</span>'; 
+                    return '<span class="xoption-'+row['id']+'">'+row['estado']+'</span>'; 
                 }
                 }, 
                 {"targets": -1,
                 "render": function(data, type, row){
                     //Estado múltiple:
-                    var estado = multipleStatus(row['estados'], row['status'], row['orderId']);
+                    var estado = multipleStatus(row['estados'], row['status'], row['id']);
 
                     //Facturar:
                     var facturar = '';
@@ -3505,13 +3574,13 @@ $(document).ready(function(){
                     //Editar:
                     var editar = '';
                     if(row['editar']){
-                        var editar = '<a href="/admin/orders/'+row['orderId']+'/edit" class="btn btn-xs btn-info" rel="tooltip" title="'+txtEditar+'"><i class="fa fa-edit"></i></a>';
+                        var editar = '<a href="/admin/orders/'+row['id']+'/edit" class="btn btn-xs btn-info" rel="tooltip" title="'+txtEditar+'"><i class="fa fa-edit"></i></a>';
                     }
 
                     //Eliminar:
                     var eliminar = '';
                     if(row['eliminar'] && !row['invoiced']){
-                        var eliminar = '<form method="POST" action="/admin/orders/'+row['orderId']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
+                        var eliminar = '<form method="POST" action="/admin/orders/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
                             eliminar += '<input name="_method" type="hidden" value="DELETE">';
                             eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
                             eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtEliminar+'" data-msg="'+txtPedidoConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
@@ -3918,6 +3987,60 @@ $(document).ready(function(){
                 }
                 } 
             ] 
+        });
+    }
+
+    //Tabla Project Patterns:
+    if($('#tblProjectPatterns').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        
+        $('#tblProjectPatterns').DataTable({
+            "serverSide": true,
+            /*"processing": true,*/
+            "ajax": {
+                "type": "GET",
+                "url": "/api/admin/project-patterns",
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            "columns": [
+                {data: 'name', className: 'capitalize'},
+                {data: 'patron'},
+                {data: 'alta', className: 'text-right'},
+                {data: 'id', className: 'text-right'}
+            ],
+            "columnDefs": [
+                {"targets": -1,
+                "render": function(data, type, row){
+                    //Estado:
+                    if(row['editar']){
+                        var checked = (row['status'] == 1)? 'checked':'';
+                        estado = '<label class="custom-chk-rdb" rel="tooltip" title="'+txtOnOff+'">';
+                            estado += '<input type="checkbox" name="status" '+checked+' ><span class="chk chk-action" data-id="'+row['id']+'" data-ctrl="project-patterns/status"></span>';
+                        estado += '</label>';
+                    }
+
+                    //Editar:
+                    var editar = '';
+                    if(row['editar']){
+                        editar = '<a href="project-patterns/'+row['id']+'/edit" class="btn btn-xs btn-info" rel="tooltip" title="'+txtEditar+'"><i class="fa fa-edit"></i></a>';
+                    }
+
+                    //Eliminar:
+                    var eliminar = '';
+                    if(row['eliminar']){
+                        eliminar = '<form method="POST" action="project-patterns/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
+                            eliminar += '<input name="_method" type="hidden" value="DELETE">';
+                            eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
+                            eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtEliminar+'" data-msg="'+txtPatronProyectoConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
+                        eliminar += '</form>';
+                    }
+
+                    return estado+' '+editar+' '+eliminar;
+                }
+                }
+            ]
         });
     }
 

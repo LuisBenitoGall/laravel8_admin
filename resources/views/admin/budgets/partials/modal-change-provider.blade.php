@@ -1,4 +1,4 @@
-@if($shared->provider_id == session('currentCompany') && count(session('companies')) > 1 && !$shared->order_id)
+@if($order->provider_id == session('currentCompany') && count(session('companies')) > 1 && !$order->order_id)
 	<div class="modal fade modal-set-provider" id="modal-set-provider" tabindex="-1" role="dialog" aria-labelledby="setProvider" aria-hidden="true">
 	    <div class="modal-dialog" role="document">
 	        <div class="modal-content">
@@ -10,9 +10,9 @@
 	            </div>
 
 	            <div class="modal-body">
-	            	<form method="post" autocomplete="off" action="{{ route('budgets.set-provider', $budget) }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
+	            	<form method="post" autocomplete="off" action="{{ route('budgets.set-provider', $order) }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
 	                    {{ csrf_field() }}
-	                    <input type="hidden" name="budget_id" value="{{ $budget->id }}">
+	                    <input type="hidden" name="budget_id" value="{{ $order->id }}">
 
 	                    <div class="form-group row">
 	                    	{{-- Empresas --}}
@@ -21,7 +21,10 @@
 	                        	@php
 	                        	$companies_ = [];
 	                        	foreach(session('companies') as $c){
-	                        		$companies_[$c->id] = $c->name;	
+	                        		//Omitimos el cliente:
+	                        		if($c->id != $order->customer_id){
+	                        			$companies_[$c->id] = $c->name;	
+	                        		}
 	                        	}
 	                        	@endphp
 

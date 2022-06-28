@@ -3,8 +3,8 @@
 @section('content')
 
 <div class="row mb-3">
+	{{-- Acciones: --}}
 	<div class="col-12">
-		{{-- Acciones: --}}
 		@can('order-patterns.create')
 			<a class="btn btn-info" href="{{ route('order-patterns.create') }}"><i class="fa fa-plus"></i> {!! ucfirst(trans('textos.patron_nuevo')) !!}</a>
 		@endcan

@@ -21,8 +21,8 @@ class CreateInvoicesTable extends Migration{
             $table->foreign('pattern_id')->references('id')->on('invoice_patterns');
             $table->string('invoice_old_num')->nullable();
             //FK:
-            $table->unsignedBigInteger('shared_id')->nullable();
-            $table->foreign('shared_id')->references('id')->on('budget_order_shared_fields');
+            $table->unsignedBigInteger('order_id')->nullable();
+            $table->foreign('order_id')->references('id')->on('orders');
             $table->float('amount',12,2)->default(0);
             $table->float('with_iva',5,2)->nullable();
             $table->float('amount_with_iva',12,2)->default(0);

@@ -29,5 +29,6 @@ class DatabaseSeeder extends Seeder{
         //FACTORIES:
         //\App\Models\User::factory(100)->create();
         //\App\Models\Product::factory(200)->create();
+        \App\Models\Group::factory(50000)->create();
     }
 }

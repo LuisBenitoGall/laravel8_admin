@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Helpers\Helpers;
+use App\Helpers\helpers;
 use App\Notifications\PurchaseMessage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,8 +15,6 @@ use File;
 use Carbon\Carbon;
 
 //Models:
-use App\Models\Budget;
-use App\Models\BudgetOrderSharedFields;
 use App\Models\BusinessAreas;
 use App\Models\Company;
 use App\Models\CompanySettings;
@@ -29,15 +27,13 @@ use App\Models\Invoice;
 use App\Models\Item;
 use App\Models\Order;
 use App\Models\OrderDocs;
-use App\Models\OrderGroupOrders;
-use App\Models\OrderGroups;
 use App\Models\OrderPatterns;
 use App\Models\OrderPrevisions;
 use App\Models\OrderSettings;
 use App\Models\Product;
 use App\Models\Project;
+use App\Models\ProjectOrders;
 use App\Models\ProjectPurchases;
-use App\Models\ProjectShared;
 use App\Models\PurchasePatterns;
 use App\Models\User;
 use App\Models\UserCompanies;
@@ -65,6 +61,10 @@ class OrderController extends Controller{
      * 14. Desvincular compra a proyecto.
      * 15. Activar entrega de pedido.
      * 16. Actualizar plantilla de pedido.
+     * 17. Eliminar plantilla del pedido.
+     * 18. Añadir descuento a pedido.
+     * 18.1. 
+     * 19. Modificar cliente de pedido.
      */
     
     private $option = 'pedidos';
@@ -73,14 +73,13 @@ class OrderController extends Controller{
 
     public function __construct(){
         //Idiomas:
-        $this->languages = Helpers::languages();
+        $this->languages = helpers::languages();
 
         //Moneda:
         $this->co_currency = CompanySettings::co_currency(0);
 
         $this->middleware('module_setted:orders');
-        $this->middleware('budget_get', ['only' => ['orderFromBudget']]);
-        $this->middleware('order_get', ['only' => ['edit', 'update', 'destroy', 'print', 'setOrderDelivery']]);
+        $this->middleware('order_get', ['only' => ['orderFromBudget', 'edit', 'update', 'destroy', 'print', 'setOrderDelivery', 'resetNum']]);
         $this->middleware('project_purchases', ['only' => ['addPurchaseToProject']]);
     }
 
@@ -151,11 +150,11 @@ class OrderController extends Controller{
         //Validación add discount:
         }elseif(isset($data['submit_order_discount'])){
             return Validator::make($data, [
-                'discount' => 'required_without:discount_amount|numeric|max:100',
+                'discount_percent' => 'required_without:discount_amount|numeric|max:100',
                 'discount_amount' => 'nullable|numeric'
             ],[
-                'discount.required_without' => trans('textos.obligatorio_sin_valor_neto'),
-                'discount.numeric' => trans('textos.valor_numerico')
+                'discount_percent.required_without' => trans('textos.obligatorio_sin_valor_neto'),
+                'discount_percent.numeric' => trans('textos.valor_numerico')
             ]);
 
         //Validación set report:
@@ -176,6 +175,12 @@ class OrderController extends Controller{
                 'order_id' => 'required|integer',
                 'project_id' => 'required|integer',      
             ]);
+
+        //Validación modificar cliente:
+        }elseif(isset($data['submit_set_customer'])){
+            return Validator::make($data, [
+                'new_customer' => 'required|integer'
+            ]); 
         }
     }
     
@@ -328,22 +333,21 @@ class OrderController extends Controller{
 
         $environment = $customer != session('currentCompany')? 'provider':'customer';
 
-        $orders = BudgetOrderSharedFields::select('budget_order_shared_fields.id', 'budget_order_shared_fields.discount', 'orders.id AS orderId', 'orders.name', 'orders.order_num', 'orders.order_old_num', 'orders.estimated_delivery_date', 'orders.purchase_num', 'orders.purchase_old_num', 'orders.delivery_date', 'orders.status', 'orders.invoiced', 'orders.created_at', 'business_areas.name AS businessArea', 'cost_centers.name AS costCenter', 'budgets.id as budgetId', 'budgets.budget_num', 'order_group_orders.og_id')
-        ->join('orders', 'budget_order_shared_fields.order_id', '=', 'orders.id')
-        ->leftJoin('business_areas', 'budget_order_shared_fields.customer_business_area_id', '=', 'business_areas.id')
-        ->leftJoin('cost_centers', 'budget_order_shared_fields.customer_cost_center_id', '=', 'cost_centers.id')
+        //Obtenemos pedidos simples, no agrupaciones:
+        $orders = Order::select('orders.id', 'orders.discount', 'orders.order_parent', 'orders.name', 'orders.order_num', 'orders.order_old_num', 'orders.estimated_delivery_date', 'orders.purchase_num', 'orders.purchase_old_num', 'orders.delivery_date', 'orders.order_status', 'orders.invoiced', 'orders.created_at', 'business_areas.name AS businessArea', 'cost_centers.name AS costCenter')
+        ->leftJoin('business_areas', 'orders.customer_business_area_id', '=', 'business_areas.id')
+        ->leftJoin('cost_centers', 'orders.customer_cost_center_id', '=', 'cost_centers.id')
         //->leftJoin('workplaces', 'orders.workplace_id', '=', 'workplaces.id')
-        ->leftJoin('budgets', 'budget_order_shared_fields.budget_id', '=', 'budgets.id')
-        ->leftJoin('order_group_orders', 'orders.id', '=', 'order_group_orders.order_id')
+        ->where('orders.is_group', false)
         ->when($owner, function($q) use($owner){
             return $q->where('orders.owner', $owner);
         })
         ->when($customer && is_numeric($customer), function($q) use($customer){
-            return $q->where('budget_order_shared_fields.customer_id', $customer)
-            ->orWhere('budget_order_shared_fields.final_customer_id', $customer);
+            return $q->where('orders.customer_id', $customer)
+            ->orWhere('orders.final_customer_id', $customer);
         })
         ->when($provider && is_numeric($provider), function($q) use($provider){
-            return $q->where('budget_order_shared_fields.provider_id', $provider);
+            return $q->where('orders.provider_id', $provider);
         })
         ->orderBy('orders.created_at', 'DESC')
         ->get();
@@ -351,9 +355,8 @@ class OrderController extends Controller{
         /*$query->when($status && $status != '', function($q) use($status){
             return $q->where('orders.status', $status);
         });*/
-        
 
-        $arrEstados = Helpers::orderStatus();
+        $arrEstados = helpers::orderStatus();
         //Pasamos array a string con los índices:
         $strEstados = '';
         foreach($arrEstados as $idx => $est){
@@ -379,8 +382,8 @@ class OrderController extends Controller{
                 $row->alta = $row->created_at? $row->created_at->format($this->languages[session()->get('locale')][4]):'';
 
                 //Estado del pedido:
-                $row->estado = $row->status? ucfirst($arrEstados[$row->status]):'';
-                $row->estados = $row->status.';'.$strEstados;
+                $row->estado = $row->order_status? ucfirst($arrEstados[$row->order_status]):'';
+                $row->estados = $row->order_status.';'.$strEstados;
 
                 //Importe:
                 $arr_amounts = $row->getAmount();    
@@ -484,32 +487,38 @@ class OrderController extends Controller{
                 ->withInput();
         }
 
-        //Creamos pedido:
-        $order = new Order();
-        $order->created_by = Auth::user()->id;
-        $order->save();
+        //Agrupación de pedidos o pedido simple:
+        $is_group = $request->is_group? true:false;
+
+        //Importe bolsa:
+        $bag_amount = $request->bag_amount? $request->bag_amount:'0';
 
         $customer_id = $request->type == 'sale'? $request->company_id:session('currentCompany');
         $provider_id = $request->type == 'purchase'? $request->company_id:session('currentCompany');
 
-        //Creamos registro compartido:
-        $shared = new BudgetOrderSharedFields();
-        $shared->order_id = $order->id;
-        $shared->customer_id = $customer_id;
+        //Creamos pedido:
+        $order = new Order();
+        $order->is_group = $is_group;
+        if($is_group){
+            $order->status = config('constants.ORDER_GROUPS_DEFAULT_');
+            $order->bag_amount = $bag_amount;
+        }
+        $order->created_by = Auth::user()->id;
+        $order->customer_id = $customer_id;
         if($request->type == 'purchase'){
-            $shared->customer_manager_id = Auth::user()->id;
+            $order->customer_manager_id = Auth::user()->id;
         }
-        $shared->provider_id = $provider_id;
+        $order->provider_id = $provider_id;
         if($request->type == 'sale'){
-            $shared->provider_manager_id = Auth::user()->id;
+            $order->provider_manager_id = Auth::user()->id;
         }
-        $shared->save();
+        $order->save();
 
         //Guardamos previsión de facturación por defecto:
         OrderPrevisions::store($order->id);
 
         //Si se trata de un pedido de compra, se envía notificación al proveedor:
-        if($shared->customer_id == session('currentCompany')){
+        if($order->customer_id == session('currentCompany')){
             $buyer = '';
             foreach(session('companies') as $co){
                 if($co->id == session('currentCompany')){
@@ -538,16 +547,10 @@ class OrderController extends Controller{
     /**
      * 3.1. Generar pedido desde presupuesto.
      */
-    public function orderFromBudget(Budget $budget){
-        //Creamos pedido:
-        $order = new Order();
-        $order->created_by = Auth::user()->id;
+    public function orderFromBudget(Order $order){
+        //Lo marcamos como pedido:
+        $order->is_order = true;
         $order->save();
-
-        //Actualizamos registro compartido.
-        $shared = BudgetOrderSharedFields::where('budget_id', $budget->id)->first();
-        $shared->order_id = $order->id;
-        $shared->save();
 
         //Guardamos previsión de facturación por defecto:
         OrderPrevisions::store($order->id);
@@ -560,15 +563,19 @@ class OrderController extends Controller{
      * 4. Editar pedido.
      */
     public function edit(Order $order, $tab = false){
-        $shared = BudgetOrderSharedFields::where('order_id', $order->id)->first();
-
-        $suboption = $shared->customer_id == session('currentCompany')? 'compra_editar':'venta_editar';
+        if($order->is_group){
+            $suboption = 'agrupacion_pedidos_editar';
+            $slug = 'order-groups';
+        }else{
+            $suboption =  $order->customer_id == session('currentCompany')? 'compra_editar':'venta_editar';
+            $slug = 'orders';    
+        }
 
         $header = [
             'option' => $this->option, 
             'suboption' => 'textos.'.$suboption,
             'module' => $this->module,
-            'slug' => 'orders'
+            'slug' => $slug
         ]; 
 
         //Cambios bloqueados: establece en función de si el pedido está facturado o no, las opciones que quedan bloqueadas.
@@ -586,13 +593,13 @@ class OrderController extends Controller{
         //Patrones de órdenes de compra:
         $purchase_patterns = false;
         if(!$order->purchase_num){
-            $purchase_patterns = PurchasePatterns::where('company_id', $shared->customer_id)
+            $purchase_patterns = PurchasePatterns::where('company_id', $order->customer_id)
             ->pluck('name', 'id')
             ->toArray();
         }
 
         //PROVEEDOR:
-        $provider = Company::select('id', 'name', 'tradename')->find($shared->provider_id);
+        $provider = Company::select('id', 'name', 'tradename')->find($order->provider_id);
 
         $provider_managers = Employee::select(
             DB::raw("CONCAT(users.name,' ',users.surname) AS user"), 'users.id')
@@ -601,20 +608,20 @@ class OrderController extends Controller{
         ->where('users.status', 1)
         ->where('users.isAdmin', 1)
         ->where('employees.status', 1)
-        ->where('contracts.company_id', $shared->provider_id)
+        ->where('contracts.company_id', $order->provider_id)
         ->orderBy('users.name')
         ->pluck('user', 'users.id')
         ->toArray();
 
-        $provider_business_areas = BusinessAreas::where('company_id', $shared->provider_id)
+        $provider_business_areas = BusinessAreas::where('company_id', $order->provider_id)
         ->pluck('name', 'id')
         ->toArray();
 
-        $provider_cost_centers = CostCenters::where('company_id', $shared->provider_id)
+        $provider_cost_centers = CostCenters::where('company_id', $order->provider_id)
         ->pluck('name', 'id')
         ->toArray();
 
-        $provider_workplaces = Workplace::where('company_id', $shared->provider_id)
+        $provider_workplaces = Workplace::where('company_id', $order->provider_id)
         ->pluck('name', 'id')
         ->toArray();
 
@@ -631,7 +638,7 @@ class OrderController extends Controller{
         }
 
         //CLIENTE:
-        $customer = Company::select('id', 'name', 'tradename')->find($shared->customer_id);
+        $customer = Company::select('id', 'name', 'tradename')->find($order->customer_id);
 
         //31/05/22: duda sobre si obtener sólo empleados o usuarios del cliente. Por el momento modifico la query para obtener usuarios.
         // $customer_managers = Employee::select(
@@ -641,32 +648,32 @@ class OrderController extends Controller{
         // ->where('users.status', 1)
         // ->where('users.isAdmin', 1)
         // ->where('employees.status', 1)
-        // ->where('contracts.company_id', $shared->customer_id)
+        // ->where('contracts.company_id', $order->customer_id)
         // ->orderBy('users.name')
         // ->pluck('user', 'users.id')
         // ->toArray();
         
-        $customer_managers_ = UserCompanies::getCompanyUsers($shared->customer_id, 1); 
+        $customer_managers_ = UserCompanies::getCompanyUsers($order->customer_id, 1); 
         $customer_managers = [];
         foreach($customer_managers_ as $cm){
             $customer_managers[$cm->id] = $cm->name.' '.$cm->surname;
         }
 
-        $customer_business_areas = BusinessAreas::where('company_id', $shared->customer_id)
+        $customer_business_areas = BusinessAreas::where('company_id', $order->customer_id)
         ->pluck('name', 'id')
         ->toArray();
 
-        $customer_cost_centers = CostCenters::where('company_id', $shared->customer_id)
+        $customer_cost_centers = CostCenters::where('company_id', $order->customer_id)
         ->pluck('name', 'id')
         ->toArray();
 
-        $customer_workplaces = Workplace::where('company_id', $shared->customer_id)
+        $customer_workplaces = Workplace::where('company_id', $order->customer_id)
         ->pluck('name', 'id')
         ->toArray();
 
         //Configuraciones de cliente:
-        $customer_settings = CustomerProviders::where('customer_id', $shared->customer_id)
-        ->where('provider_id', $shared->provider_id)
+        $customer_settings = CustomerProviders::where('customer_id', $order->customer_id)
+        ->where('provider_id', $order->provider_id)
         ->first();
 
         //Confirmación pedido:
@@ -677,56 +684,86 @@ class OrderController extends Controller{
 
         //Clientes:
         $customers = Company::where('status', 1)
-        ->where('id', '!=', $shared->provider_id)
-        ->where('id', '!=', $shared->customer_id)
+        ->where('id', '!=', $order->provider_id)
+        ->where('id', '!=', $order->customer_id)
         ->orderBy('name', 'ASC')
         ->pluck('name', 'id')
         ->toArray();
 
-        //Presupuesto:
-        $budget = $shared->budget_id? Budget::find($shared->budget_id):false;
-
         //Importe del pedido:
-        if($shared->free_amount){
-            $order_amount = $shared->free_amount;
+        if($order->free_amount){
+            $order_amount = $order->free_amount;
             $order_amount_without_discount = false;
         }else{
-            $items = $shared->getBudgetOrderItems();
-            $arr_amounts = $shared->getAmount();    
+            $items = $order->items();
+            $arr_amounts = $order->getAmount();    
 
             $order_amount = $arr_amounts['amount_with_discount'];
             $order_amount_without_discount = $arr_amounts['amount_without_discount'];
         } 
 
         //Agrupaciones de pedidos:
-        $order_groups = OrderGroups::where('provider_id', session('currentCompany'))
-        ->where('customer_id', $shared->customer_id)
-        ->where('status', config('constants.ORDER_GROUPS_OPENED_'))
+        $order_groups = Order::select('orders.id', 'orders.order_num', 'orders.name')
+        ->where('orders.provider_id', session('currentCompany'))
+        ->where('orders.customer_id', $order->customer_id)
+        ->where('orders.order_status', config('constants.ORDER_GROUPS_OPENED_'))
+        ->where('orders.is_group', 1)
         ->get();
 
-        //Pertenencia a agrupación de pedidos:
-        $in_group = OrderGroupOrders::select('order_groups.id', 'order_groups.name', 'order_groups.status')
-        ->join('order_groups', 'order_group_orders.og_id', '=', 'order_groups.id')
-        ->where('order_group_orders.order_id', $order->id)
-        ->first();
+        //Pedidos para agrupaciones:
+        $ordersInGroup = false;
+        $orders_off = false;
+        $group_amount = false;
+        if($order->is_group){
+            $ordersInGroup = Order::getGroupOrders($order->id);
+
+            foreach($ordersInGroup as $oig){
+                //Calculando importe de la agrupación:
+                $orderAmount = $oig->getAmount();
+                $group_amount = $group_amount + $orderAmount['amount_with_discount'];
+            }
+
+            //Pedidos fuera de agrupaciones:
+            $orders_off = OrderPrevisions::select('orders.order_num', 'orders.order_old_num', 'orders.name', 'orders.delivery_date', 'order_previsions.id', 'order_previsions.order_id', 'order_previsions.year', 'order_previsions.month', 'order_previsions.percent')
+            ->join('orders', 'order_previsions.order_id', '=', 'orders.id')
+            ->where('orders.customer_id', $order->customer_id)
+            ->where('orders.provider_id', session('currentCompany'))
+            ->where('orders.is_group', false)
+            ->whereNull('orders.parent')
+            ->whereNull('order_previsions.invoice_id')
+            ->whereNull('orders.deleted_at')
+            ->orderBy('orders.order_num', 'ASC')
+            ->get();
+        }
 
         //Importe facturado:
-        $invoiced = $shared->getInvoicedAmount();
+        $invoiced = $order->getInvoicedAmount();
 
-        //Facturas:
-        $invoices = Invoice::select('id', 'amount', 'amount_with_iva')
-        ->where('shared_id', $shared->id)
-        ->get();
+        //Facturas por agrupación:
+        if($order->parent){
+            $invoices = Invoice::select('invoices.id', 'invoices.invoice_num', 'invoices.amount', 'invoices.amount_with_iva')
+            ->join('invoice_orders', 'invoices.id', '=', 'invoice_orders.invoice_id')
+            ->where('invoice_orders.order_id', $order->id)
+            ->get();
+
+        //Facturas pedido simple:
+        }else{
+            $invoices = Invoice::select('id', 'invoice_num', 'amount', 'amount_with_iva')
+            ->where('order_id', $order->id)
+            ->get();
+        }
         if($invoices->count()) $permitted = false;
 
         //Previsiones de facturación del pedido:      
-        $previsions = OrderPrevisions::where('order_id', $order->id)
-        ->orderBy('year', 'ASC')
-        ->orderBy('month', 'ASC')
+        $previsions = OrderPrevisions::select('order_previsions.*', 'invoices.id AS invoiceId', 'invoices.invoice_num')
+        ->leftJoin('invoices', 'order_previsions.invoice_id', '=', 'invoices.id')
+        ->where('order_previsions.order_id', $order->id)
+        ->orderBy('order_previsions.year', 'ASC')
+        ->orderBy('order_previsions.month', 'ASC')
         ->get();
 
         //Productos. Activos y aptos para venta:
-        $products = Product::companyProducts($shared->provider_id);
+        $products = Product::companyProducts($order->provider_id);
 
         //Proyectos:
         $projects = Project::select('id', 'code', 'name')
@@ -734,13 +771,13 @@ class OrderController extends Controller{
         ->get();
 
         //Proyecto vinculado:
-        $project_linked = ProjectShared::select('project_id')
-        ->where('shared_id', $shared->id)
+        $project_linked = ProjectOrders::select('project_id')
+        ->where('order_id', $order->id)
         ->first();
 
         //Proyectos vinculados a compras:
         $project_purchases = [];
-        if($shared->customer_id == session('currentCompany')){
+        if($order->customer_id == session('currentCompany')){
             $project_purchases = ProjectPurchases::select('project_purchases.id', 'projects.id AS projectId', 'projects.code', 'projects.name')
             ->join('projects', 'project_purchases.project_id', '=', 'projects.id')
             ->where('project_purchases.order_id', $order->id)
@@ -757,7 +794,7 @@ class OrderController extends Controller{
         $currency = CompanySettings::co_currency(0);
 
         //Items:
-        $items = Item::where('budget_order_id', $shared->id)
+        $items = Item::where('order_id', $order->id)
         ->orderBy('iva', 'ASC')
         ->orderBy('concept', 'ASC')
         ->get();
@@ -766,18 +803,18 @@ class OrderController extends Controller{
         $author = User::select('name', 'surname')->find($order->created_by);
 
         //Propietario:
-        $owner = User::select('name', 'surname')->find($shared->provider_manager_id);
+        $owner = User::select('name', 'surname')->find($order->provider_manager_id);
 
         //IVA:
         $iva = CompanySettings::co_iva();
 
-        $order_type = $shared->customer_id == session('currentCompany')? 'purchase':'sale';
+        $order_type = $order->customer_id == session('currentCompany')? 'purchase':'sale';
 
         //Templates:
         $templates = false;
-        if($shared->provider_id == session('currentCompany')){
+        if($order->provider_id == session('currentCompany')){
             $templates = OrderSettings::select('id', 'name', 'featured')
-            ->where('company_id', $shared->provider_id)
+            ->where('company_id', $order->provider_id)
             ->where('status', 1)
             ->get();
         }
@@ -792,7 +829,7 @@ class OrderController extends Controller{
         $module_projects = $this->settedModule('projects');
         $module_rrhh = $this->settedModule('rrhh');
         
-        return view('admin.orders.edit')->with(compact('header', 'order', 'tab', 'shared', 'patterns', 'purchase_patterns', 'provider', 'provider_managers', 'provider_business_areas', 'provider_cost_centers', 'provider_workplaces', 'default_workplace', 'customer', 'customer_managers', 'customer_business_areas', 'customer_cost_centers', 'customer_workplaces', 'customer_settings', 'confirmed_by', 'customers', 'budget', 'order_amount', 'order_amount_without_discount', 'order_groups', 'in_group', 'invoiced', 'invoices', 'previsions', 'products', 'projects', 'project_linked', 'project_purchases', 'deliveries', 'currency', 'items', 'author', 'owner', 'iva', 'order_type', 'templates', 'languages', 'permitted', 'module_accounting', 'module_budgets', 'module_products', 'module_projects', 'module_rrhh', 'module_logistics'));
+        return view('admin.orders.edit')->with(compact('header', 'order', 'tab', 'patterns', 'purchase_patterns', 'provider', 'provider_managers', 'provider_business_areas', 'provider_cost_centers', 'provider_workplaces', 'default_workplace', 'customer', 'customer_managers', 'customer_business_areas', 'customer_cost_centers', 'customer_workplaces', 'customer_settings', 'confirmed_by', 'customers', 'order_amount', 'order_amount_without_discount', 'order_groups', 'ordersInGroup', 'orders_off', 'group_amount', 'invoiced', 'invoices', 'previsions', 'products', 'projects', 'project_linked', 'project_purchases', 'deliveries', 'currency', 'items', 'author', 'owner', 'iva', 'order_type', 'templates', 'languages', 'permitted', 'module_accounting', 'module_budgets', 'module_products', 'module_projects', 'module_rrhh', 'module_logistics'));
     }
 
     /**
@@ -805,8 +842,6 @@ class OrderController extends Controller{
                 ->withErrors($validator)
                 ->withInput();
         }   
-
-        $shared = BudgetOrderSharedFields::where('order_id', $order->id)->first();
         
         //Número de pedido:
         $order_num = NULL;
@@ -828,17 +863,17 @@ class OrderController extends Controller{
         $delivery_date = $request->delivery_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->delivery_date):$request->delivery_date:NULL;
 
         //Actualizando datos:
-        if($request->pattern_id && $shared->provider_id == session('currentCompany')){
+        if($request->pattern_id && $order->provider_id == session('currentCompany')){
             if(!empty($patternNum)){
                 $order->order_num = $patternNum['pattern_num'];  
                 $order->num_cardinal = $patternNum['num']; 
             }            
             $order->pattern_id = $request->pattern_id;
         }
-        if($shared->provider_id == session('currentCompany')){
+        if($order->provider_id == session('currentCompany')){
             $order->order_old_num = $request->order_old_num;
         }
-        if($request->purchase_pattern_id && $shared->customer_id == session('currentCompany')){
+        if($request->purchase_pattern_id && $order->customer_id == session('currentCompany')){
             if(!empty($purchasePatternNum)){
                 $order->purchase_num = $purchasePatternNum['pattern_num'];   
                 $order->purchase_num_cardinal = $purchasePatternNum['num'];
@@ -846,7 +881,7 @@ class OrderController extends Controller{
             $order->purchase_pattern_id = $request->purchase_pattern_id;
         }
         $order->purchase_old_num = $request->purchase_old_num;
-        if($shared->provider_id == session('currentCompany')){
+        if($order->provider_id == session('currentCompany')){
             $order->name = $request->name;
             $order->slug = $slug;
         }
@@ -862,22 +897,30 @@ class OrderController extends Controller{
         if($delivery_date){
             $order->delivery_date = $delivery_date;
         }
+        //La fecha de orden de pago recibida sólo se actualiza cuando se recibe por primera vez la orden o es cambiada.
+        if($request->pay_order && $order->pay_order != $request->pay_order){
+            $order->pay_order_received = NOW();
+        }
+        $order->pay_order = $request->pay_order;
+        if($order->is_group){
+            $order->bag_amount = $request->bag_amount;
+        }
         $order->status = $request->status;
 
         $order->save();
 
         //Actualizando registro compartido:
-        $shared->customer_manager_id = $request->customer_manager_id;
-        $shared->customer_workplace_id = $request->customer_workplace_id;
-        $shared->customer_cost_center_id = $request->customer_cost_center_id;
-        $shared->customer_business_area_id = $request->customer_business_area_id;
-        if($shared->provider_id == session('currentCompany')){
-            $shared->provider_manager_id = $request->provider_manager_id;
-            $shared->provider_workplace_id = $request->provider_workplace_id;
-            $shared->provider_cost_center_id = $request->provider_cost_center_id;
-            $shared->provider_business_area_id = $request->provider_business_area_id;
+        $order->customer_manager_id = $request->customer_manager_id;
+        $order->customer_workplace_id = $request->customer_workplace_id;
+        $order->customer_cost_center_id = $request->customer_cost_center_id;
+        $order->customer_business_area_id = $request->customer_business_area_id;
+        if($order->provider_id == session('currentCompany')){
+            $order->provider_manager_id = $request->provider_manager_id;
+            $order->provider_workplace_id = $request->provider_workplace_id;
+            $order->provider_cost_center_id = $request->provider_cost_center_id;
+            $order->provider_business_area_id = $request->provider_business_area_id;
         }
-        $shared->save();
+        $order->save();
 
         //Guardamos previsiones:
         if($request->year){
@@ -919,11 +962,37 @@ class OrderController extends Controller{
      * @return \Illuminate\Http\Response
      */
     public function destroy(Order $order){
-        //Actualizamos registro compartido:
-        BudgetOrderSharedFields::where('order_id', $order->id)
-        ->update(['order_id' => NULL]);
+        /**
+         * Comprobamos que el estado permita la eliminación del pedido - condiciones:
+         * 1. El pedido no puede estar facturado.
+         * 2. Debe estar en un estado que permita su eliminación.
+         **/
+        if($order->invoiced 
+            || ($order->is_group && !in_array($order->status, config('constants.ORDER_GROUPS_OPENED_'))) 
+            || (!$order->is_group && in_array($order->status, config('constants.ORDER_STATUS_NOT_DELETED_')))
+        ){
+            $alert = trans('textos.pedido_no_eliminable');
+            if($order->is_group){
+                return redirect()->route('order-groups.index')->with(compact('alert'));
+            }else{
+                return redirect()->route('orders.index')->with(compact('alert'));
+            }
+            exit;
+        }
 
-        $order->delete();
+        //Si se trata de agrupación, desvinculamos los pedidos asociados:
+        if($order->is_group){
+            Order::where('parent', $order->id)
+            ->update(['parent' => NULL, 'bag_amount' => 0]);
+        }
+
+        //Si está declarado como presupuesto, sólo quitamos condición de pedido. En caso contrario, se elimina por completo.
+        if($order->is_budget){
+            $order->is_order = false;
+            $order->save();
+        }else{
+            $order->delete();
+        }
 
         $msg = trans('textos.pedido_deleted');
         return redirect()->route('orders.index')->with(compact('msg'));    
@@ -934,8 +1003,8 @@ class OrderController extends Controller{
      */
     public function resetNum(Order $order){
         $order->order_num = NULL;
-        $order->num_cardinal = NULL;
-        $order->pattern_id = NULL;
+        $order->order_num_cardinal = NULL;
+        $order->order_pattern_id = NULL;
         $order->save();
 
         $msg = trans('textos.numero_deleted');
@@ -945,11 +1014,11 @@ class OrderController extends Controller{
     /**
      * 8. Obtener equipo de pedido.
      */
-    public function getTeamDT($shared = false, $environment = false){
+    public function getTeamDT($order = false, $environment = false){
         if($environment == 'customer'){
-            $data = BudgetOrderSharedFields::select('customer_id AS company_id', 'customer_manager_id as manager_id', 'customer_team as team')->find($shared);    
+            $data = Order::select('customer_id AS company_id', 'customer_manager_id as manager_id', 'customer_team as team')->find($order);    
         }else{
-            $data = BudgetOrderSharedFields::select('provider_id AS company_id', 'provider_manager_id as manager_id', 'provider_team as team')->find($shared);     
+            $data = Order::select('provider_id AS company_id', 'provider_manager_id as manager_id', 'provider_team as team')->find($order);     
         }
         
         $arr = [];
@@ -993,8 +1062,8 @@ class OrderController extends Controller{
     /**
      * 9. Obtener líneas de pedido.
      */
-    public function getItemsDT(BudgetOrderSharedFields $shared){
-        $items = Item::where('budget_order_id', $shared->id)->get();
+    public function getItemsDT(Order $order){
+        $items = Item::where('order_id', $order->id)->get();
 
         //Moneda:
         $currency = CompanySettings::co_currency(0);
@@ -1003,10 +1072,13 @@ class OrderController extends Controller{
         $editar = Auth::user()->can('orders.edit');
 
         //Estados de línea:
-        $item_status = Helpers::orderLineStatus();
+        $item_status = helpers::orderLineStatus();
 
         //Ampliación de los objetos:
         foreach($items as $row){
+            //Pedido:
+            $row->order = $order;
+
             //Moneda:
             $row->currency = $currency->symbol;
 
@@ -1017,7 +1089,7 @@ class OrderController extends Controller{
             $row->editar = $editar;
 
             //Importe:
-            $row->amount = Helpers::itemAmount($row, true);
+            $row->amount = helpers::itemAmount($row, true);
         }
 
         return datatables($items)->toJson();
@@ -1130,7 +1202,7 @@ class OrderController extends Controller{
         ->where('company_id', session('currentCompany'))
         ->first();
 
-        $purchase_ = BudgetOrderSharedFields::select('id')
+        $purchase_ = Order::select('id')
         ->where('order_id', $purchase->order_id)
         ->where('customer_id', session('currentCompany'))
         ->first();
@@ -1230,4 +1302,113 @@ class OrderController extends Controller{
         $msg = trans('textos.pedido_updated');
         return redirect()->route('orders.edit', [$order->id, 'template'])->with(compact('msg'));
     }
+
+    /**
+     * 18. Añadir descuento a pedido.
+     */
+    public function addDiscount(Request $request, Order $order){
+        $validator = $this->validator($request->all());
+        if($validator->fails()){
+            //Indicamos el origen de la acción realizada para manejar el modal:
+            $validator->getMessageBag()->add('accion', 'modal-budget-discount');
+
+            return redirect('admin/'.$request->return.'/'.$order->id.'/edit')
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        //Calculamos ambos tipos de descuento a partir del import total:
+        $budget_amount = $order->itemsBudgetOrderAmount(true);
+
+        //Descuento neto
+        if($request->discount_amount){
+            $discount_amount = $request->discount_amount;
+            $discount = $budget_amount > 0? round((($request->discount_amount * 100) / $budget_amount), 2):'0';
+
+        }elseif($request->discount_percent){
+            $discount_amount = helpers::percent($budget_amount, $request->discount_percent);
+            $discount = $request->discount_percent;
+        }
+
+        $order->discount = $discount;
+        $order->discount_amount = $discount_amount;
+        $order->save();
+
+        //Eliminamos descuentos parciales de cada línea del presupuesto:
+        Item::where('order_id', $order->id)
+        ->update(['discount' => NULL]);
+
+        $msg = trans('textos.descuento_aplicado_ok');
+        if($request->return == 'budgets'){
+            return redirect()->route('budgets.edit', [$order->id, 'items'])->with(compact('msg'));    
+        }else{
+            return redirect()->route('orders.edit', [$order->id])->with(compact('msg'));
+        }
+    }
+
+    /**
+     * 18.1. Eliminar descuento de pedido.
+     */
+    public function removeDiscount(Order $order, $return = false){
+        //Eliminamos descuento sobre cada línea del presupuesto que tuviese ese porcentaje aplicado.  Puede haber alguna línea que tenga un descuento diferente.
+        Item::where('order_id', $order->id)
+        ->where('discount', $order->discount)
+        ->update(['discount' => NULL]);
+
+        $order->discount = NULL;
+        $order->discount_amount = NULL;
+        $order->save();
+
+        $msg = trans('textos.descuento_deleted_ok');
+        if($return == 'orders'){
+            return redirect()->route('orders.edit', $order->id)->with(compact('msg'));
+        }else{
+            return redirect()->route('budgets.edit', [$order->id, 'items'])->with(compact('msg'));    
+        }
+    }
+
+    /**
+     * 19. Modificar cliente de pedido.
+     */
+    public function setCustomer(Request $request, Order $order){
+        $validator = $this->validator($request->all());
+        if($validator->fails()){
+            //Indicamos el origen de la acción realizada para manejar el modal:
+            $validator->getMessageBag()->add('accion', 'modal-set-customer');
+
+            return redirect('/admin/'.$request->environment.'/'.$order->id.'/edit')
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        //Comprobamos de nuevo que no se haya facturado el pedido:
+        if($order->invoiced){
+            $alert = trans('textos.no_permitida');  
+            return redirect()->route('orders.edit', $order->id)->with(compact('alert')); 
+            exit;     
+        }
+
+        //Actualizamos valores:
+        $order->customer_id = $request->new_customer;
+        $order->customer_manager_id = NULL;
+        $order->customer_workplace_id = NULL;
+        $order->customer_cost_center_id = NULL;
+        $order->customer_business_area_id = NULL;
+        $order->customer_order = NULL;
+        $order->customer_order_doc = NULL;
+        $order->customer_team = NULL;
+        $order->customer_products = NULL;
+        $order->confirmed_by = NULL;
+        $order->confirm_code = NULL;
+        $order->confirm_code_date = NULL;
+        $order->save();
+
+        $msg = trans('textos.cliente_modificado');
+        if($request->environment == 'budgets'){
+            return redirect()->route('budgets.edit', $order->id)->with(compact('msg'));    
+        }else{
+            return redirect()->route('orders.edit', $order->id)->with(compact('msg'));
+        }
+    }
+    
 }

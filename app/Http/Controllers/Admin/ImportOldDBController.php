@@ -72,16 +72,16 @@ class ImportOldDBController extends Controller{
         if($request->ajax()){  
             DB::table('importaciones')->truncate();
             
-            // $this->importUsers(true);
-            // sleep(3);
-            // $this->importCompanies();
-            // sleep(3);
-            // $this->importCountries();
-            // sleep(3);
-            // $this->importProvinces();
-            // sleep(3);
-            // $this->importTowns();
-            // sleep(3);
+            $this->importUsers(true);
+            sleep(3);
+            $this->importCompanies();
+            sleep(3);
+            $this->importCountries();
+            sleep(3);
+            $this->importProvinces();
+            sleep(3);
+            $this->importTowns();
+            sleep(3);
             $this->importWorkplaces();
             sleep(3);
             $this->importCostCenters();

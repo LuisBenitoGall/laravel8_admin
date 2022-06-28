@@ -52,29 +52,7 @@ class OrderPrevisionsController extends Controller{
      * 2. Recalcular previsiones de facturación.
      */
     public function recalculatePrevisions(Order $order){
-        $shared = BudgetOrderSharedFields::where('order_id', $order->id)->first();
-
-        $previsions = OrderPrevisions::select('order_previsions.id', 'order_previsions.percent', 'invoices.amount')
-        ->leftJoin('invoices', 'order_previsions.invoice_id', '=', 'invoices.id')
-        ->where('order_previsions.order_id', $order->id)
-        ->get();
-
-        //Importe del pedido:
-        if($shared->free_amount){
-            $order_amount = $shared->free_amount;
-        }else{
-            $arr_amounts = $shared->getAmount();    
-
-            $order_amount = $arr_amounts['amount_with_discount'];
-        } 
-
-        foreach($previsions as $prev){
-            if($prev->amount){
-                $percent = ($prev->amount * 100) / $order_amount;
-                $prev->percent = round($percent, 2);
-                $prev->save();
-            }
-        }
+        OrderPrevisions::recalculatePrevisionsPercent($order->id);
 
         $msg = trans('textos.previsiones_recalculadas');
         return redirect()->route('orders.edit', [$order->id, false])->with(compact('msg')); 

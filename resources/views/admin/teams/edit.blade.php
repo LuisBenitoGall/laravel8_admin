@@ -7,8 +7,8 @@ $languages = App\Helpers\Helpers::languages();
 @endphp
 
 <div class="row mb-3">
+	{{-- Acciones: --}}
 	<div class="col-12">
-		{{-- Acciones: --}}
 		<a href="{{ route('teams.index') }}" class="btn btn-info">
 			<i class="fa fa-angle-left"></i>
 			{!! trans('textos.volver_equipos') !!}

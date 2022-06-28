@@ -1,0 +1,45 @@
+<div class="modal fade modal-add-payment" id="modal-add-payment" tabindex="-1" role="dialog" aria-labelledby="addMember" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="addMember">{!! ucfirst(trans('textos.cobro_add')) !!}</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+            	<form method="post" autocomplete="off" action="{{ route('invoice-payments.store') }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
+                    {{ csrf_field() }}
+                    <input type="hidden" name="invoice_id" value="{{ $invoice->id }}">
+
+                    <div class="form-group row">
+                        {{-- Importe --}}
+                        <label for="amount" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.importe')) !!}</label>
+                        <div class="col-lg-10">
+                            <x-input type="text" name="amount" class="text-right set-decimals" autocomplete="off" maxlength="15" value="" group="right" groupvalue="{{ $currency->symbol }}"/>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        {{-- Modo --}}
+                        <label for="mode" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.modo')) !!}</label>
+                        <div class="col-lg-10">
+                            <x-input type="text" name="mode" autocomplete="off" maxlength="255"/>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        {{-- Observaciones --}}
+                        <label for="observations" class="col-12">{!! ucfirst(trans('textos.observaciones')) !!}</label>
+                        <div class="col-12">
+                            <x-input-textarea name="observations"/>
+                        </div>
+                    </div>
+                    
+                    <x-btn-submit name="submit_save" label="{{ trans('textos.guardar') }}"/>
+                </form>   
+            </div>
+        </div>
+    </div>
+</div>

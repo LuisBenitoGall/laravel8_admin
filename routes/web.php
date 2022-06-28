@@ -50,6 +50,24 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::post('answers/update', 'AnswerController@update')->name('answers.update')->middleware('permission:questions.edit');
     Route::delete('answers/{answer}', 'AnswerController@destroy')->name('answers.destroy')->middleware('permission:questions.edit');
 
+    // Bank Accounts:
+    Route::get('bank-accounts', 'BankAccountsController@index')->name('bank-accounts.index')->middleware('permission:companies.edit');
+    Route::get('bank-accounts/create', 'BankAccountsController@create')->name('bank-accounts.create')->middleware('permission:companies.edit');
+    Route::post('bank-accounts/store', 'BankAccountsController@store')->name('bank-accounts.store')->middleware('permission:companies.edit');
+    Route::get('bank-accounts/{account}/edit', 'BankAccountsController@edit')->name('bank-accounts.edit')->middleware('permission:companies.edit');
+    Route::put('bank-accounts/{account}/update', 'BankAccountsController@update')->name('bank-accounts.update')->middleware('permission:companies.edit');
+    Route::get('bank-accounts/status/{id}/{status}', 'BankAccountsController@status')->name('bank-accounts.status')->middleware('permission:companies.edit');
+    Route::delete('bank-accounts/{account}', 'BankAccountsController@destroy')->name('bank-accounts.destroy')->middleware('permission:companies.edit');
+
+    // Banks:
+    Route::get('banks', 'BankController@index')->name('banks.index')->middleware('permission:budget-forms.index');
+    Route::get('banks/create', 'BankController@create')->name('banks.create')->middleware('permission:banks.create');
+    Route::post('banks/store', 'BankController@store')->name('banks.store')->middleware('permission:banks.create');
+    Route::get('banks/{bank}/edit', 'BankController@edit')->name('banks.edit')->middleware('permission:banks.edit');
+    Route::put('banks/{bank}/update', 'BankController@update')->name('banks.update')->middleware('permission:banks.edit');
+    Route::get('banks/status/{id}/{status}', 'BankController@status')->name('banks.status')->middleware('permission:banks.edit');
+    Route::delete('banks/{bank}', 'BankController@destroy')->name('banks.destroy')->middleware('permission:banks.destroy');
+
     // Batch Patterns:
     Route::get('batch-patterns', 'BatchPatternsController@index')->name('batch-patterns.index');
     Route::get('batch-patterns/create', 'BatchPatternsController@create')->name('batch-patterns.create')->middleware('permission:batch-patterns.create');
@@ -79,11 +97,11 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::get('budget-forms/set-customer-forms/{id}/{form}/{status}', 'BudgetFormsController@setCustomerForm')->name('budget-forms.set-customer-forms');
 
     // Budget Order Shared Fields:
-    Route::put('budget-orders/{shared}/add-discount', 'BudgetOrderSharedFieldsController@addDiscount')->name('budget-orders.add-discount')->middleware('permission:budgets.edit');
-    Route::get('budget-orders/{shared}/remove-discount/{return?}', 'BudgetOrderSharedFieldsController@removeDiscount')->name('budget-orders.remove-discount')->middleware('permission:budgets.edit');
-    Route::post('budget-orders/{shared}/set-customer', 'BudgetOrderSharedFieldsController@setCustomer')->name('budget-orders.set-customer')->middleware('permission:orders.edit');
-    Route::delete('budget-orders/{shared}', 'BudgetOrderSharedFieldsController@deleteTeamMember')->name('budget-orders.delete-member')->middleware('permission:budgets.destroy');
-    Route::post('budget-orders/{shared}/add-member', 'BudgetOrderSharedFieldsController@addTeamMember')->name('budget-orders.add-member')->middleware('permission:orders.edit');
+    // Route::put('budget-orders/{shared}/add-discount', 'BudgetOrderSharedFieldsController@addDiscount')->name('budget-orders.add-discount')->middleware('permission:budgets.edit');
+    // Route::get('budget-orders/{shared}/remove-discount/{return?}', 'BudgetOrderSharedFieldsController@removeDiscount')->name('budget-orders.remove-discount')->middleware('permission:budgets.edit');
+    // Route::post('budget-orders/{shared}/set-customer', 'BudgetOrderSharedFieldsController@setCustomer')->name('budget-orders.set-customer')->middleware('permission:orders.edit');
+    // Route::delete('budget-orders/{shared}', 'BudgetOrderSharedFieldsController@deleteTeamMember')->name('budget-orders.delete-member')->middleware('permission:budgets.destroy');
+    // Route::post('budget-orders/{shared}/add-member', 'BudgetOrderSharedFieldsController@addTeamMember')->name('budget-orders.add-member')->middleware('permission:orders.edit');
 
     // Budget Patterns:
     Route::get('budget-patterns', 'BudgetPatternsController@index')->name('budget-patterns.index')->middleware('permission:budgets.edit');
@@ -106,20 +124,20 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
 
     // Budgets:
     Route::get('budgets', 'BudgetController@index')->name('budgets.index');
-    Route::get('budgets/create', 'BudgetController@create')->name('budgets.create')->middleware('permission:budgets.create');
+    Route::get('budgets/create/{customer_id?}', 'BudgetController@create')->name('budgets.create')->middleware('permission:budgets.create');
     Route::post('budgets/store', 'BudgetController@store')->name('budgets.store')->middleware('permission:budgets.create');
-    Route::get('budgets/{budget}/edit/{tab?}', 'BudgetController@edit')->name('budgets.edit')->middleware('permission:budgets.edit');
-    Route::put('budgets/{budget}/update', 'BudgetController@update')->name('budgets.update')->middleware('permission:budgets.edit');
-    Route::delete('budgets/{budget}', 'BudgetController@destroy')->name('budgets.destroy')->middleware('permission:budgets.destroy');
-    Route::get('budgets/{budget}/reset-num', 'BudgetController@resetNum')->name('budgets.reset-num')->middleware('permission:budgets.edit');
+    Route::get('budgets/{order}/edit/{tab?}', 'BudgetController@edit')->name('budgets.edit')->middleware('permission:budgets.edit');
+    Route::put('budgets/{order}/update', 'BudgetController@update')->name('budgets.update')->middleware('permission:budgets.edit');
+    Route::delete('budgets/{order}', 'BudgetController@destroy')->name('budgets.destroy')->middleware('permission:budgets.destroy');
+    Route::get('budgets/{order}/reset-num', 'BudgetController@resetNum')->name('budgets.reset-num')->middleware('permission:budgets.edit');
     Route::post('budgets/add-manager', 'BudgetController@addManager')->name('budgets.add-manager')->middleware('permission:budgets.edit');
-    Route::get('budgets/{budget}/delete-doc', 'BudgetController@removeOcDoc')->name('budgets.delete-doc')->middleware('permission:budgets.edit');
+    Route::get('budgets/{order}/delete-doc', 'BudgetController@removeOcDoc')->name('budgets.delete-doc')->middleware('permission:budgets.edit');
     Route::post('budgets/update-comments', 'BudgetController@updateComments')->name('budgets.update-comments')->middleware('permission:budgets.edit');
-    Route::put('budgets/{budget}/update-template', 'BudgetController@updateTemplate')->name('budgets.update-template')->middleware('permission:budgets.edit');
-    Route::get('budgets/{budget}/remove-template', 'BudgetController@removeTemplate')->name('budgets.remove-template')->middleware('permission:budgets.edit');
-    Route::get('budgets/{budget}/print', 'BudgetController@print')->name('budgets.print')->middleware('permission:budgets.edit');
-    Route::get('budgets/{budget}/modify', 'BudgetController@modify')->name('budgets.modify')->middleware('permission:budgets.edit');
-    Route::get('budgets/{budget}/status/{status}', 'BudgetController@status')->name('budgets.status');
+    Route::put('budgets/{order}/update-template', 'BudgetController@updateTemplate')->name('budgets.update-template')->middleware('permission:budgets.edit');
+    Route::get('budgets/{order}/remove-template', 'BudgetController@removeTemplate')->name('budgets.remove-template')->middleware('permission:budgets.edit');
+    Route::get('budgets/{order}/print', 'BudgetController@print')->name('budgets.print')->middleware('permission:budgets.edit');
+    Route::get('budgets/{order}/modify', 'BudgetController@modify')->name('budgets.modify')->middleware('permission:budgets.edit');
+    Route::get('budgets/{order}/status/{status}', 'BudgetController@status')->name('budgets.status');
     Route::get('budgets/{order}/budget-from-order', 'BudgetController@budgetFromOrder')->name('budgets.budget-from-order')->middleware('permission:budgets.create');
     Route::post('budgets/set-provider', 'BudgetController@setProvider')->name('budgets.set-provider')->middleware('permission:budgets.edit');
     Route::post('budgets/set-modality', 'BudgetController@setModality')->name('budgets.set-modality');
@@ -351,6 +369,9 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::delete('invoice-patterns/{pattern}', 'InvoicePatternsController@destroy')->name('invoice-patterns.destroy')->middleware('permission:invoice-patterns.destroy');
     Route::get('invoice-patterns/status/{id}/{status}', 'InvoicePatternsController@status')->name('invoice-patterns.status')->middleware('permission:invoice-patterns.edit');
 
+    // Invoice Payments:
+    Route::post('invoice-payments/store', 'InvoicePaymentsController@store')->name('invoice-payments.store')->middleware('permission:invoices.edit');
+
     // Invoice Settings:
     Route::get('invoice-settings', 'InvoiceSettingsController@index')->name('invoice-settings.index')->middleware('permission:invoices.edit');
     Route::get('invoice-settings/create', 'InvoiceSettingsController@create')->name('invoice-settings.create')->middleware('permission:invoices.edit');
@@ -376,6 +397,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::get('invoices/{invoice}/with_iva/{status}', 'InvoiceController@withIva')->name('invoices.with-iva')->middleware('permission:invoices.edit');
     Route::post('invoices/create-from-group', 'InvoiceController@createFromGroup')->name('invoices.create-from-group')->middleware('permission:invoices.create');
     Route::get('invoices/{group}/by-order-group', 'InvoiceController@invoicesByOrderGroup')->name('invoices.by-order-group');
+    Route::post('invoices/refund', 'InvoiceController@refund')->name('invoices.refund')->middleware('permission:invoices.edit');
 
     // IP Access:
     Route::get('ip-access', 'IpAccessController@index')->name('ip-access.index');
@@ -430,22 +452,14 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::post('order-docs/{order}/store', 'OrderDocsController@store')->name('order-docs.store');
     Route::get('orders-docs/{doc}/destroy', 'OrderDocsController@destroy')->name('orders-docs.destroy')->middleware('permission:order-docs.destroy');
 
-    // Order Group Orders:
-    Route::post('order-group-orders/store', 'OrderGroupOrdersController@store')->name('order-group-orders.store')->middleware('permission:orders.edit');
-    Route::post('order-group-orders/add-order', 'OrderGroupOrdersController@addOrder')->name('order-group-orders.add-order')->middleware('permission:orders.edit');
-    Route::delete('order-group-orders/{order}', 'OrderGroupOrdersController@destroy')->name('order-group-orders.destroy')->middleware('permission:orders.edit');
-
-    // Order Groups:
+    // Order Groups:    
     Route::get('order-groups/list/{customer_id?}/{year?}', 'OrderGroupsController@index')->name('order-groups.index')->middleware('permission:orders.edit');
     Route::post('order-groups', 'OrderGroupsController@getGroupsBy')->name('order-groups.list')->middleware('permission:orders.edit');
     Route::get('order-groups/create', 'OrderGroupsController@create')->name('order-groups.create')->middleware('permission:orders.create');
-    Route::post('order-groups/store', 'OrderGroupsController@store')->name('order-groups.store')->middleware('permission:orders.create');
-    Route::get('order-groups/{group}/edit/{tab?}', 'OrderGroupsController@edit')->name('order-groups.edit')->middleware('permission:orders.edit');
-    Route::put('order-groups/{group}/update', 'OrderGroupsController@update')->name('order-groups.update')->middleware('permission:orders.edit');
-    Route::delete('order-groups/{group}', 'OrderGroupsController@destroy')->name('order-groups.destroy')->middleware('permission:orders.edit');
-    Route::get('order-groups/{group}/status/{status}', 'OrderGroupsController@status')->name('order-groups.status');
-    Route::get('order-groups/{group}/print', 'OrderGroupsController@print')->name('order-groups.print');
-    Route::get('order-groups/{group}/status/{status}', 'OrderGroupsController@status')->name('order-groups.status');
+    Route::post('order-groups/add-orders', 'OrderGroupsController@addOrders')->name('order-groups.add-orders')->middleware('permission:orders.edit');
+    Route::post('order-groups/add-order', 'OrderGroupsController@addOrder_')->name('order-groups.add-order')->middleware('permission:orders.edit');
+    Route::delete('order-groups/{order}', 'OrderGroupsController@destroy')->name('order-groups.destroy')->middleware('permission:orders.edit');
+    Route::get('order-groups/{order}/to-invoice', 'OrderGroupsController@toInvoice')->name('order-groups.to-invoice')->middleware('permission:invoices.create');
 
     // Order Patterns:
     Route::get('order-patterns', 'OrderPatternsController@index')->name('order-patterns.index')->middleware('permission:orders.edit');
@@ -490,8 +504,10 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::get('orders/{order}/set-delivery', 'OrderController@setOrderDelivery')->name('orders.set-delivery')->middleware('permission:deliveries.create');
     Route::put('orders/{order}/update-template', 'OrderController@updateTemplate')->name('orders.update-template')->middleware('permission:orders.edit');
     Route::get('orders/{order}/remove-template', 'OrderController@removeTemplate')->name('orders.remove-template')->middleware('permission:orders.edit');
-
-
+    Route::put('orders/{order}/add-discount', 'OrderController@addDiscount')->name('orders.add-discount')->middleware('permission:budgets.edit');
+    Route::post('orders/{order}/set-customer', 'OrderController@setCustomer')->name('orders.set-customer')->middleware('permission:orders.edit');
+    Route::get('orders/{order}/remove-discount/{return?}', 'OrderController@removeDiscount')->name('orders.remove-discount')->middleware('permission:budgets.edit');
+    Route::post('orders/{order}/add-member', 'OrderController@addTeamMember')->name('orders.add-member')->middleware('permission:orders.edit');
 
     
 
@@ -576,6 +592,15 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::get('project-docs/set-thumb/{project}/{image}', 'ProjectDocsController@setThumb')->name('project-docs.set-thumb')->middleware('permission:projects.edit');
     Route::get('project-docs/{doc}/destroy', 'ProjectDocsController@destroy')->name('project-docs.destroy')->middleware('permission:projects.edit');
 
+    // Project Patterns:
+    Route::get('project-patterns', 'ProjectPatternsController@index')->name('project-patterns.index')->middleware('permission:project-patterns.index');
+    Route::get('project-patterns/create', 'ProjectPatternsController@create')->name('project-patterns.create')->middleware('permission:project-patterns.create');
+    Route::post('project-patterns/store', 'ProjectPatternsController@store')->name('project-patterns.store')->middleware('permission:project-patterns.create');
+    Route::get('project-patterns/{pattern}/edit', 'ProjectPatternsController@edit')->name('project-patterns.edit')->middleware('permission:projects.edit');
+    Route::delete('project-patterns/{pattern}', 'ProjectPatternsController@destroy')->name('project-patterns.destroy')->middleware('permission:projects.edit');
+    Route::post('project-patterns/{pattern}/update', 'ProjectPatternsController@update')->name('project-patterns.update')->middleware('permission:projects.edit');
+    Route::get('project-patterns/status/{id}/{status}', 'ProjectPatternsController@status')->name('project-patterns.status')->middleware('permission:project-patterns.edit');
+
     // Project Purchases:
     Route::post('project-purchases/store', 'ProjectPurchasesController@store')->name('project-purchases.store')->middleware('permission:projects.edit');
 
@@ -593,6 +618,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::post('projects', 'ProjectController@getProjectsBy')->name('projects.list');
     Route::post('projects/update-team', 'ProjectController@updateTeam')->name('projects.update-team')->middleware('permission:projects.edit');
     Route::post('projects/link-project', 'ProjectController@linkProjectToBudgetOrder')->name('projects.link-project');
+    Route::get('projects/{project}/reset-num', 'ProjectController@resetNum')->name('projects.reset-num')->middleware('permission:projects.edit');
 
     // Providers:
     Route::get('providers', 'CustomerProvidersController@providers')->name('providers.index');

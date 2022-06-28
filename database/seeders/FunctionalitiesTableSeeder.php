@@ -52,6 +52,11 @@ class FunctionalitiesTableSeeder extends Seeder{
             'label' => 'monedas',
             'module' => 'settings'
             ],
+            ['name' => 'banks',
+            'slug' => 'banks',
+            'label' => 'bancos',
+            'module' => 'settings'
+            ],
             ['name' => 'countries',
             'slug' => 'countries',
             'label' => 'paises',
@@ -288,6 +293,11 @@ class FunctionalitiesTableSeeder extends Seeder{
             'label' => 'proyectos',
             'module' => 'projects'
             ],
+            ['name' => 'project patterns',
+            'slug' => 'project-patterns',
+            'label' => 'proyectos_patrones',
+            'module' => 'projects'
+            ],
 
             ['name' => 'deliveries',
             'slug' => 'deliveries',
@@ -339,6 +349,11 @@ class FunctionalitiesTableSeeder extends Seeder{
             'slug' => 'invoice-settings',
             'label' => 'facturas_configuracion_',
             'module' => 'accounting'
+            ],
+            ['name' => 'bank accounts',
+            'slug' => 'bank-accounts',
+            'label' => 'bancos_cuentas',
+            'module' => 'accounting'            
             ],
 
             ['name' => 'incidences',

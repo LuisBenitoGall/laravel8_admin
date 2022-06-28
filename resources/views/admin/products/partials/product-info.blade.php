@@ -82,7 +82,7 @@
 
 		{{-- Precio --}}
 		<label for="price" class="col-lg-1 col-form-label">{!! ucfirst(trans('textos.precio')) !!}</label>
-		<div class="col-lg-1">
+		<div class="col-lg-1 sinpadding-right">
 			<x-input type="text" name="price" class="text-right set-decimals" value="{{ $product->price }}" autocomplete="off" maxlength="8" group="right" groupvalue="{{ $currency->symbol }}"/>
 		</div>
 

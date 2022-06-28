@@ -28,6 +28,14 @@
 			</a>	
         @endcan
 
+        {{-- Nuevo presupuesto --}}
+        @can('budgets.create')
+        	<a target="_blank" href="{{ route('budgets.create', $project->customer_id) }}" class="btn btn-info">
+				<i class="fa fa-plus"></i>
+				{!! ucfirst(trans('textos.presupuesto_nuevo')) !!}
+			</a>		
+        @endcan
+
         {{-- Añadir miembro al equipo --}}
 		@can('projects.edit')
 			<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-add-member">
@@ -102,6 +110,10 @@
 					<u>
 						@if($project->name)
 							{{ $project->name }}
+
+							@if($project->project_num)
+								- {{ $project->project_num }}
+							@endif
 						@else
 							{{ $project->id }}
 						@endif
@@ -113,7 +125,9 @@
 					{{-- Cliente --}}
 					@if($customer)
 						<label class="mr-5">
-							{!! ucfirst(trans('textos.cliente')) !!}: <b><a target="_blank" href="{{ route('companies.show', $customer->id) }}">{{ $customer->name }}</a></b>
+							{!! ucfirst(trans('textos.cliente')) !!}: <b>
+								<a target="_blank" href="{{ route('companies.show', $customer->id) }}">{{ $customer->name }}</a>
+							</b>
 						</label>
 					@endif
 

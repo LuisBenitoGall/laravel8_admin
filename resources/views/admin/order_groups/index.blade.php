@@ -14,7 +14,7 @@
     </div>
 </div>
 
-<input type="hidden" id="dtController" value="order-groups">
+<input type="hidden" id="dtController" value="orders">
 
 {{-- Formulario filtro --}}
 <div class="row">
@@ -67,13 +67,12 @@
 			<table class="table table-hover dtabla" id="tblOrderGroups">
 				<thead>
 					<tr>
-						<th class="text-center wdt100">#</th>
+						<th class="text-center wdt50">#</th>
 						<th class="text-center wdt100">{!! ucfirst(trans('textos.n_manual')) !!}</th>
-						<th class="wdt250">{!! ucfirst(trans('textos.agrupacion')) !!}</th>
-						<th class="text-center wdt150">{!! ucfirst(trans('textos.fecha')) !!}</th>
-						<!-- <th>{!! trans('textos.area_negocio') !!}</th> 
-						<th class="wdt200">{!! trans('textos.area') !!}</th> -->
-						<!-- <th>{!! trans('textos.centro_trabajo') !!}</th> -->
+						<th class="wdt200">{!! ucfirst(trans('textos.agrupacion')) !!}</th>
+						<th class="text-center wdt100">{!! ucfirst(trans('textos.fecha')) !!}</th>
+						<th class="text-center wdt50">{!! ucfirst(trans('textos.importe')) !!}</th> 
+						<th class="text-center wdt50">{!! ucfirst(trans('textos.bolsa')) !!}</th> 
 						<th class="wdt100">{!! trans('textos.estado') !!}</th>
 						<th class="text-center wdt150">{!! ucfirst(trans('textos.acciones')) !!}</th>
 					</tr>

@@ -130,18 +130,35 @@ SET FOREIGN_KEY_CHECKS = 0;
 TRUNCATE table;
 SET FOREIGN_KEY_CHECKS = 1;
 
+- Truncate presupuestos - pedidos- facturas:
+SET FOREIGN_KEY_CHECKS = 0;
+TRUNCATE invoices;
+TRUNCATE invoice_orders;
+TRUNCATE invoice_payments;
+TRUNCATE budget_order_shared_fields;
+TRUNCATE budgets;
+TRUNCATE orders;
+TRUNCATE items;
+TRUNCATE deliveries;
+TRUNCATE delivery_orders;
+TRUNCATE orders;
+TRUNCATE order_previsions;
+SET FOREIGN_KEY_CHECKS = 1;
+
 ## GUÍA RÁPIDA DE CONFIGURACIÓN INICIAL: se enumeran los pasos a seguir para una correcta configuración de la aplicación en su puesta en marcha.
 1. Acceder a la aplicación con las credenciales proporcionadas.
 2. Menú: Empresas / Empresas -> Editar empresa. Completar los datos de la empresa. Es necesario introducir un NIF válido.
 3. Desde la pantalla donde nos encontramos editando los datos de la empresa, completar la información de la empresa relativa a Áreas de negocio, Centros de coste y principalmente Centro de trabajo. En este último concepto se guardará la dirección, población,... de la sede o sedes de la empresa.
 4. Menú: Configuración / Monedas. Determinar las monedas activas que utilizará la aplicación. En caso de no marcarse monedas, el valor por defecto será el €.
 5. Menú: Configuración / Módulos. Determinar los módulos activos en la aplicación. ¡Ojo! Posteriormente debemos configurar los módulos que deseamos para nuestra/s empresas, a partir de los módulos que se encuentren activos.
-6. Menú: Mi cuenta / Módulos. Aquí seleccionaremos los módulos para la empresa que se encuentre habilitada en el presente momento.
+6. Menú: Mi cuenta / Módulos. Aquí seleccionaremos los módulos para la empresa que se encuentre activa en ese momento.
 7. Menú: Empresas / Configuración. Establecer los valores predeterminados para diferentes funcionalidades de la empresa habilitada: moneda, gestiones, colores corporativos, iva general de la empresa, ip's de acceso a la aplicación,...
 8. Menú: Configuración / Contenidos. Simplemente acceder para cargar los contenidos guardados en .json. 
 9. Menú: Configuración / Roles. Administrar Roles y Permisos. 
 
-
+## IMPORTACIÓN DESDE ERP LARAVEL6_ADMIN
+- Ir a url: http://laravel8_admin.test/admin/import_db
+- Ejecutar acción Importar.
 
 
 

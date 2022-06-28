@@ -32,8 +32,13 @@ $readonly = $invoice->blocked? true:false;
 		@can('orders.edit')
 			@if($shared->order_id)
 				<a target="_blank" href="{{ route('orders.edit', $shared->order_id) }}" class="btn btn-info">
-					<i class="fa fa-shopping-cart"></i>
-					{!! ucfirst(trans('textos.pedido')) !!}
+					@if($order->is_group)
+						<i class="fa fa-object-group"></i>
+						{!! ucfirst(trans('textos.agrupacion')) !!}
+					@else
+						<i class="fa fa-shopping-cart"></i>
+						{!! ucfirst(trans('textos.pedido')) !!}
+					@endif
 				</a>	
 			@endif
 		@endcan
@@ -46,10 +51,40 @@ $readonly = $invoice->blocked? true:false;
 			</a>	
 		@endif
 
-		{{-- Imprimir --}}
-		<a href="{{ route('invoices.print', $invoice) }}" class="btn btn-info close-animation" rel="tooltip" title="{!! ucfirst(trans('textos.imprimir')) !!}">
-			<i class="fa fa-print"></i>
-		</a>
+		{{-- Generar abono - condiciones: 
+			1. Permisos de edición de facturas.
+			2. Factura no bloqueada.
+			3. Facturas que NO sean de abono.
+			...
+		--}}
+		@can('invoices.edit')
+			@if(!$invoice->blocked && !$invoice->refund)
+				<a href="#" class="btn btn-warning" data-toggle="modal" data-target="#modal-generate-refund">
+					<i class="fa fa-hand-holding-usd"></i>
+					{{ ucfirst(trans('textos.abono_generar')) }}
+				</a>
+			@endif
+		@endcan
+
+		{{-- Agregar cobro - condiciones: 
+			1. No debe tratarse de una factura de abono.
+			...
+		--}}
+		@if(!$invoice->refund)
+			<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-add-payment">
+				<i class="fa fa-cash-register"></i>
+				{{ ucfirst(trans('textos.cobro_add')) }}
+			</a>
+		@endif
+
+		{{-- Imprimir - condiciones 
+			1. Para facturas simples.
+		--}}
+		@if(!$order->is_group)
+			<a href="{{ route('invoices.print', $invoice) }}" class="btn btn-info close-animation" rel="tooltip" title="{!! ucfirst(trans('textos.imprimir')) !!}">
+				<i class="fa fa-print"></i>
+			</a>
+		@endif
 
 		{{-- Cancelar factura - condiciones:
 			1. Permisos de cancelación de factura.
@@ -86,10 +121,22 @@ $readonly = $invoice->blocked? true:false;
 		<div class="card mb-3">
 			<div class="card-body">
 				{{-- Componente importe pedido flotante: --}}
-				@livewire('budget-amount', ['budget_amount' => number_format($invoice->amount_with_iva, 2), 'currency' => $currency->symbol, 'budget_amount_without_discount' => false, 'environment' => 'invoices'])
+				@livewire('budget-amount', ['budget_amount' => $invoice->amount_with_iva, 'currency' => $currency->symbol, 'budget_amount_without_discount' => false, 'environment' => 'invoices'])
 
 				<h3 class="mb-3">
-					{!! ucfirst(trans('textos.factura')) !!} 
+					{{-- Factura abono --}}
+					@if($invoice->refund)
+						{!! ucfirst(trans('textos.factura_abono')) !!}
+
+					{{-- Factura de cobro --}}
+					@else
+						@if($order->is_group)
+							{!! ucfirst(trans('textos.factura_agrupacion')) !!}
+						@else
+							{!! ucfirst(trans('textos.factura')) !!} 
+						@endif
+					@endif
+
 					<u>
 						@if($invoice->invoice_num)
 							{{ $invoice->invoice_num }}
@@ -97,10 +144,24 @@ $readonly = $invoice->blocked? true:false;
 							{{ $invoice->id }}
 						@endif
 					</u>
+
+					{{-- Factura devuelta --}}
+					@if($refund)
+						<small class="ml-3">
+							<a target="_blank" class="text-danger" href="{{ route('invoices.edit', $refund) }}"> 
+								{{ trans('textos.factura_reintegrada') }} 
+								@if($refund->invoice_num)
+									{{ $refund->invoice_num }}
+								@else
+									{{ $invoice->id}}
+								@endif
+							</a>
+						</small>
+					@endif
 				</h3>
 
 				{{-- Info --}}
-				<div class="mb-3">	
+				<div class="mb-3" style="width: 90%;">	
 					{{-- Cliente --}}
 					@include('admin.budget_order_shared_fields.partials.data-customer')
 
@@ -147,7 +208,7 @@ $readonly = $invoice->blocked? true:false;
 
 						@else
 				        	@if($invoice->with_iva)
-				        		<i class="fa fa-check text-success ml-2"></i>
+				        		<b>{{ $invoice->with_iva }}%</b> <i class="fa fa-check text-success ml-2"></i>
 				        	@else
 				        		<i class="fa fa-times text-danger ml-2"></i>
 				        	@endif
@@ -163,16 +224,22 @@ $readonly = $invoice->blocked? true:false;
 			    		<a class="nav-link @if(!$tab) active @endif" href="#tab-info" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.factura')) !!}</a>
 			  		</li>
 
-			  		<li class="nav-item @if($tab == 'items') active @endif">
-			  			<a class="nav-link @if($tab == 'items') active @endif" href="#tab-items" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.lineas_pedido')) !!}</a>	
-			  		</li>
+			  		@if($order->is_group)
+			  			<li class="nav-item @if($tab == 'orders') active @endif">
+				  			<a class="nav-link @if($tab == 'orders') active @endif" href="#tab-orders" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.pedidos')) !!}</a>	
+				  		</li>
+			  		@else
+				  		<li class="nav-item @if($tab == 'items') active @endif">
+				  			<a class="nav-link @if($tab == 'items') active @endif" href="#tab-items" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.lineas_pedido')) !!}</a>	
+				  		</li>
+				  	@endif
 
 			  		<li class="nav-item @if($tab == 'template') active @endif">
 			  			<a class="nav-link @if($tab == 'template') active @endif" href="#tab-template" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.plantilla')) !!}</a>	
 			  		</li>
 
 			  		<li class="nav-item @if($tab == 'payments') active @endif">
-			  			<a class="nav-link @if($tab == 'payments') active @endif" href="#tab-payments" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.pagos')) !!}</a>	
+			  			<a class="nav-link @if($tab == 'payments') active @endif" href="#tab-payments" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.cobros')) !!}</a>	
 			  		</li>
 			  	</ul>
 
@@ -182,18 +249,25 @@ $readonly = $invoice->blocked? true:false;
 						@include('admin.invoices.partials.invoice-info')	
 					</div>
 
-					{{-- Items: --}}
-					<div class="tab-pane fade @if($tab == 'items') show active @endif" role="tabpanel" id="tab-items">
-						{{-- @include('admin.invoices.partials.invoice-items')	 --}}
-						@include('admin.orders.partials.order-items')
-					</div>
+					@if($order->is_group)
+						{{-- Pedidos --}}
+						<div class="tab-pane fade @if($tab == 'orders') show active @endif" role="tabpanel" id="tab-orders">
+							@include('admin.invoices.partials.invoice-orders')
+						</div>
+					@else
+						{{-- Items: --}}
+						<div class="tab-pane fade @if($tab == 'items') show active @endif" role="tabpanel" id="tab-items">
+							{{-- @include('admin.invoices.partials.invoice-items')	 --}}
+							@include('admin.orders.partials.order-items')
+						</div>
+					@endif
 
 					{{-- Plantilla --}}
 					<div class="tab-pane fade @if($tab == 'template') show active @endif" role="tabpanel" id="tab-template">
 						@include('admin.invoices.partials.invoice-template')	
 					</div>
 
-					{{-- Pagos --}}
+					{{-- Cobros --}}
 					<div class="tab-pane fade @if($tab == 'payments') show active @endif" role="tabpanel" id="tab-payments">
 						@include('admin.invoices.partials.invoice-payments')	
 					</div>
@@ -206,6 +280,12 @@ $readonly = $invoice->blocked? true:false;
 {{-- Modals: --}}
 {{-- Edit item --}}
 {{-- @include('admin.budget_order_shared_fields.partials.modal-edit-item', ['environment_' => 'invoices']) --}}
+
+{{-- Add payment --}}
+@include('admin.invoice_payments.partials.modal-add-payment')
+
+{{-- Generate refund --}}
+@include('admin.invoices.partials.modal-generate-refund')
 
 @push('scripts')
 <script>
@@ -224,6 +304,18 @@ $(function(){
         $.get("/admin/invoices/"+invoice+"/with_iva/"+status, function(response, state){
              window.location.href = '/admin/invoices/'+invoice+'/edit';
         });
+    });
+
+    //Tipo de factura de abono.
+    $('.rdbRefund').on('change', function(){
+        var value = $(this).val();
+        if(value == 'p'){
+            $('.refund-fields').slideDown();
+
+        }else{
+            $('#refund_amount, #refund_concept').val('');
+            $('.refund-fields').slideUp();
+        }
     });
 });
 </script>

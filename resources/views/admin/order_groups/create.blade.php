@@ -18,8 +18,10 @@
 	<div class="col-12">						
 		<div class="card mb-3">
 			<div class="card-body">
-				<form method="post" autocomplete="off" action="{{ route('order-groups.store') }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
+				<form method="post" autocomplete="off" action="{{ route('orders.store') }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
 					{{ csrf_field() }}
+					<input type="hidden" name="is_group" value="true">
+					<input type="hidden" name="type" value="sale">
 
 					<div class="form-group row">
 						{{-- Nombre agrupación --}}
@@ -29,7 +31,16 @@
 						</div>
 
 						{{-- Selector clientes --}}
-						@include('admin.partials.selector-customer', ['all' => false, 'customer' => false, 'required' => true, 'selected' => ''])
+						<label for="company_id" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.cliente')) !!}*</label>
+						<div class="col-lg-4">
+							@php
+							$customers_ = [];
+							foreach($customers as $ctm){
+								$customers_[$ctm->id] = $ctm->name;
+							}
+							@endphp
+							<x-select name="company_id" class="select2" label="cliente_selec" :options="$customers_" required="true"/>
+						</div>
 					</div>
 
 					<div class="form-group row">

@@ -51,7 +51,8 @@ $order_num = $order->order_num? $order->order_num:$order->id;
 
 				@foreach($invoices as $row)
 					@php
-					$invoice_amount = $invoice_amount + $row->amount;
+					$amount = $row->refund? $row->amount*-1:$row->amount;
+					$invoice_amount = $invoice_amount + $amount;
 					@endphp
 
 					<tr>
@@ -80,7 +81,7 @@ $order_num = $order->order_num? $order->order_num:$order->id;
 
 						{{-- Importe factura --}}
 						<td class="text-right">
-							{{ round($row->amount, 2) }}{{ $currency->symbol }}
+							{{ round($amount, 2) }}{{ $currency->symbol }}
 						</td>
 
 						{{-- Estado --}}

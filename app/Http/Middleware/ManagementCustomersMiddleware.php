@@ -24,7 +24,7 @@ class ManagementCustomersMiddleware{
             $alert = trans('textos.clientes_gestion_off');
             return redirect()->route('company-settings.index')->with(compact('alert'));
         }
-        
+
         return $next($request);
     }
 }

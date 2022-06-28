@@ -20,11 +20,13 @@ use PDF;
 use App\Models\BudgetOrderSharedFields;
 use App\Models\Company;
 use App\Models\CompanySettings;
+use App\Models\CustomerProviders;
 use App\Models\Employee;
 use App\Models\Group;
 use App\Models\Order;
 use App\Models\Project;
 use App\Models\ProjectDocs;
+use App\Models\ProjectPatterns;
 use App\Models\ProjectPurchases;
 use App\Models\ProjectShared;
 use App\Models\Task;
@@ -49,6 +51,7 @@ class ProjectController extends Controller{
      * 9. Actualizar miembros del equipo.
      * 10. Eliminar miembro de equipo.
      * 11. Generar .json de proyectos.
+     * 12. Resetear numeración del proyecto.
      */
     
     private $option = 'proyectos';
@@ -63,7 +66,7 @@ class ProjectController extends Controller{
         $this->co_currency = CompanySettings::co_currency(0);
 
         $this->middleware('module_setted:projects');
-        $this->middleware('project_get', ['only' => ['edit', 'update', 'destroy']]);
+        $this->middleware('project_get', ['only' => ['edit', 'update', 'destroy', 'resetNum']]);
         $this->middleware('project_post', ['only' => ['updateOwner', 'linkProjectToBudgetOrder']]);
     }
 
@@ -223,7 +226,17 @@ class ProjectController extends Controller{
             'slug' => 'projects-create'
         ]; 
 
-        return view('admin.projects.create')->with(compact('header'));
+        $customers = false;
+        //La empresa ha de tener habilitada la gestión de clientes:
+        if(session('companySettings') && session('companySettings')['customers_management']){
+            $customers = CustomerProviders::select('companies.id', 'companies.name', 'companies.tradename')
+            ->join('companies', 'customer_providers.customer_id', '=', 'companies.id')
+            ->where('customer_providers.provider_id', session('currentCompany'))
+            ->orderBy('companies.name', 'ASC')
+            ->get();
+        }
+
+        return view('admin.projects.create')->with(compact('header', 'customers'));
     }
 
     /**
@@ -249,6 +262,7 @@ class ProjectController extends Controller{
         $project->company_id = session('currentCompany');
         $project->user_id = Auth::user()->id;
         $project->owner = Auth::user()->id;
+        $project->customer_id = $request->customer_id;
         $project->save();
 
         //Generar .json de proyectos:
@@ -356,6 +370,32 @@ class ProjectController extends Controller{
             'slug' => 'projects'
         ]; 
 
+        $team = [];
+        if($project->team){
+            $team = explode(',', $project->team);
+        }
+        array_push($team, $project->user_id);
+        if($project->user_id != $project->owner){
+            array_push($team, $project->owner);    
+        }
+        $team = array_filter($team);
+
+        //Si hay acceso restringido, el usuario debe pertenecer al equipo:
+        if($project->restricted_access && !in_array(Auth::user()->id, $team)){
+            $alert = trans('textos.proyecto_acceso_restringido');
+            return redirect()->route('projects.index')->with(compact('alert'));
+            exit;
+        }
+
+        //Patrones de numeración del proyecto:
+        $patterns = false;
+        if(!$project->pattern_id){
+            $patterns = ProjectPatterns::select('id', 'name', 'yearly_reset')
+            ->where('company_id', session('currentCompany'))
+            ->where('status', 1)
+            ->get();
+        }
+
         $author = User::select('name', 'surname')
         ->where('id', $project->user_id)
         ->first();
@@ -367,16 +407,6 @@ class ProjectController extends Controller{
         $customer = Company::select('id', 'name')->find($project->customer_id);
 
         $users = Employee::companyEmployees(session('currentCompany'), 1);
-    
-        $team = [];
-        if($project->team){
-            $team = explode(',', $project->team);
-        }
-        array_push($team, $project->user_id);
-        if($project->user_id != $project->owner){
-            array_push($team, $project->owner);    
-        }
-        $team = array_filter($team);
 
         //Info de los miembros del equipo:
         $team_members = false;
@@ -514,7 +544,7 @@ class ProjectController extends Controller{
         //Moneda:
         $currency = $this->co_currency;
 
-        return view('admin.projects.edit', compact('header', 'tab', 'project', 'author', 'owner', 'customer', 'users', 'team', 'team_members', 'tasks', 'task_status', 'groups', 'budgets_orders', 'project_purchases', 'purchases', 'languages', 'currency'));
+        return view('admin.projects.edit', compact('header', 'tab', 'project', 'patterns', 'author', 'owner', 'customer', 'users', 'team', 'team_members', 'tasks', 'task_status', 'groups', 'budgets_orders', 'project_purchases', 'purchases', 'languages', 'currency'));
     }
 
     /**
@@ -531,18 +561,33 @@ class ProjectController extends Controller{
         //Slug:
         $slug = Str::slug($request->name);
 
+        //Número de proyecto:
+        $project_num = NULL;
+        if($request->pattern_id){
+            $patternNum = $this->setPatternNumber('project', $request->pattern_id);
+        }
+
         //Formateando fechas:
-        $estimated_delivery_date = $request->estimated_delivery_date != ''? (session()->get('locale') != 'en')? Helpers::convertFecha($request->estimated_delivery_date):$request->estimated_delivery_date:NULL;
-        $delivery_date = $request->delivery_date != ''? (session()->get('locale') != 'en')? Helpers::convertFecha($request->delivery_date):$request->delivery_date:NULL;
+        $estimated_delivery_date = $request->estimated_delivery_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->estimated_delivery_date):$request->estimated_delivery_date:NULL;
+        $delivery_date = $request->delivery_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->delivery_date):$request->delivery_date:NULL;
 
         //Grupos del proyecto:
         $groups = $request->groups? implode(',', $request->groups):NULL;
 
         //Actualizando info:
+        if($request->pattern_id){
+            if(!empty($patternNum)){
+                $project->project_num = $patternNum['pattern_num'];  
+                $project->num_cardinal = $patternNum['num']; 
+            }            
+            $project->pattern_id = $request->pattern_id;
+        }
+        $project->project_old_num = $request->project_old_num;
         $project->name = $request->name;
         $project->slug = $slug;
         $project->description = $request->description;
         $project->briefing = $request->briefing;
+        $project->restricted_access = $request->restricted_access? true:false;
         if($estimated_delivery_date){
             $project->estimated_delivery_date = $estimated_delivery_date;
         }
@@ -708,5 +753,18 @@ class ProjectController extends Controller{
         $status = TaskStatus::all();
         $jsondata = json_encode($status);
         file_put_contents(storage_path()."/json/task-status.json", $jsondata);
+    }
+
+    /**
+     * 12. Resetear numeración del proyecto.
+     */
+    public function resetNum(Project $project){
+        $project->project_num = NULL;
+        $project->num_cardinal = NULL;
+        $project->pattern_id = NULL;
+        $project->save();
+
+        $msg = trans('textos.numero_deleted');
+        return redirect()->route('projects.edit', $project)->with(compact('msg'));
     }
 }

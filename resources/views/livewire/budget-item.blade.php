@@ -4,6 +4,9 @@ $statusBudgetLinesNoPrice = App\Helpers\helpers::statusBudgetLinesWithoutPrice()
 
 //Comprobamos que las líneas de presupuesto tipo formulario pertenezcan a algún bloque:
 $setBlock = 1;
+
+//Bloqueo de modificación de items:
+$permitted = !$order || ($order && !$order->invoiced && !$order->parent)? true:false;
 @endphp
 
 <div class="row">
@@ -76,18 +79,18 @@ $setBlock = 1;
                                                     $qty_min = $item->qty_min && $item->qty_min > 0? $item->qty_min:1;
                                                     @endphp
 
-                                                    @if(!$order || $order->percentage_invoiced < 100)
+                                                    @if($permitted)
                                                         {{-- <button class="btn btn-warning btn-circle btn-circle-mini addBudgetItem no-spinner float-right mr-3" rel="tooltip" data-blockid="{{ $block->id }}" data-id="{{ $item->id }}" data-price="{{ $item->price }}" data-concept="{{ $item->name }}" data-discount="{{ $item->discount }}" data-observations="{{ $item->observations }}" data-qtymin="{{ $qty_min }}" data-bypercent="{{ $item->calculated_by_percent }}" title="{!! trans('textos.presupuesto_add') !!}">
                                                             <i class="fa fa-plus"></i>
                                                         </button> --}}
 
+                                                        
                                                         <button class="btn btn-warning btn-circle btn-circle-mini addBudgetItem float-right" rel="tooltip" title="{!! trans('textos.presupuesto_add') !!}" wire:click="addItem({{ $item }})">
                                                             <i class="fa fa-plus"></i>
                                                         </button>
                                                     @endif
                                                 </div>
                                             </div>
-
                                         </div>
                                     @endforeach
                                 </div>
@@ -110,8 +113,11 @@ $setBlock = 1;
 
     {{-- Items --}}
     <div class="col-md-12 col-lg-9 col-xl-10">
-        {{-- Agregar item: sólo si el pedido no está facturado 100% PENDIENTE AÑADIR LA CONDICIÓN--}}
-        {{-- @if(!$order || $order->percentage_invoiced < 100) --}}
+        {{-- Agregar item - condiciones:
+            1. Pedido simple no vinculado a ninguna agrupación.
+            2. Que no esté facturado
+        --}}
+        @if($permitted)
             <button class="btn btn-warning no-spinner btnAddBudgetItem @if($form_on) opened @endif" 
                 id="newBudgetItem" 
                 wire:click="resetForm()"
@@ -124,7 +130,9 @@ $setBlock = 1;
                     {!! ucfirst(trans('textos.agregar_linea')) !!}    
                 @endif
             </button>
-        {{-- @endif --}}
+        @else
+            <div style="height: 35px;"></div>
+        @endif
 
         {{-- Formulario --}}
         <div wire:ignore.self class="new-budget-item mt-3">
@@ -312,29 +320,26 @@ $setBlock = 1;
                                             <a class="down" wire:click="itemDown({{ $is }})"><i class="fa fa-caret-down"></i></a>
                                         </span>
 
-                                        {{-- 27/12/21: Incluir condicional para que la edición de items sólo sea posible si el pedido no ha sido facturado al 100% --}}
+                                        @if($permitted)
+                                            {{-- Editar --}}
+                                            @if(!$is->calculated_by_percent)
+                                                <a class="text-warning mr-2 btnEditBudgetItem" rel="tooltip" title="{{ ucfirst(trans('textos.editar')) }}" wire:click="editItem({{ $is }})"><i class="fa fa-edit"></i></a>
+                                            @endif
 
-                                        {{-- Editar:  
-                                            .1 Sólo items con precio estable, no porcentual.
+                                            {{-- Eliminar: --}}
+                                            <form method="POST" action="{{ route('items.destroy', $is) }}" class="frm-inline mr-2" role="form" accept-charset="UTF-8">
+                                                <input name="_method" type="hidden" value="DELETE">
+                                                <input type="hidden" name="return" value="budgets">
+                                                {{ csrf_field() }}
+                                                <button type="submit" class="btn-empty text-danger frm-confirm" rel="tooltip" title="{{ ucfirst(trans('textos.linea_eliminar')) }}" data-msg="{{ ucfirst(trans('textos.presupuesto_linea_confirm_eliminar')) }}"><i class="fa fa-trash"></i></button>
+                                            </form>
 
-                                        --}}
-                                        @if(!$is->calculated_by_percent)
-                                            <a class="text-warning mr-2 btnEditBudgetItem" rel="tooltip" title="{{ ucfirst(trans('textos.editar')) }}" wire:click="editItem({{ $is }})"><i class="fa fa-edit"></i></a>
-                                        @endif
-
-                                        {{-- Eliminar: --}}
-                                        <form method="POST" action="{{ route('items.destroy', $is) }}" class="frm-inline mr-2" role="form" accept-charset="UTF-8">
-                                            <input name="_method" type="hidden" value="DELETE">
-                                            <input type="hidden" name="return" value="budgets">
-                                            {{ csrf_field() }}
-                                            <button type="submit" class="btn-empty text-danger frm-confirm" rel="tooltip" title="{{ ucfirst(trans('textos.linea_eliminar')) }}" data-msg="{{ ucfirst(trans('textos.presupuesto_linea_confirm_eliminar')) }}"><i class="fa fa-trash"></i></button>
-                                        </form>
-
-                                        {{-- Duplicar: 
-                                            .1 Sólo items con precio estable, no porcentual.    
-                                        --}}
-                                        @if(!$is->calculated_by_percent)
-                                            <a href="{{ route('items.copy', $is) }}" class="text-warning mr-2 btn-confirm" data-msg="{{ trans('textos.presupuesto_linea_duplicar_confirm') }}" rel="tooltip" title="{{ ucfirst(trans('textos.duplicar')) }}"><i class="fa fa-copy"></i></a>
+                                            {{-- Duplicar: 
+                                                .1 Sólo items con precio estable, no porcentual.    
+                                            --}}
+                                            @if(!$is->calculated_by_percent)
+                                                <a href="{{ route('items.copy', $is) }}" class="text-warning mr-2 btn-confirm" data-msg="{{ trans('textos.presupuesto_linea_duplicar_confirm') }}" rel="tooltip" title="{{ ucfirst(trans('textos.duplicar')) }}"><i class="fa fa-copy"></i></a>
+                                            @endif
                                         @endif
                                     </div>
 

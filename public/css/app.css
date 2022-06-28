@@ -19105,19 +19105,22 @@ ul.nav-second-level {
 }
 
 .budget-versions,
-.order-groups {
+.order-groups,
+.several-invoices {
   display: inline-block !important;
   margin: 0 0 5px 4px;
   vertical-align: top;
   width: 240px;
 }
 .budget-versions select,
-.order-groups select {
+.order-groups select,
+.several-invoices select {
   height: 38px !important;
   width: 100%;
 }
 .budget-versions .select2-container--default .select2-selection--single,
-.order-groups .select2-container--default .select2-selection--single {
+.order-groups .select2-container--default .select2-selection--single,
+.several-invoices .select2-container--default .select2-selection--single {
   height: calc(2.19rem + 1px) !important;
 }
 
@@ -23570,7 +23573,7 @@ body.body-small .footer.fixed {
 .table > tbody > tr > td,
 .table > tfoot > tr > td {
   border-top: 1px solid #e7eaec;
-  line-height: 2.2;
+  line-height: 1.4;
   padding: 8px;
   vertical-align: middle;
 }
@@ -29532,6 +29535,9 @@ body.md-skin {
   top: 190px;
   z-index: 900;
 }
+.float-fixed-div#accumulated {
+  display: none;
+}
 .float-fixed-div .totalAmount {
   display: block;
   font-size: 28px;
@@ -29858,7 +29864,8 @@ ul li.rev .fa {
   top: 40%;
 }
 
-#chat-messages-num {
+#chat-messages-num,
+.refund-fields {
   display: none;
 }
 

@@ -10,15 +10,31 @@
             @endif
 
             <span class="totalAmount">
-                {{ $budget_amount }}{{ $currency }}
+                {{ number_format($budget_amount, 2) }}{{ $currency }}
             </span>
             <input type="hidden" id="totalAmount_"> 
+
+            {{-- Bolsa --}}
+            @if($bag_amount)
+                {!! ucfirst(trans('textos.bolsa')) !!}
+                <br>  
+                <b>
+                    {{ number_format($bag_amount, 2) }}{{ $currency }}
+                </b>  
+                <br>
+
+                {!! ucfirst(trans('textos.pendiente')) !!}
+                <br> 
+                <b>
+                    {{ number_format($bag_amount - $budget_amount, 2) }}{{ $currency }}   
+                </b>
+            @endif
 
             @if($budget_amount_without_discount && $budget_amount_without_discount > $budget_amount)
                 {!! trans('textos.importe_sin_descuento') !!}
                 <br>
                 <b>
-                    {{ $budget_amount_without_discount }}{{ $currency }}
+                    {{ number_format($budget_amount_without_discount, 2) }}{{ $currency }}
                 </b>
             @endif
         </div>

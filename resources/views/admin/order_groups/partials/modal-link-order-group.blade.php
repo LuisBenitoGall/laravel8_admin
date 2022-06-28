@@ -10,7 +10,7 @@
 
             <div class="modal-body">
             	@if(count($order_groups))
-	                <form method="post" autocomplete="off" action="{{ route('order-group-orders.add-order') }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
+	                <form method="post" autocomplete="off" action="{{ route('order-groups.add-order') }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
 	                    {{ csrf_field() }}
 	                    <input type="hidden" name="order_id" value="{{ $order->id }}">
 
@@ -33,7 +33,7 @@
 	                                @endphp
 	                            @endforeach
 
-	                            <x-select name="order_group" class="select2" :options="$order_groups_" label="pedido_selec" required/>
+	                            <x-select name="order_group" class="select2" :options="$order_groups_" label="agrupacion_selec" required/>
 	                        </div>
 	                    </div>
 

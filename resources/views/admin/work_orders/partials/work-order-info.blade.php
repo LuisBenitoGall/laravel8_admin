@@ -82,7 +82,7 @@
 	            <input type="checkbox" name="simulation" @if($work_order->simulation) checked @endif>
 	            <span class="chk" style="top: 5px;"></span>
 
-	        	{!! App\Helpers\Helpers::info('work-order-simulation', true) !!}
+	        	{!! App\Helpers\helpers::info('work-order-simulation', true) !!}
 	        </label>
 		</div>
 	</div>

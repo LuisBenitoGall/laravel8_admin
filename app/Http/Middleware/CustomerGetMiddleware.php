@@ -32,7 +32,10 @@ class CustomerGetMiddleware{
         //Si la empresa se encuentra entre las empresas gestionadas por el usuario:
         $belongs = false;
         foreach(\Session::get('companies') as $co){
-            if($co->id == $company_id) $belongs = true; break;
+            if($co->id == $company_id){
+                $belongs = true; 
+                break;
+            }
         }
 
         //Si la empresa en session es guardián del cliente:

@@ -683,7 +683,7 @@ $(window).on('load', function(){
         //Comprobamos si la opción de digits ya ha sido incluida en el patrón:
         var texto = true;
         $('.segment-options').each(function(){
-            console.log($(this).val());
+            //console.log($(this).val());
             if($(this).val() == 'digits'){
                 texto = false;
             } 

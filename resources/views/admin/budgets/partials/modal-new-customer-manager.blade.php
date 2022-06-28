@@ -11,7 +11,7 @@
             <div class="modal-body">
                 <form method="post" autocomplete="off" action="{{ route('budgets.add-manager') }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
                     {{ csrf_field() }}
-                    <input type="hidden" name="id" value="{{ $budget->id }}">
+                    <input type="hidden" name="order_id" value="{{ $order->id }}">
                     <input type="hidden" name="return_view" value="{{ $return_view }}">
 
                     <div class="form-group row">

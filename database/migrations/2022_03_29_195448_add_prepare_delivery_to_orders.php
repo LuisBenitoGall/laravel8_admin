@@ -12,7 +12,7 @@ class AddPrepareDeliveryToOrders extends Migration{
      */
     public function up(){
         Schema::table('orders', function (Blueprint $table){
-            $table->integer('prepare_delivery')->default(0)->after('status');
+            $table->integer('prepare_delivery')->default(0)->after('invoiced');
         });
     }
 

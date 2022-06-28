@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 
 //Models:
-use App\Models\BudgetOrderSharedFields;
+use App\Models\Order;
 
 class OrderPostMiddleware{
     /**
@@ -18,8 +18,8 @@ class OrderPostMiddleware{
      * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
      */
     public function handle(Request $request, Closure $next){
-        $company = BudgetOrderSharedFields::select('provider_id', 'customer_id')
-        ->where('order_id', $request->order_id)
+        $company = Order::select('provider_id', 'customer_id')
+        ->where('id', $request->order_id)
         ->first();
 
         if(!$company){

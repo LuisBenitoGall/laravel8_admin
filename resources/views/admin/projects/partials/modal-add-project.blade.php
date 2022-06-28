@@ -12,7 +12,7 @@
             	{{-- Nuevo proyecto --}}
 	            <span class="text-warning mr-5" style="line-height: 36px;">{{ trans('textos.proyecto_nuevo_crea') }}</span>
 
-            	<a href="{{ route('projects.create-from-budget-order', $shared) }}" class="btn btn-info pull-right">
+            	<a href="{{ route('projects.create-from-budget-order', $order) }}" class="btn btn-info pull-right">
 	    			<i class="fa fa-plus"></i>
 	    			{!! ucfirst(trans('textos.proyecto_nuevo')) !!}
 	    		</a>
@@ -21,7 +21,7 @@
 
             	<form method="post" autocomplete="off" action="{{ route('projects.link-project') }}" id="frmSaveChangeRound" accept-charset="utf-8" enctype="multipart/form-data" role="form">
                     {{ csrf_field() }}
-                    <input type="hidden" name="shared_id" value="{{ $shared->id }}">
+                    <input type="hidden" name="shared_id" value="{{ $order->id }}">
 
                     <p class="text-warning">{{ trans('textos.proyecto_vincular_texto') }}</p>
 

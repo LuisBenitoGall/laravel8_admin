@@ -43,6 +43,7 @@ class ItemController extends Controller{
 
         $this->middleware('module_setted:budgets');
         $this->middleware('item_get', ['only' => ['destroy', 'copy']]);
+        $this->middleware('order_post', ['only' => ['store']]);
     }
 
     //0. Validator:
@@ -50,9 +51,7 @@ class ItemController extends Controller{
         //Validación store:
         if(isset($data['submit_store_items'])){
             return Validator::make($data, [
-                'order_id' => 'nullable|integer',
-                'budget_id' => 'nullable|integer',
-                'shared_id' => 'required|integer',
+                'order_id' => 'required|integer',
                 'product_id' => 'nullable|integer',
                 'qty' => 'required|numeric'
             ]);
@@ -156,7 +155,7 @@ class ItemController extends Controller{
                 ->withErrors($validator)
                 ->withInput();
             }else{
-                return redirect('admin/budgets/'.$request->budget_id.'/edit')
+                return redirect('admin/budgets/'.$request->order_id.'/edit')
                 ->withErrors($validator)
                 ->withInput();    
             }
@@ -166,10 +165,7 @@ class ItemController extends Controller{
         $product = $request->product_id? Product::select('name')->find($request->product_id):false;
 
         //Si la línea pertenece a un presupuesto tipo formulario con bloques, la línea se incorpora a un bloque genérico:
-        $budget = Budget::select('budgets.id', 'budgets.modality')
-        ->join('budget_order_shared_fields', 'budgets.id', '=', 'budget_order_shared_fields.budget_id')
-        ->where('budget_order_shared_fields.id', $request->shared_id)
-        ->first();
+        $order = Order::select('id', 'modality')->find($request->order_id);
 
         //Bloque al que pertenece el item:
         $budget_form_block_id = NULL;
@@ -178,18 +174,18 @@ class ItemController extends Controller{
         $budget_order = NULL;
 
         //Presupuesto por formulario:
-        if($budget && $budget->modality == config('constants.BUDGET_FORM_MODALITY_')){
+        if($order && $order->modality == config('constants.BUDGET_FORM_MODALITY_')){
             //Obtenemos bloque genérico del presupuesto:
             $block = BudgetFormItems::select('id')
             ->where('recid', '0')
-            ->where('budget_id', $budget->id)
+            ->where('order_id', $order->id)
             ->where('name', config('constants.BUDGET_GENERIC_BLOCK_'))
             ->first();
 
             if(!$block){
                 $block = new BudgetFormItems();
                 $block->recid = '0';
-                $block->budget_id = $budget->id;
+                $block->order_id = $order->id;
                 $block->name = config('constants.BUDGET_GENERIC_BLOCK_');
                 $block->save();
             }
@@ -197,7 +193,7 @@ class ItemController extends Controller{
 
             //Orden en el bloque:
             $last_order = Item::select('budget_order')
-            ->where('budget_order_id', $request->shared_id)
+            ->where('order_id', $order->id)
             ->where('budget_form_block_id', $budget_form_block_id)
             ->whereNotNull('budget_order')
             ->orderBy('budget_order', 'DESC')
@@ -208,7 +204,7 @@ class ItemController extends Controller{
 
         $item = new Item();
         $item->product_id = $request->product_id? $request->product_id:NULL;
-        $item->budget_order_id = $request->shared_id;
+        $item->order_id = $order->id;
         $item->budget_form_block_id = $budget_form_block_id;
         $item->budget_order = $budget_order;
         $item->concept = $product? $product->name:$request->concept;
@@ -222,11 +218,7 @@ class ItemController extends Controller{
         $item->save();
 
         $msg = trans('textos.linea_creado_ok');
-        if($request->environment == 'orders'){
-            return redirect()->route('orders.edit', [$request->order_id, 'items'])->with(compact('msg'));
-        }else{
-            return redirect()->route('budgets.edit', [$request->budget_id, 'items'])->with(compact('msg'));    
-        }
+        return redirect()->route($request->environment.'.edit', [$request->order_id, 'items'])->with(compact('msg'));
     }
 
     /**

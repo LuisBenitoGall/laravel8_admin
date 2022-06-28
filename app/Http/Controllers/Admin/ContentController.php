@@ -34,7 +34,7 @@ class ContentController extends Controller{
     private $languages;
 
     public function __construct(){
-        $this->languages = Helpers::languages();
+        $this->languages = helpers::languages();
     }
 
     //0. Validator:

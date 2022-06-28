@@ -1,9 +1,9 @@
 @php
 //Acceso exclusivo proveedor:
-$read_only_provider = $shared->customer_id == session('currentCompany')? true:false;
+$read_only_provider = $order->customer_id == session('currentCompany')? true:false;
 @endphp 
 
-<form method="post" autocomplete="off" action="{{ route('orders.update', $order) }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
+<form method="post" autocomplete="off" id="frmOrderInfo" action="{{ route('orders.update', $order) }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
 	@method('PUT')
 	{{ csrf_field() }}
 	<input type="hidden" name="id" value="{{ $order->id }}">
@@ -18,7 +18,7 @@ $read_only_provider = $shared->customer_id == session('currentCompany')? true:fa
 				3. Exclusivo para proveedor.
 				...
 			--}}
-			@if($patterns && !$order->recid && $shared->provider_id == session('currentCompany'))
+			@if($patterns && !$order->recid && $order->provider_id == session('currentCompany'))
 				@if($patterns->count())
 					@php
 					$patterns_ = [];
@@ -42,12 +42,12 @@ $read_only_provider = $shared->customer_id == session('currentCompany')? true:fa
 				</u></b></label>
 			@endif
 
-			{{-- Reset de número: 
+			{{-- Reset de número - condiciones: 
 				1. Sólo si los pedidos vinculados no están facturados 
 				2. Sólo para el original, no para las versiones.  Estas se actualizan si cambia el número del original.
 				3. Exclusivo para proveedor.
 			--}}
-			@if(!$invoiced && $order->order_num && !$order->recid && $shared->provider_id == session('currentCompany'))
+			@if(!$order->invoiced && $order->order_num && !$order->recid && $order->provider_id == session('currentCompany'))
 				<a href="{{ route('orders.reset-num', $order->id) }}" class="ml-3 btn-confirm" rel="tooltip" title="{{ trans('textos.numero_reset') }}" data-msg="{{ trans('textos.numero_reset_confirm') }}">
 					<i class="fa fa-redo"></i>
 				</a>
@@ -59,6 +59,16 @@ $read_only_provider = $shared->customer_id == session('currentCompany')? true:fa
 		<div class="col-md-3 col-lg-2">
 			<x-input type="text" name="order_old_num" value="{{ $order->order_old_num }}" autocomplete="off" maxlength="150" info="order-old-num" readonly="{{ $read_only_provider }}"/>
 		</div>
+
+		{{-- Importe de la bolsa - condiciones: 
+			1. Si es agrupación.
+		--}}
+		@if($order->is_group)
+			<label for="bag_amount" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.importe_bolsa')) !!}</label>
+			<div class="col-lg-2">
+				<x-input type="text" name="bag_amount" class="text-right set-decimals" autocomplete="off" maxlength="15" group="right" value="{{ $order->bag_amount }}" groupvalue="{{ $currency->symbol }}" info="order-group-bag"/>
+			</div>
+		@endif
 
 		{{-- Presupuesto --}}
 		{{-- @if($budget)
@@ -82,7 +92,7 @@ $read_only_provider = $shared->customer_id == session('currentCompany')? true:fa
 		<div class="col-md-3 col-lg-2">
 			@if(!$order->purchase_num)
 				{{-- El número de orden de compra lo genera el cliente --}}
-				@if($shared->customer_id == session('currentCompany'))
+				@if($order->customer_id == session('currentCompany'))
 					@if(count($purchase_patterns))
 						<x-select name="purchase_pattern_id" class="select2" label="patron_selecciona" :options="$purchase_patterns"/>
 					@else
@@ -104,7 +114,7 @@ $read_only_provider = $shared->customer_id == session('currentCompany')? true:fa
 		</div>
 
 		{{-- Confirmación de pedido, exclusivamente por el cliente: --}}
-		@if($shared->customer_id == session('currentCompany') && !$order->customer_confirmation)
+		@if($order->customer_id == session('currentCompany') && !$order->customer_confirmation)
 			<label for="customer_confirmation" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.pedido_confirmar')) !!}</label>
 			<div class="col-lg-1">
 				<label class="custom-chk-rdb" rel="tooltip">
@@ -113,6 +123,30 @@ $read_only_provider = $shared->customer_id == session('currentCompany')? true:fa
 	            </label>
 
 	            {!! App\Helpers\Helpers::info('order-purchase-confirm') !!}
+			</div>
+		@endif
+	</div>
+
+	<div class="form-group row">
+		{{-- Orden de pago --}}
+		<label for="pay_order" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.orden_pago')) !!}</label>
+		<div class="col-lg-2">
+			@php
+			$readonly = $order->status != config('constants.ORDER_GROUPS_OPENED_')? true:false;
+			@endphp
+
+			<x-input type="text" name="pay_order" value="{{ $order->pay_order }}" autocomplete="off" maxlength="100" readonly="{{ $readonly }}" info="order-group-pay-order"/>
+		</div>
+
+		{{-- Fecha orden de pago --}}
+		@if($order->pay_order_received)
+			@php
+			$pay_order_received = $order->pay_order_received && $order->pay_order_received > 0? \Carbon\Carbon::parse($order->pay_order_received)->format($languages[session()->get('locale')][4]):'';
+			@endphp
+
+			<label class="col-lg-2 col-form-label">{{ trans('textos.recibida') }}</label>
+			<div class="col-lg-2">
+				<x-input type="text" name="pay_order_received" class="text-right" value="{{ $pay_order_received }}" autocomplete="off" readonly="true" info="order-group-pay-order-received"/>
 			</div>
 		@endif
 	</div>
@@ -133,7 +167,7 @@ $read_only_provider = $shared->customer_id == session('currentCompany')? true:fa
 			$estimatedDeliveryDate = $order->estimated_delivery_date != ''? \Carbon\Carbon::parse($order->estimated_delivery_date)->format($languages[session()->get('locale')][4]):'';
 			@endphp
 
-			@if($shared->provider_id == session('currentCompany'))
+			@if($order->provider_id == session('currentCompany'))
 				<x-date-picker name="estimated_delivery_date" id="estimated_delivery_date" value="{{ $estimatedDeliveryDate }}" :format="$languages[config('app.locale')][4]"/>
 			@else
 				<x-input type="text" name="estimated_delivery_date" value="{{ $estimatedDeliveryDate }}" autocomplete="off" maxlength="25" readonly/>	
@@ -147,7 +181,7 @@ $read_only_provider = $shared->customer_id == session('currentCompany')? true:fa
 			$deliveryDate = $order->delivery_date != ''? \Carbon\Carbon::parse($order->delivery_date)->format($languages[session()->get('locale')][4]):'';
 			@endphp
 
-			@if($shared->provider_id == session('currentCompany'))
+			@if($order->provider_id == session('currentCompany'))
 				<x-date-picker name="delivery_date" id="delivery_date" value="{{ $deliveryDate }}" :format="$languages[config('app.locale')][4]" readonly="{{ $read_only_provider }}"/>
 			@else
 				<x-input type="text" name="delivery_date" value="{{ $deliveryDate }}" autocomplete="off" maxlength="255" readonly/>	
@@ -157,11 +191,12 @@ $read_only_provider = $shared->customer_id == session('currentCompany')? true:fa
 		{{-- Estado pedido 
 			1. Exclusivo proveedor
 		--}}
-		@if($shared->provider_id == session('currentCompany'))
+		@if($order->provider_id == session('currentCompany'))
 			<label for="status" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.estado')) !!}</label>
 			<div class="col-lg-2">
 				@php
-				$estados = App\Helpers\helpers::orderStatus();
+				//Los estados se obtienen en función de si el pedido es simple o agrupación:
+				$estados = $order->is_group? App\Helpers\helpers::orderGroupStatus():App\Helpers\helpers::orderStatus();
 				@endphp
 
 				<x-select name="status" class="select2" label="indica_estado" :options="$estados" value="{{ $order->status }}"/>
@@ -172,8 +207,11 @@ $read_only_provider = $shared->customer_id == session('currentCompany')? true:fa
 	</div>
 	<br><hr><br>
 
-	{{-- Facturación prevista --}}
-	@if($shared->provider_id == session('currentCompany'))
+	{{-- Facturación prevista - condiciones:
+		1. Exclusivo para el proveedor.
+		2. Para agrupaciones o pedidos simples, NO para pedidos vinculados a agrupación.
+	--}}
+	@if($order->provider_id == session('currentCompany') && !$order->parent)
 		<div class="form-group row">
 			<label class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.facturacion_prevista')) !!}</label>
 			
@@ -185,11 +223,12 @@ $read_only_provider = $shared->customer_id == session('currentCompany')? true:fa
 
 			<div class="col-lg-9">
 				<div class="previsions">
+					@php
+					$totalPercent = 0;
+					@endphp
+					
 					@if($previsions->count())
 						{{-- La sumas de los porcentajes de las previsiones de facturación no puede superar el 100% --}}
-						@php
-						$totalPercent = 0;
-						@endphp
 
 						@foreach($previsions as $prev)
 							@php
@@ -206,7 +245,7 @@ $read_only_provider = $shared->customer_id == session('currentCompany')? true:fa
 								{{-- Año --}}
 								<label for="year" class="col-md-2 col-lg-1 col-form-label mb-2">{!! ucfirst(trans('textos.any')) !!}</label>
 								<div class="col-md-4 col-lg-2 sinpadding">
-									<select name="year[]" class="form-control select2" {{ $disabled }}>
+									<select name="year[]" class="form-control select2 prevision-data" {{ $disabled }}>
 										@for($y=config('constants.MIN_YEAR_'); $y<=(date('Y')+3); $y++)
 											@php
 											$selected = $prev->year == $y? 'selected':date('Y'); 
@@ -225,12 +264,12 @@ $read_only_provider = $shared->customer_id == session('currentCompany')? true:fa
 
 								{{-- Mes --}}
 								<label for="month" class="col-md-2 col-lg-1 col-form-label">{!! ucfirst(trans('textos.mes')) !!}</label>
-								<div class="col-md-4 col-lg-3 sinpadding">
+								<div class="col-md-4 col-lg-2 sinpadding">
 									@php
 									$months = App\Helpers\Helpers::yearMonths();
 									@endphp
 
-									<select name="month[]" class="form-control select2" {{ $disabled }}>
+									<select name="month[]" class="form-control select2 prevision-data" {{ $disabled }}>
 										@if(!$prev->month)
 											<option value="">{{ trans('textos.mes_selec') }}</option>
 										@else
@@ -260,7 +299,7 @@ $read_only_provider = $shared->customer_id == session('currentCompany')? true:fa
 									$percent = round($totalPercent, 2) > 100? '':$prev->percent;
 									@endphp
 
-									<x-input type="text" name="percent[]" class="text-right set-decimals percent" autocomplete="off" maxlength="5" value="{{ $percent }}" group="right" groupvalue="%" required disabled="{{ $disabled_ }}"/>
+									<x-input type="text" name="percent[]" class="text-right set-decimals percent prevision-data" autocomplete="off" maxlength="5" value="{{ $percent }}" group="right" groupvalue="%" required disabled="{{ $disabled_ }}"/>
 
 						            @if(round($totalPercent, 2) > 100)
 						            	<span class="invalid-feedback" role="alert">
@@ -276,12 +315,28 @@ $read_only_provider = $shared->customer_id == session('currentCompany')? true:fa
 										</a>
 									</div>
 								@endif
+
+								{{-- Factura --}}
+								@if($prev->invoiceId)
+									<div class="col-md-1 col-lg-2 pt-2">
+										{{ ucfirst(trans('textos.factura')) }}
+										<a target="_blank" href="{{ route('invoices.edit', $prev->invoiceId) }}">
+											@if($prev->invoice_num)
+												{{ $prev->invoice_num }}
+											@else
+												{{ $prev->invoiceId }}
+											@endif
+										</a>
+									</div>
+								@endif
 							</div>
 						@endforeach
 					@endif
 
-					{{-- Indicador de porcentaje pendiente --}}
-					@if($totalPercent < 100)
+					{{-- Indicador de porcentaje pendiente 
+						Pasamos como condición adicional que el porcentaje sea mayor a 0.02, para evitar decimales residuales.
+					--}}
+					@if($totalPercent < 100 && (100 - $totalPercent) > 0.02)
 						<p class="text-warning">{!! trans('textos.facturacion_prevision_pendiente') !!}: <b>{{ round(100 - $totalPercent, 2) }} %</b></p>
 					@endif
 				</div>
@@ -299,7 +354,7 @@ $read_only_provider = $shared->customer_id == session('currentCompany')? true:fa
 			<div class="form-group row">
 				<label for="customer_manager_id" class="col-lg-3 col-form-label">Manager {!! trans('textos.cliente') !!}</label>
 				<div class="col-lg-9">
-					<x-select name="customer_manager_id" class="select2" label="manager_selec" :options="$customer_managers" value="{{ $shared->customer_manager_id }}"/>
+					<x-select name="customer_manager_id" class="select2" label="manager_selec" :options="$customer_managers" value="{{ $order->customer_manager_id }}"/>
 				</div>
 			</div>
 
@@ -308,7 +363,7 @@ $read_only_provider = $shared->customer_id == session('currentCompany')? true:fa
 				<label for="customer_workplace_id" class="col-lg-3 col-form-label">{!! ucfirst(trans('textos.centro_trabajo')) !!}</label>
 				<div class="col-lg-9">	
 					@php
-					$workplace_selected = $shared->customer_workplace_id? $shared->customer_workplace_id:$customer_settings->workplace_id;
+					$workplace_selected = $order->customer_workplace_id? $order->customer_workplace_id:$customer_settings->workplace_id;
 					@endphp
 
 					<x-select name="customer_workplace_id" class="select2" label="centro_trabajo_selec" :options="$customer_workplaces" value="{{ $workplace_selected }}"/>
@@ -320,7 +375,7 @@ $read_only_provider = $shared->customer_id == session('currentCompany')? true:fa
 				<label for="customer_business_area_id" class="col-lg-3 col-form-label">{!! ucfirst(trans('textos.area_negocio')) !!}</label>
 				<div class="col-lg-9">	
 					@php
-					$ba_selected = $shared->customer_business_area_id? $shared->customer_business_area_id:$customer_settings->ba_id;
+					$ba_selected = $order->customer_business_area_id? $order->customer_business_area_id:$customer_settings->ba_id;
 					@endphp
 
 					<x-select name="customer_business_area_id" class="select2" label="area_negocio_selec" :options="$customer_business_areas" value="{{ $ba_selected }}"/>
@@ -332,7 +387,7 @@ $read_only_provider = $shared->customer_id == session('currentCompany')? true:fa
 				<label for="customer_cost_center_id" class="col-lg-3 col-form-label">{!! ucfirst(trans('textos.centro_coste')) !!}</label>
 				<div class="col-lg-9">	
 					@php
-					$cost_center_selected = $shared->customer_cost_center_id? $shared->customer_cost_center_id:$customer_settings->cc_id;
+					$cost_center_selected = $order->customer_cost_center_id? $order->customer_cost_center_id:$customer_settings->cc_id;
 					@endphp
 
 					<x-select name="customer_cost_center_id" class="select2" label="centro_coste_selec" :options="$customer_cost_centers" value="{{ $cost_center_selected }}"/>
@@ -348,11 +403,11 @@ $read_only_provider = $shared->customer_id == session('currentCompany')? true:fa
 			<div class="form-group row">
 				<label for="provider_manager_id" class="col-lg-3 col-form-label">Manager {!! trans('textos.proveedor') !!}</label>
 				<div class="col-lg-9">
-					@if($shared->provider_id == session('currentCompany'))
-						<x-select name="provider_manager_id" class="select2" label="manager_selec" :options="$provider_managers" value="{{ $shared->provider_manager_id }}"/>
+					@if($order->provider_id == session('currentCompany'))
+						<x-select name="provider_manager_id" class="select2" label="manager_selec" :options="$provider_managers" value="{{ $order->provider_manager_id }}"/>
 					@else
 						@php
-						$provider_manager_id = $shared->provider_manager_id? $provider_managers[$shared->provider_manager_id]:'';
+						$provider_manager_id = $order->provider_manager_id? $provider_managers[$order->provider_manager_id]:'';
 						@endphp
 						<x-input type="text" name="" value="{{ $provider_manager_id }}" autocomplete="off" maxlength="255" disabled/>	
 					@endif
@@ -363,11 +418,11 @@ $read_only_provider = $shared->customer_id == session('currentCompany')? true:fa
 			<div class="form-group row">
 				<label for="provider_workplace_id" class="col-lg-3 col-form-label">{!! ucfirst(trans('textos.centro_trabajo')) !!}</label>
 				<div class="col-lg-9">	
-					@if($shared->provider_id == session('currentCompany'))
-						<x-select name="provider_workplace_id" class="select2" label="centro_trabajo_selec" :options="$provider_workplaces" value="{{ $shared->provider_workplace_id }}"/>
+					@if($order->provider_id == session('currentCompany'))
+						<x-select name="provider_workplace_id" class="select2" label="centro_trabajo_selec" :options="$provider_workplaces" value="{{ $order->provider_workplace_id }}"/>
 					@else
 						@php
-						$provider_workplace_id = $shared->provider_workplace_id? $provider_workplaces[$shared->provider_workplace_id]:'';
+						$provider_workplace_id = $order->provider_workplace_id? $provider_workplaces[$order->provider_workplace_id]:'';
 						@endphp
 						<x-input type="text" name="" value="{{ $provider_workplace_id }}" autocomplete="off" maxlength="255" disabled/>	
 					@endif
@@ -378,11 +433,11 @@ $read_only_provider = $shared->customer_id == session('currentCompany')? true:fa
 			<div class="form-group row">
 				<label for="provider_business_area_id" class="col-lg-3 col-form-label">{!! ucfirst(trans('textos.area_negocio')) !!}</label>
 				<div class="col-lg-9">	
-					@if($shared->provider_id == session('currentCompany'))
-						<x-select name="provider_business_area_id" class="select2" label="area_negocio_selec" :options="$provider_business_areas" value="{{ $shared->provider_business_area_id }}"/>
+					@if($order->provider_id == session('currentCompany'))
+						<x-select name="provider_business_area_id" class="select2" label="area_negocio_selec" :options="$provider_business_areas" value="{{ $order->provider_business_area_id }}"/>
 					@else
 						@php
-						$provider_business_area_id = $shared->provider_business_area_id? $provider_workplaces[$shared->provider_business_area_id]:'';
+						$provider_business_area_id = $order->provider_business_area_id? $provider_workplaces[$order->provider_business_area_id]:'';
 						@endphp
 						<x-input type="text" name="" value="{{ $provider_business_area_id }}" autocomplete="off" maxlength="255" disabled/>		
 					@endif
@@ -393,11 +448,11 @@ $read_only_provider = $shared->customer_id == session('currentCompany')? true:fa
 			<div class="form-group row">
 				<label for="provider_cost_center_id" class="col-lg-3 col-form-label">{!! ucfirst(trans('textos.centro_coste')) !!}</label>
 				<div class="col-lg-9">	
-					@if($shared->provider_id == session('currentCompany'))
-						<x-select name="provider_cost_center_id" class="select2" label="centro_coste_selec" :options="$provider_cost_centers" value="{{ $shared->provider_cost_center_id }}"/>
+					@if($order->provider_id == session('currentCompany'))
+						<x-select name="provider_cost_center_id" class="select2" label="centro_coste_selec" :options="$provider_cost_centers" value="{{ $order->provider_cost_center_id }}"/>
 					@else
 						@php
-						$provider_cost_center_id = $shared->provider_cost_center_id? $provider_workplaces[$shared->provider_cost_center_id]:'';
+						$provider_cost_center_id = $order->provider_cost_center_id? $provider_workplaces[$order->provider_cost_center_id]:'';
 						@endphp
 						<x-input type="text" name="" value="{{ $provider_cost_center_id }}" autocomplete="off" maxlength="255" disabled/>		
 					@endif

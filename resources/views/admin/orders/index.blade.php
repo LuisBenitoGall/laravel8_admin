@@ -94,15 +94,16 @@
 						{{-- <th>{!! ucfirst(trans('textos.pedido_num')) !!}</th> --}}
 						<th class="text-center wdt100">{!! ucfirst(trans('textos.n_manual')) !!}</th>
 						<th class="text-center wdt100">{!! ucfirst(trans('textos.presupuesto')) !!}</th>
+						<th class="text-center wdt100">{!! ucfirst(trans('textos.agrupacion')) !!}</th>
 						<th class="text-center wdt100">{!! ucfirst(trans('textos.orden_compra')) !!}</th>
 						<th class="wdt200">{!! ucfirst(trans('textos.pedido_titulo')) !!}</th>
 						<!-- <th class="text-center">{!! ucfirst(trans('textos.fecha')) !!}</th> -->
-						<th class="text-center wdt100">{!! ucfirst(trans('textos.importe')) !!}</th>
+						<th class="text-center wdt50">{!! ucfirst(trans('textos.importe')) !!}</th>
 						<th class="text-center wdt100">{!! ucfirst(trans('textos.entrega_prevista')) !!}</th>
 						{{-- <th>{!! trans('textos.area_negocio') !!}</th> --}}
 						{{-- <th class="wdt100">{!! trans('textos.area') !!}</th> --}}
 						<th class="wdt100">{!! trans('textos.centro_coste') !!}</th>
-						<th class="wdt100">{!! trans('textos.estado') !!}</th>
+						<th class="wdt50">{!! trans('textos.estado') !!}</th>
 						<th class="text-center wdt100">{!! ucfirst(trans('textos.acciones')) !!}</th>
 					</tr>
 				</thead>

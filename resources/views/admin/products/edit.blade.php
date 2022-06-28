@@ -7,8 +7,9 @@
 <input type="hidden" id="productId" value="{{ $product->id }}">
 
 <div class="row mb-3">
+	{{-- Acciones: --}}
 	<div class="col-12">
-		{{-- Acciones: --}}
+		{{-- Listado de productos --}}
 		@can('products.index')
 			<a href="{{ route('products.index') }}" class="btn btn-info">
 				<i class="fa fa-angle-left"></i>
@@ -16,6 +17,7 @@
 			</a>
 		@endcan
 
+		{{-- Formulario nuevo producto --}}
 		@can('products.create')
     		<a href="{{ route('products.create') }}" class="btn btn-info">
     			<i class="fa fa-plus"></i>
@@ -29,15 +31,20 @@
 			{!! ucfirst(trans('textos.serializacion')) !!}
 		</a> --}}
 
-		{{-- Ordenes de trabajo --}}
-		@if($module_production)
-			@can('work-orders.create')
+		{{-- Ordenes de trabajo - condiciones: 
+			1. Permisos de creación de órdenes de trabajo.
+			2. Módulo producción activo.
+			3. Debe tratarse de un producto, no de un servicio.
+			...
+		--}}
+		@can('work-orders.create')
+			@if($module_production && $product->type == 'p')
 				<a href="" class="btn btn-info">
 	    			<i class="fa fa-industry"></i>
 	    			{!! ucfirst(trans('textos.trabajo_orden_generar')) !!}
 	    		</a>	
-			@endcan
-		@endif
+			@endif
+		@endcan
 	</div>
 </div>
 

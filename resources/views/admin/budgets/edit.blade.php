@@ -5,7 +5,7 @@
 @php
 //Comprobamos que las líneas de presupuesto tipo formulario pertenezcan a algún bloque:
 $setBlock = true;
-// if($budget->modality == config('constants.BUDGET_FORM_MODALITY_') && $itemsSelected->count() > 0){
+// if($order->modality == config('constants.BUDGET_FORM_MODALITY_') && $itemsSelected->count() > 0){
 // 	foreach($itemsSelected as $is_){
 // 		if(!$is_->block_id){
 // 			$setBlock = false;
@@ -15,11 +15,12 @@ $setBlock = true;
 // }
 @endphp
 
-<input type="hidden" id="myShared" value="{{ $shared->id }}">
+<input type="hidden" id="myOrderId" value="{{ $order->id }}">
 
 <div class="row mb-3">
 	{{-- Acciones: --}}
 	<div class="col-12">
+		{{-- Listado de presupuestos --}}
 		@can('budgets.index')
 			<a href="{{ route('budgets.index') }}" class="btn btn-info">
 				<i class="fa fa-angle-left"></i>
@@ -44,7 +45,7 @@ $setBlock = true;
 			4. El presupuesto no tiene pedido generado.
 		--}}
 		@can('budgets.edit')
-			@if($shared->provider_id == session('currentCompany') && count(session('companies')) > 1 && !$shared->order_id)
+			@if($order->provider_id == session('currentCompany') && count(session('companies')) > 1 && !$order->is_order)
 				<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-set-provider">
 					<i class="fa fa-exchange-alt"></i> {!! ucfirst(trans('textos.proveedor_cambio')) !!}
 				</a>	
@@ -54,10 +55,10 @@ $setBlock = true;
 		{{-- Nueva línea - condiciones:
 			1. Permisos de edición.
 			2. Según modalidad de formulario.
-			3. Sólo si no está facturado 100%.  PENDIENTE AÑADIR CONDICIÓN
+			...
 		--}}
 		@can('budgets.edit')
-			@if($budget->modality == config('constants.BUDGET_CATALOGUE_MODALITY_') || $budget->modality == config('constants.BUDGET_BASIC_MODALITY_'))
+			@if($order->modality == config('constants.BUDGET_CATALOGUE_MODALITY_') || $order->modality == config('constants.BUDGET_BASIC_MODALITY_'))
 				<a href="#" class="btn btn-info btnAddItem" data-toggle="modal" data-target="#modal-new-line">
 					<i class="fa fa-plus"></i> {!! ucfirst(trans('textos.linea_nueva')) !!}
 				</a>
@@ -67,7 +68,7 @@ $setBlock = true;
 		{{-- Versiones --}}
 		@can('budgets.edit')
 			{{-- Crear versión --}}
-			<a href="{{ route('budgets.modify', $budget->id) }}" class="btn btn-info btn-confirm" data-msg="{!! trans('textos.version_crear_confirm') !!}">
+			<a href="{{ route('budgets.modify', $order->id) }}" class="btn btn-info btn-confirm" data-msg="{!! trans('textos.version_crear_confirm') !!}">
 				<i class="fa fa-clone"></i>
 				{!! ucfirst(trans('textos.version_crear')) !!}
 			</a>
@@ -75,7 +76,7 @@ $setBlock = true;
 			{{-- Acceso a versiones: --}}
 			@if($versions->count())
 				@php
-				$origBudget = (!$budget->recid)? $budget->id:$budget->recid;
+				$origBudget = (!$order->recid)? $order->id:$order->recid;
 				@endphp
 
 				<div class="budget-versions">
@@ -84,12 +85,12 @@ $setBlock = true;
 							{!! ucfirst(trans('textos.versiones')) !!}
 						</option>
 
-						<option value="{{ $origBudget }}" @if($origBudget == $budget->id) selected @endif>
+						<option value="{{ $origBudget }}" @if($origBudget == $order->id) selected @endif>
 							{!! ucfirst(trans('textos.presupuesto_original')) !!}
 						</option>
 
 						@foreach($versions as $vs)
-							<option value="{{ $vs->id }}" @if($vs->id == $budget->id) selected @endif>{{ $vs->name }} {{ $vs->bkey }}</option>
+							<option value="{{ $vs->id }}" @if($vs->id == $order->id) selected @endif>{{ $vs->name }} {{ $vs->bkey }}</option>
 						@endforeach		
 					</select>
 				</div>
@@ -105,13 +106,19 @@ $setBlock = true;
 		@endcan
 
 		{{-- Imprimir --}}
-		<a href="{{ route('budgets.print', $budget->id) }}" class="btn btn-info close-animation" rel="tooltip" title="{!! ucfirst(trans('textos.imprimir')) !!}">
+		<a href="{{ route('budgets.print', $order->id) }}" class="btn btn-info close-animation" rel="tooltip" title="{!! ucfirst(trans('textos.imprimir')) !!}">
 			<i class="fa fa-print"></i>
 		</a>
 
-		{{-- Descuento --}}
+		{{-- Descuento - condiciones: 
+			1. Disponer de permisos de edición de presupuestos.
+			2. No existir pedido o no facturado ni vinculado a una agrupación.
+			3. Exclusivo del proveedor.
+			4. No debe existir ya el descuento.
+			...
+		--}}	
 		@can('budgets.edit')
-			@if($shared->provider_id == session('currentCompany') && !$shared->discount)
+			@if( (!$order->is_order || ($order && !$order->invoiced && !$order->order_parent)) && $order->provider_id == session('currentCompany') && !$order->discount)
 				<a href="#" class="btn btn-warning" data-toggle="modal" data-target="#modal-budget-discount" rel="tooltip" title="{{ trans('textos.descuento_presupuesto') }}">
 	    			<i class="fa fa-percent"></i>
 	    		</a>
@@ -125,10 +132,10 @@ $setBlock = true;
 			4. No debe existir un pedido previo.
 			...
 		--}}
-		@if($module_orders && !$shared->order_id)
+		@if($module_orders)
 			@can('orders.create')
-				@if(in_array($budget->status, config('constants.BUDGET_STATUS_APPROVED_')) && !$shared->order_id)
-					<a href="{{ route('orders.order-from-budget', $budget) }}" class="btn btn-warning btn-confirm" data-msg="{!! trans('textos.pedido_confirm_generar') !!}">
+				@if(in_array($order->budget_status, config('constants.BUDGET_STATUS_APPROVED_')) && !$order->is_order)
+					<a href="{{ route('orders.order-from-budget', $order) }}" class="btn btn-warning btn-confirm" data-msg="{!! trans('textos.pedido_confirm_generar') !!}">
 						<i class="fa fa-shopping-cart"></i>
 						{!! ucfirst(trans('textos.pedido_generar')) !!}
 					</a>
@@ -139,8 +146,8 @@ $setBlock = true;
 		{{-- Acceso a pedido --}}
 		@if($module_orders)
 			@can('orders.edit')
-				@if($shared->order_id)
-					<a target="_blank" href="{{ route('orders.edit', $shared->order_id) }}" class="btn btn-info">
+				@if($order->is_order)
+					<a target="_blank" href="{{ route('orders.edit', $order) }}" class="btn btn-info">
 						<i class="fa fa-shopping-cart"></i>
 						{!! ucfirst(trans('textos.pedido')) !!}
 					</a>
@@ -177,8 +184,8 @@ $setBlock = true;
 		{{-- Acceso a proyecto --}}
 		@if($module_projects)
 			@can('projects.edit')
-				@if($shared->project_id)
-					<a href="{{ route('projects.edit', $shared->project_id) }}" class="btn btn-info">
+				@if($order->project_id)
+					<a href="{{ route('projects.edit', $order->project_id) }}" class="btn btn-info">
 						<i class="fa fa-rocket"></i>
 						{!! ucfirst(trans('textos.proyecto')) !!}
 					</a>
@@ -186,10 +193,13 @@ $setBlock = true;
 			@endcan
 		@endif
 
-		{{-- Eliminar presupuesto --}}
+		{{-- Eliminar presupuesto - condiciones: 
+			1. Disponer de permisos.
+			2. Pedido facturado.
+		--}}
 		@can('budgets.destroy')
-        	@if($permitted)
-	        	<form method="POST" action="{{ route('budgets.destroy', $budget) }}" class="frm-inline" role="form" accept-charset="UTF-8">
+        	@if(!$invoiced)
+	        	<form method="POST" action="{{ route('budgets.destroy', $order) }}" class="frm-inline" role="form" accept-charset="UTF-8">
 	                <input name="_method" type="hidden" value="DELETE">
 	                {{ csrf_field() }}
 	                <button type="submit" class="btn btn-danger frm-confirm" rel="tooltip" title="{{ ucfirst(trans('textos.presupuesto_eliminar')) }}" data-msg="{{ ucfirst(trans('textos.presupuesto_confirm_eliminar')) }}"><i class="fa fa-trash"></i></button>
@@ -205,18 +215,18 @@ $setBlock = true;
 			<div class="card-body">
 				{{-- Componente importe presupuesto flotante: --}}
 				@php
-				$budget_amount_without_discount = $shared->discount > 0? number_format($budget_amount_without_discount, 2):false;
+				$order_amount_without_discount = $order->discount > 0? number_format($order_amount_without_discount, 2):false;
 				@endphp
 
-				@livewire('budget-amount', ['budget_amount' => number_format($budget_amount, 2), 'currency' => $currency->symbol, 'budget_amount_without_discount' => $budget_amount_without_discount, 'environment' => 'budgets'])
+				@livewire('budget-amount', ['budget_amount' => $order_amount, 'currency' => $currency->symbol, 'budget_amount_without_discount' => $order_amount_without_discount, 'environment' => 'budgets'])
 
 				<h3 class="mb-3">
 					{!! ucfirst(trans('textos.presupuesto')) !!} 
 					<u>
-						@if($budget->budget_num)
-							{{ $budget->budget_num }}
+						@if($order->budget_num)
+							{{ $order->budget_num }}
 						@else
-							{{ $budget->id }}
+							{{ $order->id }}
 						@endif
 					</u>
 				</h3>	
@@ -224,16 +234,16 @@ $setBlock = true;
 				{{-- Info --}}
 				<div class="mb-3">
 					{{-- Cliente --}}
-					@include('admin.budget_order_shared_fields.partials.data-customer')
+					@include('admin.orders.partials.data-customer')
 
 					{{-- Proveedor --}}
-					@include('admin.budget_order_shared_fields.partials.data-provider')
+					@include('admin.orders.partials.data-provider')
 
 					{{-- Fecha alta --}}
 					<label class="mr-5">
 						{!! ucfirst(trans('textos.fecha_alta')) !!}: 
 						<b>
-							{{ $budget->created_at->format($languages[session()->get('locale')][4].' H:i:s') }}
+							{{ $order->created_at->format($languages[session()->get('locale')][4].' H:i:s') }}
 						</b>
 					</label>
 
@@ -241,32 +251,34 @@ $setBlock = true;
 					<label class="mr-5">
 						{!! ucfirst(trans('textos.ultima_edicion')) !!}: 
 						<b>
-							{{ $budget->updated_at->format($languages[session()->get('locale')][4].' H:i:s') }}
+							{{ $order->updated_at->format($languages[session()->get('locale')][4].' H:i:s') }}
 						</b>
 					</label>
 
 					{{-- Importe --}}
 					<label class="mr-5">
-						@livewire('budget-amount-mini', ['budget_amount' => $budget_amount, 'currency' => $currency->symbol])
+						@livewire('budget-amount-mini', ['budget_amount' => $order_amount, 'currency' => $currency->symbol])
 					</label>
 
 					{{-- Modalidad --}}
 					<label class="mr-5">
 						{{ ucfirst(trans('textos.modalidad')) }}:
-  					    <b>@if($budget->modality) {!! App\Helpers\Helpers::budgetModalities($budget->modality) !!} @endif</b>
+  					    <b>@if($order->modality) {!! App\Helpers\helpers::budgetModalities($order->modality) !!} @endif</b>
 					</label>
 
 					{{-- Descuento aplicado --}}
-					@php
-					$remove_discount = !$invoiced? true:false;
-					@endphp
-					@include('admin.budget_order_shared_fields.partials.data-discount-applied', ['return' => 'budgets', 'remove_discount' => $remove_discount])
+					@if(!$order || ($order && !$order->invoiced))
+						@php
+						$remove_discount = !$invoiced? true:false;
+						@endphp
+						@include('admin.orders.partials.data-discount-applied', ['return' => 'budgets', 'remove_discount' => $remove_discount])
+					@endif
 
 					{{-- Pedido --}}
-					@include('admin.budget_order_shared_fields.partials.link-order')
+					@include('admin.orders.partials.link-order')
 
 					{{-- Proyecto --}}
-					@include('admin.budget_order_shared_fields.partials.link-project')
+					@include('admin.orders.partials.link-project')
 				</div>
 
 				{{-- Tabs: --}}
@@ -283,7 +295,7 @@ $setBlock = true;
 			  			<a class="nav-link @if($tab == 'comments') active @endif" href="#tab-comments" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.notas')) !!}</a>	
 			  		</li>
 
-			  		@if($shared->provider_id == session('currentCompany'))
+			  		@if($order->provider_id == session('currentCompany'))
 				  		<li class="nav-item @if($tab == 'template') active @endif">
 				    		<a class="nav-link @if($tab == 'template') active @endif" href="#tab-budget-template" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.plantilla')) !!}</a>
 				  		</li>
@@ -307,7 +319,7 @@ $setBlock = true;
 					</div>
 
 					{{-- Plantilla del presupuesto: --}}
-					@if($shared->provider_id == session('currentCompany'))
+					@if($order->provider_id == session('currentCompany'))
 						<div class="tab-pane fade @if($tab == 'template') show active @endif" role="tabpanel" id="tab-budget-template">
 							@include('admin.budgets.partials.budget-template')	
 						</div>
@@ -326,7 +338,7 @@ $setBlock = true;
 @include('admin.budgets.partials.modal-add-block')
 
 {{-- Discount --}}
-@include('admin.budget_order_shared_fields.partials.modal-discount', ['return' => 'budgets'])
+@include('admin.orders.partials.modal-discount', ['return' => 'budgets'])
 
 {{-- Add Project --}}
 @can('projects.create')
@@ -340,23 +352,23 @@ $setBlock = true;
 
 {{-- Modify customer --}}
 @if(!$order || $order->percentage_invoiced == 0)
-	@include('admin.budget_order_shared_fields.partials.modal-set-customer', ['environment_' => 'budgets'])	
+	@include('admin.orders.partials.modal-set-customer', ['environment_' => 'budgets'])	
 @endif
 
 {{-- Add item --}}
-@include('admin.budget_order_shared_fields.partials.modal-add-item', ['environment_' => 'budgets', 'modality' => $budget->modality])
+@include('admin.orders.partials.modal-add-item', ['environment_' => 'budgets', 'modality' => $order->modality])
 
 {{-- Edit item --}}
-@include('admin.budget_order_shared_fields.partials.modal-edit-item', ['environment_' => 'budgets'])
+@include('admin.orders.partials.modal-edit-item', ['environment_' => 'budgets'])
 
 {{-- See catalogue --}}
-@include('admin.budget_order_shared_fields.partials.modal-see-catalogue')
+@include('admin.orders.partials.modal-see-catalogue')
 
 {{-- Change provider --}}
 @include('admin.budgets.partials.modal-change-provider')
 
 {{-- Budget modality --}}
-@if(!$budget->modality)
+@if(!$order->modality)
 	@include('admin.budgets.partials.modal-modality')	
 @endif
 

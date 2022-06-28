@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 
 //Models:
-use App\Models\BudgetOrderSharedFields;
+use App\Models\Order;
 
 class OrderGetMiddleware{
     /**
@@ -18,8 +18,8 @@ class OrderGetMiddleware{
      * @return mixed
      */
     public function handle(Request $request, Closure $next){
-        $company = BudgetOrderSharedFields::select('provider_id', 'customer_id')
-        ->where('order_id', $request->segments()[2])
+        $company = Order::select('provider_id', 'customer_id')
+        ->where('id', $request->segments()[2])
         ->first();
 
         if(!$company){

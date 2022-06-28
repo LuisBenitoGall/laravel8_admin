@@ -23,6 +23,9 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     //Accounts:
     Route::get('accounts', 'AccountController@getAccountsDT');
 
+    //Banks:
+    Route::get('banks', 'BankController@getBanksDT');
+
     //BatchPatterns:
     Route::get('batch-patterns', 'BatchPatternsController@getPatternsDT');
 
@@ -118,7 +121,7 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     Route::get('order-groups/{customer}/{year}', 'OrderGroupsController@getGroupsDT');
 
     //OrderItems:
-    Route::get('order-items/{shared}', 'OrderController@getItemsDT');
+    Route::get('order-items/{order}', 'OrderController@getItemsDT');
 
     //OrderPatterns:
     Route::get('order-patterns', 'OrderPatternsController@getPatternsDT');
@@ -127,7 +130,7 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     Route::get('order-settings', 'OrderSettingsController@getTemplatesDT');
 
     //OrderTeams:  
-    Route::get('order-teams/{shared?}/{environment?}', 'OrderController@getTeamDT');
+    Route::get('order-teams/{order?}/{environment?}', 'OrderController@getTeamDT');
 
     //Orders:
     Route::get('orders/{customer?}/{provider?}/{owner?}/{status?}', 'OrderController@getOrdersDT');
@@ -149,6 +152,9 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
 
     //Products:
     Route::get('products', 'ProductController@getProductsDT');
+
+    //ProjectPatterns:
+    Route::get('project-patterns', 'ProjectPatternsController@getPatternsDT');
 
     //Projects:
     Route::get('projects/{status?}', 'ProjectController@getProjectsDT');

@@ -10,11 +10,12 @@ class BudgetAmount extends Component{
      * 2. Actualizando importe.
      */
     
-    public $budget_amount, $budget_amount_without_discount, $currency, $environment;
+    public $bag_amount, $budget_amount, $budget_amount_without_discount, $currency, $environment;
 
     protected $listeners = ['updateAmount'];
     
-    public function mount($budget_amount, $currency, $budget_amount_without_discount, $environment){
+    public function mount($budget_amount, $currency, $budget_amount_without_discount, $environment, $bag_amount = false){
+        $this->bag_amount = $bag_amount;
         $this->budget_amount = $budget_amount;
         $this->budget_amount_without_discount = $budget_amount_without_discount;
         $this->currency = $currency;

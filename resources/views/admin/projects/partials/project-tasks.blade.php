@@ -12,6 +12,7 @@ $columns_index = [];
 	@foreach($tasks as $task)
 		@if($task->status)
 			@php
+			//dd($task, $columns_index);
 			$html = '<li class="task" id="'.$task->id.'">';
 				$html .= '<a href="'.route('tasks.edit', $task->id).'"><h5>'.ucfirst($task->name).'</h5></a>';
 				
