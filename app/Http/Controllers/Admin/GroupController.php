@@ -82,7 +82,7 @@ class GroupController extends Controller{
             $row->eliminar = $eliminar;
         }
 
-        dd($groups);
+        //dd($groups);
 
         return datatables($groups)->toJson();
     }
