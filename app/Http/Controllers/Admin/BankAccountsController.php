@@ -34,6 +34,7 @@ class BankAccountsController extends Controller{
         $this->languages = helpers::languages();
 
         $this->middleware('module_setted:accounting');
+        $this->middleware('bank_accounts_get', ['only' => ['edit', 'update', 'destroy']]);
     }
 
     //0. Validator:

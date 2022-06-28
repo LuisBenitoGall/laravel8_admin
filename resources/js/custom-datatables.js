@@ -191,7 +191,7 @@ $(document).ready(function(){
         
         $('#tblBanks').DataTable({
             "serverSide": true,
-            /*"processing": true,*/
+            "processing": true,
             "ajax": {
                 "type": "GET",
                 "url": "/api/admin/banks",
@@ -2350,8 +2350,8 @@ $(document).ready(function(){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
         
         $('#tblGroups').DataTable({
-            serverSide: true,
-            processing: true,
+            "serverSide": true,
+            "processing": true,
             "ajax": {
                 "type": "GET",
                 "url": "/api/admin/groups",
