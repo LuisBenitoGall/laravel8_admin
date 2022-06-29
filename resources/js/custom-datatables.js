@@ -2347,7 +2347,7 @@ $(document).ready(function(){
 
     //Tabla Groups:
     if($('#tblGroups').length > 0){
-        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        //var tokenDT = $('meta[name="csrf-token"]').attr('content');
         
         $('#tblGroups').DataTable({
             "serverSide": true,
@@ -2361,32 +2361,9 @@ $(document).ready(function(){
             },
             "columns": [
                 {data: 'name'},
-                {data: 'alta', className: 'text-right'},
+                {data: 'alta', name: 'alta', className: 'text-right'},
                 {data: 'description'},
-                {data: 'id', className: 'text-right'}
-            ],
-            "columnDefs": [
-                {"targets": -1,
-                "render": function(data, type, row){
-                    //Estado:
-                    var checked = (row['status'] == 1)? 'checked':'';
-                    var estado = '<label class="custom-chk-rdb" rel="tooltip" title="'+txtGrupoOnOff+'">';
-                        estado += '<input type="checkbox" name="status" '+checked+' ><span class="chk chk-action" data-id="'+row['id']+'" data-ctrl="groups/status"></span>';
-                    estado += '</label>';
-
-                    //Editar:
-                    var editar = '<a href="/admin/groups/'+row['id']+'/edit" class="btn btn-xs btn-info btn-module" rel="tooltip" title="'+txtEditar+'"><i class="fa fa-edit"></i></a>';
-
-                    //Eliminar:
-                    var eliminar = '<form method="POST" action="groups/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
-                        eliminar += '<input name="_method" type="hidden" value="DELETE">';
-                        eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
-                        eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtEliminar+'" data-msg="'+txtGrupoConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
-                    eliminar += '</form>';
-
-                    return estado+' '+editar+' '+eliminar;
-                }
-                }
+                {data: 'acciones', name: 'acciones', className: 'text-right'}
             ]
         });
     }

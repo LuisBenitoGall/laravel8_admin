@@ -69,25 +69,15 @@ class GroupController extends Controller{
      */
     public function getGroupsDT(){
         $groups = Group::where('company_id', session('currentCompany'));
-
-        //Permisos del usuario:
-        $editar = Auth::user()->can('groups.edit');
-        $eliminar = Auth::user()->can('groups.destroy');
-
-        // foreach($groups as $row){
-        //     //Enviamos las fechas ya formateadas:
-        //     $row->alta = $row->created_at->format($this->languages[session()->get('locale')][4]);
-
-        //     //Permisos para las acciones:
-        //     $row->editar = $editar;
-        //     $row->eliminar = $eliminar;
-        // }
-
-        //return datatables($groups)->toJson();
+        
         return DataTables::of($groups)
-        ->addColumn('alta', function(Group $group){
+        ->addColumn('alta', function($group){
             return $group->created_at->format($this->languages[session()->get('locale')][4]);    
         })
+        ->addColumn('acciones', function($group){
+            return view('admin.groups.partials.dt-actions', compact('group'));    
+        })
+        //->rawColumns(['acciones'])
         ->make(true);
     }
 
