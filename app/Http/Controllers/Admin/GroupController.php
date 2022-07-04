@@ -77,7 +77,6 @@ class GroupController extends Controller{
         ->addColumn('acciones', function($group){
             return view('admin.groups.partials.dt-actions', compact('group'));    
         })
-        //->rawColumns(['acciones'])
         ->make(true);
     }
 

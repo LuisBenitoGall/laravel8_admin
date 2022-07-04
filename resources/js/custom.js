@@ -991,18 +991,31 @@ $(window).on('load', function(){
             if(response){
                 $('#itemId_').val(id);
                 $('#itemConcept_').val(response.concept);
-                $('#itemQty_').val(response.qty);
-                $('#itemDays_').val(response.days);
-                $('#itemPrice_').val(response.price);
-                $('#itemDiscount_').val(response.discount);
-                $('#itemIva_').val(response.iva);
                 $('#itemObservations_').trumbowyg('html', response.observations);
+
+                //Precio fijo:
+                if(response.price > 0){
+                    $('.price-by-percent').fadeOut(400, function(){
+                        $('.price-fixed').fadeIn(); 
+                    });
+                    $('#itemQty_').val(response.qty);
+                    $('#itemDays_').val(response.days);
+                    $('#itemPrice_').val(response.price);
+                    $('#itemDiscount_').val(response.discount);
+                    $('#itemIva_').val(response.iva);
+                    $('#itemCalculatedByPercent_').val('');
+
+                //Precio por porcentaje:    
+                }else if(!response.price && response.calculated_by_percent > 0){
+                    $('.price-fixed').fadeOut(400, function(){
+                        $('.price-by-percent').fadeIn();    
+                    });
+                    $('#itemCalculatedByPercent_').val(response.calculated_by_percent);
+                    $('#itemPrice_').val('');
+                }
             }
         });
     });
-
-
-
     
     
 });

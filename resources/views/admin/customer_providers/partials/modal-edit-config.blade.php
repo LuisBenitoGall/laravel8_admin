@@ -52,6 +52,14 @@
                         </div>
                     </div>
 
+                    {{-- Riesgo crediticio --}}
+                    <div class="form-group row">
+                        <label for="credit_risk" class="col-lg-12">{!! ucfirst(trans('textos.riesgo_crediticio')) !!}</label>
+                        <div class="col-lg-6">
+                            <x-input type="text" name="credit_risk" class="text-right set-decimals" id="configCreditRisk" autocomplete="off" maxlength="5" group="right" groupvalue="{{ $currency->symbol }}" info="customer-credit-risk"/>
+                        </div>
+                    </div>
+
                     <x-btn-submit name="submit_update_config" label="{{ trans('textos.guardar') }}"/>
                 </form>
             </div>

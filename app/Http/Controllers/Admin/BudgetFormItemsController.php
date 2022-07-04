@@ -3,13 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Helpers\Helpers;
+use App\Helpers\helpers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Yajra\DataTables\DataTables;
 
 //Models:
 use App\Models\BudgetFormItems;
@@ -31,12 +32,12 @@ class BudgetFormItemsController extends Controller{
 
     public function __construct(){
         //Idiomas:
-        $this->languages = Helpers::languages();
+        $this->languages = helpers::languages();
 
         $this->middleware('module_setted:budgets');
         $this->middleware('budget_form_post', ['only' => ['store', 'update']]);
         $this->middleware('budget_form_item_get', ['only' => ['destroy']]);
-        $this->middleware('budget_post', ['only' => ['addBlock']]);
+        $this->middleware('order_post', ['only' => ['addBlock']]);
     }
 
     //0. Validator:
@@ -58,7 +59,7 @@ class BudgetFormItemsController extends Controller{
         //Validación añadir bloque desde presupuesto:
         }elseif(isset($data['submit-add-block'])){
             return Validator::make($data, [ 
-                'budget_id' => 'required|integer', 
+                'order_id' => 'required|integer', 
                 'name' => 'required|string|max:255' 
             ]); 
         }
@@ -79,7 +80,8 @@ class BudgetFormItemsController extends Controller{
                     DB::raw('(SELECT t.name FROM budget_form_items AS t WHERE budget_form_items.recid = t.id) AS Bloque'),
                     'budget_form_items.*',
                     'products.name AS productName',
-                    'products.price'
+                    'products.price',
+                    'products.calculated_by_percent AS price_by_percent'
                 )
                 ->leftJoin('products', 'budget_form_items.product_id', '=', 'products.id')
                 ->where('budget_form_items.form_id', $form_id)
@@ -218,20 +220,20 @@ class BudgetFormItemsController extends Controller{
             //Indicamos el origen de la acción realizada para manejar el modal:
             $validator->getMessageBag()->add('accion', 'modal-add-block');
 
-            return redirect('admin/budgets/'.$request->budget_id.'/edit')
+            return redirect('admin/budgets/'.$request->order_id.'/edit')
                 ->withErrors($validator)
                 ->withInput();
         }
 
-        if($request->budget_id && $request->name){
+        if($request->order_id && $request->name){
             $item = new BudgetFormItems;
             $item->recid = 0;
-            $item->budget_id = $request->budget_id;
+            $item->order_id = $request->order_id;
             $item->name = $request->name;
             $item->save();
 
             $msg = trans('textos.bloque_creado_ok');
-            return redirect()->route('budgets.edit', [$request->budget_id, 'items'])->with(compact('msg'));
+            return redirect()->route('budgets.edit', [$request->order_id, 'items'])->with(compact('msg'));
         }else{
              return redirect()->route('home');    
         }

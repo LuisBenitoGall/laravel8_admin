@@ -12,7 +12,7 @@
 				...
 			--}}
 
-			@if($patterns && $shared->provider_id == session('currentCompany'))
+			@if($patterns && $order->provider_id == session('currentCompany'))
 				@if($patterns->count())
 					@php
 					$patterns_ = [];

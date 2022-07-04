@@ -3,8 +3,9 @@
 @section('content')
 
 <div class="row mb-3">
+	{{-- Acciones: --}}
 	<div class="col-12">
-		{{-- Acciones: --}}
+		{{-- Proyectos: --}}
 		@can('projects.index')
 			<a href="{{ route('projects.index') }}" class="btn btn-info">
 				<i class="fa fa-angle-left"></i>
@@ -70,11 +71,11 @@
         @endcan
 
         {{-- Presupuestos y pedidos --}}
-        @if($budgets_orders->count())
+        @if($orders->count())
         	@php
         	$budgets = [];
         	$orders = [];
-        	foreach($budgets_orders as $bo){
+        	foreach($orders as $bo){
         		if($bo->budgetId){
         			$budgets[$bo->budgetId] = $bo->budget_num? $bo->budget_num:trans('textos.presupuesto').' '.$bo->budgetId;
         		}

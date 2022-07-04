@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Yajra\DataTables\DataTables;
 use Carbon\Carbon;
 use File;
 use PDF;
@@ -76,8 +77,8 @@ class BudgetController extends Controller{
         $this->languages = helpers::languages();
 
         $this->middleware('module_setted:budgets');
-        $this->middleware('order_get', ['only' => ['edit', 'update', 'destroy', 'resetNum', 'removeOcDoc', 'createOrder', 'removeTemplate', 'print', 'modify']]);
-        $this->middleware('order_post', ['only' => ['addManager', 'updateComments', 'updateTemplate', 'setProvider', 'setModality', 'copy', 'setBlock']]);
+        $this->middleware('order_get', ['only' => ['edit', 'update', 'destroy', 'resetNum', 'removeOcDoc', 'createOrder', 'removeTemplate', 'print', 'modify', 'updateTemplate']]);
+        $this->middleware('order_post', ['only' => ['addManager', 'updateComments', 'setProvider', 'setModality', 'copy', 'setBlock']]);
     }
 
     //0. Validator:
@@ -113,7 +114,6 @@ class BudgetController extends Controller{
         //Validación template:
         }elseif(isset($data['submit_update_template'])){
             return Validator::make($data, [
-                'order_id' => 'required|integer',
                 'template_id' => 'nullable|integer'
             ]); 
         
@@ -166,10 +166,10 @@ class BudgetController extends Controller{
     /**
      * 1.1. Listado de presupuestos para DataTable.
      */
-    public function getBudgetsDT($from){
+    public function getBudgetsDT($from = false){
         //Presupuestos para cliente:
         if($from == 'customers'){
-            $query = Order::select('orders.id', 'orders.discount',  'orders.budget_num', 'orders.budget_old_num', 'orders.name', 'orders.budget_status', 'orders.modality', 'orders.created_at', 'companies.name AS Company', 'orders.id AS orderId', 'orders.order_num','orders.invoiced', 'users.name As Nombre', 'users.surname', 'u_.name AS CustomerManagerName', 'u_.surname AS CustomerManagerSurname')
+            $query = Order::select('orders.id', 'orders.discount', 'orders.budget_num', 'orders.budget_old_num', 'orders.name', 'orders.budget_status', 'orders.modality', 'orders.created_at', 'companies.name AS company', 'orders.id AS orderId', 'orders.order_num','orders.invoiced', 'users.name As Nombre', 'users.surname', 'u_.name AS CustomerManagerName', 'u_.surname AS CustomerManagerSurname')
             ->join('companies', 'orders.customer_id', '=', 'companies.id')
             ->leftJoin('users', 'orders.provider_manager_id', '=', 'users.id')
             ->leftJoin('users AS u_', 'orders.customer_manager_id', '=', 'u_.id')
@@ -177,24 +177,16 @@ class BudgetController extends Controller{
             ->where('orders.provider_id', session('currentCompany'));
 
         //Presupuestos de proveedor:
-        }else{
-            $query = Order::select('orders.*', 'companies.name AS Company', 'users.name As Nombre', 'users.surname')
+        }elseif($from == 'providers'){
+            $query = Order::select('orders.*', 'companies.name AS company', 'users.name As Nombre', 'users.surname')
             ->join('companies', 'orders.provider_id', '=', 'companies.id')
             ->leftJoin('users', 'orders.customer_manager_id', '=', 'users.id')
+            ->where('orders.is_budget', true)
             ->where('orders.customer_id', session('currentCompany'));
         }
-        $budgets = $query->get(); 
+        $budgets = $query; 
 
-        //Permisos del usuario:
-        $editar = Auth::user()->can('budgets.edit');
-        $eliminar = Auth::user()->can('budgets.destroy');
-
-        $arrEstados = helpers::budgetStatus();
-        //Pasamos array a string con los índices:
-        $strEstados = '';
-        foreach($arrEstados as $idx => $est){
-            $strEstados .= $idx.'|'.$est.';';
-        }
+        $estados = helpers::budgetStatus();
 
         //Moneda:
         $currency = CompanySettings::co_currency(0);
@@ -206,36 +198,30 @@ class BudgetController extends Controller{
             20 => trans('textos.catalogo')
         ];
 
-        //Ampliación de información de los objetos:
-        if($budgets){
-            foreach($budgets as $row){
-                //Enviamos las fechas ya formateadas:
-                $row->alta = $row->created_at->format($this->languages[session()->get('locale')][4]);
-
-                //Importe:
-                $arr_amounts = $row->getAmount();    
-                $row->amount = $arr_amounts['amount_with_discount'].$currency->symbol;
-
-                //Estado:
-                $row->estado = $row->budget_status? $arrEstados[$row->budget_status]:'';
-                $row->estados = $row->budget_status.';'.$strEstados;
-
-                //Modalidad:
-                $row->modalidad = $row->modality? ucfirst($abrev[$row->modality]):''; 
-
-                //Permisos para las acciones:
-                $row->editar = $editar;
-                $row->eliminar = $eliminar;
-
-                //Entorno del presupuesto: cliente o proveedor:
-                $row->from = $from;
-
-                //Estado del presupuesto:
-                $row->budget_status = $row->budget_status? ucfirst(helpers::budgetStatus($row->budget_status)):'';
-            }
-        }
-
-        return datatables($budgets)->toJson();
+        return DataTables::of($budgets)
+        ->addColumn('num', function($budget) use($from){
+            return view('admin.budgets.partials.dt-num', compact('budget', 'from')); 
+        })
+        ->addColumn('amount', function($budget) use($currency){
+            $amount = $budget->getAmount();    
+            return $amount['amount_with_discount'].$currency->symbol;
+        })
+        ->addColumn('modalidad', function($budget) use($abrev){
+            return ucfirst($abrev[$budget->modality]);
+        })
+        ->addColumn('manager', function($budget){
+            return $budget->Nombre.' '.$budget->surname;
+        })
+        ->addColumn('alta', function($budget){
+            return $budget->created_at->format($this->languages[session()->get('locale')][4]);    
+        })
+        ->addColumn('estado', function($budget) use($estados){
+            return view('admin.budgets.partials.dt-status', compact('budget', 'estados'));    
+        })
+        ->addColumn('acciones', function($budget) use($estados){
+            return view('admin.budgets.partials.dt-actions', compact('budget', 'estados'));    
+        })
+        ->make(true);
     }
 
     /**
@@ -308,6 +294,9 @@ class BudgetController extends Controller{
 
         //Items por defecto en los presupuestos:
         $this->setDefaultItems($budget);
+
+        //Descuento por defecto:
+        $budget->setDefaultDiscount();
 
         return redirect()->route('budgets.edit', $budget);
     }
@@ -608,6 +597,7 @@ class BudgetController extends Controller{
         $order->description = $request->description;
         $order->customer_manager_id = $request->customer_manager_id;
         $order->customer_workplace_id = $request->customer_workplace_id;
+        $order->customer_cost_center_id = $request->customer_cost_center_id;
         $order->customer_business_area_id = $request->customer_business_area_id;
         $order->customer_order = $request->customer_order;
         if($customer_order_doc){
@@ -654,18 +644,18 @@ class BudgetController extends Controller{
     /**
      * 7. Resetear numeración del presupuesto.
      */
-    public function resetNum(Budget $budget){
+    public function resetNum(Order $order){
         //Eliminamos también en versiones:
-        Order::where('recid', $budget->id)
+        Order::where('recid', $order->id)
         ->update(['budget_num' => NULL]);
 
-        $budget->budget_num = NULL;
-        $budget->num_cardinal = NULL;
-        $budget->pattern_id = NULL;
-        $budget->save();
+        $order->budget_num = NULL;
+        $order->budget_num_cardinal = NULL;
+        $order->budget_pattern_id = NULL;
+        $order->save();
 
         $msg = trans('textos.numero_deleted');
-        return redirect()->route('budgets.edit', $budget)->with(compact('msg'));
+        return redirect()->route('budgets.edit', $order)->with(compact('msg'));
     }
 
     /**
@@ -696,8 +686,7 @@ class BudgetController extends Controller{
         $user->assignRole(config('constants.ROLE_ID_'));
 
         //Actualizamos responsable de cliente en el proyecto:
-        $order = Order::select('id', 'customer_id', 'customer_manager_id')
-        ->where('id', $request->order_id)->first();
+        $order = Order::select('id', 'customer_id', 'customer_manager_id')->find($request->order_id);
         $order->customer_manager_id = $user->id;
         $order->save(); 
 
@@ -824,7 +813,7 @@ class BudgetController extends Controller{
         // }
 
         $msg = trans('textos.presupuesto_creado');
-        return redirect()->route('budgets.edit', $budget)->with(compact('msg'));
+        return redirect()->route('budgets.edit', $order)->with(compact('msg'));
     }
 
     /**
@@ -851,7 +840,7 @@ class BudgetController extends Controller{
     public function updateTemplate(Request $request, Order $order){
         $validator = $this->validator($request->all());
         if($validator->fails()){
-            return redirect('admin/budgets/'.$budget->id.'/edit/template')
+            return redirect('admin/budgets/'.$order->id.'/edit/template')
                 ->withErrors($validator)
                 ->withInput();
         }
@@ -859,7 +848,7 @@ class BudgetController extends Controller{
         //Si viene declarada la plantilla:
         if($request->template_id){
             //Plantilla original:
-            if($budget->template_id == $request->template_id){
+            if($order->budget_template_id == $request->template_id){
                 $template = [
                     'conditions' => $request->conditions, 
                     'payment_method' => $request->payment_method,
@@ -890,8 +879,8 @@ class BudgetController extends Controller{
 
         $template = serialize($template);
 
-        $order->template_id = $request->template_id;
-        $order->template = $template;
+        $order->budget_template_id = $request->template_id;
+        $order->budget_template = $template;
         $order->save();
 
         $msg = trans('textos.pedido_updated');
@@ -1025,15 +1014,15 @@ class BudgetController extends Controller{
         $locale = session()->get('locale')? session()->get('locale'):App::getLocale();
 
         //Según la modalidad de presupuesto utiliza una plantilla u otra:
-        if($budget->modality == config('constants.BUDGET_BASIC_MODALITY_')){
+        if($order->modality == config('constants.BUDGET_BASIC_MODALITY_')){
             $pdf = PDF::loadView('pdf/budget-free', compact('order', 'company', 'customer', 'template', 'fechaLiteral', 'company_settings', 'provider_workplace', 'customer_workplace', 'provider_phones', 'manager_provider', 'manager_customer', 'blocks', 'itemsSelected', 'currency', 'bg_color', 'locale'));
             return $pdf->download($pdf_title.'.pdf');
 
-        }elseif($budget->modality == config('constants.BUDGET_FORM_MODALITY_')){
+        }elseif($order->modality == config('constants.BUDGET_FORM_MODALITY_')){
             $pdf = PDF::loadView('pdf/budget-by-form', compact('order', 'provider', 'customer', 'template', 'fechaLiteral', 'blocks', 'itemsSelected', 'arrRecid', 'amountWithoutPercentItems', 'fecha', 'company_settings', 'provider_workplace', 'customer_workplace', 'provider_phones', 'provider_manager', 'customer_manager', 'blocks', 'itemsSelected', 'currency', 'bg_color', 'noPriceLinesTexts', 'locale'));
             return $pdf->download($pdf_title.'.pdf');  
 
-        }elseif($budget->modality == config('constants.BUDGET_CATALOGUE_MODALITY_')){
+        }elseif($order->modality == config('constants.BUDGET_CATALOGUE_MODALITY_')){
             $pdf = PDF::loadView('pdf/budget-catalogue', compact('order', 'company', 'customer', 'template', 'fechaLiteral', 'company_settings', 'provider_workplace', 'customer_workplace', 'provider_phones', 'manager_provider', 'manager_customer', 'blocks', 'itemsSelected', 'currency', 'bg_color', 'locale'));
             return $pdf->download($pdf_title.'.pdf');
         }
@@ -1172,17 +1161,17 @@ class BudgetController extends Controller{
     public function setProvider(Request $request){
         $validator = $this->validator($request->all());
         if($validator->fails()){
-            return redirect('admin/budgets/'.$request->budget_id.'/edit')
+            return redirect('admin/budgets/'.$request->order_id.'/edit')
                 ->withErrors($validator)
                 ->withInput();
         }
         
-        $order = Order::select('id', 'order_id', 'provider_id', 'provider_manager_id', 'provider_workplace_id', 'provider_cost_center_id', 'provider_business_area_id', 'provider_project_id', 'provider_team', )->where('budget_id', $request->budget_id)->first();
+        $order = Order::select('id', 'is_order', 'provider_id', 'provider_manager_id', 'provider_workplace_id', 'provider_cost_center_id', 'provider_business_area_id', 'provider_project_id', 'provider_team', )->find($request->order_id);
 
         //Comprobamos que no exista pedido:
-        if($order->order_id){
+        if($order->is_order){
             $alert = trans('textos.proveedor_cambio_error');
-            return redirect()->route('budgets.edit', $request->budget_id)->with(compact('alert'));    
+            return redirect()->route('budgets.edit', $request->order_id)->with(compact('alert'));    
         }
 
         $order->provider_id = $request->company_id;
@@ -1198,7 +1187,7 @@ class BudgetController extends Controller{
         session(['currentCompany' => $request->company_id]);
 
         $msg = trans('textos.presupuesto_updated');
-        return redirect()->route('budgets.edit', $request->budget_id)->with(compact('msg'));
+        return redirect()->route('budgets.edit', $request->order_id)->with(compact('msg'));
     }
 
     /**
@@ -1209,18 +1198,18 @@ class BudgetController extends Controller{
     public function setModality(Request $request){
         $validator = $this->validator($request->all());
         if($validator->fails()){
-            return redirect('admin/budgets/'.$request->budget_id.'/edit')
+            return redirect('admin/budgets/'.$request->order_id.'/edit')
                 ->withErrors($validator)
                 ->withInput();
         }
 
-        $budget = Order::find($request->budget_id);
-        $budget->modality = $request->modality;
-        $budget->form_id = $request->form_id;
-        $budget->save();
+        $order = Order::select('id', 'modality', 'form_id')->find($request->order_id);
+        $order->modality = $request->modality;
+        $order->form_id = $request->form_id;
+        $order->save();
 
         $msg = trans('textos.presupuesto_updated');
-        return redirect()->route('budgets.edit', $budget)->with(compact('msg'));
+        return redirect()->route('budgets.edit', $order)->with(compact('msg'));
     }
 
     /**
@@ -1240,6 +1229,7 @@ class BudgetController extends Controller{
 
         //Nuevo presupuesto:
         $new_budget = new Order();
+        $new_budget->is_budget = true;
         $new_budget->name = $order->name.' - '.trans('textos.copia');
         $new_budget->slug = $order->slug.'-'.trans('textos.copia');
         $new_budget->modality = $order->modality;
@@ -1247,8 +1237,8 @@ class BudgetController extends Controller{
         $new_budget->comments = $order->comments;
         $new_budget->form_id = $order->form_id;    
         $new_budget->created_by = Auth::user()->id; 
-        $new_budget->template_id = $order->template_id;
-        $new_budget->template = $order->template;
+        $new_budget->budget_template_id = $order->template_id;
+        $new_budget->budget_template = $order->template;
         $new_budget->customer_id = $request->customer;
         $new_budget->provider_id = session('currentCompany');
         $new_budget->provider_manager_id = Auth::user()->id;
@@ -1256,9 +1246,9 @@ class BudgetController extends Controller{
         $new_budget->provider_cost_center_id = $order->provider_cost_center_id;
         $new_budget->provider_business_area_id = $order->provider_business_area_id;
         $new_budget->provider_team = $order->provider_team;
-        $new_budget->discount = $order->discount;
-        $new_budget->discount_amount = $order->discount_amount;
-        $new_budget->updated_by = Auth::user()->id;
+        //$new_budget->discount = $order->discount;
+        //$new_budget->discount_amount = $order->discount_amount;
+        //$new_budget->updated_by = Auth::user()->id;
         $new_budget->save();
 
         foreach($items as $i){

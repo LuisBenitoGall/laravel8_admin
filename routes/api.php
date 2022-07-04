@@ -121,7 +121,7 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     Route::get('order-groups/{customer}/{year}', 'OrderGroupsController@getGroupsDT');
 
     //OrderItems:
-    Route::get('order-items/{order}', 'OrderController@getItemsDT');
+    Route::get('order-items/{order}/{environment}', 'OrderController@getItemsDT');
 
     //OrderPatterns:
     Route::get('order-patterns', 'OrderPatternsController@getPatternsDT');

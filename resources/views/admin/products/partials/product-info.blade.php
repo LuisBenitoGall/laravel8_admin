@@ -79,11 +79,22 @@
 		<div class="col-lg-2">
 			<x-input type="text" name="manual_ref" value="{{ $product->manual_ref }}" autocomplete="off" maxlength="255" info="product-referencia-manual"/>
 		</div>
+	</div>
 
+	<div class="form-group row">
 		{{-- Precio --}}
-		<label for="price" class="col-lg-1 col-form-label">{!! ucfirst(trans('textos.precio')) !!}</label>
-		<div class="col-lg-1 sinpadding-right">
-			<x-input type="text" name="price" class="text-right set-decimals" value="{{ $product->price }}" autocomplete="off" maxlength="8" group="right" groupvalue="{{ $currency->symbol }}"/>
+		<label for="price" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.precio')) !!}</label>
+		<div class="col-lg-2">
+			<x-input type="text" name="price" class="text-right set-decimals" id="price" value="{{ $product->price }}" autocomplete="off" maxlength="8" group="right" groupvalue="{{ $currency->symbol }}"/>
+		</div>
+
+		{{-- Precio por porcentaje --}}
+		<label for="calculated_by_percent" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.por_porcentaje')) !!}</label>
+		<div class="col-lg-2">
+			@php
+			$disabled = $product->price > 0? true:false;
+			@endphp
+			<x-input type="text" name="calculated_by_percent" class="text-right set-decimals" id="priceByPercent" value="{{ $product->calculated_by_percent }}" autocomplete="off" maxlength="5" group="right" groupvalue="%" disabled="{{ $disabled }}" info="product-price-by-percent"/>
 		</div>
 
 		{{-- IVA --}}

@@ -1,7 +1,6 @@
 <form method="post" autocomplete="off" action="{{ route('budgets.update-template', $order) }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
 	@method('PUT')
     {{ csrf_field() }}
-    <input type="hidden" name="budget_id" value="{{ $order->id }}">
 
     <div class="row">
     	<div class="col-md-10 offset-md-2">
@@ -23,7 +22,7 @@
 				@endphp	
 			@endforeach
 
-			<x-select name="template_id" class="select2" :options="$templates_" label="plantilla_selec" value="{{ $order->template_id }}" required/>
+			<x-select name="template_id" class="select2" :options="$templates_" label="plantilla_selec" value="{{ $order->budget_template_id }}" required/>
 		</div>
 
 		{{-- Reset valores originales de la plantilla --}}
@@ -38,7 +37,7 @@
 	<hr>
 
 	@php
-	$template = $order->template? unserialize($order->template):false;
+	$template = $order->budget_template? unserialize($order->budget_template):false;
 	@endphp
 
 	{{-- Condiciones --}}

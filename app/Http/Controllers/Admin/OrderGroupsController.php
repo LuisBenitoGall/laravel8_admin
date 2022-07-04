@@ -9,11 +9,10 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Yajra\DataTables\DataTables;
 use File;
 
 //Models:
-use App\Models\Budget;
-use App\Models\BudgetOrderSharedFields;
 use App\Models\Company;
 use App\Models\CompanySettings;
 use App\Models\CustomerProviders;
@@ -138,7 +137,7 @@ class OrderGroupsController extends Controller{
                 return redirect()->route('order-groups.index')->with(compact('alert'));   
                 exit;
             }else{
-                return redirect()->route('order-groups.edit', $og->id);    
+                return redirect()->route('orders.edit', $og->id);    
                 exit;   
             }
         }
@@ -155,20 +154,13 @@ class OrderGroupsController extends Controller{
             exit;
         }
 
-        $groups = Order::select('orders.id', 'orders.order_num', 'orders.name', 'orders.created_at', 'orders.bag_amount', 'orders.status')
-        ->join('budget_order_shared_fields', 'orders.id', '=', 'budget_order_shared_fields.order_id')
-        ->where('budget_order_shared_fields.customer_id', $customer)
-        ->where('budget_order_shared_fields.provider_id', session('currentCompany'))
+        $orders = Order::select('orders.id', 'orders.order_num', 'orders.order_old_num', 'orders.name', 'orders.created_at', 'orders.bag_amount', 'orders.order_status')
+        ->where('orders.customer_id', $customer)
+        ->where('orders.provider_id', session('currentCompany'))
         ->where('orders.is_group', 1)
-        ->whereYear('orders.created_at', '=', $year)
-        ->get();
+        ->whereYear('orders.created_at', '=', $year);
 
-        $arrEstados = helpers::orderGroupStatus();
-        //Pasamos array a string con los índices:
-        $strEstados = '';
-        foreach($arrEstados as $idx => $est){
-            $strEstados .= $idx.'|'.$est.';';
-        }
+        $estados = helpers::orderGroupStatus();
 
         //Permisos del usuario:
         $editar = Auth::user()->can('orders.edit');
@@ -177,41 +169,54 @@ class OrderGroupsController extends Controller{
         //Moneda:
         $currency = CompanySettings::co_currency(0);
 
+        return DataTables::of($orders)
+        ->addColumn('num', function($order){
+            return view('admin.orders.partials.dt-num', compact('order')); 
+        })
+        ->addColumn('alta', function($order){
+            return $order->created_at->format($this->languages[session()->get('locale')][4]);    
+        })
+        ->addColumn('group_amount', function($order) use($currency){
+            $amount = $order->getGroupAmount();
+            return $amount.$currency->symbol; 
+        })     
+        ->addColumn('bag_amount', function($order) use($currency){
+            return $order->bag_amount.$currency->symbol; 
+        }) 
+        ->addColumn('estado', function($order) use($estados){
+            return view('admin.orders.partials.dt-status', compact('order', 'estados'));    
+        })
+        ->addColumn('acciones', function($order) use($estados){
+            return view('admin.orders.partials.dt-actions', compact('order', 'estados'));    
+        })
+        ->make(true);
+
+//REVISAR LAS CONDICIONES SIGUIENTES
+
         //Ampliación de información de los objetos:
-        if($groups){
+        if($orders){
             //Comprobamos si tiene activo el módulo de contabilidad para poder facturar el pedido:
             $invoice = $this->settedModule('contabilidad');
 
             foreach($groups as $row){
-                $row->alta = $row->created_at->format('d/m/Y');
 
-                //Estado del pedido:
-                $row->estado = $row->status? ucfirst($arrEstados[$row->status]):'';
-                $row->estados = $row->status.';'.$strEstados;
 
                 //Agrupación abierta:
                 $row->opened = in_array($row->status, config('constants.ORDER_GROUPS_OPENED_'))? true:false;
 
-                $row->group_amount = $row->getGroupAmount($row->id);
 
                 //Facturación de pedido. El pedido debe estar en algún status que permita su facturación:
                 $row->invoice = in_array($row->status, config('constants.ORDER_STATUS_INVOICED_'))? $invoice:false;
-
-                //Permisos para las acciones:
-                $row->editar = $editar;
-                $row->eliminar = $eliminar;
-
-                $row->currency = $currency->symbol;
             }  
         }
 
-        return datatables($groups)->toJson();
+        //return datatables($groups)->toJson();
     }
 
     /**
      * 2. Formulario nueva agrupación.
      */
-    public function create(){
+    public function create($customer_id = false){
         $header = [
             'option' => $this->option, 
             'suboption' => 'textos.agrupacion_nueva',
@@ -229,7 +234,7 @@ class OrderGroupsController extends Controller{
         //Moneda:
         $currency = CompanySettings::co_currency(0);
 
-        return view('admin.order_groups.create')->with(compact('header', 'customers', 'currency')); 
+        return view('admin.order_groups.create')->with(compact('header', 'customers', 'customer_id', 'currency')); 
     }
 
     /**
@@ -273,7 +278,7 @@ class OrderGroupsController extends Controller{
 
         Order::where('id', $request->order_id)
         ->where('invoiced', false)
-        ->update(['parent' => $request->order_group, 'is_group' => false]);
+        ->update(['order_parent' => $request->order_group, 'is_group' => false]);
 
         $msg = trans('textos.pedidos_en_agrupacion');
         return redirect()->route('orders.edit', $request->order_id)->with(compact('msg'));    
@@ -283,9 +288,9 @@ class OrderGroupsController extends Controller{
      * 4. Eliminar pedido de agrupación.
      */
     public function destroy(Request $request, Order $order){
-        $order_parent = $order->parent;
+        $order_parent = $order->order_parent;
 
-        $order->parent = NULL;
+        $order->order_parent = NULL;
         $order->bag_amount = 0;
         $order->save();
 

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Helpers\Helpers;
+use App\Helpers\helpers;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,7 +17,6 @@ use File;
 use PDF;
 
 //Models:
-use App\Models\BudgetOrderSharedFields;
 use App\Models\Company;
 use App\Models\CompanySettings;
 use App\Models\CustomerProviders;
@@ -26,9 +25,9 @@ use App\Models\Group;
 use App\Models\Order;
 use App\Models\Project;
 use App\Models\ProjectDocs;
+use App\Models\ProjectOrders;
 use App\Models\ProjectPatterns;
 use App\Models\ProjectPurchases;
-use App\Models\ProjectShared;
 use App\Models\Task;
 use App\Models\TaskStatus;
 use App\Models\User;
@@ -60,7 +59,7 @@ class ProjectController extends Controller{
 
     public function __construct(){
         //Idiomas:
-        $this->languages = Helpers::languages();
+        $this->languages = helpers::languages();
 
         //Moneda:
         $this->co_currency = CompanySettings::co_currency(0);
@@ -93,7 +92,7 @@ class ProjectController extends Controller{
         //Validar vincular proyecto:
         }elseif(isset($data['submit_add_project'])){
             return Validator::make($data, [
-                'shared_id' => 'required|integer',
+                'order_id' => 'required|integer',
                 'project_id' => 'required|integer'
             ]);
         }
@@ -123,7 +122,7 @@ class ProjectController extends Controller{
         //dd($projects);
 
         //Estados de proyecto:
-        $status = Helpers::projectStatus();
+        $status = helpers::projectStatus();
 
         $view = 'list';
 
@@ -275,14 +274,14 @@ class ProjectController extends Controller{
     /**
      * 3.1. Generar proyecto desde presupuesto-pedido.
      */
-    public function createFromBudgetOrder(BudgetOrderSharedFields $shared){
+    public function createFromBudgetOrder(Order $order){
         //Validamos que el presupuesto - pedido no esté vinculado a ningún otro proyecto:
-        $other_project = $this->validateProjectShared($shared->id);
+        $other_project = $this->validateProjectOrder($order->id);
 
         if($other_project){
             $alert = trans('textos.proyecto_vinculacion_existe_aviso');
             return redirect()->route('projects.index')->with(compact('alert'));
-           exit;
+            exit;
         
         }else{
             $project = new Project();
@@ -293,14 +292,14 @@ class ProjectController extends Controller{
             $project->company_id = session('currentCompany');
             $project->user_id = Auth::user()->id;
             $project->owner = Auth::user()->id;
-            $project->customer_id = $shared->customer_id;
+            $project->customer_id = $order->customer_id;
             $project->save();
 
-            //Vinculamos proyecto a presupuesto-pedido:
-            $project_shared = new ProjectShared();
-            $project_shared->project_id = $project->id;
-            $project_shared->shared_id = $shared->id;
-            $project_shared->save();
+            //Vinculamos proyecto a pedido:
+            $project_order = new ProjectOrders();
+            $project_order->project_id = $project->id;
+            $project_order->order_id = $order->id;
+            $project_order->save();
 
             //Generar .json de proyectos:
             $this->jsonProjects();
@@ -324,7 +323,7 @@ class ProjectController extends Controller{
         }
 
         //Validamos que el presupuesto - pedido no esté vinculado a ningún otro proyecto:
-        $other_project = $this->validateProjectShared($request->shared_id);
+        $other_project = $this->validateProjectOrder($request->order_id);
 
         if($other_project){
             $alert = trans('textos.proyecto_vinculacion_existe_aviso');
@@ -333,9 +332,9 @@ class ProjectController extends Controller{
 
         }else{
             //Vinculamos proyecto a presupuesto-pedido:
-            $project_shared = new ProjectShared();
+            $project_shared = new ProjectOrders();
             $project_shared->project_id = $request->project_id;
-            $project_shared->shared_id = $request->shared_id;
+            $project_shared->order_id = $request->order_id;
             $project_shared->save();
 
             $msg = trans('textos.proyecto_vinculado');
@@ -346,11 +345,11 @@ class ProjectController extends Controller{
     /**
      * 3.3. Validación de proyecto - shared no existente.
      *
-     * Un proyecto puede vincularse a un número indeterminado de presupuestos - pedidos (shared). Cada shared sólo puede vincularse a un proyecto. Por tanto, la relación en la tabla project_shared es única.
+     * Un proyecto puede vincularse a un número indeterminado de pedidos. Cada pedido sólo puede vincularse a un proyecto. Por tanto, la relación en la tabla project_orders es única.
      */
-    public function validateProjectShared($shared_id){
-        $data = ProjectShared::select('id')
-        ->where('shared_id', $shared_id)
+    public function validateProjectOrder($order_id){
+        $data = ProjectOrders::select('id')
+        ->where('order_id', $order_id)
         ->first();
 
         return $data;
@@ -449,20 +448,18 @@ class ProjectController extends Controller{
         ->toArray();
 
         //Presupuestos y pedidos de venta:
-        // $budgets_orders = ProjectShared::select('budgets.id AS budgetId', 'budgets.budget_num', 'orders.id AS orderId', 'orders.order_num', 'project_shareds.created_at')
-        // ->join('budget_order_shared_fields', 'project_shareds.shared_id', '=', 'budget_order_shared_fields.id')
+        // $budgets_orders = ProjectShared::select('orders.id AS budgetId', 'budgets.budget_num', 'orders.id AS orderId', 'orders.order_num', 'project_shareds.created_at')
+        // ->join('budget_order_shared_fields', 'project_shareds.order_id', '=', 'budget_order_shared_fields.id')
         // ->leftJoin('budgets', 'budget_order_shared_fields.budget_id', '=', 'budgets.id')
         // ->leftJoin('orders', 'budget_order_shared_fields.order_id', '=', 'orders.id')
         // ->where('project_shareds.project_id', $project->id)
         // ->get();
 
 
-        $budgets_orders = BudgetOrderSharedFields::select('budget_order_shared_fields.id', 'budget_order_shared_fields.customer_id', 'budgets.id AS budgetId', 'budgets.budget_num', 'budgets.budget_old_num', 'budgets.name', 'budgets.modality', 'budgets.status AS budget_status', 'orders.id AS orderId', 'orders.order_num', 'orders.order_old_num', 'orders.name AS order_name', 'orders.estimated_delivery_date', 'orders.delivery_date', 'orders.status AS order_status', 'project_shareds.created_at', 'users.name AS nombre', 'users.surname')
-        ->join('project_shareds', 'budget_order_shared_fields.id', '=', 'project_shareds.shared_id')
-        ->leftJoin('budgets', 'budget_order_shared_fields.budget_id', '=', 'budgets.id')
-        ->leftJoin('orders', 'budget_order_shared_fields.order_id', '=', 'orders.id')
-        ->leftJoin('users', 'budget_order_shared_fields.provider_manager_id', '=', 'users.id')
-        ->where('project_shareds.project_id', $project->id)
+        $orders = Order::select('orders.id', 'orders.customer_id', 'orders.id AS budgetId', 'orders.budget_num', 'orders.budget_old_num', 'orders.name', 'orders.modality', 'orders.budget_status AS budget_status', 'orders.id AS orderId', 'orders.order_num', 'orders.order_old_num', 'orders.name AS order_name', 'orders.estimated_delivery_date', 'orders.delivery_date', 'orders.order_status', 'orders.created_at', 'users.name AS nombre', 'users.surname')
+        ->join('project_orders', 'orders.id', '=', 'project_orders.order_id')
+        ->leftJoin('users', 'orders.provider_manager_id', '=', 'users.id')
+        ->where('project_orders.project_id', $project->id)
         ->get();
 
         //Cliente: debe ser único. Lo obtenemos de los distintos presupuestos y deben ser el mismo. En caso de más de un cliente, redirigimos para que el usuario seleccione un único cliente:
@@ -476,7 +473,7 @@ class ProjectController extends Controller{
         ];
 
         //Obtenemos importe de cada presupuesto-pedido:
-        foreach($budgets_orders as $row){
+        foreach($orders as $row){
             //Enviamos las fechas ya formateadas:
             $row->fechaEntregaPrevista = Carbon::parse($row->estimated_delivery_date)->format($this->languages[session()->get('locale')][4]);
             $row->fechaEntrega = Carbon::parse($row->delivery_date)->format($this->languages[session()->get('locale')][4]);
@@ -503,29 +500,30 @@ class ProjectController extends Controller{
         }
 
         //Compras del proyecto:
-        $project_purchases = BudgetOrderSharedFields::select('budget_order_shared_fields.id', 'project_purchases.id AS ppId', 'orders.id AS orderId', 'orders.order_num', 'orders.purchase_num', 'purchase_old_num', 'orders.name', 'orders.order_num', 'orders.delivery_date', 'orders.status')
-        ->join('orders', 'budget_order_shared_fields.order_id', '=', 'orders.id')
-        ->join('project_purchases', 'orders.id', '=', 'project_purchases.order_id')
-        ->where('project_purchases.project_id', $project->id)
-        ->get();
+        $purchases = [];
+        // $purchases = Order::select('budget_order_shared_fields.id', 'project_purchases.id AS ppId', 'orders.id AS orderId', 'orders.order_num', 'orders.purchase_num', 'purchase_old_num', 'orders.name', 'orders.order_num', 'orders.delivery_date', 'orders.status')
+        // ->join('orders', 'orders.id', '=', 'orders.id')
+        // ->join('project_purchases', 'orders.id', '=', 'project_purchases.order_id')
+        // ->where('project_purchases.project_id', $project->id)
+        // ->get();
 
         //Compras del proyecto. Array:
         $purchases_linked = [];
-        if($project_purchases->count()){
-            foreach($project_purchases as $pp){
-                array_push($purchases_linked, $pp->orderId);
-            }
-        }
+        // if($project_purchases->count()){
+        //     foreach($project_purchases as $pp){
+        //         array_push($purchases_linked, $pp->orderId);
+        //     }
+        // }
 
         //Compras:
-        $purchases = Order::select('orders.id', 'orders.order_num', 'orders.purchase_num', 'orders.purchase_old_num', 'orders.name')
-        ->join('budget_order_shared_fields', 'orders.id', '=', 'budget_order_shared_fields.order_id')
-        ->join('companies', 'budget_order_shared_fields.provider_id', '=', 'companies.id')
-        ->where('budget_order_shared_fields.customer_id', session('currentCompany'))
-        ->whereNotIn('orders.id', $purchases_linked)
-        ->orderBy('orders.purchase_num', 'ASC')
-        ->orderBy('orders.order_num', 'ASC')
-        ->get();
+        // $purchases = Order::select('orders.id', 'orders.order_num', 'orders.purchase_num', 'orders.purchase_old_num', 'orders.name')
+        // ->join('budget_order_shared_fields', 'orders.id', '=', 'budget_order_shared_fields.order_id')
+        // ->join('companies', 'budget_order_shared_fields.provider_id', '=', 'companies.id')
+        // ->where('budget_order_shared_fields.customer_id', session('currentCompany'))
+        // ->whereNotIn('orders.id', $purchases_linked)
+        // ->orderBy('orders.purchase_num', 'ASC')
+        // ->orderBy('orders.order_num', 'ASC')
+        // ->get();
 
         //Pedidos de proveedores, descontando los pedidos que existan ya entre las compras
         // $purchases_in = [];
@@ -544,7 +542,7 @@ class ProjectController extends Controller{
         //Moneda:
         $currency = $this->co_currency;
 
-        return view('admin.projects.edit', compact('header', 'tab', 'project', 'patterns', 'author', 'owner', 'customer', 'users', 'team', 'team_members', 'tasks', 'task_status', 'groups', 'budgets_orders', 'project_purchases', 'purchases', 'languages', 'currency'));
+        return view('admin.projects.edit', compact('header', 'tab', 'project', 'patterns', 'author', 'owner', 'customer', 'users', 'team', 'team_members', 'tasks', 'task_status', 'groups', 'orders', 'purchases', 'languages', 'currency'));
     }
 
     /**

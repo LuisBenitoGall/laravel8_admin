@@ -52,7 +52,7 @@ class OrderPrevisionsController extends Controller{
      * 2. Recalcular previsiones de facturación.
      */
     public function recalculatePrevisions(Order $order){
-        OrderPrevisions::recalculatePrevisionsPercent($order->id);
+        OrderPrevisions::recalculatePrevisionsPercent($order);
 
         $msg = trans('textos.previsiones_recalculadas');
         return redirect()->route('orders.edit', [$order->id, false])->with(compact('msg')); 

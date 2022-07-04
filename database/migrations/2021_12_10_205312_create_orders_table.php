@@ -55,6 +55,7 @@ class CreateOrdersTable extends Migration{
             $table->date('estimated_delivery_date')->nullable();
             $table->date('delivery_date')->nullable();
             $table->text('briefing')->nullable();
+            $table->text('observations')->nullable();
             //FK:
             $table->unsignedBigInteger('order_template_id')->nullable();
             $table->foreign('order_template_id')->references('id')->on('order_settings');

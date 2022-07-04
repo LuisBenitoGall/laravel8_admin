@@ -79,7 +79,7 @@
 				<label for="status" class="col-lg-3 col-form-label">{!! ucfirst(trans('textos.estado')) !!}</label>
 				<div class="col-lg-3">	
 					@php
-					$estados = App\Helpers\Helpers::projectStatus();
+					$estados = App\Helpers\helpers::projectStatus();
 					@endphp
 
 					<x-select name="status" class="select2" label="indica_estado" :options="$estados" value="{{ $project->status }}"/>

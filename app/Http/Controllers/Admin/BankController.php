@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Yajra\DataTables\DataTables;
 
 //Models:
 use App\Models\Bank;
@@ -75,19 +76,13 @@ class BankController extends Controller{
      * 1.1. Listado de bancos para DataTable.
      */
     public function getBanksDT(){
-        $data = Bank::orderBy('name', 'ASC')->get();
+        $banks = Bank::orderBy('name', 'ASC');
 
-        //Permisos del usuario:
-        $editar = Auth::user()->can('banks.edit');
-        $eliminar = Auth::user()->can('banks.destroy');
-
-        foreach($data as $row){
-            //Permisos para las acciones:
-            $row->editar = $editar;
-            $row->eliminar = $eliminar;
-        }
-
-        return datatables($data)->toJson();
+        return DataTables::of($banks)
+        ->addColumn('acciones', function($bank){
+            return view('admin.banks.partials.dt-actions', compact('bank'));    
+        })
+        ->make(true);
     }
 
     /**

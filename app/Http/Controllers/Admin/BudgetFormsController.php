@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Yajra\DataTables\DataTables;
 use File;
 
 //Models:
@@ -148,7 +149,7 @@ class BudgetFormsController extends Controller{
         ->toArray();
 
         //Sólo los productos que no pertenezcan al formulario, activos y en venta.
-        $products = Product::select('id', 'name', 'translations', 'price')
+        $products = Product::select('id', 'name', 'translations', 'price', 'calculated_by_percent')
         ->where('company_id', session('currentCompany'))
         ->where('status', 1)
         ->where('on_sale', 1)

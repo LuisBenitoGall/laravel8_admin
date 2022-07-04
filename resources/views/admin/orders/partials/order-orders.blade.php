@@ -31,12 +31,12 @@
 						{{-- Número pedido --}}
 						<td class="text-right">
 							@can('orders.edit')
-								<a target="_blank" href="{{ route('orders.edit', $oig->orderId) }}"> 
+								<a target="_blank" href="{{ route('orders.edit', $oig->id) }}"> 
 							@endcan
 								@if($oig->order_num)
 									{{ $oig->order_num }}
 								@else
-									{{ $oig->orderId }}
+									{{ $oig->id }}
 								@endif
 							@can('orders.edit')
 								</a> 
@@ -51,14 +51,14 @@
 						{{-- Presupuesto --}}
 						<td class="text-right">
 							@can('budgets.edit')
-								@if($oig->budgetId)
-									<a target="_blank" href="{{ route('budgets.edit', $oig->budgetId) }}"> 
+								@if($oig->id)
+									<a target="_blank" href="{{ route('budgets.edit', $oig->id) }}"> 
 								@endif
 							@endcan
 								@if($oig->budget_num)
 									{{ $oig->budget_num }}
 								@else
-									{{ $oig->budgetId }}
+									{{ $oig->id }}
 								@endif
 							@can('budgets.edit')
 								</a> 
@@ -122,7 +122,7 @@
 
 						{{-- Estado --}}
 						<td>
-							<span class="xoption-{{ $oig->orderId }}">
+							<span class="xoption-{{ $oig->id }}">
 								@if(array_key_exists($oig->status, $orderStatus)) 
 									{!! $orderStatus[$oig->status] !!}
 								@endif
@@ -133,7 +133,7 @@
 						<td class="text-right">
 							@can('orders.edit')
                    				{{-- Estado --}}
-								<x-select-status :options="$orderStatus" id="{{ $oig->orderId }}" />
+								<x-select-status :options="$orderStatus" id="{{ $oig->id }}" />
 
 								{{-- Editar --}}
 								<a target="_blank" href="{{ route('orders.edit', $oig->id) }}" class="btn btn-xs btn-info close-animation" rel="tooltip" title="{!! ucfirst(trans('textos.pedido_editar')) !!}">
@@ -145,8 +145,8 @@
                         			2. Debe estar en estado válido para facturación.
 									...
                         		--}}
-                        		@if(!$oig->invoiced && !in_array($oig->status, config('constants.ORDER_STATUS_INVOICED_')))
-									<form method="POST" action="{{ route('order-groups.destroy', $oig->orderId) }}" class="frm-inline" role="form" accept-charset="UTF-8">
+                        		@if(!$oig->invoiced && !in_array($oig->order_status, config('constants.ORDER_STATUS_INVOICED_')))
+									<form method="POST" action="{{ route('order-groups.destroy', $oig->id) }}" class="frm-inline" role="form" accept-charset="UTF-8">
 	                        			<input name="_method" type="hidden" value="DELETE">
 	                        			<input type="hidden" name="return" value="order-group">
 	                        			{{ csrf_field() }}

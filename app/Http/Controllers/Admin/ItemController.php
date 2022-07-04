@@ -11,10 +11,8 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
 //Models:
-use App\Models\Budget;
 use App\Models\BudgetFormItems;
 use App\Models\BudgetForms;
-use App\Models\BudgetOrderSharedFields;
 use App\Models\CompanySettings;
 use App\Models\Item;
 use App\Models\Order;
@@ -33,13 +31,14 @@ class ItemController extends Controller{
      * 4. Obtener item por ajax.
      * 5. Actualizar item.
      * 6. Importar líneas de pedido desde .xls.
+     * 7. Estado de item.
      */
     
     private $languages;
 
     public function __construct(){
         //Idiomas:
-        $this->languages = Helpers::languages();
+        $this->languages = helpers::languages();
 
         $this->middleware('module_setted:budgets');
         $this->middleware('item_get', ['only' => ['destroy', 'copy']]);
@@ -73,32 +72,23 @@ class ItemController extends Controller{
      * @return \Illuminate\Http\Response
      */
     public function destroy(Request $request, Item $item){
-        $shared = BudgetOrderSharedFields::select('budget_id', 'order_id')
-        ->find($item->budget_order_id);
-
-        $order_id = $shared->order_id;
-        $budget_id = $shared->budget_id;
-
         //Se eliminan líneas que no hayan sido facturadas:
         if(!$item->invoiced){
             //Borrado definitivo:
             $item->forcedelete();
 
-            //Recalculamos las líneas del presupuesto que se calculan por porcentaje:
-            //if($budget) $budget->calculatePercentageItems();
-
             $msg = trans('textos.linea_deleted');
             if($request->environment == 'budgets'){
-                return redirect()->route('budgets.edit', [$budget_id, 'items'])->with(compact('msg'));
+                return redirect()->route('budgets.edit', [$item->order_id, 'items'])->with(compact('msg'));
             }else{
-                return redirect()->route('orders.edit', [$order_id, 'items'])->with(compact('msg')); 
+                return redirect()->route('orders.edit', [$item->order_id, 'items'])->with(compact('msg')); 
             }   
         }else{
             $alert = trans('textos.linea_facturada_alert');
             if($request->environment == 'budgets'){
-                return redirect()->route('budgets.edit', [$budget_id, 'items'])->with(compact('alert'));
+                return redirect()->route('budgets.edit', [$item->order_id, 'items'])->with(compact('alert'));
             }else{
-                return redirect()->route('orders.edit', [$order_id, 'items'])->with(compact('alert')); 
+                return redirect()->route('orders.edit', [$item->order_id, 'items'])->with(compact('alert')); 
             }       
         }
     }
@@ -159,10 +149,10 @@ class ItemController extends Controller{
                 ->withErrors($validator)
                 ->withInput();    
             }
-        }   
+        } 
 
         //Producto:
-        $product = $request->product_id? Product::select('name')->find($request->product_id):false;
+        $product = $request->product_id? Product::select('name', )->find($request->product_id):false;
 
         //Si la línea pertenece a un presupuesto tipo formulario con bloques, la línea se incorpora a un bloque genérico:
         $order = Order::select('id', 'modality')->find($request->order_id);
@@ -209,11 +199,12 @@ class ItemController extends Controller{
         $item->budget_order = $budget_order;
         $item->concept = $product? $product->name:$request->concept;
         $item->observations = $request->observations;
-        $item->qty = $request->qty;
+        $item->qty = $request->calculated_by_percent? 1:$request->qty;      //La cantidad siempre es 1 para precios calculados por porcentaje.
         $item->price = $request->price;
         $item->days = $request->days? $request->days:'0';
         $item->iva = $request->iva? $request->iva:CompanySettings::co_iva();
         $item->discount = $request->discount > 0? $request->discount:NULL;
+        $item->calculated_by_percent = $request->price? NULL:$request->calculated_by_percent;
         $item->user_id = Auth::user()->id;
         $item->save();
 
@@ -300,6 +291,18 @@ class ItemController extends Controller{
 
         $msg = trans('textos.importacion_ok');
         return redirect()->route('orders.edit', $shared->order_id)->with(compact('msg'));
+    }
+
+    /**
+     * 7. Estado de item.
+     */
+    public function status(Request $request, Item $item, $status){
+        if($request->ajax()){   
+            $item->status = $status;
+            $item->save();
+
+            return response()->json(true);
+        }
     }
 
 }

@@ -195,6 +195,16 @@ $(function(){
             }
         });     
     });
+
+    //Toggle precio por porcentaje.
+    $('#price').on('change', function(){
+    	var price = $(this).val();
+    	if(price != ''){
+    		$('#priceByPercent').prop('disabled', true).val('');
+    	}else{
+    		$('#priceByPercent').prop('disabled', false);	
+    	}
+    });
 });
 </script>
 @endpush

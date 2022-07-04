@@ -47,6 +47,7 @@ class Helpers{
 	 *  3.18. Estados de productos de orden de trabajo.
 	 *  3.19. Modalidades de factura.
 	 *  3.20. Estados de factura.
+	 *  3.21. Métodos de pago.
 	 *
 	 * 4. Strings:
 	 * 	4.1. Truncar texto.
@@ -852,6 +853,22 @@ class Helpers{
 		}else{
 			return $data;
 		}		
+	}
+
+	/**
+	 * 3.21. Métodos de pago.
+	 */
+	public static function paymentMethods($method = false){
+		$data = [
+			1 => trans('textos.transferencia_bancaria'),
+			10 => trans('textos.efectivo'),
+			20 => trans('textos.talon_bancario')
+		];
+		if($method){
+			return $data[$method];
+		}else{
+			return $data;
+		}	
 	}
 
 	/**

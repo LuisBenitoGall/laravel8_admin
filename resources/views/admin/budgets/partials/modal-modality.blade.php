@@ -10,8 +10,8 @@
 
                 <form method="post" autocomplete="off" action="{{ route('budgets.set-modality') }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
                     {{ csrf_field() }}
-                    <input type="hidden" name="budget_id" value="{{ $budget->id }}">
-                    <input type="hidden" name="customer" id="formCustomerId" value="{{ $shared->customer_id }}">
+                    <input type="hidden" name="order_id" value="{{ $order->id }}">
+                    <input type="hidden" name="customer" id="formCustomerId" value="{{ $order->customer_id }}">
                     <input type="hidden" id="numForms" value="{{ $forms->count() }}">
 
                     <div class="form-group row">

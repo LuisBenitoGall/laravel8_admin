@@ -70,43 +70,47 @@
 
 					<div class="form-group row">
 						{{-- Cantidad --}}
-                    	<label for="qty" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.cantidad')) !!} *</label>
-						<div class="col-lg-2">
+                    	<label for="qty" class="col-lg-2 col-form-label price-fixed">{!! ucfirst(trans('textos.cantidad')) !!} *</label>
+						<div class="col-lg-2 price-fixed">
 							<x-input type="text" name="qty" class="text-right set-decimals" autocomplete="off" maxlength="10" value="1" required/>
 						</div>
 
 						{{-- Jornadas --}}
-						<label for="days" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.jornadas')) !!}</label>
-						<div class="col-lg-2">
+						<label for="days" class="col-lg-2 col-form-label price-fixed">{!! ucfirst(trans('textos.jornadas')) !!}</label>
+						<div class="col-lg-2 price-fixed">
 							<x-input type="text" name="days" class="text-right set-decimals" autocomplete="off" maxlength="10"/>
 						</div>
 
 						{{-- Precio --}}
-						<label for="price" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.precio_unidad')) !!} </label>
-						<div class="col-lg-2">
+						<label for="price" class="col-lg-2 col-form-label price-fixed">{!! ucfirst(trans('textos.precio_unidad')) !!} </label>
+						<div class="col-lg-2 price-fixed">
 							@php
 							$readonly = session('currentCompany') == $order->customer_id? true:false;
 							@endphp
 
 							<x-input type="text" name="price" class="text-right set-decimals" autocomplete="off" maxlength="10" id="productPrice" value="0.00" group="right" groupvalue="{{ $currency->symbol }}" readonly="{{ $readonly }}"/>
 						</div>
+
+						{{-- Los inputs de precio por porcentaje se muestran en el siguiente bloque, por una cuestión de coherencia en la maquetación. --}}
 					</div>
 
 					@if(session('currentCompany') == $order->provider_id)
 						<div class="form-group row">
 							{{-- Descuento --}}
 							@if(!$order->discount)
-								<label for="discount" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.descuento')) !!} </label>
-								<div class="col-lg-2">
+								<label for="discount" class="col-lg-2 col-form-label price-fixed">{!! ucfirst(trans('textos.descuento')) !!} </label>
+								<div class="col-lg-2 price-fixed">
 									<x-input type="text" name="discount" id="productDiscount" class="text-right set-decimals" autocomplete="off" maxlength="5" value="0.00" group="right" groupvalue="%"/>
 								</div>
 
 								@if($customer_settings && $customer_settings->discount)
-									<div class="col-lg-2">
+									<div class="col-lg-4 price-fixed">
 										<button class="btn btn-warning btnApplyDiscount" data-discount="{{ $customer_settings->discount }}">
 											<i class="fa fa-percent"></i>
 											{!! trans('textos.descuento_clientes_aplicar') !!} ({{ $customer_settings->discount }}%)
 										</button>
+
+										{!! App\Helpers\helpers::info('order-default-discount-to-line', true) !!}
 									</div>
 								@endif
 							@else
@@ -114,6 +118,16 @@
 									<p class="text-warning">{!! trans('textos.descuento_pedido_aplicado_aviso') !!}</p>
 								</div>
 							@endif
+
+							{{-- Precio por porcentaje --}}
+							<label for="calculated_by_percent" class="col-lg-2 col-form-label price-by-percent">{!! ucfirst(trans('textos.por_porcentaje')) !!} </label>
+							<div class="col-lg-2 price-by-percent">
+								@php
+								$readonly = session('currentCompany') == $order->customer_id? true:false;
+								@endphp
+
+								<x-input type="text" name="calculated_by_percent" class="text-right set-decimals" autocomplete="off" maxlength="8" id="productPriceByPercent" value="0.00" group="right" groupvalue="%" readonly="{{ $readonly }}" info="item-price-by-percent"/>
+							</div>
 
 							{{-- IVA. Sólo en pedidos. En presupuestos no se tiene en cuenta este impuesto --}}
 							@if($environment_ == 'orders')
@@ -156,7 +170,23 @@ $(function(){
 	    //Buscamos precio:
 	    products.forEach(function(i){
 	        if(i.id == product_id){
-	            $('#productPrice').val(i.price);
+	        	//Precio fijo:
+	        	if(i.price > 0){
+	        		$('#productPrice').val(i.price);
+	        		$('#productPriceByPercent').val('');
+	        		$('.price-by-percent').fadeOut(400, function(){
+	        			$('.price-fixed').fadeIn();	
+	        		});	        			
+
+	        	//Precio por porcentaje:	
+	        	}else if(i.price == 0 && i.calculated_by_percent > 0){
+	        		$('#productPriceByPercent').val(i.calculated_by_percent);
+	        		$('#productPrice').val('');
+	        		$('.price-fixed').fadeOut(400, function(){
+	        			$('.price-by-percent').fadeIn();	
+	        		});
+	        	}
+	            
 	            $('#productIva').val(i.iva);    
 	        }
 	    });

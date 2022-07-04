@@ -15,7 +15,7 @@ use File;
 use Carbon\Carbon;
 
 //Models:
-use App\Models\BudgetOrderSharedFields;
+use App\Models\BankAccounts;
 use App\Models\Company;
 use App\Models\CompanySettings;
 use App\Models\CustomerProviders;
@@ -67,7 +67,7 @@ class InvoiceController extends Controller{
         $this->middleware('invoice_post', ['only' => ['refund']]);
         $this->middleware('invoice_modality', ['only' => ['createFromOrder']]);
         $this->middleware('order_post', ['only' => ['createFromOrder', 'createFromGroup']]);
-        $this->middleware('budget_order_get', ['only' => ['invoicesByOrder']]);
+        $this->middleware('order_get', ['only' => ['invoicesByOrder']]);
     }
 
     //0. Validator:
@@ -280,26 +280,25 @@ class InvoiceController extends Controller{
         $provider = $provider == 0? false:$provider;
 
         $query = Invoice::select('invoices.*', 'companies.name', 'companies.tradename', 'cost_centers.name AS costCenter', 'users.name AS Nombre', 'users.surname')
-        ->join('budget_order_shared_fields', 'invoices.shared_id', '=', 'budget_order_shared_fields.id')
-        ->leftJoin('companies', 'budget_order_shared_fields.customer_id', '=', 'companies.id')
-        ->leftJoin('cost_centers', 'budget_order_shared_fields.provider_cost_center_id', '=', 'cost_centers.id')
-        ->leftJoin('orders', 'budget_order_shared_fields.order_id', '=', 'orders.id')
-        ->leftJoin('users', 'budget_order_shared_fields.provider_manager_id', '=', 'users.id')
+        ->leftJoin('orders', 'invoices.order_id', '=', 'orders.id')
+        ->leftJoin('companies', 'orders.customer_id', '=', 'companies.id')
+        ->leftJoin('cost_centers', 'orders.provider_cost_center_id', '=', 'cost_centers.id')
+        ->leftJoin('users', 'orders.provider_manager_id', '=', 'users.id')
         ->whereYear('invoices.fiscal_date', $year)
         ->whereNull('invoices.deleted_at');
         //Filtro cliente:
         $providerId = $provider? $provider:session('currentCompany');
         $query->when($customer, function($q) use($customer, $providerId){
-            return $q->where('budget_order_shared_fields.customer_id', $customer)->where('budget_order_shared_fields.provider_id', $providerId);
+            return $q->where('orders.customer_id', $customer)->where('orders.provider_id', $providerId);
         });
         //Filtro proveedor: 
         $query->when($provider, function($q) use($provider){
-            return $q->where('budget_order_shared_fields.provider_id', $provider);
+            return $q->where('orders.provider_id', $provider);
         }); 
         //Filtro por defecto:
         $currentCompany = session('currentCompany');
         $query->when(!$customer && !$provider, function($q) use($currentCompany){
-            return $q->where('budget_order_shared_fields.provider_id', $currentCompany);
+            return $q->where('orders.provider_id', $currentCompany);
         });
         $invoices = $query->orderBy('invoices.created_at', 'DESC')->get(); 
 
@@ -326,21 +325,18 @@ class InvoiceController extends Controller{
         $order = Order::find($request->order_id);
 
         //Facturación de pedido. El pedido debe estar en algún status que permita su facturación:
-        if(!in_array($order->status, config('constants.ORDER_STATUS_INVOICED_'))){
+        if(!in_array($order->order_status, config('constants.ORDER_STATUS_INVOICED_'))){
             $alert = trans('textos.pedido_no_facturable');
             return redirect()->route('orders.edit', $order->id)->with(compact('alert'));
             exit;
         }
 
-        //Presupuesto - pedido:
-        $shared = BudgetOrderSharedFields::where('order_id', $order->id)->first();
-
         //Importe total del pedido:
-        $order_amount = $shared->getAmount();
+        $order_amount = $order->getAmount();
 
         //Comprobamos si existen otras facturas anteriores del mismo pedido:
         $other_invoices = Invoice::select('id', 'amount', 'with_iva', 'amount_with_iva')
-        ->where('shared_id', $shared->id)
+        ->where('order_id', $order->id)
         ->whereNull('deleted_at')
         ->whereNull('refund')
         ->where('status', '!=', config('constants.INVOICE_REFUNDED_'))
@@ -432,7 +428,7 @@ class InvoiceController extends Controller{
 
         //Creamos cabecera de la factura, para poder utilizar su id:
         $invoice = new Invoice();
-        $invoice->shared_id = $shared->id;
+        $invoice->order_id = $order->id;
         $invoice->user_id = Auth::user()->id;
         $invoice->amount = $total_amount;
         $invoice->with_iva = $this->co_iva;
@@ -476,7 +472,7 @@ class InvoiceController extends Controller{
         }
 
         //Recalculando porcentaje de las previsiones de facturación:
-        OrderPrevisions::recalculatePrevisionsPercent($order->id);
+        OrderPrevisions::recalculatePrevisionsPercent($order);
 
         $msg = trans('textos.factura_creada');
         return redirect()->route('invoices.edit', [$invoice->id, false])->with(compact('msg'));
@@ -503,14 +499,10 @@ class InvoiceController extends Controller{
             exit;
         }
 
-        //Presupuesto - pedido:
-        $shared = BudgetOrderSharedFields::where('order_id', $order->id)->first();
-
         //Importe total de los pedidos seleccionados:
         $orders_amount = 0;
         foreach($request->orders as $o){
-            $o_ = BudgetOrderSharedFields::select('id')->where('order_id', $o)->first();
-            $o_amount = $o_->getAmount();
+            $o_amount = $o->getAmount();
             $orders_amount = $orders_amount + $o_amount['amount_without_discount'];
         }
 
@@ -542,7 +534,7 @@ class InvoiceController extends Controller{
 
         //Creamos cabecera de la factura, para poder utilizar su id:
         $invoice = new Invoice();
-        $invoice->shared_id = $shared->id;
+        $invoice->order_id = $order->id;
         $invoice->user_id = Auth::user()->id;
         $invoice->amount = $orders_amount;
         $invoice->with_iva = $this->co_iva;
@@ -569,7 +561,7 @@ class InvoiceController extends Controller{
 
         //Si existe bolsa y la suma de las facturas de la agrupación iguala o supera el importe de la bolsa, lo marcamos como facturado:
         if($order->bag_amount > 0){
-            $invoices_amount = Invoice::where('shared_id', $shared->id)
+            $invoices_amount = Invoice::where('order_id', $order->id)
             ->sum('amount');
 
             if($invoices_amount >= $order->bag_amount){
@@ -604,41 +596,37 @@ class InvoiceController extends Controller{
             'slug' => 'invoices'
         ]; 
 
-        $shared = BudgetOrderSharedFields::find($invoice->shared_id);
-
         //Pedido:
-        $order = Order::find($shared->order_id);
+        $order = Order::find($invoice->order_id);
 
         //Si se trata de una agrupación, obtenemos los pedidos vinculados:
         $suborders = false;
         if($order->is_group){
-            $suborders = BudgetOrderSharedFields::select('budget_order_shared_fields.id', 'orders.id AS orderId', 'orders.order_num', 'orders.name', 'orders.purchase_num', 'budgets.id AS budgetId', 'budgets.budget_num')
-            ->join('orders', 'budget_order_shared_fields.order_id', '=', 'orders.id')
+            $suborders = Order::select('orders.id', 'orders.order_num', 'orders.name', 'orders.purchase_num', 'budgets.budget_num')
             ->join('invoice_orders', 'orders.id', '=', 'invoice_orders.order_id')
-            ->leftJoin('budgets', 'budget_order_shared_fields.budget_id', '=', 'budgets.id')
             ->where('invoice_orders.invoice_id', $invoice->id)
             ->get();
         }
 
         //Importe facturado:
-        $invoiced = $shared->getInvoicedAmount();
+        $invoiced = $order->getInvoicedAmount();
 
         //Facturas del pedido:
         $invoices = Invoice::select('id', 'amount', 'amount_with_iva')
-        ->where('shared_id', $shared->id)
+        ->where('order_id', $order->id)
         ->get();
 
         //Factura de abono vinculada:
         $refund = Invoice::select('id', 'invoice_num')->where('refund', $invoice->id)->first();
 
         //CLIENTE:
-        $customer = Company::select('id', 'name', 'tradename')->find($shared->customer_id); 
+        $customer = Company::select('id', 'name', 'tradename')->find($order->customer_id); 
 
         //PROVEEDOR:
-        $provider = Company::select('id', 'name', 'tradename')->find($shared->provider_id);
+        $provider = Company::select('id', 'name', 'tradename')->find($order->provider_id);
 
         //Líneas del pedido: 
-        $items = Item::where('budget_order_id', $shared->id)
+        $items = Item::where('order_id', $order->id)
         ->orderBy('concept', 'ASC')
         ->get();
 
@@ -658,14 +646,15 @@ class InvoiceController extends Controller{
 
         //Templates:
         $templates = [];
-        if($shared->provider_id == session('currentCompany')){
+        if($order->provider_id == session('currentCompany')){
             $templates = InvoiceSettings::select('id', 'name', 'featured')
-            ->where('company_id', $shared->provider_id)
+            ->where('company_id', $order->provider_id)
             ->where('status', 1)
             ->get();
         }
 
         //Template por defecto:
+        $featuredTemplate = false;
         if(!$invoice->template_id){
             $featuredTemplate = InvoiceSettings::where('company_id', $invoice->provider_id)     
             ->where('featured', 1)
@@ -698,17 +687,36 @@ class InvoiceController extends Controller{
         $module_projects = $this->settedModule('projects');
 
         //Importe:
-        if($shared->free_amount){
-            $order_amount = $shared->free_amount;
+        if($order->bag_amount){
+            $order_amount = $order->bag_amount;
         }else{
-            $items = $shared->getBudgetOrderItems();
-            $arr_amounts = $shared->getAmount();    
+            $items = $order->items();
+            $arr_amounts = $order->getAmount();    
 
             $order_amount = $arr_amounts['amount_with_discount'];
             $order_amount_without_discount = $arr_amounts['amount_without_discount'];
         } 
 
-        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'shared', 'order', 'suborders', 'invoiced', 'invoices', 'refund', 'customer', 'provider', 'items', 'patterns', 'payments', 'templates', 'featuredTemplate', 'currency', 'languages', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'order_amount_without_discount'));
+        //Métodos de pago:
+        $payment_methods = helpers::paymentMethods();
+
+        //Cuentas bancarias:
+        $bank_accounts = [];
+        $bank_featured = false;
+        $bank_accounts_data = BankAccounts::select('bank_accounts.id', 'bank_accounts.account', 'bank_accounts.featured', 'banks.name', 'banks.tradename')
+        ->join('banks', 'bank_accounts.bank_id', '=', 'banks.id')
+        ->where('bank_accounts.company_id', session('currentCompany'))
+        ->where('bank_accounts.status', 1)
+        ->orderBy('bank_accounts.featured', 'DESC')
+        ->get();
+        foreach($bank_accounts_data as $ba){
+            $bank = $ba->tradename? $ba->tradename:$ba->name;
+            $bank_accounts[$ba->id] = $bank.' - '.$ba->account;
+
+            if($ba->featured == 1) $bank_featured = $ba->id;
+        }
+
+        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'order', 'suborders', 'invoiced', 'invoices', 'refund', 'customer', 'provider', 'items', 'patterns', 'payments', 'templates', 'featuredTemplate', 'currency', 'languages', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'order_amount_without_discount', 'payment_methods', 'bank_accounts', 'bank_featured'));
     }
 
     /**
@@ -831,7 +839,7 @@ class InvoiceController extends Controller{
 
         $msg = trans('textos.factura_bloqueada_ok');
         if($return == 'by-order'){
-            return redirect()->route('invoices.by-order', $invoice->shared_id)->with(compact('msg'));
+            return redirect()->route('invoices.by-order', $invoice->order_id)->with(compact('msg'));
         }else{
             return redirect()->route('invoices.edit', [$invoice, false])->with(compact('msg'));  
         }
@@ -889,7 +897,7 @@ class InvoiceController extends Controller{
     /**
      * 10. Facturas por pedido.
      */
-    public function invoicesByOrder(BudgetOrderSharedFields $shared){
+    public function invoicesByOrder(Order $order){
         $header = [
             'option' => $this->option, 
             'suboption' => 'textos.facturas_por_pedido',
@@ -897,25 +905,23 @@ class InvoiceController extends Controller{
             'slug' => 'invoices'
         ]; 
 
-        $order = Order::select('id', 'order_num', 'order_old_num')->find($shared->order_id);
-
-        $customer = Company::select('name')->where('id', $shared->customer_id)->first();
-        $provider = Company::select('name')->where('id', $shared->provider_id)->first();
+        $customer = Company::select('name')->where('id', $order->customer_id)->first();
+        $provider = Company::select('name')->where('id', $order->provider_id)->first();
 
         //Importe del pedido:
-        if($shared->free_amount){
-            $order_amount = $shared->free_amount;
+        if($order->bag_amount){
+            $order_amount = $order->bag_amount;
             $order_amount_without_discount = false;
         }else{
-            $items = $shared->getBudgetOrderItems();
-            $arr_amounts = $shared->getAmount();    
+            $items = $order->items();
+            $arr_amounts = $order->getAmount();    
 
             $order_amount = $arr_amounts['amount_with_discount'];
             $order_amount_without_discount = $arr_amounts['amount_without_discount'];
         } 
 
         //Facturas:
-        $invoices = Invoice::where('shared_id', $shared->id)
+        $invoices = Invoice::where('order_id', $order->id)
         ->orderBy('fiscal_date', 'ASC')
         ->get();    
 
@@ -944,8 +950,7 @@ class InvoiceController extends Controller{
         }
 
         //Dejamos los pedidos como NO facturados:
-        Order::join('budget_order_shared_fields', 'orders.id', '=', 'budget_order_shared_fields.order_id')
-        ->where('budget_order_shared_fields.id', $invoice->shared_id)
+        Order::where('id', $invoice->order_id)
         ->update(['orders.invoiced' => false]);
 
         //Eliminamos las previsiones de facturación asociadas a la factura:
@@ -961,7 +966,7 @@ class InvoiceController extends Controller{
 
         $msg = trans('textos.factura_deleted');
         if($request->return == 'by-order'){
-            return redirect()->route('invoices.by-order', $invoice->shared_id)->with(compact('msg'));
+            return redirect()->route('invoices.by-order', $invoice->order_id)->with(compact('msg'));
         }else{
             return redirect()->route('invoices.index')->with(compact('msg'));
         }
@@ -1023,7 +1028,7 @@ class InvoiceController extends Controller{
         $refund = new Invoice();
         $refund->refund = $invoice->id;
         $refund->invoice_old_num = $invoice->invoice_old_num;
-        $refund->shared_id = $invoice->shared_id;
+        $refund->order_id = $invoice->order_id;
         $refund->amount = $refund_amount;
         $refund->with_iva = $invoice->with_iva;
         $refund->amount_with_iva = $refund_amount_with_iva;
@@ -1037,9 +1042,7 @@ class InvoiceController extends Controller{
         //Al generarse una factura de abono, sólo si el abono es íntegro, el pedido original vuelve a estado de pendiente de facturación y la factura a estado de devuelta:
         if($request->refund == 't'){
             $order = Order::select('orders.id', 'orders.invoiced')
-            ->join('budget_order_shared_fields', 'orders.id', '=', 'budget_order_shared_fields.order_id')
-            ->where('budget_order_shared_fields.id', $invoice->shared_id)
-            ->first();
+            ->find($invoice->order_id);
 
             $order->invoiced = false;
             $order->save();

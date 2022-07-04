@@ -7,11 +7,10 @@ use App\Helpers\Helpers;
 use Illuminate\Support\Facades\Auth;
 
 //Models:
-use App\Models\Budget;
 use App\Models\BudgetFormItems;
-use App\Models\BudgetOrderSharedFields;
 use App\Models\CompanySettings;
 use App\Models\Item;
+use App\Models\Order;
 
 class BudgetItem extends Component{
     /**
@@ -22,10 +21,10 @@ class BudgetItem extends Component{
      * 5. Editar item.
      * 6. Reset formulario.
      * 7. Ordenar item hacia arriba.
-     * 7.1. Ordenar itema hacia abajo.
+     * 7.1. Ordenar item hacia abajo.
      */
     
-    public $budget, $order, $shared;
+    public $order;
 
     public $action;
     public $amount_by_blocks;
@@ -56,15 +55,13 @@ class BudgetItem extends Component{
         'qty' => 'required'
     ];
 
-    public function mount($budget, $order, $shared){
-        $this->blocks = BudgetFormItems::getBudgetBlocks($budget->form_id, $budget->id);
+    public function mount($order){
+        $this->blocks = BudgetFormItems::getBudgetBlocks($order->form_id, $order->id);
 
         $this->amount_by_blocks = [];
-        $this->budget = $budget;
         $this->co_iva = CompanySettings::co_iva();
         $this->field_readonly = false;
         $this->order = $order;
-        $this->shared = $shared;
 
         $this->item = false;
         $this->items_order = [];
@@ -81,18 +78,19 @@ class BudgetItem extends Component{
         $this->currency = CompanySettings::co_currency(0);
 
         //Items del presupuesto:
-        $this->items_selected = Item::where('budget_order_id', $this->shared->id)
+        $this->items_selected = Item::where('order_id', $this->order->id)
         ->orderBy('budget_form_block_id', 'ASC')
         ->orderByRaw('ISNULL(budget_order), budget_order ASC')
         ->get();
         //->orderBy('budget_order', 'ASC')
 
         //Importe total:
-        $arr_amounts = $this->shared->getAmount();
+        $arr_amounts = $this->order->getAmount();
+        //dd($arr_amounts);
         $this->total_amount = $arr_amounts['amount_with_discount'];
 
         //Importe sin items porcentuales:
-        $this->amount_without_percentage_items = $this->shared->itemsBudgetOrderAmount(false);
+        $this->amount_without_percentage_items = $this->order->itemsBudgetOrderAmount(false);
 
         //Importe por bloques:
         if(count($this->items_selected)){
@@ -106,7 +104,7 @@ class BudgetItem extends Component{
                         //Items en el bloque:
                         $this->items_order[$block->id] = $this->items_order[$block->id] + 1;
 
-                        $subtotal = $is->calculated_by_percent? Helpers::itemAmountPercentage($is->calculated_by_percent, $amount_without_percentage_items):Helpers::itemAmount($is);
+                        $subtotal = $is->calculated_by_percent? helpers::itemAmountPercentage($is->calculated_by_percent, $this->amount_without_percentage_items):helpers::itemAmount($is);
 
                         $block_amount = $block_amount + $subtotal;
                     }
@@ -139,6 +137,8 @@ class BudgetItem extends Component{
                 $price = NULL;
             }
 
+            $item = false;
+
             //Update:
             if($this->action == 'update'){
                 $item = Item::find($this->item['id']);
@@ -157,7 +157,7 @@ class BudgetItem extends Component{
             }elseif($this->action == 'save'){
                 $item = new Item();
                 $item->product_id = $this->item? $this->item['product_id']:NULL;
-                $item->budget_order_id = $this->shared->id;
+                $item->order_id = $this->order->id;
                 $item->budget_form_block_id = $this->block;
                 $item->budget_form_item_id = $this->item? $this->item['id']:NULL;
                 $item->budget_order = isset($this->items_order[$this->block])? $this->items_order[$this->block] + 1:1;
@@ -178,18 +178,14 @@ class BudgetItem extends Component{
 
                 //Modificamos la acción por si se edita tras guardar:
                 $this->action = 'update';
-            }            
+            }     
 
             //Importe del presupuesto:
-            $arr_amounts = $this->shared->getAmount();
-            $budget_amount = $arr_amounts['amount_with_discount'];
-
-            //Importe sin descuento:
-            $budget_amount_without_discount = $arr_amounts['amount_without_discount'];    
+            $arr_amounts = $this->order->getAmount();
 
             //Enviando importe al componente budget-amount:
-            $this->emit('updateAmount', $budget_amount, $budget_amount_without_discount);
-            $this->emit('updateAmountMini', $budget_amount);
+            $this->emit('updateAmount', $arr_amounts['amount_with_discount'], $arr_amounts['amount_without_discount']);
+            $this->emit('updateAmountMini', $arr_amounts['amount_with_discount']);
         }
     }
 
@@ -288,7 +284,7 @@ class BudgetItem extends Component{
 
             //Orden del elemento anterior:
             $prev = Item::select('id', 'budget_order')
-            ->where('budget_order_id', $item['budget_order_id'])
+            ->where('order_id', $item['order_id'])
             ->where('budget_form_block_id', $item['budget_form_block_id'])
             ->where('budget_order', '<', $item['budget_order'])
             ->orderBy('budget_order', 'DESC')
@@ -308,7 +304,7 @@ class BudgetItem extends Component{
     }
 
     /**
-     * 7.1. Ordenar itema hacia abajo.
+     * 7.1. Ordenar item hacia abajo.
      */
     public function itemDown($item){
         if($item){
@@ -316,7 +312,7 @@ class BudgetItem extends Component{
 
             //Orden del elemento siguiente:
             $next = Item::select('id', 'budget_order')
-            ->where('budget_order_id', $item['budget_order_id'])
+            ->where('order_id', $item['order_id'])
             ->where('budget_form_block_id', $item['budget_form_block_id'])
             ->where('budget_order', '>', $item['budget_order'])
             ->orderBy('budget_order', 'ASC')

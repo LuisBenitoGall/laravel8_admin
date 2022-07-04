@@ -134,7 +134,10 @@ class CustomerProvidersController extends Controller{
         //Roles básicos:
         $basic_roles = $this->basicRoles();
 
-        return view('admin.customer_providers.index')->with(compact('header', 'tabla', 'basic_roles'));   
+        //Moneda:
+        $currency = CompanySettings::co_currency(0);
+
+        return view('admin.customer_providers.index')->with(compact('header', 'tabla', 'basic_roles', 'currency'));   
     }  
 
     /**
@@ -369,7 +372,7 @@ class CustomerProvidersController extends Controller{
      * 8. Obtener info de empresas por criterio.
      */
     private function getCompaniesData($join, $condition){
-        $data = CustomerProviders::select('customer_providers.id AS cp_id', 'customer_providers.ba_id', 'customer_providers.workplace_id', 'customer_providers.cc_id', 'customer_providers.discount', 'customer_providers.status', 'companies.id', 'companies.name', 'companies.tradename', 'companies.logo', 'companies.nif')
+        $data = CustomerProviders::select('customer_providers.id AS cp_id', 'customer_providers.ba_id', 'customer_providers.workplace_id', 'customer_providers.cc_id', 'customer_providers.discount', 'customer_providers.credit_risk', 'customer_providers.status', 'companies.id', 'companies.name', 'companies.tradename', 'companies.logo', 'companies.nif')
         ->join('companies', 'customer_providers.'.$join, '=', 'companies.id')
         ->where('customer_providers.'.$condition, session('currentCompany'))
         ->get();
@@ -796,6 +799,7 @@ class CustomerProvidersController extends Controller{
         $cp->workplace_id = $request->workplace_id;
         $cp->cc_id = $request->cc_id;
         $cp->discount = $request->discount;
+        $cp->credit_risk = $request->credit_risk;
         $cp->save();
 
         $msg = trans('textos.cliente_updated');

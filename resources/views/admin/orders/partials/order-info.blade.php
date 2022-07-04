@@ -14,11 +14,12 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 		<div class="col-md-3 col-lg-2">
 			{{-- Patrón de numeración - condiciones:
 			 	1. Si existen patrones.
-			 	2. No se trata de una versión.
+			 	2. No se trata de una versión.	02/07/22: condición omitida por el momento: && !$order->recid
 				3. Exclusivo para proveedor.
+				4. No existe order_num.
 				...
 			--}}
-			@if($patterns && !$order->recid && $order->provider_id == session('currentCompany'))
+			@if($patterns && $order->provider_id == session('currentCompany') && !$order->order_num)
 				@if($patterns->count())
 					@php
 					$patterns_ = [];
@@ -44,10 +45,10 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 
 			{{-- Reset de número - condiciones: 
 				1. Sólo si los pedidos vinculados no están facturados 
-				2. Sólo para el original, no para las versiones.  Estas se actualizan si cambia el número del original.
+				2. Sólo para el original, no para las versiones.  Estas se actualizan si cambia el número del original.		&& !$order->recid
 				3. Exclusivo para proveedor.
 			--}}
-			@if(!$order->invoiced && $order->order_num && !$order->recid && $order->provider_id == session('currentCompany'))
+			@if(!$order->invoiced && $order->order_num && $order->provider_id == session('currentCompany'))
 				<a href="{{ route('orders.reset-num', $order->id) }}" class="ml-3 btn-confirm" rel="tooltip" title="{{ trans('textos.numero_reset') }}" data-msg="{{ trans('textos.numero_reset_confirm') }}">
 					<i class="fa fa-redo"></i>
 				</a>
@@ -132,7 +133,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 		<label for="pay_order" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.orden_pago')) !!}</label>
 		<div class="col-lg-2">
 			@php
-			$readonly = $order->status != config('constants.ORDER_GROUPS_OPENED_')? true:false;
+			$readonly = $order->order_status != config('constants.ORDER_GROUPS_OPENED_')? true:false;
 			@endphp
 
 			<x-input type="text" name="pay_order" value="{{ $order->pay_order }}" autocomplete="off" maxlength="100" readonly="{{ $readonly }}" info="order-group-pay-order"/>
@@ -192,17 +193,17 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 			1. Exclusivo proveedor
 		--}}
 		@if($order->provider_id == session('currentCompany'))
-			<label for="status" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.estado')) !!}</label>
+			<label for="order_status" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.estado')) !!}</label>
 			<div class="col-lg-2">
 				@php
 				//Los estados se obtienen en función de si el pedido es simple o agrupación:
 				$estados = $order->is_group? App\Helpers\helpers::orderGroupStatus():App\Helpers\helpers::orderStatus();
 				@endphp
 
-				<x-select name="status" class="select2" label="indica_estado" :options="$estados" value="{{ $order->status }}"/>
+				<x-select name="order_status" class="select2" label="indica_estado" :options="$estados" value="{{ $order->order_status }}"/>
 			</div>
 		@else
-			<input type="hidden" name="status" value="{{ $order->status }}">
+			<input type="hidden" name="order_status" value="{{ $order->order_status }}">
 		@endif
 	</div>
 	<br><hr><br>
@@ -266,7 +267,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 								<label for="month" class="col-md-2 col-lg-1 col-form-label">{!! ucfirst(trans('textos.mes')) !!}</label>
 								<div class="col-md-4 col-lg-2 sinpadding">
 									@php
-									$months = App\Helpers\Helpers::yearMonths();
+									$months = App\Helpers\helpers::yearMonths();
 									@endphp
 
 									<select name="month[]" class="form-control select2 prevision-data" {{ $disabled }}>

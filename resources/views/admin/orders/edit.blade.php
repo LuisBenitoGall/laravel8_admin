@@ -2,6 +2,14 @@
 
 @section('content')
 
+{{-- Avisos --}}
+{{-- Riesgo crediticio --}}
+@if($customer_settings->credit_risk && $order_amount > $customer_settings->credit_risk)
+	<div class="alert alert-danger" role="alert">
+        {!! trans('textos.riesgo_crediticio_alerta', ['riesgo' => $customer_settings->credit_risk.$currency->symbol]) !!} <a target="_blank" href="{{ route('customers.index') }}">{{ trans('textos.cliente_configuraciones') }}</a>.
+    </div>
+@endif
+
 <div class="row mb-3">
 	{{-- Acciones: --}}
 	<div class="col-12">
@@ -29,7 +37,7 @@
 				...
 	    	--}}
 	    	@can('orders.edit')
-				@if(in_array($order->status, config('constants.ORDER_GROUPS_OPENED_')))
+				@if(in_array($order->order_status, config('constants.ORDER_GROUPS_OPENED_')))
 					<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-add-orders">
 						<i class="fa fa-plus"></i>
 						{!! trans('textos.pedidos_agregar') !!}
@@ -45,7 +53,7 @@
 			--}}
 			@can('invoices.create')
 				@if($module_accounting 
-					&& in_array($order->status, config('constants.ORDER_GROUPS_OPENED_'))
+					&& in_array($order->order_status, config('constants.ORDER_GROUPS_OPENED_'))
 				)
 					<a href="{{ route('order-groups.to-invoice', $order) }}" class="btn btn-info" rel="tooltip" title="{{ ucfirst(trans('textos.agrupacion_facturar')) }}"><i class="fa fa-file-invoice-dollar"></i></a>
 				@endif
@@ -137,7 +145,7 @@
 				5. El pedido no está declarado como presupuesto.
 				...
 			--}}
-			@if($module_budgets && !$order->budget_id && $order->provider_id == session('currentCompany') && !$order->is_budget)
+			@if($module_budgets && $order->provider_id == session('currentCompany') && !$order->is_budget)
 				@can('budgets.create')
 					<a href="{{ route('budgets.budget-from-order', $order) }}" class="btn btn-warning btn-confirm" data-msg="{!! trans('textos.presupuesto_confirm_generar') !!}">
 						<i class="fa fa-file-alt"></i>
@@ -149,8 +157,8 @@
 			{{-- Acceso a presupuesto --}}
 			@if($module_budgets)
 				@can('budgets.edit')
-					@if($order->budget_id)
-						<a target="_blank" href="{{ route('budgets.edit', $order->budget_id) }}" class="btn btn-info">
+					@if($order->is_budget)
+						<a target="_blank" href="{{ route('budgets.edit', $order) }}" class="btn btn-info">
 							<i class="fa fa-file-alt"></i>
 							{!! ucfirst(trans('textos.presupuesto')) !!}
 						</a>
@@ -166,9 +174,9 @@
 			--}}
 			@if($module_projects && $order->provider_id == session('currentCompany'))
 				{{-- Acceso a proyecto --}}
-				@if($project_linked)
+				@if($project)
 					@can('projects.edit')
-						<a target="_blank" href="{{ route('projects.edit', $project_linked->project_id) }}" class="btn btn-info">
+						<a target="_blank" href="{{ route('projects.edit', $project->id) }}" class="btn btn-info">
 							<i class="fa fa-rocket"></i>
 							{!! ucfirst(trans('textos.proyecto')) !!}
 						</a>
@@ -183,18 +191,6 @@
 						</a>
 					@endcan
 				@endif
-			@endif
-
-			{{-- Acceso a proyecto --}}
-			@if($module_projects)
-				@can('projects.edit')
-					@if($order->project_id)
-						<a href="{{ route('projects.edit', $order->project_id) }}" class="btn btn-info">
-							<i class="fa fa-rocket"></i>
-							{!! ucfirst(trans('textos.proyecto')) !!}
-						</a>
-					@endif
-				@endcan
 			@endif
 
 			{{-- Vincular compra a un proyecto - condiciones: 
@@ -215,8 +211,8 @@
 			{{-- Agrupación de pedidos --}}
 			@can('orders.edit')
 				{{-- Link agrupación --}}
-				@if($order->parent)
-					<a target="_blank" href="{{ route('orders.edit', $order->parent) }}" class="btn btn-info">
+				@if($order->order_parent)
+					<a target="_blank" href="{{ route('orders.edit', $order->order_parent) }}" class="btn btn-info">
 						<i class="fa fa-object-group"></i>
 						{!! ucfirst(trans('textos.agrupacion_pedidos')) !!}
 					</a>
@@ -302,9 +298,9 @@
 			--}}
 			@can('invoices.create')
 				@if($module_accounting 
-					&& in_array($order->status, config('constants.ORDER_STATUS_INVOICED_'))
+					&& in_array($order->order_status, config('constants.ORDER_STATUS_INVOICED_'))
 					&& (!$invoiced || round($order_amount, 2) > round($invoiced['invoiced_amount'], 2))
-					&& !$order->parent
+					&& !$order->order_parent
 				)
 					<a href="#" class="btn btn-info" rel="tooltip" title="{{ ucfirst(trans('textos.facturar')) }}" data-toggle="modal" data-target="#modal-generate-invoice"><i class="fa fa-file-invoice-dollar"></i></a>
 				@endif
@@ -367,8 +363,9 @@
 	</div>
 </div>
 
-<input type="hidden" id="dtController" value="orders">
-<input type="hidden" id="myShared" value="{{ $order->id }}">
+<input type="hidden" id="dtController" value="items">
+<input type="hidden" id="myEnvironment" value="orders">
+<input type="hidden" id="myOrder" value="{{ $order->id }}">
 
 @php
 //Customer Team:
@@ -709,7 +706,7 @@ foreach($previsions as $prev_){
 @endif
 
 {{-- Add orders to group --}}
-@if($order->is_group && in_array($order->status, config('constants.ORDER_GROUPS_OPENED_')))
+@if($order->is_group && in_array($order->order_status, config('constants.ORDER_GROUPS_OPENED_')))
 	@can('orders.edit')
 		@include('admin.orders.partials.modal-group-add-orders')
 	@endcan
@@ -782,8 +779,8 @@ $(function(){
     });
 
     //Validación previsiones de facturación:
-    var validate_previsions = true;
     $('#frmOrderInfo').on('submit', function(){
+    	var validate_previsions = true;		
     	$('.prevision-data').each(function(){
     		if($(this).val() == ''){
     			validate_previsions = false;
@@ -851,6 +848,13 @@ $(function(){
         }else{
         	return false;
         }
+    });
+
+    //Aplicar descuento por defecto del cliente a líneas del pedido:
+    $('.btnApplyDiscount').on('click', function(e){
+        e.preventDefault();
+        var discount = $(this).data('discount');
+        $('#productDiscount').val(discount);
     });
 });
 </script>

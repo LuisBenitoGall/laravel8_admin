@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Yajra\DataTables\DataTables;
 
 //Models:
 use App\Models\Account;
@@ -62,19 +63,11 @@ class AccountController extends Controller{
      * 1.1. Listado de cuentas para DataTable.
      */
     public function getAccountsDT(){
-        $accounts = Account::all();
-
-        //Permisos del usuario:
-        $editar = Auth::user()->can('accounts.edit');
-        $eliminar = Auth::user()->can('accounts.destroy');
-
-        foreach($accounts as $row){
-            //Permisos para las acciones:
-            $row->editar = $editar;
-            $row->eliminar = $eliminar; 
-        }
-
-        return datatables($accounts)->toJson(); 
+        return Datatables::of(Account::query())
+        ->addColumn('acciones', function($account){
+            return view('admin.accounts.partials.dt-actions', compact('account'));    
+        })
+        ->make(true);
     }
 
     /**

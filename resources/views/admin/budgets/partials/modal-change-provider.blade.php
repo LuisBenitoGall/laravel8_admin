@@ -12,7 +12,7 @@
 	            <div class="modal-body">
 	            	<form method="post" autocomplete="off" action="{{ route('budgets.set-provider', $order) }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
 	                    {{ csrf_field() }}
-	                    <input type="hidden" name="budget_id" value="{{ $order->id }}">
+	                    <input type="hidden" name="order_id" value="{{ $order->id }}">
 
 	                    <div class="form-group row">
 	                    	{{-- Empresas --}}

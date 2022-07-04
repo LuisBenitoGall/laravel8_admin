@@ -3,8 +3,8 @@
 @section('content')
 
 <div class="row mb-3">
+    {{-- Acciones: --}}
 	<div class="col-12">
-		{{-- Acciones: --}}
 		@if($tabla == 'tblCustomers')
 			@php
 			$texto = 'cliente_nuevo';
@@ -91,6 +91,7 @@ $(document).ready(function(){
         var workplace_id = $(this).data('workplaceid');
         var cc_id = $(this).data('ccid');
         var discount = $(this).data('discount');
+        var credit = $(this).data('credit');
 
         if(id){
             $('#configCustomer').val(id);
@@ -134,6 +135,9 @@ $(document).ready(function(){
 
                     //Descuento:
                     $('#configDiscount').val(discount);
+
+                    //Riesgo crediticio:
+                    $('#configCreditRisk').val(credit);
                 }  
             });
         } 

@@ -17,7 +17,7 @@
 				$totalAmount = 0;
 				@endphp
 
-				@foreach($project_purchases as $pp)
+				@foreach($purchases as $pp)
 					<tr>
 						{{-- Número compra --}}
 						<td>

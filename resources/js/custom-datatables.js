@@ -134,11 +134,9 @@ $(document).ready(function(){
 
     //Tabla Accounts:
     if($('#tblAccounts').length > 0){
-        var tokenDT = $('meta[name="csrf-token"]').attr('content');
-        
         $('#tblAccounts').DataTable({
             "serverSide": true,
-            /*"processing": true,*/
+            "processing": true,
             "ajax": {
                 "type": "GET",
                 "url": "/api/admin/accounts",
@@ -150,45 +148,13 @@ $(document).ready(function(){
                 {data: 'name'},
                 {data: 'rate', className: 'text-right'},
                 {data: 'duration', className: 'text-right'},
-                {data: 'id', className: 'text-right'}
-            ],
-            "columnDefs": [
-                {"targets": -1,
-                "render": function(data, type, row){
-                    var estado = '';
-                    var editar = '';
-                    if(row['editar']){
-                        //Estado:
-                        var checked = (row['status'] == 1)? 'checked':'';
-                        estado = '<label class="custom-chk-rdb" rel="tooltip" title="'+txtCuentaOnOff+'">';
-                            estado += '<input type="checkbox" name="status" '+checked+'><span class="chk chk-action" data-id="'+row['id']+'" data-ctrl="accounts/status"></span>';
-                        estado += '</label>';
-
-                        //Editar:
-                        editar = '<a href="/admin/accounts/'+row['id']+'/edit" class="btn btn-xs btn-info btn-module" rel="tooltip" title="'+txtEditar+'"><i class="fa fa-edit"></i></a>';
-                    }
-
-                    //Eliminar:
-                    var eliminar = '';
-                    if(row['editar']){
-                        eliminar = '<form method="POST" action="accounts/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
-                            eliminar += '<input name="_method" type="hidden" value="DELETE">';
-                            eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
-                            eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtCuentaEliminar+'" data-msg="'+txtCuentaConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
-                        eliminar += '</form>';
-                    }
-
-                    return estado+' '+editar+' '+eliminar;
-                }
-                }
+                {data: 'acciones', name: 'acciones', className: 'text-right'}
             ]
         });
     }
 
     //Tabla Banks:
     if($('#tblBanks').length > 0){
-        var tokenDT = $('meta[name="csrf-token"]').attr('content');
-        
         $('#tblBanks').DataTable({
             "serverSide": true,
             "processing": true,
@@ -204,48 +170,16 @@ $(document).ready(function(){
                 {data: 'tradename'},
                 {data: 'eu_code'},
                 {data: 'lei'},
-                {data: 'id', className: 'text-right'}
-            ],
-            "columnDefs": [
-                {"targets": -1,
-                "render": function(data, type, row){
-                    var estado = '';
-                    var editar = '';
-                    if(row['editar']){
-                        //Estado:
-                        var checked = row['status'] == 1? 'checked':'';
-                        var estado = '<label class="custom-chk-rdb" rel="tooltip" title="'+txtBancoOnOff+'">';
-                            estado += '<input type="checkbox" name="status" '+checked+'><span class="chk chk-action" data-id="'+row['id']+'" data-ctrl="banks/status"></span>';
-                        estado += '</label>';
-
-                        //Editar:
-                        editar = '<a href="banks/'+row['id']+'/edit" class="btn btn-xs btn-info" rel="tooltip" title="'+txtEditar+'"><i class="fa fa-edit"></i></a>';
-                    }
-
-                    //Eliminar:
-                    var eliminar = '';
-                    if(row['eliminar']){
-                        eliminar = '<form method="POST" action="banks/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
-                            eliminar += '<input name="_method" type="hidden" value="DELETE">';
-                            eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
-                            eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtEliminar+'" data-msg="'+txtBancoConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
-                        eliminar += '</form>';
-                    }
-
-                    return estado+' '+editar+' '+eliminar;
-                }
-                }
+                {data: 'acciones', className: 'text-right'}
             ]
         });
     }
 
     //Tabla Batch Patterns:
     if($('#tblBatchPatterns').length > 0){
-        var tokenDT = $('meta[name="csrf-token"]').attr('content');
-        
         $('#tblBatchPatterns').DataTable({
             "serverSide": true,
-            /*"processing": true,*/
+            "processing": true,
             "ajax": {
                 "type": "GET",
                 "url": "/api/admin/batch-patterns",
@@ -256,48 +190,9 @@ $(document).ready(function(){
             "columns": [
                 {data: 'name', className: 'capitalize'},
                 {data: 'patron'},
-                {data: 'id', className: 'text-center'},
+                {data: 'reset', className: 'text-center'},
                 {data: 'alta', className: 'text-right'},
-                {data: 'id', className: 'text-right'}
-            ],
-            "columnDefs": [
-                {"targets": 2,
-                "render": function(data, type, row){
-                    if(row['yearly_reset'] == 1){
-                        return '<i class="fa fa-check text-success"></i>';
-                    }else{
-                        return '<i class="fa fa-ban text-danger"></i>';
-                    }
-                }
-                },
-                {"targets": -1,
-                "render": function(data, type, row){
-                    var estado = '';
-                    var editar = '';
-                    if(row['editar']){
-                        //Estado:
-                        var checked = (row['status'] == 1)? 'checked':'';
-                        var estado = '<label class="custom-chk-rdb" rel="tooltip" title="'+txtPatronOnOff+'">';
-                            estado += '<input type="checkbox" name="status" '+checked+'><span class="chk chk-action" data-id="'+row['id']+'" data-ctrl="batch-patterns/status"></span>';
-                        estado += '</label>';
-
-                        //Editar:
-                        editar = '<a href="batch-patterns/'+row['id']+'/edit" class="btn btn-xs btn-info" rel="tooltip" title="'+txtEditar+'"><i class="fa fa-edit"></i></a>';
-                    }
-
-                    //Eliminar:
-                    var eliminar = '';
-                    if(row['eliminar']){
-                        eliminar = '<form method="POST" action="batch-patterns/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
-                            eliminar += '<input name="_method" type="hidden" value="DELETE">';
-                            eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
-                            eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtEliminar+'" data-msg="'+txtPatronLotesConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
-                        eliminar += '</form>';
-                    }
-
-                    return estado+' '+editar+' '+eliminar;
-                }
-                }
+                {data: 'acciones', className: 'text-right'}
             ]
         });
     }
@@ -329,7 +224,7 @@ $(document).ready(function(){
         
         var tableBudgetFormBlocks = $('#tblBudgetFormBlocks').DataTable({
             "serverSide": true,
-            /*"processing": true,*/
+            "processing": true,
             "ajax": {
                 "type": "GET",
                 "url": "/api/admin/budget-form-items/"+form,
@@ -602,7 +497,7 @@ $(document).ready(function(){
         }
 
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
-        var order = $('#myOrderId').val();
+        var order = $('#myOrder').val();
 
         var tableBudgetItems = $('#tblBudgetItems').DataTable({
             "serverSide": true,
@@ -612,7 +507,7 @@ $(document).ready(function(){
             },
             "ajax": {
                 "type": "GET",
-                "url": "/api/admin/order-items/"+order,
+                "url": "/api/admin/order-items/"+order+"/"+environment,
                 "error": function(reason){
                     console.log(reason);
                 }
@@ -635,11 +530,11 @@ $(document).ready(function(){
                     return meta.row + meta.settings._iDisplayStart + 1;
                 }
                 },
-                {"targets": 3,
-                "render": function(data, type, row){
-                    return row['price']+row['currency'];
-                }
-                },
+                // {"targets": 3,
+                // "render": function(data, type, row){
+                //     return row['price']+row['currency'];
+                // }
+                // },
                 {"targets": 4,
                 "render": function(data, type, row){
                     if(row['days'] == 0){
@@ -649,25 +544,25 @@ $(document).ready(function(){
                     }                    
                 }
                 },
-                {"targets": 5,
-                "render": function(data, type, row){
-                    if(row['discount'] > 0){
-                        return row['discount']+'%';
-                    }else{
-                        return '';    
-                    }                    
-                }
-                },
-                {"targets": 6,
-                "render": function(data, type, row){
-                    var amount = setAmount(row['qty'], row['price'], row['discount'], row['days']);
-                    if(amount){
-                        return amount+row['currency'];
-                    }else{
-                        return '0'+row['currency'];
-                    }
-                }
-                },
+                // {"targets": 5,
+                // "render": function(data, type, row){
+                //     if(row['discount'] > 0){
+                //         return row['discount']+'%';
+                //     }else{
+                //         return '';    
+                //     }                    
+                // }
+                // },
+                // {"targets": 6,
+                // "render": function(data, type, row){
+                //     var amount = setAmount(row['qty'], row['price'], row['discount'], row['days']);
+                //     if(amount){
+                //         return amount+row['currency'];
+                //     }else{
+                //         return '0'+row['currency'];
+                //     }
+                // }
+                // },
                 {"targets": -1,
                 "render": function(data, type, row){
                     //Ver:
@@ -889,31 +784,29 @@ $(document).ready(function(){
         var from = $('#dtFrom').val();
 
         //Filters:
-        $('#tblBudgets thead tr').clone(true).appendTo('#tblBudgets thead');
-        $('#tblBudgets thead tr:eq(1) th').each(function(i){
-            var title = $(this).text();
-            if(i == 10){
-                $(this).html('');
-            }else{
-                $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
-            }
+        //01/07/2022: se ocultan temporalmente hasta dar el modo de que funcionen junto con ServerSide.
+        // $('#tblBudgets thead tr').clone(true).appendTo('#tblBudgets thead');
+        // $('#tblBudgets thead tr:eq(1) th').each(function(i){
+        //     var title = $(this).text();
+        //     if(i == 10){
+        //         $(this).html('');
+        //     }else{
+        //         $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
+        //     }
      
-            $('input', this).on('keyup change', function(){
-                if(tableBudgets.column(i).search() !== this.value){
-                    tableBudgets
-                        .column(i)
-                        .search(this.value)
-                        .draw();
-                }
-            });
-        });
+        //     $('input', this).on('keyup change', function(){
+        //         if(tableBudgets.column(i).search() !== this.value){
+        //             tableBudgets
+        //                 .column(i)
+        //                 .search(this.value)
+        //                 .draw();
+        //         }
+        //     });
+        // });
 
         var tableBudgets = $('#tblBudgets').DataTable({
             "serverSide": true,
-            /*"processing": true,*/
-            drawCallback: function() {
-                $('.select2-dt').select2();
-            },
+            "processing": true,
             "ajax": {
                 "type": "GET",
                 "url": "/api/admin/budgets/"+from,
@@ -922,107 +815,17 @@ $(document).ready(function(){
                 }
             },
             "columns": [
-                {data: 'num', className: 'text-right'},
-                {data: 'budget_old_num', className: 'text-right'},
-                {data: 'name'},
-                {data: 'id'},
-                {data: 'id', className: 'text-right'},
-                {data: 'modalidad'},
-                {data: 'id'},
-                {data: 'id', className: 'text-right'},
-                {data: 'Company'},
-                {data: 'estado'},
-                {data: 'id', className: 'text-right'}
-            ],
-            "columnDefs": [
-                {"targets": 0,
-                "render": function(data, type, row){
-                    var num = row['budget_num']? row['budget_num']:row['id'];
-                    if(row['from'] == 'customers'){
-                        var nbudget = '<a href="/admin/budgets/'+row['id']+'/edit">'+num+'</a>';
-                    }else{
-                        var nbudget = '<a href="/admin/budgets/'+row['id']+'/show">'+num+'</a>';    
-                    }                    
-                    return nbudget;
-                }
-                },
-                {"targets": 3,
-                "render": function(data, type, row){
-                    if(!row['order_num'] && !row['id']){
-                        return '<span class="text-warning">'+txtPendiente+'</span>';   
-                    }else{
-                        var order_num = row['order_num']? row['order_num']:row['id'];
-                        return '<a target="_blank" href="/admin/orders/'+row['id']+'/edit">'+order_num+'</a>';
-                    }
-                }
-                },
-                {"targets": 4,
-                "render": function(data, type, row){
-                    return row['amount'];
-                }
-                },
-                {"targets": 6,
-                "render": function(data, type, row){
-                    if(row['Nombre']){
-                        return row['Nombre']+' '+row['surname'];
-                    }else{
-                        return '';
-                    }
-                }
-                },
-                {"targets": 7,
-                "render": function(data, type, row){
-                    return '<span style="display: none">'+row['created_at']+'</span>'+row['alta'];
-                }
-                },
-                {"targets": 8,
-                "render": function(data, type, row){
-                    var company = row['Company'];
-                    if(row['CustomerManagerName']){
-                        company += ' ('+row['CustomerManagerName']+' '+row['CustomerManagerSurname']+')';
-                    }
-
-                    return company;
-                }
-                },
-                {"targets": -2,
-                "render": function(data, type, row){
-                    return '<span class="xoption-'+row['id']+'">'+row['estado']+'</span>'; 
-                }
-                },
-                {"targets": -1,
-                "render": function(data, type, row){
-                    //Estado múltiple:
-                    var estado = multipleStatus(row['estados'], row['budget_status'], row['id']);
-
-                    //Editar:
-                    var editar = '';
-                    if(row['editar']){
-                        if(row['from'] == 'customers'){
-                            var action = 'edit';   
-                            var icon = 'edit'; 
-                            var txt_ = txtEditar;
-                        }else{
-                            var action = 'show';
-                            var icon = 'eye';
-                            var txt_ = txtVer;
-                        }                        
-                        var editar = '<a href="/admin/budgets/'+row['id']+'/'+action+'" class="btn btn-xs btn-info btn-module" rel="tooltip" title="'+txt_+'"><i class="fa fa-'+icon+'"></i></a>';
-                    }
-
-                    //Eliminar:
-                    var eliminar = '';
-                    if(row['from'] == 'customers' && row['eliminar'] && !row['invoiced']){
-                        var eliminar = '<form method="POST" action="/admin/budgets/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
-                            eliminar += '<input name="_method" type="hidden" value="DELETE">';
-                            eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
-                            eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtEliminar+'" data-msg="'+txtPresupuestoConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
-                        eliminar += '</form>';
-                    }
-
-                    return estado+' '+editar+' '+eliminar;
-                }
-                }
+                {data: 'num', name: 'num', className: 'text-right'},
+                {data: 'budget_old_num', name: 'budget_old_num', className: 'text-right'},
+                {data: 'name', name: 'name'},
+                {data: 'order_num', name: 'order_num'},
+                {data: 'amount', name: 'amount', className: 'text-right'},
+                {data: 'modalidad', name: 'modalidad'},
+                {data: 'manager', name: 'manager'},
+                {data: 'alta', name: 'alta', className: 'text-right'},
+                {data: 'company', name: 'companies.name', "defaultContent": ""},
+                {data: 'estado', name: 'estado'},
+                {data: 'acciones', name: 'acciones', className: 'text-right'}
             ]
         });
     }
@@ -1708,7 +1511,7 @@ $(document).ready(function(){
 
                         users = '<a href="#" class="btn btn-xs btn-info btn-module btnAddManager" rel="tooltip" title="'+txtResponsableAdd+'" data-toggle="modal" data-target="#modal-add-manager" data-id="'+row['id']+'" data-company="'+row['name']+'"><i class="fa fa-user-plus"></i></a>';
 
-                        config = '<a href="#" class="btn btn-xs btn-info btn-module btnCustomerConfig" rel="tooltip" title="'+txtClienteConfiguraciones+'" data-toggle="modal" data-target="#modal-edit-config" data-customer="'+row['id']+'" data-baid="'+row['ba_id']+'" data-workplaceid="'+row['workplace_id']+'" data-ccid="'+row['cc_id']+'" data-discount="'+row['discount']+'"><i class="fa fa-cog"></i></a>';
+                        config = '<a href="#" class="btn btn-xs btn-info btn-module btnCustomerConfig" rel="tooltip" title="'+txtClienteConfiguraciones+'" data-toggle="modal" data-target="#modal-edit-config" data-customer="'+row['id']+'" data-baid="'+row['ba_id']+'" data-workplaceid="'+row['workplace_id']+'" data-ccid="'+row['cc_id']+'" data-discount="'+row['discount']+'" data-credit="'+row['credit_risk']+'"><i class="fa fa-cog"></i></a>';
                     }
 
                     //Editar:
@@ -2924,17 +2727,17 @@ $(document).ready(function(){
     //Tabla Order Customer Team:
     if($('#tblOrderCustomerTeam').length > 0){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
-        var shared = $('#myShared').val();
+        var order = $('#myOrder').val();
 
         var tableOrderCustomerTeam = $('#tblOrderCustomerTeam').DataTable({
             "serverSide": true,
-            /*"processing": true,*/
+            "processing": true,
             // drawCallback: function() {
             //     $('.select2-dt').select2();
             // },
             "ajax": {
                 "type": "GET",
-                "url": "/api/admin/order-teams/"+shared+"/customer",
+                "url": "/api/admin/order-teams/"+order+"/customer",
                 "error": function(reason){
                     console.log(reason);
                 }
@@ -2966,7 +2769,7 @@ $(document).ready(function(){
                     //Eliminar del pedido:
                     var eliminar = '';
                     if(row['rol'] == '' && row['customers_on']){
-                        eliminar = '<form method="POST" action="/admin/budget-orders/'+shared+'" class="frm-inline" role="form" accept-charset="UTF-8">';
+                        eliminar = '<form method="POST" action="/admin/budget-orders/'+order+'" class="frm-inline" role="form" accept-charset="UTF-8">';
                             eliminar += '<input name="_method" type="hidden" value="DELETE">';
                             eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
                             eliminar += '<input type="hidden" name="member" value="'+row['id']+'">';
@@ -2989,31 +2792,31 @@ $(document).ready(function(){
         var year = $('#myYear').val();
 
         //Filters:
-        $('#tblOrderGroups thead tr').clone(true).appendTo('#tblOrderGroups thead');
-        $('#tblOrderGroups thead tr:eq(1) th').each(function(i){
-            var title = $(this).text();
-            if(i == 7){
-                $(this).html('');
-            }else{
-                $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
-            }
+        // $('#tblOrderGroups thead tr').clone(true).appendTo('#tblOrderGroups thead');
+        // $('#tblOrderGroups thead tr:eq(1) th').each(function(i){
+        //     var title = $(this).text();
+        //     if(i == 7){
+        //         $(this).html('');
+        //     }else{
+        //         $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
+        //     }
      
-            $('input', this).on('keyup change', function(){
-                if(tableOrderGroups.column(i).search() !== this.value){
-                    tableOrderGroups
-                        .column(i)
-                        .search(this.value)
-                        .draw();
-                }
-            });
-        });
+        //     $('input', this).on('keyup change', function(){
+        //         if(tableOrderGroups.column(i).search() !== this.value){
+        //             tableOrderGroups
+        //                 .column(i)
+        //                 .search(this.value)
+        //                 .draw();
+        //         }
+        //     });
+        // });
         
         var tableOrderGroups = $('#tblOrderGroups').DataTable({
-            "serverSide": false,
-            /*"processing": true,*/
-            drawCallback: function() {
-                $('.select2-dt').select2();
-            },
+            "serverSide": true,
+            "processing": true,
+            // drawCallback: function() {
+            //     $('.select2-dt').select2();
+            // },
             "ajax": {
                 "type": "GET",
                 "url": "/api/admin/order-groups/"+customer+"/"+year,
@@ -3022,95 +2825,106 @@ $(document).ready(function(){
                 }
             },
             "columns": [
-                {data: 'id', className: 'text-right'},
-                {data: 'id', className: 'text-right'},
-                {data: 'name'},
-                {data: 'alta', className: 'text-right'},
+                {data: 'num', name: 'num', className: 'text-right'},
+                {data: 'order_old_num', name: 'order_old_num', className: 'text-right'},
+                {data: 'name', name: 'name'},
+                {data: 'alta', name: 'alta', className: 'text-right'},
                 {data: 'group_amount', className: 'text-right'},
                 {data: 'bag_amount', className: 'text-right'},
                 //{data: 'costCenter'},
                 //{data: 'workplace'},
-                {data: 'estado'},
-                {data: 'id', className: 'text-right'}
-            ],
-            "columnDefs": [
-                {"targets": 0,
-                "render": function(data, type, row){
-                    var norder = '<a href="/admin/orders/'+row['id']+'/edit">'+row['id']+'</a>';
-                    return norder;
-                }
-                },
-                {"targets": 1,
-                "render": function(data, type, row){
-                    var old_num = row['old_order_group']? row['old_order_group']:'';
-                    return old_num;    
-                }
-                },
-                {"targets": 4,
-                "render": function(data, type, row){
-                    return row['group_amount']+row['currency'];
-                }
-                },
-                {"targets": 5,
-                "render": function(data, type, row){
-                    if(row['bag_amount']){
-                        return row['bag_amount']+row['currency'];
-                    }else{
-                        return '';
-                    }
-                }
-                },
-                {"targets": -2,
-                "render": function(data, type, row){
-                    return '<span class="xoption-'+row['id']+'">'+row['estado']+'</span>'; 
-                }
-                }, 
-                {"targets": -1,
-                "render": function(data, type, row){
-                    //Estado múltiple:
-                    var estado = multipleStatus(row['estados'], row['status'], row['id']);
-
-                    //Facturar:
-                    var facturar = '';
-                    if(row['invoice']){
-                        facturar = '<a href="/admin/invoices/'+row['id']+'/create-from-group" class="btn btn-xs btn-info btn-confirm" rel="tooltip" title="'+txtFacturar+'" data-msg="'+txtFacturarConfirm+'"><i class="fa fa-file-invoice-dollar"></i></a>';
-                    }
-                    
-                    //Editar:
-                    var editar = '<a href="/admin/orders/'+row['id']+'/edit" class="btn btn-xs btn-info" rel="tooltip" title="'+txtEditar+'"><i class="fa fa-edit"></i></a>';
-
-                    if(row['opened']){
-                        //Eliminar:
-                        var eliminar = '<form method="POST" action="/admin/orders/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
-                            eliminar += '<input name="_method" type="hidden" value="DELETE">';
-                            eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
-                            eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtAgrupacionEliminar+'" data-msg="'+txtAgrupacionEliminarConfirm+'"><i class="fa fa-trash"></i></button>';
-                        eliminar += '</form>';
-                    }else{
-                        var eliminar = '';
-                    }
-
-                    return estado+' '+facturar+' '+editar+' '+eliminar;
-                }
-                }
+                {data: 'estado', name: 'estado'},
+                {data: 'acciones', name: 'acciones', className: 'text-right'}
             ]
+            // "columnDefs": [
+            //     {"targets": 0,
+            //     "render": function(data, type, row){
+            //         var norder = '<a href="/admin/orders/'+row['id']+'/edit">'+row['id']+'</a>';
+            //         return norder;
+            //     }
+            //     },
+            //     {"targets": 1,
+            //     "render": function(data, type, row){
+            //         var old_num = row['old_order_group']? row['old_order_group']:'';
+            //         return old_num;    
+            //     }
+            //     },
+            //     {"targets": 4,
+            //     "render": function(data, type, row){
+            //         return row['group_amount']+row['currency'];
+            //     }
+            //     },
+            //     {"targets": 5,
+            //     "render": function(data, type, row){
+            //         if(row['bag_amount']){
+            //             return row['bag_amount']+row['currency'];
+            //         }else{
+            //             return '';
+            //         }
+            //     }
+            //     },
+            //     {"targets": -2,
+            //     "render": function(data, type, row){
+            //         return '<span class="xoption-'+row['id']+'">'+row['estado']+'</span>'; 
+            //     }
+            //     }, 
+            //     {"targets": -1,
+            //     "render": function(data, type, row){
+            //         //Estado múltiple:
+            //         var estado = multipleStatus(row['estados'], row['status'], row['id']);
+
+            //         //Facturar:
+            //         var facturar = '';
+            //         if(row['invoice']){
+            //             facturar = '<a href="/admin/invoices/'+row['id']+'/create-from-group" class="btn btn-xs btn-info btn-confirm" rel="tooltip" title="'+txtFacturar+'" data-msg="'+txtFacturarConfirm+'"><i class="fa fa-file-invoice-dollar"></i></a>';
+            //         }
+                    
+            //         //Editar:
+            //         var editar = '<a href="/admin/orders/'+row['id']+'/edit" class="btn btn-xs btn-info" rel="tooltip" title="'+txtEditar+'"><i class="fa fa-edit"></i></a>';
+
+            //         if(row['opened']){
+            //             //Eliminar:
+            //             var eliminar = '<form method="POST" action="/admin/orders/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
+            //                 eliminar += '<input name="_method" type="hidden" value="DELETE">';
+            //                 eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
+            //                 eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtAgrupacionEliminar+'" data-msg="'+txtAgrupacionEliminarConfirm+'"><i class="fa fa-trash"></i></button>';
+            //             eliminar += '</form>';
+            //         }else{
+            //             var eliminar = '';
+            //         }
+
+            //         return estado+' '+facturar+' '+editar+' '+eliminar;
+            //     }
+            //     }
+            // ]
         });
     }
 
     //Tabla Order Items:
     if($('#tblOrderItems').length > 0){
+        function format(d){
+            // `d` is the original data object for the row
+            var obvs = d.observations? d.observations:txtObservacionesSin;
+            return '<table cellpadding="0" cellspacing="0" border="0">'+
+                '<tr>'+
+                    '<td colspan="8" class="no-border">'+obvs+'</td>'+
+                '</tr>'+
+            '</table>';
+        }
+
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
-        var shared = $('#myShared').val();
+        var order = $('#myOrder').val();
+        var environment = $('#myEnvironment').val();
 
         var tableOrderItems = $('#tblOrderItems').DataTable({
             "serverSide": true,
-            /*"processing": true,*/
-            drawCallback: function() {
-                $('.select2-dt').select2();
-            },
+            "processing": true,
+            // drawCallback: function() {
+            //     $('.select2-dt').select2();
+            // },
             "ajax": {
                 "type": "GET",
-                "url": "/api/admin/order-items/"+shared,
+                "url": "/api/admin/order-items/"+order+"/"+environment,
                 "error": function(reason){
                     console.log(reason);
                 }
@@ -3125,17 +2939,12 @@ $(document).ready(function(){
                 //{data: 'iva', className: 'text-right'},
                 {data: 'amount', className: 'text-right'},
                 {data: 'estado'},
-                {data: 'id', className: 'text-right'}
+                {data: 'acciones', className: 'text-right'}
             ],
             "columnDefs": [
                 {"targets": 0,
                 "render": function(data, type, row, meta){
                     return meta.row + meta.settings._iDisplayStart + 1;
-                }
-                },
-                {"targets": 3,
-                "render": function(data, type, row){
-                    return row['price']+row['currency'];
                 }
                 },
                 {"targets": 4,
@@ -3149,50 +2958,41 @@ $(document).ready(function(){
                 },
                 // {"targets": 6,
                 // "render": function(data, type, row){
-                //     if(row['iva']){
-                //         return row['iva']+'%';    
+                //     var amount = setAmount(row['qty'], row['price'], row['discount'], row['days']);
+                //     if(amount){
+                //         return amount+row['currency'];
                 //     }else{
-                //         return '';
+                //         return '0'+row['currency'];
                 //     }
                 // }
                 // },
-                {"targets": 6,
-                "render": function(data, type, row){
-                    var amount = setAmount(row['qty'], row['price'], row['discount'], row['days']);
-                    if(amount){
-                        return amount+row['currency'];
-                    }else{
-                        return '0'+row['currency'];
-                    }
-                }
-                },
-                {"targets": -1,
-                "render": function(data, type, row){
-                    //Editar - condiciones:
-                    //1. Disponer de permisos.
-                    //2. No debe ser pedido vinculado a agrupación ni estar facturado.
-                    var editar = '';
-                    if(row['editar'] && (!row['order'].parent && !row['order'].invoiced)){
-                        //Editar:
-                        editar = '<a href="#" class="btn btn-xs btn-info btnEditItem" rel="tooltip" title="'+txtEditar+'" data-toggle="modal" data-target="#modal-edit-line" data-id="'+row['id']+'"><i class="fa fa-edit"></i></a>';
-                    }
+                // {"targets": -1,
+                // "render": function(data, type, row){
+                //     //Editar - condiciones:
+                //     //1. Disponer de permisos.
+                //     //2. No debe ser pedido vinculado a agrupación ni estar facturado.
+                //     var editar = '';
+                //     if(row['editar'] && (!row['order'].parent && !row['order'].invoiced)){
+                //         //Editar:
+                //         editar = '<a href="#" class="btn btn-xs btn-info btnEditItem" rel="tooltip" title="'+txtEditar+'" data-toggle="modal" data-target="#modal-edit-line" data-id="'+row['id']+'"><i class="fa fa-edit"></i></a>';
+                //     }
 
-                    //Eliminar - condiciones:
-                    //1. Disponer de permisos.
-                    //2. No debe ser pedido vinculado a agrupación ni estar facturado.
-                    var eliminar = '';
-                    if(row['editar'] && (!row['order'].parent && !row['order'].invoiced)){
-                        eliminar = '<form method="POST" action="/admin/items/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
-                            eliminar += '<input name="_method" type="hidden" value="DELETE">';
-                            eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
-                            eliminar += '<input type="hidden" name="environment" value="orders">';
-                            eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtItemEliminar+'" data-msg="'+txtPedidoItemConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
-                        eliminar += '</form>';
-                    }
+                //     //Eliminar - condiciones:
+                //     //1. Disponer de permisos.
+                //     //2. No debe ser pedido vinculado a agrupación ni estar facturado.
+                //     var eliminar = '';
+                //     if(row['editar'] && (!row['order'].parent && !row['order'].invoiced)){
+                //         eliminar = '<form method="POST" action="/admin/items/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
+                //             eliminar += '<input name="_method" type="hidden" value="DELETE">';
+                //             eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
+                //             eliminar += '<input type="hidden" name="environment" value="orders">';
+                //             eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtItemEliminar+'" data-msg="'+txtPedidoItemConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
+                //         eliminar += '</form>';
+                //     }
 
-                    return editar+' '+eliminar;
-                }
-                }
+                //     return editar+' '+eliminar;
+                // }
+                // }
             ],
             "footerCallback": function(row, data, start, end, display){
                 //console.log(data);
@@ -3244,6 +3044,21 @@ $(document).ready(function(){
                 //console.log(amount)
 
                 $('#totalAmountIva').text(amount.toFixed(2)+currency);
+            }
+        });
+
+        $('#tblOrderItems tbody').on('click', 'td .btnSeeItem', function () {
+            var tr = $(this).closest('tr');
+            var row = tableOrderItems.row(tr);
+     
+            if(row.child.isShown()){
+                // This row is already open - close it
+                row.child.hide();
+                tr.removeClass('shown');
+            }else{
+                // Open this row
+                row.child(format(row.data())).show();
+                tr.addClass('shown');
             }
         });
     }
@@ -3314,7 +3129,7 @@ $(document).ready(function(){
     //Tabla Order Provider Team:
     if($('#tblOrderProviderTeam').length > 0){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
-        var shared = $('#myShared').val();
+        var order = $('#myOrder').val();
 
         var tableOrderProviderTeam = $('#tblOrderProviderTeam').DataTable({
             "serverSide": true,
@@ -3324,7 +3139,7 @@ $(document).ready(function(){
             // },
             "ajax": {
                 "type": "GET",
-                "url": "/api/admin/order-teams/"+shared+"/provider",
+                "url": "/api/admin/order-teams/"+order+"/provider",
                 "error": function(reason){
                     console.log(reason);
                 }
@@ -3356,7 +3171,7 @@ $(document).ready(function(){
                     //Eliminar del pedido:
                     var eliminar = '';
                     if(row['rol'] == '' && row['providers_on']){
-                        eliminar = '<form method="POST" action="/admin/budget-orders/'+shared+'" class="frm-inline" role="form" accept-charset="UTF-8">';
+                        eliminar = '<form method="POST" action="/admin/budget-orders/'+order+'" class="frm-inline" role="form" accept-charset="UTF-8">';
                             eliminar += '<input name="_method" type="hidden" value="DELETE">';
                             eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
                             eliminar += '<input type="hidden" name="member" value="'+row['id']+'">';
@@ -3374,8 +3189,6 @@ $(document).ready(function(){
 
     //Tabla Order Settings:
     if($('#tblOrderSettings').length > 0){
-        var tokenDT = $('meta[name="csrf-token"]').attr('content');
-        
         $('#tblOrderSettings').DataTable({
             "serverSide": true,
             /*"processing": true,*/
@@ -3456,11 +3269,11 @@ $(document).ready(function(){
         
         var tableOrders = $('#tblOrders').DataTable({
             "order": [[ 0, "desc" ]],
-            "serverSide": false,
-            //"processing": true,
-            drawCallback: function(){
-                $('.select2-dt').select2();
-            },
+            "serverSide": true,
+            "processing": true,
+            // drawCallback: function(){
+            //     $('.select2-dt').select2();
+            // },
             "ajax": {
                 "type": "GET",
                 "url": "/api/admin/orders/"+customer+"/"+provider+"/"+owner+"/"+status,
@@ -3469,106 +3282,106 @@ $(document).ready(function(){
                 }
             },
             "columns": [
-                {data: 'order_num', className: 'text-right'},
-                {data: 'order_old_num', className: 'text-right'},
-                {data: 'budget', className: 'text-right'},
-                {data: 'parent', className: 'text-center'},
-                {data: 'purchase_number', className: 'text-right'},
+                {data: 'num', name: 'num', className: 'text-right'},
+                {data: 'order_old_num', name: 'order_old_num', className: 'text-right'},
+                {data: 'budget_num', name: 'budget_num', className: 'text-right'},
+                {data: 'order_parent', className: 'text-center'},
+                {data: 'purchase_num', className: 'text-right'},
                 {data: 'name'},
                 {data: 'amount', className: 'text-right'},
                 {data: 'fechaEntregaPrevista', className: 'text-right'},
                 //{data: 'businessArea'},
                 {data: 'costCenter'},
                 //{data: 'workplace'},
-                {data: 'estado'},
-                {data: 'id', className: 'text-right'}
-            ],
-            "columnDefs": [
-                {"targets": 0,
-                "render": function(data, type, row){
-                    var num = row['order_num']? row['order_num']:row['id'];
-                    var norder = '<a target="_blank" href="/admin/orders/'+row['id']+'/edit">'+num+'</a>';
-                    return norder;
-                }
-                },
-                {"targets": 2,
-                "render": function(data, type, row){
-                    var budget = '<a target="_blank" href="/admin/budgets/'+row['id']+'/edit">'+row['budget']+'</a>';
-                    return budget;
-                }
-                },
-                {"targets": 3,
-                "render": function(data, type, row){
-                    if(row['parent']){
-                        return '<a target="_blank" href="/admin/orders/'+row['parent']+'/edit">'+txtAgrupacionVer+'</a>';
-                    }else{
-                        return '';
-                    }
-                }
-                },
-                {"targets": -2,
-                "render": function(data, type, row){
-                    return '<span class="xoption-'+row['id']+'">'+row['estado']+'</span>'; 
-                }
-                }, 
-                {"targets": -1,
-                "render": function(data, type, row){
-                    //Estado múltiple:
-                    var estado = multipleStatus(row['estados'], row['status'], row['id']);
-
-                    //Facturar:
-                    var facturar = '';
-                    if(accounting_on && row['invoiceable']){
-                        //Facturas de agrupación:
-                        if(row['og_id']){
-                            facturar = '<a href="/admin/invoices/'+row['og_id']+'/by-order-group" class="btn btn-xs btn-success" rel="tooltip" title="'+txtFacturasAgrupacion+'"><i class="fa fa-layer-group"></i></a>';
-                        
-                        //Facturas simples:
-                        }else{
-                            if(row['invoiced']){
-                                //Estado facturación:
-                                if(row['invoices'] == '0'){
-                                    var invoice_status = 'btn-info';
-                                    var txtMsg = txtFacturar;
-                                }else if(row['invoices'] == 1){
-                                    var invoice_status = 'btn-warning';  
-                                    var txtMsg = txtFacturaParcial;
-                                }else if(row['invoices'] == 2){
-                                    var invoice_status = 'btn-success';
-                                    var txtMsg = txtFacturaCompleta;
-                                }
-
-                                facturar = '<a href="/admin/invoices/'+row['id']+'/by-order" class="btn btn-xs '+invoice_status+'" rel="tooltip" title="'+txtMsg+'"><i class="fa fa-file-invoice-dollar"></i></a>';
-
-                            //Por facturar:
-                            }else{
-                                // facturar = '<a href="/admin/invoices/'+row['id']+'/create-from-order" class="btn btn-xs btn-info btn-confirm" rel="tooltip" title="'+txtFacturar+'" data-msg="'+txtFacturarConfirm+'"><i class="fa fa-file-invoice-dollar"></i></a>';
-
-                                facturar = '<a href="#" class="btn btn-xs btn-info btnAddOrderToNewInvoice" rel="tooltip" title="'+txtFacturar+'" data-toggle="modal" data-target="#modal-generate-invoice" data-orderid="'+row['id']+'"><i class="fa fa-file-invoice-dollar"></i></a>';
-                            }
-                        }
-                    }
-
-                    //Editar:
-                    var editar = '';
-                    if(row['editar']){
-                        var editar = '<a href="/admin/orders/'+row['id']+'/edit" class="btn btn-xs btn-info" rel="tooltip" title="'+txtEditar+'"><i class="fa fa-edit"></i></a>';
-                    }
-
-                    //Eliminar:
-                    var eliminar = '';
-                    if(row['eliminar'] && !row['invoiced']){
-                        var eliminar = '<form method="POST" action="/admin/orders/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
-                            eliminar += '<input name="_method" type="hidden" value="DELETE">';
-                            eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
-                            eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtEliminar+'" data-msg="'+txtPedidoConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
-                        eliminar += '</form>';
-                    }
-
-                    return estado+' '+facturar+' '+editar+' '+eliminar;   
-                }
-                }
+                {data: 'estado', name: 'estado'},
+                {data: 'acciones', name: 'acciones', className: 'text-right'}
             ]
+            // "columnDefs": [
+            //     {"targets": 0,
+            //     "render": function(data, type, row){
+            //         var num = row['order_num']? row['order_num']:row['id'];
+            //         var norder = '<a target="_blank" href="/admin/orders/'+row['id']+'/edit">'+num+'</a>';
+            //         return norder;
+            //     }
+            //     },
+            //     {"targets": 2,
+            //     "render": function(data, type, row){
+            //         var budget = '<a target="_blank" href="/admin/budgets/'+row['id']+'/edit">'+row['budget']+'</a>';
+            //         return budget;
+            //     }
+            //     },
+            //     {"targets": 3,
+            //     "render": function(data, type, row){
+            //         if(row['parent']){
+            //             return '<a target="_blank" href="/admin/orders/'+row['parent']+'/edit">'+txtAgrupacionVer+'</a>';
+            //         }else{
+            //             return '';
+            //         }
+            //     }
+            //     },
+            //     {"targets": -2,
+            //     "render": function(data, type, row){
+            //         return '<span class="xoption-'+row['id']+'">'+row['estado']+'</span>'; 
+            //     }
+            //     }, 
+            //     {"targets": -1,
+            //     "render": function(data, type, row){
+            //         //Estado múltiple:
+            //         var estado = multipleStatus(row['estados'], row['status'], row['id']);
+
+            //         //Facturar:
+            //         var facturar = '';
+            //         if(accounting_on && row['invoiceable']){
+            //             //Facturas de agrupación:
+            //             if(row['og_id']){
+            //                 facturar = '<a href="/admin/invoices/'+row['og_id']+'/by-order-group" class="btn btn-xs btn-success" rel="tooltip" title="'+txtFacturasAgrupacion+'"><i class="fa fa-layer-group"></i></a>';
+                        
+            //             //Facturas simples:
+            //             }else{
+            //                 if(row['invoiced']){
+            //                     //Estado facturación:
+            //                     if(row['invoices'] == '0'){
+            //                         var invoice_status = 'btn-info';
+            //                         var txtMsg = txtFacturar;
+            //                     }else if(row['invoices'] == 1){
+            //                         var invoice_status = 'btn-warning';  
+            //                         var txtMsg = txtFacturaParcial;
+            //                     }else if(row['invoices'] == 2){
+            //                         var invoice_status = 'btn-success';
+            //                         var txtMsg = txtFacturaCompleta;
+            //                     }
+
+            //                     facturar = '<a href="/admin/invoices/'+row['id']+'/by-order" class="btn btn-xs '+invoice_status+'" rel="tooltip" title="'+txtMsg+'"><i class="fa fa-file-invoice-dollar"></i></a>';
+
+            //                 //Por facturar:
+            //                 }else{
+            //                     // facturar = '<a href="/admin/invoices/'+row['id']+'/create-from-order" class="btn btn-xs btn-info btn-confirm" rel="tooltip" title="'+txtFacturar+'" data-msg="'+txtFacturarConfirm+'"><i class="fa fa-file-invoice-dollar"></i></a>';
+
+            //                     facturar = '<a href="#" class="btn btn-xs btn-info btnAddOrderToNewInvoice" rel="tooltip" title="'+txtFacturar+'" data-toggle="modal" data-target="#modal-generate-invoice" data-orderid="'+row['id']+'"><i class="fa fa-file-invoice-dollar"></i></a>';
+            //                 }
+            //             }
+            //         }
+
+            //         //Editar:
+            //         var editar = '';
+            //         if(row['editar']){
+            //             var editar = '<a href="/admin/orders/'+row['id']+'/edit" class="btn btn-xs btn-info" rel="tooltip" title="'+txtEditar+'"><i class="fa fa-edit"></i></a>';
+            //         }
+
+            //         //Eliminar:
+            //         var eliminar = '';
+            //         if(row['eliminar'] && !row['invoiced']){
+            //             var eliminar = '<form method="POST" action="/admin/orders/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
+            //                 eliminar += '<input name="_method" type="hidden" value="DELETE">';
+            //                 eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
+            //                 eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtEliminar+'" data-msg="'+txtPedidoConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
+            //             eliminar += '</form>';
+            //         }
+
+            //         return estado+' '+facturar+' '+editar+' '+eliminar;   
+            //     }
+            //     }
+            // ]
         });
     }
 

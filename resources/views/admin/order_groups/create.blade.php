@@ -39,7 +39,7 @@
 								$customers_[$ctm->id] = $ctm->name;
 							}
 							@endphp
-							<x-select name="company_id" class="select2" label="cliente_selec" :options="$customers_" required="true"/>
+							<x-select name="company_id" class="select2" label="cliente_selec" :options="$customers_" required="true" value="{{ $customer_id }}"/>
 						</div>
 					</div>
 

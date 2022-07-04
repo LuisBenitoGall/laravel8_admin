@@ -336,6 +336,7 @@ class ProductController extends Controller{
         $product->description = $strDescription;
         $product->long_description = $strLongDescription;
         $product->price = $request->price;
+        $product->calculated_by_percent = $request->calculated_by_percent;
         $product->batch = $batch;
         $product->stock_management = $stock_management;
         $product->iva = $request->iva;

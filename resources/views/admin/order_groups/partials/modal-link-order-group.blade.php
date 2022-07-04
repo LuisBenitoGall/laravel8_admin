@@ -42,6 +42,15 @@
 
 	            @else
 	            	<h4 class="text-center text-warning mb-4 mt-4">{{ trans('textos.no_agrupaciones') }}</h4>
+
+	            	@can('orders.create')
+	            		<div class="text-center">
+							<a target="_blank" href="{{ route('order-groups.create', $order->customer_id) }}" class="btn btn-info">
+				    			<i class="fa fa-plus"></i>
+				    			{!! ucfirst(trans('textos.agrupacion_nueva')) !!}
+				    		</a>
+				    	</div>
+			    	@endcan	            	
 	            @endif 
             </div>
         </div>

@@ -19,7 +19,7 @@ class InvoiceGetMiddleware{
      */
     public function handle(Request $request, Closure $next){
         $company = Invoice::select('provider_id')
-        ->join('budget_order_shared_fields', 'invoices.shared_id', '=', 'budget_order_shared_fields.id')
+        ->join('orders', 'invoices.order_id', '=', 'orders.id')
         ->where('invoices.id', $request->segments()[2])
         ->first();
 

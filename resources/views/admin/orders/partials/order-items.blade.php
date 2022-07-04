@@ -9,7 +9,6 @@
 					<th class="text-center">{{ ucfirst(trans('textos.precio_unidad')) }}</th>
 					<th class="text-center">{{ ucfirst(trans('textos.jornadas')) }}</th>
 					<th class="text-center">{{ ucfirst(trans('textos.descuento')) }}</th>
-					{{-- <th class="text-center">IVA</th> --}}
 					<th class="text-center">{{ ucfirst(trans('textos.importe')) }}</th>
 					<th>{{ ucfirst(trans('textos.estado')) }}</th>
 					<th class="text-center">{{ ucfirst(trans('textos.acciones')) }}</th>

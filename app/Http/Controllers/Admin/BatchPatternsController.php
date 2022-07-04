@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Yajra\DataTables\DataTables;
 
 //Models:
 use App\Models\BatchPatterns;
@@ -31,7 +32,7 @@ class BatchPatternsController extends Controller{
 
     public function __construct(){
         //Idiomas:
-        $this->languages = Helpers::languages();
+        $this->languages = helpers::languages();
 
         $this->middleware('module_setted:production');
         $this->middleware('batch_pattern_get', ['only' => ['edit', 'update', 'destroy']]);
@@ -71,28 +72,27 @@ class BatchPatternsController extends Controller{
      * 1.1. Listado de patrones para DataTable.
      */
     public function getPatternsDT(){
-        $patterns = BatchPatterns::where('company_id', session('currentCompany'))->get(); 
+        $patterns = BatchPatterns::where('company_id', session('currentCompany')); 
 
-        //Permisos del usuario:
-        $editar = Auth::user()->can('batch-patterns.edit');
-        $eliminar = Auth::user()->can('batch-patterns.destroy');
-
-        //Ampliación de información de los objetos:
-        foreach($patterns as $row){
-            $row->alta = $row->created_at->format($this->languages[session()->get('locale')][4]);
-
-            $arr = unserialize($row->pattern);
-            $row->patron = '';
+        return DataTables::of($patterns)
+        ->addColumn('patron', function($pattern){
+            $arr = unserialize($pattern->pattern);
+            $patron = '';
             foreach($arr as $p){
-                $row->patron .= $p;
+                $patron .= $p;
             }
-
-            //Permisos para las acciones:
-            $row->editar = $editar;
-            $row->eliminar = $eliminar;
-        }
-
-        return datatables($patterns)->toJson();
+            return $patron;
+        })
+        ->addColumn('reset', function($pattern){
+            return view('admin.batch_patterns.partials.dt-reset', compact('pattern'));    
+        })
+        ->addColumn('alta', function($pattern){
+            return $pattern->created_at->format($this->languages[session()->get('locale')][4]);    
+        })
+        ->addColumn('acciones', function($pattern){
+            return view('admin.batch_patterns.partials.dt-actions', compact('pattern'));    
+        })
+        ->make(true);
     }
 
     /**

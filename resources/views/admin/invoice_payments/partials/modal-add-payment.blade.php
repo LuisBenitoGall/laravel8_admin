@@ -1,8 +1,8 @@
-<div class="modal fade modal-add-payment" id="modal-add-payment" tabindex="-1" role="dialog" aria-labelledby="addMember" aria-hidden="true">
+<div class="modal fade modal-add-payment" id="modal-add-payment" tabindex="-1" role="dialog" aria-labelledby="addPayment" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title" id="addMember">{!! ucfirst(trans('textos.cobro_add')) !!}</h4>
+                <h4 class="modal-title" id="addPayment">{!! ucfirst(trans('textos.cobro_add')) !!}</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -25,7 +25,15 @@
                         {{-- Modo --}}
                         <label for="mode" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.modo')) !!}</label>
                         <div class="col-lg-10">
-                            <x-input type="text" name="mode" autocomplete="off" maxlength="255"/>
+                            <x-select name="mode" class="select2" label="metodo_selec" :options="$payment_methods"/>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        {{-- Cuenta bancaria --}}
+                        <label for="bank_account_id" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.cuenta')) !!}</label>
+                        <div class="col-lg-10">
+                            <x-select name="bank_account_id" class="select2" label="banco_selec" :options="$bank_accounts" value="{{ $bank_featured }}"/>
                         </div>
                     </div>
 

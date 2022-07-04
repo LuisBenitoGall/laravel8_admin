@@ -18,6 +18,7 @@ class Order extends Model{
      * 6. Suma importe de líneas por presupuesto-pedido.
      * 7. Importe del presupuesto-pedido.
      * 8. Importe facturado por pedido.
+     * 9. Aplicar descuento por defecto de cliente.
      */
     
     use HasFactory;
@@ -49,12 +50,12 @@ class Order extends Model{
     /**
      * 3. Pedidos por agrupación + facturas.
      */
-    public static function getGroupOrders(){
-        $data = Order::select('orders.id', 'orders.budget_id', 'orders.discount', 'orders.free_amount', 'orders.id AS orderId', 'orders.order_num', 'orders.order_old_num', 'orders.name', 'orders.purchase_num', 'orders.purchase_old_num', 'orders.invoiced', 'budgets.id AS budgetId', 'budgets.budget_num', 'cost_centers.name AS costCenter', 'invoices.id AS invoiceId', 'invoices.invoice_num')
+    public function getGroupOrders(){
+        $data = Order::select('orders.id', 'orders.is_budget', 'orders.discount', 'orders.bag_amount', 'orders.order_num', 'orders.order_old_num', 'orders.name', 'orders.purchase_num', 'orders.purchase_old_num', 'orders.invoiced', 'orders.budget_num', 'cost_centers.name AS costCenter', 'invoices.id AS invoiceId', 'invoices.invoice_num')
             ->leftJoin('cost_centers', 'orders.customer_cost_center_id', '=', 'cost_centers.id')
             ->leftJoin('invoice_orders', 'orders.id', '=', 'invoice_orders.order_id')
             ->leftJoin('invoices', 'invoice_orders.invoice_id', '=', 'invoices.id')
-            ->where('orders.parent', $this->id)
+            ->where('orders.order_parent', $this->id)
             ->where('orders.is_group', false)
             //->where('orders.invoiced', false)
             ->orderBy('orders.invoiced', 'DESC')
@@ -66,10 +67,9 @@ class Order extends Model{
     /**
      * 4. Importe total por agrupación.
      */
-    public static function getGroupAmount(){
-        $orders = Order::select('budget_order_shared_fields.id')
-        ->join('orders', 'budget_order_shared_fields.order_id', '=', 'orders.id')  
-        ->where('orders.parent', $this->id)
+    public function getGroupAmount(){
+        $orders = Order::select('id')
+        ->where('orders.order_parent', $this->id)
         ->where('orders.is_group', false)  
         ->get();
 
@@ -94,7 +94,7 @@ class Order extends Model{
             //Omitimos los items que se calculan porcentualmente:
             if(!$row->calculated_by_percent && $row->price > 0){
                 //Cálculo de importe de la línea:
-                $amount = Helpers::itemAmount($row, $with_iva = false);
+                $amount = helpers::itemAmount($row, $with_iva = false);
                 $total_amount = $total_amount + $amount;
             }    
         }
@@ -131,10 +131,12 @@ class Order extends Model{
     /**
      * 7. Importe del presupuesto-pedido.
      */
-    public function getAmount($discount_ = true, $with_iva = false){
-        $items = $this->items;
+    public function getAmount($discount_ = true, $with_iva = false, $with_percentage_items = true){
+        $items = Item::select('id', 'qty', 'price', 'item_no_price', 'iva', 'discount', 'calculated_by_percent', 'days', 'days_continue', 'days_continue_discount')
+        ->where('order_id', $this->id)
+        ->get();
 
-        $amount = $this->itemsAmount($items, true, $with_iva);
+        $amount = $this->itemsAmount($items, $with_percentage_items, $with_iva);
 
         //Aplicando descuento del presupuesto-pedido:
         $amount_discount = $amount;
@@ -171,5 +173,19 @@ class Order extends Model{
         ->first();
 
         return $data;
+    }
+
+    /**
+     * 9. Aplicar descuento por defecto de cliente.
+     */
+    public function setDefaultDiscount(){
+        $settings = CustomerProviders::where('customer_id', $this->customer_id)
+        ->where('provider_id', $this->provider_id)
+        ->first();
+
+        if($settings->discount > 0){
+            $this->discount = $settings->discount;
+            $this->save();
+        }
     }
 }

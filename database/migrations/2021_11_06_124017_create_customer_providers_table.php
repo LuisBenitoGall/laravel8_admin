@@ -32,6 +32,7 @@ class CreateCustomerProvidersTable extends Migration{
             $table->unsignedBigInteger('cc_id')->nullable();
             $table->foreign('cc_id')->references('id')->on('cost_centers');
             $table->float('discount', 4, 2)->nullable();
+            $table->float('credit_risk', 11, 2)->nullable();     //Riesgo crediticio del cliente.
             $table->text('billing_comunication')->nullable();
             //FK:
             $table->unsignedBigInteger('budget_form_id')->nullable();

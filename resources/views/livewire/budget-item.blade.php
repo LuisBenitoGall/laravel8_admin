@@ -205,7 +205,7 @@ $permitted = !$order || ($order && !$order->invoiced && !$order->parent)? true:f
                     </div>
 
                     {{-- Descuento: sólo se aplica si no hay descuento neto sobre el presupuesto --}}
-                    @if(!$shared->discount)
+                    @if(!$order->discount)
                         <label for="discount" class="col-4 col-sm-2 col-xl-1 col-form-label sinpadding-right">{!! ucfirst(trans('textos.descuento')) !!}</label>
                         <div class="col-8 col-sm-4 col-lg-3 col-xl-2 mb-3">
                             <div class="input-group">
@@ -373,7 +373,7 @@ $permitted = !$order || ($order && !$order->invoiced && !$order->parent)? true:f
                                     </div>
 
                                     {{-- Descuento: sólo se aplica si no existe descuento neto sobre el presupuesto --}}
-                                    @if(!$shared->discount)
+                                    @if(!$order->discount)
                                         <div class="col-2 sinpadding-right">   
                                             <b>{{ ucfirst(trans('textos.descuento')) }}:</b> 
                                             @if($is->calculated_by_percent)

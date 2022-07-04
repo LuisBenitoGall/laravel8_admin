@@ -18,8 +18,8 @@ class ItemGetMiddleware{
      * @return mixed
      */
     public function handle(Request $request, Closure $next){
-        $company = Item::select('budget_order_shared_fields.provider_id', 'budget_order_shared_fields.customer_id')
-        ->join('budget_order_shared_fields', 'items.budget_order_id', '=', 'budget_order_shared_fields.id')
+        $company = Item::select('orders.provider_id', 'orders.customer_id')
+        ->join('orders', 'items.order_id', '=', 'orders.id')
         ->where('items.id', $request->segments()[2])
         ->first();
 

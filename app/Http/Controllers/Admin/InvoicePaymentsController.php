@@ -21,6 +21,8 @@ class InvoicePaymentsController extends Controller{
      * 1. Cobros de facturas.
      * 1.1. Listado de cobros para DataTable.
      * 2. Guardar cobro.
+     * 3. Actualizar cobro.
+     * 4. Eliminar cobro.
      */
     
     private $option = 'contabilidad';
@@ -36,7 +38,8 @@ class InvoicePaymentsController extends Controller{
         $this->co_currency = CompanySettings::co_currency(0);
 
         $this->middleware('module_setted:accounting');
-        $this->middleware('invoice_post', ['only' => ['store']]);
+        $this->middleware('invoice_post', ['only' => ['store', 'update']]);
+        $this->middleware('bank_accounts_post', ['only' => ['store']]);
     }
 
     //0. Validator:
@@ -45,6 +48,14 @@ class InvoicePaymentsController extends Controller{
         if(isset($data['submit_save'])){
             return Validator::make($data, [
                 'invoice_id' => 'required|integer',
+                'amount' => 'required|numeric'
+            ]);
+
+        //Validación update:
+        }elseif(isset($data['submit_update'])){
+            return Validator::make($data, [
+                'invoice_id' => 'required|integer',
+                'payment_id' => 'required|integer',
                 'amount' => 'required|numeric'
             ]);
         }
@@ -87,11 +98,49 @@ class InvoicePaymentsController extends Controller{
         $row->invoice_id = $request->invoice_id;
         $row->amount = $request->amount;
         $row->mode = $request->mode;
+        $row->bank_account_id = $request->bank_account_id;
         $row->user_id = Auth::user()->id;
         $row->observations = $request->observations;
         $row->save();
 
         $msg = trans('textos.cobro_guardado');
         return redirect()->route('invoices.edit', [$request->invoice_id, 'payments'])->with(compact('msg'));
+    }
+
+    /**
+     * 3. Actualizar cobro.
+     */
+    public function update(Request $request){
+        $validator = $this->validator($request->all());
+        if($validator->fails()){
+            //Indicamos el origen de la acción realizada para manejar el modal:
+            $validator->getMessageBag()->add('accion', 'modal-edit-payment');
+
+            return redirect('/admin/invoices/'.$request->invoice_id.'/edit/payments')
+                ->withErrors($validator)
+                ->withInput();
+        }   
+
+        $row = InvoicePayments::find($request->payment_id);
+        $row->amount = $request->amount;
+        $row->mode = $request->mode;
+        $row->bank_account_id = $request->bank_account_id;
+        $row->observations = $request->observations;
+        $row->save();
+
+        $msg = trans('textos.cobro_updated');
+        return redirect()->route('invoices.edit', [$request->invoice_id, 'payments'])->with(compact('msg')); 
+    }
+
+    /**
+     * 4. Eliminar cobro.
+     */
+    public function destroy(Request $request, InvoicePayments $payment){
+        $invoice_id = $payment->invoice_id;
+
+        $payment->delete();
+
+        $msg = trans('textos.cobro_deleted');
+        return redirect()->route('invoices.edit', [$invoice_id, 'payments'])->with(compact('msg'));
     }
 }

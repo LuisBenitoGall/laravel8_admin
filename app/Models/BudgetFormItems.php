@@ -35,12 +35,12 @@ class BudgetFormItems extends Model{
     /**
      * 2. Obtener bloques por presupuesto.
      */
-    public static function getBudgetBlocks($form_id, $budget_id){
+    public static function getBudgetBlocks($form_id, $order_id){
         $data = BudgetFormItems::select('id', 'name')
         ->where('recid', '0')
-        ->where(function($query) use($form_id, $budget_id){
+        ->where(function($query) use($form_id, $order_id){
             $query->where('form_id', $form_id)
-            ->orWhere('budget_id', $budget_id);
+            ->orWhere('order_id', $order_id);
         })
         ->get();    
 

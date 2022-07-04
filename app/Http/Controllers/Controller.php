@@ -301,6 +301,10 @@ class Controller extends BaseController{
                 $cardinal_ = 'budget_num_cardinal';
                 $pattern_ = 'budget_pattern_id';
                 break;
+            case 'order':
+                $cardinal_ = 'order_num_cardinal';
+                $pattern_ = 'order_pattern_id';
+                break;
             default:
                 $cardinal_ = 'num_cardinal';
                 $pattern_ = 'pattern_id';

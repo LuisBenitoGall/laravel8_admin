@@ -15,7 +15,7 @@ $setBlock = true;
 // }
 @endphp
 
-<input type="hidden" id="myOrderId" value="{{ $order->id }}">
+<input type="hidden" id="myOrder" value="{{ $order->id }}">
 
 <div class="row mb-3">
 	{{-- Acciones: --}}
@@ -181,18 +181,6 @@ $setBlock = true;
 			@endif
 		@endif
 
-		{{-- Acceso a proyecto --}}
-		@if($module_projects)
-			@can('projects.edit')
-				@if($order->project_id)
-					<a href="{{ route('projects.edit', $order->project_id) }}" class="btn btn-info">
-						<i class="fa fa-rocket"></i>
-						{!! ucfirst(trans('textos.proyecto')) !!}
-					</a>
-				@endif
-			@endcan
-		@endif
-
 		{{-- Eliminar presupuesto - condiciones: 
 			1. Disponer de permisos.
 			2. Pedido facturado.
@@ -208,6 +196,9 @@ $setBlock = true;
         @endcan
 	</div>
 </div>
+
+<input type="hidden" id="dtController" value="items">
+<input type="hidden" id="myEnvironment" value="budgets">
 
 <div class="row">
 	<div class="col-12">						
@@ -310,7 +301,7 @@ $setBlock = true;
 
 					{{-- Items: --}}
 					<div class="tab-pane fade @if($tab == 'items') show active @endif" role="tabpanel" id="tab-items">
-						@include('admin.budgets.partials.budget-items')	
+						@include('admin.orders.partials.order-items')	
 					</div>
 
 					{{-- Notas: --}}
@@ -355,6 +346,9 @@ $setBlock = true;
 	@include('admin.orders.partials.modal-set-customer', ['environment_' => 'budgets'])	
 @endif
 
+{{-- Modify provider --}}
+@include('admin.budgets.partials.modal-change-provider')
+
 {{-- Add item --}}
 @include('admin.orders.partials.modal-add-item', ['environment_' => 'budgets', 'modality' => $order->modality])
 
@@ -363,9 +357,6 @@ $setBlock = true;
 
 {{-- See catalogue --}}
 @include('admin.orders.partials.modal-see-catalogue')
-
-{{-- Change provider --}}
-@include('admin.budgets.partials.modal-change-provider')
 
 {{-- Budget modality --}}
 @if(!$order->modality)

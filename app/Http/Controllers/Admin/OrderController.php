@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Yajra\DataTables\DataTables;
 use File;
 use Carbon\Carbon;
 
@@ -242,7 +243,7 @@ class OrderController extends Controller{
         $owners = UserCompanies::getCompanyUsers(session('currentCompany'), 1);
 
         //Estados de pedido:
-        $arrStatus = Helpers::orderStatus();
+        $arrStatus = helpers::orderStatus();
 
         //Pasamos el índice del status de pedido:
         if($status && $status != ''){
@@ -334,10 +335,11 @@ class OrderController extends Controller{
         $environment = $customer != session('currentCompany')? 'provider':'customer';
 
         //Obtenemos pedidos simples, no agrupaciones:
-        $orders = Order::select('orders.id', 'orders.discount', 'orders.order_parent', 'orders.name', 'orders.order_num', 'orders.order_old_num', 'orders.estimated_delivery_date', 'orders.purchase_num', 'orders.purchase_old_num', 'orders.delivery_date', 'orders.order_status', 'orders.invoiced', 'orders.created_at', 'business_areas.name AS businessArea', 'cost_centers.name AS costCenter')
+        $orders = Order::select('orders.id', 'orders.is_budget', 'orders.budget_num', 'orders.discount', 'orders.order_parent', 'orders.name', 'orders.order_num', 'orders.order_old_num', 'orders.estimated_delivery_date', 'orders.purchase_num', 'orders.purchase_old_num', 'orders.delivery_date', 'orders.order_status', 'orders.invoiced', 'orders.created_at', 'business_areas.name AS businessArea', 'cost_centers.name AS costCenter')
         ->leftJoin('business_areas', 'orders.customer_business_area_id', '=', 'business_areas.id')
         ->leftJoin('cost_centers', 'orders.customer_cost_center_id', '=', 'cost_centers.id')
         //->leftJoin('workplaces', 'orders.workplace_id', '=', 'workplaces.id')
+        ->where('orders.is_order', true)
         ->where('orders.is_group', false)
         ->when($owner, function($q) use($owner){
             return $q->where('orders.owner', $owner);
@@ -349,87 +351,118 @@ class OrderController extends Controller{
         ->when($provider && is_numeric($provider), function($q) use($provider){
             return $q->where('orders.provider_id', $provider);
         })
-        ->orderBy('orders.created_at', 'DESC')
-        ->get();
+        ->orderBy('orders.created_at', 'DESC');
+        //->get();
         //Filtro status:
         /*$query->when($status && $status != '', function($q) use($status){
             return $q->where('orders.status', $status);
         });*/
 
-        $arrEstados = helpers::orderStatus();
-        //Pasamos array a string con los índices:
-        $strEstados = '';
-        foreach($arrEstados as $idx => $est){
-            $strEstados .= $idx.'|'.$est.';';
-        }
+        $estados = helpers::orderStatus();
 
-        //Permisos del usuario:
-        $editar = Auth::user()->can('orders.edit');
-        $eliminar = Auth::user()->can('orders.destroy');
+        //Moneda:
+        $currency = CompanySettings::co_currency(0);
+
+        return DataTables::of($orders)
+        ->addColumn('num', function($order){
+            return view('admin.orders.partials.dt-num', compact('order')); 
+        })
+        ->addColumn('budget_num', function($order){
+            return view('admin.orders.partials.dt-budget-num', compact('order')); 
+        })
+        ->addColumn('order_parent', function($order){
+            if($order->order_parent){
+                return '<a target="_blank" href="/admin/orders/'.$order->order_parent.'/edit">'.$order->order_parent.'</a>';
+            }else{
+                return '';
+            }
+        })
+        ->addColumn('purchase_num', function($order){
+            $purchase_number = $order->purchase_num? $order->purchase_num:($order->purchase_old_num? $order->purchase_old_num:'');
+            return $purchase_number;
+        })
+        ->addColumn('amount', function($order) use($currency){
+            $amount = $order->getAmount();    
+            return $amount['amount_with_discount'].$currency->symbol;
+        })
+        ->addColumn('fechaEntregaPrevista', function($order){
+            return Carbon::parse($order->estimated_delivery_date)->format($this->languages[session()->get('locale')][4]);   
+        })
+        ->addColumn('estado', function($order) use($estados){
+            return view('admin.orders.partials.dt-status', compact('order', 'estados'));    
+        })
+        ->addColumn('acciones', function($order) use($estados){
+            return view('admin.orders.partials.dt-actions', compact('order', 'estados'));    
+        })
+        ->rawColumns(['order_parent'])
+        ->make(true);
+
+
+
 
         //Ampliación de información de los objetos:
-        if($orders){
-            //Comprobamos si tiene activo el módulo de contabilidad para poder facturar el pedido:
-            $invoice = $this->settedModule('contabilidad');
+        // if($orders){
+        //     //Comprobamos si tiene activo el módulo de contabilidad para poder facturar el pedido:
+        //     $invoice = $this->settedModule('contabilidad');
 
-            //Moneda:
-            $currency = CompanySettings::co_currency(0);
+        //     //Moneda:
+        //     $currency = CompanySettings::co_currency(0);
 
-            foreach($orders as $row){
-                //Enviamos las fechas ya formateadas:
-                $row->fechaEntregaPrevista = Carbon::parse($row->estimated_delivery_date)->format($this->languages[session()->get('locale')][4]);
-                $row->fechaEntrega = Carbon::parse($row->delivery_date)->format($this->languages[session()->get('locale')][4]);
-                $row->alta = $row->created_at? $row->created_at->format($this->languages[session()->get('locale')][4]):'';
+        //     foreach($orders as $row){
+        //         //Enviamos las fechas ya formateadas:
+        //         $row->fechaEntregaPrevista = Carbon::parse($row->estimated_delivery_date)->format($this->languages[session()->get('locale')][4]);
+        //         $row->fechaEntrega = Carbon::parse($row->delivery_date)->format($this->languages[session()->get('locale')][4]);
+        //         $row->alta = $row->created_at? $row->created_at->format($this->languages[session()->get('locale')][4]):'';
 
-                //Estado del pedido:
-                $row->estado = $row->order_status? ucfirst($arrEstados[$row->order_status]):'';
-                $row->estados = $row->order_status.';'.$strEstados;
+        //         //Estado del pedido:
+        //         $row->estado = $row->order_status? ucfirst($arrEstados[$row->order_status]):'';
+        //         $row->estados = $row->order_status.';'.$strEstados;
 
-                //Importe:
-                $arr_amounts = $row->getAmount();    
-                $row->amount = $arr_amounts['amount_with_discount'].$currency->symbol;
+        //         //Importe:
+        //         $arr_amounts = $row->getAmount();    
+        //         $row->amount = $arr_amounts['amount_with_discount'].$currency->symbol;
 
-                //Orden de compra:
-                $row->purchase_number = $row->purchase_num? $row->purchase_num:($row->purchase_old_num? $row->purchase_old_num:'');
+        //         //Orden de compra:
+        //         $row->purchase_number = $row->purchase_num? $row->purchase_num:($row->purchase_old_num? $row->purchase_old_num:'');
 
-                //Facturación de pedido. El pedido debe estar en algún status que permita su facturación:
-                $row->invoiceable = in_array($row->status, config('constants.ORDER_STATUS_INVOICED_'))? $invoice:false;
+        //         //Facturación de pedido. El pedido debe estar en algún status que permita su facturación:
+        //         $row->invoiceable = in_array($row->status, config('constants.ORDER_STATUS_INVOICED_'))? $invoice:false;
 
-                //Permisos para las acciones:
-                $row->editar = $editar;
-                $row->eliminar = $eliminar;
+        //         //Permisos para las acciones:
+        //         $row->editar = $editar;
+        //         $row->eliminar = $eliminar;
 
-                //Estado de la facturación:
-                if($row->invoiceable){
-                    $invoices_amount = Invoice::where('order_id', $row->orderId)
-                    ->sum('total_amount');  
+        //         //Estado de la facturación:
+        //         if($row->invoiceable){
+        //             $invoices_amount = Invoice::where('order_id', $row->orderId)
+        //             ->sum('total_amount');  
 
-                    if($invoices_amount == 0){
-                        $row->invoices = 0;
-                    }elseif($invoices_amount > 0 && $invoices_amount < $amount[2]){
-                        $row->invoices = 1;
-                    }else{
-                        $row->invoices = 2;
-                    }
-                }else{
-                    $row->invoices = false;
-                }
+        //             if($invoices_amount == 0){
+        //                 $row->invoices = 0;
+        //             }elseif($invoices_amount > 0 && $invoices_amount < $amount[2]){
+        //                 $row->invoices = 1;
+        //             }else{
+        //                 $row->invoices = 2;
+        //             }
+        //         }else{
+        //             $row->invoices = false;
+        //         }
 
-                $row->currency = $currency;
+        //         $row->currency = $currency;
 
-                //Presupuesto:
-                if($row->budgetId){
-                    $row->budget = $row->budget_num? $row->budget_num:$row->budgetId;
-                }else{
-                    $row->budget = '';
-                }
+        //         //Presupuesto:
+        //         if($row->budgetId){
+        //             $row->budget = $row->budget_num? $row->budget_num:$row->budgetId;
+        //         }else{
+        //             $row->budget = '';
+        //         }
 
-                //Entorno:
-                $row->environment = $environment;
-            }
-        }
+        //         //Entorno:
+        //         $row->environment = $environment;
+        //     }
+        // }
 
-        return datatables($orders)->toJson();
+        // return datatables($orders)->toJson();
     }
 
     /**
@@ -498,9 +531,10 @@ class OrderController extends Controller{
 
         //Creamos pedido:
         $order = new Order();
+        $order->is_order = true;
         $order->is_group = $is_group;
         if($is_group){
-            $order->status = config('constants.ORDER_GROUPS_DEFAULT_');
+            $order->order_status = config('constants.ORDER_GROUPS_DEFAULT_');
             $order->bag_amount = $bag_amount;
         }
         $order->created_by = Auth::user()->id;
@@ -516,6 +550,9 @@ class OrderController extends Controller{
 
         //Guardamos previsión de facturación por defecto:
         OrderPrevisions::store($order->id);
+
+        //Descuento por defecto:
+        $order->setDefaultDiscount();
 
         //Si se trata de un pedido de compra, se envía notificación al proveedor:
         if($order->customer_id == session('currentCompany')){
@@ -715,7 +752,7 @@ class OrderController extends Controller{
         $orders_off = false;
         $group_amount = false;
         if($order->is_group){
-            $ordersInGroup = Order::getGroupOrders($order->id);
+            $ordersInGroup = $order->getGroupOrders();
 
             foreach($ordersInGroup as $oig){
                 //Calculando importe de la agrupación:
@@ -729,7 +766,7 @@ class OrderController extends Controller{
             ->where('orders.customer_id', $order->customer_id)
             ->where('orders.provider_id', session('currentCompany'))
             ->where('orders.is_group', false)
-            ->whereNull('orders.parent')
+            ->whereNull('orders.order_parent')
             ->whereNull('order_previsions.invoice_id')
             ->whereNull('orders.deleted_at')
             ->orderBy('orders.order_num', 'ASC')
@@ -771,8 +808,9 @@ class OrderController extends Controller{
         ->get();
 
         //Proyecto vinculado:
-        $project_linked = ProjectOrders::select('project_id')
-        ->where('order_id', $order->id)
+        $project = ProjectOrders::select('projects.id', 'projects.code', 'projects.contest_code', 'projects.name')
+        ->join('projects', 'project_orders.project_id', '=', 'projects.id')
+        ->where('project_orders.order_id', $order->id)
         ->first();
 
         //Proyectos vinculados a compras:
@@ -829,7 +867,7 @@ class OrderController extends Controller{
         $module_projects = $this->settedModule('projects');
         $module_rrhh = $this->settedModule('rrhh');
         
-        return view('admin.orders.edit')->with(compact('header', 'order', 'tab', 'patterns', 'purchase_patterns', 'provider', 'provider_managers', 'provider_business_areas', 'provider_cost_centers', 'provider_workplaces', 'default_workplace', 'customer', 'customer_managers', 'customer_business_areas', 'customer_cost_centers', 'customer_workplaces', 'customer_settings', 'confirmed_by', 'customers', 'order_amount', 'order_amount_without_discount', 'order_groups', 'ordersInGroup', 'orders_off', 'group_amount', 'invoiced', 'invoices', 'previsions', 'products', 'projects', 'project_linked', 'project_purchases', 'deliveries', 'currency', 'items', 'author', 'owner', 'iva', 'order_type', 'templates', 'languages', 'permitted', 'module_accounting', 'module_budgets', 'module_products', 'module_projects', 'module_rrhh', 'module_logistics'));
+        return view('admin.orders.edit')->with(compact('header', 'order', 'tab', 'patterns', 'purchase_patterns', 'provider', 'provider_managers', 'provider_business_areas', 'provider_cost_centers', 'provider_workplaces', 'default_workplace', 'customer', 'customer_managers', 'customer_business_areas', 'customer_cost_centers', 'customer_workplaces', 'customer_settings', 'confirmed_by', 'customers', 'order_amount', 'order_amount_without_discount', 'order_groups', 'ordersInGroup', 'orders_off', 'group_amount', 'invoiced', 'invoices', 'previsions', 'products', 'projects', 'project', 'project_purchases', 'deliveries', 'currency', 'items', 'author', 'owner', 'iva', 'order_type', 'templates', 'languages', 'permitted', 'module_accounting', 'module_budgets', 'module_products', 'module_projects', 'module_rrhh', 'module_logistics'));
     }
 
     /**
@@ -866,9 +904,9 @@ class OrderController extends Controller{
         if($request->pattern_id && $order->provider_id == session('currentCompany')){
             if(!empty($patternNum)){
                 $order->order_num = $patternNum['pattern_num'];  
-                $order->num_cardinal = $patternNum['num']; 
+                $order->order_num_cardinal = $patternNum['num']; 
             }            
-            $order->pattern_id = $request->pattern_id;
+            $order->order_pattern_id = $request->pattern_id;
         }
         if($order->provider_id == session('currentCompany')){
             $order->order_old_num = $request->order_old_num;
@@ -905,7 +943,7 @@ class OrderController extends Controller{
         if($order->is_group){
             $order->bag_amount = $request->bag_amount;
         }
-        $order->status = $request->status;
+        $order->order_status = $request->order_status;
 
         $order->save();
 
@@ -1020,6 +1058,7 @@ class OrderController extends Controller{
         }else{
             $data = Order::select('provider_id AS company_id', 'provider_manager_id as manager_id', 'provider_team as team')->find($order);     
         }
+        //dd($data);
         
         $arr = [];
         //Añadir Project Manager:
@@ -1062,8 +1101,8 @@ class OrderController extends Controller{
     /**
      * 9. Obtener líneas de pedido.
      */
-    public function getItemsDT(Order $order){
-        $items = Item::where('order_id', $order->id)->get();
+    public function getItemsDT(Order $order, $environment){
+        $items = Item::where('order_id', $order->id);
 
         //Moneda:
         $currency = CompanySettings::co_currency(0);
@@ -1072,27 +1111,64 @@ class OrderController extends Controller{
         $editar = Auth::user()->can('orders.edit');
 
         //Estados de línea:
-        $item_status = helpers::orderLineStatus();
+        $estados = helpers::orderLineStatus();
+
+        //Importe del pedido sin contar los items con precio porcentual:
+        $order_amount = $order->getAmount(true, false, false);
+
+        return DataTables::of($items)
+        ->addColumn('price', function($item) use($currency){
+            if($item->price > 0){
+                return $item->price.$currency->symbol;
+            }elseif(!$item->price && $item->calculated_by_percent > 0){
+                return trans('textos.por_porcentaje').' ('.$item->calculated_by_percent.'%)';
+            }
+        })
+        ->addColumn('discount', function($item){
+            if($item->discount > 0){
+                return $item->discount.'%';
+            }else{
+                return '';
+            }
+        })
+        ->addColumn('amount', function($item) use($currency, $order_amount){
+            $amount = '';
+            if($item->price > 0){
+                $amount = helpers::itemAmount($item);   
+            }elseif(!$item->price && $item->calculated_by_percent > 0){
+                $amount = helpers::itemAmountPercentage($item->calculated_by_percent, $order_amount['amount_with_discount']);
+            }      
+
+            return $amount.$currency->symbol;
+        })
+        ->addColumn('estado', function($item) use($estados){
+            return view('admin.orders.partials.dt-item-status', compact('item', 'estados'));    
+        })
+        ->addColumn('acciones', function($item) use($estados, $order, $environment){
+            return view('admin.orders.partials.dt-item-actions', compact('item', 'estados', 'order', 'environment'));    
+        })
+        ->make(true);
+
 
         //Ampliación de los objetos:
-        foreach($items as $row){
-            //Pedido:
-            $row->order = $order;
+        // foreach($items as $row){
+        //     //Pedido:
+        //     $row->order = $order;
 
-            //Moneda:
-            $row->currency = $currency->symbol;
+        //     //Moneda:
+        //     $row->currency = $currency->symbol;
 
-            //Estado:
-            $row->estado = $row->status? $item_status[$row->status]:'';
+        //     //Estado:
+        //     $row->estado = $row->status? $item_status[$row->status]:'';
 
-            //Permisos para las acciones:
-            $row->editar = $editar;
+        //     //Permisos para las acciones:
+        //     $row->editar = $editar;
 
-            //Importe:
-            $row->amount = helpers::itemAmount($row, true);
-        }
+        //     //Importe:
+        //     $row->amount = helpers::itemAmount($row, true);
+        // }
 
-        return datatables($items)->toJson();
+        // return datatables($items)->toJson();
     }
 
     /**
@@ -1100,7 +1176,7 @@ class OrderController extends Controller{
      */
     public function status(Request $request, Order $order, $status){
         if($request->ajax()){    
-            $order->status = $status;
+            $order->order_status = $status;
             $order->save();
 
             return response()->json(true);

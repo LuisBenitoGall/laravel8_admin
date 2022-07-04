@@ -29692,7 +29692,8 @@ ul li.rev .fa {
 
 .answer_type_input,
 #budgetForms,
-#noBudgetForms {
+#noBudgetForms,
+.price-by-percent {
   display: none;
 }
 

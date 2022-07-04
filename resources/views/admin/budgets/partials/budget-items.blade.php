@@ -5,7 +5,7 @@
 
 {{-- Componente líneas de presupuesto por formulario --}}
 @if($order->modality == config('constants.BUDGET_FORM_MODALITY_'))
-	@livewire('budget-item', ['budget' => $order, 'order' => $order, 'shared' => $shared])
+	@livewire('budget-item', ['order' => $order])
 @endif
 
 {{-- Líneas presupuesto por catálogo --}}

@@ -17,7 +17,7 @@ class CreateInvoicePaymentsTable extends Migration{
             $table->unsignedBigInteger('invoice_id');
             $table->foreign('invoice_id')->references('id')->on('invoices');
             $table->float('amount',12,2)->default(0);
-            $table->string('mode')->nullable();
+            $table->integer('mode')->default(0);
             //FK:
             $table->unsignedBigInteger('user_id')->nullable();
             $table->foreign('user_id')->references('id')->on('users');

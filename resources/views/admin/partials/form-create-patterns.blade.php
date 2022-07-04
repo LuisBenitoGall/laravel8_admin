@@ -41,9 +41,9 @@
 						        	<span class="chk"></span>
 						    	</label>
 
-						    	<span class="relativo">
-				            	{!! App\Helpers\Helpers::info('pattern-yearly-reset') !!}
-				            </span>
+						    	<div class="position-absolute" style="left: 65px; top: 0;">
+				            		{!! App\Helpers\helpers::info('pattern-yearly-reset') !!}
+				            	</div>
 						    </div>	
 				    	</div>
 				    @endif

@@ -75,6 +75,7 @@ class Kernel extends HttpKernel{
         'answer_post' => \App\Http\Middleware\AnswerPostMiddleware::class,
 
         'bank_accounts_get' => \App\Http\Middleware\BankAccountsGetMiddleware::class,
+        'bank_accounts_post' => \App\Http\Middleware\BankAccountsPostMiddleware::class,
 
         'batch_pattern_get' => \App\Http\Middleware\BatchPatternGetMiddleware::class,
 

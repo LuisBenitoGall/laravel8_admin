@@ -30,7 +30,7 @@ class CreateItemsTable extends Migration{
             $table->text('concept')->nullable();
             $table->text('observations')->nullable();
             $table->float('qty',10,2)->default(0);
-            $table->float('price',10,2)->default(0);
+            $table->float('price',10,2)->nullable();
             $table->string('item_no_price')->nullable();   //Indica el texto a mostrar en la columna de precio para las líneas con cantidad > 0 y precio = 0;
             $table->float('iva',4,2)->nullable();
             $table->float('discount',5,2)->nullable();

@@ -20,8 +20,8 @@ $readonly = $invoice->blocked? true:false;
 
 		{{-- Presupuesto --}}
 		@can('budgets.edit')
-			@if($shared->budget_id)
-				<a target="_blank" href="{{ route('budgets.edit', $shared->budget_id) }}" class="btn btn-info">
+			@if($order->is_budget)
+				<a target="_blank" href="{{ route('budgets.edit', $order->id) }}" class="btn btn-info">
 					<i class="fa fa-file-alt"></i>
 					{!! ucfirst(trans('textos.presupuesto')) !!}
 				</a>	
@@ -30,22 +30,20 @@ $readonly = $invoice->blocked? true:false;
 
 		{{-- Pedido --}}
 		@can('orders.edit')
-			@if($shared->order_id)
-				<a target="_blank" href="{{ route('orders.edit', $shared->order_id) }}" class="btn btn-info">
-					@if($order->is_group)
-						<i class="fa fa-object-group"></i>
-						{!! ucfirst(trans('textos.agrupacion')) !!}
-					@else
-						<i class="fa fa-shopping-cart"></i>
-						{!! ucfirst(trans('textos.pedido')) !!}
-					@endif
-				</a>	
-			@endif
+			<a target="_blank" href="{{ route('orders.edit', $order->id) }}" class="btn btn-info">
+				@if($order->is_group)
+					<i class="fa fa-object-group"></i>
+					{!! ucfirst(trans('textos.agrupacion')) !!}
+				@else
+					<i class="fa fa-shopping-cart"></i>
+					{!! ucfirst(trans('textos.pedido')) !!}
+				@endif
+			</a>	
 		@endcan
 
 		{{-- Facturas del pedido. Pasamos el shared_id --}}
 		@if($invoices->count() > 1)
-			<a href="{{ route('invoices.by-order', $shared->id) }}" class="btn btn-info" rel="tooltip">
+			<a href="{{ route('invoices.by-order', $order->id) }}" class="btn btn-info" rel="tooltip">
 				<i class="fa fa-file-invoice-dollar"></i>
 				{{ ucfirst(trans('textos.facturas_pedido')) }}
 			</a>	
@@ -114,7 +112,7 @@ $readonly = $invoice->blocked? true:false;
 	</div>
 </div>
 
-<input type="hidden" id="myShared" value="{{ $shared->id }}">
+<input type="hidden" id="myShared" value="{{ $order->id }}">
 
 <div class="row">
 	<div class="col-12">						
@@ -163,10 +161,10 @@ $readonly = $invoice->blocked? true:false;
 				{{-- Info --}}
 				<div class="mb-3" style="width: 90%;">	
 					{{-- Cliente --}}
-					@include('admin.budget_order_shared_fields.partials.data-customer')
+					@include('admin.orders.partials.data-customer')
 
 					{{-- Proveedor --}}
-					@include('admin.budget_order_shared_fields.partials.data-provider')
+					@include('admin.orders.partials.data-provider')
 
 					{{-- Fecha alta --}}
 					<label class="mr-5">
@@ -284,12 +282,18 @@ $readonly = $invoice->blocked? true:false;
 {{-- Add payment --}}
 @include('admin.invoice_payments.partials.modal-add-payment')
 
+{{-- Edit payment --}}
+@include('admin.invoice_payments.partials.modal-edit-payment')
+
+
 {{-- Generate refund --}}
 @include('admin.invoices.partials.modal-generate-refund')
 
 @push('scripts')
 <script>
 $(function(){
+	var payments = {!! json_encode($payments) !!}
+
 	//Activar - desactivar IVA en factura.
     $('.btnWithIva').on('click', function(){
         var status = '';
@@ -316,6 +320,26 @@ $(function(){
             $('#refund_amount, #refund_concept').val('');
             $('.refund-fields').slideUp();
         }
+    });
+
+    //Modal edición cobro:
+    $(document).on('click', '.btnEditPayment', function(){
+    	var id = $(this).data('id');
+    	for(let i in payments){
+    		if(payments[i].id == id){
+    			$('#paymentId').val(payments[i].id);
+    			$('#paymentAmount').val(payments[i].amount);
+    			$('#paymentObservations').val(payments[i].observations);
+
+    			var arrMode = [payments[i].mode];
+                $('#paymentMode').val(arrMode);
+                $('#paymentMode').trigger('change');
+
+                var arrBankAccount = [payments[i].bank_account_id];
+                $('#paymentBankAccount').val(arrBankAccount);
+                $('#paymentBankAccount').trigger('change');
+    		}
+    	}
     });
 });
 </script>
