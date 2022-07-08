@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Str;
+use Yajra\DataTables\DataTables;
 
 //Models:
 use App\Models\Account;
@@ -59,8 +60,12 @@ class CustomerProvidersController extends Controller{
     
     private $option = 'empresas';
     private $module = 'companies';
+    private $co_currency;
     
     public function __construct(){
+        //Moneda:
+        $this->co_currency = CompanySettings::co_currency(0);
+
         $this->middleware('management_customers', ['only' => ['customers', 'createCustomer']]);
         $this->middleware('management_providers', ['only' => ['providers', 'createProvider']]);
         $this->middleware('customer_provider', ['only' => ['destroy', 'updateConditions']]);
@@ -135,7 +140,7 @@ class CustomerProvidersController extends Controller{
         $basic_roles = $this->basicRoles();
 
         //Moneda:
-        $currency = CompanySettings::co_currency(0);
+        $currency = $this->co_currency;
 
         return view('admin.customer_providers.index')->with(compact('header', 'tabla', 'basic_roles', 'currency'));   
     }  
@@ -146,7 +151,24 @@ class CustomerProvidersController extends Controller{
     public function getCustomersDT(){
         $data = $this->getCompaniesData('customer_id', 'provider_id');
 
-        return datatables($data)->toJson();
+        $join = 'customers';
+
+        return DataTables::of($data)
+        ->addColumn('name', function($row){
+            return $row->name; 
+        })
+        ->addColumn('tradename', function($row){
+            return $row->tradename; 
+        })
+        ->addColumn('nif', function($row){
+            return $row->nif; 
+        })
+        ->addColumn('acciones', function($row) use($join){
+            return view('admin.customer_providers.partials.dt-actions', compact('row', 'join'));    
+        })
+        ->make(true);
+
+        //return datatables($data)->toJson();
     }
 
     /**
@@ -167,7 +189,10 @@ class CustomerProvidersController extends Controller{
         //Roles básicos:
         $basic_roles = $this->basicRoles();
 
-        return view('admin.customer_providers.index')->with(compact('header', 'tabla', 'basic_roles'));   
+        //Moneda:
+        $currency = $this->co_currency;
+
+        return view('admin.customer_providers.index')->with(compact('header', 'tabla', 'basic_roles', 'currency'));   
     }
 
     /**
@@ -345,12 +370,8 @@ class CustomerProvidersController extends Controller{
     public function destroy(Request $request, CustomerProviders $cp){
         $cp->delete();
 
-        $msg = $request->tipo == 'customer'? trans('textos.cliente_deleted'):trans('textos.proveedor_deleted');
-        if( $request->tipo == 'customer'){
-            return redirect()->route('customers.index')->with(compact('msg')); 
-        }else{
-            return redirect()->route('providers.index')->with(compact('msg')); 
-        }
+        $msg = $request->tipo == 'customers'? trans('textos.cliente_deleted'):trans('textos.proveedor_deleted');
+        return redirect()->route($request->tipo.'.index')->with(compact('msg')); 
     }
 
     /**
@@ -372,10 +393,11 @@ class CustomerProvidersController extends Controller{
      * 8. Obtener info de empresas por criterio.
      */
     private function getCompaniesData($join, $condition){
-        $data = CustomerProviders::select('customer_providers.id AS cp_id', 'customer_providers.ba_id', 'customer_providers.workplace_id', 'customer_providers.cc_id', 'customer_providers.discount', 'customer_providers.credit_risk', 'customer_providers.status', 'companies.id', 'companies.name', 'companies.tradename', 'companies.logo', 'companies.nif')
+        $data = CustomerProviders::select('customer_providers.id AS cp_id', 'customer_providers.ba_id', 'customer_providers.workplace_id', 'customer_providers.cc_id', 'customer_providers.discount', 'customer_providers.credit_risk', 'customer_providers.status', 'companies.id', 'companies.name', 'companies.tradename', 'companies.logo', 'companies.nif', 'company_accounts.guardian', 'company_accounts.status')
         ->join('companies', 'customer_providers.'.$join, '=', 'companies.id')
-        ->where('customer_providers.'.$condition, session('currentCompany'))
-        ->get();
+        ->join('company_accounts', 'companies.id', '=', 'company_accounts.company_id')
+        ->where('customer_providers.'.$condition, session('currentCompany'));
+        //->get();
 
         //Array de empresas asociadas al usuario en sesión:
         $companies = [];
@@ -383,47 +405,49 @@ class CustomerProvidersController extends Controller{
             array_push($companies, $co->id);
         }
 
-        if($data){
-            /* Comprobamos si tiene activos los siguientes módulos: 
-            - contabilidad (accounting)
-            - catalogo (products)
-            */
-            $payment_conditions = $this->settedModule('accounting');
-            $catalogue = $this->settedModule('products');
 
-            /* Comprobamos los siguientes permisos:
-            - modificar estado
-            - eliminar 
-             */
-            $environment = $join == 'customer_id'? 'customers.edit':'providers.edit';
-            $status_permission = Auth::user()->can($environment);
 
-            $environment2 = $join == 'customer_id'? 'customers.destroy':'providers.destroy';
-            $delete_permission = Auth::user()->can($environment2);
+        // if($data){
+        //     /* Comprobamos si tiene activos los siguientes módulos: 
+        //     - contabilidad (accounting)
+        //     - catalogo (products)
+        //     */
+        //     $payment_conditions = $this->settedModule('accounting');
+        //     $catalogue = $this->settedModule('products');
 
-            foreach($data as $row){
-                //Condiciones de pago:
-                $row->conditions = $payment_conditions;
+        //     /* Comprobamos los siguientes permisos:
+        //     - modificar estado
+        //     - eliminar 
+        //      */
+        //     $environment = $join == 'customer_id'? 'customers.edit':'providers.edit';
+        //     $status_permission = Auth::user()->can($environment);
 
-                //Catálogo:
-                $row->catalogue = $catalogue;
+        //     $environment2 = $join == 'customer_id'? 'customers.destroy':'providers.destroy';
+        //     $delete_permission = Auth::user()->can($environment2);
 
-                //Permisos modificar estado:
-                $row->status_permission = $status_permission;
+        //     foreach($data as $row){
+        //         //Condiciones de pago:
+        //         $row->conditions = $payment_conditions;
 
-                //Permisos eliminar:
-                $row->delete_permission = $delete_permission;
+        //         //Catálogo:
+        //         $row->catalogue = $catalogue;
 
-                //Comprobamos si la empresa tienen activa la cuenta de empresa. En caso negativo, sus datos pueden ser editados por el proveedor:
-                $row->account = CompanyAccounts::getCompanyAccount($row->id);
+        //         //Permisos modificar estado:
+        //         $row->status_permission = $status_permission;
 
-                //También se puede editar si la empresa está vinculada al usuario en sesión:
-                $row->edit = in_array($row->id, $companies)? true:false;
+        //         //Permisos eliminar:
+        //         $row->delete_permission = $delete_permission;
 
-                //Empresa en sesión:
-                $row->current_company = session('currentCompany');
-            }
-        } 
+        //         //Comprobamos si la empresa tienen activa la cuenta de empresa. En caso negativo, sus datos pueden ser editados por el proveedor:
+        //         $row->account = CompanyAccounts::getCompanyAccount($row->id);
+
+        //         //También se puede editar si la empresa está vinculada al usuario en sesión:
+        //         $row->edit = in_array($row->id, $companies)? true:false;
+
+        //         //Empresa en sesión:
+        //         $row->current_company = session('currentCompany');
+        //     }
+        // } 
 
         return $data;
     }

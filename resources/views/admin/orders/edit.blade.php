@@ -55,7 +55,20 @@
 				@if($module_accounting 
 					&& in_array($order->order_status, config('constants.ORDER_GROUPS_OPENED_'))
 				)
-					<a href="{{ route('order-groups.to-invoice', $order) }}" class="btn btn-info" rel="tooltip" title="{{ ucfirst(trans('textos.agrupacion_facturar')) }}"><i class="fa fa-file-invoice-dollar"></i></a>
+					<a href="{{ route('order-groups.to-invoice', $order) }}" class="btn btn-warning" rel="tooltip" title="{{ ucfirst(trans('textos.agrupacion_facturar')) }}"><i class="fa fa-file-invoice-dollar"></i></a>
+				@endif
+			@endcan
+
+			{{-- Facturas de la agrupación - condiciones: 
+				1. Permisos de listar facturas.
+				2. Existen facturas declaradas.
+			--}}
+			@can('invoices.index')
+				@if($invoices->count())	
+					<a href="{{ route('invoices.by-order-group', $order) }}" class="btn btn-info" rel="tooltip">
+						<i class="fa fa-file-invoice-dollar"></i>
+						{{ ucfirst(trans('textos.facturas_agrupacion')) }}
+					</a>	
 				@endif
 			@endcan
 
@@ -208,36 +221,42 @@
 				@endcan
 			@endif
 
-			{{-- Agrupación de pedidos --}}
+			{{-- Agrupación de pedidos - condiciones 
+				1. Disponer de permisos de edición de pedidos.
+				2. Exclusivo de proveedores.
+				...
+			--}}
 			@can('orders.edit')
-				{{-- Link agrupación --}}
-				@if($order->order_parent)
-					<a target="_blank" href="{{ route('orders.edit', $order->order_parent) }}" class="btn btn-info">
-						<i class="fa fa-object-group"></i>
-						{!! ucfirst(trans('textos.agrupacion_pedidos')) !!}
-					</a>
+				@if($order->provider_id == session('currentCompany'))
+					{{-- Link agrupación --}}
+					@if($order->order_parent)
+						<a target="_blank" href="{{ route('orders.edit', $order->order_parent) }}" class="btn btn-info">
+							<i class="fa fa-object-group"></i>
+							{!! ucfirst(trans('textos.agrupacion_pedidos')) !!}
+						</a>
 
-					{{-- Desvincular de agrupación - condiciones: 
+						{{-- Desvincular de agrupación - condiciones: 
+							1. Pedido no facturado.
+						--}}
+						@if(!$order->invoiced)
+							<form method="POST" action="{{ route('order-groups.destroy', $order->id) }}" class="frm-inline" role="form" accept-charset="UTF-8">
+		            			<input name="_method" type="hidden" value="DELETE">
+		            			<input type="hidden" name="return" value="order-single">
+		            			{{ csrf_field() }}
+		            			<button type="submit" class="btn btn-danger frm-confirm" rel="tooltip" title="{!! ucfirst(trans('textos.pedido_desvincular')) !!}" data-msg="{!! ucfirst(trans('textos.pedido_desvincular_confirm')) !!}"><i class="fa fa-unlink"></i></button>
+		        			</form>
+		        		@endif
+						
+					{{-- Vincular a agrupación - condiciones: 
 						1. Pedido no facturado.
 					--}}
-					@if(!$order->invoiced)
-						<form method="POST" action="{{ route('order-groups.destroy', $order->id) }}" class="frm-inline" role="form" accept-charset="UTF-8">
-	            			<input name="_method" type="hidden" value="DELETE">
-	            			<input type="hidden" name="return" value="order-single">
-	            			{{ csrf_field() }}
-	            			<button type="submit" class="btn btn-danger frm-confirm" rel="tooltip" title="{!! ucfirst(trans('textos.pedido_desvincular')) !!}" data-msg="{!! ucfirst(trans('textos.pedido_desvincular_confirm')) !!}"><i class="fa fa-unlink"></i></button>
-	        			</form>
-	        		@endif
-					
-				{{-- Vincular a agrupación - condiciones: 
-					1. Pedido no facturado.
-				--}}
-				@else
-					@if(!$order->invoiced && !$invoices->count())
-						<a href="#" class="btn btn-warning" data-toggle="modal" data-target="#modal-link-order-group">
-							<i class="fa fa-object-group"></i>
-							{!! ucfirst(trans('textos.agrupacion_vincular')) !!}
-						</a>
+					@else
+						@if(!$order->invoiced && !$invoices->count())
+							<a href="#" class="btn btn-warning" data-toggle="modal" data-target="#modal-link-order-group">
+								<i class="fa fa-object-group"></i>
+								{!! ucfirst(trans('textos.agrupacion_vincular')) !!}
+							</a>
+						@endif
 					@endif
 				@endif
 			@endcan
@@ -302,7 +321,7 @@
 					&& (!$invoiced || round($order_amount, 2) > round($invoiced['invoiced_amount'], 2))
 					&& !$order->order_parent
 				)
-					<a href="#" class="btn btn-info" rel="tooltip" title="{{ ucfirst(trans('textos.facturar')) }}" data-toggle="modal" data-target="#modal-generate-invoice"><i class="fa fa-file-invoice-dollar"></i></a>
+					<a href="#" class="btn btn-warning" rel="tooltip" title="{{ ucfirst(trans('textos.facturar')) }}" data-toggle="modal" data-target="#modal-generate-invoice"><i class="fa fa-file-invoice-dollar"></i></a>
 				@endif
 			@endcan
 
@@ -392,14 +411,18 @@ if($order->provider_team){
 
 				{{-- Agrupación --}}
 				@else
-					@livewire('budget-amount', ['budget_amount' => $group_amount, 'currency' => $currency->symbol, 'budget_amount_without_discount' => '', 'environment' => 'orders', 'bag_amount' => $order->bag_amount])	
+					@livewire('budget-amount', ['budget_amount' => $group_amount, 'currency' => $currency->symbol, 'budget_amount_without_discount' => '', 'environment' => 'groups', 'bag_amount' => $order->bag_amount])	
 				@endif
 
 				<h3 class="mb-3">
 					@if($order->is_group)
 						{!! ucfirst(trans('textos.agrupacion')) !!}
 					@else
-						{!! ucfirst(trans('textos.pedido')) !!} 
+						@if($order->provider_id == session('currentCompany'))
+							{!! ucfirst(trans('textos.venta')) !!} 
+						@elseif($order->customer_id == session('currentCompany'))
+							{!! ucfirst(trans('textos.compra')) !!}
+						@endif
 					@endif
 					<u>
 						@if($order->order_num)
@@ -496,12 +519,10 @@ if($order->provider_team){
 						1. El pedido no debe estar facturado.
 						...
 					--}}
-					@if(!$order->invoiced)
-						@php
-						$remove_discount = !$invoiced? true:false;
-						@endphp
-						@include('admin.orders.partials.data-discount-applied', ['return' => 'orders', 'remove_discount' => $remove_discount])
-					@endif
+					@php
+					$remove_discount = !$order->invoiced? true:false;
+					@endphp
+					@include('admin.orders.partials.data-discount-applied', ['return' => 'orders', 'remove_discount' => $remove_discount])
 
 					{{-- Presupuesto --}}
 					@include('admin.orders.partials.link-budget')
@@ -516,9 +537,11 @@ if($order->provider_team){
 			    		<a class="nav-link @if(!$tab) active @endif" href="#tab-info" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.pedido_cabecera')) !!}</a>
 			  		</li>
 
-			  		<li class="nav-item @if($tab == 'teams') active @endif">
-			  			<a class="nav-link @if($tab == 'teams') active @endif" href="#tab-teams" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.equipos')) !!}</a>	
-			  		</li>
+			  		@if(!$order->is_group)
+				  		<li class="nav-item @if($tab == 'items') active @endif">
+				  			<a class="nav-link @if($tab == 'items') active @endif" href="#tab-items" role="tab" data-toggle="tab">{{ ucfirst(trans('textos.lineas')) }}</a>	
+				  		</li>
+				  	@endif
 
 			  		@if($order->is_group)
 			  			<li class="nav-item @if($tab == 'orders') active @endif">
@@ -526,11 +549,9 @@ if($order->provider_team){
 				  		</li>
 				  	@endif
 
-			  		@if(!$order->is_group)
-				  		<li class="nav-item @if($tab == 'items') active @endif">
-				  			<a class="nav-link @if($tab == 'items') active @endif" href="#tab-items" role="tab" data-toggle="tab">{{ ucfirst(trans('textos.lineas')) }}</a>	
-				  		</li>
-				  	@endif
+			  		<li class="nav-item @if($tab == 'teams') active @endif">
+			  			<a class="nav-link @if($tab == 'teams') active @endif" href="#tab-teams" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.equipos')) !!}</a>	
+			  		</li>
 
 			  		<li class="nav-item @if($tab == 'docs') active @endif">
 			  			<a class="nav-link @if($tab == 'docs') active @endif" href="#tab-docs" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.documentos')) !!}</a>	
@@ -555,6 +576,13 @@ if($order->provider_team){
 						@include('admin.orders.partials.order-info')	
 					</div>
 
+					{{-- Items --}}
+					@if(!$order->is_group)
+						<div class="tab-pane fade @if($tab == 'items') show active @endif" role="tabpanel" id="tab-items">
+							@include('admin.orders.partials.order-items')	
+						</div>
+					@endif
+
 					{{-- Equipos --}}
 					<div class="tab-pane fade @if($tab == 'teams') show active @endif" role="tabpanel" id="tab-teams">
 						@include('admin.orders.partials.order-teams')	
@@ -564,13 +592,6 @@ if($order->provider_team){
 					@if($order->is_group)
 						<div class="tab-pane fade @if($tab == 'orders') show active @endif" role="tabpanel" id="tab-orders">
 							@include('admin.orders.partials.order-orders')	
-						</div>
-					@endif
-
-					{{-- Items --}}
-					@if(!$order->is_group)
-						<div class="tab-pane fade @if($tab == 'items') show active @endif" role="tabpanel" id="tab-items">
-							@include('admin.orders.partials.order-items')	
 						</div>
 					@endif
 
@@ -848,13 +869,6 @@ $(function(){
         }else{
         	return false;
         }
-    });
-
-    //Aplicar descuento por defecto del cliente a líneas del pedido:
-    $('.btnApplyDiscount').on('click', function(e){
-        e.preventDefault();
-        var discount = $(this).data('discount');
-        $('#productDiscount').val(discount);
     });
 });
 </script>

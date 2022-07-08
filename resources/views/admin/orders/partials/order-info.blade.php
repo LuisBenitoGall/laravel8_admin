@@ -114,6 +114,36 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 			<x-input type="text" name="purchase_old_num" value="{{ $order->purchase_old_num }}" autocomplete="off" maxlength="150" info="purchase-old-num"/>
 		</div>
 
+		{{-- Documento de compra --}}
+		<label for="purchase_doc" class="col-md-3 col-lg-2 col-form-label">{!! ucfirst(trans('textos.orden_compra_doc')) !!}</label>
+		<div class="col-md-3 col-lg-2">
+			@if(!$order->purchase_doc)
+				<x-input-file name="doc"/>
+
+				{!! App\Helpers\helpers::info('purchase-doc') !!}
+
+				@if($errors->has('doc'))
+	                <span class="invalid-feedback" role="alert">
+	                  	<strong>{{ $errors->first('doc') }}</strong>
+	                </span>
+	            @endif
+	        @else
+	        	<div class="pt-2">
+	        		{{-- Ver documento --}}
+		        	<a target="_blank" class="text-info" href="{{ asset('img/purchase-orders/'.$order->purchase_doc) }}" rel="tooltip" title="{{ trans('textos.documento_ver') }}">
+		        		<i class="fa fa-file"></i>
+		        	</a>
+
+		        	{{-- Eliminar documento --}}
+		        	<a target="_blank" class="text-danger ml-3 btn-confirm" href="{{ route('orders.remove-purchase-doc', $order) }}" rel="tooltip" title="{{ trans('textos.documento_eliminar') }}" data-msg="{{ trans('textos.documento_eliminar_confirm') }}">
+		        		<i class="fa fa-trash"></i>
+		        	</a>
+	        	</div>
+	        @endif
+		</div>
+	</div>
+
+	<div class="form-group row">
 		{{-- Confirmación de pedido, exclusivamente por el cliente: --}}
 		@if($order->customer_id == session('currentCompany') && !$order->customer_confirmation)
 			<label for="customer_confirmation" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.pedido_confirmar')) !!}</label>
@@ -123,17 +153,17 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 	                <span class="chk" style="top: 5px;"></span>
 	            </label>
 
-	            {!! App\Helpers\Helpers::info('order-purchase-confirm') !!}
+	            <div class="position-absolute" style="left: 65px; top: 0;">
+	            	{!! App\Helpers\helpers::info('order-purchase-confirm') !!}
+	            </div>
 			</div>
 		@endif
-	</div>
-
-	<div class="form-group row">
+	
 		{{-- Orden de pago --}}
 		<label for="pay_order" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.orden_pago')) !!}</label>
 		<div class="col-lg-2">
 			@php
-			$readonly = $order->order_status != config('constants.ORDER_GROUPS_OPENED_')? true:false;
+			$readonly = !in_array($order->order_status, config('constants.ORDER_GROUPS_OPENED_'))? true:false;
 			@endphp
 
 			<x-input type="text" name="pay_order" value="{{ $order->pay_order }}" autocomplete="off" maxlength="100" readonly="{{ $readonly }}" info="order-group-pay-order"/>
@@ -189,18 +219,21 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 			@endif
 		</div>
 
-		{{-- Estado pedido 
+		{{-- Estado pedido - condiciones:
 			1. Exclusivo proveedor
+			2. Pedido no facturado
 		--}}
 		@if($order->provider_id == session('currentCompany'))
-			<label for="order_status" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.estado')) !!}</label>
+			<label for="status" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.estado')) !!}</label>
 			<div class="col-lg-2">
 				@php
 				//Los estados se obtienen en función de si el pedido es simple o agrupación:
 				$estados = $order->is_group? App\Helpers\helpers::orderGroupStatus():App\Helpers\helpers::orderStatus();
+				$disabled = $order->invoiced? true:false;
+				$name = !$disabled? 'status':'';	//En pedidos facturados no se modifica el status.
 				@endphp
 
-				<x-select name="order_status" class="select2" label="indica_estado" :options="$estados" value="{{ $order->order_status }}"/>
+				<x-select name="{{ $name }}" class="select2" label="indica_estado" :options="$estados" value="{{ $order->order_status }}" disabled="{{ $disabled }}"/>
 			</div>
 		@else
 			<input type="hidden" name="order_status" value="{{ $order->order_status }}">
@@ -212,7 +245,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 		1. Exclusivo para el proveedor.
 		2. Para agrupaciones o pedidos simples, NO para pedidos vinculados a agrupación.
 	--}}
-	@if($order->provider_id == session('currentCompany') && !$order->parent)
+	@if($order->provider_id == session('currentCompany') && !$order->order_parent)
 		<div class="form-group row">
 			<label class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.facturacion_prevista')) !!}</label>
 			

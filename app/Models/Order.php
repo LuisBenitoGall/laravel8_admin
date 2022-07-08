@@ -59,6 +59,7 @@ class Order extends Model{
             ->where('orders.is_group', false)
             //->where('orders.invoiced', false)
             ->orderBy('orders.invoiced', 'DESC')
+            ->groupBy('orders.id')
             ->get();
 
         return $data;
@@ -68,7 +69,7 @@ class Order extends Model{
      * 4. Importe total por agrupación.
      */
     public function getGroupAmount(){
-        $orders = Order::select('id')
+        $orders = Order::select('id', 'discount', 'invoiced')
         ->where('orders.order_parent', $this->id)
         ->where('orders.is_group', false)  
         ->get();
@@ -177,15 +178,19 @@ class Order extends Model{
 
     /**
      * 9. Aplicar descuento por defecto de cliente.
+     *
+     * No se aplica para las agrupaciones. Sólo se aplica el descuento que puedan tener los pedidos que la conforman.
      */
     public function setDefaultDiscount(){
-        $settings = CustomerProviders::where('customer_id', $this->customer_id)
-        ->where('provider_id', $this->provider_id)
-        ->first();
+        if(!$this->is_group){
+            $settings = CustomerProviders::where('customer_id', $this->customer_id)
+            ->where('provider_id', $this->provider_id)
+            ->first();
 
-        if($settings->discount > 0){
-            $this->discount = $settings->discount;
-            $this->save();
+            if($settings->discount > 0){
+                $this->discount = $settings->discount;
+                $this->save();
+            }
         }
     }
 }

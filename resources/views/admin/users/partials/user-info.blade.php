@@ -138,7 +138,7 @@
 				<div class="col-lg-4">
 					<x-input-file name="signature"/>
 
-					{!! App\Helpers\Helpers::info('user-signature') !!}
+					{!! App\Helpers\helpers::info('user-signature') !!}
 
 					@if($errors->has('signature'))
 	                    <span class="invalid-feedback" role="alert">

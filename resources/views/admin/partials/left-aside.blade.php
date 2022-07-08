@@ -188,12 +188,10 @@ if(session()->get('locale') == NULL){
 
                     {{-- Handbook --}}
                     {{-- @can('accounts.index') --}}
-                        <li class="special-link">
-                            <a 
-                                class="@if(isset($header) && $header['option'] == 'manual') active @endif"
-                                href="{{ route('handbook.index') }}">
+                        <li class="special-link @if(isset($header['module']) && $header['module'] == 'handbook') active @endif">
+                            <a href="{{ route('handbook.index') }}">
                                 <i class="fa fa-fw fa-book"></i>
-                                <span> {!! ucfirst(trans('textos.manual')) !!} </span>
+                                <span>{!! ucfirst(trans('textos.manual')) !!}</span>
                             </a>
                         </li>
                     {{-- @endcan --}}

@@ -47,14 +47,14 @@
 						{{-- Presupuesto --}}
 						<td class="text-right">
 							@can('budgets.edit')
-								@if($so->budgetId)
-									<a target="_blank" href="{{ route('budgets.edit', $so->budgetId) }}"> 
+								@if($so->id)
+									<a target="_blank" href="{{ route('budgets.edit', $so->id) }}"> 
 								@endif
 							@endcan
 								@if($so->budget_num)
 									{{ $so->budget_num }}
 								@else
-									{{ $so->budgetId }}
+									{{ $so->id }}
 								@endif
 							@can('budgets.edit')
 								</a> 
@@ -100,8 +100,8 @@
 
 						{{-- Estado --}}
 						<td>
-							@if(array_key_exists($so->status, $orderStatus)) 
-								{!! $orderStatus[$so->status] !!}
+							@if(array_key_exists($so->order_status, $orderStatus)) 
+								{!! ucfirst($orderStatus[$so->order_status]) !!}
 							@endif
 						</td>
 
@@ -112,6 +112,15 @@
 								<a target="_blank" href="{{ route('orders.edit', $so->id) }}" class="btn btn-xs btn-info close-animation" rel="tooltip" title="{!! ucfirst(trans('textos.pedido_editar')) !!}">
                             		<i class="fa fa-edit"></i>
                         		</a>
+		                    @endcan
+
+		                    @can('invoices.edit')
+		                    	{{-- Eliminar pedido de la factura --}}
+		                    	@if(!$invoice->blocked)
+			                    	<a target="_blank" href="{{ route('invoices.remove-from-invoice', [$invoice->id, $so->id]) }}" class="btn btn-xs btn-danger close-animation btn-confirm" rel="tooltip" title="{!! ucfirst(trans('textos.factura_agrupacion_eliminar_pedido')) !!}" data-msg="{!! ucfirst(trans('textos.factura_agrupacion_eliminar_pedido_confirm')) !!}">
+	                            		<i class="fa fa-trash"></i>
+	                        		</a>
+	                        	@endif
 		                    @endcan
 						</td>
 					</tr>

@@ -14,6 +14,11 @@
 		{{-- Nuevo contenido --}}
 		<a class="btn btn-info" href="{{ route('contents.create') }}"><i class="fa fa-plus"></i> {!! ucfirst(trans('textos.contenido_nuevo')) !!}</a>
 
+		{{-- Galería de archivos --}}
+		<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-gallery">
+			<i class="fa fa-image"></i> {!! ucfirst(trans('textos.galeria_archivos')) !!}
+		</a>
+
 		{{-- Eliminar contenido --}}
 		@can('contents.destroy')
 			<form method="POST" action="{{ route('contents.destroy', $content) }}" class="frm-inline" role="form" accept-charset="UTF-8">
@@ -123,8 +128,11 @@
 					</div>
 
 					@if($content->type == 2)
-						<div class="form-group row">
-							{{-- Galería --}}
+						{{-- Galería 
+							08/07/22: se inactiva temporalmente pues entre en conflicto con el componente general de files-gallery.
+							Buscar una opción complementaria para poder subir archivos propios del contenido editado.
+						--}}
+						{{-- <div class="form-group row">
 							<label for="imgs" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.imagenes')) !!}</label>
 							<div class="col-lg-10">
 								@php
@@ -135,10 +143,9 @@
 									<x-lightbox-gallery :images="$images"/>
 								@endif
 
-								{{-- Dropzone --}}
 								<x-dropzone url="/admin/content-image/{{ $content->id }}/store"/>
 							</div>
-						</div>
+						</div> --}}
 						
 						<div class="form-group row mb-5">
 							{{-- Videos --}}
@@ -254,5 +261,9 @@
 		</div>
 	</div>
 </div>
+
+{{-- Modals --}}
+{{-- Galería de archivos --}}
+@include('admin.files.partials.modal-gallery')
 
 @endsection

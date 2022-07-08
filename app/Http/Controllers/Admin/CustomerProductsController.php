@@ -18,8 +18,9 @@ use App\Models\Product;
 class CustomerProductsController extends Controller{
     /**
      * 1. Listado de productos por cliente.
-     * 1.1. Listado de productos para DataTable.
-     * 1.2. Listado de productos por filtro.
+     * 1.1. Listado de productos por proveedor.
+     * 1.2. Listado de productos para DataTable.
+     * 1.3. Listado de productos por filtro.
      * 2. Activar - desactivar producto para cliente.
      * 3. Actualizar precio producto para cliente.
      */  
@@ -55,16 +56,39 @@ class CustomerProductsController extends Controller{
             'slug' => 'products'
         ]; 
 
+        $provider = false;
+
         //Areas de negocio del cliente:
         $areas = BusinessAreas::where('company_id', $customer->id)->get();
 
         $business_area = $ba? BusinessAreas::find($ba):false;
 
-        return view('admin.customer_products.index')->with(compact('header', 'customer', 'business_area', 'areas'));
+        return view('admin.customer_products.index')->with(compact('header', 'customer', 'provider', 'business_area', 'areas'));
     }
 
     /**
-     * 1.1. Listado de productos para DataTable.
+     * 1.1. Listado de productos por proveedor.
+     */
+    public function providerCatalogue(Company $provider){
+        $header = [
+            'option' => $this->option, 
+            'suboption' => 'textos.catalogo_proveedor',
+            'module' => $this->module,
+            'slug' => 'products'
+        ]; 
+
+        $customer = false;
+
+        //Areas de negocio del cliente:
+        $areas = BusinessAreas::where('company_id', $provider->id)->get();
+
+        $business_area = $ba? BusinessAreas::find($ba):false;
+
+        return view('admin.customer_products.index')->with(compact('header', 'customer', 'provider', 'business_area', 'areas'));
+    }
+
+    /**
+     * 1.2. Listado de productos para DataTable.
      *
      * @param  $customer_id customer
      * @param  $ba_id business_area
@@ -139,7 +163,7 @@ class CustomerProductsController extends Controller{
     }
 
     /**
-     * 1.2. Listado de productos por filtro.
+     * 1.3. Listado de productos por filtro.
      */
     public function getProductsBy(Request $request){
         $validator = $this->validator($request->all());

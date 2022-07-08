@@ -7,8 +7,11 @@
 
     {{-- Editar - condiciones 
 		1. Disponer de permisos.
+		2. No facturado.
     --}}
-	<a href="#" class="btn btn-xs btn-info btnEditItem" data-id="{{ $item->id }}" data-toggle="modal" data-target="#modal-edit-line" rel="tooltip" title="{{ ucfirst(trans('textos.editar')) }}"><i class="fa fa-edit"></i></a>
+    @if(!$order->invoiced)
+		<a href="#" class="btn btn-xs btn-info btnEditItem" data-id="{{ $item->id }}" data-toggle="modal" data-target="#modal-edit-line" rel="tooltip" title="{{ ucfirst(trans('textos.editar')) }}"><i class="fa fa-edit"></i></a>
+	@endif
 
 	{{-- Eliminar - condiciones
 		1. Disponer de permisos.

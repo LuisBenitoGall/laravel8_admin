@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
 
 class Product extends Model{
     /**
@@ -39,9 +40,14 @@ class Product extends Model{
 
     /**
      * 3. Productos por empresa.
+     *
+     * $for_dt -> indica si es para DataTables.
      */
-    public static function companyProducts($company_id, $sale = true, $status = true, $limit = false){
-        $q = Product::select('id', 'name', 'price', 'iva', 'calculated_by_percent', 'translations', 'description', 'on_sale', 'batch', 'status', DB::raw('(SELECT doc FROM product_docs WHERE product_id = products.id AND featured = 1 LIMIT 1) AS Image'))
+    public static function companyProducts($company_id, $sale = true, $status = true, $limit = false, $for_dt = false){
+        $q = Product::select('id', 'name', 'price', 'iva', 'calculated_by_percent', 'translations', 'description', 'on_sale', 'batch', 'status', 
+            DB::raw('(SELECT doc FROM product_docs WHERE product_id = products.id AND featured = 1 LIMIT 1) AS Image'),
+            DB::raw('(SELECT price FROM customer_products WHERE product_id = products.id AND customer_id = '.session('currentCompany').') AS priceForCustomer')
+        )
         ->where('company_id', $company_id);
         if($sale){
             $q->where('on_sale', 1);
@@ -53,8 +59,12 @@ class Product extends Model{
         if($limit){
             $q->limit($limit);
         }
-        $data = $q->get();
+        if($for_dt){
+            return $q;
+        }else{
+            $data = $q->get();
 
-        return $data;
+            return $data;
+        }
     }  
 }

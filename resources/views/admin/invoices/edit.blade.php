@@ -41,7 +41,7 @@ $readonly = $invoice->blocked? true:false;
 			</a>	
 		@endcan
 
-		{{-- Facturas del pedido. Pasamos el shared_id --}}
+		{{-- Facturas del pedido --}}
 		@if($invoices->count() > 1)
 			<a href="{{ route('invoices.by-order', $order->id) }}" class="btn btn-info" rel="tooltip">
 				<i class="fa fa-file-invoice-dollar"></i>
@@ -69,7 +69,7 @@ $readonly = $invoice->blocked? true:false;
 			...
 		--}}
 		@if(!$invoice->refund)
-			<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-add-payment">
+			<a href="#" class="btn btn-warning" data-toggle="modal" data-target="#modal-add-payment">
 				<i class="fa fa-cash-register"></i>
 				{{ ucfirst(trans('textos.cobro_add')) }}
 			</a>
@@ -112,7 +112,9 @@ $readonly = $invoice->blocked? true:false;
 	</div>
 </div>
 
-<input type="hidden" id="myShared" value="{{ $order->id }}">
+<input type="hidden" id="dtController" value="items">
+<input type="hidden" id="myEnvironment" value="invoices">
+<input type="hidden" id="myOrder" value="{{ $order->id }}">
 
 <div class="row">
 	<div class="col-12">						
@@ -255,7 +257,6 @@ $readonly = $invoice->blocked? true:false;
 					@else
 						{{-- Items: --}}
 						<div class="tab-pane fade @if($tab == 'items') show active @endif" role="tabpanel" id="tab-items">
-							{{-- @include('admin.invoices.partials.invoice-items')	 --}}
 							@include('admin.orders.partials.order-items')
 						</div>
 					@endif

@@ -608,7 +608,9 @@ class BudgetController extends Controller{
         $order->provider_workplace_id = $request->provider_workplace_id;
         $order->provider_business_area_id = $request->provider_business_area_id;
         $order->final_customer_id = $request->final_customer_id;
-        $order->budget_status = $request->status;
+        if($request->status){
+            $order->budget_status = $request->status;
+        }
         if($order->modality == config('constants.BUDGET_BASIC_MODALITY_')){
             $order->bag_amount = $request->bag_amount;
         }else{

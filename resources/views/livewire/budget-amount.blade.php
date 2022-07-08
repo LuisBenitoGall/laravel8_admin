@@ -7,6 +7,8 @@
                 {!! trans('textos.importe_pedido') !!}
             @elseif($environment == 'invoices')
                 {!! trans('textos.importe_factura') !!}
+            @elseif($environment == 'groups')
+                {!! trans('textos.importe_agrupacion') !!}
             @endif
 
             <span class="totalAmount">

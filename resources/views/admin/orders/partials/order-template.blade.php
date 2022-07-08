@@ -17,11 +17,13 @@
 			$templates_ = [];
 			@endphp
 
-			@foreach($templates as $tmp)
-				@php
-				$templates_[$tmp->id] = $tmp->name;
-				@endphp	
-			@endforeach
+			@if($templates)
+				@foreach($templates as $tmp)
+					@php
+					$templates_[$tmp->id] = $tmp->name;
+					@endphp	
+				@endforeach
+			@endif
 
 			<x-select name="template_id" class="select2" :options="$templates_" label="plantilla_selec" value="{{ $order->template_id }}" required/>
 		</div>

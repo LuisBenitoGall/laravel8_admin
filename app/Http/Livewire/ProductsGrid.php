@@ -16,11 +16,14 @@ class ProductsGrid extends Component{
     
     public $totalRecords;
     public $loadRecords = 12;
+    public $company;
     public $currency;
     public $order_ = false;
 
-    public function mount($currency, $order_){
-        $data = Product::companyProducts(session('currentCompany'), false, false);
+    public function mount($currency, $order_, $company){
+        $this->company = $company? $company->id:session('currentCompany');
+
+        $data = Product::companyProducts($this->company, false, false);
         $this->totalRecords = $data->count();
         $this->currency = $currency['symbol'];
         $this->order_ = $order_;
@@ -30,7 +33,7 @@ class ProductsGrid extends Component{
      * 1. Render componente.
      */
     public function render(){
-        return view('livewire.products-grid')->with('products', Product::companyProducts(session('currentCompany'), false, false, $this->loadRecords));
+        return view('livewire.products-grid')->with('products', Product::companyProducts($this->company, false, false, $this->loadRecords));
     }
 
     /**

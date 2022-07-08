@@ -41,11 +41,13 @@ class InvoiceController extends Controller{
      * 6. Setear info para listado de facturas.
      * 7. Actualizar estado de factura.
      * 8. Bloquear factura.
-     * 9. Actualizar plantilla de presupuesto.
+     * 9. Actualizar plantilla de factura.
      * 10. Facturas por pedido.
+     * 10.1. Facturas por agrupación.
      * 11. Cancelar factura.
      * 12. Activar - desactivar IVA en factura.
      * 13. Generar factura de abono.
+     * 14. Eliminar pedido de factura de agrupación.
      */
     
     private $option = 'contabilidad';
@@ -66,6 +68,7 @@ class InvoiceController extends Controller{
         $this->middleware('invoice_get', ['only' => ['edit', 'update', 'print', 'block', 'updateTemplate', 'destroy']]);
         $this->middleware('invoice_post', ['only' => ['refund']]);
         $this->middleware('invoice_modality', ['only' => ['createFromOrder']]);
+        $this->middleware('invoice_order_remove', ['only' => ['removeFromInvoice']]);
         $this->middleware('order_post', ['only' => ['createFromOrder', 'createFromGroup']]);
         $this->middleware('order_get', ['only' => ['invoicesByOrder']]);
     }
@@ -324,8 +327,11 @@ class InvoiceController extends Controller{
         //Pedido:
         $order = Order::find($request->order_id);
 
-        //Facturación de pedido. El pedido debe estar en algún status que permita su facturación:
-        if(!in_array($order->order_status, config('constants.ORDER_STATUS_INVOICED_'))){
+        //Facturación de pedido. 
+        //1. El pedido debe estar en algún status que permita su facturación:
+        //2. El pedido no debe pertenecer a ninguna agrupación.
+        //3. No debe ser agrupación.
+        if(!in_array($order->order_status, config('constants.ORDER_STATUS_INVOICED_')) || $order->order_parent || $order->is_group){
             $alert = trans('textos.pedido_no_facturable');
             return redirect()->route('orders.edit', $order->id)->with(compact('alert'));
             exit;
@@ -492,8 +498,10 @@ class InvoiceController extends Controller{
         //Pedido:
         $order = Order::find($request->order_id);
 
-        //Facturación de pedido. El pedido debe estar en algún status que permita su facturación:
-        if(!in_array($order->status, config('constants.ORDER_GROUPS_OPENED_'))){
+        //Facturación de agrupación. 
+        //1. El pedido debe estar en algún status que permita su facturación.
+        //2. Debe ser una agrupación.
+        if(!in_array($order->order_status, config('constants.ORDER_GROUPS_OPENED_')) || !$order->is_group){
             $alert = trans('textos.pedido_no_facturable');
             return redirect()->route('orders.edit', $order->id)->with(compact('alert'));
             exit;
@@ -502,12 +510,13 @@ class InvoiceController extends Controller{
         //Importe total de los pedidos seleccionados:
         $orders_amount = 0;
         foreach($request->orders as $o){
-            $o_amount = $o->getAmount();
-            $orders_amount = $orders_amount + $o_amount['amount_without_discount'];
+            $ord = Order::select('id', 'discount', 'invoiced')->find($o);
+            $o_amount = $ord->getAmount();
+            $orders_amount = $orders_amount + $o_amount['amount_with_discount'];
         }
 
         //Importe total de la agrupación:
-        $group_amount = $order->getGroupAmount($order->id);
+        $group_amount = $order->getGroupAmount();
 
 
         //dd($request->all(), $orders_amount, $group_amount);
@@ -602,7 +611,7 @@ class InvoiceController extends Controller{
         //Si se trata de una agrupación, obtenemos los pedidos vinculados:
         $suborders = false;
         if($order->is_group){
-            $suborders = Order::select('orders.id', 'orders.order_num', 'orders.name', 'orders.purchase_num', 'budgets.budget_num')
+            $suborders = Order::select('orders.id', 'orders.order_num', 'orders.name', 'orders.purchase_num', 'orders.budget_num', 'orders.discount', 'orders.invoiced', 'orders.order_status')
             ->join('invoice_orders', 'orders.id', '=', 'invoice_orders.order_id')
             ->where('invoice_orders.invoice_id', $invoice->id)
             ->get();
@@ -716,7 +725,7 @@ class InvoiceController extends Controller{
             if($ba->featured == 1) $bank_featured = $ba->id;
         }
 
-        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'order', 'suborders', 'invoiced', 'invoices', 'refund', 'customer', 'provider', 'items', 'patterns', 'payments', 'templates', 'featuredTemplate', 'currency', 'languages', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'order_amount_without_discount', 'payment_methods', 'bank_accounts', 'bank_featured'));
+        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'order', 'suborders', 'invoiced', 'invoices', 'refund', 'customer', 'provider', 'items', 'patterns', 'payments', 'templates', 'featuredTemplate', 'currency', 'languages', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'payment_methods', 'bank_accounts', 'bank_featured'));
     }
 
     /**
@@ -846,7 +855,7 @@ class InvoiceController extends Controller{
     }
 
     /**
-     * 9. Actualizar plantilla de presupuesto.
+     * 9. Actualizar plantilla de factura.
      *
      * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
@@ -937,6 +946,39 @@ class InvoiceController extends Controller{
     }
 
     /**
+     * 10.1. Facturas por agrupación.
+     */
+    public function invoicesByOrderGroup(Order $order){
+        $header = [
+            'option' => $this->option, 
+            'suboption' => 'textos.facturas_por_agrupacion',
+            'module' => $this->module,
+            'slug' => 'invoices'
+        ]; 
+
+        $customer = Company::select('name')->where('id', $order->customer_id)->first();
+        $provider = Company::select('name')->where('id', $order->provider_id)->first();
+
+        //Facturas:
+        $invoices = Invoice::where('order_id', $order->id)
+        ->orderBy('fiscal_date', 'ASC')
+        ->get();   
+
+        //Importe total de la agrupación: 
+        $group_amount = $order->getGroupAmount();
+
+        //Estados de factura:
+        $invoice_status = helpers::invoiceStatus();
+
+        //Moneda:
+        $currency = $this->co_currency;
+
+        $languages = $this->languages;
+
+        return view('admin.invoices.invoices-by-order-group')->with(compact('header', 'order', 'customer', 'provider', 'invoices', 'group_amount', 'invoice_status', 'currency', 'languages'));
+    }
+
+    /**
      * 11. Cancelar factura.
      */
     public function destroy(Request $request, Invoice $invoice){
@@ -1004,10 +1046,23 @@ class InvoiceController extends Controller{
         //Info de la factura:
         $invoice = Invoice::find($request->invoice_id);
 
+        //Avisos:
         if(!$invoice || $invoice->deleted_at){
             $alert = trans('textos.factura_no_existe');
             return redirect()->route('invoices.index')->with(compact('alert')); 
             exit;       
+        }
+        //Si la factura está bloqueada, se expulsa:
+        if($invoice->blocked){
+            $alert = trans('textos.factura_bloqueada_warning');
+            return redirect()->route('invoices.edit', $invoice)->with(compact('alert')); 
+            exit;   
+        }
+        //El importe indicado no puede superar al de la factura.
+        if($request->refund == 'p' && $request->refund_amount > $invoice->amount){
+            $alert = trans('textos.factura_importe_superior_warning');
+            return redirect()->route('invoices.edit', $invoice)->with(compact('alert')); 
+            exit;     
         }
         
         //Importe de la factura de abono:
@@ -1035,17 +1090,26 @@ class InvoiceController extends Controller{
         $refund->fiscal_date = $invoice->fiscal_date;
         $refund->expiration_date = $invoice->expiration_date;
         $refund->user_id = Auth::user()->id;
+        $refund->observations = $request->concept;
         $refund->template_id = $invoice->template_id;
         $refund->template = $invoice->template;
         $refund->save();
                 
-        //Al generarse una factura de abono, sólo si el abono es íntegro, el pedido original vuelve a estado de pendiente de facturación y la factura a estado de devuelta:
+        //Al generarse una factura de abono, sólo si el abono es íntegro, el pedido original vuelve a estado de pendiente de facturación y la factura a estado de devuelta.
+        //En caso de tratarse de una agrupación, los pedidos de anidados que se encuentren en la factura también a estado sin facturar.
         if($request->refund == 't'){
-            $order = Order::select('orders.id', 'orders.invoiced')
+            $order = Order::select('id', 'is_group', 'invoiced')
             ->find($invoice->order_id);
 
             $order->invoiced = false;
             $order->save();
+
+            if($order->is_group){
+                Order::join('invoice_orders', 'orders.id', '=', 'invoice_orders.order_id')
+                ->where('orders.order_parent', $order->id)
+                ->where('invoice_orders.invoice_id', $invoice->id)
+                ->update(['orders.invoiced' => false]);
+            }
         }
 
         //Actualizando factura original:
@@ -1058,6 +1122,53 @@ class InvoiceController extends Controller{
 
         $msg = trans('textos.factura_abono_creada');
         return redirect()->route('invoices.edit', $refund->id)->with(compact('msg'));
+    }
+
+    /**
+     * 14. Eliminar pedido de factura de agrupación.
+     */
+    public function removeFromInvoice(Invoice $invoice, Order $order){
+        //Si la factura está bloqueada, se expulsa:
+        if($invoice->blocked){
+            $alert = trans('textos.factura_bloqueada_warning');
+            return redirect()->route('invoices.edit', $invoice)->with(compact('alert')); 
+            exit;   
+        }
+
+        //Eliminamos pedido de la factura de agrupación:
+        InvoiceOrders::where('invoice_id', $invoice->id)
+        ->where('order_id', $order->id)
+        ->delete();
+
+        //Desmarcamos el pedido como facturado.
+        $order->invoiced = false;
+        $order->save();
+
+        //Recalculando importe total de la agrupación, con los pedidos restantes en la factura:
+        $suborders = Order::select('orders.id', 'orders.order_num', 'orders.name', 'orders.purchase_num', 'orders.budget_num', 'orders.discount', 'orders.invoiced', 'orders.order_status')
+            ->join('invoice_orders', 'orders.id', '=', 'invoice_orders.order_id')
+            ->where('invoice_orders.invoice_id', $invoice->id)
+            ->get();
+
+        $invoice_amount = 0;
+        $amount_with_iva = 0;
+        foreach($suborders as $so){
+            $amount = $so->getAmount();
+            $invoice_amount = $invoice_amount + $amount['amount_with_discount'];
+        }
+
+        $invoice->amount = $invoice_amount;
+
+        //Cálculo IVA:
+        if($invoice_amount > 0 && $invoice->with_iva){
+            $iva_amount = helpers::percent($invoice_amount, $this->co_iva);
+            $amount_with_iva = $invoice_amount + $iva_amount;
+        }
+        $invoice->amount_with_iva = $amount_with_iva;
+        $invoice->save();      
+
+        $msg = trans('textos.factura_agrupacion_pedido_eliminado');
+        return redirect()->route('invoices.edit', $invoice)->with(compact('msg'));
     }
 }
 

@@ -279,7 +279,7 @@ $setBlock = true;
 			  		</li>
 
 			  		<li class="nav-item @if($tab == 'items') active @endif">
-			  			<a class="nav-link @if($tab == 'items') active @endif" href="#tab-items" role="tab" data-toggle="tab">Items</a>	
+			  			<a class="nav-link @if($tab == 'items') active @endif" href="#tab-items" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.lineas')) !!}</a>	
 			  		</li>
 
 			  		<li class="nav-item @if($tab == 'comments') active @endif">

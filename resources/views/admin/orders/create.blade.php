@@ -81,7 +81,7 @@
 								$label = $type == 'sale'? 'selec_cliente':'selec_proveedor';
 								@endphp
 
-								<x-select name="company_id" id="formCustomerId" class="select2" label="{{ $label }}" :options="$companies_" required/>
+								<x-select name="company_id" id="formCustomerId" class="select2" label="{{ $label }}" :options="$companies_" value="{{ $company_id }}" required/>
 
 								{{-- Error tipo pedido --}}
 								@error('type')

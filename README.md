@@ -135,13 +135,10 @@ SET FOREIGN_KEY_CHECKS = 0;
 TRUNCATE invoices;
 TRUNCATE invoice_orders;
 TRUNCATE invoice_payments;
-TRUNCATE budget_order_shared_fields;
-TRUNCATE budgets;
 TRUNCATE orders;
 TRUNCATE items;
 TRUNCATE deliveries;
 TRUNCATE delivery_orders;
-TRUNCATE orders;
 TRUNCATE order_previsions;
 SET FOREIGN_KEY_CHECKS = 1;
 

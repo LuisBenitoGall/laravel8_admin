@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Yajra\DataTables\DataTables;
 use File;
 
 //Models:
@@ -68,7 +69,7 @@ class ProductController extends Controller{
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(){
+    public function index($provider_id = false){
         $header = [
             'option' => $this->option, 
             'suboption' => 'textos.productos',
@@ -81,14 +82,18 @@ class ProductController extends Controller{
         //Moneda:
         $currency = CompanySettings::co_currency(0);
 
-        return view('admin.products.index')->with(compact('header', 'view', 'currency'));    
+        $provider = $provider_id? Company::find($provider_id):false;
+
+        return view('admin.products.index')->with(compact('header', 'view', 'currency', 'provider'));    
     }
 
     /**
      * 1.1. Listado de productos para DataTable.
      */
-    public function getProductsDT(){
-        $products = Product::companyProducts(session('currentCompany'), false, false);
+    public function getProductsDT($company_id = false){
+        $company = $company_id? $company_id:session('currentCompany'); 
+
+        $products = Product::companyProducts($company, false, false);
 
         //Permisos del usuario:
         $editar = Auth::user()->can('products.edit');

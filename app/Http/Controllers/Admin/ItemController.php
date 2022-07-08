@@ -151,11 +151,11 @@ class ItemController extends Controller{
             }
         } 
 
-        //Producto:
-        $product = $request->product_id? Product::select('name', )->find($request->product_id):false;
-
         //Si la línea pertenece a un presupuesto tipo formulario con bloques, la línea se incorpora a un bloque genérico:
         $order = Order::select('id', 'modality')->find($request->order_id);
+
+        //Producto:
+        $product = $request->product_id? Product::select('name', )->find($request->product_id):false;
 
         //Bloque al que pertenece el item:
         $budget_form_block_id = NULL;
@@ -233,6 +233,15 @@ class ItemController extends Controller{
                 ->withErrors($validator)
                 ->withInput();
         }   
+
+        $order = Order::select('id', 'invoiced')->find($request->order_id);
+
+        //Si pedido no existe o está facturado:
+        if(!$order || $order->invoiced){
+            $alert = trans('textos.pedido_facturado_aviso');
+            return redirect()->route('orders.edit', [$request->order_id, 'items'])->with(compact('alert'));
+            exit;
+        }
 
         $item = Item::find($request->id);
         $item->concept = $request->concept;

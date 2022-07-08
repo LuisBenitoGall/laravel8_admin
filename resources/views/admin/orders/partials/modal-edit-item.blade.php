@@ -30,20 +30,20 @@
 
 					<div class="form-group row">
 						{{-- Cantidad --}}
-                    	<label for="qty" class="col-lg-2 col-form-label price-fixed">{!! ucfirst(trans('textos.cantidad')) !!} *</label>
-						<div class="col-lg-2 price-fixed">
+                    	<label for="qty" class="col-lg-2 col-form-label price-fixed_">{!! ucfirst(trans('textos.cantidad')) !!} *</label>
+						<div class="col-lg-2 price-fixed_">
 							<x-input type="text" name="qty" class="text-right set-decimals" id="itemQty_" autocomplete="off" maxlength="10" value="1" required/>
 						</div>
 
 						{{-- Jornadas --}}
-						<label for="days" class="col-lg-2 col-form-label price-fixed">{!! ucfirst(trans('textos.jornadas')) !!}</label>
-						<div class="col-lg-2 price-fixed">
+						<label for="days" class="col-lg-2 col-form-label price-fixed_">{!! ucfirst(trans('textos.jornadas')) !!}</label>
+						<div class="col-lg-2 price-fixed_">
 							<x-input type="text" name="days" class="text-right set-decimals" id="itemDays_" autocomplete="off" maxlength="10"/>
 						</div>
 
 						{{-- Precio --}}
-						<label for="price" class="col-lg-2 col-form-label price-fixed">{!! ucfirst(trans('textos.precio_unidad')) !!} </label>
-						<div class="col-lg-2 price-fixed">
+						<label for="price" class="col-lg-2 col-form-label price-fixed_">{!! ucfirst(trans('textos.precio_unidad')) !!} </label>
+						<div class="col-lg-2 price-fixed_">
 							@php
 							$readonly = session('currentCompany') == $order->customer_id? true:false;
 							@endphp
@@ -58,14 +58,14 @@
 						<div class="form-group row">
 							{{-- Descuento --}}
 							@if(!$order->discount)
-								<label for="discount" class="col-lg-2 col-form-label price-fixed">{!! ucfirst(trans('textos.descuento')) !!} </label>
-								<div class="col-lg-2 price-fixed">
+								<label for="discount" class="col-lg-2 col-form-label price-fixed_">{!! ucfirst(trans('textos.descuento')) !!} </label>
+								<div class="col-lg-2 price-fixed_">
 									<x-input type="text" name="discount" id="itemDiscount_" class="text-right set-decimals" autocomplete="off" maxlength="5" value="0.00" group="right" groupvalue="%"/>
 								</div>
 
 								@if($customer_settings && $customer_settings->discount)
-									<div class="col-lg-2">
-										<button class="btn btn-warning btnApplyDiscount" data-discount="{{ $customer_settings->discount }}">
+									<div class="col-lg-4 price-fixed_">
+										<button class="btn btn-warning btnApplyDiscount_" data-discount="{{ $customer_settings->discount }}">
 											<i class="fa fa-percent"></i>
 											{!! trans('textos.descuento_clientes_aplicar') !!} ({{ $customer_settings->discount }}%)
 										</button>
@@ -78,13 +78,13 @@
 							@endif
 
 							{{-- Precio por porcentaje --}}
-							<label for="calculated_by_percent" class="col-lg-2 col-form-label price-by-percent">{!! ucfirst(trans('textos.por_porcentaje')) !!} </label>
-							<div class="col-lg-2 price-by-percent">
+							<label for="calculated_by_percent" class="col-lg-2 col-form-label price-by-percent_">{!! ucfirst(trans('textos.por_porcentaje')) !!} </label>
+							<div class="col-lg-2 price-by-percent_">
 								@php
 								$readonly = session('currentCompany') == $order->customer_id? true:false;
 								@endphp
 
-								<x-input type="text" name="calculated_by_percent" class="text-right set-decimals" autocomplete="off" maxlength="8" id="itemCalculatedByPercent_" value="0.00" group="right" groupvalue="%" readonly="{{ $readonly }}" info="item-price-by-percent"/>
+								<x-input type="text" name="calculated_by_percent" class="text-right set-decimals" autocomplete="off" maxlength="8" id="itemCalculatedByPercent_" value="0.00" group="right" groupvalue="%" readonly="{{ $readonly }}" info="item-price-by-percent_"/>
 							</div>
 
 							{{-- IVA. Sólo en pedidos. En presupuestos no se tiene en cuenta este impuesto --}}

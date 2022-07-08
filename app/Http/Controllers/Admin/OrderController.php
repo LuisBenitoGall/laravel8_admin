@@ -66,6 +66,7 @@ class OrderController extends Controller{
      * 18. Añadir descuento a pedido.
      * 18.1. 
      * 19. Modificar cliente de pedido.
+     * 20. Eliminar documento de orden de compra.
      */
     
     private $option = 'pedidos';
@@ -80,7 +81,7 @@ class OrderController extends Controller{
         $this->co_currency = CompanySettings::co_currency(0);
 
         $this->middleware('module_setted:orders');
-        $this->middleware('order_get', ['only' => ['orderFromBudget', 'edit', 'update', 'destroy', 'print', 'setOrderDelivery', 'resetNum']]);
+        $this->middleware('order_get', ['only' => ['orderFromBudget', 'edit', 'update', 'destroy', 'print', 'setOrderDelivery', 'resetNum', 'removePurchaseDoc']]);
         $this->middleware('project_purchases', ['only' => ['addPurchaseToProject']]);
     }
 
@@ -468,7 +469,7 @@ class OrderController extends Controller{
     /**
      * 2. Formulario nuevo pedido.
      */
-    public function create($type){
+    public function create($type, $company_id = false){
         if($type == 'sale'){
             $suboption = 'venta_nueva';
             $slug = 'sales-create';
@@ -506,7 +507,7 @@ class OrderController extends Controller{
         //Módulos activos:
         $module_products = $this->settedModule('products');
 
-        return view('admin.orders.create')->with(compact('header', 'type', 'companies', 'module_products'));    
+        return view('admin.orders.create')->with(compact('header', 'type', 'company_id', 'companies', 'module_products'));    
     }
 
     /**
@@ -529,9 +530,14 @@ class OrderController extends Controller{
         $customer_id = $request->type == 'sale'? $request->company_id:session('currentCompany');
         $provider_id = $request->type == 'purchase'? $request->company_id:session('currentCompany');
 
+        //Slug:
+        $slug = $request->name? Str::slug($request->name):NULL;
+
         //Creamos pedido:
         $order = new Order();
         $order->is_order = true;
+        $order->name = $request->name;
+        $order->slug = $slug;
         $order->is_group = $is_group;
         if($is_group){
             $order->order_status = config('constants.ORDER_GROUPS_DEFAULT_');
@@ -565,16 +571,18 @@ class OrderController extends Controller{
             }
 
             //Destinatarios de la notificación:
-            foreach($request->receivers as $receiver){
-                $user = User::select('id', 'name', 'surname', 'email')->find($receiver);
+            if($request->receivers){
+                foreach($request->receivers as $receiver){
+                    $user = User::select('id', 'name', 'surname', 'email')->find($receiver);
 
-                $user->title = trans('textos.nuevo_pedido_venta');
-                $user->sender = Auth::user()->name.' '.Auth::user()->surname;
-                $user->user_id = Auth::user()->id;
-                $user->content = trans('textos.nuevo_pedido_venta_aviso', ['company' => $buyer]);
-                $user->order_id = $order->id;
-                $user->notify(new PurchaseMessage($user));  
-            }  
+                    $user->title = trans('textos.nuevo_pedido_venta');
+                    $user->sender = Auth::user()->name.' '.Auth::user()->surname;
+                    $user->user_id = Auth::user()->id;
+                    $user->content = trans('textos.nuevo_pedido_venta_aviso', ['company' => $buyer]);
+                    $user->order_id = $order->id;
+                    $user->notify(new PurchaseMessage($user));  
+                } 
+            } 
         }
 
         $msg = trans('textos.pedido_creado');
@@ -747,7 +755,7 @@ class OrderController extends Controller{
         ->where('orders.is_group', 1)
         ->get();
 
-        //Pedidos para agrupaciones:
+        //Pedidos de las agrupación:
         $ordersInGroup = false;
         $orders_off = false;
         $group_amount = false;
@@ -761,11 +769,14 @@ class OrderController extends Controller{
             }
 
             //Pedidos fuera de agrupaciones:
-            $orders_off = OrderPrevisions::select('orders.order_num', 'orders.order_old_num', 'orders.name', 'orders.delivery_date', 'order_previsions.id', 'order_previsions.order_id', 'order_previsions.year', 'order_previsions.month', 'order_previsions.percent')
+            $orders_off = OrderPrevisions::select('orders.order_num', 'orders.order_old_num', 'orders.name', 'orders.delivery_date', 'order_previsions.id', 'order_previsions.order_id', 'order_previsions.year', 'order_previsions.month', 'order_previsions.percent', 'invoices.id AS invoiceId', 'invoices.invoice_num')
             ->join('orders', 'order_previsions.order_id', '=', 'orders.id')
+            ->leftJoin('invoice_orders', 'orders.id', '=', 'invoice_orders.order_id')
+            ->leftJoin('invoices', 'invoice_orders.invoice_id', '=', 'invoices.id')
             ->where('orders.customer_id', $order->customer_id)
             ->where('orders.provider_id', session('currentCompany'))
             ->where('orders.is_group', false)
+            ->where('orders.invoiced', false)
             ->whereNull('orders.order_parent')
             ->whereNull('order_previsions.invoice_id')
             ->whereNull('orders.deleted_at')
@@ -900,6 +911,19 @@ class OrderController extends Controller{
         $estimated_delivery_date = $request->estimated_delivery_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->estimated_delivery_date):$request->estimated_delivery_date:NULL;
         $delivery_date = $request->delivery_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->delivery_date):$request->delivery_date:NULL;
 
+        //Documento de compra:
+        $purchase_doc = false;
+        if($request->hasFile('doc')){
+            $file = $request->file('doc');
+            $path = public_path().'/img/purchase-orders';
+            $fileName = uniqid().$file->getClientOriginalName();
+            $moved = $file->move($path, $fileName);
+
+            if($moved){
+                $purchase_doc = $fileName;
+            }
+        }
+
         //Actualizando datos:
         if($request->pattern_id && $order->provider_id == session('currentCompany')){
             if(!empty($patternNum)){
@@ -919,6 +943,9 @@ class OrderController extends Controller{
             $order->purchase_pattern_id = $request->purchase_pattern_id;
         }
         $order->purchase_old_num = $request->purchase_old_num;
+        if($purchase_doc){
+            $order->purchase_doc = $purchase_doc;
+        }
         if($order->provider_id == session('currentCompany')){
             $order->name = $request->name;
             $order->slug = $slug;
@@ -943,7 +970,9 @@ class OrderController extends Controller{
         if($order->is_group){
             $order->bag_amount = $request->bag_amount;
         }
-        $order->order_status = $request->order_status;
+        if($request->status){
+            $order->order_status = $request->status;
+        }
 
         $order->save();
 
@@ -1148,27 +1177,6 @@ class OrderController extends Controller{
             return view('admin.orders.partials.dt-item-actions', compact('item', 'estados', 'order', 'environment'));    
         })
         ->make(true);
-
-
-        //Ampliación de los objetos:
-        // foreach($items as $row){
-        //     //Pedido:
-        //     $row->order = $order;
-
-        //     //Moneda:
-        //     $row->currency = $currency->symbol;
-
-        //     //Estado:
-        //     $row->estado = $row->status? $item_status[$row->status]:'';
-
-        //     //Permisos para las acciones:
-        //     $row->editar = $editar;
-
-        //     //Importe:
-        //     $row->amount = helpers::itemAmount($row, true);
-        // }
-
-        // return datatables($items)->toJson();
     }
 
     /**
@@ -1485,6 +1493,19 @@ class OrderController extends Controller{
         }else{
             return redirect()->route('orders.edit', $order->id)->with(compact('msg'));
         }
+    }
+
+    /**
+     * 20. Eliminar documento de orden de compra.
+     */
+    public function removePurchaseDoc(Order $order){
+        File::delete(public_path().'/img/purchase-orders/'.$order->purchase_doc);
+
+        $order->purchase_doc = NULL;
+        $order->save();
+
+        $msg = trans('textos.archivo_deleted');
+        return redirect()->route('orders.edit', $order)->with(compact('msg'));
     }
     
 }

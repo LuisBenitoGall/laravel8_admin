@@ -75,14 +75,18 @@
 			<x-input type="text" name="name" value="{{ $order->name }}" autocomplete="off" maxlength="255"/>
 		</div>
 
-		{{-- Estado --}}
+		{{-- Estado - condiciones: 
+			1. Pedido no facturado.
+		--}}
 		<label for="status" class="col-lg-2 col-form-label">{{ ucfirst(trans('textos.estado')) }}</label>
 		<div class="col-lg-4">
 			@php
-			$status = App\Helpers\helpers::budgetStatus();
+			$estados = App\Helpers\helpers::budgetStatus();
+			$disabled = $order->invoiced? true:false;
+			$name = !$disabled? 'status':'';	//En pedidos facturados no se modifica el status.
 			@endphp
 
-			<x-select name="status" class="select2" :options="$status" label="estado_selec" value="{{ $order->budget_status }}"/>
+			<x-select name="{{ $name }}" class="select2" :options="$estados" label="estado_selec" value="{{ $order->budget_status }}" disabled="{{ $disabled }}"/>
 		</div>
 	</div>
 

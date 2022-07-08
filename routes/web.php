@@ -398,8 +398,9 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::get('invoices/{order}/by-order', 'InvoiceController@invoicesByOrder')->name('invoices.by-order');
     Route::get('invoices/{invoice}/with_iva/{status}', 'InvoiceController@withIva')->name('invoices.with-iva')->middleware('permission:invoices.edit');
     Route::post('invoices/create-from-group', 'InvoiceController@createFromGroup')->name('invoices.create-from-group')->middleware('permission:invoices.create');
-    Route::get('invoices/{group}/by-order-group', 'InvoiceController@invoicesByOrderGroup')->name('invoices.by-order-group');
+    Route::get('invoices/{order}/by-order-group', 'InvoiceController@invoicesByOrderGroup')->name('invoices.by-order-group');
     Route::post('invoices/refund', 'InvoiceController@refund')->name('invoices.refund')->middleware('permission:invoices.edit');
+    Route::get('invoices/{invoice}/remove-from-invoice/{order}', 'InvoiceController@removeFromInvoice')->name('invoices.remove-from-invoice')->middleware('permission:invoices.edit');
 
     // IP Access:
     Route::get('ip-access', 'IpAccessController@index')->name('ip-access.index');
@@ -493,7 +494,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::get('orders/control-panel-sales/{year?}', 'OrderController@controlPanelSales')->name('orders.control-panel-sales')->middleware('permission:orders.index');
     Route::get('orders/control-panel-purchases/{year?}', 'OrderController@controlPanelPurchases')->name('orders.control-panel-purchases')->middleware('permission:orders.index');
     Route::get('orders/{order}/order-from-budget', 'OrderController@orderFromBudget')->name('orders.order-from-budget')->middleware('permission:orders.create');
-    Route::get('orders/{type}/create', 'OrderController@create')->name('orders.create')->middleware('permission:orders.create');
+    Route::get('orders/{type}/create/{company_id?}', 'OrderController@create')->name('orders.create')->middleware('permission:orders.create');
     Route::post('orders/store', 'OrderController@store')->name('orders.store')->middleware('permission:orders.create');
     Route::get('orders/{order}/edit/{tab?}', 'OrderController@edit')->name('orders.edit')->middleware('permission:orders.edit');
     Route::get('orders/{order}/print', 'OrderController@print')->name('orders.print')->middleware('permission:orders.edit');
@@ -509,9 +510,9 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::get('orders/{order}/remove-template', 'OrderController@removeTemplate')->name('orders.remove-template')->middleware('permission:orders.edit');
     Route::put('orders/{order}/add-discount', 'OrderController@addDiscount')->name('orders.add-discount')->middleware('permission:budgets.edit');
     Route::post('orders/{order}/set-customer', 'OrderController@setCustomer')->name('orders.set-customer')->middleware('permission:orders.edit');
-    Route::get('orders/{order}/remove-discount/{return?}', 'OrderController@removeDiscount')->name('orders.remove-discount')->middleware('permission:budgets.edit');
+    Route::get('orders/{order}/remove-discount/{return?}', 'OrderController@removeDiscount')->name('orders.remove-discount')->middleware('permission:orders.edit');
     Route::post('orders/{order}/add-member', 'OrderController@addTeamMember')->name('orders.add-member')->middleware('permission:orders.edit');
-
+    Route::get('orders/{order}/remove-purchase-doc', 'OrderController@removePurchaseDoc')->name('orders.remove-purchase-doc')->middleware('permission:orders.edit');
     
 
     Route::get('control-panel', 'OrderController@index')->name('control-panel.index')->middleware('permission:orders.index');
@@ -580,7 +581,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::get('product-units/status/{product_id}/{unit_id}', 'ProductUnitsController@status')->name('product-units.status')->middleware('permission:product-units.edit');
 
     // Products:
-    Route::get('products', 'ProductController@index')->name('products.index');
+    Route::get('products/{provider_id?}', 'ProductController@index')->where('provider', '[0-9]+')->name('products.index');
     Route::get('products/create', 'ProductController@create')->name('products.create')->middleware('permission:products.create');
     Route::post('products/store', 'ProductController@store')->name('products.store')->middleware('permission:products.create');
     Route::get('products/{product}/edit/{tab?}', 'ProductController@edit')->name('products.edit')->middleware('permission:products.edit');
@@ -622,6 +623,9 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::post('projects/update-team', 'ProjectController@updateTeam')->name('projects.update-team')->middleware('permission:projects.edit');
     Route::post('projects/link-project', 'ProjectController@linkProjectToBudgetOrder')->name('projects.link-project');
     Route::get('projects/{project}/reset-num', 'ProjectController@resetNum')->name('projects.reset-num')->middleware('permission:projects.edit');
+
+    // Provider Products:
+    Route::get('provider-products/{provider}', 'CustomerProductsController@providerCatalogue')->name('provider-products.index');
 
     // Providers:
     Route::get('providers', 'CustomerProvidersController@providers')->name('providers.index');
@@ -748,6 +752,11 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     // Stores:
     Route::get('stores/index/{storeSelected?}', 'StoreController@index')->name('stores.index');
 
+    // Subtasks:
+    Route::post('subtasks.store', 'SubtaskController@store')->name('subtasks.store')->middleware('permission:projects.edit');
+    Route::get('subtasks/status/{subtask}/{status}', 'SubtaskController@status')->name('subtasks.status')->middleware('permission:projects.edit');
+    Route::delete('subtasks/{subtask}', 'SubtaskController@destroy')->name('subtasks.destroy')->middleware('permission:projects.edit');
+
     // Task Messages:
     Route::post('task-messages/{task}/store', 'TaskMessagesController@store')->name('task-messages.store');
     Route::get('task-messages/{message}/destroy', 'TaskMessagesController@destroy')->name('task-messages.destroy');
@@ -760,7 +769,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     // Tasks:
     Route::get('tasks', 'TaskController@index')->name('tasks.index');
     Route::post('tasks/store', 'TaskController@store')->name('tasks.store')->middleware('permission:projects.edit');
-    Route::get('tasks/{task}/edit', 'TaskController@edit')->name('tasks.edit')->middleware('permission:projects.edit');
+    Route::get('tasks/{task}/edit/{tab?}', 'TaskController@edit')->name('tasks.edit')->middleware('permission:projects.edit');
     Route::put('tasks/{task}/update', 'TaskController@update')->name('tasks.update')->middleware('permission:projects.edit');
     Route::get('tasks/{task}/status/{status}', 'TaskController@status')->name('tasks.status');
     Route::get('tasks/{task}/destroy', 'TaskController@destroy')->name('tasks.destroy')->middleware('permission:projects.edit');

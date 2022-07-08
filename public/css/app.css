@@ -29693,7 +29693,8 @@ ul li.rev .fa {
 .answer_type_input,
 #budgetForms,
 #noBudgetForms,
-.price-by-percent {
+.price-by-percent,
+.price-by-percent_ {
   display: none;
 }
 
@@ -30450,4 +30451,16 @@ ul li.rev .fa {
 }
 .switch .slider.round:before {
   border-radius: 50%;
+}
+
+#handbookTitle {
+  border-bottom: 1px solid #E8E8E8;
+  margin-bottom: 25px;
+  padding-bottom: 4px;
+}
+
+#handbookExcerpt {
+  font-style: italic;
+  font-weight: 300;
+  margin-bottom: 30px;
 }

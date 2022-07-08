@@ -270,6 +270,7 @@ $(window).on('load', function(){
     24. Selector de modalidad de presupuesto.
     25. Seleccionar icono.
     26. Modal editar item.
+    27. Aplicar descuento por defecto del cliente a líneas del pedido, tanto nueva como edición.
     */
    
     // 1. Eliminar preview imagen seleccionada:
@@ -995,8 +996,8 @@ $(window).on('load', function(){
 
                 //Precio fijo:
                 if(response.price > 0){
-                    $('.price-by-percent').fadeOut(400, function(){
-                        $('.price-fixed').fadeIn(); 
+                    $('.price-by-percent_').fadeOut(400, function(){
+                        $('.price-fixed_').fadeIn(); 
                     });
                     $('#itemQty_').val(response.qty);
                     $('#itemDays_').val(response.days);
@@ -1007,14 +1008,26 @@ $(window).on('load', function(){
 
                 //Precio por porcentaje:    
                 }else if(!response.price && response.calculated_by_percent > 0){
-                    $('.price-fixed').fadeOut(400, function(){
-                        $('.price-by-percent').fadeIn();    
+                    $('.price-fixed_').fadeOut(400, function(){
+                        $('.price-by-percent_').fadeIn();    
                     });
                     $('#itemCalculatedByPercent_').val(response.calculated_by_percent);
                     $('#itemPrice_').val('');
                 }
             }
         });
+    });
+
+    // 27. Aplicar descuento por defecto del cliente a líneas del pedido, tanto nueva como edición.
+    $('.btnApplyDiscount').on('click', function(e){
+        e.preventDefault();
+        var discount = $(this).data('discount');
+        $('#productDiscount').val(discount);
+    });
+    $('.btnApplyDiscount_').on('click', function(e){
+        e.preventDefault();
+        var discount = $(this).data('discount');
+        $('#itemDiscount_').val(discount);
     });
     
     

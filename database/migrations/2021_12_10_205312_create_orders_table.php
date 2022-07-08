@@ -69,6 +69,7 @@ class CreateOrdersTable extends Migration{
             $table->unsignedBigInteger('purchase_pattern_id')->nullable();
             $table->foreign('purchase_pattern_id')->references('id')->on('purchase_patterns');
             $table->string('purchase_old_num')->nullable();
+            $table->string('purchase_doc')->nullable();
             $table->string('pay_order')->nullable();
             $table->timestamp('pay_order_received')->nullable();
 

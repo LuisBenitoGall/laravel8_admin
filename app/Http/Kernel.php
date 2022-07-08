@@ -120,6 +120,7 @@ class Kernel extends HttpKernel{
         'group_get' => \App\Http\Middleware\GroupGetMiddleware::class,
 
         'invoice_get' => \App\Http\Middleware\InvoiceGetMiddleware::class,
+        'invoice_order_remove' => \App\Http\Middleware\InvoiceOrderRemoveMiddleware::class,
         'invoice_post' => \App\Http\Middleware\InvoicePostMiddleware::class,
 
         'invoice_modality' => \App\Http\Middleware\InvoiceModalityMiddleware::class,

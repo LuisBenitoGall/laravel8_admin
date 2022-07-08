@@ -14,6 +14,7 @@ use Carbon\Carbon;
 
 //Models:
 use App\Models\Project;
+use App\Models\Subtask;
 use App\Models\Task;
 use App\Models\TaskMessages;
 use App\Models\TaskStatus;
@@ -41,7 +42,7 @@ class TaskController extends Controller{
     
     public function __construct(){
         //Idiomas:
-        $this->languages = Helpers::languages();
+        $this->languages = helpers::languages();
 
         $this->middleware('module_setted:projects');
         $this->middleware('project_post', ['only' => ['store']]);
@@ -143,7 +144,7 @@ class TaskController extends Controller{
     /**
      * 3. Editar tarea.
      */
-    public function edit(Task $task){
+    public function edit(Task $task, $tab = false){
         $header = [
             'option' => $this->option, 
             'suboption' => 'textos.tarea_editar',
@@ -176,6 +177,11 @@ class TaskController extends Controller{
         ->orderBy('order', 'ASC')
         ->get();
 
+        //Subtareas:
+        $subtasks = Subtask::where('task_id', $task->id)
+        ->orderBy('created_at', 'ASC')
+        ->get();
+
         //Mensajes:
         $messages = TaskMessages::select('task_messages.*', 'users.name', 'users.surname')
         ->join('users', 'task_messages.from', '=', 'users.id')
@@ -185,7 +191,7 @@ class TaskController extends Controller{
 
         $languages = $this->languages;
 
-        return view('admin.tasks.edit', compact('header', 'task', 'project', 'team', 'team_members', 'task_status', 'messages', 'languages'));   
+        return view('admin.tasks.edit', compact('header', 'task', 'tab', 'project', 'team', 'team_members', 'task_status', 'subtasks', 'messages', 'languages'));   
     }
 
     /**

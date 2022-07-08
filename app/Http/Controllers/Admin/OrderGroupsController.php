@@ -255,7 +255,7 @@ class OrderGroupsController extends Controller{
             //Pasamos como condición que el pedido no esté facturado.
             Order::where('id', $o)
             ->where('invoiced', false)
-            ->update(['parent' => $request->order_id, 'is_group' => false]);
+            ->update(['order_parent' => $request->order_id, 'is_group' => false]);
         }
 
         $msg = trans('textos.pedidos_en_agrupacion');
@@ -311,9 +311,9 @@ class OrderGroupsController extends Controller{
             'suboption' => 'textos.agrupacion_facturar',
             'module' => $this->module,
             'slug' => 'order-groups'
-        ]; 
+        ];          
 
-        $ordersInGroup = Order::getGroupOrders($order->id);
+        $ordersInGroup = $order->getGroupOrders();
 
         //Moneda:
         $currency = CompanySettings::co_currency(0);

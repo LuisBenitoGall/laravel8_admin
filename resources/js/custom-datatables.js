@@ -1480,7 +1480,7 @@ $(document).ready(function(){
         
         var tableCustomers = $('#tblCustomers').DataTable({
             "serverSide": true,
-            /*"processing": true,*/
+            "processing": true,
             "ajax": {
                 "type": "GET",
                 "url": "/api/admin/customers",
@@ -1492,67 +1492,45 @@ $(document).ready(function(){
                 {data: 'name'},
                 {data: 'tradename'},
                 {data: 'nif'},
-                {data: 'id', className: 'text-right'}
+                {data: 'acciones', className: 'text-right'}
             ],
-            "columnDefs": [
-                {"targets": -1,
-                "render": function(data, type, row){
-                    //Estado:
-                    var estado = '';
-                    //Responsables:
-                    var users = '';
-                    //Configuraciones:
-                    var config = '';
-                    if(row['status_permission']){
-                        var checked = (row['status'] == 1)? 'checked':'';
-                        estado = '<label class="custom-chk-rdb" rel="tooltip" title="'+txtOnOff+'">';
-                            estado += '<input type="checkbox" name="status" '+checked+' ><span class="chk chk-action" data-id="'+row['cp_id']+'" data-ctrl="customers/status"></span>';
-                        estado += '</label>';
+            // "columnDefs": [
+            //     {"targets": -1,
+            //     "render": function(data, type, row){
+            //         //Estado:
+            //         var estado = '';
+            //         //Responsables:
+            //         var users = '';
+            //         //Configuraciones:
+            //         var config = '';
+            //         if(row['status_permission']){
+            //             var checked = (row['status'] == 1)? 'checked':'';
+            //             estado = '<label class="custom-chk-rdb" rel="tooltip" title="'+txtOnOff+'">';
+            //                 estado += '<input type="checkbox" name="status" '+checked+' ><span class="chk chk-action" data-id="'+row['cp_id']+'" data-ctrl="customers/status"></span>';
+            //             estado += '</label>';
 
-                        users = '<a href="#" class="btn btn-xs btn-info btn-module btnAddManager" rel="tooltip" title="'+txtResponsableAdd+'" data-toggle="modal" data-target="#modal-add-manager" data-id="'+row['id']+'" data-company="'+row['name']+'"><i class="fa fa-user-plus"></i></a>';
+           
 
-                        config = '<a href="#" class="btn btn-xs btn-info btn-module btnCustomerConfig" rel="tooltip" title="'+txtClienteConfiguraciones+'" data-toggle="modal" data-target="#modal-edit-config" data-customer="'+row['id']+'" data-baid="'+row['ba_id']+'" data-workplaceid="'+row['workplace_id']+'" data-ccid="'+row['cc_id']+'" data-discount="'+row['discount']+'" data-credit="'+row['credit_risk']+'"><i class="fa fa-cog"></i></a>';
-                    }
+       
+            //         //Editar:
+            //         var editar = '';
+            //         if(!row['account'] || row['account']['guardian'] == row['current_company'] || row['edit']){
+            //             editar = '<a href="/admin/customers/'+row['id']+'/edit" class="btn btn-xs btn-info" rel="tooltip" title="'+txtEditar+'"><i class="fa fa-edit"></i></a>';
+            //         }
 
-                    //Editar:
-                    var editar = '';
-                    if(!row['account'] || row['account']['guardian'] == row['current_company'] || row['edit']){
-                        editar = '<a href="/admin/customers/'+row['id']+'/edit" class="btn btn-xs btn-info" rel="tooltip" title="'+txtEditar+'"><i class="fa fa-edit"></i></a>';
-                    }
+         
 
-                    //Ver:
-                    var ver = '<a href="/admin/customers/'+row['cp_id']+'/show" class="btn btn-xs btn-info btn-module" rel="tooltip" title="'+txtVer+'"><i class="fa fa-eye"></i></a>';
+            //         //Nueva venta + Catálogo:
+            //         var venta = '';
+            //         var catalogo = '';
+            //         if(row['catalogue']){
+            //             venta = '<a href="/admin/orders/'+row['id']+'/sale" class="btn btn-xs btn-info btn-module" rel="tooltip" title="'+txtVentaNueva+'"><i class="fa fa-cart-plus"></i></a>';
 
-                    //Nueva venta + Catálogo:
-                    var venta = '';
-                    var catalogo = '';
-                    if(row['catalogue']){
-                        venta = '<a href="/admin/orders/'+row['id']+'/sale" class="btn btn-xs btn-info btn-module" rel="tooltip" title="'+txtVentaNueva+'"><i class="fa fa-cart-plus"></i></a>';
+            
 
-                        catalogo = '<a href="/admin/customer-products/'+row['id']+'" class="btn btn-xs btn-info" rel="tooltip" title="'+txtCatalogo+'"><i class="fa fa-gift"></i></a>';
-                    }
+            
 
-                    //Condiciones de pago:
-                    var conditions = '';
-                    if(row['conditions']){
-                        conditions = '<a href="/admin/customers/'+row['id']+'/pay-conditions" class="btn btn-xs btn-info" rel="tooltip" title="'+txtCondicionesPago+'"><i class="fa fa-money-check-alt"></i></a>';
-                    }
-
-                    //Eliminar:
-                    var eliminar = '';
-                    if(row['delete_permission']){
-                        eliminar = '<form method="POST" action="customers/'+row['cp_id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
-                            eliminar += '<input name="_method" type="hidden" value="DELETE">';
-                            eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
-                            eliminar += '<input type="hidden" name="tipo" value="customer">';
-                            eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtClienteEliminar+'" data-msg="'+txtClienteConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
-                        eliminar += '</form>';
-                    }
-
-                    return estado+' '+editar+' '+venta+' '+catalogo+' '+conditions+' '+ver+' '+users+' '+config+' '+eliminar;
-                }
-                }
-            ]
+          
         });
     }
 
@@ -2936,7 +2914,6 @@ $(document).ready(function(){
                 {data: 'price', className: 'text-right'},
                 {data: 'days', className: 'text-right'},
                 {data: 'discount', className: 'text-right'},
-                //{data: 'iva', className: 'text-right'},
                 {data: 'amount', className: 'text-right'},
                 {data: 'estado'},
                 {data: 'acciones', className: 'text-right'}
@@ -2949,7 +2926,7 @@ $(document).ready(function(){
                 },
                 {"targets": 4,
                 "render": function(data, type, row){
-                    if(row['days'] == 0){
+                    if(row['days'] < 2){
                         return '';
                     }else{
                         return row['days'];    
@@ -3665,6 +3642,7 @@ $(document).ready(function(){
     //Tabla Products:
     if($('#tblProducts').length > 0){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        var company = $('#myCompany').val();
 
         //Filters:
         $('#tblProducts thead tr').clone(true).appendTo('#tblProducts thead');
@@ -3691,7 +3669,7 @@ $(document).ready(function(){
             /*"processing": true,*/
             "ajax": {
                 "type": "GET",
-                "url": "/api/admin/products",
+                "url": "/api/admin/products/"+company,
                 "error": function(reason){
                     console.log(reason);
                 }
@@ -4053,7 +4031,7 @@ $(document).ready(function(){
                     if(row['catalogue']){
                         compra = '<a href="/admin/orders/'+row['id']+'/purchase" class="btn btn-xs btn-info btn-module" rel="tooltip" title="'+txtCompraNueva+'"><i class="fa fa-cart-plus"></i></a>';
                     
-                        catalogo = '<a href="/admin/products/'+row['id']+'/catalogue" class="btn btn-xs btn-info btn-module" rel="tooltip" title="'+txtCatalogoVer+'"><i class="fa fa-gift"></i></a>';
+                        catalogo = '<a href="/admin/products/'+row['id']+'" class="btn btn-xs btn-info btn-module" rel="tooltip" title="'+txtCatalogoVer+'"><i class="fa fa-gift"></i></a>';
                     }
                     
                     //Eliminar:

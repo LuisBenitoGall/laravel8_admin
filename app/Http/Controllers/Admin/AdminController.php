@@ -33,7 +33,11 @@ class AdminController extends Controller{
      * @return [type]           [description]
      */
     public function index(Request $request){
-    	$header = ['option' => $this->option, 'suboption' => 'dashboard', 'module' => $this->module];
+    	$header = [
+            'option' => $this->option, 
+            'suboption' => 'dashboard', 
+            'module' => $this->module
+        ];
 
         // $preferences = Preference::select('preferences.id', 'preferences.name', 'preferences.url', 'modules.color', 'modules.icon')
         // ->leftJoin('modules', 'preferences.module_id', '=', 'modules.id')

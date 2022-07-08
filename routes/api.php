@@ -151,7 +151,7 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     Route::get('product-units/{product_id}', 'ProductUnitsController@getUnitsDT');
 
     //Products:
-    Route::get('products', 'ProductController@getProductsDT');
+    Route::get('products/{company_id?}', 'ProductController@getProductsDT');
 
     //ProjectPatterns:
     Route::get('project-patterns', 'ProjectPatternsController@getPatternsDT');

@@ -71,7 +71,7 @@
 											$amount = $oig->getAmount();
 											@endphp
 											<b>
-												{{ $amount['amount_without_discount'] }}{{ $currency->symbol }}
+												{{ $amount['amount_with_discount'] }}{{ $currency->symbol }}
 											</b>
 										</div>
 
@@ -96,7 +96,7 @@
 												@endphp
 
 												<label class="custom-chk-rdb mr-2" rel="tooltip" >
-                            						<input type="checkbox" class="chk-order" name="orders[]" value="{{ $oig->id }}" data-amount="{{ $amount['amount_without_discount'] }}"><span class="chk" ></span>
+                            						<input type="checkbox" class="chk-order" name="orders[]" value="{{ $oig->id }}" data-amount="{{ $amount['amount_with_discount'] }}"><span class="chk" ></span>
                         						</label>
 											@endif
 										</div>
