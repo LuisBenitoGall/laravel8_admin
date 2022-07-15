@@ -214,10 +214,20 @@
 			--}}
 			@if($module_projects && $order->customer_id == session('currentCompany'))
 				@can('projects.edit')
-					<a href="#" class="btn btn-warning" data-toggle="modal" data-target="#modal-add-purchase-to-project">
-						<i class="fa fa-rocket"></i>
-						{!! ucfirst(trans('textos.proyecto_vincular_compra')) !!}
-					</a>	
+					{{-- Enlace a proyectos ya vinculados --}}
+					@if(count($project_purchases))
+						@foreach($project_purchases as $pp)
+							<a target="_blank" href="{{ route('projects.edit', [$pp->projectId, 'purchases']) }}" class="btn btn-info">
+								<i class="fa fa-rocket"></i>
+								{!! ucfirst(trans('textos.proyecto')) !!}
+							</a>	
+						@endforeach
+					@else
+						<a href="#" class="btn btn-warning" data-toggle="modal" data-target="#modal-add-purchase-to-project">
+							<i class="fa fa-rocket"></i>
+							{!! ucfirst(trans('textos.proyecto_vincular_compra')) !!}
+						</a>
+					@endif	
 				@endcan
 			@endif
 
@@ -695,7 +705,7 @@ if($order->provider_team){
 @include('admin.orders.partials.modal-add-member-provider')
 
 {{-- Add item --}}
-@include('admin.orders.partials.modal-add-item', ['environment_' => 'orders', 'modality' => false])
+@include('admin.orders.partials.modal-add-item', ['environment_' => 'orders', 'modality' => $order->modality])
 
 {{-- Edit item --}}
 @include('admin.orders.partials.modal-edit-item', ['environment_' => 'orders'])

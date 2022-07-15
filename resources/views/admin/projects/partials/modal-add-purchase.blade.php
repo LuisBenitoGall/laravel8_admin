@@ -23,7 +23,7 @@
                             foreach($purchases as $purchase){
                                 $prefix = $purchase->purchase_num? $purchase->purchase_num:($purchase->order_num? $purchase->order_num:$purchase->id);
                                 $sufix = $purchase->name? ' - '.App\Helpers\helpers::truncate($purchase->name, 40):'';
-                                $purchases_[$purchase->id] = $prefix.$sufix;
+                                $purchases_[$purchase->id] = $prefix.$sufix.' ('.$purchase->provider.')';
                             }
                             @endphp
 

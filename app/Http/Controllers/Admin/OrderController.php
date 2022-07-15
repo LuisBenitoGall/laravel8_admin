@@ -811,7 +811,7 @@ class OrderController extends Controller{
         ->get();
 
         //Productos. Activos y aptos para venta:
-        $products = Product::companyProducts($order->provider_id);
+        $products = Product::companyProducts($order->provider_id, $order->customer_id);
 
         //Proyectos:
         $projects = Project::select('id', 'code', 'name')
@@ -950,8 +950,13 @@ class OrderController extends Controller{
             $order->name = $request->name;
             $order->slug = $slug;
         }
-        $order->briefing = $request->briefing;
-        $order->observations = $request->observations;
+        if($order->provider_id == session('currentCompany')){
+            $order->briefing = $request->briefing;
+            $order->observations = $request->observations;
+        }
+        if($order->customer_id == session('currentCompany')){
+            $order->observations_customer = $request->observations_customer;
+        }
         if($estimated_delivery_date){
             $order->estimated_delivery_date = $estimated_delivery_date;
         }
@@ -1163,12 +1168,16 @@ class OrderController extends Controller{
         ->addColumn('amount', function($item) use($currency, $order_amount){
             $amount = '';
             if($item->price > 0){
-                $amount = helpers::itemAmount($item);   
+                $amount = helpers::itemAmount($item); 
+                return $amount.$currency->symbol;
+
             }elseif(!$item->price && $item->calculated_by_percent > 0){
                 $amount = helpers::itemAmountPercentage($item->calculated_by_percent, $order_amount['amount_with_discount']);
-            }      
+                return $amount.$currency->symbol;
 
-            return $amount.$currency->symbol;
+            }else{
+                return trans('textos.precio_sin_definir');
+            }              
         })
         ->addColumn('estado', function($item) use($estados){
             return view('admin.orders.partials.dt-item-status', compact('item', 'estados'));    

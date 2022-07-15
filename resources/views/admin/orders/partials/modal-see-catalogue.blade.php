@@ -10,7 +10,7 @@
 
             <div class="modal-body">
             	{{-- Componente Products Grid --}}
-				@livewire('products-grid', ['currency' => $currency, 'order_' => true])
+				@livewire('products-grid', ['currency' => $currency, 'order_' => true, 'company' => false, 'customer' => $order->customer_id])
             </div>
         </div>
     </div>

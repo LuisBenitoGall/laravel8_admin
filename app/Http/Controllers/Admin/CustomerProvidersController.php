@@ -167,8 +167,6 @@ class CustomerProvidersController extends Controller{
             return view('admin.customer_providers.partials.dt-actions', compact('row', 'join'));    
         })
         ->make(true);
-
-        //return datatables($data)->toJson();
     }
 
     /**
@@ -201,7 +199,22 @@ class CustomerProvidersController extends Controller{
     public function getProvidersDT(){
         $data = $this->getCompaniesData('provider_id', 'customer_id');
 
-        return datatables($data)->toJson();
+        $join = 'providers';
+
+        return DataTables::of($data)
+        ->addColumn('name', function($row){
+            return $row->name; 
+        })
+        ->addColumn('tradename', function($row){
+            return $row->tradename; 
+        })
+        ->addColumn('nif', function($row){
+            return $row->nif; 
+        })
+        ->addColumn('acciones', function($row) use($join){
+            return view('admin.customer_providers.partials.dt-actions', compact('row', 'join'));    
+        })
+        ->make(true);
     }
 
     /**

@@ -159,6 +159,9 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     //Projects:
     Route::get('projects/{status?}', 'ProjectController@getProjectsDT');
 
+    //ProviderProducts:
+    Route::get('provider-products/{provider_id}', 'CustomerProductsController@getProviderProductsDT');
+
     //Providers:
     Route::get('providers', 'CustomerProvidersController@getProvidersDT');
 
@@ -197,6 +200,9 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
 
     //StaffPicks:
     Route::get('staff-picks', 'StaffPickController@getProcessesDT');
+
+    //Stores:
+    Route::get('stores', 'StoreController@getStoresDT');
 
     //Teams:
     Route::get('teams', 'TeamController@getTeamsDT');

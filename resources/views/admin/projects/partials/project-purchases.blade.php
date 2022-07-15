@@ -4,7 +4,7 @@
 			<thead>
 				<tr>
 					<th class="text-center">#</th>
-					<th>{!! ucfirst(trans('textos.pedido')) !!}</th>
+					<th>{!! ucfirst(trans('textos.proveedor')) !!}</th>
 					<th class="text-center">{!! ucfirst(trans('textos.importe')) !!}</th>
 					<th class="text-center">{!! ucfirst(trans('textos.fecha_entrega')) !!}</th>
 					<th class="text-center">{!! ucfirst(trans('textos.estado')) !!}</th>
@@ -17,25 +17,25 @@
 				$totalAmount = 0;
 				@endphp
 
-				@foreach($purchases as $pp)
+				@foreach($project_purchases as $pp)
 					<tr>
 						{{-- Número compra --}}
 						<td>
 							@php
-							$num = $pp->purchase_num? $pp->purchase_num:($pp->purchase_old_num? $pp->purchase_old_num:$pp->orderId);
+							$num = $pp->purchase_num? $pp->purchase_num:($pp->purchase_old_num? $pp->purchase_old_num:$pp->id);
 							@endphp
 
 							@can('orders.edit')
-								<a target="_blank" href="{{ route('orders.edit', $pp->orderId) }}"> 
+								<a target="_blank" href="{{ route('orders.edit', $pp->id) }}"> 
 							@endcan
 								{{ $num }}
 							@can('orders.edit')
 								</a>
 							@endcan
 						</td>
-						{{-- Título pedido --}}
+						{{-- Proveedor --}}
 						<td>
-							{{ $pp->name }}
+							{{ $pp->provider }}
 						</td>
 						{{-- Importe --}}
 						<td class="text-right">
@@ -55,17 +55,17 @@
 						{{-- Estado --}}
 						<td>
 							@if($pp->status > 0)
-								{!! ucfirst(App\Helpers\helpers::orderStatus($pp->status)) !!}
+								{!! ucfirst(App\Helpers\helpers::orderStatus($pp->order_status)) !!}
 							@endif
 						</td>
 						{{-- Acciones --}}
 						<td class="text-right">
 							@can('orders.edit')
 								{{-- Editar --}}
-								<a target="_blank" href="{{ route('orders.edit', $pp->orderId) }}" class="btn btn-xs btn-info" rel="tooltip" title="{{ ucfirst(trans('textos.editar')) }}"><i class="fa fa-edit"></i></a>
+								<a target="_blank" href="{{ route('orders.edit', $pp->id) }}" class="btn btn-xs btn-info" rel="tooltip" title="{{ ucfirst(trans('textos.editar')) }}"><i class="fa fa-edit"></i></a>
 
 								{{-- Desvincular --}}
-								<form method="POST" action="{{ route('purchase-from-project.destroy', $pp->ppId) }}" class="frm-inline" role="form" accept-charset="UTF-8">
+								<form method="POST" action="{{ route('purchase-from-project.destroy', $pp->id) }}" class="frm-inline" role="form" accept-charset="UTF-8">
 	                            	<input name="_method" type="hidden" value="DELETE">
 	                            	{{ csrf_field() }}
 	                            	<input type="hidden" name="return" value="project">

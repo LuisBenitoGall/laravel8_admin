@@ -60,25 +60,6 @@ $(function(){
         }
     });
 
-	// Desplegar submenú del handbook.
-    // $('.handbook-menu .hasSubmenu').on('click', function(e){
-    //     e.preventDefault();
-    //     if($(this).hasClass('active')){
-    //         $(this).find('.fa').toggleClass('flipDown');
-    //         $(this).removeClass('active');
-    //         $(this).siblings('.handbook-submenu').slideUp();
-
-    //     }else{
-    //         $('.handbook-submenu').slideUp();
-    //         $('.hasSubmenu.active .fa').toggleClass('flipDown');
-    //         $('.hasSubmenu').removeClass('active');           
-
-    //         $(this).addClass('active');
-    //         $(this).find('.fa').toggleClass('flipDown');
-    //         $(this).siblings('.handbook-submenu').slideDown();    
-    //     }
-    // });
-
     // Obtener contenido del Handbook.
     $('.getHbContent').on('click', function(e){
         e.preventDefault();
@@ -90,6 +71,10 @@ $(function(){
                     $('#handbookTitle').text(response.titulo);
                     $('#handbookExcerpt').html(response.destacado);
                     $('#handbookContent').html(response.contenido);    
+                }else{
+                    $('#handbookTitle').text('');
+                    $('#handbookExcerpt').html('');
+                    $('#handbookContent').html('<h3 class="mb-5 mt-5 text-center text-warning">'+txtContenidoPendienteRevision+'</h3>');    
                 }
             });
         }

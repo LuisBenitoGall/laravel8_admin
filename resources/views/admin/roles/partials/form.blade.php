@@ -58,7 +58,7 @@
 
 									<li>
 										{{-- Si el permiso es propio del rol, no se puede eliminar --}}
-										@if(in_array($row->id, $role_permissions) && !Auth::user()->hasRole('Super Admin'))
+										@if(isset($role_permissions) && in_array($row->id, $role_permissions) && !Auth::user()->hasRole('Super Admin'))
 											<i class="fa fa-check text-success mr-3 ml-1"></i>
 										@else
 											@php

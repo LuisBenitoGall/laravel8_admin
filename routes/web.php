@@ -252,7 +252,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::get('currencies/status/{id}/{status}', 'CurrencyController@status')->name('currencies.status');
 
     // Customer Products:
-    Route::get('customer-products/{customer}/{ba?}', 'CustomerProductsController@index')->name('customer-products.index');
+    Route::get('customer-products/{cp}/{ba?}', 'CustomerProductsController@index')->name('customer-products.index');
     Route::post('customer-products', 'CustomerProductsController@getProductsBy')->name('customer-products.list');
     Route::get('customer-products/{customer_id}/status/{id}/{status}/{price?}/{ba_id?}', 'CustomerProductsController@status')->name('customer-products.status');
     Route::get('customer-products/{customer_id}/update-price/{id}/{status}/{price?}/{ba_id?}', 'CustomerProductsController@updatePrice')->name('customer-products.update-price');
@@ -581,8 +581,8 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::get('product-units/status/{product_id}/{unit_id}', 'ProductUnitsController@status')->name('product-units.status')->middleware('permission:product-units.edit');
 
     // Products:
-    Route::get('products/{provider_id?}', 'ProductController@index')->where('provider', '[0-9]+')->name('products.index');
-    Route::get('products/create', 'ProductController@create')->name('products.create')->middleware('permission:products.create');
+    Route::get('products', 'ProductController@index')->name('products.index');
+    Route::get('products/create/{company_id?}', 'ProductController@create')->name('products.create')->middleware('permission:products.create');
     Route::post('products/store', 'ProductController@store')->name('products.store')->middleware('permission:products.create');
     Route::get('products/{product}/edit/{tab?}', 'ProductController@edit')->name('products.edit')->middleware('permission:products.edit');
     Route::get('products/{product}/show', 'ProductController@show')->name('products.show');
@@ -625,7 +625,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::get('projects/{project}/reset-num', 'ProjectController@resetNum')->name('projects.reset-num')->middleware('permission:projects.edit');
 
     // Provider Products:
-    Route::get('provider-products/{provider}', 'CustomerProductsController@providerCatalogue')->name('provider-products.index');
+    Route::get('provider-products/{cp}', 'CustomerProductsController@providerCatalogue')->name('provider-products.index');
 
     // Providers:
     Route::get('providers', 'CustomerProvidersController@providers')->name('providers.index');
@@ -751,6 +751,12 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
 
     // Stores:
     Route::get('stores/index/{storeSelected?}', 'StoreController@index')->name('stores.index');
+    Route::get('stores/create', 'StoreController@create')->name('stores.create')->middleware('permission:stores.create');
+    Route::post('stores/store', 'StoreController@store')->name('stores.store')->middleware('permission:stores.create');
+    Route::get('stores/{store}/edit', 'StoreController@edit')->name('stores.edit')->middleware('permission:stores.edit');
+    Route::put('stores/{store}', 'StoreController@update')->name('stores.update')->middleware('permission:stores.edit');
+    Route::delete('stores/{store}', 'StoreController@destroy')->name('stores.destroy')->middleware('permission:stores.destroy');
+    Route::get('stores/status/{store}/{status}', 'StoreController@status')->name('stores.status')->middleware('permission:stores.edit');
 
     // Subtasks:
     Route::post('subtasks.store', 'SubtaskController@store')->name('subtasks.store')->middleware('permission:projects.edit');

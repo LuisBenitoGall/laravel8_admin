@@ -15,6 +15,8 @@ use File;
 //Models:
 use App\Models\Company;
 use App\Models\CompanySettings;
+use App\Models\CustomerProducts;
+use App\Models\CustomerProviders;
 use App\Models\Product;
 use App\Models\ProductDocs;
 use App\Models\ProductFavorites;
@@ -69,7 +71,7 @@ class ProductController extends Controller{
      *
      * @return \Illuminate\Http\Response
      */
-    public function index($provider_id = false){
+    public function index(){
         $header = [
             'option' => $this->option, 
             'suboption' => 'textos.productos',
@@ -82,9 +84,9 @@ class ProductController extends Controller{
         //Moneda:
         $currency = CompanySettings::co_currency(0);
 
-        $provider = $provider_id? Company::find($provider_id):false;
+        $company =  Company::find(session('currentCompany'));
 
-        return view('admin.products.index')->with(compact('header', 'view', 'currency', 'provider'));    
+        return view('admin.products.index')->with(compact('header', 'view', 'currency', 'company'));    
     }
 
     /**
@@ -93,7 +95,7 @@ class ProductController extends Controller{
     public function getProductsDT($company_id = false){
         $company = $company_id? $company_id:session('currentCompany'); 
 
-        $products = Product::companyProducts($company, false, false);
+        $products = Product::companyProducts($company, $company, false, false);
 
         //Permisos del usuario:
         $editar = Auth::user()->can('products.edit');
@@ -122,9 +124,10 @@ class ProductController extends Controller{
     /**
      * 2. Formulario nuevo producto.
      *
+     * $company_id -> empresa tutelada por la empresa en session, se crea un producto del proveedor.
      * @return \Illuminate\Http\Response
      */
-    public function create(){
+    public function create($company_id = false){
         $header = [
             'option' => $this->option, 
             'suboption' => 'textos.producto_nuevo',
@@ -132,7 +135,10 @@ class ProductController extends Controller{
             'slug' => 'products'
         ];
 
-        return view('admin.products.create')->with(compact('header'));
+        //Moneda de la empresa tutelada:
+        $currency = $company_id? CompanySettings::co_currency(false, $company_id):false;
+
+        return view('admin.products.create')->with(compact('header', 'company_id', 'currency'));
     }
 
     /**
@@ -155,14 +161,38 @@ class ProductController extends Controller{
         $product = new Product();
         $product->name = $request->name;
         $product->slug = $slug;
-        $product->company_id = session('currentCompany');
+        $product->company_id = $request->tutored? $request->tutored:session('currentCompany');
         $product->user_id = Auth::user()->id;
         $product->type = $request->type;
         $product->on_sale = $request->on_sale? true:false;
+        if($request->tutored){
+            $product->iva = config('constants.IVA_DEFAULT_');
+            $product->status = 1;
+        }
         $product->save();
 
+        //Si el producto pertenece a una empresa tutelada, el precio se guarda en customer_products:
+        if($request->tutored && $request->price){
+            $cc = new CustomerProducts();
+            $cc->product_id = $product->id;
+            $cc->provider_id = $request->tutored;
+            $cc->customer_id = session('currentCompany');
+            $cc->price = $request->price;
+            $cc->save();
+        }
+
         $msg = trans('textos.producto_creado_ok');
-        return redirect()->route('products.edit', $product)->with(compact('msg'));
+        if($request->tutored){
+            //Obtenemos id de relación entre cliente y proveedor:
+            $cp = CustomerProviders::select('id')
+            ->where('customer_id', session('currentCompany'))
+            ->where('provider_id', $request->tutored)
+            ->first();
+            return redirect()->route('provider-products.index', $cp)->with(compact('msg'));
+
+        }else{
+            return redirect()->route('products.edit', $product)->with(compact('msg'));    
+        }
     }
 
     /**

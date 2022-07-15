@@ -990,12 +990,21 @@ $(window).on('load', function(){
         $('#itemObservations_').trumbowyg('html','');
         $.get("/admin/items/"+id+"/edit", function(response, state){
             if(response){
+                console.log(response);
                 $('#itemId_').val(id);
                 $('#itemConcept_').val(response.concept);
                 $('#itemObservations_').trumbowyg('html', response.observations);
 
+                //Precio por porcentaje:    
+                if(response.price  == '0' && response.calculated_by_percent > 0){
+                    $('.price-fixed_').fadeOut(400, function(){
+                        $('.price-by-percent_').fadeIn();    
+                    });
+                    $('#itemCalculatedByPercent_').val(response.calculated_by_percent);
+                    $('#itemPrice_').val('');
+
                 //Precio fijo:
-                if(response.price > 0){
+                }else{
                     $('.price-by-percent_').fadeOut(400, function(){
                         $('.price-fixed_').fadeIn(); 
                     });
@@ -1005,14 +1014,6 @@ $(window).on('load', function(){
                     $('#itemDiscount_').val(response.discount);
                     $('#itemIva_').val(response.iva);
                     $('#itemCalculatedByPercent_').val('');
-
-                //Precio por porcentaje:    
-                }else if(!response.price && response.calculated_by_percent > 0){
-                    $('.price-fixed_').fadeOut(400, function(){
-                        $('.price-by-percent_').fadeIn();    
-                    });
-                    $('#itemCalculatedByPercent_').val(response.calculated_by_percent);
-                    $('#itemPrice_').val('');
                 }
             }
         });

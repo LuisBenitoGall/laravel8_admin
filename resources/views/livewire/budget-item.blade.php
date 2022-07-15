@@ -52,7 +52,7 @@ $permitted = !$order || ($order && !$order->invoiced && !$order->parent)? true:f
                             <div id="collapse{{ $i }}" class="collapse" role="tabpanel" aria-labelledby="heading{{ $i }}" data-parent="#accordion" style="">
                                 <div class="card-body">
                                     @php
-                                    $items = $block->getItems($block->id);
+                                    $items = $block->getItems($block->id, $order->customer_id);
                                     $k = 1;
                                     @endphp
 
@@ -67,7 +67,10 @@ $permitted = !$order || ($order && !$order->invoiced && !$order->parent)? true:f
 
                                                 <div class="col-10 pt-2">
                                                     {{-- Precio --}}
-                                                    <span style="line-height: 30px;">{{ $item->price }}{{ $currency->symbol }}</span>
+                                                    @php
+                                                    $price = $item->priceForCustomer? $item->priceForCustomer:$item->price;
+                                                    @endphp
+                                                    <span style="line-height: 20px;">{{ $price }}{{ $currency->symbol }}</span>
 
                                                     {{-- Descuento --}}
                                                     @if($item->discount)

@@ -32,7 +32,7 @@
 						{{-- Cantidad --}}
                     	<label for="qty" class="col-lg-2 col-form-label price-fixed_">{!! ucfirst(trans('textos.cantidad')) !!} *</label>
 						<div class="col-lg-2 price-fixed_">
-							<x-input type="text" name="qty" class="text-right set-decimals" id="itemQty_" autocomplete="off" maxlength="10" value="1" required/>
+							<x-input type="text" name="qty" class="text-right set-decimals" id="itemQty_" autocomplete="off" maxlength="10" required/>
 						</div>
 
 						{{-- Jornadas --}}

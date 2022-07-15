@@ -16,13 +16,16 @@
     if($join == 'customers'){
     	$type = 'sale';
     }else{
-
+    	$type = 'purchase';
     }
     @endphp
+    {{-- Nueva venta --}}
     @if($join == 'customers')
     	<a href="{{ route('orders.create', [$type, $row->id]) }}" class="btn btn-xs btn-info btn-module" rel="tooltip" title="{{ trans('textos.venta_nueva') }}"><i class="fa fa-cart-plus"></i></a>
-    @else
 
+    {{-- Nueva compra --}}
+    @elseif($join == 'providers')
+    	<a href="{{ route('orders.create', [$type, $row->id]) }}" class="btn btn-xs btn-info btn-module" rel="tooltip" title="{{ trans('textos.compra_nueva') }}"><i class="fa fa-cart-plus"></i></a>	
     @endif
 
     {{--Condiciones: 
@@ -37,13 +40,19 @@
 	@endif
 
 	{{-- Catálogo --}}
-	<a href="{{ route('customer-products.index', $row->id) }}" class="btn btn-xs btn-info" rel="tooltip" title="{{ ucfirst(trans('textos.catalogo')) }}"><i class="fa fa-gift"></i></a>
+	@php
+	$catalogo = $join == 'customers'? 'catalogo_ventas':'catalogo_compras';
+	$method = $join == 'customers'? 'customer-products':'provider-products';
+	@endphp
+	<a href="{{ route($method.'.index', $row->cp_id) }}" class="btn btn-xs btn-info" rel="tooltip" title="{{ ucfirst(trans('textos.'.$catalogo)) }}"><i class="fa fa-gift"></i></a>
 
 	{{-- Configuración del cliente --}}
-	<a href="#" class="btn btn-xs btn-info btn-module btnCustomerConfig" rel="tooltip" title="{!! trans("textos.cliente_configuraciones") !!}" data-toggle="modal" data-target="#modal-edit-config" data-customer="{{ $row->id }}" data-baid="{{ $row->ba_id }}" data-workplaceid="{{ $row->workplace_id }}" data-ccid="{{ $row->cc_id }}" data-discount="{{ $row->discount }}" data-credit="{{ $row->credit_risk }}"><i class="fa fa-cog"></i></a>
+	@if($join == 'customers')
+		<a href="#" class="btn btn-xs btn-info btn-module btnCustomerConfig" rel="tooltip" title="{!! trans("textos.cliente_configuraciones") !!}" data-toggle="modal" data-target="#modal-edit-config" data-customer="{{ $row->id }}" data-baid="{{ $row->ba_id }}" data-workplaceid="{{ $row->workplace_id }}" data-ccid="{{ $row->cc_id }}" data-discount="{{ $row->discount }}" data-credit="{{ $row->credit_risk }}"><i class="fa fa-cog"></i></a>
 
-	{{-- Condiciones de pago --}}
-	<a href="{{ route('customers.pay-conditions', $row->id) }}" class="btn btn-xs btn-info" rel="tooltip" title="{!! trans("textos.condiciones_pago") !!}"><i class="fa fa-money-check-alt"></i></a>
+		{{-- Condiciones de pago --}}
+		<a href="{{ route('customers.pay-conditions', $row->id) }}" class="btn btn-xs btn-info" rel="tooltip" title="{!! trans("textos.condiciones_pago") !!}"><i class="fa fa-money-check-alt"></i></a>
+	@endif
 @endcan
 
 @can($join.'.destroy')

@@ -55,6 +55,7 @@ var txtCondicionesPago = "{!! trans("textos.condiciones_pago") !!}";
 var txtConfiguracion = "{!! ucfirst(trans("textos.configuracion")) !!}";
 var txtContenidoConfirmEliminar = "{!! trans("textos.contenido_confirm_eliminar") !!}";
 var txtContenidoEliminar = "{!! ucfirst(trans("textos.contenido_eliminar")) !!}";
+var txtContenidoPendienteRevision = "{!! ucfirst(trans("textos.contenido_pendiente_revision")) !!}";
 var txtContinuar = "{!! ucfirst(trans("textos.continuar")) !!}";
 var txtContratoConfirmEliminar = "{!! trans("textos.contrato_confirm_eliminar") !!}";
 var txtContratoEditar = "{!! ucfirst(trans("textos.contrato_editar")) !!}";
