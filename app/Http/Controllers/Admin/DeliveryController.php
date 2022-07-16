@@ -109,10 +109,9 @@ class DeliveryController extends Controller{
      * 1.2. Listado de pedidos para incluir en entregas para DataTable.
      */
     public function getDeliveriesOrdersDT(){
-        $orders = Order::select('orders.id', 'orders.order_num', 'orders.order_old_num', 'orders.name', 'companies.name AS company', 'budget_order_shared_fields.customer_id') 
-        ->join('budget_order_shared_fields', 'orders.id', '=', 'budget_order_shared_fields.order_id')
-        ->join('companies', 'budget_order_shared_fields.customer_id', '=', 'companies.id')
-        ->where('budget_order_shared_fields.provider_id', session('currentCompany')) 
+        $orders = Order::select('orders.id', 'orders.order_num', 'orders.order_old_num', 'orders.name', 'companies.name AS company', 'orders.customer_id') 
+        ->join('companies', 'orders.customer_id', '=', 'companies.id')
+        ->where('orders.provider_id', session('currentCompany')) 
         ->where('orders.prepare_delivery', 1)
         ->whereNotIn('orders.id', function($query){
             $query->select('order_id')->from('delivery_orders');

@@ -137,7 +137,7 @@ class WorkOrderController extends Controller{
         $author = User::select('id', 'name', 'surname')->find($work_order->created_by);
 
         //Productos. Activos y aptos para venta:
-        $products = Product::companyProducts($work_order->company_id);
+        $products = Product::companyProducts($work_order->company_id, $work_order->company_id);
 
         //Cambios bloqueados: establecer las condiciones por las que se pueden realizar ciertas acciones o no.
         $permitted = true;

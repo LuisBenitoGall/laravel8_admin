@@ -487,7 +487,7 @@ class BudgetController extends Controller{
         //Productos. Activos y aptos para venta:
         $products = [];
         if($order->modality == config('constants.BUDGET_CATALOGUE_MODALITY_') || $order->modality == config('constants.BUDGET_BASIC_MODALITY_')){
-            $products = Product::companyProducts($order->provider_id);
+            $products = Product::companyProducts($order->provider_id, $order->customer_id);
         }
 
         //Proyectos:

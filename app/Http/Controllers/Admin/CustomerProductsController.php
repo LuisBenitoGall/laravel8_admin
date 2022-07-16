@@ -12,6 +12,7 @@ use Yajra\DataTables\DataTables;
 //Models:
 use App\Models\BusinessAreas;
 use App\Models\Company;
+use App\Models\CompanyAccounts;
 use App\Models\CompanySettings;
 use App\Models\CustomerProducts;
 use App\Models\CustomerProviders;
@@ -87,7 +88,13 @@ class CustomerProductsController extends Controller{
         $areas = [];
         $business_area = false;
 
-        return view('admin.customer_products.index')->with(compact('header', 'customer', 'provider', 'business_area', 'areas'));
+        //Obtenemos cuenta del proveedor por si está tutelada por la empresa en session:
+        $account = CompanyAccounts::where('company_id', $provider->id)
+        ->where('status', 1)
+        ->orderBy('end_date', 'DESC')
+        ->first();
+
+        return view('admin.customer_products.index')->with(compact('header', 'customer', 'provider', 'business_area', 'areas', 'account'));
     }
 
     /**
@@ -173,7 +180,11 @@ class CustomerProductsController extends Controller{
         // ->where('status', 1)
         // ->orderBy('name', 'ASC');   
 
+<<<<<<< HEAD
         $data = Product::companyProducts($provider_id);
+=======
+        $data = Product::companyProducts($provider_id, session('currentCompany'));
+>>>>>>> 33645bc6dc7d2862c71be299c251696c9c472ac6
 
         //Moneda:
         $currency = CompanySettings::co_currency(0);
@@ -190,6 +201,7 @@ class CustomerProductsController extends Controller{
             $descripcion = (isset($description[session()->get('locale')]) && $description[session()->get('locale')] != '' && $description != '')? $description[session()->get('locale')]:$row->name;
             return ucfirst($descripcion); 
         })
+<<<<<<< HEAD
         // ->addColumn('id', function($row){
         //     return $row->nif; 
         // })
@@ -199,6 +211,27 @@ class CustomerProductsController extends Controller{
         // ->addColumn('acciones', function($row) use($join){
         //     return view('admin.customer_providers.partials.dt-actions', compact('row', 'join'));    
         // })
+=======
+        ->addColumn('image', function($row){
+            if($row->Image){
+                return '<img src="'.asset('img/products/'.$row->Image).'" width="50"><span style="display: none">1</span>';
+            }else{
+                return '<i class="fa fa-gift icono"></i><span style="display: none">0</span>';    
+            }
+        })
+        ->addColumn('price', function($row) use($currency){
+            if($row->calculated_by_percent > 0){
+                return trans('textos.precio_porcentual');
+            }else{
+                $price = $row->priceForCustomer? $row->priceForCustomer:$row->price;
+                return $price.$currency->symbol;     
+            }
+        })
+        ->addColumn('acciones', function($row){
+            return view('admin.customer_products.partials.dt-actions', compact('row'));    
+        })
+        ->rawColumns(['image'])
+>>>>>>> 33645bc6dc7d2862c71be299c251696c9c472ac6
         ->make(true);
     }
 

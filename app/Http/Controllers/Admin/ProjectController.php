@@ -499,50 +499,31 @@ class ProjectController extends Controller{
             return redirect()->route('projects.edit', $project)->with(compact('msg'));
         }
 
-        //Compras del proyecto:
-        $purchases = [];
-        // $purchases = Order::select('budget_order_shared_fields.id', 'project_purchases.id AS ppId', 'orders.id AS orderId', 'orders.order_num', 'orders.purchase_num', 'purchase_old_num', 'orders.name', 'orders.order_num', 'orders.delivery_date', 'orders.status')
-        // ->join('orders', 'orders.id', '=', 'orders.id')
-        // ->join('project_purchases', 'orders.id', '=', 'project_purchases.order_id')
-        // ->where('project_purchases.project_id', $project->id)
-        // ->get();
-
-        //Compras del proyecto. Array:
-        $purchases_linked = [];
-        // if($project_purchases->count()){
-        //     foreach($project_purchases as $pp){
-        //         array_push($purchases_linked, $pp->orderId);
-        //     }
-        // }
-
         //Compras:
-        // $purchases = Order::select('orders.id', 'orders.order_num', 'orders.purchase_num', 'orders.purchase_old_num', 'orders.name')
-        // ->join('budget_order_shared_fields', 'orders.id', '=', 'budget_order_shared_fields.order_id')
-        // ->join('companies', 'budget_order_shared_fields.provider_id', '=', 'companies.id')
-        // ->where('budget_order_shared_fields.customer_id', session('currentCompany'))
-        // ->whereNotIn('orders.id', $purchases_linked)
-        // ->orderBy('orders.purchase_num', 'ASC')
-        // ->orderBy('orders.order_num', 'ASC')
-        // ->get();
+        $project_purchases = Order::select('orders.id', 'orders.order_num', 'orders.purchase_num', 'orders.purchase_old_num', 'orders.name', 'orders.delivery_date', 'orders.order_status', 'companies.name AS provider')
+        ->join('project_purchases', 'orders.id', '=', 'project_purchases.order_id')
+        ->join('companies', 'orders.provider_id', '=', 'companies.id')
+        ->where('project_purchases.project_id', $project->id)
+        ->orderBy('orders.order_num', 'ASC')
+        ->get();
 
-        //Pedidos de proveedores, descontando los pedidos que existan ya entre las compras
-        // $purchases_in = [];
-        // foreach($purchases as $pr){
-        //     if($pr->orderId){
-        //         array_push($purchases_in, $pr->orderId);
-        //     }
-        // }
-
-        // $provider_orders = Order::where('customer_id', session('currentCompany'))
-        // ->whereNotIn('id', $purchases_in)
-        // ->get();
+        //Compras del proyecto:
+        $purchases = Order::select('orders.id', 'orders.order_num', 'orders.purchase_num', 'orders.purchase_old_num', 'orders.name', 'companies.name AS provider')
+        ->join('companies', 'orders.provider_id', '=', 'companies.id')
+        ->where('orders.is_order', true)
+        ->where('orders.customer_id', session('currentCompany'))
+        ->whereNotIn('orders.id', function($query){
+            $query->select('order_id')->from('project_orders');
+        })
+        ->orderBy('orders.purchase_num', 'ASC')
+        ->get();
          
         $languages = $this->languages;
 
         //Moneda:
         $currency = $this->co_currency;
 
-        return view('admin.projects.edit', compact('header', 'tab', 'project', 'patterns', 'author', 'owner', 'customer', 'users', 'team', 'team_members', 'tasks', 'task_status', 'groups', 'orders', 'purchases', 'languages', 'currency'));
+        return view('admin.projects.edit', compact('header', 'tab', 'project', 'patterns', 'author', 'owner', 'customer', 'users', 'team', 'team_members', 'tasks', 'task_status', 'groups', 'orders', 'project_purchases', 'purchases', 'languages', 'currency'));
     }
 
     /**

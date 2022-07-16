@@ -19,21 +19,26 @@ class ProductsGrid extends Component{
     public $company;
     public $currency;
     public $order_ = false;
+    public $customer;
 
-    public function mount($currency, $order_, $company){
+    public function mount($currency, $order_, $company, $customer){
         $this->company = $company? $company->id:session('currentCompany');
-
         $data = Product::companyProducts($this->company, $this->company, false, false);
         $this->totalRecords = $data->count();
+
         $this->currency = $currency['symbol'];
         $this->order_ = $order_;
+        $this->order = $customer? $customer:session('currentCompany');
+
+        $data = Product::companyProducts($this->company, $this->customer, false, false);
+        $this->totalRecords = $data->count();
     }
      
     /**
      * 1. Render componente.
      */
     public function render(){
-        return view('livewire.products-grid')->with('products', Product::companyProducts($this->company, false, false, $this->loadRecords));
+        return view('livewire.products-grid')->with('products', Product::companyProducts($this->company, $this->customer, false, false, $this->loadRecords));
     }
 
     /**

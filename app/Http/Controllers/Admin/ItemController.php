@@ -155,7 +155,7 @@ class ItemController extends Controller{
         $order = Order::select('id', 'modality')->find($request->order_id);
 
         //Producto:
-        $product = $request->product_id? Product::select('name', )->find($request->product_id):false;
+        $product = $request->product_id? Product::select('name')->find($request->product_id):false;
 
         //Bloque al que pertenece el item:
         $budget_form_block_id = NULL;

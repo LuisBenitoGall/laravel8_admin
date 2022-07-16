@@ -48,6 +48,7 @@ class Helpers{
 	 *  3.19. Modalidades de factura.
 	 *  3.20. Estados de factura.
 	 *  3.21. Métodos de pago.
+	 *  3.22. Tipos de almacén.
 	 *
 	 * 4. Strings:
 	 * 	4.1. Truncar texto.
@@ -870,6 +871,22 @@ class Helpers{
 			return $data;
 		}	
 	}
+
+	/**
+	 * 3.22. Tipos de almacén.
+	 */
+	public static function storeTypes($type = false){
+		$data = [
+			'r' => trans('textos.almacen_regular'),
+			'i' => trans('textos.almacen_incidencias'),
+			'c' => trans('textos.almacen_consumo_interno')
+		];
+		if($type){
+			return $data[$type];
+		}else{
+			return $data;
+		}
+	}	
 
 	/**
 	 * 4.1. Truncar texto.
