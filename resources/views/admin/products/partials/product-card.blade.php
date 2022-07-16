@@ -9,7 +9,10 @@
         </div>
         <div class="product-desc">
         	{{-- Precio --}}
-            <span class="product-price">{{ $product->price }}{{ $currency }}</span>
+            @php
+            $price = $product->priceForCustomer? $product->priceForCustomer:$product->price;
+            @endphp
+            <span class="product-price">{{ $price }}{{ $currency }}</span>
 
             {{-- Nombre producto --}}
             @php
@@ -25,7 +28,7 @@
             @endphp
             @if($product_description) 
                 <div class="small m-t-xs">
-                	{!! App\Helpers\Helpers::truncate($product_description, 100) !!}
+                	{!! App\Helpers\helpers::truncate($product_description, 100) !!}
             	</div>
             @endif
 

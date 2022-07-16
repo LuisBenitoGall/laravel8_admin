@@ -48,7 +48,7 @@ $prefix = 'hb-';
                 				<ul>
                 					@foreach($option['functionalities'] as $func)
                 						<li data-jstree='"type":"css"}'>
-	                						<a href="#" class="getHbContent" data-hb="{{ $prefix }}{{ $func['slug'] }}">
+	                						<a href="#" class="getHbContent" data-hb="{{ $prefix }}{{ $func['label'] }}">
 	                                            {!! ucfirst(trans('textos.'.$func['label'])) !!}
 	                                        </a>   	
 	                					</li>

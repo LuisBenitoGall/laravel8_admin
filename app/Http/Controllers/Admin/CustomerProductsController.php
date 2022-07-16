@@ -7,12 +7,14 @@ use App\Helpers\Helpers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
+use Yajra\DataTables\DataTables;
 
 //Models:
 use App\Models\BusinessAreas;
 use App\Models\Company;
 use App\Models\CompanySettings;
 use App\Models\CustomerProducts;
+use App\Models\CustomerProviders;
 use App\Models\Product;
 
 class CustomerProductsController extends Controller{
@@ -20,6 +22,7 @@ class CustomerProductsController extends Controller{
      * 1. Listado de productos por cliente.
      * 1.1. Listado de productos por proveedor.
      * 1.2. Listado de productos para DataTable.
+     * 1.2.1. Listado de productos de proveedor para DataTable.
      * 1.3. Listado de productos por filtro.
      * 2. Activar - desactivar producto para cliente.
      * 3. Actualizar precio producto para cliente.
@@ -48,7 +51,7 @@ class CustomerProductsController extends Controller{
     /**
      * 1. Listado de productos por cliente.
      */
-    public function index(Company $customer, $ba = false){
+    public function index(CustomerProviders $cp, $ba = false){
         $header = [
             'option' => $this->option, 
             'suboption' => 'textos.catalogo_cliente',
@@ -56,10 +59,11 @@ class CustomerProductsController extends Controller{
             'slug' => 'products'
         ]; 
 
+        $customer = Company::find($cp->customer_id);
         $provider = false;
 
         //Areas de negocio del cliente:
-        $areas = BusinessAreas::where('company_id', $customer->id)->get();
+        $areas = BusinessAreas::where('company_id', $cp->customer_id)->get();
 
         $business_area = $ba? BusinessAreas::find($ba):false;
 
@@ -69,7 +73,7 @@ class CustomerProductsController extends Controller{
     /**
      * 1.1. Listado de productos por proveedor.
      */
-    public function providerCatalogue(Company $provider){
+    public function providerCatalogue(CustomerProviders $cp){
         $header = [
             'option' => $this->option, 
             'suboption' => 'textos.catalogo_proveedor',
@@ -78,11 +82,10 @@ class CustomerProductsController extends Controller{
         ]; 
 
         $customer = false;
+        $provider = Company::find($cp->provider_id);
 
-        //Areas de negocio del cliente:
-        $areas = BusinessAreas::where('company_id', $provider->id)->get();
-
-        $business_area = $ba? BusinessAreas::find($ba):false;
+        $areas = [];
+        $business_area = false;
 
         return view('admin.customer_products.index')->with(compact('header', 'customer', 'provider', 'business_area', 'areas'));
     }
@@ -160,6 +163,43 @@ class CustomerProductsController extends Controller{
         }
 
         return datatables($products)->toJson();
+    }
+
+    /**
+     * 1.2.1. Listado de productos de proveedor para DataTable.
+     */
+    public function getProviderProductsDT($provider_id){
+        // $data = Product::where('company_id', $provider_id)
+        // ->where('status', 1)
+        // ->orderBy('name', 'ASC');   
+
+        $data = Product::companyProducts($provider_id);
+
+        //Moneda:
+        $currency = CompanySettings::co_currency(0);
+
+        return DataTables::of($data)
+        ->addColumn('name', function($row){
+            //Enviamos el nombre del producto ya traducido:
+            $trans = unserialize($row->translations);
+            $producto = (isset($trans[session()->get('locale')]) && $trans[session()->get('locale')] != '' && $trans != '')? $trans[session()->get('locale')]:$row->name;
+            return ucfirst($producto);
+        })
+        ->addColumn('descripcion', function($row){
+            $description = unserialize($row->description);
+            $descripcion = (isset($description[session()->get('locale')]) && $description[session()->get('locale')] != '' && $description != '')? $description[session()->get('locale')]:$row->name;
+            return ucfirst($descripcion); 
+        })
+        // ->addColumn('id', function($row){
+        //     return $row->nif; 
+        // })
+        ->addColumn('precio', function($row){
+            return $row->nif; 
+        })
+        // ->addColumn('acciones', function($row) use($join){
+        //     return view('admin.customer_providers.partials.dt-actions', compact('row', 'join'));    
+        // })
+        ->make(true);
     }
 
     /**

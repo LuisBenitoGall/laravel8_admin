@@ -5,20 +5,44 @@
 @if($customer)
 	<input type="hidden" id="dtCustomer" value="{{ $customer->id }}">
 	<input type="hidden" id="dtBusinessArea" value="@if($business_area) {{ $business_area->id }} @endif">
+@elseif($provider)
+	<input type="hidden" id="dtProvider" value="{{ $provider->id }}">
 @endif
 
 <div class="row mb-3">
+	{{-- Acciones: --}}
 	<div class="col-12">
-		{{-- Acciones: --}}
-		<a href="{{ route('customers.index') }}" class="btn btn-info">
-			<i class="fa fa-angle-left"></i>
-			{!! trans('textos.volver_clientes') !!}
-		</a>
+		{{-- Retorno a clientes o proveedores --}}
+		@if($customer)
+			<a href="{{ route('customers.index') }}" class="btn btn-info">
+				<i class="fa fa-angle-left"></i>
+				{!! trans('textos.volver_clientes') !!}
+			</a>
+		@elseif($provider)
+			<a href="{{ route('providers.index') }}" class="btn btn-info">
+				<i class="fa fa-angle-left"></i>
+				{!! trans('textos.volver_proveedores') !!}
+			</a>
+		@endif
+
+		{{-- Nuevo producto - condiciones
+			1. Disponer de permisos de creación de producto.	
+			2. Exclusivo para proveedores tutelados.
+			...
+		--}}
+		@can('products.create')
+			@if(isset($account) && $account->guardian == session('currentCompany'))
+	    		<a href="{{ route('products.create', $provider->id) }}" class="btn btn-info">
+	    			<i class="fa fa-plus"></i>
+	    			{!! ucfirst(trans('textos.producto_nuevo')) !!}
+	    		</a>
+	    	@endif
+        @endcan
 	</div>
 </div>
 
 {{-- Filtro: --}}
-@if($areas->count() > 0)
+@if(count($areas) > 0)
 	<div class="row">
 		<div class="col-12 mb-3">						
 			<div class="card mb-3">
@@ -57,8 +81,14 @@
 <div class="row">
 	<div class="col-12 mb-3">
 		<h3>
-			{!! trans('textos.catalogo_para') !!} 
-			<b>{{ $customer->name }}</b>
+			@if($customer)
+				{!! trans('textos.catalogo_para') !!} 
+				<b>{{ $customer->name }}</b>
+			@elseif($provider)
+				{!! trans('textos.catalogo_de') !!}
+				<b>{{ $provider->name }}</b>
+			@endif
+
 			@if($business_area)
 				- {{ $business_area->name }}
 			@endif
@@ -66,8 +96,12 @@
 	</div>
 
 	{{-- Vista listado --}}
+	@php
+	$tbl = $customer? 'tblCustomerProducts':'tblProviderProducts';
+	@endphp
+
 	<div class="table-responsive toggle-view-list">
-		<table class="table table-hover dtabla" id="tblCustomerProducts">
+		<table class="table table-hover dtabla" id="{{ $tbl }}">
 			<thead>
 				<tr>
 					<th>{!! ucfirst(trans('textos.producto')) !!}</th>

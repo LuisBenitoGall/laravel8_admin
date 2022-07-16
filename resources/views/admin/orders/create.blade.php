@@ -5,6 +5,13 @@
 <div class="row mb-3">
 	<div class="col-12">
 		{{-- Acciones: --}}
+		@if($company_id)
+			<a href="{{ route('customers.index') }}" class="btn btn-info">
+				<i class="fa fa-angle-left"></i>
+				{!! trans('textos.volver_clientes') !!}
+			</a>	
+		@endif
+
 		@can('orders.index')
 			<a href="{{ route('orders.index') }}" class="btn btn-info">
 				<i class="fa fa-angle-left"></i>

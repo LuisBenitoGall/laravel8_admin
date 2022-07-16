@@ -217,7 +217,7 @@ class BudgetItem extends Component{
 
             $this->calculated_by_percent = false;
             $this->qty = $item['qty_min'] > 0? $item['qty_min']:1;
-            $this->price = $item['price'];
+            $this->price = $item['priceForCustomer']? $item['priceForCustomer']:$item['price'];
             $this->discount = $item['discount'];
         }
 

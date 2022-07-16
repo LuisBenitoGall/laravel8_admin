@@ -23,7 +23,7 @@ class ProductsGrid extends Component{
     public function mount($currency, $order_, $company){
         $this->company = $company? $company->id:session('currentCompany');
 
-        $data = Product::companyProducts($this->company, false, false);
+        $data = Product::companyProducts($this->company, $this->company, false, false);
         $this->totalRecords = $data->count();
         $this->currency = $currency['symbol'];
         $this->order_ = $order_;

@@ -18,6 +18,10 @@
 			<div class="card-body">
 				<form method="post" autocomplete="off" action="{{ route('products.store') }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
 					{{ csrf_field() }}
+					{{-- Id de empresa tutelada --}}
+					@if($company_id)
+						<input type="hidden" name="tutored" value="{{ $company_id }}">
+					@endif
 
 					<div class="form-group row">
 						{{-- Nombre producto --}}
@@ -28,6 +32,14 @@
 					</div>
 
 					<div class="form-group row">
+						{{-- Precio: sólo para empresas tuteladas --}}
+						@if($company_id)
+							<label for="price" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.precio')) !!}</label>
+							<div class="col-lg-2">
+								<x-input type="text" name="price" class="text-right set-decimals" autocomplete="off" maxlength="8" group="right" groupvalue="{{ $currency->symbol }}"/>
+							</div>
+						@endif
+
 						{{-- Tipo --}}
                         <label for="type" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.tipo')) !!} *</label>
                         <div class="col-lg-3" style="padding-top: 8px;">
@@ -46,13 +58,20 @@
 							<x-input-errors name="type"/>
                         </div>
 
-                        <label for="on_sale" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.producto_venta')) !!}</label>
-                        <div class="col-lg-1">
-							<label class="custom-chk-rdb" rel="tooltip" title="{!! trans('textos.producto_venta') !!}">
-				                <input type="checkbox" name="on_sale" checked>
-				                <span class="chk" style="top: 5px;"></span>
-				            </label>
-				        </div>
+                        {{-- Producto para venta 
+							Los productos de empresas tuteladas se marcan por defecto 'para venta'.
+                        --}}
+                        @if($company_id)
+                        	<input type="hidden" name="on_sale" value="1">
+                        @else
+	                        <label for="on_sale" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.producto_venta')) !!}</label>
+	                        <div class="col-lg-1">
+								<label class="custom-chk-rdb" rel="tooltip" title="{!! trans('textos.producto_venta') !!}">
+					                <input type="checkbox" name="on_sale" checked>
+					                <span class="chk" style="top: 5px;"></span>
+					            </label>
+					        </div>
+					    @endif
 					</div>
 							
 					<x-btn-submit name="submit_save" label="{{ trans('textos.guardar') }}"/>

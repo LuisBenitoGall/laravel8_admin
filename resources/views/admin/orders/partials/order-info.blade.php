@@ -495,23 +495,45 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 		</div>
 	</div>
 	<br>
-
-	{{-- Briefing --}}
-	<div class="form-group row">
-		<label for="briefing" class="col-lg-2 col-form-label">Briefing</label>
-		<div class="col-lg-10">
-			<x-input-textarea name="briefing" class="editor" value="{{ $order->briefing }}"/>
+	
+	{{-- Opciones proveedor --}}
+	@if($order->provider_id == session('currentCompany'))
+		{{-- Mostrar observaciones del cliente al proveedor --}}
+		<div class="form-group row">
+			<label for="observations" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.observaciones_cliente')) !!}</label>
+			<div class="col-lg-10">
+				{!! $order->observations_customer !!}
+			</div>
 		</div>
-	</div>
-	<br>
 
-	{{-- Observaciones --}}
-	<div class="form-group row">
-		<label for="observations" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.observaciones')) !!}</label>
-		<div class="col-lg-10">
-			<x-input-textarea name="observations" class="editor" value="{{ $order->observations }}"/>
+		{{-- Briefing --}}
+		<div class="form-group row">
+			<label for="briefing" class="col-lg-2 col-form-label">Briefing</label>
+			<div class="col-lg-10">
+				<x-input-textarea name="briefing" class="editor" value="{{ $order->briefing }}"/>
+			</div>
 		</div>
-	</div>
+		<br>
+
+		{{-- Observaciones --}}
+		<div class="form-group row">
+			<label for="observations" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.observaciones')) !!}</label>
+			<div class="col-lg-10">
+				<x-input-textarea name="observations" class="editor" value="{{ $order->observations }}"/>
+			</div>
+		</div>
+	@endif
+
+	{{-- Opciones cliente --}}
+	@if($order->customer_id == session('currentCompany'))
+		{{-- Observaciones --}}
+		<div class="form-group row">
+			<label for="observations_customer" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.observaciones')) !!}</label>
+			<div class="col-lg-10">
+				<x-input-textarea name="observations_customer" class="editor" value="{{ $order->observations_customer }}"/>
+			</div>
+		</div>
+	@endif
 
 	<x-btn-submit name="submit_update" label="{{ trans('textos.guardar') }}"/>
 </form>

@@ -1431,23 +1431,32 @@ $(document).ready(function(){
                 }, 
                 {"targets": 3,
                 "render": function(data, type, row){
-                    var readonly = row['active'] == 0? 'readonly':'';
-                    var price = '<div class="input-group">';
-                        price += '<input type="text" class="form-control text-right customerProductPrice" data-customer="'+customer+'" data-product="'+row['id']+'" value="'+row['price']+'" '+readonly+'>';
-                        price += '<div class="input-group-append"><span class="input-group-addon">'+row['currency']+'</span></div>';
-                    price += '</div>'; 
-                    return price;   
+                    //Sólo se pueden modificar productos con precio fijo, no porcentual:
+                    if(!row['calculated_by_percent'] || row['calculated_by_percent'] == '0'){
+                        var readonly = row['active'] == 0? 'readonly':'';
+                        var price = '<div class="input-group">';
+                            price += '<input type="text" class="form-control text-right customerProductPrice" data-customer="'+customer+'" data-product="'+row['id']+'" value="'+row['price']+'" '+readonly+'>';
+                            price += '<div class="input-group-append"><span class="input-group-addon">'+row['currency']+'</span></div>';
+                        price += '</div>'; 
+                        return price;  
+                    }else{
+                        return txtPrecioPorcentual;
+                    } 
                 }
                 }, 
                 {"targets": -1,
                 "render": function(data, type, row){
                     //Estado:
-                    var checked = row['active'] == 1? 'checked':'';
-                    var estado = '<label class="custom-chk-rdb" rel="tooltip" title="'+txtProductoOnOff+'">';
-                        estado += '<input type="checkbox" name="active" '+checked+'><span class="chk btnCustomerProductStatus" data-product="'+row['id']+'" data-price="'+row['price']+'"></span>';
-                    estado += '</label>';
+                    if(!row['calculated_by_percent'] || row['calculated_by_percent'] == '0'){
+                        var checked = row['active'] == 1? 'checked':'';
+                        var estado = '<label class="custom-chk-rdb" rel="tooltip" title="'+txtProductoOnOff+'">';
+                            estado += '<input type="checkbox" name="active" '+checked+'><span class="chk btnCustomerProductStatus" data-product="'+row['id']+'" data-price="'+row['price']+'"></span>';
+                        estado += '</label>';
 
-                    return estado;
+                        return estado;
+                    }else{
+                        return '';
+                    }
                 }
                 } 
             ] 
@@ -3666,7 +3675,7 @@ $(document).ready(function(){
         
         var tableProducts = $('#tblProducts').DataTable({
             "serverSide": true,
-            /*"processing": true,*/
+            "processing": true,
             "ajax": {
                 "type": "GET",
                 "url": "/api/admin/products/"+company,
@@ -3960,6 +3969,92 @@ $(document).ready(function(){
         });
     }
 
+    //Tabla Provider Products:
+    if($('#tblProviderProducts').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        var provider = $('#dtProvider').val();
+
+        //Filters:
+        $('#tblProviderProducts thead tr').clone(true).appendTo('#tblProviderProducts thead');
+        $('#tblProviderProducts thead tr:eq(1) th').each(function(i){
+            var title = $(this).text();
+            if(i == 4){
+                $(this).html('');
+            }else{
+                $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
+            }
+     
+            $('input', this).on('keyup change', function(){
+                if(tableProviderProducts.column(i).search() !== this.value){
+                    tableProviderProducts
+                        .column(i)
+                        .search(this.value)
+                        .draw();
+                }
+            });
+        });
+        
+        var tableProviderProducts = $('#tblProviderProducts').DataTable({
+            "serverSide": true,
+            "processing": true,
+            "ajax": {
+                "type": "GET",
+                "url": "/api/admin/provider-products/"+provider,
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            "columns": [
+                {data: 'name'},
+                {data: 'descripcion'},
+                {data: 'image', className: 'text-center'},
+                {data: 'price', className: 'text-right'},
+                {data: 'acciones', className: 'text-right'}
+            ]
+            // "columnDefs": [
+            //     {"targets": 2,
+            //     "render": function(data, type, row){
+            //         if(row['doc']){
+            //             return '<img src="/img/products/'+row['doc']+'" width="60">';      
+            //         }else{
+            //             return '<i class="fa fa-gift icono"></i>';    
+            //         }                   
+            //     }
+            //     }, 
+            //     {"targets": 3,
+            //     "render": function(data, type, row){
+            //         //Sólo se pueden modificar productos con precio fijo, no porcentual:
+            //         if(!row['calculated_by_percent'] || row['calculated_by_percent'] == '0'){
+            //             var readonly = row['active'] == 0? 'readonly':'';
+            //             var price = '<div class="input-group">';
+            //                 price += '<input type="text" class="form-control text-right customerProductPrice" data-customer="'+customer+'" data-product="'+row['id']+'" value="'+row['price']+'" '+readonly+'>';
+            //                 price += '<div class="input-group-append"><span class="input-group-addon">'+row['currency']+'</span></div>';
+            //             price += '</div>'; 
+            //             return price;  
+            //         }else{
+            //             return txtPrecioPorcentual;
+            //         } 
+            //     }
+            //     }, 
+            //     {"targets": -1,
+            //     "render": function(data, type, row){
+            //         //Estado:
+            //         if(!row['calculated_by_percent'] || row['calculated_by_percent'] == '0'){
+            //             var checked = row['active'] == 1? 'checked':'';
+            //             var estado = '<label class="custom-chk-rdb" rel="tooltip" title="'+txtProductoOnOff+'">';
+            //                 estado += '<input type="checkbox" name="active" '+checked+'><span class="chk btnCustomerProductStatus" data-product="'+row['id']+'" data-price="'+row['price']+'"></span>';
+            //             estado += '</label>';
+
+            //             return estado;
+            //         }else{
+            //             return '';
+            //         }
+            //     }
+            //     } 
+            // ] 
+        });
+    }
+
     //Tabla Providers:
     if($('#tblProviders').length > 0){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
@@ -3986,7 +4081,7 @@ $(document).ready(function(){
         
         var tableProviders = $('#tblProviders').DataTable({
             "serverSide": true,
-            /*"processing": true,*/
+            "processing": true,
             "ajax": {
                 "type": "GET",
                 "url": "/api/admin/providers",
@@ -3998,9 +4093,9 @@ $(document).ready(function(){
                 {data: 'name'},
                 {data: 'tradename'},
                 {data: 'nif'},
-                {data: 'id', className: 'text-right'}
-            ],
-            "columnDefs": [
+                {data: 'acciones', className: 'text-right'}
+            ]
+            /*"columnDefs": [
                 {"targets": -1,
                 "render": function(data, type, row){
                     //Estado:
@@ -4048,7 +4143,7 @@ $(document).ready(function(){
                     return estado+' '+editar+' '+ver+' '+compra+' '+catalogo+' '+users+' '+eliminar;
                 }
                 }
-            ]
+            ] */
         });
     }
 
@@ -4676,6 +4771,29 @@ $(document).ready(function(){
                     return estado+' '+editar+' '+eliminar;
                 }
                 }
+            ]
+        });
+    }
+
+    //Tabla Stores:
+    if($('#tblStores').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        
+        $('#tblStores').DataTable({
+            "serverSide": false,
+            "processing": true,
+            "ajax": {
+                "type": "GET",
+                "url": "/api/admin/stores",
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            "columns": [
+                {data: 'name'},
+                {data: 'tipo'},
+                {data: 'alta', className: 'text-right'},
+                {data: 'acciones', className: 'text-right'}
             ]
         });
     }

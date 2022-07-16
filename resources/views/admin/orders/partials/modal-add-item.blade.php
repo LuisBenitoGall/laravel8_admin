@@ -32,7 +32,10 @@
 
 					<div class="form-group row">
 						{{-- Producto --}}
-                    	<label for="product_id" class="col-md-2 col-form-label">{!! ucfirst(trans('textos.producto')) !!} *</label>
+                    	<label for="product_id" class="col-md-2 col-form-label">
+                    		{!! ucfirst(trans('textos.producto')) !!} 
+                    		@if(session('currentCompany') == $order->provider_id) * @endif
+                    	</label>
 						<div class="col-8 col-lg-9">
 							{{-- Selector de productos o input libre en función de la modalidad del formulario --}}
 							@if($modality == config('constants.BUDGET_CATALOGUE_MODALITY_') || $environment_ == 'orders')
@@ -42,9 +45,11 @@
 								foreach($products as $product){
 									$products_[$product->id] = $product->name;
 								}
+
+								$required = session('currentCompany') == $order->provider_id? true:false;
 								@endphp
 
-								<x-select name="product_id" id="productId" class="select2" label="producto_selec" :options="$products_" required/>
+								<x-select name="product_id" id="productId" class="select2" label="producto_selec" :options="$products_" />
 
 				                @if(count($products) == 0)
 									<small class="text-danger">
@@ -53,7 +58,7 @@
 									</small>
 				                @endif
 
-				            @elseif($modality == config('constants.BUDGET_BASIC_MODALITY_'))
+				            @elseif($modality == config('constants.BUDGET_BASIC_MODALITY_') && session('currentCompany') == $order->provider_id)
 				            	<x-input type="text" name="concept" autocomplete="off" maxlength="255" required/>	
 				            @endif
 						</div>
@@ -67,6 +72,16 @@
 							</div>
 						@endif
 					</div>
+
+					{{-- Línea manual. Para pedidos de compra si el producto no consta en el catálogo. Su precio es 0 --}}
+					@if(session('currentCompany') == $order->customer_id)
+						<div class="form-group row">
+							<label for="concept" class="col-md-2 col-form-label">{!! ucfirst(trans('textos.producto_manual')) !!}</label>	
+							<div class="col-md-10">
+								<x-input type="text" name="concept" id="productManual" autocomplete="off" info="order-product-manual"/>
+							</div>
+						</div>
+					@endif
 
 					<div class="form-group row">
 						{{-- Cantidad --}}
@@ -170,26 +185,40 @@ $(function(){
 	    //Buscamos precio:
 	    products.forEach(function(i){
 	        if(i.id == product_id){
-	        	//Precio fijo:
-	        	if(i.price > 0){
-	        		$('#productPrice').val(i.price);
-	        		$('#productPriceByPercent').val('');
-	        		$('.price-by-percent').fadeOut(400, function(){
-	        			$('.price-fixed').fadeIn();	
-	        		});	        			
-
 	        	//Precio por porcentaje:	
-	        	}else if(i.price == 0 && i.calculated_by_percent > 0){
+	        	if(i.price == '0' && i.calculated_by_percent > 0){
 	        		$('#productPriceByPercent').val(i.calculated_by_percent);
 	        		$('#productPrice').val('');
 	        		$('.price-fixed').fadeOut(400, function(){
 	        			$('.price-by-percent').fadeIn();	
 	        		});
+
+	        	//Precio fijo:
+	        	}else{
+	        		//Comprobamos si el cliente tiene precio personalizado:
+	        		var precio = i.priceForCustomer? i.priceForCustomer:i.price;
+	        		$('#productPrice').val(precio);
+	        		$('#productPriceByPercent').val('');
+	        		$('.price-by-percent').fadeOut(400, function(){
+	        			$('.price-fixed').fadeIn();	
+	        		});	        
 	        	}
 	            
 	            $('#productIva').val(i.iva);    
 	        }
 	    });
+
+	    $('#productManual').val('');
+	});
+	
+	$('#productManual').on('change', function(){
+		var valor = $(this).val();
+		var arr = [''];
+        $('#productId').val(arr);
+        $('#productId').trigger('change');
+
+		$('#productPrice').val('0.00');
+		$(this).val(valor);
 	});
 });
 </script>
