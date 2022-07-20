@@ -180,11 +180,7 @@ class CustomerProductsController extends Controller{
         // ->where('status', 1)
         // ->orderBy('name', 'ASC');   
 
-<<<<<<< HEAD
-        $data = Product::companyProducts($provider_id);
-=======
         $data = Product::companyProducts($provider_id, session('currentCompany'));
->>>>>>> 33645bc6dc7d2862c71be299c251696c9c472ac6
 
         //Moneda:
         $currency = CompanySettings::co_currency(0);
@@ -201,17 +197,6 @@ class CustomerProductsController extends Controller{
             $descripcion = (isset($description[session()->get('locale')]) && $description[session()->get('locale')] != '' && $description != '')? $description[session()->get('locale')]:$row->name;
             return ucfirst($descripcion); 
         })
-<<<<<<< HEAD
-        // ->addColumn('id', function($row){
-        //     return $row->nif; 
-        // })
-        ->addColumn('precio', function($row){
-            return $row->nif; 
-        })
-        // ->addColumn('acciones', function($row) use($join){
-        //     return view('admin.customer_providers.partials.dt-actions', compact('row', 'join'));    
-        // })
-=======
         ->addColumn('image', function($row){
             if($row->Image){
                 return '<img src="'.asset('img/products/'.$row->Image).'" width="50"><span style="display: none">1</span>';
@@ -231,7 +216,6 @@ class CustomerProductsController extends Controller{
             return view('admin.customer_products.partials.dt-actions', compact('row'));    
         })
         ->rawColumns(['image'])
->>>>>>> 33645bc6dc7d2862c71be299c251696c9c472ac6
         ->make(true);
     }
 

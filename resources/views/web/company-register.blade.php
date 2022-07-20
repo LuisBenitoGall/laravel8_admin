@@ -13,6 +13,7 @@
                         {{ csrf_field() }}
                         <input type="hidden" name="account_id" id="accountId" @if($accounts->count() == 1) value="{{ $accounts[0]->id }}" @endif>
                         <input type="hidden" name="guardian" value="{{ $guardian }}">
+                        <input type="hidden" name="business_relationship" value="companies">
 
                         {{-- Empresa --}}
                         <div class="form-group row">

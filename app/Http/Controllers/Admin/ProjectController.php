@@ -456,10 +456,11 @@ class ProjectController extends Controller{
         // ->get();
 
 
-        $orders = Order::select('orders.id', 'orders.customer_id', 'orders.id AS budgetId', 'orders.budget_num', 'orders.budget_old_num', 'orders.name', 'orders.modality', 'orders.budget_status AS budget_status', 'orders.id AS orderId', 'orders.order_num', 'orders.order_old_num', 'orders.name AS order_name', 'orders.estimated_delivery_date', 'orders.delivery_date', 'orders.order_status', 'orders.created_at', 'users.name AS nombre', 'users.surname')
+        $orders = Order::select('orders.id', 'orders.is_budget', 'orders.customer_id', 'orders.budget_num', 'orders.budget_old_num', 'orders.name', 'orders.modality', 'orders.budget_status AS budget_status', 'orders.order_num', 'orders.order_old_num', 'orders.estimated_delivery_date', 'orders.delivery_date', 'orders.order_status', 'orders.created_at', 'users.name AS nombre', 'users.surname')
         ->join('project_orders', 'orders.id', '=', 'project_orders.order_id')
         ->leftJoin('users', 'orders.provider_manager_id', '=', 'users.id')
         ->where('project_orders.project_id', $project->id)
+        ->where('orders.is_order', 1)
         ->get();
 
         //Cliente: debe ser único. Lo obtenemos de los distintos presupuestos y deben ser el mismo. En caso de más de un cliente, redirigimos para que el usuario seleccione un único cliente:
@@ -475,8 +476,8 @@ class ProjectController extends Controller{
         //Obtenemos importe de cada presupuesto-pedido:
         foreach($orders as $row){
             //Enviamos las fechas ya formateadas:
-            $row->fechaEntregaPrevista = Carbon::parse($row->estimated_delivery_date)->format($this->languages[session()->get('locale')][4]);
-            $row->fechaEntrega = Carbon::parse($row->delivery_date)->format($this->languages[session()->get('locale')][4]);
+            $row->fechaEntregaPrevista = $row->estimated_delivery_date? Carbon::parse($row->estimated_delivery_date)->format($this->languages[session()->get('locale')][4]):'';
+            $row->fechaEntrega = $row->delivery_date? Carbon::parse($row->delivery_date)->format($this->languages[session()->get('locale')][4]):'';
             $row->alta = $row->created_at->format($this->languages[session()->get('locale')][4]);
 
             //Importe:

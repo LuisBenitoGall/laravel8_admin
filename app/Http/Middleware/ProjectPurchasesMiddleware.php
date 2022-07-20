@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 
 //Models:
-use App\Models\BudgetOrderSharedFields;
+use App\Models\Order;
 use App\Models\Project;
 
 class ProjectPurchasesMiddleware{
@@ -34,8 +34,8 @@ class ProjectPurchasesMiddleware{
         }
 
         //La empresa debe ser cliente del pedido:
-        $company_ = BudgetOrderSharedFields::select('customer_id')
-        ->where('order_id', $request->order_id)
+        $company_ = Order::select('customer_id')
+        ->where('id', $request->order_id)
         ->where('customer_id', session('currentCompany'))
         ->first();
 

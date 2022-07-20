@@ -13,6 +13,7 @@ class Product extends Model{
      * 1. Documentos del producto. 
      * 2. Relación con empresa. 
      * 3. Productos por empresa.
+     * 3.1. Productos por empresa con gestión de stock.
      */
      
     use HasFactory;
@@ -67,4 +68,8 @@ class Product extends Model{
             return $data;
         }
     }  
+
+    /**
+     * 3.1. Productos por empresa con gestión de stock.
+     */ 
 }

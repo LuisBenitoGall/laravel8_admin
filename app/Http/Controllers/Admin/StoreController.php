@@ -22,9 +22,11 @@ class StoreController extends Controller{
      * 3. Guardar nuevo almacén.
      * 4. Editar almacén.
      * 5. Actualizar almacén. 
+     * 6. Activar / desactivar almacén.
+     * 7. Eliminar almacén.
      */
     
-    private $option = 'stock';
+    private $option = 'stocks';
     private $module = 'stocks';
     private $languages;
 
@@ -32,7 +34,8 @@ class StoreController extends Controller{
         //Idiomas:
         $this->languages = helpers::languages();
 
-        $this->middleware('module_setted:orders');
+        $this->middleware('module_setted:stocks');
+        $this->middleware('store_get', ['only' => ['edit', 'update', 'destroy']]);
     }
 
     //0. Validator:
@@ -42,6 +45,12 @@ class StoreController extends Controller{
             return Validator::make($data, [
                 'name' => 'required|max:100',
                 'type' => 'required|max:1'
+            ]);
+
+        //Validación update:
+        }elseif(isset($data['submit_update'])){
+            return Validator::make($data, [
+                'name' => 'required|max:100'
             ]);
         }
     }
@@ -136,7 +145,7 @@ class StoreController extends Controller{
             'slug' => 'stores'
         ];   
 
-        return view('admin.stores.create')->with(compact('header', 'store'));      
+        return view('admin.stores.edit')->with(compact('header', 'store'));      
     }
 
     /**
@@ -161,6 +170,30 @@ class StoreController extends Controller{
 
         $msg = trans('textos.almacen_updated');
         return redirect()->route('stores.edit', $store)->with(compact('msg'));
+    }
+
+    /**
+     * 6. Activar / desactivar almacén.
+     */
+    public function status(Request $request, $id, $status){
+        if($request->ajax()){ 
+            $store = Store::find($id);
+            $store->status = $status;
+            $store->save();
+
+            $resp = ($store)? true:false;
+            return response()->json($resp);
+        }
+    }
+
+    /**
+     * 7. Eliminar almacén.
+     */
+    public function destroy(Store $store){
+        $store->delete();
+
+        $msg = trans('textos.almacen_deleted');
+        return redirect()->route('stores.index')->with(compact('msg'));    
     }
 }
     

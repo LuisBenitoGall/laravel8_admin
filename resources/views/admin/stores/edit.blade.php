@@ -64,7 +64,7 @@
 						</div>
 					</div>
 					
-					<x-btn-submit name="submit_save" label="{{ trans('textos.guardar') }}"/>
+					<x-btn-submit name="submit_update" label="{{ trans('textos.guardar') }}"/>
 				</form>
 			</div>
 		</div>	

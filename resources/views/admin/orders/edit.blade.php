@@ -535,7 +535,9 @@ if($order->provider_team){
 					@include('admin.orders.partials.data-discount-applied', ['return' => 'orders', 'remove_discount' => $remove_discount])
 
 					{{-- Presupuesto --}}
-					@include('admin.orders.partials.link-budget')
+					@if($order->provider_id == session('currentCompany'))
+						@include('admin.orders.partials.link-budget')
+					@endif
 
 					{{-- Proyecto --}}
 					{{-- @include('admin.orders.partials.link-project') --}}

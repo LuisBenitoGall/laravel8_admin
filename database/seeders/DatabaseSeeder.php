@@ -23,7 +23,7 @@ class DatabaseSeeder extends Seeder{
         $this->call(RoleSeeder::class);
         $this->call(UsersTableSeeder::class);
         $this->call(UserCompaniesTableSeeder::class);
-        //$this->call(StockMovementsTableSeeder::class);
+        $this->call(StockMovementsTableSeeder::class);
         //$this->call(BudgetFormItemsTableSeeder::class);
 
         //FACTORIES:

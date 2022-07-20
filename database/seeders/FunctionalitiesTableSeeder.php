@@ -204,6 +204,11 @@ class FunctionalitiesTableSeeder extends Seeder{
             'label' => 'stocks',
             'module' => 'stocks'
             ],
+            'name' => 'inventory',
+            'slug' => 'inventory',
+            'label' => 'inventario',
+            'module' => 'stocks'
+            ],
 
             ['name' => 'planning',
             'slug' => 'planning',
@@ -338,6 +343,11 @@ class FunctionalitiesTableSeeder extends Seeder{
             ['name' => 'invoices',
             'slug' => 'invoices',
             'label' => 'facturas',
+            'module' => 'accounting'
+            ],
+            ['name' => 'expenses',
+            'slug' => 'expenses',
+            'label' => 'gastos',
             'module' => 'accounting'
             ],
             ['name' => 'invoice-patterns',

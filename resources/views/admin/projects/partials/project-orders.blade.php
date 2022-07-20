@@ -21,52 +21,50 @@
 				@endphp
 
 				@foreach($orders as $ord)
-					@if($ord->is_order)
-						@php
-						$total_amount = $total_amount + $ord->amount;
-						@endphp
+					@php
+					$total_amount = $total_amount + $ord->amount;
+					@endphp
 
-						<tr>
-							{{-- Pedido --}}
-							<td class="text-right">
-								<a target="_blank" href="{{ route('orders.edit', $ord->orderId) }}"> 
-									@if($ord->order_num)
-										{{ $ord->order_num }}	
+					<tr>
+						{{-- Pedido --}}
+						<td class="text-right">
+							<a target="_blank" href="{{ route('orders.edit', $ord->id) }}"> 
+								@if($ord->order_num)
+									{{ $ord->order_num }}	
+								@else
+									{{ $ord->id }}
+								@endif
+							</a>
+						</td>
+						<td class="text-right">{{ $ord->order_old_num }}</td>
+						{{-- Título --}}
+						<td>{{ $ord->order_name }}</td>	
+						{{-- Presupuesto --}}
+						<td class="text-right">
+							@if($ord->is_budget)
+								<a target="_blank" href="{{ route('budgets.edit', $ord->id) }}"> 
+									@if($ord->budget_num)
+										{{ $ord->budget_num }}	
 									@else
 										{{ $ord->id }}
 									@endif
 								</a>
-							</td>
-							<td class="text-right">{{ $ord->order_old_num }}</td>
-							{{-- Título --}}
-							<td>{{ $ord->order_name }}</td>	
-							{{-- Presupuesto --}}
-							<td class="text-right">
-								@if($ord->budgetId)
-									<a target="_blank" href="{{ route('budgets.edit', $ord->id) }}"> 
-										@if($ord->budget_num)
-											{{ $ord->budget_num }}	
-										@else
-											{{ $ord->id }}
-										@endif
-									</a>
-								@endif
-							</td>
-							{{-- Importe --}}
-							<td class="text-right">{{ $ord->amount }}{{ $currency->symbol }}</td>
-							{{-- Entrega prevista --}}
-							<td class="text-right">{{ $ord->fechaEntregaPrevista }}</td>
-							{{-- Fecha entrega --}}
-							<td class="text-right">{{ $ord->fechaEntrega }}</td>
-							{{-- Estado --}}
-							<td>{{ $ord->order_status }}</td>
-							{{-- Acciones --}}
-							<td class="text-right">
-								{{-- Editar --}}
-								<a target="_blank" href="{{ route('orders.edit', $ord->id) }}" class="btn btn-xs btn-info btn-module" rel="tooltip" title="{{ ucfirst(trans('textos.editar')) }}"><i class="fa fa-edit"></i></a>
-							</td>
-						</tr>
-					@endif
+							@endif
+						</td>
+						{{-- Importe --}}
+						<td class="text-right">{{ $ord->amount }}{{ $currency->symbol }}</td>
+						{{-- Entrega prevista --}}
+						<td class="text-right">{{ $ord->fechaEntregaPrevista }}</td>
+						{{-- Fecha entrega --}}
+						<td class="text-right">{{ $ord->fechaEntrega }}</td>
+						{{-- Estado --}}
+						<td>{{ $ord->order_status }}</td>
+						{{-- Acciones --}}
+						<td class="text-right">
+							{{-- Editar --}}
+							<a target="_blank" href="{{ route('orders.edit', $ord->id) }}" class="btn btn-xs btn-info btn-module" rel="tooltip" title="{{ ucfirst(trans('textos.editar')) }}"><i class="fa fa-edit"></i></a>
+						</td>
+					</tr>
 				@endforeach
 			</tbody>
 

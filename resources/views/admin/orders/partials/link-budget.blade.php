@@ -1,4 +1,5 @@
-@if($order)
+{{-- Debe estar declarado como presupuesto --}}
+@if($order->is_budget)
 	<label class="mr-5">
 		{{ ucfirst(trans('textos.presupuesto')) }}:	
 		<b>

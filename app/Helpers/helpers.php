@@ -49,6 +49,8 @@ class Helpers{
 	 *  3.20. Estados de factura.
 	 *  3.21. Métodos de pago.
 	 *  3.22. Tipos de almacén.
+	 *  3.23. Signo movimientos de stock.
+	 *  3.24. Tipos de gastos.
 	 *
 	 * 4. Strings:
 	 * 	4.1. Truncar texto.
@@ -887,6 +889,39 @@ class Helpers{
 			return $data;
 		}
 	}	
+
+	/**
+	 * 3.23. Signo movimientos de stock.
+	 */
+	public static function signStockMovements($sign = false){
+		$data = [
+			's' => trans('textos.sumar'),
+			'r' => trans('textos.restar'),
+			'x' => trans('textos.traspaso'),
+			'y' => trans('textos.devolucion_interna')
+		];
+		if($sign){
+			return $data[$sign];
+		}else{
+			return $data;
+		}
+	}
+
+	/**
+	 * 3.24. Tipos de gastos.
+	 */
+	public static function expenseTypes($type = false){
+		$data = [
+			10 => trans('textos.pago_efectivo'),
+			20 => trans('textos.pago_tarjeta'),
+			30 => trans('textos.dietas')
+		];
+		if($type){
+			return $data[$type];
+		}else{
+			return $data;
+		}	
+	}
 
 	/**
 	 * 4.1. Truncar texto.

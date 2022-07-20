@@ -818,10 +818,11 @@ class OrderController extends Controller{
         ->where('company_id', session('currentCompany'))
         ->get();
 
-        //Proyecto vinculado:
+        //Proyecto vinculado a ventas:
         $project = ProjectOrders::select('projects.id', 'projects.code', 'projects.contest_code', 'projects.name')
         ->join('projects', 'project_orders.project_id', '=', 'projects.id')
         ->where('project_orders.order_id', $order->id)
+        ->where('projects.company_id', session('currentCompany'))
         ->first();
 
         //Proyectos vinculados a compras:
@@ -830,6 +831,7 @@ class OrderController extends Controller{
             $project_purchases = ProjectPurchases::select('project_purchases.id', 'projects.id AS projectId', 'projects.code', 'projects.name')
             ->join('projects', 'project_purchases.project_id', '=', 'projects.id')
             ->where('project_purchases.order_id', $order->id)
+            ->where('projects.company_id', session('currentCompany'))
             ->get();    
         } 
 

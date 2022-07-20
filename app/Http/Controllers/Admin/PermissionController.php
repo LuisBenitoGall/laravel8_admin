@@ -25,6 +25,7 @@ class PermissionController extends Controller{
      * 3. Eliminar permiso.
      * 4. Permisos por usuario.
      * 5. Actualizar permisos de usuario.
+     * 6. Permisos por funcionalidad.
      */
     
     private $option = 'configuracion';
@@ -220,5 +221,17 @@ class PermissionController extends Controller{
 
         $msg = trans('textos.permiso_updated');
         return redirect()->route('permissions.user', [$user->id])->with(compact('msg'));
+    }
+
+    /**
+     * 6. Permisos por funcionalidad.
+     */
+    public function getFuncionalityPermissions($slug){
+        $data = Permission::select('id', 'name')
+        ->where('name', 'like', $slug.'.%')
+        ->orderBy('id', 'ASC')
+        ->get();
+
+        return response()->json($data);
     }
 }

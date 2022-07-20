@@ -176,6 +176,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     // Companies:
     Route::resource('companies', 'CompanyController', ['except' => ['store']]);
     Route::post('companies/store', 'CompanyController@store')->name('companies.store');
+    Route::post('companies/store-from-expense', 'CompanyController@storeFromExpense')->name('companies.store-from-expense');
     Route::get('companies/{company}/select', 'CompanyController@selectCompany')->name('companies.select');
     Route::post('companies/select', 'CompanyController@selectCompanyPost')->name('companies.select');
     Route::get('companies/status/{id}/{status}', 'CompanyController@status')->name('companies.status')->middleware('permission:companies.edit');
@@ -327,6 +328,12 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::post('employees/cancel', 'EmployeeController@cancel')->name('employees.cancel')->middleware('permission:employees.edit');
     Route::get('employees/{company_id}/company-employees/{status?}', 'EmployeeController@getCompanyEmployeesAjax')->name('employees.company-employees');
 
+    // Expenses:
+    Route::get('expenses', 'ExpenseController@index')->name('expenses.index');
+    Route::get('expenses/create', 'ExpenseController@create')->name('expenses.create')->middleware('permission:expenses.create')->middleware('permission:expenses.create');
+    Route::post('expenses/store', 'ExpenseController@store')->name('expenses.store')->middleware('permission:expenses.create')->middleware('permission:expenses.create');
+    Route::get('expenses/{expense}/edit', 'ExpenseController@edit')->name('expenses.edit')->middleware('permission:expenses.edit');
+
     // Files:
     Route::get('files', 'FileController@index')->name('files.index');
     Route::post('files/store', 'FileController@store')->name('files.store');
@@ -359,6 +366,9 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
 
     // Incidences:
     Route::get('incidences', 'IncidenceController@index')->name('incidences.index');
+
+    // Inventory:
+    Route::get('inventory/{tab?}', 'InventoryController@index')->name('inventory.index');
 
     // Invoice Patterns:
     Route::get('invoice-patterns', 'InvoicePatternsController@index')->name('invoice-patterns.index')->middleware('permission:invoice-patterns.index');
@@ -528,6 +538,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::resource('permissions', 'PermissionController', ['except' => ['update', 'create', 'show']]);
     Route::get('permissions/{user}/user', 'PermissionController@userPermissions')->name('permissions.user')->middleware('permission:permissions.edit');
     Route::post('permissions/{user}/update-user-permissions', 'PermissionController@updateUserPermissions')->name('permissions.update-user-permissions')->middleware('permission:permissions.edit');
+    Route::get('permissions/{slug}/functionalities', 'PermissionController@getFuncionalityPermissions')->name('permissions.functionalities');
 
     // Phones:
     Route::post('phones/store', 'PhoneController@store')->name('phones.store');
@@ -745,6 +756,12 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
 
     // Stock Movements:
     Route::get('stock-movements', 'StockMovementsController@index')->name('stock-movements.index');
+    Route::get('stock-movements/create', 'StockMovementsController@create')->name('stock-movements.create')->middleware('permission:stock-movements.create');
+    Route::post('stock-movements/store', 'StockMovementsController@store')->name('stock-movements.store')->middleware('permission:stock-movements.create');
+    Route::get('stock-movements/{movement}/edit', 'StockMovementsController@edit')->name('stock-movements.edit')->middleware('permission:stock-movements.edit');
+    Route::put('stock-movements/{movement}/update', 'StockMovementsController@update')->name('stock-movements.update')->middleware('permission:stock-movements.edit');
+    Route::delete('stock-movements/{movement}', 'StockMovementsController@destroy')->name('stock-movements.destroy')->middleware('permission:stock-movements.destroy');
+    Route::get('stock-movements/status/{id}/{status}', 'StockMovementsController@status')->name('stock-movements.status')->middleware('permission:stock-movements.edit');
 
     // Stocks:
     Route::get('stocks', 'StockController@index')->name('stocks.index');
@@ -756,7 +773,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::get('stores/{store}/edit', 'StoreController@edit')->name('stores.edit')->middleware('permission:stores.edit');
     Route::put('stores/{store}', 'StoreController@update')->name('stores.update')->middleware('permission:stores.edit');
     Route::delete('stores/{store}', 'StoreController@destroy')->name('stores.destroy')->middleware('permission:stores.destroy');
-    Route::get('stores/status/{store}/{status}', 'StoreController@status')->name('stores.status')->middleware('permission:stores.edit');
+    Route::get('stores/status/{id}/{status}', 'StoreController@status')->name('stores.status')->middleware('permission:stores.edit');
 
     // Subtasks:
     Route::post('subtasks.store', 'SubtaskController@store')->name('subtasks.store')->middleware('permission:projects.edit');

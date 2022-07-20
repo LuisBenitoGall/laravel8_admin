@@ -16,6 +16,15 @@
 		@endphp
 		<x-input type="text" name="name" id="name" class="name-slug" maxlength="150" value="{{ $name }}" required info="role-name" readonly="{{ $readonly }}"/>
 	</div>
+
+	{{-- Switch desplegar opciones --}}
+	<label for="name" class="col-lg-3 col-form-label">{!! ucfirst(trans('textos.permisos_desplegar_todos')) !!}</label>
+	<div class="col-lg-2">
+		<label class="switch" style="margin-top: 6px;">
+  			<input type="checkbox" class="btnSlideAllPermissions">
+  			<span class="slider round"></span>
+		</label>
+	</div>
 </div>
 
 <div class="form-group row">
@@ -34,62 +43,20 @@
 	<div class="row">
 		@foreach($functionalities as $func)
 			<div class="col-md-6 col-lg-4 mb-3">
-				<div class="permisos">
-					<h4 class="text-center mb-3">
-						{{ ucfirst(trans('textos.'.$func->label)) }}
-					</h4>
+				<div class="ibox collapsed">
+					<div class="ibox-title bg-muted">
+						<h4 class="text-center">
+							{{ ucfirst(trans('textos.'.$func->label)) }}
+						</h4>
 
-					<ul>
-						@php
-						$allChecked = true;
-						$seeAllChecked = false;
-						@endphp
+						<div class="ibox-tools">
+							<a class="collapse-link" data-slug="{{ $func->slug }}">
+                                <i class="fa fa-chevron-up"></i>
+                            </a>
+                        </div>
+                    </div>
 
-						@foreach($permissions as $row)
-							{{-- El usuario en sesión debe disponer del permiso --}}
-							@can($row->name)
-								@if(strpos($row->name, $func->slug.'.') === 0)
-									@php
-									$checked = (isset($role_permissions) && in_array($row->id, $role_permissions))? 'checked':'';
-
-									$p = explode('.', $row->name);
-									$action_ = ucfirst(trans('textos.'.$p[1])).' '.strtolower(trans('textos.'.$func->label));
-									@endphp
-
-									<li>
-										{{-- Si el permiso es propio del rol, no se puede eliminar --}}
-										@if(isset($role_permissions) && in_array($row->id, $role_permissions) && !Auth::user()->hasRole('Super Admin'))
-											<i class="fa fa-check text-success mr-3 ml-1"></i>
-										@else
-											@php
-											$seeAllChecked = true;
-											@endphp
-
-											<x-checkbox name="permissions[]" inputclass="functionality-{{ $func->slug }}" class="chksmall" value="{{ $row->id }}" checked="{{ $checked }}"/>
-										@endif
-		                    			{{ $action_ }} <small><b>({{ $row->name }})</b></small>
-									</li>
-
-									@php
-									if($checked == '') $allChecked = false;
-									@endphp
-								@endif
-							@endcan
-						@endforeach	
-
-						<hr>
-						<li>
-							{{-- Seleccionar todos los permisos: sólo para Super Admin --}}
-							@if($seeAllChecked && Auth::user()->hasRole('Super Admin'))
-								@php
-								$all_checked = $allChecked? 'checked':'';
-								@endphp
-								<x-checkbox inputclass="all-permissions" class="chksmall" checked="{{ $all_checked }}" datas="functionality.{{ $func->slug }}"/>
-
-		            			<b>{!! trans('textos.todos_permisos_funcionalidad') !!}</b>
-		            		@endif
-						</li>
-					</ul>
+                    @livewire('permissions-component', ['role' => $role, 'functionality' => $func], key($func->id))
 				</div>
 			</div>
 		@endforeach
@@ -99,7 +66,8 @@
 @push('scripts')
 <script>
 $(function(){
-	$('.all-permissions').on('change', function(){
+	// Selección todos permisos:
+	$(document).on('change', '.all-permissions', function(){
         var functionality = $(this).data('functionality');
         if($(this).is(':checked')){
             $('.functionality-'+functionality).prop('checked',true);
@@ -107,6 +75,35 @@ $(function(){
             $('.functionality-'+functionality).prop('checked',false);    
         }
     });	
+
+    // Permisos por funcionalidad:
+    $('.collapse-link').on('click', function(){
+    	var parent = $(this).closest('.ibox');
+    	var slug = $(this).data('slug');
+    	$('.ibox').not(parent).find('.ibox-title').removeClass('bg-warning').addClass('bg-muted');
+
+    	if(parent.hasClass('border-bottom')){
+    		parent.find('.ibox-title').removeClass('bg-muted').addClass('bg-warning');
+    	}else{
+    		parent.find('.ibox-title').removeClass('bg-warning').addClass('bg-muted');	
+    	}
+    });
+
+    // Desplegar todos los permisos:
+    $('.btnSlideAllPermissions').on('change', function(){
+    	if($(this).is(':checked')){
+        	$('.ibox').each(function(){
+        		$(this).addClass('border-bottom');
+        		$(this).find('.ibox-content').slideDown();
+        	});
+        	
+        }else{
+        	$('.ibox').each(function(){
+        		$(this).removeClass('border-bottom');
+        		$(this).find('.ibox-content').slideUp();
+        	});
+        } 
+    });
 });
 </script>
 @endpush

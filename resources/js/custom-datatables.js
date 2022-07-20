@@ -2036,7 +2036,7 @@ $(document).ready(function(){
         
         var tableEmployees = $('#tblEmployees').DataTable({
             "serverSide": true,
-            /*"processing": true,*/
+            "processing": true,
             "ajax": {
                 "type": "GET",
                 "url": "/api/admin/employees",
@@ -2079,6 +2079,23 @@ $(document).ready(function(){
                 }
                 }
             ]
+        });
+    }
+
+    //Tabla Expenses:
+    if($('#tblExpenses').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+
+        var tableExpenses = $('#tblExpenses').DataTable({
+            "serverSide": true,
+            "processing": true,
+            "ajax": {
+                "type": "GET",
+                "url": "/api/admin/expenses",
+                "error": function(reason){
+                    console.log(reason);
+                }
+            }
         });
     }
 
@@ -2164,7 +2181,7 @@ $(document).ready(function(){
         
         $('#tblInvoicePatterns').DataTable({
             "serverSide": true,
-            /*"processing": true,*/
+            "processing": true,
             "ajax": {
                 "type": "GET",
                 "url": "/api/admin/invoice-patterns",
@@ -3978,7 +3995,7 @@ $(document).ready(function(){
         $('#tblProviderProducts thead tr').clone(true).appendTo('#tblProviderProducts thead');
         $('#tblProviderProducts thead tr:eq(1) th').each(function(i){
             var title = $(this).text();
-            if(i == 4){
+            if(i == 2 || i == 4){
                 $(this).html('');
             }else{
                 $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
@@ -4775,6 +4792,63 @@ $(document).ready(function(){
         });
     }
 
+    //Tabla Stock Movements:
+    if($('#tblStockMovements').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        
+        $('#tblStockMovements').DataTable({
+            "serverSide": false,
+            "processing": true,
+            "ajax": {
+                "type": "GET",
+                "url": "/api/admin/stock-movements",
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            "columns": [
+                {data: 'name'},
+                {data: 'acronym', className: 'text-center'},
+                {data: 'sign'},
+                {data: 'explicacion'},
+                {data: 'acciones', className: 'text-right'}
+            ]
+            // "columnDefs": [
+
+            //     {"targets": -1,
+            //     "render": function(data, type, row){
+            //         //Translations:
+            //         if( (row['basic'] != 1 || row['permisos'])){
+            //             var trans = linkTranslations(row['id'], 'stock_movements', txtTraducciones);
+            //         }else{
+            //             var trans = '';
+            //         }
+
+            //         //Editar:
+            //         if( (row['basic'] != 1 || row['permisos'])){
+            //             var editar = '<a href="/admin/stock-movements/'+row['id']+'/edit" class="btn btn-sm btn-info btn-module" rel="tooltip" title="'+txtEditar+'"><i class="fa fa-edit"></i></a>';
+            //         }else{
+            //             var editar = '';
+            //         }
+
+            //         //Eliminar:
+            //         if( row['basic'] != 1 ){
+            //             var eliminar = '<form method="POST" action="/admin/stock-movements/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
+            //                 eliminar += '<input name="_method" type="hidden" value="DELETE">';
+            //                 eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
+            //                 eliminar += '<button type="submit" class="btn btn-sm btn-danger frm-confirm" rel="tooltip" title="'+txtMovimientoEliminar+'" data-msg="'+txtMovimientoConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
+            //             eliminar += '</form>';
+            //         }else{
+            //             var eliminar = '';
+            //         }
+
+            //         return trans+' '+editar+' '+eliminar;
+            //     }
+            //     }
+            // ]
+        });
+    }
+
     //Tabla Stores:
     if($('#tblStores').length > 0){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
@@ -5337,7 +5411,7 @@ $(document).ready(function(){
         
         var tableUsers = $('#tblUsers').DataTable({
             "serverSide": true,
-            /*"processing": true,*/
+            "processing": true,
             "ajax": {
                 "type": "GET",
                 "url": "/api/admin/"+method,

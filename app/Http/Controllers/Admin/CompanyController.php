@@ -38,6 +38,8 @@ class CompanyController extends Controller{
      * 1.1. Listado de empresas para DataTable.
      * 2. Formulario nueva empresa.
      * 3. Guardar nueva empresa.
+     * 3.1. Proceso insert nueva empresa.
+     * 3.2. Nueva empresa desde Gastos (proveedor).
      * 4. Editar empresa.
      * 5. Actualizar empresa.
      * 6. Eliminar empresa.
@@ -77,6 +79,14 @@ class CompanyController extends Controller{
             ],[
                 'nif.unique' => trans('textos.nif_existe')
             ]);
+
+        //Validación save_from_expense:
+        }elseif(isset($data['submit_save_from_expense'])){
+            return Validator::make($data, [
+                'name' => 'required|max:255', 
+                'tradename' => 'nullable|max:255',
+                'nif' => 'required|validateNif|max:15|'
+            ]);   
 
         //Validación update:
         }elseif(isset($data['submit_update'])){
@@ -202,92 +212,7 @@ class CompanyController extends Controller{
 
         //Nueva empresa:
         }else{
-            //Slug:
-            $slug = Str::slug($request->name);
-
-            //Subir logo:
-            $fileName = $this->loadLogo($request, 'companies');
-
-            $company = Company::create([
-                'name' => $request->name,
-                'slug' => $slug,
-                'tradename' => $request->tradename,
-                'logo' => $fileName,
-                'nif' => $request->nif    
-            ]);
-
-            //Creamos centro de trabajo por defecto:
-            $wp = new Workplace();
-            $wp->company_id = $company->id;
-            $wp->name = ucfirst(trans('textos.sede'));
-            $wp->slug = Str::slug(trans('textos.sede'));
-            $wp->featured = 1;
-            $wp->save();
-
-            //Vinculamos usuario a empresa:
-            if($request->business_relationship == 'companies'){
-                $uc = new UserCompanies();
-                $uc->user_id = Auth::user()->id;
-                $uc->company_id = $company->id;
-                $uc->save();
-
-                //Si proviene de frontend:
-                if(!$request->environment){
-                    //Actualizamos estado de usuario:
-                    $user = User::find(Auth::user()->id);
-                    $user->isAdmin = 1;
-                    $user->status = 1;
-                    $user->save();
-
-                    //Guardamos rol:
-                    $role = $request->environment? $request->input('roles'):config('constants.ROLE_COMPANY_MANAGER_');
-                    $user->assignRole($role);
-                }
-
-                //Pasamos empresa a la sesión de empresas:
-                \Session::push('companies', $company);
-
-                //Empresa actual:
-                if(!session('currentCompany')){
-                    session(['currentCompany' => $company->id]);        
-                }
-
-            //Vinculamos como cliente o proveedor de la empresa con sesión, y no se vincula usuario:
-            }else{            
-                if($request->input('business_relationship') == 'customers'){
-                    $customer_id = $company->id;
-                    $provider_id = session('currentCompany');
-                }else{
-                    $customer_id = session('currentCompany');
-                    $provider_id = $company->id;
-                }
-
-                $cp = new CustomerProviders();
-                $cp->customer_id = $customer_id;
-                $cp->provider_id = $provider_id;
-                $cp->save();    
-            }
-
-            //Info de la cuenta suscrita:
-            $account = $request->account_id? Account::find($request->account_id):false;
-
-            if($account){
-                $hoy = date('Y-m-d');
-                $duration = $account->duration? $account->duration:config('constants.ACCOUNT_DURATION_');
-
-                //Fecha de finalización:
-                $end_date = date('Y-m-d', strtotime($hoy.'+ '.$duration.' days'));
-
-                //Abrimos cuenta de la empresa:
-                $ca = new CompanyAccounts();
-                $ca->company_id = $company->id;
-                $ca->guardian = $request->guardian? session('currentCompany'):NULL;
-                $ca->account_id = $account->id;
-                $ca->start_date = $hoy;
-                $ca->end_date = $end_date;
-                $ca->price = $account->rate;
-                $ca->save();
-            }
+            $this->saveCompany($request);   
         }
 
         //Rehacemos session de empresas vinculadas al usuario.
@@ -314,6 +239,141 @@ class CompanyController extends Controller{
         // }     
 
         return redirect()->route($request->business_relationship.'.index')->with(compact('msg'));
+    }
+
+    /**
+     * 3.1. Proceso insert nueva empresa.
+     */
+    private function saveCompany($request){
+        //Slug:
+        $slug = Str::slug($request->name);
+
+        //Subir logo:
+        $fileName = $this->loadLogo($request, 'companies');
+
+        $company = Company::create([
+            'name' => $request->name,
+            'slug' => $slug,
+            'tradename' => $request->tradename,
+            'logo' => $fileName,
+            'nif' => $request->nif    
+        ]);   
+
+        //Creamos centro de trabajo por defecto:
+        $wp = new Workplace();
+        $wp->company_id = $company->id;
+        $wp->name = ucfirst(trans('textos.sede'));
+        $wp->slug = Str::slug(trans('textos.sede'));
+        $wp->featured = 1;
+        $wp->save();
+
+        //Vinculamos usuario a empresa:
+        if($request->business_relationship == 'companies'){
+            $uc = new UserCompanies();
+            $uc->user_id = Auth::user()->id;
+            $uc->company_id = $company->id;
+            $uc->save();
+
+            //Si proviene de frontend:
+            if(!$request->environment){
+                //Actualizamos estado de usuario:
+                $user = User::find(Auth::user()->id);
+                $user->isAdmin = 1;
+                $user->status = 1;
+                $user->save();
+
+                //Guardamos rol:
+                $role = $request->environment? $request->input('roles'):config('constants.ROLE_COMPANY_MANAGER_');
+                $user->assignRole($role);
+            }
+
+            //Pasamos empresa a la sesión de empresas:
+            \Session::push('companies', $company);
+
+            //Empresa actual:
+            if(!session('currentCompany')){
+                session(['currentCompany' => $company->id]);        
+            }
+
+        //Vinculamos como cliente o proveedor de la empresa con sesión, y no se vincula usuario:
+        }else{            
+            if($request->business_relationship == 'customers'){
+                $customer_id = $company->id;
+                $provider_id = session('currentCompany');
+            }else{
+                $customer_id = session('currentCompany');
+                $provider_id = $company->id;
+            }
+
+            $cp = new CustomerProviders();
+            $cp->customer_id = $customer_id;
+            $cp->provider_id = $provider_id;
+            $cp->save();    
+        }
+
+        //Info de la cuenta suscrita:
+        $account = $request->account_id? Account::find($request->account_id):false;
+
+        if($account){
+            $hoy = date('Y-m-d');
+            $duration = $account->duration? $account->duration:config('constants.ACCOUNT_DURATION_');
+
+            //Fecha de finalización:
+            $end_date = date('Y-m-d', strtotime($hoy.'+ '.$duration.' days'));
+
+            //Abrimos cuenta de la empresa:
+            $ca = new CompanyAccounts();
+            $ca->company_id = $company->id;
+            $ca->guardian = $request->guardian? session('currentCompany'):NULL;
+            $ca->account_id = $account->id;
+            $ca->start_date = $hoy;
+            $ca->end_date = $end_date;
+            $ca->price = $account->rate;
+            $ca->save();
+        } 
+
+        return $company;
+    }
+
+    /**
+     * 3.2. Nueva empresa desde Gastos (proveedor).
+     */
+    public function storeFromExpense(Request $request){
+        if($request->ajax()){
+            // $validator = $this->validator($request->all());
+            // if($validator->fails()){
+            //     $validator->getMessageBag()->add('accion', 'modal-add-provider');
+
+            //     return redirect('admin/expenses/create')
+            //     ->withErrors($validator)
+            //     ->withInput();    
+            // }
+
+            //Comprobamos por NIF si la empresa ya existe:
+            $company = Company::select('id', 'name')->where('nif', $request->nif)->first();
+
+            //Si existe vinculamos cliente y proveedor:
+            if($company){
+                //Comprobamos que no exista previamente la relación:
+                $exist = CustomerProviders::select('id')
+                ->where('customer_id', session('currentCompany'))
+                ->where('provider_id', $company->id)
+                ->first();
+
+                if(!$exist){
+                    $cp = new CustomerProviders();
+                    $cp->customer_id = session('currentCompany');
+                    $cp->provider_id = $company->id;
+                    $cp->save();
+                }  
+            
+            //Si no existe, la creamos:
+            }else{
+                $company = $this->saveCompany($request);     
+            }
+
+            return response()->json($company);
+        }
     }
 
     /**

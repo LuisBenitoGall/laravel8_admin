@@ -3,8 +3,9 @@
 @section('content')
 
 <div class="row mb-3">
+	{{-- Acciones: --}}
 	<div class="col-12">
-		{{-- Acciones: --}}
+		{{-- Listado de clientes --}}
 		@if($company_id)
 			<a href="{{ route('customers.index') }}" class="btn btn-info">
 				<i class="fa fa-angle-left"></i>
@@ -12,6 +13,7 @@
 			</a>	
 		@endif
 
+		{{-- Listado de pedidos --}}
 		@can('orders.index')
 			<a href="{{ route('orders.index') }}" class="btn btn-info">
 				<i class="fa fa-angle-left"></i>

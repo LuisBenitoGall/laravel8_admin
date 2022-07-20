@@ -117,6 +117,8 @@ class Kernel extends HttpKernel{
 
         'employee_get' => \App\Http\Middleware\EmployeeGetMiddleware::class,
 
+        'expense_get' => \App\Http\Middleware\ExpenseGetMiddleware::class,
+
         'group_get' => \App\Http\Middleware\GroupGetMiddleware::class,
 
         'invoice_get' => \App\Http\Middleware\InvoiceGetMiddleware::class,
@@ -182,6 +184,10 @@ class Kernel extends HttpKernel{
         'staff_pick_candidates_post' => \App\Http\Middleware\StaffPickCandidatesPostMiddleware::class,
 
         'staff_pick_get' => \App\Http\Middleware\StaffPickGetMiddleware::class,
+
+        'stock_movement_get' => \App\Http\Middleware\StockMovementGetMiddleware::class,
+
+        'store_get' => \App\Http\Middleware\StoreGetMiddleware::class,
 
         'super_admin_validate' => \App\Http\Middleware\SuperAdminValidateMiddleware::class,
 
