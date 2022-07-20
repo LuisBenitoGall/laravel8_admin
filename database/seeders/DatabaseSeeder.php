@@ -16,7 +16,7 @@ class DatabaseSeeder extends Seeder{
         $this->call(AccountsTableSeeder::class);
         $this->call(CountriesTableSeeder::class);
     	$this->call(ProvincesTableSeeder::class);
-    	$this->call(TownsTableSeeder::class);
+    	//$this->call(TownsTableSeeder::class);
         //$this->call(PostalCodesTableSeeder::class);
         $this->call(ModulesTableSeeder::class);
         $this->call(FunctionalitiesTableSeeder::class);
@@ -29,6 +29,6 @@ class DatabaseSeeder extends Seeder{
         //FACTORIES:
         //\App\Models\User::factory(100)->create();
         //\App\Models\Product::factory(200)->create();
-        \App\Models\Group::factory(50000)->create();
+        //\App\Models\Group::factory(50000)->create();
     }
 }

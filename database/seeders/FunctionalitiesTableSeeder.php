@@ -193,8 +193,7 @@ class FunctionalitiesTableSeeder extends Seeder{
             'label' => 'almacenes',
             'module' => 'stocks'
             ],
-            [
-            'name' => 'stock-movements',
+            ['name' => 'stock-movements',
             'slug' => 'stock-movements',
             'label' => 'stocks_movimientos_',
             'module' => 'stocks'
@@ -204,7 +203,7 @@ class FunctionalitiesTableSeeder extends Seeder{
             'label' => 'stocks',
             'module' => 'stocks'
             ],
-            'name' => 'inventory',
+            ['name' => 'inventory',
             'slug' => 'inventory',
             'label' => 'inventario',
             'module' => 'stocks'
