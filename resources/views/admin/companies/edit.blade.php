@@ -12,6 +12,14 @@
 
 		@include('admin.companies.partials.actions', ['company' => $company, 'business_relationship' => $business_relationship])
 
+		{{-- UTE --}}
+		@if($company->is_ute)
+			<a href="{{ route('company-utes.index', $company->id) }}" class="btn btn-info">
+				<i class="fa fa-object-group"></i>
+				{!! trans('textos.ute_empresas_vinculadas') !!}
+			</a>
+		@endif
+
 		{{-- Gestión de notificaciones: sólo para la empresa en session --}}
 		@if(session('currentCompany') == $company->id)
 			<a href="{{ route('company-notifications-management.index') }}" class="btn btn-info">

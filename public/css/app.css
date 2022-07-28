@@ -29532,6 +29532,10 @@ body.md-skin {
   top: 11px;
 }
 
+.input-group.date .pop-over {
+  right: -20px;
+}
+
 .float-fixed-div {
   background-color: #FFFFE8;
   box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
@@ -29702,7 +29706,8 @@ ul li.rev .fa {
 #budgetForms,
 #noBudgetForms,
 .price-by-percent,
-.price-by-percent_ {
+.price-by-percent_,
+#isUte {
   display: none;
 }
 

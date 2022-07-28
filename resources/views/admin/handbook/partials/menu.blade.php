@@ -9,7 +9,7 @@ $handbook_secondary_menu = json_decode(file_get_contents($pathMenuOp), true);
 $prefix = 'hb-';
 @endphp
 
-<div class="col-md-3 col-lg-2">
+<div class="col-md-3">
 	<div class="card mb-3">
 		<div class="card-body">
 			<p>{{ trans('textos.indice_contenidos') }}</p>

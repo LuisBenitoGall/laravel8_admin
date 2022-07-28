@@ -67,6 +67,7 @@ $str_status_values = $status_values? implode(',', $status_values):'';
 			<thead>
 				<tr>
 					<th>{!! ucfirst(trans('textos.proyecto')) !!}</th>
+					<th>{!! ucfirst(trans('textos.cliente')) !!}</th>
 					<th class="text-center">{!! ucfirst(trans('textos.fecha_alta')) !!}</th>
 					<th class="text-center">{!! ucfirst(trans('textos.entrega_prevista')) !!}</th>
 					<th class="text-center">{!! ucfirst(trans('textos.fecha_entrega')) !!}</th>
@@ -80,7 +81,7 @@ $str_status_values = $status_values? implode(',', $status_values):'';
 
 			<tfoot>
 				<tr>
-					<td class="text-right" colspan="4"><b>{{ trans('textos.prevision_horas') }} / {{ trans('textos.pendientes') }}</b></td>
+					<td class="text-right" colspan="5"><b>{{ trans('textos.prevision_horas') }} / {{ trans('textos.pendientes') }}</b></td>
 					<td class="text-right"></td>
 					<td></td>
 					<td></td>

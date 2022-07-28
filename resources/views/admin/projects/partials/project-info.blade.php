@@ -96,6 +96,26 @@
 				</div>
 			</div>
 
+			@if(!$customer)
+				<div class="form-group row">
+					<label for="customer_id" class="col-md-3 col-form-label">{!! ucfirst(trans('textos.cliente')) !!}</label>
+					<div class="col-md-4">
+						@php
+						$customers_ = [];
+						@endphp
+
+						@foreach($customers as $ctm)
+							@php
+							$company = $ctm->tradename? $ctm->name.' ('.$ctm->tradename.')':$ctm->name;
+							$customers_[$ctm->id] = $company;
+							@endphp
+						@endforeach
+
+						<x-select name="customer_id" class="select2" label="selec_cliente" :options="$customers_" info="project-customer"/>	
+					</div>
+				</div>
+			@endif
+
 			<div class="form-group row">
 				{{-- Fecha entrega prevista --}}
 				<label for="estimated_delivery_date" class="col-md-3 col-form-label">{!! ucfirst(trans('textos.fecha_entrega_prevista')) !!}</label>

@@ -19,7 +19,7 @@ class Company extends Model{
 
     protected $dates = ['deleted_at'];
 
-    protected $fillable = ['name', 'slug', 'tradename', 'logo', 'nif', 'ccc'];  
+    protected $fillable = ['name', 'slug', 'tradename', 'logo', 'nif', 'ccc', 'is_ute', 'ute_start_at', 'ute_finish_at'];  
 
     /**
      * 1. Almacenes de la empresa. 

@@ -9,6 +9,7 @@ class datePicker extends Component{
     public $disabled;
     public $format;
     public $id;
+    public $info;
     public $name;
     public $readonly;
     public $required;
@@ -25,6 +26,7 @@ class datePicker extends Component{
         $disabled = false,
         $format,
         $id = false, 
+        $info = false,
         $name, 
         $readonly = false,
         $required = false,
@@ -39,6 +41,7 @@ class datePicker extends Component{
         $this->required = $required;           
         $this->value = $value;
         $this->warning = $warning; 
+        $this->info = $info;
 
         //Formato de fecha:
         $format = str_replace('d', 'dd', $format);

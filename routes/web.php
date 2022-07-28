@@ -188,7 +188,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::get('company-accounts', 'CompanyAccountsController@index')->name('company-accounts.index');
     Route::get('company-accounts/create', 'CompanyAccountsController@create')->name('company-accounts.create')->middleware('permission:companies.create');
     Route::post('company-accounts/store', 'CompanyAccountsController@store')->name('company-accounts.store')->middleware('permission:companies.edit');
-    Route::delete('company-accounts/{account}', 'CompanyAccountsController@destroy')->name('company-accounts.destroy')->middleware('permission:company.destroy');
+    Route::delete('company-accounts/{account}', 'CompanyAccountsController@destroy')->name('company-accounts.destroy')->middleware('permission:companies.destroy');
 
     // Company Modules:
     Route::get('company-modules', 'CompanyModulesController@index')->name('company-modules.index');
@@ -203,6 +203,11 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     // Company Settings:
     Route::get('company-settings', 'CompanySettingsController@index')->name('company-settings.index');
     Route::post('company-settings/update', 'CompanySettingsController@update')->name('company-settings.update');
+
+    // Company UTEs:
+    Route::get('company-utes/{ute}', 'CompanyUtesController@index')->name('company-utes.index');
+    Route::post('company-utes/store', 'CompanyUtesController@store')->name('company-utes.store')->middleware('permission:companies.edit');
+    Route::delete('company-utes/{ute}', 'CompanyUtesController@destroy')->name('company-utes.destroy')->middleware('permission:companies.edit');
 
     // Concourse Patterns:
     Route::get('concourse-patterns', 'ConcoursePatternsController@index')->name('concourse-patterns.index')->middleware('permission:budgets.edit');
@@ -330,9 +335,14 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
 
     // Expenses:
     Route::get('expenses', 'ExpenseController@index')->name('expenses.index');
-    Route::get('expenses/create', 'ExpenseController@create')->name('expenses.create')->middleware('permission:expenses.create')->middleware('permission:expenses.create');
-    Route::post('expenses/store', 'ExpenseController@store')->name('expenses.store')->middleware('permission:expenses.create')->middleware('permission:expenses.create');
+    Route::get('expenses/create', 'ExpenseController@create')->name('expenses.create')->middleware('permission:expenses.create');
+    Route::post('expenses/store', 'ExpenseController@store')->name('expenses.store')->middleware('permission:expenses.create');
     Route::get('expenses/{expense}/edit', 'ExpenseController@edit')->name('expenses.edit')->middleware('permission:expenses.edit');
+    Route::put('expenses/{expense}/update', 'ExpenseController@update')->name('expenses.update')->middleware('permission:expenses.edit');
+    Route::delete('expenses/{expense}', 'ExpenseController@destroy')->name('expenses.destroy')->middleware('permission:expenses.destroy');
+    Route::get('expenses/{expense}/destroy-doc', 'ExpenseController@destroyDoc')->name('expenses.destroy-doc')->middleware('permission:expenses.edit');
+    Route::post('expenses/{expense}/unlink-project', 'ExpenseController@unlinkProject')->name('expenses.unlink-project')->middleware('permission:expenses.edit');
+    Route::post('expenses.link-projects', 'ExpenseController@linkToProject')->name('expenses.link-projects')->middleware('permission:projects.edit');
 
     // Files:
     Route::get('files', 'FileController@index')->name('files.index');

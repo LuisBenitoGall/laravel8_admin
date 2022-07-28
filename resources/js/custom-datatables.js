@@ -897,7 +897,7 @@ $(document).ready(function(){
         $('#tblCompanies thead tr').clone(true).appendTo('#tblCompanies thead');
         $('#tblCompanies thead tr:eq(1) th').each(function(i){
             var title = $(this).text();
-            if(i == 4 || i == 5){
+            if(i == 5 || i == 6){
                 $(this).html('');
             }else{
                 $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
@@ -917,7 +917,7 @@ $(document).ready(function(){
             "serverSide": true,
             "processing": true,
             "language": {
-                processing: '<i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading..n.</span>'
+                processing: '<i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span>'
             },
             "ajax": {
                 "type": "GET",
@@ -929,59 +929,11 @@ $(document).ready(function(){
             "columns": [
                 {data: 'name'},
                 {data: 'tradename'},
-                {data: 'id', className: 'text-right'},
+                {data: 'alta', className: 'text-right'},
                 {data: 'nif'},
-                {data: 'id', className: 'text-center'},
-                {data: 'id', className: 'text-right'}
-            ],
-            "columnDefs": [
-                {"targets": 2,
-                "render": function(data, type, row){
-                    return '<span style="display: none">'+row['created_at']+'</span>'+row['alta'];
-                }
-                },
-                {"targets": 4,
-                "render": function(data, type, row){
-                    if(row['logo']){
-                        var logo = '<img src="/img/companies/'+row['logo']+'" width="50">';
-                    }else{
-                        var logo = '<i class="fa fa-building icono"></i>';
-                    }   
-                    return logo;
-                }
-                },
-                {"targets": -1,
-                "render": function(data, type, row){
-                    var estado = '';
-                    var transfer = '';
-                    var editar = '';
-                    if(row['editar']){
-                        //Estado:
-                        var checked = (row['status'] == 1)? 'checked':'';
-                        estado = '<label class="custom-chk-rdb" rel="tooltip" title="'+txtEmpresaOnOff+'">';
-                            estado += '<input type="checkbox" name="status" '+checked+'><span class="chk chk-action" data-id="'+row['id']+'" data-ctrl="companies/status"></span>';
-                        estado += '</label>';
-
-                        //Traspaso de empresa:
-                        transfer = '<a href="#" class="btn btn-xs btn-info btn-module btnTransferCompany" rel="tooltip" title="'+txtEmpresaTraspaso+'" data-toggle="modal" data-target="#modal-transfer-company" data-id="'+row['id']+'"><i class="fa fa-handshake"></i></a>';
-
-                        //Editar:
-                        editar = '<a href="/admin/companies/'+row['id']+'/edit" class="btn btn-xs btn-info btn-module" rel="tooltip" title="'+txtEditar+'"><i class="fa fa-edit"></i></a>';
-                    }
-
-                    //Eliminar:
-                    var eliminar = '';
-                    if(row['eliminar']){
-                        eliminar = '<form method="POST" action="companies/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
-                            eliminar += '<input name="_method" type="hidden" value="DELETE">';
-                            eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
-                            eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtEmpresaEliminar+'" data-msg="'+txtEmpresaConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
-                        eliminar += '</form>';
-                    }
-
-                    return estado+' '+transfer+' '+editar+' '+eliminar;
-                }
-                }
+                {data: 'ute', className: 'text-center'},
+                {data: 'logo', className: 'text-center'},
+                {data: 'acciones', className: 'text-right'}
             ]
         });
     }
@@ -2095,7 +2047,17 @@ $(document).ready(function(){
                 "error": function(reason){
                     console.log(reason);
                 }
-            }
+            },
+            "columns": [
+                {data: 'concept'},
+                {data: 'expensed_in', className: 'text-right'},
+                {data: 'amount', className: 'text-right'},
+                {data: 'type'},
+                {data: 'provider'},
+                {data: 'project'},
+                {data: 'doc', className: 'text-center'},
+                {data: 'acciones', className: 'text-right'}
+            ]
         });
     }
 
@@ -3785,13 +3747,71 @@ $(document).ready(function(){
         });
     }
 
+    //Tabla Project Expenses:
+    if($('#tblProjectExpenses').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        var project_id = $('#myProject').val();
+
+        $('#tblProjectExpenses').DataTable({
+            "serverSide": true,
+            "processing": true,
+            "ajax": {
+                "type": "GET",
+                "url": "/api/admin/project-expenses/"+project_id,
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            "columns": [
+                {data: 'concept'},
+                {data: 'expensed_in', className: 'text-right'},
+                {data: 'amount', className: 'text-right'},
+                {data: 'type'},
+                {data: 'provider'},
+                {data: 'doc', className: 'text-center'},
+                {data: 'acciones', className: 'text-right'}
+            ],
+            "footerCallback": function(row, data, start, end, display){
+                var api = this.api(), data;
+
+                var currency = false;
+                var refund = false;
+                api.rows().every(function(){
+                    var data = this.data();
+                    currency = '€';
+                });
+ 
+                // Remove the formatting to get integer data for summation
+                var intVal = function(i){
+                    //console.log(i);
+                    return typeof i === 'string'? 
+                    i.replace(/[\'+currency+',]/g, '')*1 :
+                    typeof i === 'number' ?
+                        i : 0;
+                };
+ 
+                //Total por filtro aplicado:
+                total_amount = api
+                .column(2, { search: 'applied' })
+                .data()
+                .reduce(function(a, b){
+                    return intVal(a) + intVal(b);
+                }, 0);
+
+                $(api.column(2).footer()).html(
+                    total_amount.toFixed(2)+currency    
+                );
+            }
+        });
+    }
+
     //Tabla Project Patterns:
     if($('#tblProjectPatterns').length > 0){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
         
         $('#tblProjectPatterns').DataTable({
             "serverSide": true,
-            /*"processing": true,*/
+            "processing": true,
             "ajax": {
                 "type": "GET",
                 "url": "/api/admin/project-patterns",
@@ -3848,7 +3868,7 @@ $(document).ready(function(){
         $('#tblProjects thead tr').clone(true).appendTo('#tblProjects thead');
         $('#tblProjects thead tr:eq(1) th').each(function(i){
             var title = $(this).text(); 
-            if(i == 5 || i == 6 || i == 8){
+            if(i == 6 || i == 7 || i == 9){
                 $(this).html('');
             }else{
                 $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
@@ -3868,7 +3888,7 @@ $(document).ready(function(){
 
         var tableProjects = $('#tblProjects').DataTable({
             "serverSide": true,
-            /*"processing": true,*/
+            "processing": true,
             "ajax": {
                 "type": "GET",
                 "url": "/api/admin/projects/"+status,
@@ -3878,6 +3898,7 @@ $(document).ready(function(){
             },
             "columns": [
                 {data: 'name'},
+                {data: 'customer'},
                 {data: 'id', className: 'text-right'},
                 {data: 'id', className: 'text-right'},
                 {data: 'id', className: 'text-right'},
@@ -3893,25 +3914,25 @@ $(document).ready(function(){
                     return '<a href="/admin/projects/'+row['id']+'/edit">'+row['name']+'</a>';
                 }
                 },
-                {"targets": 1,
+                {"targets": 2,
                 "render": function(data, type, row){
                     return '<span style="display: none">'+row['created_at']+'</span>'+row['alta'];
                 }
                 },
-                {"targets": 2,
+                {"targets": 3,
                 "render": function(data, type, row){
                     return '<span style="display: none">'+row['estimated_delivery_date']+'</span>'+row['prevista'];
                 }
                 },
-                {"targets": 3,
+                {"targets": 4,
                 "render": function(data, type, row){
                     return '<span style="display: none">'+row['delivery_date']+'</span>'+row['entrega'];
                 }
                 },
-                {"targets": 5,
+                {"targets": 6,
                 "visible": false
                 },
-                {"targets": 6,
+                {"targets": 7,
                 "render": function(data, type, row){
                     var completed = row['completed'] > 100? 100:row['completed'];
 
@@ -3963,7 +3984,7 @@ $(document).ready(function(){
 
                 //Total por filtro aplicado:
                 hours_forecast = api
-                .column(4, { search: 'applied' })
+                .column(5, { search: 'applied' })
                 .data()
                 .reduce(function(a, b){
                     return intVal(a) + intVal(b);
@@ -3971,7 +3992,7 @@ $(document).ready(function(){
 
                 //Horas trabajadas:
                 hours_worked = api
-                .column(5, { search: 'applied' })
+                .column(6, { search: 'applied' })
                 .data()
                 .reduce(function(a, b){
                     return intVal(a) + intVal(b);
@@ -3979,7 +4000,7 @@ $(document).ready(function(){
 
                 var pending = hours_forecast - hours_worked;
 
-                $(api.column(4).footer()).html(
+                $(api.column(5).footer()).html(
                     hours_forecast.toFixed(2)+' / '+pending.toFixed(2)
                 );
             }

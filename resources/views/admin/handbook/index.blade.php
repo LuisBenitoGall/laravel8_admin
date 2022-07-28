@@ -7,7 +7,7 @@
 	@include('admin.handbook.partials.menu')
 
 	{{-- Contenidos --}}
-	<div class="col-md-9 col-lg-10">
+	<div class="col-md-9">
 		<div class="card mb-3">
 			<div class="card-body">	
 				<h3 id="handbookTitle"></h3>

@@ -41,6 +41,7 @@ class Controller extends BaseController{
      * 8. Guardar firma de usuario.
      * 9. Session módulos por empresa.
      * 10. Subir logo.
+     * 10.1. Subir archivo.
      * 11. Roles básicos.
      * 12. Importaciones iniciales.
      * 13. Generación número por patrón.
@@ -242,6 +243,27 @@ class Controller extends BaseController{
                 return false;
             }
         }    
+    }
+
+    /**
+     * 10.1. Subir archivo.
+     */
+    public function loadFile($request, $folder){
+        if($request->hasFile('doc')){
+            $file = $request->file('doc');
+            $path = public_path().'/docs/'.$folder;
+            $fileName = uniqid().$file->getClientOriginalName();
+            $moved = $file->move($path, $fileName);
+
+            //si el archivo ha sido guardado correctamente:
+            if($moved){
+                return $fileName;
+            }else{
+                return NULL;
+            }
+        }else{
+            return NULL;
+        }     
     }
 
     /**

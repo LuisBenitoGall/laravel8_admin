@@ -17,9 +17,9 @@ class CreateExpensesTable extends Migration{
             $table->unsignedBigInteger('company_id');
             $table->foreign('company_id')->references('id')->on('companies');
             $table->string('concept')->nullable();
-            $table->float('amount',12,2)->default(0);
+            $table->float('amount',12,2)->nullable();
             $table->float('iva',5,2)->nullable();
-            $table->float('amount_with_iva',12,2)->default(0);
+            $table->float('amount_with_iva',12,2)->nullable();
             $table->dateTime('expensed_in')->nullable();
             $table->integer('type')->nullable();
             //FK:

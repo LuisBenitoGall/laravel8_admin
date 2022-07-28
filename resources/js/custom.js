@@ -271,6 +271,7 @@ $(window).on('load', function(){
     25. Seleccionar icono.
     26. Modal editar item.
     27. Aplicar descuento por defecto del cliente a líneas del pedido, tanto nueva como edición.
+    28. Cálculo precio + precio con iva en gastos.
     */
    
     // 1. Eliminar preview imagen seleccionada:
@@ -1029,6 +1030,25 @@ $(window).on('load', function(){
         e.preventDefault();
         var discount = $(this).data('discount');
         $('#itemDiscount_').val(discount);
+    });
+
+    // 28. Cálculo precio + precio con iva en gastos.
+    $('#expenseAmount').on('change', function(){
+        var iva = $('#expenseIva').val();
+        var amount = $('#expenseAmount').val();
+        if(iva > 0 && !isNaN(amount)){
+            var amount_with_iva = amount * iva / 100;   
+            var total = parseFloat(amount) + parseFloat(amount_with_iva);
+            $('#expenseAmount_with_iva').val(total.toFixed(2));
+        }
+    });
+    $('#expenseAmount_with_iva').on('change', function(){
+        var iva = $('#expenseIva').val();
+        var amount_with_iva = $('#expenseAmount_with_iva').val();
+        if(iva > 0 && !isNaN(amount_with_iva)){
+            var amount = amount_with_iva / ( parseFloat(iva / 100) + parseInt(1));
+            $('#expenseAmount').val(amount.toFixed(2));
+        }
     });
     
     

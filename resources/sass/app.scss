@@ -10297,6 +10297,10 @@ body.md-skin {
     }
 }
 
+.input-group.date .pop-over{
+    right: -20px;
+}
+
 .float-fixed-div{
     background-color: $yellow_light;
     box-shadow: $box-shadow;
@@ -10485,7 +10489,8 @@ ul{
 #budgetForms,
 #noBudgetForms,
 .price-by-percent,
-.price-by-percent_{
+.price-by-percent_,
+#isUte{
     display: none;
 }
 

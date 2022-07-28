@@ -68,6 +68,52 @@
 		@endif --}}
 	</div>
 
+	@if($order->is_order)
+		<div class="form-group row">
+			{{-- Orden de compra --}}
+			@if($order->purchase_num)
+				<label for="purchase_pattern_id" class="col-md-3 col-lg-2 col-form-label">{!! ucfirst(trans('textos.orden_compra')) !!}</label>
+				<div class="col-md-3 col-lg-2">
+					<label class="text-warning mt-1" style="font-size: 16px;"><b><u>{{ $order->purchase_num }}</u></b></label>
+				</div>
+			@endif
+
+			{{-- Orden compra manual --}}
+			<label for="old_purchase" class="col-md-3 col-lg-2 col-form-label">{!! ucfirst(trans('textos.orden_compra_antigua')) !!}</label>
+			<div class="col-md-3 col-lg-2">
+				<x-input type="text" name="purchase_old_num" value="{{ $order->purchase_old_num }}" autocomplete="off" maxlength="150" info="purchase-old-num"/>
+			</div>
+
+			{{-- Documento de compra --}}
+			<label for="purchase_doc" class="col-md-3 col-lg-2 col-form-label">{!! ucfirst(trans('textos.orden_compra_doc')) !!}</label>
+			<div class="col-md-3 col-lg-2">
+				@if(!$order->purchase_doc)
+					<x-input-file name="doc"/>
+
+					{!! App\Helpers\helpers::info('purchase-doc') !!}
+
+					@if($errors->has('doc'))
+		                <span class="invalid-feedback" role="alert">
+		                  	<strong>{{ $errors->first('doc') }}</strong>
+		                </span>
+		            @endif
+		        @else
+		        	<div class="pt-2">
+		        		{{-- Ver documento --}}
+			        	<a target="_blank" class="text-info" href="{{ asset('img/purchase-orders/'.$order->purchase_doc) }}" rel="tooltip" title="{{ trans('textos.documento_ver') }}">
+			        		<i class="fa fa-file"></i>
+			        	</a>
+
+			        	{{-- Eliminar documento --}}
+			        	<a target="_blank" class="text-danger ml-3 btn-confirm" href="{{ route('orders.remove-purchase-doc', $order) }}" rel="tooltip" title="{{ trans('textos.documento_eliminar') }}" data-msg="{{ trans('textos.documento_eliminar_confirm') }}">
+			        		<i class="fa fa-trash"></i>
+			        	</a>
+		        	</div>
+		        @endif
+			</div>
+		</div>
+	@endif
+
 	<div class="form-group row">
 		{{-- Presupuesto título --}}
 		<label for="name" class="col-lg-2 col-form-label">{{ ucfirst(trans('textos.presupuesto_titulo')) }}</label>

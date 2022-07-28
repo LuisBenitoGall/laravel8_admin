@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Yajra\DataTables\DataTables;
 use File;
 
 //Models:
@@ -61,7 +62,7 @@ class CompanyController extends Controller{
 
     public function __construct(Excel $excel){
         //Idiomas:
-        $this->languages = Helpers::languages();
+        $this->languages = helpers::languages();
 
         $this->middleware('company_get', ['only' => ['edit', 'update', 'selectCompany', 'destroy']]);
     }
@@ -121,28 +122,34 @@ class CompanyController extends Controller{
      * 1.1. Listado de empresas para DataTable.
      */
     public function getCompaniesDT(){
-        $companies = Company::select('companies.*')
+        $data = Company::select('companies.*')
         ->join('user_companies', 'companies.id', '=', 'user_companies.company_id')
-        ->where('user_companies.user_id', Auth::user()->id)
-        ->get();
+        ->where('user_companies.user_id', Auth::user()->id);
 
-        //Permisos del usuario:
-        $editar = Auth::user()->can('companies.edit');
-        $eliminar = Auth::user()->can('companies.destroy');
-
-        //Ampliación de información de los objetos:
-        if($companies){
-            foreach($companies as $row){
-                //Enviamos las fechas ya formateadas:
-                $row->alta = $row->created_at->format($this->languages[session()->get('locale')][4]);
-
-                //Permisos para las acciones:
-                $row->editar = $editar;
-                $row->eliminar = $eliminar; 
+        return DataTables::of($data)
+        ->addColumn('alta', function($row){
+            $alta = $row->created_at->format($this->languages[session()->get('locale')][4]);
+            return $alta;
+        })
+        ->addColumn('ute', function($row){
+            if($row->is_ute){
+                return '<span style="display: none">ute</span><i class="fa fa-check text-success"></i>';
+            }else{
+                return '';
             }
-        }
-
-        return datatables($companies)->toJson(); 
+        })
+        ->addColumn('logo', function($row){
+            if($row->logo){
+                return '<img src="/img/companies/'.$row->logo.'" width="50">';
+            }else{
+                return '<i class="fa fa-building icono"></i>';
+            }
+        })
+        ->addColumn('acciones', function($row){
+            return view('admin.companies.partials.dt-actions', compact('row')); 
+        }) 
+        ->rawColumns(['ute', 'logo'])
+        ->make(true);
     } 
 
     /**
@@ -162,7 +169,9 @@ class CompanyController extends Controller{
                 'slug' => 'companies-create'
             ];
 
-            return view('admin.companies.create')->with(compact('header', 'accounts', 'guardian', 'business_relationship'));
+            $languages = $this->languages;
+
+            return view('admin.companies.create')->with(compact('header', 'accounts', 'guardian', 'business_relationship', 'languages'));
 
         }else{
             return view('web.company-register')->with(compact('accounts', 'guardian', 'business_relationship'));    
@@ -251,12 +260,23 @@ class CompanyController extends Controller{
         //Subir logo:
         $fileName = $this->loadLogo($request, 'companies');
 
+        //Fechas UTE:
+        $ute_start_at = NULL;
+        $ute_finish_at = NULL;
+        if($request->is_ute){
+            $ute_start_at = $request->input('ute_start_at') != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->input('ute_start_at')):$request->input('ute_start_at'):NULL;
+            $ute_finish_at = $request->input('ute_finish_at') != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->input('ute_finish_at')):$request->input('ute_finish_at'):NULL;
+        }
+        
         $company = Company::create([
             'name' => $request->name,
             'slug' => $slug,
             'tradename' => $request->tradename,
             'logo' => $fileName,
-            'nif' => $request->nif    
+            'nif' => $request->nif, 
+            'is_ute' => $request->is_ute? true:false,
+            'ute_start_at' => $ute_start_at,
+            'ute_finish_at' => $ute_finish_at
         ]);   
 
         //Creamos centro de trabajo por defecto:
@@ -395,7 +415,9 @@ class CompanyController extends Controller{
         
         $business_relationship = $this->business_relationship;
 
-        return view('admin.companies.edit', compact('header', 'company', 'noSelectCompany', 'business_relationship'));   
+        $languages = $this->languages;
+
+        return view('admin.companies.edit', compact('header', 'company', 'noSelectCompany', 'business_relationship', 'languages'));   
     }
 
     /**
@@ -425,6 +447,16 @@ class CompanyController extends Controller{
         }
         $company->nif = $request->input('nif');
         $company->ccc = $request->input('ccc');
+
+        //UTE:
+        if($company->is_ute){
+            $ute_start_at = $request->input('ute_start_at') != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->input('ute_start_at')):$request->input('ute_start_at'):NULL;
+            $ute_finish_at = $request->input('ute_finish_at') != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->input('ute_finish_at')):$request->input('ute_finish_at'):NULL;
+
+            $company->ute_start_at = $ute_start_at;
+            $company->ute_finish_at = $ute_finish_at;
+        }
+        
         $company->save(); 
 
         //Modificamos datos en la sesión de empresas:

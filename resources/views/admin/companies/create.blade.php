@@ -56,6 +56,38 @@
                         	<x-input type="text" name="nif" class="{{ $is_invalid }}" placeholder="NIF" autocomplete="off" maxlength="11" required info="company-nif"/>
                         </div>
 
+                        {{-- UTE --}}
+                        <label for="is_ute" class="col-md-2 col-form-label text-md-right">UTE</label>
+                        <div class="col-md-4 pt-1">
+                        	<label class="custom-chk-rdb">
+					        	<input type="checkbox" name="is_ute" id="is_ute">
+					        	<span class="chk"></span>
+					    	</label>
+
+					    	<div class="position-absolute" style="left: 65px; top: 0;">
+			            		{!! App\Helpers\helpers::info('company-ute') !!}
+			            	</div>
+                        </div>
+                    </div>
+
+                    {{-- Fechas de inicio y fin de la UTE --}}
+                    <div id="isUte">
+	                    <div class="form-group row">
+	                		{{-- Fecha constitución --}}
+							<label for="ute_start_at" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.fecha_constitucion')) !!}</label>
+							<div class="col-lg-3">
+								<x-date-picker name="ute_start_at" id="ute_start_at" :format="$languages[config('app.locale')][4]" info="ute-start-at"/>
+							</div>
+
+							{{-- Fecha constitución --}}
+							<label for="ute_finish_at" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.fecha_final')) !!}</label>
+							<div class="col-lg-3">
+								<x-date-picker name="ute_finish_at" id="ute_finish_at" :format="$languages[config('app.locale')][4]" info="ute-finish-at"/>
+							</div>
+	                    </div>
+                    </div>
+
+                    <div class="form-group row">
                         {{-- Logo --}}
                         <label for="name" class="col-md-2 col-form-label">Logo
 							<br>
@@ -97,5 +129,21 @@
 		</div>
 	</div>
 </div>
+
+@push('scripts')
+<script>
+$(function(){
+	//Inputs para UTEs.
+	$('#is_ute').on('change', function(){
+		if($(this).is(':checked')){
+			$('#isUte').slideDown();
+		}else{
+			$('#isUte').slideUp();	
+			$('#ute_start_at, #ute_finish_at').val('');
+		}
+	});
+});
+</script>
+@endpush
 
 @endsection

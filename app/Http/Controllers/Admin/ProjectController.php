@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Yajra\DataTables\DataTables;
 use Carbon\Carbon;
 use File;
 use PDF;
@@ -21,6 +22,7 @@ use App\Models\Company;
 use App\Models\CompanySettings;
 use App\Models\CustomerProviders;
 use App\Models\Employee;
+use App\Models\Expense;
 use App\Models\Group;
 use App\Models\Order;
 use App\Models\Project;
@@ -43,6 +45,7 @@ class ProjectController extends Controller{
      * 3.2. Vincular proyecto a presupuesto-pedido.
      * 3.3. Validación de proyecto - shared no existente.
      * 4. Editar proyecto.
+     * 4.1. Gastos por proyecto para DT.
      * 5. Actualizar proyecto.
      * 6. Actualizar estado de proyecto.
      * 7. Eliminar proyecto.
@@ -119,8 +122,6 @@ class ProjectController extends Controller{
         // }
         // $projects = $query->orderBy('created_at', 'DESC')->get();
 
-        //dd($projects);
-
         //Estados de proyecto:
         $status = helpers::projectStatus();
 
@@ -153,11 +154,12 @@ class ProjectController extends Controller{
     public function getProjectsDT($status = false){
         $arrStatus = $status? explode(',', $status):false;
 
-        $query = Project::select('id', 'name', 'estimated_delivery_date', 'delivery_date', 'hours_forecast', 'hours_worked', 'completed', 'status', 'created_at')
-        ->where('company_id', session('currentCompany'));
+        $query = Project::select('projects.id', 'projects.name', 'projects.estimated_delivery_date', 'projects.delivery_date', 'projects.hours_forecast', 'projects.hours_worked', 'projects.completed', 'projects.status', 'projects.created_at', 'companies.name AS customer')
+        ->leftJoin('companies', 'projects.customer_id', '=', 'companies.id')
+        ->where('projects.company_id', session('currentCompany'));
         //Filtro status:
         if($arrStatus){
-            $query = $query->whereIn('status', $arrStatus);
+            $query = $query->whereIn('projects.status', $arrStatus);
         }
         $projects = $query->get();
 
@@ -405,6 +407,16 @@ class ProjectController extends Controller{
 
         $customer = Company::select('id', 'name')->find($project->customer_id);
 
+        $customers = false;
+        //La empresa ha de tener habilitada la gestión de clientes y no debe estar declardo el cliente:
+        if(session('companySettings') && session('companySettings')['customers_management'] && !$customer){
+            $customers = CustomerProviders::select('companies.id', 'companies.name', 'companies.tradename')
+            ->join('companies', 'customer_providers.customer_id', '=', 'companies.id')
+            ->where('customer_providers.provider_id', session('currentCompany'))
+            ->orderBy('companies.name', 'ASC')
+            ->get();
+        }
+
         $users = Employee::companyEmployees(session('currentCompany'), 1);
 
         //Info de los miembros del equipo:
@@ -448,23 +460,12 @@ class ProjectController extends Controller{
         ->toArray();
 
         //Presupuestos y pedidos de venta:
-        // $budgets_orders = ProjectShared::select('orders.id AS budgetId', 'budgets.budget_num', 'orders.id AS orderId', 'orders.order_num', 'project_shareds.created_at')
-        // ->join('budget_order_shared_fields', 'project_shareds.order_id', '=', 'budget_order_shared_fields.id')
-        // ->leftJoin('budgets', 'budget_order_shared_fields.budget_id', '=', 'budgets.id')
-        // ->leftJoin('orders', 'budget_order_shared_fields.order_id', '=', 'orders.id')
-        // ->where('project_shareds.project_id', $project->id)
-        // ->get();
-
-
         $orders = Order::select('orders.id', 'orders.is_budget', 'orders.customer_id', 'orders.budget_num', 'orders.budget_old_num', 'orders.name', 'orders.modality', 'orders.budget_status AS budget_status', 'orders.order_num', 'orders.order_old_num', 'orders.estimated_delivery_date', 'orders.delivery_date', 'orders.order_status', 'orders.created_at', 'users.name AS nombre', 'users.surname')
         ->join('project_orders', 'orders.id', '=', 'project_orders.order_id')
         ->leftJoin('users', 'orders.provider_manager_id', '=', 'users.id')
         ->where('project_orders.project_id', $project->id)
         ->where('orders.is_order', 1)
         ->get();
-
-        //Cliente: debe ser único. Lo obtenemos de los distintos presupuestos y deben ser el mismo. En caso de más de un cliente, redirigimos para que el usuario seleccione un único cliente:
-        $arr_customers = [];
 
         //Abreviaturas modalidades de presupuesto:
         $abrev = [
@@ -493,13 +494,6 @@ class ProjectController extends Controller{
             $row->order_status = $row->order_status? ucfirst(helpers::orderStatus($row->order_status)):'';
         }
 
-        //Eliminamos valores duplicados del array de clientes:
-        $arr_customers = array_unique($arr_customers);
-        if(count($arr_customers) > 1){
-            $msg = trans('textos.proyecto_updated');
-            return redirect()->route('projects.edit', $project)->with(compact('msg'));
-        }
-
         //Compras:
         $project_purchases = Order::select('orders.id', 'orders.order_num', 'orders.purchase_num', 'orders.purchase_old_num', 'orders.name', 'orders.delivery_date', 'orders.order_status', 'companies.name AS provider')
         ->join('project_purchases', 'orders.id', '=', 'project_purchases.order_id')
@@ -518,13 +512,82 @@ class ProjectController extends Controller{
         })
         ->orderBy('orders.purchase_num', 'ASC')
         ->get();
+
+        //Gastos del proyecto:
+        $project_expenses = Expense::select('expenses.*', 'companies.name')
+        ->leftJoin('companies', 'expenses.provider_id', '=', 'companies.id')
+        ->where('expenses.project_id', $project->id)
+        ->get();
+
+        //Tipos de gasto:
+        $expense_types = helpers::expenseTypes();
+
+        //Gastos sin proyecto:
+        $expenses = Expense::select('expenses.*', 'companies.name')
+        ->leftJoin('companies', 'expenses.provider_id', '=', 'companies.id')
+        ->where('company_id', session('currentCompany'))
+        ->whereNull('expenses.project_id')
+        ->get();
          
         $languages = $this->languages;
 
         //Moneda:
         $currency = $this->co_currency;
 
-        return view('admin.projects.edit', compact('header', 'tab', 'project', 'patterns', 'author', 'owner', 'customer', 'users', 'team', 'team_members', 'tasks', 'task_status', 'groups', 'orders', 'project_purchases', 'purchases', 'languages', 'currency'));
+        return view('admin.projects.edit', compact('header', 'tab', 'project', 'patterns', 'author', 'owner', 'customer', 'customers', 'users', 'team', 'team_members', 'tasks', 'task_status', 'groups', 'orders', 'project_purchases', 'purchases', 'project_expenses', 'expense_types', 'expenses', 'languages', 'currency'));
+    }
+
+    /**
+     * 4.1. Gastos por proyecto para DT.
+     */
+    public function getProjectExpensesDT($project_id){
+        $data = Expense::select('expenses.*', 'companies.name')
+        ->leftJoin('companies', 'expenses.provider_id', '=', 'companies.id')
+        ->where('expenses.project_id', $project_id);
+
+        //Moneda:
+        $currency = $this->co_currency;  
+
+        //Tipos de pago:
+        $types = helpers::expenseTypes(); 
+        
+        return DataTables::of($data)
+        ->addColumn('concept', function($row){
+            return $row->concept;
+        })
+        ->addColumn('expensed_in', function($row){
+            return $row->expensed_in? Carbon::parse($row->expensed_in)->format($this->languages[session()->get('locale')][4]):'';
+        })
+        ->addColumn('amount', function($row) use($currency){
+            if($row->amount_with_iva){
+                return $row->amount_with_iva.$currency->symbol;
+            }else{
+                return '';
+            }
+        }) 
+        ->addColumn('type', function($row) use($types){
+            if($row->type){
+                return $types[$row->type];
+            }else{
+                return '';
+            }
+        })
+        ->addColumn('provider', function($row){
+            return $row->company;
+        }) 
+        ->addColumn('doc', function($row){
+            if($row->doc){
+                return '<a target="_blank" href="/docs/expenses/'.$row->doc.'"><i class="fa fa-file"></i></a>';
+            }else{
+                return '';
+            }
+        })  
+        ->addColumn('acciones', function($row){
+            $return = 'projects';
+            return view('admin.expenses.partials.dt-actions', compact('row', 'return')); 
+        }) 
+        ->rawColumns(['doc'])
+        ->make(true);
     }
 
     /**
@@ -568,6 +631,9 @@ class ProjectController extends Controller{
         $project->description = $request->description;
         $project->briefing = $request->briefing;
         $project->restricted_access = $request->restricted_access? true:false;
+        if($request->customer_id){
+            $project->customer_id = $request->customer_id;
+        }
         if($estimated_delivery_date){
             $project->estimated_delivery_date = $estimated_delivery_date;
         }

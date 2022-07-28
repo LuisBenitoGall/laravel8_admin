@@ -570,15 +570,15 @@ class BudgetController extends Controller{
         $slug = Str::slug($request->name);
 
         //Documento de compra:
-        $customer_order_doc = false;
-        if($request->hasFile('customer_order_doc')){
-            $file = $request->file('customer_order_doc');
+        $purchase_doc = false;
+        if($request->hasFile('doc')){
+            $file = $request->file('doc');
             $path = public_path().'/img/purchase-orders';
             $fileName = uniqid().$file->getClientOriginalName();
             $moved = $file->move($path, $fileName);
 
             if($moved){
-                $customer_order_doc = $fileName;
+                $purchase_doc = $fileName;
             }
         }
 
@@ -595,14 +595,18 @@ class BudgetController extends Controller{
         $order->name = $request->name;
         $order->slug = $slug;
         $order->description = $request->description;
+        $order->purchase_old_num = $request->purchase_old_num;
+        if($purchase_doc){
+            $order->purchase_doc = $purchase_doc;
+        }        
         $order->customer_manager_id = $request->customer_manager_id;
         $order->customer_workplace_id = $request->customer_workplace_id;
         $order->customer_cost_center_id = $request->customer_cost_center_id;
         $order->customer_business_area_id = $request->customer_business_area_id;
         $order->customer_order = $request->customer_order;
-        if($customer_order_doc){
+        /*if($customer_order_doc){
             $order->customer_order_doc = $customer_order_doc;
-        }
+        }*/
 
         $order->provider_manager_id = $request->provider_manager_id;
         $order->provider_workplace_id = $request->provider_workplace_id;

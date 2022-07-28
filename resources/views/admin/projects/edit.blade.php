@@ -2,6 +2,9 @@
 
 @section('content')
 
+<input type="hidden" id="dtController" value="projects">
+<input type="hidden" id="myProject" value="{{ $project->id }}">
+
 <div class="row mb-3">
 	{{-- Acciones: --}}
 	<div class="col-12">
@@ -45,11 +48,27 @@
 			</a>
 		@endcan
 
-		{{-- Nueva compra --}}
+		{{-- Adjuntar venta --}}
+		@can('projects.edit')
+        	<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-add-order">
+				<i class="fa fa-plus"></i>
+				{!! ucfirst(trans('textos.venta_add')) !!}
+			</a>	
+        @endcan
+
+		{{-- Adjuntar compra --}}
 		@can('projects.edit')
         	<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-add-purchase">
 				<i class="fa fa-plus"></i>
 				{!! ucfirst(trans('textos.compra_add')) !!}
+			</a>	
+        @endcan
+
+        {{-- Adjuntar gasto --}}
+        @can('projects.edit')
+        	<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-add-expense">
+				<i class="fa fa-plus"></i>
+				{!! ucfirst(trans('textos.gastos_add')) !!}
 			</a>	
         @endcan
 
@@ -60,6 +79,12 @@
 				{!! ucfirst(trans('textos.tareas_estados')) !!}
 			</a>
 		@endcan
+
+		{{-- Balance económico --}}
+		<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-economic-balance">
+			<i class="fa fa-chart-bar"></i>
+			{!! ucfirst(trans('textos.balance_economico')) !!}
+		</a>
 
         {{-- Eliminar proyecto --}}
         @can('projects.destroy')
@@ -92,12 +117,14 @@
         		</div>
         	@endif
 
-        	{{-- Pedidos --}}
-        	@if(!empty($orders))
+        	{{-- Pedidos 
+				26/07/22: se oculta pues ya se muestra una pestaña con el listado de pedidos.
+        	--}}
+        	{{-- @if(!empty($orders))
         		<div class="d-inline-block align-top">
         			<x-select name="status" class="select2" id="linkOrder" label="pedido_ir" :options="$orders_"/>
 	        	</div>
-        	@endif
+        	@endif --}}
         @endif
 	</div>
 </div>
@@ -194,6 +221,11 @@
 				    		<a class="nav-link @if($tab == 'purchases') active @endif" href="#tab-project-purchases" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.compras')) !!}</a>
 				  		</li>
 				  	@endif
+				  	@if($project_expenses->count())
+				  		<li class="nav-item @if($tab == 'expenses') active @endif">
+				    		<a class="nav-link @if($tab == 'expenses') active @endif" href="#tab-project-expenses" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.gastos')) !!}</a>
+				  		</li>
+				  	@endif
 				</ul>
 
 				<div class="tab-content pt-4">
@@ -237,6 +269,13 @@
 							@include('admin.projects.partials.project-purchases')	
 						</div>
 					@endif
+
+					{{-- Gastos --}}
+					@if($project_expenses->count())
+						<div class="tab-pane fade @if($tab == 'expenses') show active @endif" role="tabpanel" id="tab-project-expenses">
+							@include('admin.projects.partials.project-expenses')	
+						</div>
+					@endif
 				</div>
 			</div>
 		</div>
@@ -256,6 +295,9 @@
 {{-- Add purchase: --}}
 @include('admin.projects.partials.modal-add-purchase')
 
+{{-- Add expense: --}}
+@include('admin.projects.partials.modal-add-expense')
+
 {{-- Tasks status: --}}
 @include('admin.task_status.partials.modal-task-status')
 
@@ -264,6 +306,9 @@
 
 {{-- Member tasks: --}}
 @include('admin.projects.partials.modal-member-tasks')	
+
+{{-- Economic balance --}}
+@include('admin.projects.partials.modal-economic-balance')	
 
 @push('scripts')
 <script src="{{ asset('js/plugins/pace/pace.min.js') }}"></script>

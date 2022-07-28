@@ -37,6 +37,30 @@
     </div>
 </div>
 
+@if($company->is_ute)
+	<div class="form-group row">
+		{{-- Fecha constitución --}}
+		<label for="ute_start_at" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.fecha_constitucion')) !!}</label>
+		<div class="col-lg-3">
+			@php
+			$ute_start_at = $company->ute_start_at != ''? Carbon\Carbon::parse($company->ute_start_at)->format($languages[session()->get('locale')][4]):'';
+			@endphp
+
+			<x-date-picker name="ute_start_at" id="ute_start_at" :format="$languages[config('app.locale')][4]" info="ute-start-at" value="{{ $ute_start_at }}"/>
+		</div>
+
+		{{-- Fecha constitución --}}
+		<label for="ute_finish_at" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.fecha_final')) !!}</label>
+		<div class="col-lg-3">
+			@php
+			$ute_finish_at = $company->ute_finish_at != ''? Carbon\Carbon::parse($company->ute_finish_at)->format($languages[session()->get('locale')][4]):'';
+			@endphp
+
+			<x-date-picker name="ute_finish_at" id="ute_finish_at" :format="$languages[config('app.locale')][4]" info="ute-finish-at" value="{{ $ute_finish_at }}"/>
+		</div>
+    </div>
+@endif
+
 <div class="form-group row">
 	{{-- Siglas --}}
 	<label for="acronym" class="col-lg-2 col-form-label">{{ ucfirst(trans('textos.siglas')) }}</label>

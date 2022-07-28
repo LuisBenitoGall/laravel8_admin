@@ -21,7 +21,7 @@
 
             	<form method="post" autocomplete="off" action="{{ route('projects.link-project') }}" id="frmSaveChangeRound" accept-charset="utf-8" enctype="multipart/form-data" role="form">
                     {{ csrf_field() }}
-                    <input type="hidden" name="shared_id" value="{{ $order->id }}">
+                    <input type="hidden" name="order_id" value="{{ $order->id }}">
 
                     <p class="text-warning">{{ trans('textos.proyecto_vincular_texto') }}</p>
 

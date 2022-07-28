@@ -53,3 +53,29 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+<script>
+$(function(){
+    //Guardar nuevo proveedor:
+    $(document).on('submit', '#frm-add-provider', function(e){
+        e.preventDefault();
+        var data = $(this).serialize();
+        $('#modal-add-provider').modal('toggle');
+
+        $.ajax({
+            url: "/admin/companies/store-from-expense",
+            type: "POST",
+            data: data, 
+            cache: false,
+            datatype: "JSON",
+            success: function(response){
+                var newOption = new Option(response.name, response.id, true, true);
+                var arr = [response.id];
+                $('#expenseProvider').append(newOption).val(arr).trigger('change');
+            }
+        });
+    });
+});
+</script>
+@endpush

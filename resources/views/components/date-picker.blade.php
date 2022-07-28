@@ -1,4 +1,4 @@
-@props(['class' => '', 'disabled' => false, 'format', 'id' => false, 'name', 'readonly' => false, 'required' => false, 'value' => '', 'warning' => false])
+@props(['class' => '', 'disabled' => false, 'format', 'id' => false, 'name', 'readonly' => false, 'required' => false, 'value' => '', 'warning' => false, 'info' => false])
 
 <div class="input-group date">
     <span class="input-group-addon">
@@ -16,6 +16,10 @@
 
     @if($warning)
         <small class="text-warning">{!! trans('textos.'.$warning) !!}</small>
+    @endif
+
+    @if($info)
+        {!! App\Helpers\helpers::info($info) !!}
     @endif
 
     <x-input-errors name="{{ $name }}"/>

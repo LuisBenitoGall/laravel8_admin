@@ -4,9 +4,9 @@
 			<table class="table table-hover dTable" id="tblSubtasks">
 				<thead>
 					<tr>
-						<th class="text-center">{{ ucfirst(trans('textos.fecha')) }}</th>
-						<th>{{ ucfirst(trans('textos.descripcion')) }}</th>
-						<th class="text-center">{{ ucfirst(trans('textos.acciones')) }}</th>
+						<th class="text-center wdt150">{{ ucfirst(trans('textos.fecha')) }}</th>
+						<th class="wdt300">{{ ucfirst(trans('textos.descripcion')) }}</th>
+						<th class="text-center wdt100">{{ ucfirst(trans('textos.acciones')) }}</th>
 					</tr>
 				</thead>
 
@@ -14,13 +14,13 @@
 					@foreach($subtasks as $stk)
 						<tr>
 							{{-- Fecha --}}
-							<td class="text-right wdt100">{{ $stk->created_at->format($languages[session()->get('locale')][4].' H:i:s') }}</td>
+							<td class="text-right">{{ $stk->created_at->format($languages[session()->get('locale')][4].' H:i:s') }}</td>
 
 							{{-- Descripción --}}
-							<td class="wdt300">{{ $stk->description }}</td>
+							<td>{{ $stk->description }}</td>
 
 							{{-- Acciones --}}
-							<td class="text-right wdt100">
+							<td class="text-right">
 								{{-- Estado --}}
 								<label class="custom-chk-rdb" rel="tooltip" title="">
 		                            <input type="checkbox" name="status" @if($stk->status) checked @endif><span class="chk chk-subtask" data-id="{{ $stk->id }}" data-ctrl="admin/subtasks/status"></span>
