@@ -279,6 +279,10 @@ class CompanyController extends Controller{
             'ute_finish_at' => $ute_finish_at
         ]);   
 
+        //Indicador de empresa matriz. Usualmente es el mismo id, salvo para aquellas empresas dependientes de una empresa matriz:
+        $company->mother_co = $company->id;
+        $company->save();
+
         //Creamos centro de trabajo por defecto:
         $wp = new Workplace();
         $wp->company_id = $company->id;
@@ -456,7 +460,7 @@ class CompanyController extends Controller{
             $company->ute_start_at = $ute_start_at;
             $company->ute_finish_at = $ute_finish_at;
         }
-        
+
         $company->save(); 
 
         //Modificamos datos en la sesión de empresas:
