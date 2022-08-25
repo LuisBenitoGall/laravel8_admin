@@ -1,7 +1,7 @@
-@props(['accepted_files' => false, 'name' => false])
+@props(['accepted_files' => false, 'lw' => false, 'name' => false])
 
 <div class="input-group image-preview">
-    <input type="text" class="form-control image-preview-filename" disabled="disabled"> 
+    <input type="text" class="form-control image-preview-filename" disabled="disabled" @if($lw) wire:model="{{ $lw }}" @endif> 
     <span class="input-group-btn">
         {{-- image-preview-clear button --}}
         <button type="button" class="btn btn-default image-preview-clear" style="display:none;">

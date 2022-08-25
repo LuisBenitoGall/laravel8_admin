@@ -3,9 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Helpers\Helpers;
+use App\Helpers\helpers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -13,11 +14,14 @@ use Yajra\DataTables\DataTables;
 use File;
 
 //Models:
+use App\Models\Attribute;
+use App\Models\Category;
 use App\Models\Company;
 use App\Models\CompanySettings;
 use App\Models\CustomerProducts;
 use App\Models\CustomerProviders;
 use App\Models\Product;
+use App\Models\ProductAttributes;
 use App\Models\ProductDocs;
 use App\Models\ProductFavorites;
 use App\Models\ProductPatterns;
@@ -42,7 +46,7 @@ class ProductController extends Controller{
 
     public function __construct(){
         //Idiomas:
-        $this->languages = Helpers::languages();
+        $this->languages = helpers::languages();
 
         $this->middleware('module_setted:products');
         $this->middleware('product_get', ['only' => ['edit', 'update', 'destroy']]);
@@ -213,18 +217,6 @@ class ProductController extends Controller{
         //->first();
         $productions = false;
 
-        // $categories = Category::where('company_id',  session('currentCompany'))
-        // ->where('status', 1)
-        // ->where('subcategory', 0)
-        // ->get();
-        $categories = false;
-
-        // $subcategories = Category::where('company_id',  session('currentCompany'))
-        // ->where('status', 1)
-        // ->where('subcategory', '>', 0)
-        // ->get();
-        $subcategories = false;
-
         //Patrones de referencia de producto:
         if(!$product->ref){
             $patterns = ProductPatterns::select('id', 'name')
@@ -235,14 +227,25 @@ class ProductController extends Controller{
             $patterns = false;
         }
 
-        //Tipos de datos para parámetros:
-        $data_types = Helpers::dataTypes();
+        //Tipos de datos para atributos:
+        $data_types = helpers::dataTypes();
+
+        //Obviamos los atributos ya vinculados:
+        $attributes_in_product = ProductAttributes::where('product_id', $product->id)
+        ->pluck('attribute_id')
+        ->toArray();
+
+        $attributes = Attribute::where('company_id', session('currentCompany'))
+        ->where('status', 1)
+        ->whereNotIn('id', $attributes_in_product)
+        ->pluck('name', 'id')
+        ->toArray();
 
         //Product serials:
         // $serials = ProductSerials::where('product_id', $product->id)
         // ->orderBy('id', 'ASC')
         // ->get();
-        $serials = false;
+        //$serials = false;
 
         //Histórico de precios:
         // $prices = ProductPrices::where('product_id', $product->id)
@@ -261,7 +264,7 @@ class ProductController extends Controller{
         //Módulos activos:
         $module_production = $this->settedModule('production');
 
-        return view('admin.products.edit', compact('header', 'product', 'tab', 'categories', 'subcategories', 'productions', 'patterns', 'data_types', 'serials', 'prices', 'currency', 'iva', 'languages', 'module_production'));
+        return view('admin.products.edit', compact('header', 'product', 'tab', 'productions', 'patterns', 'data_types', 'attributes', 'prices', 'currency', 'iva', 'languages', 'module_production'));
     }
 
     /**

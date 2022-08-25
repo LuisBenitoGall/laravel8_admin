@@ -7,33 +7,51 @@
     <script src="{{ asset('js/plugins/pace/pace.min.js') }}"></script>
     <script src="{{ asset('js/plugins/chartJs/Chart.min.js') }}"></script>
     <script>
-    var num_projects = {{ json_encode($list) }};
+    var values = {{ json_encode($list) }};
+    console.log(values);
     var barData = {
-        labels: ["{{ ucfirst(trans('textos.ventas')) }}", "{{ ucfirst(trans('textos.compras')) }}", "{{ ucfirst(trans('textos.gastos')) }}"],
+        labels: ["{{ ucfirst(trans('textos.ingresos')) }}", "{{ ucfirst(trans('textos.pagos')) }}"],
         datasets: [
             {
-                label: "{{ ucfirst(trans('textos.balance_economico')) }}",
-                backgroundColor: 'rgba(26,179,148,0.5)',
+                label: "{{ ucfirst(trans('textos.ventas')) }}",
+                backgroundColor: color_chart_success,
                 pointBorderColor: "#fff",
-                data: num_projects
+                data: [values[0], 0]
+            },
+            {
+                label: "{{ ucfirst(trans('textos.compras')) }}",
+                backgroundColor: color_chart_danger,
+                pointBorderColor: "#fff",
+                data: [0, values[1]]
+            },
+            {
+                label: "{{ ucfirst(trans('textos.gastos')) }}",
+                backgroundColor: color_chart_warning,
+                pointBorderColor: "#fff",
+                data: [0, values[2]]
             }
-            // {
-            //     label: "Data 2",
-            //     backgroundColor: 'rgba(26,179,148,0.5)',
-            //     borderColor: "rgba(26,179,148,0.7)",
-            //     pointBackgroundColor: "rgba(26,179,148,1)",
-            //     pointBorderColor: "#fff",
-            //     data: [28, 48, 40, 19, 86, 27, 90]
-            // }
         ]
     };
 
     var barOptions = {
-        responsive: true
+        responsive: true,
+        scales: {
+            x: {
+                stacked: true,
+            },
+            y: {
+                stacked: true
+            }
+        },
+        maintainAspectRatio: false,
+        legend: {position: 'bottom'}
     };
 
-
-    var ctx2 = document.getElementById("chartEconomicBalance").getContext("2d");
-    new Chart(ctx2, {type: 'bar', data: barData, options:barOptions});
+    var ctx = document.getElementById("chartEconomicBalance").getContext("2d");
+    new Chart(ctx, {
+        type: 'bar', 
+        data: barData, 
+        options:barOptions
+    });
     </script>
 </div>

@@ -21,6 +21,7 @@ class CompanyUtesController extends Controller{
      * 1. Relación de UTEs.
      * 2. Vincular empresa.
      * 3. Desvincular empresa.
+     * 4. Actualizar registro UTE.
      */
 
     private $option = 'utes';
@@ -30,6 +31,25 @@ class CompanyUtesController extends Controller{
     public function __construct(){
         //Idiomas:
         $this->languages = helpers::languages();
+
+        $this->middleware('company_utes_post', ['only' => ['store', 'update']]);
+    }
+
+    //0. Validator:
+    protected function validator(array $data){
+        //Validación save:
+        if(isset($data['submit_save'])){
+            return Validator::make($data, [
+                'ute_id' => 'required|integer',
+                'member' => 'required|integer'
+            ]);
+
+        //Validación update:
+        }elseif(isset($data['submit_update'])){
+            return Validator::make($data, [
+                'id' => 'required|integer'
+            ]);
+        }
     }
 
     /**
@@ -43,7 +63,7 @@ class CompanyUtesController extends Controller{
             'slug' => 'companies'
         ];
 
-        $ute_companies = Company::select('companies.id', 'companies.name', 'companies.tradename', 'companies.logo', 'companies.nif', 'company_utes.start_at', 'company_utes.finish_at', 'company_utes.id AS company_ute_id')
+        $ute_companies = Company::select('companies.id', 'companies.name', 'companies.tradename', 'companies.logo', 'companies.nif', 'company_utes.start_at', 'company_utes.finish_at', 'company_utes.id AS company_ute_id', 'company_utes.participation_percent')
         ->join('company_utes', 'companies.id', '=', 'company_utes.member_id')
         ->where('company_utes.ute_id', $ute->id)
         ->whereNull('company_utes.deleted_at')
@@ -69,13 +89,21 @@ class CompanyUtesController extends Controller{
      * 2. Vincular empresa.
      */
     public function store(Request $request){
+        $validator = $this->validator($request->all());
+        if($validator->fails()){
+            //Indicamos el origen de la acción realizada para manejar el modal:
+            $validator->getMessageBag()->add('accion', 'modal-add-company');
 
-        foreach($request->members as $row){
-            $ute = new CompanyUtes();
-            $ute->ute_id = $request->ute_id;
-            $ute->member_id = $row;
-            $ute->save();
+            return redirect('admin/company-utes/'.$request->ute_id)
+            ->withErrors($validator)
+            ->withInput();    
         }
+
+        $ute = new CompanyUtes();
+        $ute->ute_id = $request->ute_id;
+        $ute->member_id = $request->member;
+        $ute->participation_percent = $request->participation_percent;
+        $ute->save();
 
         $msg = trans('textos.empresa_vinculada_ok');
         return redirect()->route('company-utes.index', $request->ute_id)->with(compact('msg'));
@@ -89,5 +117,27 @@ class CompanyUtesController extends Controller{
 
         $msg = trans('textos.empresa_desvinculada');
         return redirect()->route('company-utes.index', $ute->ute_id)->with(compact('msg'));
+    }
+
+    /**
+     * 4. Actualizar registro UTE.
+     */
+    public function update(Request $request){
+        $validator = $this->validator($request->all());
+        if($validator->fails()){
+            //Indicamos el origen de la acción realizada para manejar el modal:
+            $validator->getMessageBag()->add('accion', 'modal-edit-participation');
+
+            return redirect('admin/company-utes/'.$request->ute_id)
+            ->withErrors($validator)
+            ->withInput();    
+        }    
+
+        $row = CompanyUtes::find($request->id);
+        $row->participation_percent = $request->participation_percent;
+        $row->save();
+
+        $msg = trans('textos.empresa_updated');
+        return redirect()->route('company-utes.index', $request->ute_id)->with(compact('msg'));
     }
 }

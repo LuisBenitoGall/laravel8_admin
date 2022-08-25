@@ -13,11 +13,13 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Yajra\DataTables\DataTables;
 use File;
 use Carbon\Carbon;
 
 //Models:
 use App\Models\BusinessAreas;
+use App\Models\Category;
 use App\Models\Company;
 use App\Models\CostCenters;
 use App\Models\Employee;
@@ -28,7 +30,6 @@ use App\Models\Timetable;
 use App\Models\TimetableItems;
 use App\Models\User;
 use App\Models\UserBusinessAreas;
-use App\Models\UserCategories;
 use App\Models\UserCompanies;
 use App\Models\UserCostCenters;
 use App\Models\UserTimetables;
@@ -43,7 +44,8 @@ use Spatie\Permission\Models\Role;
 class UserController extends Controller{
 	/**
      * 1. Listado de usuarios.
-     * 1.1. Listado de usuarios para DataTable.
+     * 1.1. Listado de todos los usuarios.
+     * 1.2. Listado de usuarios para DataTable.
      * 2. Formulario nuevo usuario.
      * 3. Guardar nuevo usuario.
      * 4. Mostrar usuario.
@@ -59,9 +61,7 @@ class UserController extends Controller{
      * 13. Horarios del usuario.
      * 13.1. Horarios de usuario para DataTable.
      * 14. Eliminar usuario.
-     * 15. Listado de todos los usuarios.
-     * 15.1. Listado de todos los usuarios para DataTable.
-     * 16. Incorporar candidato como usuario.
+     * 15. Incorporar candidato como usuario.
      */
     
     private $option = 'usuarios';
@@ -145,63 +145,90 @@ class UserController extends Controller{
     }	
 
     /**
-     * 1.1. Listado de usuarios para DataTable.
+     * 1.1. Listado de todos los usuarios.
      */
-    public function getUsersDT(){
-        $users = User::companyUsers(session('currentCompany'));  
+    public function usersAll(){
+        $header = [
+            'option' => $this->option, 
+            'suboption' => trans('textos.usuarios_todos'), 
+            'module' => $this->module,
+            'slug' => 'users-all'
+        ];
 
-        //Permisos:
-        $add_companies = Auth::user()->can('companies.edit') && count(session('companies')) > 1;
-        $users_on = Auth::user()->can('users.destroy');
-        $users_edit = Auth::user()->can('users.edit');
-        $users_show = Auth::user()->can('users.show');
+        $users = User::all();
 
-        //Ampliación de información de los objetos:
-        if($users){
-            foreach($users as $row){
-                //Roles del usuario, si es Super Admin no puede editarse por otro usuario que no sea él mismo:
-                $roles = $row->getRoleNames();
-                $permissions = $row->permissions;
+        $view = 'list';
 
-                //Enviamos las fechas ya formateadas:
-                $row->alta = $row->created_at->format($this->languages[session()->get('locale')][4]);
+        $all = true;
 
-                //Permisos para las acciones:
-                $row->add_companies = $add_companies;
-                $row->users_on = $roles[0] == config('constants.SUPER_ADMIN_') && Auth::user()->id != $row->id? false:$users_on;
-                $row->users_edit = $roles[0] == config('constants.SUPER_ADMIN_') && Auth::user()->id != $row->id? false:$users_edit;
-                $row->users_show = $users_show;
+        return view('admin.users.index')->with(compact('header', 'users', 'view', 'all'));    
+    }
 
-                //Categorías:
-                $arr = $row->categories? explode(',', $row->categories):false;
-                if($arr){
-                    $row->categories = '';
-                    foreach($arr as $cat){
-                        $category = UserCategories::select('name')->find($cat);   
-                        if($row->categories != ''){
-                            $row->categories .= ', ';
-                        } 
-                        $row->categories .= $category->name;
+    /**
+     * 1.2. Listado de usuarios para DataTable.
+     */
+    public function getUsersDT($all = false){
+        $query = User::select('users.*', 'user_companies.categories',
+            DB::raw('(SELECT image FROM user_images WHERE user_id = users.id AND featured = 1) AS Image')    
+            )
+        ->join('user_companies', 'users.id', '=', 'user_companies.user_id');
+        if(!$all){
+            $query->where('user_companies.company_id', session('currentCompany'));
+        }
+        $query->groupBy('users.id')
+        ->orderBy('users.name');
+        $data = $query;
+
+        return DataTables::of($data)
+        ->addColumn('user', function($row){
+            return $row->name.' '.$row->surname;
+        })
+        ->addColumn('alta', function($row){
+            return $row->created_at->format($this->languages[session()->get('locale')][4]);    
+        })
+        ->addColumn('email', function($row){
+             return '<a target="_blank" href="mailto:'.$row->email.'">'.$row->email.'</a>';
+        })
+        ->addColumn('phones', function($row){
+            $phones = '';
+            $data_phones = $row->phones;
+            $i = 0;
+            if($data_phones->count() > 0){
+                foreach($data_phones as $p){
+                    if($i > 0){
+                        $phones .= ' - ';
                     }
-
-                }else{
-                    $row->categories = '';
-                }
-
-                //Teléfonos:
-                $phones = $row->phones;
-                $row->phones = false;
-                if($phones->count() > 0){
-                    $arrPhones = [];
-                    foreach($phones as $phone){
-                        array_push($arrPhones, $phone->phone_number);
-                    }
-                    $row->phones = $arrPhones;
+                    $phones .= $p->phone_number;
+                    $i++;
                 }
             }
-        }
+            return $phones;
+        })
+        ->addColumn('categories', function($row){
+            $categories = '';
+            if($row->categories){
+                $arr = explode(',', $row->categories);
+                $obj_categories = Category::whereIn('id', $arr)
+                ->pluck('name')
+                ->toArray();
 
-        return datatables($users)->toJson(); 
+                $categories = implode(', ', $obj_categories);
+            }
+
+            return $categories;
+        })
+        ->addColumn('acciones', function($row){
+            return view('admin.users.partials.dt-actions', compact('row'));    
+        })
+        ->addColumn('image', function($row){
+            if($row->Image){
+                return '<img src="'.asset('img/users/'.$row->Image).'" class="img-circle" width="36">';    
+            }else{
+                return helpers::setAvatar($row->name, $row->surname);
+            }
+        })
+        ->rawColumns(['email', 'image'])
+        ->make(true);
     }
 
     /**
@@ -403,9 +430,11 @@ class UserController extends Controller{
         }
 
         //Categorías:
-        $categories = UserCategories::select('id', 'name')
-        ->where('company_id', session('currentCompany'))
-        ->where('status', 1)
+        $categories = Category::select('categories.id', 'categories.name')
+        ->join('modules', 'categories.module_id', '=', 'modules.id')
+        ->where('modules.slug', 'users')
+        ->where('categories.company_id', session('currentCompany'))
+        ->where('categories.status', 1)
         ->get();
 
         //Categorías del usuario:
@@ -450,7 +479,7 @@ class UserController extends Controller{
         //Guardamos firma:
         $signature = $this->loadUserSignature($request, $user->id);
 
-        $birthday = $request->input('birthday') != ''? config('app.locale') != 'en'? Helpers::convertFecha($request->input('birthday')):$request->input('birthday'):NULL;
+        $birthday = $request->input('birthday') != ''? config('app.locale') != 'en'? helpers::convertFecha($request->input('birthday')):$request->input('birthday'):NULL;
 
         //Comprobamos si el rol dispone de permisos para declarar $isAdmin:
         $role = Role::find($request->input('roles'));
@@ -718,7 +747,6 @@ class UserController extends Controller{
         $to = $request->to != ''? (session()->get('locale') != 'en')? Helpers::convertFecha($request->to):$request->to:Date('Y-m-d');
         //La fecha fin no puede ser posterior a la fecha actual:
         $to = $to > date('Y-m-d')? date('Y-m-d'):$to;
-        
 
         //Conceptos horarios:
         $obj_timetable_items = TimetableItems::where('company_id', session('currentCompany'))->get();
@@ -734,10 +762,41 @@ class UserController extends Controller{
      */
     public function userTimetablesDT($from = false, $to = false, $user_id = false){
         if($from && $to && $user_id){
-            $data = Timetable::listUserTimetables($from, $to, $user_id);
+            //Centro de trabajo del usuario en el intervalo señalado:
+            $workplace = UserWorkplaces::getEmployeeWorkplace($user_id, $from, $to);
 
-            return datatables($data)->toJson(); 
-            
+            $data = Timetable::listUserTimetables($from, $to, $user_id, $workplace->id);
+
+            return DataTables::of($data)
+            ->addColumn('fecha', function($row){
+                return '<span style="display: none">'.$row['date_order'].'</span>'.$row['fecha'];
+            })
+            ->addColumn('hour', function($row){
+                return $row['hour'];
+            })
+            ->addColumn('name', function($row){
+                return ucfirst($row['name']);
+            })
+            ->addColumn('accumulated', function($row){
+                $accumulated = $row['accumulated'];
+                if($row['accumulated'] != '' && $row['hoursOfWork']){
+                    $accumulated .= ' / '.$row['hoursOfWork'];   
+                }
+                if($row['diferencia']){
+                    $clase = $row['sign'] == '-'? 'text-danger':'text-success';
+                    $accumulated .= ' <strong class="'.$clase.' ml-2">'.$row['diferencia'].'</strong>';
+                }
+                return $accumulated;
+            })
+            ->addColumn('comments', function($row){
+                return $row['comments'];
+            })
+            ->addColumn('acciones', function($row){
+                return view('admin.users.partials.dt-timetable-actions', compact('row'));
+            })
+            ->rawColumns(['fecha', 'accumulated'])
+            ->make(true);
+        
         }else{
             return false;
         }      
@@ -757,27 +816,43 @@ class UserController extends Controller{
     }
 
     /**
-     * 15. Listado de todos los usuarios.
+     * 15. Incorporar candidato como usuario.
      */
-    public function usersAll(){
-        $header = [
-            'option' => $this->option, 
-            'suboption' => trans('textos.usuarios_todos'), 
-            'module' => $this->module,
-            'slug' => 'users-all'
-        ];
+    public function fromCandidate(User $user){
+        $user->status = 1;
+        $user->save();
 
-        $users = User::all();
+        //Guardamos rol:
+        $user->assignRole(config('constants.ROLE_BASICO_'));
 
-        $view = 'list';
+        //Vinculamos usuario a empresa:
+        $uc = new UserCompanies();
+        $uc->user_id = $user->id;
+        $uc->company_id = session('currentCompany');
+        $uc->save();
 
-        $all = true;
+        //Eliminamos la condición de candidato:
+        StaffPickCandidates::join('staff_picks', 'staff_pick_candidates.staff_pick_id', '=', 'staff_picks.id')
+        ->where('staff_pick_candidates.user_id', $user->id)
+        ->where('staff_picks.company_id', session('currentCompany'))
+        ->update(['staff_pick_candidates.status' => 1]);
 
-        return view('admin.users.index')->with(compact('header', 'users', 'view', 'all'));    
+        $msg = trans('textos.usuario_incorporado');
+        return redirect()->route('users.edit', $user->id)->with(compact('msg'));
     }
 
+
+
+
+
+
+
+
+
+
+
     /**
-     * 15.1. Listado de todos los usuarios para DataTable.
+     * . Listado de todos los usuarios para DataTable.
      */
     public function getUsersAllDT(){
         $users = User::select('users.*', 'user_companies.categories',
@@ -807,7 +882,7 @@ class UserController extends Controller{
                 if($arr){
                     $row->categories = '';
                     foreach($arr as $cat){
-                        $category = UserCategories::select('name')->find($cat);   
+                        $category = Category::select('name')->find($cat);   
                         if($row->categories != ''){
                             $row->categories .= ', ';
                         } 
@@ -832,31 +907,5 @@ class UserController extends Controller{
         }
 
         return datatables($users)->toJson(); 
-    }
-
-    /**
-     * 16. Incorporar candidato como usuario.
-     */
-    public function fromCandidate(User $user){
-        $user->status = 1;
-        $user->save();
-
-        //Guardamos rol:
-        $user->assignRole(config('constants.ROLE_BASICO_'));
-
-        //Vinculamos usuario a empresa:
-        $uc = new UserCompanies();
-        $uc->user_id = $user->id;
-        $uc->company_id = session('currentCompany');
-        $uc->save();
-
-        //Eliminamos la condición de candidato:
-        StaffPickCandidates::join('staff_picks', 'staff_pick_candidates.staff_pick_id', '=', 'staff_picks.id')
-        ->where('staff_pick_candidates.user_id', $user->id)
-        ->where('staff_picks.company_id', session('currentCompany'))
-        ->update(['staff_pick_candidates.status' => 1]);
-
-        $msg = trans('textos.usuario_incorporado');
-        return redirect()->route('users.edit', $user->id)->with(compact('msg'));
     }
 }

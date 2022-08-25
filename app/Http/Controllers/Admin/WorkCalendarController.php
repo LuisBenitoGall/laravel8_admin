@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Helpers\Helpers;
+use App\Helpers\helpers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
@@ -13,6 +13,7 @@ use Carbon\Carbon;
 
 //Models:
 use App\Models\Company;
+use App\Models\DayTypes;
 use App\Models\WorkCalendar;
 use App\Models\Workplace;
 
@@ -23,6 +24,7 @@ class WorkCalendarController extends Controller{
      * 3. Guardar intervalos de horarios laborables.
      * 4. Guardar horario laborable.
      * 5. Copiar calendario laboral entre empresas y centros de trabajo.
+     * 6. Establecer intervalos para distintos tipos de jornada.
      */
     
     private $option = 'calendario';
@@ -31,7 +33,7 @@ class WorkCalendarController extends Controller{
 
     public function __construct(){
         //Idiomas:
-        $this->languages = Helpers::languages();
+        $this->languages = helpers::languages();
 
         $this->middleware('module_setted:calendar');
     }
@@ -55,6 +57,14 @@ class WorkCalendarController extends Controller{
                 'workplace_id' => 'required|integer',
                 'year' => 'required|integer'
             ]);
+
+        //Validación add rank:
+        }elseif(isset($data['submit_rank'])){
+            return Validator::make($data, [
+                'workplace_id' => 'required|integer',
+                'year' => 'required',
+                'day_type_id' => 'required|integer'
+            ]);
         }
     }
 
@@ -70,12 +80,7 @@ class WorkCalendarController extends Controller{
         ]; 
 
         //Centros de trabajo:
-        $workplaces = Workplace::select('workplaces.id', 'workplaces.name', 'towns.name AS Town')
-        ->leftJoin('towns', 'workplaces.town_id', '=', 'towns.id')
-        ->where('workplaces.company_id', session('currentCompany'))
-        ->where('workplaces.status', 1)
-        ->orderBy('workplaces.name', 'ASC')
-        ->get();
+        $workplaces = Workplace::companyWorkplaces(session('currentCompany'));
 
         $year = $year? $year:date('Y');
 
@@ -99,9 +104,15 @@ class WorkCalendarController extends Controller{
         //Días de la semana:
         $weekDays = helpers::weekDays();
 
+        //Tipos de jornada. Sólo que admitan rangos:
+        $day_types = DayTypes::where('company_id', session('currentCompany'))
+        ->where('rank', 1)
+        ->pluck('name', 'id')
+        ->toArray();
+
         $languages = $this->languages;
 
-        return view('admin.work_calendar.index')->with(compact('header', 'year', 'workplaces', 'workplace', 'company', 'weekDays', 'languages'));    
+        return view('admin.work_calendar.index')->with(compact('header', 'year', 'workplaces', 'workplace', 'company', 'weekDays', 'day_types', 'languages'));    
     }
 
     /**
@@ -186,14 +197,32 @@ class WorkCalendarController extends Controller{
 
         $resp = true;   //Indica si la fecha se ha seleccionado (true) o deseleccionado (false)
 
+        //Características del tipo de fecha recibido:
+        $day_type = $data['day_type_id']? DayTypes::select('is_working')->find($data['day_type_id']):false;
+
         //Insertamos o actualizamos según exista:
         if($exist){
-            //Si el día es laborable, se guardan las horas informadas:
-            $hours = $exist->is_working? $data['hours']:(!$exist->day_type_id? $data['hours']:NULL);
-            
+            //Se mantienen las horas originales salvo que la jornada no sea laborable:
+            $hours = $exist->hours;
+            if($day_type && !$day_type->is_working){
+                $hours = NULL;
+            }
+
+
+
+
+            //$exist->is_working && $data['hours']? $data['hours']:(!$exist->day_type_id? $data['hours']:NULL);
+            //dd($exist, $hours);
+           
+
+
+
+
             //Sólo en los días especificados en el array weekdays:
             if(in_array($data['weekDay'], $data['weekdays'])){
-                $day_type_id = $data['day_type_id'] && !$exist->is_working? $data['day_type_id']:$exist->day_type_id;
+                $day_type_id = $data['day_type_id']? $data['day_type_id']:$exist->day_type_id;
+
+                //&& !$exist->is_working
 
                 //Actualizamos:
                 WorkCalendar::where('id', $exist->id)
@@ -284,6 +313,49 @@ class WorkCalendarController extends Controller{
 
         $msg = trans('textos.calendario_copiado');
         return redirect()->route('work-calendar.index', [$request->input('workplace_id'), $request->year])->with(compact('msg'));
+    }
+
+    /**
+     * 6. Establecer intervalos para distintos tipos de jornada.
+     */
+    public function setRanks(Request $request){
+        $validator = $this->validator($request->all());
+        if($validator->fails()){
+            //Indicamos el origen de la acción realizada para manejar el modal:
+            $validator->getMessageBag()->add('accion', 'modal-add-rank');
+            return redirect('/admin/work-calendar/'.$request->workplace_id.'/'.$request->year)
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        //Formateo las fechas a inglés:
+        $from = $request->from != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->from):$request->from:NULL;
+        $to = $request->to != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->to):$request->to:NULL;
+
+        //Días de la semana afectados:
+        $weekDays = [1,2,3,4,5,6,7];
+
+        if($from <= $to){
+            for($i = $from; $i<=$to; $i = date("Y-m-d", strtotime($i ."+ 1 days"))){
+                //Comprobamos que no sea fin de semana. Valores 6 y 7 corresponden a sábado y domingo:
+                $weekDay = date('N', strtotime($i));
+
+                $data['workplace_id'] = $request->workplace_id;
+                $data['day_type_id'] = $request->day_type_id;
+                $data['date'] = $i;
+                $data['weekdays'] = $weekDays;
+                $data['weekDay'] = $weekDay;
+                $data['hours'] = $request->hours;
+                $this->store($data);
+            }
+
+        }else{
+            $alert = trans('textos.fecha_final_inferior_aviso');
+            return redirect()->route('work-calendar.index', [$request->workplace_id, $request->year])->with(compact('alert'));
+        }
+
+        $msg = trans('textos.rango_guardado');
+        return redirect()->route('work-calendar.index', [$request->workplace_id, $request->year])->with(compact('msg'));
     }
 
 }

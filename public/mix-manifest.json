@@ -3,5 +3,6 @@
     "/js/bootstrap.js": "/js/bootstrap.js",
     "/js/custom.js": "/js/custom.js",
     "/js/custom-datatables.js": "/js/custom-datatables.js",
+    "/js/custom-fullcalendar.js": "/js/custom-fullcalendar.js",
     "/css/app.css": "/css/app.css"
 }

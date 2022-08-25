@@ -69,7 +69,7 @@ En el archivo config/constants.php se definen constantes personalizadas.
 - Sweet Alert 2:
 	- npm install sweetalert2
 	- Incluir en el archivo resources/js/bootstrap.js: window.swal = require('sweetalert2');
-
+	
 - Notificaciones por DataBase:
 	- php artisan notifications:table
 	- php artisan migrate
@@ -77,6 +77,13 @@ En el archivo config/constants.php se definen constantes personalizadas.
 - Cron Jobs:
 	- php artisan schedule:run -> ejecuta las tareas programadas en ese mismo momento.
 	- php artisan schedule:work -> ejecuta las tareas programadas en el momento indicado en el Kernel.
+
+	SERVER CRONS. En la consola del Servidor de Producción ejecutar:
+	crontab -e
+
+	Agregar :
+	*/1 * * * * php /var/www/directorio_proyecto/artisan schedule:run >> /dev/null 2>&1
+	Cada min ejecuta el schedule. 
 
 - Laravolt Avatars: librería para la generación automática de avatar de usuario.
 	- https://github.com/laravolt/avatar

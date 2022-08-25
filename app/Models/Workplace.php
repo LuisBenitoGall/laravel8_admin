@@ -10,6 +10,7 @@ class Workplace extends Model{
     /**
 	 * 1. Empresa del centro de trabajo. 
      * 2. Validación del centro de trabajo para middleware.
+     * 3. Centros de trabajo por empresa.
 	 */
 
     use HasFactory;
@@ -72,5 +73,19 @@ class Workplace extends Model{
         }
 
         return $resp;
+    }
+
+    /**
+     * 3. Centros de trabajo por empresa.
+     */
+    public static function companyWorkplaces($company_id){
+        $data = Workplace::select('workplaces.id', 'workplaces.name', 'towns.name AS Town')
+        ->leftJoin('towns', 'workplaces.town_id', '=', 'towns.id')
+        ->where('workplaces.company_id', $company_id)
+        ->where('workplaces.status', 1)
+        ->orderBy('workplaces.name', 'ASC')
+        ->get();   
+
+        return $data; 
     }
 }

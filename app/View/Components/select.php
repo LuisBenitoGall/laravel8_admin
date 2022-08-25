@@ -18,6 +18,7 @@ class select extends Component{
     public $value;
     public $values;
     public $warning;
+    public $wire;
 
     /**
      * Create a new component instance.
@@ -37,7 +38,8 @@ class select extends Component{
         $required = false,
         $value = '',
         $values = [],
-        $warning = false
+        $warning = false,
+        $wire = false
     ){
         $this->class = $class;
         $this->disabled = $disabled;  
@@ -52,6 +54,7 @@ class select extends Component{
         $this->value = $value;
         $this->values = $values;
         $this->warning = $warning;
+        $this->wire = $wire;
     }
 
     /**

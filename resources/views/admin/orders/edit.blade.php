@@ -540,7 +540,7 @@ if($order->provider_team){
 					@endif
 
 					{{-- Proyecto --}}
-					{{-- @include('admin.orders.partials.link-project') --}}
+					@include('admin.orders.partials.link-project')
 				</div>
 
 				{{-- Tabs: --}}

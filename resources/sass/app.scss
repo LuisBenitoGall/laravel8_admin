@@ -1157,6 +1157,20 @@ ul.nav-second-level {
     border: none;
 }
 
+.btn-light{
+    color: #212529;
+    background-color: #f8f9fa;
+    border-color: #f8f9fa;
+
+    &:hover{
+        background-color: #e8e9ea;
+        border-color: #e8e9ea;  
+    }
+    .fa{
+      color: #212529 !important; 
+    }
+}
+
 /* **************** FORMS **************** */
 .invalid-feedback{
     display: block;
@@ -2541,12 +2555,25 @@ button.dim:active:before {
   border: 1px solid #e7eaec;
   cursor: pointer;
   display: inline-block;
-  height: 1.9em;
-  line-height: 1.9em;
+  // height: 1.9em;
+  // line-height: 1.9em;
+  height: 35px !important;
+  line-height: 6px !important;
   overflow: hidden;
   padding: 0 0.6em;
   position: relative;
   white-space: nowrap;
+
+  &.fc-button-primary{
+    background-color: $primary;
+    border-color: $primary;
+
+    &:hover{
+        background-color: $primary;
+        border-color: $primary;
+        opacity: .6;
+    }
+  }
 }
 .fc-state-active {
   background-color: $primary;
@@ -5160,6 +5187,9 @@ body.body-small .footer.fixed {
 .table td.no-border{
     border: none !important;
 }
+.table td.selected{
+    background-color: $grey-light2;
+}
 .table{
     width: 100% !important;
 
@@ -5206,8 +5236,8 @@ body.body-small .footer.fixed {
 
         tfoot td{
             background-color: $yellow_light;
-            padding-left: 10px;
-            padding-right: 10px;
+            padding-left: 8px;
+            padding-right: 8px;
         }  
     }  
 }
@@ -10116,17 +10146,23 @@ body.md-skin {
 /**
  * CUSTOM STYLES
  */
+.clearfix{
+    clear: both;
+    display: block;
+    float: none;
+}
+ 
 .div-toggle{
     display: inline-block;
-    margin-bottom: 5px;
+    margin-bottom: 6px;
     vertical-align: middle;
 
     .btn-toggle{
         background-color: $grey-medium;
         // border: 1px solid transparent;
         color: #999;
-        font-size: 0.9rem;
-        line-height: 1.6;
+        font-size: 0.85rem;
+        line-height: 1.4;
         padding: 0.50rem 0.75rem;
         text-align: center;
         vertical-align: middle;
@@ -10490,8 +10526,39 @@ ul{
 #noBudgetForms,
 .price-by-percent,
 .price-by-percent_,
-#isUte{
+#isUte,
+#setValues,
+.typeColor{
     display: none;
+}
+
+.typeColor{
+    position: relative;
+
+    .btnAddColor{
+        font-size: 18px;
+        position: absolute;
+        right: 20%;
+        top: 3px;
+    }
+    .colors{
+        background-color: $grey-light;
+        border: 1px solid $input-border-color;
+        border-radius: 1px;
+        min-height: 36px;
+        padding: 7px;
+
+        span{
+            border-radius: 2px;
+            color: #FFF;
+            margin-right: 4px;
+            padding: 4px;
+
+            .fa{
+                cursor: pointer;
+            }
+        }
+    }
 }
 
 .block-chk{
@@ -10528,6 +10595,10 @@ ul{
 .card-body{
     .budget-item{
         padding: 12px;
+
+        &.bg-item{
+            background-color: $grey-light;
+        }
     }
 }
 
@@ -10998,6 +11069,13 @@ ul{
     height: 20px;
     vertical-align: middle;
     width: 20px;
+
+    &.mini{
+        height: 10px;
+        margin-top: 2px;
+        vertical-align: top;
+        width: 10px;    
+    }
 }
 
 .calendario{
@@ -11010,7 +11088,15 @@ ul{
             border: 1px solid $grey-medium;
             border-collapse: collapse;
             padding: 10px;
-            width: calc(100% / 7);
+            //width: calc(100% / 7);
+        }
+    }
+    &.calendario-modal{
+        display: table;
+        table-layout: fixed;
+
+        tbody td{
+            vertical-align: top !important;
         }
     }
     tbody{
@@ -11037,6 +11123,25 @@ ul{
                 position: absolute; 
                 right: 4px;
             }
+            .user-date{
+                color: #FFF;
+                display: block;
+                height: 25px;
+                left: 20px;
+                margin-left: 2px;
+                position: absolute;
+                text-align: center;
+                top: 5px;
+                width: calc(100% - 21px);
+
+                .fa{
+                    line-height: 25px;
+                }
+                a{
+                    color: #FFF;    
+                }
+            }
+
 
             &.nweek{
                 color: $danger;
@@ -11050,16 +11155,12 @@ ul{
                 font-weight: $extrabold;  
             }
 
-
             /******************/
-
 
             &.dia{
                 cursor: pointer;
                 line-height: 120%;
                 text-align: center;
-
-                
             }
 
             .validate-single{
@@ -11098,8 +11199,16 @@ ul{
             }
 
             .btnCompanyCalendar{
+                cursor: pointer;
                 position: absolute;
                 right: 10px;
+            }
+
+            p{
+                font-size: 11px;
+                line-height: 125%;
+                margin-bottom: 0;
+                padding-left: 10px;
             }
         }
     }
@@ -11140,10 +11249,16 @@ ul{
 }
 
 #day-types{
-    position: absolute;
-    right: 15px;
-    top: -75px;
+    position: fixed;
+    right: 45px;
+    top: 340px;
     z-index: 10;
+}
+
+#notify-days{
+    right: 45px;
+    top: 260px;
+    z-index: 10;  
 }
 
 .addOut{
@@ -11359,4 +11474,31 @@ ul{
     font-style: italic;
     font-weight: $flight;
     margin-bottom: 30px;
+}
+
+.colorpicker.colorpicker-with-alpha{
+    z-index: 999999;
+}
+
+.schedules-menu{
+    margin-top: 15px;
+
+    li{
+        /* alineacion vertical */
+        align-items: center;
+        -ms-display: flex;
+        display: flex;
+        height: 40px;
+        margin-bottom: 5px;
+        padding: 0 7px;
+        position: relative;
+        
+        a{
+            color: #FFF;
+            font-size: 15px;
+            line-height: 100%;
+            position: absolute;
+            right: 7px;
+        }
+    }
 }

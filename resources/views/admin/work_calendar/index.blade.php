@@ -20,10 +20,12 @@
 				</a>
 
 				{{-- Establecer rango --}}
-				<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-add-rank">
-					<i class="fa fa-calendar"></i>
-					{!! ucfirst(trans('textos.rango_agregar')) !!}
-				</a>
+				@if(count($day_types))
+					<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-add-rank">
+						<i class="fa fa-calendar"></i>
+						{!! ucfirst(trans('textos.rango_agregar')) !!}
+					</a>
+				@endif
 			@endcan
 		</div>
 	</div>
@@ -92,7 +94,7 @@
 					<p class="text-warning">{!! trans('textos.calendario_laboral_sede_texto') !!}</p>
 
 					{{-- Component Calendario --}}
-					@livewire('calendar', ['year' => $year, 'workplace' => $workplace])
+					@livewire('calendar', ['year' => $year, 'workplace' => $workplace, 'user' => false])
 
 				</div>
 			</div>
@@ -107,6 +109,9 @@
 
 	{{-- Copy calendar --}}
 	@include('admin.work_calendar.partials.modal-copy-calendar')
+
+	{{-- Set rank --}}
+	@include('admin.work_calendar.partials.modal-add-rank')
 @endif
 
 @endsection

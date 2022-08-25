@@ -18,7 +18,7 @@ class CreateDayTypesTable extends Migration{
             $table->foreign('company_id')->references('id')->on('companies');
             $table->string('name')->nullable();
             $table->text('color')->nullable();
-            $table->boolean('is_working')->default(0);  //Si la jornada, para la empresa, es laborable.
+            $table->boolean('is_working')->default(0);      //Si la jornada, para la empresa, es laborable.
             $table->boolean('working_day')->default(0);     //Si es jornada de trabajo pero con características especiales (ej.: teletrabajo)
             $table->boolean('user_enabled')->default(0);
             $table->boolean('cumulative')->default(0);  //Determina si el tipo de día se acumula de un año para el otro.

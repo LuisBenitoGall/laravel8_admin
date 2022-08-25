@@ -5,6 +5,12 @@
 <div class="row mb-3">
 	{{-- Acciones: --}}
 	<div class="col-12">
+		{{-- Recargar página --}}
+		<a href="{{ route('import_db.index') }}" class="btn btn-info">
+			<i class="fa fa-redo"></i>
+			{!! ucfirst(trans('textos.recargar_pagina')) !!}
+		</a>
+
 		{{-- Iniciar importación --}}
 		<a href="#" class="btn btn-info" id="start">
 			<i class="fa fa-file-import"></i>

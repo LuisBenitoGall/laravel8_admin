@@ -30,7 +30,7 @@
 						</div>
 
 						{{-- Selector de cliente --}}
-						@include('admin.partials.selector-customer', ['all' => false, 'selected' => ''])
+						@include('admin.partials.selector-customer', ['all' => false, 'selected' => '', 'required' => true])
 
 						{{-- Agrupación --}}
 						<label for="og_id" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.agrupacion_num')) !!} </label>
@@ -44,7 +44,7 @@
 						@include('admin.partials.selector-year', ['selected_year' => $year])
 					</div>
 
-					<x-btn-submit name="submit_search" label="{{ trans('textos.buscar') }}"/>
+					<x-btn-submit name="submit_filter" label="{{ trans('textos.buscar') }}"/>
 				</form>
 			</div>
 		</div>

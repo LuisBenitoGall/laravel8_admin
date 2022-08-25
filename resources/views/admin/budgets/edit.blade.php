@@ -219,6 +219,10 @@ $setBlock = true;
 						@else
 							{{ $order->id }}
 						@endif
+
+						@if($order->name)
+							- {{ $order->name }}
+						@endif
 					</u>
 				</h3>	
 

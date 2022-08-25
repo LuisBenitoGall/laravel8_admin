@@ -20,7 +20,7 @@ class CreateEmployeesTable extends Migration{
             $table->unsignedBigInteger('contract_id');
             $table->foreign('contract_id')->references('id')->on('contracts');
             //FK:
-            $table->unsignedBigInteger('workplace_id');
+            $table->unsignedBigInteger('workplace_id')->nullable();
             $table->foreign('workplace_id')->references('id')->on('workplaces');
             $table->string('job_title')->nullable();
             $table->date('start_date')->nullable();

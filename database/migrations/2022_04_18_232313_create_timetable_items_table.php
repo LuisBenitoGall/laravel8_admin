@@ -20,7 +20,7 @@ class CreateTimetableItemsTable extends Migration{
             $table->string('slug')->nullable();
             $table->boolean('basic_item')->default(false);  //Indica si el concepto es básico o no.
             $table->integer('type');  //Indica si la item es entrada (1) o salida (2)
-            $table->bigInteger('own_output')->nullable();
+            $table->bigInteger('own_output')->nullable();       //Indica si el movimiento de entrada tiene movimiento de salida exclusivo.
             $table->integer('fixed')->nullable();    //minutos fijos de un item.
             $table->string('icon')->nullable();
             $table->integer('min')->nullable();      //mínimo de minutos

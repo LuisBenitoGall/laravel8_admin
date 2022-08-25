@@ -10,6 +10,7 @@ class UserCompanies extends Model{
     /**
 	 * 1. Empleados por empresa. 
 	 * 2. Sesión de empresas vinculadas al usuario.
+	 * 3. Usuario en empresa.
 	 */
 
     use HasFactory;
@@ -50,5 +51,17 @@ class UserCompanies extends Model{
         }	
 
         return $companies;
+	}
+
+	/**
+	 * 3. Usuario en empresa.
+	 */
+	public static function userInCompany($user_id, $company_id){
+		$data = UserCompanies::select('id')
+		->where('user_id', $user_id)
+		->where('company_id', $company_id)
+		->first();
+
+		return $data;
 	}
 }

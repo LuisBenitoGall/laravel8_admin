@@ -65,7 +65,7 @@ class ProcedureRevisionsController extends Controller{
         $order = $last_revision != NULL? $last_revision->order + 1:'0';
 
         // Creamos versión:
-        if($request->submit_new_version){
+        if($request->submit_new_version || !$request->revision_id){
             $rev = new ProcedureRevisions();
             $rev->order = $order;
             $rev->procedure_id = $request->procedure_id;

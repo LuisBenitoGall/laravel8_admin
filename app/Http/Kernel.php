@@ -74,6 +74,8 @@ class Kernel extends HttpKernel{
         'answer_get' => \App\Http\Middleware\AnswerGetMiddleware::class,
         'answer_post' => \App\Http\Middleware\AnswerPostMiddleware::class,
 
+        'attribute_get' => \App\Http\Middleware\AttributeGetMiddleware::class,
+
         'bank_accounts_get' => \App\Http\Middleware\BankAccountsGetMiddleware::class,
         'bank_accounts_post' => \App\Http\Middleware\BankAccountsPostMiddleware::class,
 
@@ -96,10 +98,14 @@ class Kernel extends HttpKernel{
         'business_area_get' => \App\Http\Middleware\BusinessAreaGetMiddleware::class,
         'business_area_post' => \App\Http\Middleware\BusinessAreaPostMiddleware::class,
 
+        'category_get' => \App\Http\Middleware\CategoryGetMiddleware::class,
+
         'company_ajax' => \App\Http\Middleware\CompanyAjaxMiddleware::class,
         'company_get' => \App\Http\Middleware\CompanyGetMiddleware::class,
         'company_get3' => \App\Http\Middleware\CompanyGet3Middleware::class,
         'company_session' => \App\Http\Middleware\CompanySessionMiddleware::class,
+
+        'company_utes_post' => \App\Http\Middleware\CompanyUtesPostMiddleware::class,
 
         'contract_get' => \App\Http\Middleware\ContractGetMiddleware::class,
 
@@ -155,6 +161,7 @@ class Kernel extends HttpKernel{
         'procedure_pattern_get' => \App\Http\Middleware\ProcedurePatternGetMiddleware::class,
 
         'product_get' => \App\Http\Middleware\ProductGetMiddleware::class,
+        'product_post' => \App\Http\Middleware\ProductPostMiddleware::class,
 
         'product_pattern_get' => \App\Http\Middleware\ProductPatternGetMiddleware::class,
 
@@ -197,10 +204,9 @@ class Kernel extends HttpKernel{
         'team_get' => \App\Http\Middleware\TeamGetMiddleware::class,
         'team_post' => \App\Http\Middleware\TeamPostMiddleware::class,
 
-        'user_categories_get' => \App\Http\Middleware\UserCategoriesGetMiddleware::class,
-
         'user_companies_get' => \App\Http\Middleware\UserCompaniesGetMiddleware::class,
         'user_companies_post' => \App\Http\Middleware\UserCompaniesPostMiddleware::class,
+        'user_companies_post2' => \App\Http\Middleware\UserCompaniesPost2Middleware::class,
 
         'user_get' => \App\Http\Middleware\UserGetMiddleware::class,
         'user_post' => \App\Http\Middleware\UserPostMiddleware::class,

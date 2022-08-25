@@ -26,10 +26,10 @@
         @endcan
 
 		{{-- Generar serials --}}
-		{{-- <a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-add-serials">
+		<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-add-serials">
 			<i class="fa fa-sort-numeric-down"></i>
 			{!! ucfirst(trans('textos.serializacion')) !!}
-		</a> --}}
+		</a>
 
 		{{-- Ordenes de trabajo - condiciones: 
 			1. Permisos de creación de órdenes de trabajo.
@@ -45,6 +45,18 @@
 	    		</a>	
 			@endif
 		@endcan
+
+		{{-- Eliminar producto - condiciones 
+			1. Disponer de permisos para eliminar productos.
+			...
+		--}}
+        @can('products.destroy')
+        	<form method="POST" action="{{ route('products.destroy', $product) }}" class="frm-inline" role="form" accept-charset="UTF-8">
+                <input name="_method" type="hidden" value="DELETE">
+                {{ csrf_field() }}
+                <button type="submit" class="btn btn-danger frm-confirm" rel="tooltip" title="{{ ucfirst(trans('textos.producto_eliminar')) }}" data-msg="{{ ucfirst(trans('textos.producto_confirm_eliminar')) }}"><i class="fa fa-trash"></i></button>
+            </form>
+        @endcan
 	</div>
 </div>
 
@@ -106,8 +118,8 @@
 			    		<a class="nav-link @if($tab == 'categories') active @endif" href="#tab-categories" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.categorias')) !!}</a>
 			  		</li>
 
-			  		<li class="nav-item @if($tab == 'parameters') active @endif">
-			    		<a class="nav-link @if($tab == 'parameters') active @endif" href="#tab-parameters" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.parametros')) !!}</a>
+			  		<li class="nav-item @if($tab == 'attributes') active @endif">
+			    		<a class="nav-link @if($tab == 'attributes') active @endif" href="#tab-attributes" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.atributos')) !!}</a>
 			  		</li>
 
 			  		@if($module_production)
@@ -145,12 +157,12 @@
 
 					{{-- Categorías --}}
 					<div class="tab-pane fade @if($tab == 'categories') show active @endif" role="tabpanel" id="tab-categories">
-						{{-- @include('admin.products.partials.product-categories') --}}	
+						@include('admin.products.partials.product-categories')	
 					</div>
 
-					{{-- Parámetros --}}
-					<div class="tab-pane fade @if($tab == 'parameters') show active @endif" role="tabpanel" id="tab-parameters">
-						{{-- @include('admin.products.partials.product-parameters') --}}	
+					{{-- Atributos --}}
+					<div class="tab-pane fade @if($tab == 'attributes') show active @endif" role="tabpanel" id="tab-attributes">
+						@include('admin.products.partials.product-attributes')	
 					</div>
 
 					{{-- Producción --}}
@@ -165,22 +177,29 @@
 						{{-- @include('admin.products.partials.product-prices') --}}	
 					</div>
 
-					{{-- Series --}}
-					{{-- @if($serials->count() > 0) --}}
-						<div class="tab-pane fade @if($tab == 'serials') show active @endif" role="tabpanel" id="tab-serials">
-							{{-- @include('admin.products.partials.product-serials')	 --}}
-						</div>
-					{{-- @endif --}}
+					{{-- Números de serie --}}
+					<div class="tab-pane fade @if($tab == 'serials') show active @endif" role="tabpanel" id="tab-serials">
+						@include('admin.products.partials.product-serials')	
+					</div>
 				</div>
 			</div>
 		</div>
 	</div>
 </div>
 
+{{-- Modals --}}
+{{-- Edit attribute --}}
+@include('admin.product_attributes.partials.modal-edit-attribute', ['action' => 'product-attributes.update', 'serial_id' => false])
+
+{{-- Add Serials: --}}
+@include('admin.product_serials.partials.modal-add-serials')
+
 @push('scripts')
 <script>
 $(function(){
-	//Asignar formulario de presupuesto por cliente.
+	var data_types = {!! json_encode($data_types) !!};
+
+	//Asignar unidad de producto.
     $(document).on('change', '.btnSetProductUnit', function(){
         var elem = $(this);
         var product_id = elem.find('.chk-product-unit').data('productid');
@@ -204,6 +223,101 @@ $(function(){
     	}else{
     		$('#priceByPercent').prop('disabled', false);	
     	}
+    });
+
+    //Vincular / desvincular categorías a producto.
+    $(document).on('change', '.btnProductCategory', function(){
+    	var elem = $(this);
+        var product_id = $('#productId').val();
+        var category_id = elem.find('.chk').data('id');
+        alert(category_id);
+        $.get("/admin/product-categories/store/"+product_id+"/"+category_id+"", function(response, state){
+            if(response){
+                $('.check-ko').remove();
+                elem.before('<i class="fa fa-check check-ok"></i>');
+                $('.check-ok').delay(1000).fadeOut();
+            }else{
+                elem.before('<i class="fa fa-exclamation-triangle check-ko"></i>');
+            }
+        });  
+    });
+
+    //Modal editar atributo de producto.
+    $(document).on('click', '.btnEditAttribute', function(){
+    	var id = $(this).data('id');
+    	var value = $(this).data('value');
+    	var values = $(this).data('values');
+    	var datatype = $(this).data('type');
+    	$('.dataType').hide();
+
+    	$('#paId').val(id);
+
+    	//Mostramos el input indicado según el tipo de dato.
+    	//Boolean:
+    	if(datatype == 10){
+    		$('#type-boolean').fadeIn();
+    		var rdb = value == 1? '#rdbTrue':'#rdbFalse';
+    		$(rdb).prop('checked', true);
+
+    	//Texto:
+    	}else if(datatype == 20 || datatype == 30){
+    		$('#type-textarea').fadeIn();
+    		$('#paValueTextarea').trumbowyg('html', value);
+
+    	//Fecha:
+    	}else if(datatype == 40){
+    		$('#type-datepicker').fadeIn();
+    		$('#paValueDatepicker').val(value);
+
+    	//Opciones:
+    	}else if(datatype == 50){
+    		$('#type-select').fadeIn();
+    		var arr_options = values.split(",");
+    		var arr_values = value.split(",");
+    		console.log(arr_values, arr_options);
+    		$("#paValueSelect").select2({width: '100%', data: arr_options});
+    		$("#paValueSelect").val(arr_values).trigger('change');
+
+    	//Color:
+    	}else if(datatype == 60){
+    		$('#type-color').fadeIn();
+    		var arr_options = values.split(' ');
+    		var arr_values = value.split(",");
+    		var html = '';
+
+    		for(var i in arr_options){
+    			console.log(i);
+    			if(arr_options[i] != ''){
+    				var p = arr_options[i].split("-");
+    				var checked = arr_values.includes(p[0])? 'checked':'';
+    				html += '<div class="col-lg-4 mb-3">';
+    					html += '<label class="custom-chk-rdb" rel="tooltip"><input type="checkbox" name="value_color[]" value="'+p[0]+'" '+checked+'><span class="chk chksmall" style="top: 3px;"></span></label>';
+    					html += '<span class="colorEx mr-1" style="background-color: '+p[0]+';"></span> '+p[1];
+    				html += '</div>';
+    			}
+    		}
+    		
+    		$('#paValueColor').html(html);
+
+    		console.log(arr_options, arr_values);
+    	}
+
+
+    	//$('#typeOptions').val(values);
+
+    	// $('#type-'+show_type).fadeIn();
+
+
+    	// //Seteando el valor según el input:
+    	// if(show_type == 'textarea'){
+    	// 	$('#paValueTextarea').trumbowyg('html', value);
+    	// }else if(show_type == 'datepicker'){
+    	// 	$('#paValueDatepicker').val(value);
+    	// }else if(show_type == 'select'){
+    	// 	//Convertimos string en array:
+    	// 	var arr = values.split(",");
+    	// 	$("#paValueSelect").select2({width: '100%', data: arr}).val(value);
+    	// }
     });
 });
 </script>

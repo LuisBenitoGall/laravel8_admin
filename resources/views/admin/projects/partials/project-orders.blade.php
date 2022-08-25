@@ -20,7 +20,7 @@
 				$total_amount = 0;
 				@endphp
 
-				@foreach($orders as $ord)
+				@foreach($project_orders as $ord)
 					@php
 					$total_amount = $total_amount + $ord->amount;
 					@endphp
@@ -38,7 +38,7 @@
 						</td>
 						<td class="text-right">{{ $ord->order_old_num }}</td>
 						{{-- Título --}}
-						<td>{{ $ord->order_name }}</td>	
+						<td>{{ $ord->name }}</td>	
 						{{-- Presupuesto --}}
 						<td class="text-right">
 							@if($ord->is_budget)

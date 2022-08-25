@@ -81,6 +81,20 @@
             }
             setTimeout("horaActual()", 1000);
         } 
+
+        //Variables globales:
+        var idm = '{{ App::getLocale() }}';             //Idioma
+        var base_url = '{{ url()->current() }}';        //URL
+        var companyCurrency = "{{ isset($currency)? $currency:config('constants.CURRENCY_') }}";
+        var color_primary = '#23c6c8';
+        var color_danger = '#ed5565';
+        var color_info = '#19ABD4';
+        var color_success = '#18a689';
+        var color_warning = '#f8ac59';
+        var color_chart_success = "#a3e1d4";
+        var color_chart_warning = "#e1d4a3";
+        var color_chart_danger = "#f16688";
+        var color_chart_grey = "#dedede";
         </script>
 
         {{-- JQuery --}}

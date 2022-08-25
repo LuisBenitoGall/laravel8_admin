@@ -51,7 +51,12 @@
 
 								<x-select name="product_id" id="productId" class="select2" label="producto_selec" :options="$products_" />
 
-				                @if(count($products) == 0)
+								{{-- Crear nuevo producto - condiciones: 
+									1. Catálogo sin productos.
+									2. Opción para el proveedor.
+									...
+								--}}
+				                @if(count($products) == 0 && session('currentCompany') == $order->provider_id)
 									<small class="text-danger">
 										<strong>{!! ucfirst(trans('textos.catalogo_vacio')) !!}</strong>
 										<a href="{{ route('products.create') }}">{!! ucfirst(trans('textos.producto_nuevo')) !!}</a>

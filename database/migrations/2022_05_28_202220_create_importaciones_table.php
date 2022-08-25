@@ -11,7 +11,7 @@ class CreateImportacionesTable extends Migration{
      * @return void
      */
     public function up(){
-        Schema::create('importaciones', function (Blueprint $table) {
+        Schema::create('importaciones', function (Blueprint $table){
             $table->id();
             $table->string('texto');
             $table->timestamps();
@@ -23,8 +23,7 @@ class CreateImportacionesTable extends Migration{
      *
      * @return void
      */
-    public function down()
-    {
+    public function down(){
         Schema::dropIfExists('importaciones');
     }
 }

@@ -15,6 +15,11 @@
 			{!! trans('textos.volver_editar_usuario') !!}
 		</a>
 
+		{{-- Firma horarios: --}}
+		<a href="{{ route('timetable-signed.show', $user->id) }}" class="btn btn-info">
+			<i class="fa fa-signature"></i>
+			{!! trans('textos.firma_horarios') !!}
+		</a>
 	</div>
 </div>
 
@@ -118,8 +123,16 @@
 </div>
 
 {{-- Modals --}}
-{{-- Editar registro horario: --}}
-@include('admin.users.partials.modal-edit-user-timetable')
+@can('employees-timetable.edit')
+	{{-- Editar registro horario: --}}
+	@include('admin.users.partials.modal-edit-user-timetable')
+
+	{{-- Añadir registro horario: --}}
+	@include('admin.users.partials.modal-add-user-timetable')
+@endcan
+
+{{-- Solicitar revisión --}}
+@include('admin.users.partials.modal-revision-timetable')
 
 @push('scripts')
 <script>
@@ -163,6 +176,70 @@ $(function(){
         });
     });
 
+    // Añadir registro horario.
+    $(document).on('click', '.btnAddRegistroHorario', function(e){
+        e.preventDefault();
+        var date = $(this).data('date');
+        var fecha = $(this).data('fecha');
+
+        $('#ahDate').val(date);
+        $('#addTimetable b').text(fecha);
+    });
+
+    // Marcar revisión para horario laboral.
+    $(document).on('click', '.chkRev', function(){
+        var id = $(this).data('id');
+        var state = '';
+        var elem = $(this);
+        //Atención!!: detecta el estado previo a la acción, de modo que :checked es si queda deseleccionado:
+        if($(this).siblings('input').is(':checked')){
+            state = 0;
+
+            $.get("/admin/timetable/revision/"+id, function(response, state){
+                if(response){
+                    $('.check-ko').remove();
+                    elem.parent('label').before('<i class="fa fa-check check-ok"></i>');
+                    $('.check-ok').delay(1000).fadeOut();
+                }else{
+                    elem.parent('label').before('<i class="fa fa-exclamation-triangle check-ko"></i>');
+                }    
+            });
+        }else{
+            state = 1;
+
+            $('#timetableId').val(id);
+            $('#timetableState').val(state);
+
+            $('#modal-revision-timetable').modal({
+                show: true
+            }); 
+        }  
+    });
+
+    // Formulario revisión horario.
+    $(document).on('submit', '#frmRevisionHorario', function(e){
+        e.preventDefault();
+        var elem = $(this);
+        var data = $(this).serialize();
+        $('#modal-revision-timetable').modal('toggle');
+
+        $.ajax({
+            url: "/admin/timetable/revision",
+            type: "POST",
+            data: data, 
+            cache: false,
+            datatype: "JSON",
+            success: function(response){
+                if(response){
+                    $('.check-ko').remove();
+                    elem.parent('label').before('<i class="fa fa-check check-ok"></i>');
+                    $('.check-ok').delay(1000).fadeOut();
+                }else{
+                    elem.parent('label').before('<i class="fa fa-exclamation-triangle check-ko"></i>');
+                }    
+            }
+        });
+    });
 });
 </script>
 @endpush

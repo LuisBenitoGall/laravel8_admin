@@ -3,7 +3,7 @@
 namespace App\Http\Livewire;
 
 use Livewire\Component;
-use App\Helpers\Helpers;
+use App\Helpers\helpers;
 use Illuminate\Support\Facades\Auth;
 
 //Models:
@@ -201,6 +201,7 @@ class BudgetItem extends Component{
         $this->item = $item;
         $this->block = $item['recid'];
         $this->concept = $item['name'];
+        $this->observations = '';
         $this->print = true;
 
         //Comprobamos si el item tiene precio neto o porcentual:
@@ -220,6 +221,9 @@ class BudgetItem extends Component{
             $this->price = $item['priceForCustomer']? $item['priceForCustomer']:$item['price'];
             $this->discount = $item['discount'];
         }
+
+
+        $this->dispatchBrowserEvent('observations-value', ['observations' => '']);
 
         //Estado del formulario:
         $this->form_on = true;
@@ -242,6 +246,7 @@ class BudgetItem extends Component{
         $this->item = $item;
         $this->block = $item['budget_form_block_id'];
         $this->concept = $item['concept'];
+        $this->observations = $item['observations'];
         $this->print = $item['print'] == 1? true:false;
 
         //Comprobamos si el item tiene precio neto o porcentual:
@@ -264,12 +269,15 @@ class BudgetItem extends Component{
 
         //Estado del formulario:
         $this->form_on = true;
+
+        $this->dispatchBrowserEvent('observations-value', ['observations' => $item['observations']]);
     }
 
     /**
      * 6. Reset formulario.
      */
     public function resetForm(){
+        $this->item = false;
         $this->action = 'save';
         $this->field_readonly = false;
         $this->reset(['concept', 'block', 'discount', 'price', 'qty', 'observations']);

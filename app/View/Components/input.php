@@ -14,6 +14,7 @@ class input extends Component{
     public $groupvalue;
     public $id;
     public $info;
+    public $lw;
     public $max;
     public $maxlength;
     public $min;
@@ -24,6 +25,7 @@ class input extends Component{
     public $type;   
     public $value;
     public $warning;
+    public $wire;
 
     /**
      * Create a new component instance.
@@ -40,6 +42,7 @@ class input extends Component{
         $groupvalue = '',
         $id = false, 
         $info = false, 
+        $lw = false,
         $max = false,
         $maxlength = false, 
         $min = false,
@@ -49,7 +52,8 @@ class input extends Component{
         $required = false,    
         $type, 
         $value = '',
-        $warning = false        
+        $warning = false,
+        $wire = false       
     ){
         $this->type = $type;
         $this->name = $name;
@@ -67,8 +71,10 @@ class input extends Component{
         $this->autofocus = $autofocus;
         $this->warning = $warning;
         $this->info = $info;
+        $this->lw = $lw;
         $this->group = $group;
         $this->groupvalue = $groupvalue;
+        $this->wire = $wire;
 
         $datos = '';
         if($datas){

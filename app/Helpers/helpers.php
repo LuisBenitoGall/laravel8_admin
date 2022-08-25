@@ -11,6 +11,7 @@ class Helpers{
 	 * 	1.1. Desglose de moneda.
 	 * 	1.2. Niveles de acceso a los módulos.	
 	 * 	1.3. Popover info.
+	 *  1.4. Avatar.
 	 *
 	 * 2. Fechas y hora:
 	 * 	2.1. Convertir fecha a formato inglés.
@@ -21,6 +22,8 @@ class Helpers{
 	 *  2.5. Fecha formato literal.
 	 *  2.6. Convertir a minutos.
 	 *  2.7. Convertir a horas y minutos.
+	 *  2.7.1. Convertir a segundos.
+	 *  2.7.2. Convertir segundos a horas y minutos.
 	 *  2.8. Intersección de fechas.
 	 *  2.9. Obtener último día de un mes por año.
 	 *  2.10. Calcular tiempo transcurrido entre horas.
@@ -143,6 +146,45 @@ class Helpers{
 				}
 			}
 		}
+	}
+
+	/**
+	 * 1.4. Avatar.
+	 */
+	public function setAvatar($str1, $str2 = false){
+		$arr = [
+			'A' => '11E',
+	        'B' => '22D',
+	        'C' => '33C',
+	        'D' => '44B',
+	        'E' => '55A',
+	        'F' => '669',
+	        'G' => 'EE9',
+	        'H' => 'DD8',
+	        'I' => 'CC7',
+	        'J' => 'BB6',
+	        'K' => 'AA5',
+	        'L' => '994',
+	        'M' => 'FF1',
+	        'N' => '1FF',
+	        'O' => '449',
+	        'P' => '55A',
+	        'Q' => '66B',
+	        'R' => '77C',
+	        'S' => '88D',
+	        'T' => '99E',
+	        'U' => '966',
+	        'V' => 'AA5',
+	        'W' => 'BB4',
+	        'X' => 'CC3',
+	        'Y' => 'DD2',
+	        'Z' => 'EE1'
+	    ];
+
+        $l1 = strtoupper(substr($str1, 0, 1));
+        $l2 = $str2? strtoupper(substr($str2, 0, 1)):'';
+        $bg = '#'.$arr[$l1].$arr[$l2];
+        return '<span class="avatar" style="background-color: '.$bg.'">'.$l1.' '.$l2.'</span>';
 	}
 
 	/**
@@ -316,6 +358,40 @@ class Helpers{
 		if($m < 10) $m = '0'.$m;
 		$horas = $h.':'.$m;
 		return $horas;
+	}
+
+	/**
+	 * 2.7.1. Convertir a segundos.
+	 */
+	public static function getSeconds($hora){
+		if($hora != ''){
+			$minutes = Helpers::getMinutes($hora);
+			$seconds = $minutes * 60;
+			return $seconds;
+		}else{
+			return false;
+		}
+	}
+
+	/**
+	 * 2.7.2. Convertir segundos a horas y minutos.
+	 */
+	public static function secondsToHoursMinutes($seconds){
+		if($seconds > 0){
+			$hours = floor($seconds/ 3600);
+            $minutes = floor(($seconds - ($hours * 3600)) / 60);
+            $seconds = $seconds - ($hours * 3600) - ($minutes * 60);
+
+            $hora = $hours.':'.$minutes.":".$seconds;
+
+            if($minutes < 10) $minutes = '0'.$minutes;
+
+            if($seconds == 0) $hora = $hours.':'.$minutes;
+         
+            return $hora;
+		}else{
+			return false;
+		}
 	}
 
 	/**
@@ -535,11 +611,12 @@ class Helpers{
 		 * 1 = indica si requiere valores.
 		 */		
 		$data = [
-			10 => [ucfirst(trans('textos.booleano')), [trans('textos.si'), trans('textos.no')]],
-			20 => [ucfirst(trans('textos.texto')), false],
-			30 => [ucfirst(trans('textos.numerico')), false],
-			40 => [ucfirst(trans('textos.fecha')), false],
-			50 => [ucfirst(trans('textos.opciones')), true]	
+			10 => [ucfirst(trans('textos.booleano')), [trans('textos.si'), trans('textos.no')], 'boolean'],
+			20 => [ucfirst(trans('textos.texto')), false, 'textarea'],
+			30 => [ucfirst(trans('textos.numerico')), false, 'textarea'],
+			40 => [ucfirst(trans('textos.fecha')), false, 'datepicker'],
+			50 => [ucfirst(trans('textos.opciones')), true, 'select'],
+			60 => [ucfirst(trans('textos.color')), true, 'color']	
 		];
 
 		if($type){

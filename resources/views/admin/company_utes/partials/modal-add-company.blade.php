@@ -15,9 +15,17 @@
 
                     <div class="form-group row">
                         {{-- Empresas --}}
-                        <label for="members" class="col-12">{!! ucfirst(trans('textos.empresas')) !!}*</label>
+                        <label for="member" class="col-12">{!! ucfirst(trans('textos.empresas')) !!}*</label>
                         <div class="col-12">
-                            <x-select name="members[]" class="select2" multiple="true" :options="$companies"/>
+                            <x-select name="member" class="select2" :options="$companies" label="empresa_selec"/>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        {{-- Participación --}}
+                        <label for="participation_percent" class="col-12">{!! ucfirst(trans('textos.participacion')) !!}</label>
+                        <div class="col-12">
+                            <x-input type="text" name="participation_percent" class="text-right set-decimals" autocomplete="off" maxlength="6" group="right" groupvalue="%"/>
                         </div>
                     </div>
 

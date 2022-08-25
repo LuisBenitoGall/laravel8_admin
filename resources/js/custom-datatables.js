@@ -153,6 +153,31 @@ $(document).ready(function(){
         });
     }
 
+    //Tabla Attributes:
+    if($('#tblAttributes').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+
+        var tableAttributes = $('#tblAttributes').DataTable({
+            "serverSide": true,
+            "processing": true, 
+            //scrollX: true,
+            //fixedColumns: true,
+            "ajax": {
+                "type": "GET",
+                "url": "/api/admin/attributes",
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            "columns": [
+                {data: 'name'},
+                {data: 'description'},
+                {data: 'datatype'},
+                {data: 'acciones', className: 'text-right'}
+            ]
+        });
+    }
+
     //Tabla Banks:
     if($('#tblBanks').length > 0){
         $('#tblBanks').DataTable({
@@ -885,6 +910,32 @@ $(document).ready(function(){
                     return estado+' '+costes+' '+editar+' '+eliminar;
                 }
                 }
+            ]
+        });
+    }
+
+    //Tabla Categories:
+    if($('#tblCategories').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        var module_id = $('#moduleId').val();
+
+        var tableCategories = $('#tblCategories').DataTable({
+            "serverSide": true,
+            "processing": true,
+            "language": {
+                processing: '<i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span>'
+            },
+            "ajax": {
+                "type": "GET",
+                "url": "/api/admin/categories/"+module_id,
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            "columns": [
+                {data: 'name', name: 'name'},
+                {data: 'level', name: 'level'},
+                {data: 'acciones', className: 'text-right'}
             ]
         });
     }
@@ -2030,6 +2081,34 @@ $(document).ready(function(){
                     return editar;
                 }
                 }
+            ]
+        });
+    }
+
+    //Tabla Employees Hours:
+    if($('#tblEmployeesHours').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        var workplace_id = $('#dtWorkplace').val();
+        var from = $('#dtFrom').val();
+        var to = $('#dtTo').val();
+
+        var tblEmployeesHours = $('#tblEmployeesHours').DataTable({
+            "serverSide": true,
+            "processing": true,
+            "ajax": {
+                "type": "GET",
+                "url": "/api/admin/employees-timetable/"+workplace_id+"/"+from+"/"+to,
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            "columns": [
+                {data: 'employee'},
+                {data: 'worked_hours', className: 'text-right'},
+                {data: 'working_hours', className: 'text-right'},
+                {data: 'difference', className: 'text-right'},
+                {data: 'situation', className: 'text-center'},
+                {data: 'acciones', className: 'text-right'}
             ]
         });
     }
@@ -3256,7 +3335,7 @@ $(document).ready(function(){
                 {data: 'amount', className: 'text-right'},
                 {data: 'fechaEntregaPrevista', className: 'text-right'},
                 //{data: 'businessArea'},
-                {data: 'costCenter'},
+                {data: 'cost_center'},
                 //{data: 'workplace'},
                 {data: 'estado', name: 'estado'},
                 {data: 'acciones', name: 'acciones', className: 'text-right'}
@@ -3376,7 +3455,7 @@ $(document).ready(function(){
         
         var tablePermissions = $('#tblPermissions').DataTable({
             "serverSide": true,
-            /*"processing": true, */
+            "processing": true, 
             //scrollX: true,
             //fixedColumns: true,
             "ajax": {
@@ -3471,7 +3550,7 @@ $(document).ready(function(){
 
         $('#tblProcedures').DataTable({
             "serverSide": true,
-            /*"processing": true,*/
+            "processing": true,
             "ajax": {
                 "type": "GET",
                 "url": "/api/admin/procedures",
@@ -3530,6 +3609,54 @@ $(document).ready(function(){
         });
     }
 
+    //Tabla Product Attributes:
+    if($('#tblProductAttributes').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        var product_id = $('#productId').val();
+
+        $('#tblProductAttributes').DataTable({
+            "serverSide": true,
+            "processing": true,
+            "ajax": {
+                "type": "GET",
+                "url": "/api/admin/product-attributes/"+product_id,
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            "columns": [
+                {data: 'name'},
+                {data: 'datatype'},
+                {data: 'value'},
+                {data: 'acciones', className: 'text-right'}
+            ]
+        });
+    }
+
+    //Tabla Product Categories:
+    if($('#tblProductCategories').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        var product_id = $('#productId').val();
+
+        $('#tblProductCategories').DataTable({
+            "order": [[ 2, "desc" ]],
+            "serverSide": true,
+            "processing": true,
+            "ajax": {
+                "type": "GET",
+                "url": "/api/admin/product-categories/"+product_id,
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            "columns": [
+                {data: 'name'},
+                {data: 'level'},
+                {data: 'acciones', className: 'text-right'}
+            ]
+        });
+    }
+
     //Tabla Product Patterns:
     if($('#tblProductPatterns').length > 0){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
@@ -3584,6 +3711,96 @@ $(document).ready(function(){
         });
     }
 
+    //Tabla Product Serial Attributes:
+    if($('#tblProductSerialAttributes').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        var serial_id = $('#serialId').val();
+
+        //Filters:
+        $('#tblProductSerialAttributes thead tr').clone(true).appendTo('#tblProductSerialAttributes thead');
+        $('#tblProductSerialAttributes thead tr:eq(1) th').each(function(i){
+            var title = $(this).text();
+            $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
+     
+            $('input', this).on('keyup change', function(){
+                if(tableProductSerialAttributes.column(i).search() !== this.value){
+                    tableProductSerialAttributes
+                        .column(i)
+                        .search(this.value)
+                        .draw();
+                }
+            });
+        });
+        
+        var tableProductSerialAttributes = $('#tblProductSerialAttributes').DataTable({
+            "serverSide": false,
+            "processing": true,
+            "ajax": {
+                "type": "GET",
+                "url": "/api/admin/product-serials-cards/"+serial_id,
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            "columns": [
+                {data: 'name'},
+                {data: 'datatype'},
+                {data: 'description'},
+                {data: 'value'},
+                {data: 'acciones', className: 'text-right'}
+            ],
+            // "columnDefs": [
+            //     {"targets": -1,
+            //     "render": function(data, type, row){
+            //         //Editar:
+            //         if(row['editar']){
+            //             var editar = '<a href="#" class="btn btn-sm btn-info btnEditParameter" rel="tooltip" title="'+txtParametroEditar+'" data-toggle="modal" data-target="#modal-edit-parameter" data-ppid="'+row['pscId'] +'" data-parameterid="'+row['id']+'" data-value="'+row['value']+'" data-opciones="'+row['opciones']+'"><i class="fa fa-edit"></i></a>';
+            //         }else{
+            //             var editar = '';
+            //         }
+
+            //         //Eliminar:
+            //         if(row['eliminar'] && row['pscId']){
+            //             var eliminar = '<form method="POST" action="/admin/product-serials-cards/'+row['pscId']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
+            //                 eliminar += '<input name="_method" type="hidden" value="DELETE">';
+            //                 eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
+            //                 eliminar += '<button type="submit" class="btn btn-sm btn-danger frm-confirm" rel="tooltip" title="'+txtParametroEliminar+'" data-msg="'+txtParametroConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
+            //             eliminar += '</form>';
+            //         }else{
+            //             var eliminar = '';
+            //         }
+
+            //         return editar+' '+eliminar;
+            //     }
+            //     } 
+            // ] 
+        });
+    }
+
+    //Tabla Product Serials:
+    if($('#tblProductSerials').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        var product_id = $('#productId').val();
+
+        $('#tblProductSerials').DataTable({
+            "serverSide": true,
+            "processing": true,
+            "ajax": {
+                "type": "GET",
+                "url": "/api/admin/product-serials/"+product_id,
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            "columns": [
+                {data: 'serial'},
+                {data: 'alta', className: 'text-right'},
+                {data: 'employee'},
+                {data: 'acciones', className: 'text-right'}
+            ]
+        });
+    }
+
     //Tabla Product Units:
     if($('#tblProductUnits').length > 0){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
@@ -3592,7 +3809,7 @@ $(document).ready(function(){
         $('#tblProductUnits').DataTable({
             "order": [[ 2, "desc" ]],
             "serverSide": false,
-            /*"processing": true,*/
+            "processing": true,
             "ajax": {
                 "type": "GET",
                 "url": "/api/admin/product-units/"+product_id,
@@ -5074,11 +5291,14 @@ $(document).ready(function(){
                     var editar = '<a href="/admin/timetable-items/'+row['id']+'/edit" class="btn btn-xs btn-info btn-module" rel="tooltip" title="'+txtEditar+'"><i class="fa fa-edit"></i></a>';
 
                     //Eliminar:
-                    var eliminar = '<form method="POST" action="timetable-items/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
-                        eliminar += '<input name="_method" type="hidden" value="DELETE">';
-                        eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
-                        eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtEliminar+'" data-msg="'+txtConceptoConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
-                    eliminar += '</form>';
+                    var eliminar = '';
+                    if(!row['basic_item']){
+                        eliminar += '<form method="POST" action="timetable-items/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
+                            eliminar += '<input name="_method" type="hidden" value="DELETE">';
+                            eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
+                            eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtEliminar+'" data-msg="'+txtConceptoConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
+                        eliminar += '</form>';
+                    }
 
                     return editar+' '+eliminar;
                 }
@@ -5299,7 +5519,7 @@ $(document).ready(function(){
 
         $('#tblUserTimetables').DataTable({
             "serverSide": false,
-            /*"processing": true,*/
+            "processing": true,
             "ajax": {
                 "type": "GET",
                 "url": "/api/admin/user-timetables/"+from+"/"+to+"/"+user,
@@ -5308,99 +5528,151 @@ $(document).ready(function(){
                 }
             },
             "columns": [
-                {data: 'date', className: 'text-right'},
+                {data: 'fecha', className: 'text-right'},
                 {data: 'hour', className: 'text-right'},
                 {data: 'name'},
                 {data: 'accumulated', className: 'text-right'},
                 {data: 'comments'},
-                {data: 'id', className: 'text-right'}
+                {data: 'acciones', name: 'acciones', className: 'text-right'}
             ],
-            "columnDefs": [
-                {"targets": 0,
-                //"render": $.fn.dataTable.render.moment( 'YYYY/MM/DD', 'DD-MM-YYYY' )
-                "render": function(data, type, row){
-                    var fecha = '<span style="display: none">'+row['date_order']+'</span>';
-                    if(row['warning']){
-                        fecha += '<span class="text-danger">'+row['date']+'</span>';
-                    }else{
-                        fecha += row['date'];
-                    }
-                    return fecha;
-                }
-                },
-                {"targets": 2,
-                "render": function(data, type, row){
-                    var concept = '';
-                    if(row['flag'] == 1){
-                        concept += '<i class="fa fa-sign-in-alt text-success"></i> ';
-                    }else if(row['flag'] == 2){
-                        concept += '<i class="fa fa-sign-out-alt text-danger"></i> ';
-                    }else{
-                        concept += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';   
-                    }
+            "footerCallback": function(row, data, start, end, display){
+                var api = this.api(), data;
+                if(api.rows().count() > 0){
 
-                    if(row['warning']){
-                        concept += '<span class="text-danger">'+row['name'].charAt(0).toUpperCase()+row['name'].slice(1)+'</span>';
-                    }else{
-                        concept += row['name'].charAt(0).toUpperCase()+row['name'].slice(1);
-                    }
-                    return concept;
-                }
-                },
-                {"targets": 3,
-                "render": function(data, type, row){
-                    var accumulated = row['accumulated'];
-                    if(row['accumulated'] != '' && row['hoursOfWork']){
-                        accumulated += ' / '+row['hoursOfWork'];
-                    }
-                    if(row['diferencia']){
-                        var clase = row['sign'] == '-'? 'text-danger':'text-success';
-                        accumulated += ' <strong class="'+clase+' ml-2">'+row['diferencia']+'</strong>';    
-                    }
-                    return accumulated;
-                }
-                },
-                {"targets": -1,
-                "render": function(data, type, row){
-                    //Revisión:
-                    var checked = row['revision'] == 1? 'checked':'';
-                    var review = '<label class="custom-chk-rdb" rel="tooltip" title="'+txtSolicitarRevision+'">';
-                        review += '<input type="checkbox" name="revision" '+checked+'><span class="chk1 chkRev" data-id="'+row['id']+'"></span>';
-                    review += '</label>';
+                    var horasTrabajadas = 0;
+                    var hoursHT = 0;
 
-                    //Editar:
-                    if(row['edit_timetable']){
-                        var edit = '<a href="#" class="btn btn-xs btn-info btnRegistroHorario" rel="tooltip" title="'+txtRegistroHorarioEditar+'" data-toggle="modal" data-target="#modal-edit-timetable" data-id="'+row['id']+'" data-concepto="'+row['name']+'" data-icono="'+row['icon']+'" data-flag="'+row['flag']+'">';
-                            edit += '<i class="fa fa-edit"></i>';
-                        edit += '</a>';
-                    }else{
-                        var edit = '';
-                    }
+                    var horasATrabajar = 0;
+                    var hoursAT = 0;
 
-                    //Añadir registro horario:
-                    if(row['add_timetable']){
-                        var create = '<a href="#" class="btn btn-xs btn-info btnAddRegistroHorario" rel="tooltip" title="'+txtRegistroHorarioAdd+'" data-toggle="modal" data-target="#modal-add-timetable" data-date="'+row['date']+'">';
-                            create += '<i class="fa fa-plus"></i>';
-                        create += '</a>';
-                    }else{
-                        var create = '';
-                    }
+                    var horasDiferencia = 0;
+                    var hoursD = 0;
 
-                    //Eliminar registro horario:
-                    if(row['edit_timetable']){
-                        var eliminar = '<form method="POST" action="/admin/timetable/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
-                            eliminar += '<input name="_method" type="hidden" value="DELETE">';
-                            eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
-                            eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtRegistroHorarioEliminar+'" data-msg="'+txtRegistroHorarioEliminarConfirm+'"><i class="fa fa-trash"></i></button>';
-                        eliminar += '</form>'; 
-                    }else{
-                        var eliminar = '';
-                    }
+                    api.rows().every(function(){
+                        var data = this.data();
 
-                    return review+' '+edit+' '+create+' '+eliminar;
+                        //Horas trabajadas:
+                        if(data.accumulated != '' && data.accumulated != '0'){
+                            var pHT = data.accumulated? data.accumulated.split(':'):[0,0];
+                            var minutesHT = parseInt(pHT[0]) * 60;
+                            minutesHT = parseInt(minutesHT) + parseInt(pHT[1]);
+                            var secondsHT = parseInt(minutesHT) * 60;
+                            hoursHT = parseInt(hoursHT) + parseInt(secondsHT);    
+                        }
+
+                        //Horas a trabajar:
+                        if(data.hoursOfWork!= '' && data.hoursOfWork != '0'){
+                            var pAT = data.hoursOfWork.split(':');
+                            var minutesAT = parseInt(pAT[0]) * 60;
+                            minutesAT = parseInt(minutesAT) + parseInt(pAT[1]);
+                            var secondsAT = parseInt(minutesAT) * 60;
+                            hoursAT = parseInt(hoursAT) + parseInt(secondsAT); 
+                        }
+                    });
+
+                    //Diferencia de horas:
+                    hoursD = hoursHT - hoursAT;
+                    hoursD = Math.abs(hoursD);
+                    var classDif = hoursHT >= hoursAT? 'text-success':'text-danger';
+                    horasDiferencia = secondsToString(hoursD);
+
+                    //convertimos segundos a hora con minutos:
+                    horasTrabajadas = secondsToString(hoursHT);
+                    horasATrabajar = secondsToString(hoursAT);
+
+                    $(api.column(3).footer()).html(
+                        horasTrabajadas+' / '+horasATrabajar+' <strong class="'+classDif+' ml-2">'+horasDiferencia+'</strong>'    
+                    );
                 }
-                }
-            ]
+            }
+
+
+            // "columnDefs": [
+            //     {"targets": 0,
+            //     //"render": $.fn.dataTable.render.moment( 'YYYY/MM/DD', 'DD-MM-YYYY' )
+            //     "render": function(data, type, row){
+            //         var fecha = '<span style="display: none">'+row['date_order']+'</span>';
+            //         if(row['warning']){
+            //             fecha += '<span class="text-danger">'+row['date']+'</span>';
+            //         }else{
+            //             fecha += row['date'];
+            //         }
+            //         return fecha;
+            //     }
+            //     },
+            //     {"targets": 2,
+            //     "render": function(data, type, row){
+            //         var concept = '';
+            //         if(row['flag'] == 1){
+            //             concept += '<i class="fa fa-sign-in-alt text-success"></i> ';
+            //         }else if(row['flag'] == 2){
+            //             concept += '<i class="fa fa-sign-out-alt text-danger"></i> ';
+            //         }else{
+            //             concept += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';   
+            //         }
+
+            //         if(row['warning']){
+            //             concept += '<span class="text-danger">'+row['name'].charAt(0).toUpperCase()+row['name'].slice(1)+'</span>';
+            //         }else{
+            //             concept += row['name'].charAt(0).toUpperCase()+row['name'].slice(1);
+            //         }
+            //         return concept;
+            //     }
+            //     },
+            //     {"targets": 3,
+            //     "render": function(data, type, row){
+            //         var accumulated = row['accumulated'];
+            //         if(row['accumulated'] != '' && row['hoursOfWork']){
+            //             accumulated += ' / '+row['hoursOfWork'];
+            //         }
+            //         if(row['diferencia']){
+            //             var clase = row['sign'] == '-'? 'text-danger':'text-success';
+            //             accumulated += ' <strong class="'+clase+' ml-2">'+row['diferencia']+'</strong>';    
+            //         }
+            //         return accumulated;
+            //     }
+            //     },
+            //     {"targets": -1,
+            //     "render": function(data, type, row){
+            //         //Revisión:
+            //         var checked = row['revision'] == 1? 'checked':'';
+            //         var review = '<label class="custom-chk-rdb" rel="tooltip" title="'+txtSolicitarRevision+'">';
+            //             review += '<input type="checkbox" name="revision" '+checked+'><span class="chk1 chkRev" data-id="'+row['id']+'"></span>';
+            //         review += '</label>';
+
+            //         //Editar:
+            //         if(row['edit_timetable']){
+            //             var edit = '<a href="#" class="btn btn-xs btn-info  " rel="tooltip" title="'+txtRegistroHorarioEditar+'" data-toggle="modal" data-target="#modal-edit-timetable" data-id="'+row['id']+'" data-concepto="'+row['name']+'" data-icono="'+row['icon']+'" data-flag="'+row['flag']+'">';
+            //                 edit += '<i class="fa fa-edit"></i>';
+            //             edit += '</a>';
+            //         }else{
+            //             var edit = '';
+            //         }
+
+            //         //Añadir registro horario:
+            //         if(row['add_timetable']){
+            //             var create = '<a href="#" class="btn btn-xs btn-info btnAddRegistroHorario" rel="tooltip" title="'+txtRegistroHorarioAdd+'" data-toggle="modal" data-target="#modal-add-timetable" data-date="'+row['date']+'">';
+            //                 create += '<i class="fa fa-plus"></i>';
+            //             create += '</a>';
+            //         }else{
+            //             var create = '';
+            //         }
+
+            //         //Eliminar registro horario:
+            //         if(row['edit_timetable']){
+            //             var eliminar = '<form method="POST" action="/admin/timetable/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
+            //                 eliminar += '<input name="_method" type="hidden" value="DELETE">';
+            //                 eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
+            //                 eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtRegistroHorarioEliminar+'" data-msg="'+txtRegistroHorarioEliminarConfirm+'"><i class="fa fa-trash"></i></button>';
+            //             eliminar += '</form>'; 
+            //         }else{
+            //             var eliminar = '';
+            //         }
+
+            //         return review+' '+edit+' '+create+' '+eliminar;
+            //     }
+            //     }
+            // ]
         });
     }
 
@@ -5408,7 +5680,7 @@ $(document).ready(function(){
     if($('#tblUsers').length > 0){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
         var all = $('#all').val();
-        var method = all? 'users-all':'users';
+        var method = all? '/all':'';
 
         //Filters:
         $('#tblUsers thead tr').clone(true).appendTo('#tblUsers thead');
@@ -5433,116 +5705,24 @@ $(document).ready(function(){
         var tableUsers = $('#tblUsers').DataTable({
             "serverSide": true,
             "processing": true,
+            "language": {
+                processing: '<i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span>'
+            },
             "ajax": {
                 "type": "GET",
-                "url": "/api/admin/"+method,
+                "url": "/api/admin/users"+method,
                 "error": function(reason){
                     console.log(reason);
                 }
             },
             "columns": [
-                {data: 'id'},
-                {data: 'id', className: 'text-right'},
+                {data: 'user'},
+                {data: 'alta', className: 'text-right'},
                 {data: 'email'},
                 {data: 'phones'},
                 {data: 'categories'},
-                {data: 'id', className: 'text-center'},
-                {data: 'id', className: 'text-right'}
-            ],
-            "columnDefs": [
-                {"targets": 0,
-                "render": function(data, type, row){
-                    return row['name']+' '+row['surname'];
-                }
-                },
-                {"targets": 1,
-                "render": function(data, type, row){
-                    return '<span style="display: none">'+row['created_at']+'</span>'+row['alta'];
-                }
-                },
-                {"targets": 2,
-                "render": function(data, type, row){
-                    return '<a target="_blank" href="mailto:'+row['email']+'">'+row['email']+'</a>';
-                }
-                },
-                {"targets": 3,
-                "render": function(data, type, row){
-                    if(row['phones'].length > 0){
-                        var phones = '';
-                        for(j=0; j<row['phones'].length; j++){
-                           phones += '<p style="line-height: 140%; margin-bottom: 0;">'+row['phones'][j].phone_number+'</p>';
-                        }  
-                        return phones;  
-                    }else{
-                        return '';
-                    }
-                }
-                },
-                {"targets": 5,
-                "render": function(data, type, row){
-                    if(row['Image']){
-                        var avatar = '<img src="/img/users/'+row['Image']+'" class="img-circle" width="36">';    
-                    }else{
-                        var avatar = setAvatar(row['name'], row['surname']);
-                    }
-                    // if(row['Image']){
-                    //     var image = '<img src="/img/users/'+row['Image']+'" class="img-circle" width="36">';
-                    // }else{
-                    //     var image = '<i class="fa fa-user icono"></i>';
-                    //     //var image = '<img src="/img/users/'+row['avatar']+'" width="36">';
-                    // }   
-                    return avatar;    
-                }
-                },
-                {"targets": -1,
-                "render": function(data, type, row){
-                    //Estado:
-                    var estado = '';
-                    if(row['users_on']){
-                        var checked = (row['status'] == 1)? 'checked':'';
-                        estado = '<label class="custom-chk-rdb" rel="tooltip" title="'+txtUsuarioOnOff+'">';
-                            estado += '<input type="checkbox" name="status" '+checked+' ><span class="chk chk-action" data-id="'+row['id']+'" data-ctrl="users/status"></span>';
-                        estado += '</label>';
-                    }
-
-                    //Mostrar:
-                    var show = '';
-                    if(row['users_show']){
-                        show = '<a href="/admin/users/'+row['id']+'/show" class="btn btn-xs btn-info" rel="tooltip" title="'+txtVer+'"><i class="fa fa-eye"></i></a>';
-                    }
-
-                    //Vincular empresas:
-                    var add_companies = '';
-                    if(row['add_companies']){
-                        add_companies = '<a href="/admin/user-companies/'+row['id']+'" class="btn btn-xs btn-info" rel="tooltip" title="'+txtEmpresaVincular+'"><i class="fa fa-building"></i></a>';
-                    }
-
-                    //Editar:
-                    var editar = '';
-                    if(row['users_edit']){
-                        editar = '<a href="/admin/users/'+row['id']+'/edit" class="btn btn-xs btn-info btn-module" rel="tooltip" title="'+txtEditar+'"><i class="fa fa-edit"></i></a>';
-                    }
-
-                    //Notificar:
-                    var notif = '<a href="#" class="btn btn-warning btn-xs btn-notif" rel="tooltip" title="Notificar" data-toggle="modal" data-target="#modal-new-notification" data-id="'+row['id']+'" data-user="'+row['name']+' '+row['surname']+'"><i class="fa fa-bell"></i></a>';
-
-                    //Eliminar:
-                    var eliminar = '';
-                    if(row['users_on']){
-                        eliminar = '<form method="POST" action="users/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
-                            eliminar += '<input name="_method" type="hidden" value="DELETE">';
-                            eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
-                            eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtUsuarioEliminar+'" data-msg="'+txtUsuarioConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
-                        eliminar += '</form>';
-                    }
-
-                    //if(row['actions']){
-                        return estado+' '+show+' '+add_companies+' '+editar+' '+eliminar;   //'+notif+'    
-                    // }else{
-                    //     return '';
-                    // }                    
-                }
-                }
+                {data: 'image', className: 'text-center'},
+                {data: 'acciones', className: 'text-right'}
             ]
         });
     }
@@ -5573,7 +5753,7 @@ $(document).ready(function(){
 
         var tableVehicles = $('#tblVehicles').DataTable({
             "serverSide": true,
-            /*"processing": true,*/
+            "processing": true,
             "ajax": {
                 "type": "GET",
                 "url": "/api/admin/vehicles",

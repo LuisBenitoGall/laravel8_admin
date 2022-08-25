@@ -20,13 +20,14 @@ use App\Models\Employee;
 use App\Models\Inventory;
 use App\Models\Product;
 use App\Models\ProductSerials;
-use App\Models\StockMovements;
 use App\Models\Stock;
+use App\Models\StockMovements;
 use App\Models\Store;
 
 class StockController extends Controller{
     /**
      * 1. Stock de productos.
+     * 2. Histórico de movimientos de producto.
      */
 
     private $option = 'stocks';
@@ -39,6 +40,7 @@ class StockController extends Controller{
 
         $this->middleware('module_setted:stocks');
         $this->middleware('module_setted:products');
+        $this->middleware('product_get', ['only' => ['show']]);
     }
 
     /**
@@ -74,5 +76,21 @@ class StockController extends Controller{
         $employees = Employee::companyEmployees(session('currentCompany'));
 
         return view('admin.stocks.index')->with(compact('header', 'storeSelected', 'stockMovId', 'productSelected', 'stockResultante', 'products', 'stores', 'movements', 'employees'));
+    }
+
+    /**
+     * 2. Histórico de movimientos de producto.
+     */
+    public function show(Product $product){
+        $header = [
+            'option' => $this->option, 
+            'suboption' => 'textos.historico_movimientos',
+            'module' => $this->module,
+            'slug' => 'stocks'
+        ];   
+
+
+
+        return view('admin.stocks.show')->with(compact('header', 'product'));
     }
 }

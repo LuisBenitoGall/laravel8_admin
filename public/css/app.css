@@ -18949,6 +18949,19 @@ ul.nav-second-level {
   border: none;
 }
 
+.btn-light {
+  color: #212529;
+  background-color: #f8f9fa;
+  border-color: #f8f9fa;
+}
+.btn-light:hover {
+  background-color: #e8e9ea;
+  border-color: #e8e9ea;
+}
+.btn-light .fa {
+  color: #212529 !important;
+}
+
 /* **************** FORMS **************** */
 .invalid-feedback {
   display: block;
@@ -20507,12 +20520,21 @@ button.dim:active:before {
   border: 1px solid #e7eaec;
   cursor: pointer;
   display: inline-block;
-  height: 1.9em;
-  line-height: 1.9em;
+  height: 35px !important;
+  line-height: 6px !important;
   overflow: hidden;
   padding: 0 0.6em;
   position: relative;
   white-space: nowrap;
+}
+.fc-button.fc-button-primary {
+  background-color: #23c6c8;
+  border-color: #23c6c8;
+}
+.fc-button.fc-button-primary:hover {
+  background-color: #23c6c8;
+  border-color: #23c6c8;
+  opacity: 0.6;
 }
 
 .fc-state-active {
@@ -23595,6 +23617,10 @@ body.body-small .footer.fixed {
   border: none !important;
 }
 
+.table td.selected {
+  background-color: #E8E8E8;
+}
+
 .table {
   width: 100% !important;
 }
@@ -23637,8 +23663,8 @@ body.body-small .footer.fixed {
 }
 .table.dataTable tfoot td, .table.dtabla tfoot td {
   background-color: #FFFFE8;
-  padding-left: 10px;
-  padding-right: 10px;
+  padding-left: 8px;
+  padding-right: 8px;
 }
 
 .modal-table {
@@ -29368,16 +29394,22 @@ body.md-skin {
 /**
  * CUSTOM STYLES
  */
+.clearfix {
+  clear: both;
+  display: block;
+  float: none;
+}
+
 .div-toggle {
   display: inline-block;
-  margin-bottom: 5px;
+  margin-bottom: 6px;
   vertical-align: middle;
 }
 .div-toggle .btn-toggle {
   background-color: #C8C8C8;
   color: #999;
-  font-size: 0.9rem;
-  line-height: 1.6;
+  font-size: 0.85rem;
+  line-height: 1.4;
   padding: 0.5rem 0.75rem;
   text-align: center;
   vertical-align: middle;
@@ -29707,8 +29739,36 @@ ul li.rev .fa {
 #noBudgetForms,
 .price-by-percent,
 .price-by-percent_,
-#isUte {
+#isUte,
+#setValues,
+.typeColor {
   display: none;
+}
+
+.typeColor {
+  position: relative;
+}
+.typeColor .btnAddColor {
+  font-size: 18px;
+  position: absolute;
+  right: 20%;
+  top: 3px;
+}
+.typeColor .colors {
+  background-color: #F5F8FA;
+  border: 1px solid #e5e6e7;
+  border-radius: 1px;
+  min-height: 36px;
+  padding: 7px;
+}
+.typeColor .colors span {
+  border-radius: 2px;
+  color: #FFF;
+  margin-right: 4px;
+  padding: 4px;
+}
+.typeColor .colors span .fa {
+  cursor: pointer;
 }
 
 .block-chk {
@@ -29740,6 +29800,9 @@ ul li.rev .fa {
 
 .card-body .budget-item {
   padding: 12px;
+}
+.card-body .budget-item.bg-item {
+  background-color: #F5F8FA;
 }
 
 .toggle-arrow .fa {
@@ -30156,6 +30219,12 @@ ul li.rev .fa {
   vertical-align: middle;
   width: 20px;
 }
+.colorEx.mini {
+  height: 10px;
+  margin-top: 2px;
+  vertical-align: top;
+  width: 10px;
+}
 
 .calendario {
   border-collapse: collapse;
@@ -30166,7 +30235,13 @@ ul li.rev .fa {
   border: 1px solid #C8C8C8;
   border-collapse: collapse;
   padding: 10px;
-  width: calc(100% / 7);
+}
+.calendario.calendario-modal {
+  display: table;
+  table-layout: fixed;
+}
+.calendario.calendario-modal tbody td {
+  vertical-align: top !important;
 }
 .calendario tbody td {
   border: 1px solid #E8E8E8;
@@ -30191,6 +30266,23 @@ ul li.rev .fa {
   font-size: 10px !important;
   position: absolute;
   right: 4px;
+}
+.calendario tbody td .user-date {
+  color: #FFF;
+  display: block;
+  height: 25px;
+  left: 20px;
+  margin-left: 2px;
+  position: absolute;
+  text-align: center;
+  top: 5px;
+  width: calc(100% - 21px);
+}
+.calendario tbody td .user-date .fa {
+  line-height: 25px;
+}
+.calendario tbody td .user-date a {
+  color: #FFF;
 }
 .calendario tbody td.nweek {
   color: #ed5565;
@@ -30241,8 +30333,15 @@ ul li.rev .fa {
   width: 20px;
 }
 .calendario tbody td .btnCompanyCalendar {
+  cursor: pointer;
   position: absolute;
   right: 10px;
+}
+.calendario tbody td p {
+  font-size: 11px;
+  line-height: 125%;
+  margin-bottom: 0;
+  padding-left: 10px;
 }
 
 .custom-dropdown {
@@ -30277,9 +30376,15 @@ ul li.rev .fa {
 }
 
 #day-types {
-  position: absolute;
-  right: 15px;
-  top: -75px;
+  position: fixed;
+  right: 45px;
+  top: 340px;
+  z-index: 10;
+}
+
+#notify-days {
+  right: 45px;
+  top: 260px;
   z-index: 10;
 }
 
@@ -30476,4 +30581,29 @@ ul li.rev .fa {
   font-style: italic;
   font-weight: 300;
   margin-bottom: 30px;
+}
+
+.colorpicker.colorpicker-with-alpha {
+  z-index: 999999;
+}
+
+.schedules-menu {
+  margin-top: 15px;
+}
+.schedules-menu li {
+  /* alineacion vertical */
+  align-items: center;
+  -ms-display: flex;
+  display: flex;
+  height: 40px;
+  margin-bottom: 5px;
+  padding: 0 7px;
+  position: relative;
+}
+.schedules-menu li a {
+  color: #FFF;
+  font-size: 15px;
+  line-height: 100%;
+  position: absolute;
+  right: 7px;
 }

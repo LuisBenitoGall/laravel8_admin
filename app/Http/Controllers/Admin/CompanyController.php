@@ -53,6 +53,8 @@ class CompanyController extends Controller{
      * 12.1. Obtener usuarios de la empresa.
      * 13. Importar empresas desde .xls.
      * 14. Mostrar ficha de empresa.
+     * 15. Establecer empresa matriz.
+     * 16. Desvincular de empresa matriz.
      */
     
     private $option = 'empresas';
@@ -419,9 +421,24 @@ class CompanyController extends Controller{
         
         $business_relationship = $this->business_relationship;
 
+        //Empresa matriz:
+        $mother = false;
+        if($company->id != $company->mother_co){
+            $mother = Company::select('id', 'name', 'tradename')
+            ->find($company->mother_co);
+        }
+
+        //Empresas matriz:
+        $mother_companies = Company::where('is_ute', '0')
+        ->whereRaw('id = mother_co')
+        ->where('status', 1)
+        ->where('id', '!=', $company->id)
+        ->pluck('name', 'id')
+        ->toArray();
+
         $languages = $this->languages;
 
-        return view('admin.companies.edit', compact('header', 'company', 'noSelectCompany', 'business_relationship', 'languages'));   
+        return view('admin.companies.edit', compact('header', 'company', 'noSelectCompany', 'business_relationship', 'mother', 'mother_companies', 'languages'));   
     }
 
     /**
@@ -657,5 +674,27 @@ class CompanyController extends Controller{
         $workplaces = Workplace::where('company_id', $company->id)->get();
 
         return view('admin.companies.show', compact('header', 'company', 'origin', 'public_info', 'employees', 'workplaces'));       
+    }
+
+    /**
+     * 15. Establecer empresa matriz.
+     */
+    public function setMother(Request $request){
+        Company::where('id', $request->company_id)
+        ->update(['mother_co' => $request->mother_co]);
+
+        $msg = trans('textos.empresa_matriz_vinculada');
+        return redirect()->route('companies.edit', $request->company_id)->with(compact('msg'));
+    }
+
+    /**
+     * 16. Desvincular de empresa matriz.
+     */
+    public function unlinkMother(Company $company){
+        $company->mother_co = $company->id;
+        $company->save();
+
+        $msg = trans('textos.empresa_matriz_desvinculada');
+        return redirect()->route('companies.edit', $company)->with(compact('msg'));
     }
 }

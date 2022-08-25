@@ -15,7 +15,7 @@
 
                     <div class="form-group row">
                         {{-- Compras --}}
-                        <label for="orders" class="col-12">{{ ucfirst(trans('textos.compras')) }}</label>
+                        <label for="orders" class="col-12">{{ ucfirst(trans('textos.compras')) }}*</label>
                         <div class="col-12">
                             @php
                             $purchases_ = [];
@@ -27,7 +27,7 @@
                             }
                             @endphp
 
-                            <x-select name="orders[]" class="select2" :options="$purchases_" multiple/>
+                            <x-select name="orders[]" class="select2" :options="$purchases_" multiple required/>
                         </div>
                     </div>
 

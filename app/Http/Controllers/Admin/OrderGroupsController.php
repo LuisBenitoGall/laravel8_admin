@@ -50,9 +50,9 @@ class OrderGroupsController extends Controller{
     //0. Validator:
     protected function validator(array $data){
         //Validación index:
-        if(isset($data['submit_search'])){
+        if(isset($data['submit_filter'])){
             return Validator::make($data, [
-                'customer_id' => 'nullable|integer'
+                'customer_id' => 'required|integer'
             ]);
 
         //Validación guardar:

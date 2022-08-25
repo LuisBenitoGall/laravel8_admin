@@ -37,7 +37,7 @@
 			<tbody>
 				<tr>
 					<th class="tbl-header-left">
-						<h1>{{ $left_h1 }}</h1>	
+						<h1>Factura</h1>	
 
 						{{-- Fecha --}}
 						<p style="display: block; font-size: 11px; font-weight: normal; line-height: 110%; margin: 0 0 5px 0; width: 100%;">
@@ -46,24 +46,24 @@
 						</p>
 
 						{{-- Título --}}
-						@if($left_title)
+						{{-- @if($left_title)
 							<p style="display: block; font-size: 11px; font-weight: normal; line-height: 110%; margin: 0 0 5px 0; width: 100%;">
 								<span class="item-left" style="display: inline-block; vertical-align: top; width: 35%;"><b>{{ strtoupper(trans('textos.titulo')) }}:</b></span> 
 								<span class="item-left" style="display: inline-block; vertical-align: top; width: 64%;">{{ $left_title }}</span>
 							</p>	
-						@endif
+						@endif --}}
 
 						{{-- Responsable proveedor --}}
-						@if($left_manager)
+						{{-- @if($left_manager)
 							<p style="display: block; font-size: 11px; font-weight: normal; line-height: 110%; margin: 0 0 5px 0; width: 100%;">
 								<span class="item-left" style="display: inline-block; vertical-align: top; width: 35%;"><b>{{ strtoupper(trans('textos.responsable')) }}:</b></span> 
 								<span class="item-left" style="display: inline-block; vertical-align: top; width: 64%;">{{ $left_manager }}</span>
 							</p>	
-						@endif
+						@endif --}}
 					</th>
 
 					<th class="tbl-header-right">
-						<h1>{{ $right_h1 }}</h1>
+						{{-- <h1>{{ $right_h1 }}</h1> --}}
 
 
 					</th>

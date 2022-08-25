@@ -17,7 +17,7 @@ class CreateCategoriesTable extends Migration{
             $table->unsignedBigInteger('company_id');
             $table->foreign('company_id')->references('id')->on('companies');
             //FK:
-            $table->unsignedBigInteger('module_id');
+            $table->unsignedBigInteger('module_id')->nullable();
             $table->foreign('module_id')->references('id')->on('modules');
             $table->string('name')->nullable();
             $table->string('slug')->nullable();

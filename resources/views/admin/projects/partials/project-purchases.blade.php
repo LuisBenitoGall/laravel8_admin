@@ -65,7 +65,7 @@
 								<a target="_blank" href="{{ route('orders.edit', $pp->id) }}" class="btn btn-xs btn-info" rel="tooltip" title="{{ ucfirst(trans('textos.editar')) }}"><i class="fa fa-edit"></i></a>
 
 								{{-- Desvincular --}}
-								<form method="POST" action="{{ route('purchase-from-project.destroy', $pp->id) }}" class="frm-inline" role="form" accept-charset="UTF-8">
+								<form method="POST" action="{{ route('purchase-from-project.destroy', $pp->ppId) }}" class="frm-inline" role="form" accept-charset="UTF-8">
 	                            	<input name="_method" type="hidden" value="DELETE">
 	                            	{{ csrf_field() }}
 	                            	<input type="hidden" name="return" value="project">

@@ -3,16 +3,26 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Helpers\Helpers;
+use App\Helpers\helpers;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
+use Yajra\DataTables\DataTables;
+use Carbon\Carbon;
+use PDF;
 
 //Models:
+use App\Models\Company;
+use App\Models\CompanySettings;
+use App\Models\Employee;
 use App\Models\Timetable;
 use App\Models\TimetableItems;
+use App\Models\User;
+use App\Models\Workplace;
+use App\Models\WorkUserCalendar;
 
 class TimetableController extends Controller{
     /**
@@ -22,6 +32,9 @@ class TimetableController extends Controller{
      * 3. Editar horario.
      * 4. Actualizar horario.
      * 5. Eliminar registro horario.
+     * 6. Marcar horario para revisar.
+     * 7. Desmarcar horario revisado.
+     * 8. Enviar email revisión.
      */
     
     private $option = 'horarios';
@@ -29,6 +42,9 @@ class TimetableController extends Controller{
     private $languages;
 
     public function __construct(){
+        //Idiomas:
+        $this->languages = helpers::languages();
+
         $this->middleware('module_setted:timetables');
     }
 
@@ -60,12 +76,136 @@ class TimetableController extends Controller{
      * 1. Listado de horarios por empleados.
      */
     public function index(Request $request){
+        if($request->all()){
+            $validator = $this->validator($request->all());
+            if($validator->fails()){
+                return redirect('/admin/employees-timetable')
+                    ->withErrors($validator)
+                    ->withInput();
+            }
+        }
 
+        $header = [
+            'option' => $this->option, 
+            'suboption' => 'textos.horarios_empleados',
+            'module' => $this->module,
+            'slug' => 'employees-timetable'
+        ]; 
+
+        $workplace = $request->workplace_id? Workplace::find($request->workplace_id):false;
+        $from = $request->from != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->from):$request->from:Date('Y-m-d');
+        $to = $request->to != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->to):$request->to:Date('Y-m-d');
+
+        //La fecha de finalización no puede ser inferior a la de inicio:
+        if($to < $from) $to = $from;
+
+        //Centros de trabajo:
+        $workplaces = Workplace::select('workplaces.id', 'workplaces.name', 'towns.name AS Town')
+        ->leftJoin('towns', 'workplaces.town_id', '=', 'towns.id')
+        ->where('workplaces.company_id', session('currentCompany'))
+        ->where('workplaces.status', 1)
+        ->orderBy('workplaces.name', 'ASC')
+        ->get();
+
+        $languages = $this->languages;
+
+        return view('admin.timetables.index')->with(compact('header', 'workplace', 'from', 'to', 'workplaces', 'languages'));
     }
 
     /**
      * 1.1. Listado de horarios por empleados para DataTable.
      */
+    public function getEmployeesTimetablesDT($workplace_id = false, $from = false, $to = false){
+        if(!$workplace_id || !$from || !$to){
+            return false;
+            exit;
+        }
+        
+        $data = User::select('users.id', 'users.name', 'users.surname')
+        ->leftJoin('employees', 'users.id', '=', 'employees.user_id')
+        ->leftJoin('user_workplaces', 'users.id', '=', 'user_workplaces.user_id')
+        ->where('employees.status', 1)
+        ->where('employees.time_control', 1)
+        ->where('user_workplaces.workplace_id', $workplace_id)
+        ->orderBy('users.name')
+        ->groupBy('users.id')
+        ->get();   
+
+        $from_default = $from; 
+
+        //Ampliación datos:
+        foreach($data as $row){
+            $timetables = Timetable::listUserTimetables($from, $to, $row->id, $workplace_id);
+
+            //Totales:
+            $worked_seconds = 0;
+            $working_seconds = 0;
+
+            if(count($timetables) > 0){
+                foreach($timetables as $tm){
+                    if($tm['accumulated']){
+                        $worked_seconds = $worked_seconds + helpers::getSeconds($tm['accumulated']);    
+                    } 
+
+                    if($tm['hoursOfWork']){
+                        $working_seconds = $working_seconds + helpers::getSeconds($tm['hoursOfWork']);
+                    }
+                }    
+            }
+
+            //Nuevos parámetros:
+            $row->worked_hours = $worked_seconds > 0? helpers::secondsToHoursMinutes($worked_seconds):'';
+            $row->working_hours = $working_seconds > 0? helpers::secondsToHoursMinutes($working_seconds):'';
+
+            $diff = $worked_seconds - $working_seconds;
+            $row->diferencia = $diff != '0'? helpers::secondsToHoursMinutes(abs($diff)):'00:00';
+            $row->sign = $diff < 0? '-':'+';
+
+            //Situación del usuario, en función de su último registro horario:
+            $last_register = Timetable::select('flag')
+            ->where('user_id', $row->id)
+            ->orderBy('date', 'DESC')
+            ->orderBy('id', 'DESC')
+            ->first();
+            $row->last_register = $last_register? $last_register->flag:2;
+
+            //Reseteamos fecha from a su valor original:
+            $from = $from_default;
+        }
+
+        return DataTables::of($data)
+        ->addColumn('employee', function($row){
+            return $row->name.' '.$row->surname;
+        })
+        ->addColumn('difference', function($row){
+            $difference = '';
+            if($row->diferencia && $row->worked_hours != ''){
+                $clase = $row->sign == '-'? 'text-danger':'text-success';
+                $difference = ' <strong class="'.$clase.'">';
+                if($row->sign == '-'){
+                    $difference .= '-';
+                }
+                $difference .= $row->diferencia.'</strong>';
+            }   
+            return $difference; 
+        })
+        ->addColumn('situation', function($row){
+            if($row->last_register){
+                if($row->last_register == 1){
+                    return '<i class="fa fa-sign-in-alt text-success" rel="tooltip" title="'.ucfirst(trans('textos.dentro')).'"></i>'; 
+                }else if($row->last_register == 2){
+                    return '<i class="fa fa-sign-out-alt text-danger" rel="tooltip" title="'.ucfirst(trans('textos.fuera')).'"></i>';
+                }                   
+            }else{
+                return '';
+            }     
+        })
+        ->addColumn('acciones', function($row){
+            return view('admin.timetables.partials.dt-actions', compact('row'));
+        })
+        ->rawColumns(['difference', 'situation'])
+        ->make(true);
+    }
 
     /**
      * 2. Guardar fichaje horario de usuario.
@@ -83,7 +223,7 @@ class TimetableController extends Controller{
             //Formato hora:
             $hora = date("H:i");
             $revisable = $item->reviewable? 1:0;
-
+        
             //Obtenemos último registro del usuario:
             $prevRecord = Timetable::select('timetables.id', 'timetables.date', 'timetables.hour', 'timetables.item_id', 'timetables.flag', 'timetable_items.min', 'timetable_items.max', 'timetable_items.fixed')
             ->join('timetable_items', 'timetables.item_id', '=', 'timetable_items.id')
@@ -100,8 +240,8 @@ class TimetableController extends Controller{
 
             //Comprobaciones registros anteriores:
             if($prevRecord){
-                //La hora actual no puede ser anterior a la última hora registrada:
-                if(date('H:i:s', time()) < $prevRecord->hour){
+                //La hora actual no puede ser anterior a la última hora registrada en el mismo día:
+                if($prevRecord->date == Carbon::today() && date('H:i:s', time()) < $prevRecord->hour){
                     return back();
                     exit;    
                 }
@@ -134,13 +274,7 @@ class TimetableController extends Controller{
                 if($prevRecord->min > 0 && helpers::getMinutes(helpers::getTimeBetweenHours($prevRecord->hour, $hora)) < $prevRecord->min){
                     $hora = helpers::sumaHoras($prevRecord->hour, helpers::getTimeFromMinutes($prevRecord->min));
                 }
-                
             }
-
-
-            //dd($item, $prevRecord);
-
-
 
             //Guardamos registro horario:
             $hour = new Timetable();
@@ -156,6 +290,42 @@ class TimetableController extends Controller{
 
         }else{
             return redirect('/');
+        }   
+    }
+
+    /**
+     * 2.1. Guardar jornada laboral de empleado.
+     */
+    public function add(Request $request){
+        if($request->date){
+            //Entrada:
+            $hora_in = $request->input('hora_in').':'.$request->input('minutos_in').':'.$request->input('segundos_in');
+            $hour_in = new Timetable();
+            $hour_in->date = $request->date;
+            $hour_in->hour = $hora_in;
+            $hour_in->user_id = $request->user_id;
+            $hour_in->item_id = $request->item_id_in;
+            $hour_in->flag = 1;
+            $hour_in->revision = 0;
+            $hour_in->comments = $request->comments;
+            $hour_in->save();
+
+            //Salida:
+            $hora_out = $request->input('hora_out').':'.$request->input('minutos_out').':'.$request->input('segundos_out');
+            $hour_out = new Timetable();
+            $hour_out->date = $request->date;
+            $hour_out->hour = $hora_out;
+            $hour_out->user_id = $request->user_id;
+            $hour_out->item_id = $request->item_id_out;
+            $hour_out->flag = 2;
+            $hour_out->revision = 0;
+            $hour_out->save();
+
+            //Eliminamos posibles registros en work_user_calendars, pues si es fecha trabajada, no puede ser una fecha disfrutada por el usuario:
+            WorkUserCalendar::deleteRowsByUserDate($request->user_id, $request->date);
+    
+            $msg = trans('textos.registro_horario_updated');
+            return redirect()->route('users.timetables', [$request->user_id, $request->date])->with(compact('msg')); 
         }   
     }
 
@@ -207,5 +377,71 @@ class TimetableController extends Controller{
 
         $msg = trans('textos.registro_horario_deleted');
         return redirect()->route('users.timetables', [$user_id, $add_register])->with(compact('msg'));   
+    }
+
+    /**
+     * 6. Marcar horario para revisar.
+     */
+    public function revisionHorarioOn(Request $request){
+        if($request->ajax()){
+            //Actualizamos registro horario:
+            $hour = Timetable::find($request->input('id'));
+            $hour->revision = 1;
+            $hour->comments = $hour->comments.' '.$request->input('comments');
+            $hour->save();    
+
+            $user = User::find($hour->user_id);
+
+            //Enviamos email:
+            $this->mailRevision($user, $hour, $request->input('comments'));
+
+            $resp = trans('textos.solicitud_revision_guardada');
+            return response()->json($resp);  
+        }
+    }
+
+    /**
+     * 7. Desmarcar horario revisado.
+     */
+    public function revisionHorarioOff(Request $request, $id = false){
+        if($request->ajax() && $id){
+            //Actualizamos registro horario:
+            $hour = Timetable::find($id);
+            $hour->revision = 0;
+            $hour->save();  
+
+            $resp = ($hour)? true:false;
+            return response()->json($resp);       
+        }
+    }
+
+    /**
+     * 8. Enviar email revisión.
+     */
+    public function mailRevision($user, $hour, $comments, $concepto = false){
+        //Enviamos email:
+        $data = [
+            'comments' => $comments,
+            'nombre' => $user->name,
+            'apellidos' => $user->surname,
+            'fecha' => $hour->date,
+            'hora' => $hour->hour,
+            'concepto' => $concepto
+        ];
+        $company = Company::find(session('currentCompany'));
+        $data['company'] = $company;
+        $emailFrom = $user->email;
+        $settings = CompanySettings::where('company_id', session('currentCompany'))->first();
+        $destinatarios = $settings->emails? unserialize($settings->emails):false;
+
+        if($destinatarios){
+            foreach($destinatarios as $emailTo){
+                Mail::send('emails.send-timetable-revision', $data, function($message) use($emailFrom, $company, $emailTo){
+                    $message->from($emailFrom);
+                    $message->to($emailTo);
+                    $message->subject(ucfirst(trans('textos.solicitar_revision'))); 
+                }); 
+            }  
+        }    
     }
 }

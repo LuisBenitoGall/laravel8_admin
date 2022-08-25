@@ -7,6 +7,7 @@ use Illuminate\View\Component;
 class inputFile extends Component{
     public $name;
     public $accepted_files;
+    public $lw;     // is Livewire component.
 
     /**
      * Create a new component instance.
@@ -15,10 +16,12 @@ class inputFile extends Component{
      */
     public function __construct(
         $name,
-        $accepted_files = 'image/png, image/jpeg, image/gif, application/pdf'
+        $accepted_files = 'image/png, image/jpeg, image/gif, application/pdf',
+        $lw = false
     ){
         $this->name = $name; 
         $this->accepted_files = $accepted_files;   
+        $this->lw = $lw;
     }
 
     /**

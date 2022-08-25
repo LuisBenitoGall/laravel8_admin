@@ -389,6 +389,9 @@ class OrderController extends Controller{
         ->addColumn('fechaEntregaPrevista', function($order){
             return Carbon::parse($order->estimated_delivery_date)->format($this->languages[session()->get('locale')][4]);   
         })
+        ->addColumn('cost_center', function($order){
+            return $order->costCenter;    
+        })
         ->addColumn('estado', function($order) use($estados){
             return view('admin.orders.partials.dt-status', compact('order', 'estados'));    
         })
@@ -1094,7 +1097,6 @@ class OrderController extends Controller{
         }else{
             $data = Order::select('provider_id AS company_id', 'provider_manager_id as manager_id', 'provider_team as team')->find($order);     
         }
-        //dd($data);
         
         $arr = [];
         //Añadir Project Manager:
@@ -1298,7 +1300,7 @@ class OrderController extends Controller{
         ->first();
 
         $purchase_ = Order::select('id')
-        ->where('order_id', $purchase->order_id)
+        ->where('id', $purchase->order_id)
         ->where('customer_id', session('currentCompany'))
         ->first();
 

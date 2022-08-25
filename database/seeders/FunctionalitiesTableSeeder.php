@@ -172,7 +172,7 @@ class FunctionalitiesTableSeeder extends Seeder{
             'label' => 'productos',
             'module' => 'products'
             ],
-            ['name' => 'categories',
+            ['name' => 'product categories',
             'slug' => 'product-categories',
             'label' => 'categorias',
             'module' => 'products'
@@ -182,9 +182,9 @@ class FunctionalitiesTableSeeder extends Seeder{
             'label' => 'productos_patrones',
             'module' => 'products'
             ],
-            ['name' => 'parameters',
-            'slug' => 'parameters',
-            'label' => 'parametros',
+            ['name' => 'attributes',
+            'slug' => 'attributes',
+            'label' => 'atributos',
             'module' => 'products'
             ],
 
@@ -385,6 +385,11 @@ class FunctionalitiesTableSeeder extends Seeder{
             ['name' => 'work calendar',
             'slug' => 'work-calendar',
             'label' => 'calendario_laboral',
+            'module' => 'calendar'
+            ],
+            ['name' => 'company calendar',
+            'slug' => 'company-calendar',
+            'label' => 'calendario_empresa',
             'module' => 'calendar'
             ],
             ['name' => 'day types',

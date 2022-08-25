@@ -11,6 +11,13 @@
 			{!! trans('textos.volver_editar_usuario') !!}
 		</a>
 
+		{{-- Validar jornadas --}}
+		@can('employees.edit')
+			<a class="btn btn-info" href="#" data-toggle="modal" data-target="#modal-validate-days">
+				<i class="fa fa-check"></i>
+				{{ trans('textos.jornadas_validar') }}
+			</a>
+		@endcan
 	</div>
 </div>
 
@@ -56,10 +63,50 @@
 				</h3>
 
 				{{-- Component Calendario --}}
-				{{-- @livewire('calendar', ['year' => $year, 'workplace' => false]) --}}
+				@livewire('calendar', ['year' => $year, 'workplace' => $workplace, 'user' => $user])
 			</div>
 		</div>
 	</div>
 </div>
+
+{{-- Modals --}}
+{{-- Modificar valores tipo de día --}}
+@include('admin.work_user_calendar.partials.modal-modify-day-type')
+
+{{-- Validar jornadas --}}
+@include('admin.work_user_calendar.partials.modal-validate-days')
+
+{{-- Adjuntar archivo --}}
+@include('admin.work_user_calendar.partials.modal-add-file')
+
+@push('scripts')
+<script>
+$(function(){
+	// Modal modificar cantidad de días por tipo de jornada.
+    $('.btnModifiable').on('click', function(){
+        var user_id = $('#modifiableUserId').val();
+        var year = $('#modifiableYear').val();
+        var daytype = $(this).data('daytype');
+        var id = $(this).data('id');
+        var qty = $(this).data('qty');
+        var url = '/admin/day-types-users-config/'+user_id+'/'+id+'/'+year+'/destroy';
+
+        $('#modal-modify-day-type .modal-title span').text(daytype);
+        $('#modifiableDayTypeId').val(id);
+        $('#modifiableQty').val(qty);
+        $('.btnDeleteModified').attr('href', url);
+    });
+
+    // Seleccionar colección de checkbox.
+    $('.chkSelectAll').on('click', function(){
+        if($(this).is(':checked')){
+            $('.chkForSelecting').prop('checked', true);
+        }else{
+            $('.chkForSelecting').prop('checked', false);
+        }
+    });
+});
+</script>
+@endpush
 
 @endsection

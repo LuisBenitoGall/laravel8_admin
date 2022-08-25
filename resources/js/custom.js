@@ -1051,5 +1051,4 @@ $(window).on('load', function(){
         }
     });
     
-    
 });

@@ -18,7 +18,7 @@
 				<tr>
 					<th>{!! ucfirst(trans('textos.razon_social')) !!}</th>
 					<th>{!! ucfirst(trans('textos.nombre_comercial')) !!}</th>
-					<th>{!! ucfirst(trans('textos.fecha_alta')) !!}</th>
+					<th class="text-center">{!! ucfirst(trans('textos.fecha_alta')) !!}</th>
 					<th>NIF</th>
 					<th>UTE</th>
 					<th>Logo</th>

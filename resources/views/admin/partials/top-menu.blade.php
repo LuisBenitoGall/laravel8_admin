@@ -128,13 +128,13 @@ if(!$initial_imports->value){
                                 @if($lastHour && $lastHour->item_id == $ti->id && $ti->max > 0)
                                     @php
                                     //Convertimos la última hora a minutos y le sumamos el tiempo máximo.
-                                    $minutes = App\Helpers\Helpers::getMinutes($lastHour->hour);
+                                    $minutes = App\Helpers\helpers::getMinutes($lastHour->hour);
                                     //16/07/21: se pone un fijo de 5 minutos para el tiempo máximo:
                                     $max_time = 5;
                                     $total_minutes = $minutes + $max_time; //$ti->max;
 
                                     //Hora de desbloqueo:
-                                    $unlock_hour = App\Helpers\Helpers::getTimeFromMinutes($total_minutes);
+                                    $unlock_hour = App\Helpers\helpers::getTimeFromMinutes($total_minutes);
 
                                     if(date('Y-m-d').' '.$unlock_hour > date('Y-m-d H:i')){
                                         $blocked = $unlock_hour; 
@@ -145,11 +145,12 @@ if(!$initial_imports->value){
                                 {{-- Bloqueo de conceptos 2 
                                     Si la hora del último registro es superior a la hora actual:
                                 --}}
-                                @if($lastHour && $lastHour->hour >= date('H:i:s', time()))
+                                {{-- 16/08/22 revisar esta condición, no acabo de entenderla --}}
+                                {{-- @if($lastHour && $lastHour->hour >= date('H:i:s', time()))
                                     @php
                                     $blocked = $lastHour->hour;
                                     @endphp    
-                                @endif
+                                @endif --}}
                             @endforeach
                         @endif  
 
@@ -177,7 +178,7 @@ if(!$initial_imports->value){
 
                         {{-- Comentar la línea siguiente para habilitar deteccíon de IP --}}
                         {{-- @if($agent->isDesktop()) --}}
-                        
+
                         {{-- Descomentar la línea siguiente para habilitar la detección de IP --}}
                         @if($agent->isDesktop() && is_array($setted_ips) && in_array($ip, $setted_ips))    
                             <li class="HourlyControl basicHourlyControl list-inline-item notif display-none" id="HCdesktop">

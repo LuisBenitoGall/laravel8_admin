@@ -12,9 +12,10 @@ use Carbon\Carbon;
 use File;
 
 //Models:
-use App\CompanyModules;
-use App\Module;
-use App\Preference;
+use App\Models\CompanyModules;
+use App\Models\CompanySettings;
+use App\Models\Module;
+use App\Models\Preference;
 
 class AdminController extends Controller{
 	/**
@@ -46,6 +47,19 @@ class AdminController extends Controller{
         // ->get();
 
     	//return view('admin.dashboard', compact('header', 'preferences'));
+        
+
+
+        // $company_emails = CompanySettings::select('emails')
+        //     ->where('company_id', session('currentCompany'))
+        //     ->first();
+            
+        // $emailsTo = $company_emails->emails? unserialize($company_emails->emails):false;
+
+        // dd($emailsTo);
+
+
+
         return view('admin.dashboard', compact('header'));
     }
 

@@ -62,7 +62,7 @@ $permitted = !$order || ($order && !$order->invoiced && !$order->parent)? true:f
                                             <div class="row">
                                                 <div class="col-12 only-vertical-centered">
                                                     {{-- Item --}}
-                                                    <b class="concept">{{ ucfirst($item->name) }}</b>   
+                                                    <b class="concept">@if($item->concept) {{ ucfirst($item->concept) }} @else {{ ucfirst($item->name) }} @endif</b>   
                                                 </div>
 
                                                 <div class="col-10 pt-2">
@@ -95,6 +95,10 @@ $permitted = !$order || ($order && !$order->invoiced && !$order->parent)? true:f
                                                 </div>
                                             </div>
                                         </div>
+                                        
+                                        @php
+                                        $k++;
+                                        @endphp
                                     @endforeach
                                 </div>
                             </div>                          
@@ -239,7 +243,7 @@ $permitted = !$order || ($order && !$order->invoiced && !$order->parent)? true:f
                 <div class="form-group row row-eq-height">
                     {{-- Observaciones --}}
                     <label for="observations" class="col-4 col-sm-2 col-xl-1 col-form-label sinpadding-right">{!! ucfirst(trans('textos.observaciones')) !!}</label>
-                    <div class="col-9 col-sm-10 col-xl-11">
+                    <div class="col-9 col-sm-10 col-xl-11" wire:ignore>
                         <textarea class="form-control editor" name="observations" id="newItemObservations" wire:model.defer="observations"></textarea>  
                     </div>
                 </div>
@@ -445,10 +449,14 @@ $permitted = !$order || ($order && !$order->invoiced && !$order->parent)? true:f
 
         //Nuevo item manual:
         $('.btnAddBudgetItem').on('click', function(){
+            //Cancelar:
             if($('.btnAddBudgetItem').hasClass('opened')){
                 $('.new-budget-item').slideUp();   
                 $('.btnAddBudgetItem').removeClass('opened').html('<i class="fa fa-plus"></i> '+txtLineaAdd);
+                $('#newItemObservations').trumbowyg("html", '');
                 @this.set('form_on', false);
+
+            //Abrir:
             }else{
                 $('.new-budget-item').slideDown();   
                 //Modo para esconder el formulario:
@@ -494,6 +502,15 @@ $permitted = !$order || ($order && !$order->invoiced && !$order->parent)? true:f
         $('#lineNoPrice').on('change', function(){
             var text = $('#lineNoPrice option:selected').text();
             @this.set('price', text);
+        });
+
+        //Actualizar el modelo con el editor trumbowyg
+        window.addEventListener('observations-value', (event) => {
+            $('#newItemObservations').trumbowyg("html", event.detail.observations);
+        });
+        //Pasando valor al controller:
+        $('#newItemObservations').on('tbwchange', function(e){
+            @this.set('observations',e.target.value)
         });
     });
     </script>

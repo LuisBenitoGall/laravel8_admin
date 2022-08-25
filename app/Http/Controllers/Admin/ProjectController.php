@@ -460,11 +460,26 @@ class ProjectController extends Controller{
         ->toArray();
 
         //Presupuestos y pedidos de venta:
-        $orders = Order::select('orders.id', 'orders.is_budget', 'orders.customer_id', 'orders.budget_num', 'orders.budget_old_num', 'orders.name', 'orders.modality', 'orders.budget_status AS budget_status', 'orders.order_num', 'orders.order_old_num', 'orders.estimated_delivery_date', 'orders.delivery_date', 'orders.order_status', 'orders.created_at', 'users.name AS nombre', 'users.surname')
+        $project_orders = Order::select('orders.id', 'orders.is_budget', 'orders.customer_id', 'orders.budget_num', 'orders.budget_old_num', 'orders.name', 'orders.modality', 'orders.budget_status AS budget_status', 'orders.order_num', 'orders.order_old_num', 'orders.estimated_delivery_date', 'orders.delivery_date', 'orders.order_status', 'orders.created_at', 'users.name AS nombre', 'users.surname')
         ->join('project_orders', 'orders.id', '=', 'project_orders.order_id')
         ->leftJoin('users', 'orders.provider_manager_id', '=', 'users.id')
         ->where('project_orders.project_id', $project->id)
         ->where('orders.is_order', 1)
+        ->get();
+
+        //Pasamos las ventas vinculadas a un array:
+        $arr_project_orders = [];
+        foreach($project_orders as $po){
+            array_push($arr_project_orders, $po->id);    
+        }
+
+        //Ventas para el proyecto:
+        $orders = Order::select('orders.id', 'orders.order_num', 'orders.name', 'companies.name AS customer')
+        ->join('companies', 'orders.provider_id', '=', 'companies.id')
+        ->where('orders.is_order', true)
+        ->where('orders.provider_id', session('currentCompany'))
+        ->whereNotIn('orders.id', $arr_project_orders)
+        ->orderBy('orders.order_num', 'ASC')
         ->get();
 
         //Abreviaturas modalidades de presupuesto:
@@ -475,7 +490,7 @@ class ProjectController extends Controller{
         ];
 
         //Obtenemos importe de cada presupuesto-pedido:
-        foreach($orders as $row){
+        foreach($project_orders as $row){
             //Enviamos las fechas ya formateadas:
             $row->fechaEntregaPrevista = $row->estimated_delivery_date? Carbon::parse($row->estimated_delivery_date)->format($this->languages[session()->get('locale')][4]):'';
             $row->fechaEntrega = $row->delivery_date? Carbon::parse($row->delivery_date)->format($this->languages[session()->get('locale')][4]):'';
@@ -495,21 +510,25 @@ class ProjectController extends Controller{
         }
 
         //Compras:
-        $project_purchases = Order::select('orders.id', 'orders.order_num', 'orders.purchase_num', 'orders.purchase_old_num', 'orders.name', 'orders.delivery_date', 'orders.order_status', 'companies.name AS provider')
+        $project_purchases = Order::select('orders.id', 'orders.order_num', 'orders.purchase_num', 'orders.purchase_old_num', 'orders.name', 'orders.delivery_date', 'orders.order_status', 'companies.name AS provider', 'project_purchases.id AS ppId')
         ->join('project_purchases', 'orders.id', '=', 'project_purchases.order_id')
         ->join('companies', 'orders.provider_id', '=', 'companies.id')
         ->where('project_purchases.project_id', $project->id)
         ->orderBy('orders.order_num', 'ASC')
         ->get();
 
-        //Compras del proyecto:
+        //Pasamos las compras vinculadas a un array:
+        $arr_project_purchases = [];
+        foreach($project_purchases as $pp){
+            array_push($arr_project_purchases, $pp->id);
+        }
+
+        //Compras para el proyecto:
         $purchases = Order::select('orders.id', 'orders.order_num', 'orders.purchase_num', 'orders.purchase_old_num', 'orders.name', 'companies.name AS provider')
         ->join('companies', 'orders.provider_id', '=', 'companies.id')
         ->where('orders.is_order', true)
         ->where('orders.customer_id', session('currentCompany'))
-        ->whereNotIn('orders.id', function($query){
-            $query->select('order_id')->from('project_orders');
-        })
+        ->whereNotIn('orders.id', $arr_project_purchases)
         ->orderBy('orders.purchase_num', 'ASC')
         ->get();
 
@@ -534,7 +553,7 @@ class ProjectController extends Controller{
         //Moneda:
         $currency = $this->co_currency;
 
-        return view('admin.projects.edit', compact('header', 'tab', 'project', 'patterns', 'author', 'owner', 'customer', 'customers', 'users', 'team', 'team_members', 'tasks', 'task_status', 'groups', 'orders', 'project_purchases', 'purchases', 'project_expenses', 'expense_types', 'expenses', 'languages', 'currency'));
+        return view('admin.projects.edit', compact('header', 'tab', 'project', 'patterns', 'author', 'owner', 'customer', 'customers', 'users', 'team', 'team_members', 'tasks', 'task_status', 'groups', 'project_orders', 'orders', 'project_purchases', 'purchases', 'project_expenses', 'expense_types', 'expenses', 'languages', 'currency'));
     }
 
     /**

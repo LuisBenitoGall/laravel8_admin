@@ -8,6 +8,7 @@ class inputTextarea extends Component{
     public $class;
     public $disabled;
     public $id;
+    public $lw;
     public $name; 
     public $readonly;
     public $required;
@@ -22,6 +23,7 @@ class inputTextarea extends Component{
         $class = '', 
         $disabled = false, 
         $id = false,
+        $lw = false,
         $name,
         $readonly = false,
         $required = false,
@@ -30,6 +32,7 @@ class inputTextarea extends Component{
         $this->class = $class;
         $this->disabled = $disabled;  
         $this->id = $id;
+        $this->lw = $lw;
         $this->name = $name; 
         $this->readonly = $readonly;
         $this->required = $required;

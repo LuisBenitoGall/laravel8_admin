@@ -23,6 +23,9 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     //Accounts:
     Route::get('accounts', 'AccountController@getAccountsDT');
 
+    //Attributes:
+    Route::get('attributes', 'AttributeController@getAttributesDT');
+
     //Banks:
     Route::get('banks', 'BankController@getBanksDT');
 
@@ -49,6 +52,9 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     
     //BusinessAreas:
     Route::get('business-areas/{company}/{business_relationship}', 'BusinessAreasController@getBusinessAreasDT');
+
+    //Categories:
+    Route::get('categories/{module_id}', 'CategoryController@getCategoriesDT');
     
     //Companies:
     Route::get('companies', 'CompanyController@getCompaniesDT');
@@ -91,6 +97,9 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
 
     //Employees:
     Route::get('employees', 'EmployeeController@getEmployeesDT');
+
+    //EmployeesTimetables:
+    Route::get('employees-timetable/{workplace_id}/{from}/{to}', 'TimetableController@getEmployeesTimetablesDT');
 
     //Expenses:
     Route::get('expenses', 'ExpenseController@getExpensesDT');
@@ -147,8 +156,20 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     //Procedures:
     Route::get('procedures', 'ProcedureController@getProceduresDT');
 
+    //ProductAttributes:
+    Route::get('product-attributes/{product_id}', 'ProductAttributesController@getAttributesDT');
+
+    //ProductCategories:
+    Route::get('product-categories/{product_id}', 'ProductCategoriesController@getCategoriesDT');
+
     //ProductPatterns:
     Route::get('product-patterns', 'ProductPatternsController@getPatternsDT');
+
+    //ProductSerials:
+    Route::get('product-serials/{product_id}', 'ProductSerialsController@getSerialsDT');
+
+    //ProductSerialsCards:
+    Route::get('product-serials-cards/{serial_id}', 'ProductSerialsCardsController@getProductAttributesDT');
 
     //ProductUnits:
     Route::get('product-units/{product_id}', 'ProductUnitsController@getUnitsDT');
@@ -232,10 +253,10 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     Route::get('user-companies/{user}', 'UserCompaniesController@getCompaniesDT');
 
     //Users:
-    Route::get('users', 'UserController@getUsersDT');
+    Route::get('users/{all?}', 'UserController@getUsersDT');
 
     //Users All:
-    Route::get('users-all', 'UserController@getUsersAllDT');
+    //Route::get('users-all', 'UserController@getUsersAllDT');
 
     //UserTimetables:
     Route::get('user-timetables/{from}/{to}/{user}', 'UserController@userTimetablesDT');

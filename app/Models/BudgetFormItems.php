@@ -26,10 +26,20 @@ class BudgetFormItems extends Model{
      * 1. Obtener items por bloque.
      */
     public function getItems($id, $customer_id){
-        $items = BudgetFormItems::select('products.name', 'products.price', 'products.iva', 'budget_form_items.form_id', 'budget_form_items.id', 'budget_form_items.product_id', 'budget_form_items.discount', 'budget_form_items.qty_min', 'budget_form_items.recid', 'budget_form_items.calculated_by_percent',
+        $items = BudgetFormItems::select('products.name', 
+            'products.price', 
+            'products.iva', 
+            'budget_form_items.id', 
+            'budget_form_items.name AS concept', 
+            'budget_form_items.form_id', 
+            'budget_form_items.product_id', 
+            'budget_form_items.discount', 
+            'budget_form_items.qty_min', 
+            'budget_form_items.recid', 
+            'budget_form_items.calculated_by_percent',
             DB::raw('(SELECT price FROM customer_products WHERE product_id = products.id AND customer_id = '.$customer_id.') AS priceForCustomer')
         )
-        ->join('products', 'budget_form_items.product_id', '=', 'products.id')
+        ->leftJoin('products', 'budget_form_items.product_id', '=', 'products.id')
         ->where('budget_form_items.recid', $id)
         ->get();
         return $items;

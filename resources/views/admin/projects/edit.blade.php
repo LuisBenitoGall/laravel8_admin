@@ -96,11 +96,11 @@
         @endcan
 
         {{-- Presupuestos y pedidos --}}
-        @if($orders->count())
+        @if($project_orders->count())
         	@php
         	$budgets_ = [];
         	$orders_ = [];
-        	foreach($orders as $bo){
+        	foreach($project_orders as $bo){
         		if($bo->budgetId){
         			$budgets_[$bo->budgetId] = $bo->budget_num? $bo->budget_num:trans('textos.presupuesto').' '.$bo->budgetId;
         		}
@@ -202,7 +202,7 @@
 				    		<a class="nav-link @if($tab == 'budgets') active @endif" href="#tab-project-budgets" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.presupuestos')) !!}</a>
 				  		</li>
 				  	@endif
-				  	@if($orders->count())
+				  	@if($project_orders->count())
 				  		<li class="nav-item @if($tab == 'orders') active @endif">
 				    		<a class="nav-link @if($tab == 'orders') active @endif" href="#tab-project-orders" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.pedidos_venta')) !!}</a>
 				  		</li>
@@ -242,7 +242,7 @@
 					@endif
 
 					{{-- Pedidos de venta --}}
-					@if($orders->count())
+					@if($project_orders->count())
 						<div class="tab-pane fade @if($tab == 'orders') show active @endif" role="tabpanel" id="tab-project-orders">
 							@include('admin.projects.partials.project-orders')	
 						</div>
@@ -291,6 +291,9 @@
 
 {{-- Add member: --}}
 @include('admin.projects.partials.modal-add-member')
+
+{{-- Add order: --}}
+@include('admin.projects.partials.modal-add-order')
 
 {{-- Add purchase: --}}
 @include('admin.projects.partials.modal-add-purchase')

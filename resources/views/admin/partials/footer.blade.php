@@ -34,22 +34,6 @@
 		</script>
 	@endif
 
-    <script>
-	//Variables globales:
-	var idm = '{{ App::getLocale() }}';     		//Idioma
-	var base_url = '{{ url()->current() }}';		//URL
-	var companyCurrency = "{{ isset($currency)? $currency:config('constants.CURRENCY_') }}";
-	var color_primary = '#23c6c8';
-	var color_danger = '#ed5565';
-	var color_info = '#19ABD4';
-	var color_success = '#18a689';
-	var color_warning = '#f8ac59';
-	var color_chart_success = "#a3e1d4";
-	var color_chart_warning = "#e1d4a3";
-	var color_chart_danger = "#f16688";
-	var color_chart_grey = "#dedede";
-	</script>
-
     <script src="{{ asset('js/popper.min.js') }}"></script>
     {{-- JQuery UI 
 		Atención a la posición que debe ocupar UI respecto a bootstrap.min.js, y al script bridge que va a continuación. En otro orden se producen conflictos entre ambas librerías.
@@ -83,6 +67,9 @@
 	{{-- Datepicker: --}}
 	<script src="{{ asset('js/plugins/datapicker/bootstrap-datepicker.js') }}"></script>
 	<script src="{{ asset('js/plugins/datapicker/locales/bootstrap-datepicker.'.App::getLocale().'.js') }}" charset="UTF-8"></script>
+
+	{{-- Moment JS --}}
+	<script src="{{ asset('js/moment.min.js') }}"></script>
 
 	{{-- Trumbowyg --}}
 	<script src="{{ asset('plugins/trumbowyg/trumbowyg.min.js') }}"></script>

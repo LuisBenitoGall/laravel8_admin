@@ -8,10 +8,12 @@ use App\Notifications\PurchaseMessage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use File;
+use PDF;
 use Carbon\Carbon;
 
 //Models:
@@ -769,7 +771,72 @@ class InvoiceController extends Controller{
      * 5. Imprimir factura.
      */
     public function print(Invoice $invoice){
-        
+        if(!$invoice || $invoice->deleted_at){
+            $alert = trans('textos.factura_no_existe');
+            return redirect()->route('invoices.index')->with(compact('alert')); 
+            exit;       
+        }  
+
+        $invoice_order = Order::select('orders.*', 'users.name AS Nombre', 'users.surname')
+        ->leftJoin('users', 'orders.provider_manager_id', '=', 'users.id')
+        ->where('orders.id', $invoice->order_id)
+        ->first();
+
+        //dd($invoice_order);
+
+        $items = Item::where('order_id', $invoice_order->id)
+        ->orderBy('concept', 'ASC')
+        ->get();
+
+
+        //Anticipos:
+        $advance_invoices = Invoice::select('id', 'invoice_num', 'amount', 'with_iva', 'amount_with_iva')
+        ->where('order_id', $invoice_order->id)
+        ->get();
+
+        //Proveedor:
+        $provider = Company::find($invoice_order->provider_id);
+
+        //Customizando CIF, ponemos espacio en blanco:
+        $provider->nif = helpers::setCif($provider->nif);
+
+        //Cliente:
+        $customer = Company::find($invoice->customer_id);
+
+        $template = $invoice->template? unserialize($invoice->template):false;
+
+        $fechaLiteral = helpers::fechaLiteral($invoice->created_at, session()->get('locale'));
+
+        $company_settings = session('companySettings');
+
+        $provider_workplace = false;
+        $provider_phones = false;
+
+
+
+        $customer_workplace = false;
+        $customer_responsible = false;
+
+        //Moneda:
+        $currency = $this->co_currency;
+
+        //Actualizamos número de impresiones:
+        $invoice->printed = $invoice->printed + 1;
+        $invoice->save();
+
+
+
+
+
+
+        //Nombre del archivo:
+        $invoice_name_pdf = $invoice->invoice_num? $invoice->invoice_num:trans('textos.factura').'_'.$invoice->id;
+
+        //Template de factura. Se pasa por variable por si se incluyen más templates.
+        $invoice_template = 'pdf/invoice';
+
+        $pdf = PDF::loadView($invoice_template, compact('invoice', 'invoice_order', 'items', 'advance_invoices', 'provider', 'customer', 'template', 'fechaLiteral', 'company_settings', 'provider_workplace', 'provider_phones', 'customer_workplace', 'customer_responsible', 'currency'));
+        return $pdf->download($invoice_name_pdf.'.pdf'); 
     }
 
     /**

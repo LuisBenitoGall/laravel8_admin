@@ -15,5 +15,6 @@ mix.js('resources/js/app.js', 'public/js')
     .js('resources/js/bootstrap.js', 'public/js')
     .js('resources/js/custom.js', 'public/js')
     .js('resources/js/custom-datatables.js', 'public/js')
+    .js('resources/js/custom-fullcalendar.js', 'public/js')
     .sass('resources/sass/app.scss', 'public/css')
     .sourceMaps();
