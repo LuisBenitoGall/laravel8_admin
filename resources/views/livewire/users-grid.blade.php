@@ -11,22 +11,7 @@
                                 <img class="img-circle m-t-xs img-fluid" src="{{ Avatar::create($user->name.' '.$user->surname)->toBase64() }}" />
                             @endif
 
-                            {{-- Categoría --}}
-                            @php
-                            $arr = $user->categories? explode(',', $user->categories):false;
-                            $categories = '';
-                            if($arr){
-                                foreach($arr as $cat){
-                                    $category = App\Models\UserCategories::select('name')->find($cat);   
-                                    if($categories != ''){
-                                        $categories .= ', ';
-                                    } 
-                                    $categories .= $category->name;
-                                }
-                            }
-                            @endphp
-
-                            <div class="m-t-xs font-bold">{!! $categories !!}</div>
+                            <div class="m-t-xs font-bold">{!! $user->categories_of_user_string($user->categories) !!}</div>
                         </div>
                     </div>
 
@@ -41,24 +26,18 @@
                         </p>
 
                         {{-- Teléfonos: --}}
-                        @php
-                        $phones = $user->phones;
-                        $i = 1;
-                        @endphp
                         
-                        @if($phones->count() > 0)
-                            @foreach($phones as $phone)
-                                @if($i<=3)
-                                    <p>
-                                        <i class="fa fa-phone"></i>
-                                        {{ ucfirst($phone->concept) }}
-                                        <a target="_blank" href="tel:{{ $phone->phone_number }}">{{ $phone->phone_number }}</a>
-                                    </p>
+                        @if($user->phones->count() > 0)
+                            @foreach($user->phones as $phone)
+                                @if($loop->index>3)
+                                    @break
                                 @endif
 
-                                @php
-                                $i++;
-                                @endphp
+                                <p>
+                                    <i class="fa fa-phone"></i>
+                                    {{ ucfirst($phone->concept) }}
+                                    <a target="_blank" href="tel:{{ $phone->phone_number }}">{{ $phone->phone_number }}</a>
+                                </p>
                             @endforeach
                         @endif
                     </div>

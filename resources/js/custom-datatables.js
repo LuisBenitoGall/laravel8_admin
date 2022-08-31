@@ -5716,13 +5716,13 @@ $(document).ready(function(){
                 }
             },
             "columns": [
-                {data: 'user'},
-                {data: 'alta', className: 'text-right'},
-                {data: 'email'},
-                {data: 'phones'},
+                {data: 'user', name: "users.name"},
+                {data: 'alta', name: "users.created_at", className: 'text-right'},
+                {data: 'email', name: "users.email"},
+                {data: 'phones', name: "phones.phone_number"},
                 {data: 'categories'},
                 {data: 'image', className: 'text-center'},
-                {data: 'acciones', className: 'text-right'}
+                {data: 'acciones', name: "users.id", className: 'text-right'}
             ]
         });
     }
