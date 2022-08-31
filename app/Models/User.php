@@ -25,6 +25,7 @@ class User extends Authenticatable{
      * 8. Usuario como Super Admin.
      * 9. Notas del usuario.
      * 10. Validación usuario para middleware.
+     * 11. Listado de categorias del usuario.
      */
     
     use HasApiTokens;
@@ -247,5 +248,23 @@ class User extends Authenticatable{
                 }
             }
         }
+    }
+
+    /**
+     * 11. Listado de categorias del usuario.
+     */
+    public function categories_of_user_string($categories_raw)
+    {
+        // Si el campo es null, se retorna un string vació
+        if ($categories_raw == null) { return ""; }
+
+        // Se obtiene las categorias y se concatena el nombre
+        $cats_id = explode(',', $categories_raw);
+        $categories = Category::whereIn("id",$cats_id)->get();
+        $categories_string = "";
+        foreach ($categories as $category) {
+            $categories_string .= "{$category->name}, ";
+        }
+        return $categories_string;
     }
 }
