@@ -96,6 +96,7 @@
 				</div>
 			</div>
 
+			{{-- Cliente --}}
 			@if(!$customer)
 				<div class="form-group row">
 					<label for="customer_id" class="col-md-3 col-form-label">{!! ucfirst(trans('textos.cliente')) !!}</label>
@@ -173,15 +174,16 @@
 		</div>
 
 		{{-- Charts --}}
-		<div class="col-12 col-lg-4 text-center">
-			<div class="chart">
+		<div class="col-12 col-lg-4 text-center" style="height: 10vh;">
+			<div class="chart" style="position: relative; height: 6vh; width: 13vw">
 				<canvas id="chartProjectPercent"></canvas>
 			</div>
 		</div>
 	</div>
+	<br><br>
 
 	{{-- Descripción --}}
-	<div class="form-group row">
+	<div class="form-group row mt-5">
 		<label for="description" class="col-lg-2 col-form-label">{{ ucfirst(trans('textos.descripcion')) }}</label>
 		<div class="col-lg-10">
 			<x-input-textarea name="description" class="editor" value="{{ $project->briefing }}"/>

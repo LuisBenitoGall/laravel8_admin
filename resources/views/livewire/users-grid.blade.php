@@ -17,7 +17,7 @@
                             $categories = '';
                             if($arr){
                                 foreach($arr as $cat){
-                                    $category = App\Models\UserCategories::select('name')->find($cat);   
+                                    $category = App\Models\Category::select('name')->find($cat);   
                                     if($categories != ''){
                                         $categories .= ', ';
                                     } 

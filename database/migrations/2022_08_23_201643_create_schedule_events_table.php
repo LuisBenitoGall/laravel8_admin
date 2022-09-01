@@ -24,6 +24,7 @@ class CreateScheduleEventsTable extends Migration{
             $table->foreign('author')->references('id')->on('users');
             $table->dateTime('start');
             $table->dateTime('end');
+            $table->boolean('allDay')->default(false);
             $table->text('responsible')->nullable();
             $table->text('guests')->nullable();
             $table->text('products')->nullable();

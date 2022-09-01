@@ -771,16 +771,26 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
 
     // Schedule Event Types:
     Route::get('schedule-event-types', 'ScheduleEventTypesController@index')->name('schedule-event-types.index')->middleware('permission:schedules.edit');
+    Route::get('schedule-event-types/create', 'ScheduleEventTypesController@create')->name('schedule-event-types.create')->middleware('permission:schedules.edit');
+    Route::post('schedule-event-types/store', 'ScheduleEventTypesController@store')->name('schedule-event-types.store');
+    Route::get('schedule-event-types/{event_type}/edit', 'ScheduleEventTypesController@edit')->name('schedule-event-types.edit')->middleware('permission:schedule.edit');
+    Route::put('schedule-event-types/{event_type}/update', 'ScheduleEventTypesController@update')->name('schedule-event-types.update')->middleware('permission:schedule.edit');
+    Route::delete('schedule-event-types/{event_type}', 'ScheduleEventTypesController@destroy')->name('schedule-event-types.destroy')->middleware('permission:schedule.destroy');
+    Route::get('schedule-event-types/status/{event_type}/{status}', 'ScheduleEventTypesController@status')->name('schedule-event-types.status')->middleware('permission:schedule.edit');
 
     // Schedule Events:
     Route::get('schedule-events', 'ScheduleEventsController@index')->name('schedule-events.index');
     Route::post('schedule-events/store', 'ScheduleEventsController@store')->name('schedule-events.store')->middleware('permission:schedules.edit');
+    Route::get('schedule-events/{event}/edit', 'ScheduleEventsController@edit')->name('schedule-events.edit');
+    Route::post('schedule-events/update', 'ScheduleEventsController@update')->name('schedule-events.update');
 
     // Schedules:
     Route::get('schedules', 'ScheduleController@index')->name('schedules.index');
     Route::get('schedules/create', 'ScheduleController@create')->name('schedules.create')->middleware('permission:schedules.create');
     Route::post('schedules/store', 'ScheduleController@store')->name('schedules.store')->middleware('permission:schedules.create');
     Route::get('schedules/{schedule}/edit', 'ScheduleController@edit')->name('schedules.edit')->middleware('permission:schedules.edit');
+    Route::put('schedules/{schedule}/update', 'ScheduleController@update')->name('schedules.update')->middleware('permission:schedules.edit');
+    Route::get('schedules/{schedule}/status/{status}', 'ScheduleController@status')->name('schedules.status')->middleware('permission:schedules.edit');
 
     // Shipment Patterns:
     Route::get('shipment-patterns', 'ShipmentPatternsController@index')->name('shipment-patterns.index')->middleware('permission:shipment-patterns.index');

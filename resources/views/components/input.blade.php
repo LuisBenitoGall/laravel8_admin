@@ -14,7 +14,6 @@
         <input type="{{ $type }}" 
             name="{{ $name }}"
             class="form-control {{ $class }}" 
-            @if($lw) wire:model.defer="{{ $lw }}" @endif
             @if($id) id="{{ $id }}" @endif
             @if($disabled) disabled @endif
             @if($required) required @endif 

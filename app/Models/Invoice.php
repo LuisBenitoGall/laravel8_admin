@@ -5,11 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Helpers\Helpers;
+use App\Helpers\helpers;
 
 class Invoice extends Model{
     /**
      * 1. Calcular importe de factura.
+     * 2. Suma de importes por pedido.
      */
 
     use HasFactory;
@@ -24,7 +25,7 @@ class Invoice extends Model{
      */
     public function calculateAmount(){
         if($this->with_iva > 0){
-            $percent = Helpers::percent($this->amount, $this->with_iva); 
+            $percent = helpers::percent($this->amount, $this->with_iva); 
             $iva_amount = $this->amount + $percent;
         }else{
             $iva_amount = $this->amount;    
@@ -32,5 +33,28 @@ class Invoice extends Model{
 
         $this->amount_with_iva = $iva_amount;
         $this->save();
+    }
+
+    /**
+     * 2. Suma de importes por pedido.
+     */
+    public static function amountByOrder($order_id){
+        $data = Invoice::select('refund', 'amount')
+        ->where('order_id', $order_id)
+        ->whereNull('deleted_at')
+        ->get();
+
+        $total = 0;
+        if($data->count()){
+            foreach($data as $row){
+                if($row->refund){
+                    $total = $total - $row->amount;    
+                }else{
+                    $total = $total + $row->amount;
+                }
+            }
+        }
+
+        return $total;      
     }
 }

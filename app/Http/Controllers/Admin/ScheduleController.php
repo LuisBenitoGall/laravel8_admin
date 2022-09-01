@@ -37,6 +37,23 @@ class ScheduleController extends Controller{
         $this->languages = helpers::languages();
 
         $this->middleware('module_setted:schedule');
+        $this->middleware('schedule_get', ['only' => ['edit', 'update']]);
+    }
+
+    //0. Validator:
+    protected function validator(array $data){
+        //Validación save:
+        if(isset($data['submit_save'])){
+            return Validator::make($data, [
+                'name' => 'required|string|max:255'
+            ]);
+
+        //Validación update:
+        }elseif(isset($data['submit_update'])){
+            return Validator::make($data, [
+                'name' => 'required|string|max:255'
+            ]);
+        }
     }
 
     /**
@@ -67,4 +84,96 @@ class ScheduleController extends Controller{
         return view('admin.schedules.create')->with(compact('header'));
     }
 
+    /**
+     * 3. Guardar nueva agenda.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request){
+        $validator = $this->validator($request->all());
+        if($validator->fails()){
+            return redirect('/admin/schedules/create')
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        //Slug:
+        $slug = Str::slug($request->name);
+
+        $status = $request->input('status')? 1:0;
+
+        $schedule = new Schedule();
+        $schedule->name = $request->input('name');
+        $schedule->slug = $slug;
+        $schedule->description = $request->description;
+        $schedule->company_id = session('currentCompany');
+        $schedule->user_id = auth()->user()->id;
+        $schedule->status = $status;
+        $schedule->color = $request->color;
+        $schedule->save();
+
+        $msg = trans('textos.agenda_creada');
+        return redirect()->route('schedules.index')->with(compact('msg'));
+    }
+
+    /**
+     * 4. Editar agenda.
+     *
+     * @param  \App\schedule  $schedule
+     * @return \Illuminate\Http\Response
+     */
+    public function edit(Schedule $schedule){
+        $header = [
+            'option' => $this->option, 
+            'suboption' => 'textos.agenda_editar',
+            'module' => $this->module,
+            'slug' => 'schedules'
+        ]; 
+
+        return view('admin.schedules.edit')->with(compact('header', 'schedule'));   
+    }
+
+    /**
+     * 5. Actualizar agenda.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, Schedule $schedule){
+        $validator = $this->validator($request->all());
+        if($validator->fails()){
+            return redirect('/admin/schedules/'.$schedule->id.'/edit')
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        //Slug:
+        $slug = Str::slug($request->name);
+
+        $status = $request->input('status')? 1:0;
+
+        $schedule->name = $request->input('name');
+        $schedule->slug = $slug;
+        $schedule->description = $request->description;
+        $schedule->status = $status;
+        $schedule->color = $request->color;
+        $schedule->save();
+
+        $msg = trans('textos.agenda_updated');
+        return redirect()->route('schedules.edit', $schedule->id)->with(compact('msg'));
+    }
+
+    /**
+     * 6. Activar - desactivar agenda.
+     */
+    public function status(Request $request, Schedule $schedule, $status){
+        if($request->ajax()){
+            $schedule->status = $status;
+            $schedule->save();
+
+            $resp = ($schedule)? true:false;
+            return response()->json($resp); 
+        }   
+    }
 }

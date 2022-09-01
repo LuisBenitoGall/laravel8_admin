@@ -1,5 +1,5 @@
 @php
-$num = $order->order_num? $order->order_num:$order->id;
+$num = $row->order_num? $row->order_num:$row->id;
 @endphp
 
-<a href="{{ route('orders.edit', $order) }}">{{ $num }}</a>
+<a href="{{ route('orders.edit', $row) }}">{{ $num }}</a>

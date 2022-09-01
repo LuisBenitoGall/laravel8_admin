@@ -276,7 +276,9 @@
 				<x-select name="customer_cost_center_id" class="select2" :options="$customer_cost_centers_" label="centro_coste_selec" value="{{ $order->customer_cost_center_id }}"/>
 			</div>
 		@endif
+	</div>
 	
+	<div class="form-group row">
 		{{-- Área de negocio del proveedor --}}
 		@if($provider_business_areas->count())
 			<label for="provider_business_area_id" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.area_negocio_proveedor')) !!}</label>

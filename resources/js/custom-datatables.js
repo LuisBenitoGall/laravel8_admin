@@ -118,6 +118,7 @@ $(document).ready(function(){
         "language" : {
             "url": "/js/plugins/dataTables/lang/"+idm+".json"
         },
+        responsive: true,
         stateSave: false,    //Guarda página al refrescar. 
         initComplete: function(){
             //Búsqueda automática al clicar sobre el td.filtro:
@@ -125,7 +126,18 @@ $(document).ready(function(){
             api.$('td.filtro').click(function(){
                 api.search(this.innerHTML).draw();
             });
+
+            this.api().columns().every(function(){
+                var column = this;
+                var input = document.createElement("input");
+                // $(input).appendTo($(column.footer()).empty())
+                // .on('change', function(){
+                //     column.search($(this).val(), false, false, true).draw();
+                // });
+            });
         }
+        // orderable: true,
+        // searchable: true
     });
 
     $('.dTable').DataTable({
@@ -3429,6 +3441,113 @@ $(document).ready(function(){
         });
     }
 
+    //Tabla Orders Control Panel Sales:
+    if($('#tblOrdersControlPanelSales').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        var year = $('#dtYear').val();
+        var currency = $('#dtCurrency').val();
+
+        //Filters:
+        // $('#tblOrdersControlPanelSales thead tr').clone(true).appendTo('#tblOrdersControlPanelSales thead');
+        // $('#tblOrdersControlPanelSales thead tr:eq(1) th').each(function(i){
+        //     var title = $(this).text(); 
+
+        //     //Filtros de texto, salvo para las columnas con filtro por select:
+        //     $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
+     
+        //     $('input', this).on('keyup change', function(){
+        //         if(tableOrdersCPSales.column(i).search() !== this.value){
+        //             tableOrdersCPSales
+        //                 .column(i)
+        //                 .search(this.value)
+        //                 .draw();
+        //         }
+        //     });
+        // });
+        
+        var tableOrdersCPSales = $('#tblOrdersControlPanelSales').DataTable({
+            order: [[ 0, "desc" ]],
+            serverSide: false,  //01/09/22: en false para permitir la suma de totales del footer.
+            processing: true,
+            autoWidth: false,
+            // drawCallback: function(){
+            //     $('.select2-dt').select2();
+            // },
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/orders-control-panel-sales/"+year,
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'fecha', name: 'order_previsions.month'},
+                {data: 'customer', name: 'companies.name'},
+                {data: 'business_area', name: 'business_areas.name'},
+                {data: 'order_num', name: 'orders.order_num', className: 'text-right'},
+                {data: 'purchase_num', name: 'orders.purchase_num', className: 'text-right'},
+                {data: 'name', name: 'companies.name'},
+                {data: 'Nombre', name: 'users.name'},
+                {data: 'finalCustomer', name: 'companies.name'},
+                {data: 'amount', name: 'amount', className: 'text-right'},
+                {data: 'a_facturar', name: 'a_facturar', className: 'text-right'},
+                {data: 'invoice_amount', name: 'invoice_amount', className: 'text-right'},
+                {data: 'acciones', name: 'action', orderable: false, searchable: false, className: 'text-right'}
+            ],
+            "footerCallback": function(row, data, start, end, display){
+                var api = this.api(), data;
+                var json = api.ajax.json();
+
+                var currency = false;
+                api.rows().every(function(){
+                    var data = this.data();
+                });
+
+                if(!currency) currency = '€';
+
+                //Separamos el importe de la moneda:
+                var intVal = function(i){
+                    return typeof i === 'string'? 
+                    i.replace(/[\'+currency+',]/g, '')*1 :
+                    typeof i === 'number' ?
+                        i : 0;
+                };
+
+                // Total over all pages
+                // total = api
+                // .column(8)
+                // .data()
+                // .reduce(function(a, b){
+                //     return intVal(a) + intVal(b);
+                // }, 0);
+
+                //Total:
+                total = api
+                .column(8, { search: 'applied' })
+                .data()
+                .reduce(function(a, b){
+                    return intVal(a) + intVal(b);
+                }, 0);
+
+                $(api.column(8).footer()).html(
+                    total.toFixed(2)+currency   
+                );
+
+                //Total por filtro aplicado:
+                a_facturar = api
+                .column(9, { search: 'applied' })
+                .data()
+                .reduce(function(a, b){
+                    return intVal(a) + intVal(b);
+                }, 0);
+
+                $(api.column(9).footer()).html(
+                    a_facturar.toFixed(2)+currency    
+                );
+            }
+        });
+    }
+
     //Tabla Permissions:
     if($('#tblPermissions').length > 0){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
@@ -4656,7 +4775,7 @@ $(document).ready(function(){
         
         var tableQuizEditions = $('#tblQuizEditions').DataTable({
             "serverSide": true,
-            /*"processing": true,*/
+            "processing": true,
             "ajax": {
                 "type": "GET",
                 "url": "/api/admin/quiz-editions",
@@ -4803,10 +4922,10 @@ $(document).ready(function(){
         
         $('#tblRoles').DataTable({
             "serverSide": true,
-            /*"processing": true,*/
+            "processing": true,
             "ajax": {
                 "type": "GET",
-                "url": "/api/admin/roles",
+                "url": "/api/admin/schedule-event-types",
                 "error": function(reason){
                     console.log(reason);
                 }
@@ -4838,6 +4957,28 @@ $(document).ready(function(){
                     return editar+' '+eliminar;
                 }
                 }
+            ]
+        });
+    }
+
+    //Tabla Schedule Event Types:
+    if($('#tblScheduleEventTypes').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        
+        $('#tblScheduleEventTypes').DataTable({
+            "serverSide": true,
+            "processing": true,
+            "ajax": {
+                "type": "GET",
+                "url": "/api/admin/schedule-event-types",
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            "columns": [
+                {data: 'event'},
+                {data: 'description'},
+                {data: 'acciones', className: 'text-right'}
             ]
         });
     }

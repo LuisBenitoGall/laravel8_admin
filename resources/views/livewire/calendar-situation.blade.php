@@ -14,7 +14,7 @@
                 <p class="text-center">
                     <strong>{{ ucfirst(App\Helpers\helpers::yearMonths($mes)) }}</strong>
                     {{-- Seleccionar mes --}}
-                    <a href="#" class="btn btn-info btn-xs ml-2" wire:click="selectMonth('{{ $mes }}')" rel="tooltip" title="{{ trans('textos.calendario_mes') }}" data-toggle="modal" data-target="#modal-show-employees-month">
+                    <a href="#" class="btn btn-info btn-xs ml-2 btnSelectMonth" wire:click="selectMonth('{{ $mes }}')" rel="tooltip" title="{{ trans('textos.calendario_mes') }}" data-toggle="modal" data-target="#modal-show-employees-month">
                         <i class="fa fa-calendar"></i>
                     </a>
                 </p>
@@ -174,7 +174,7 @@
 
     {{-- Modal registros por mes --}}
     <div wire:ignore.self class="modal fade modal-show-employees-month" id="modal-show-employees-month" tabindex="-1" role="dialog" aria-labelledby="employeesMonth" aria-hidden="true">
-        <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-dialog modal-xl modal-xxl" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title" id="employeesMonth">{!! ucfirst(trans('textos.calendario')) !!} {{ $mes_ }}</h4>
@@ -185,6 +185,15 @@
 
                 <div class="modal-body">
                     @if(count($monthRegisters))
+                        {{-- Tipos de jornada --}}
+                        <div class="row mb-4">
+                            @foreach($dayTypes as $dt)
+                                <div class="col-md-2 col-xl-1">
+                                    <span class="colorEx mini mr-1" style="background-color: {{ $dt->color }}; margin-top: 6px;"></span> {{ $dt->name}}    
+                                </div>
+                            @endforeach
+                        </div>
+
                         <table class="calendario calendario-modal">
                             <thead>
                                 <tr>
@@ -291,5 +300,18 @@
         </div>
     </div>  
 
+    @once
+    @push('scripts')
+    <script>
+    document.addEventListener('livewire:load', function(){
+        //Vaciar modal por mes:
+        $('.btnSelectMonth').on('click', function(){
+            $('#modal-show-employees-month .modal-body').empty();
+        });
+
+    });
+    </script>
+    @endpush
+    @endonce
 </div>
 

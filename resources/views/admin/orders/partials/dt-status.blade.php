@@ -1,6 +1,6 @@
-<span class="xoption-{{ $order->id }}">
-    @if(isset($estados[$order->order_status]))
-        {!! ucfirst($estados[$order->order_status]) !!}
+<span class="xoption-{{ $row->id }}">
+    @if(isset($estados[$row->order_status]))
+        {!! ucfirst($estados[$row->order_status]) !!}
     @endif
 </span>
                

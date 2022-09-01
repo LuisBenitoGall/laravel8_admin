@@ -147,6 +147,12 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     //Orders:
     Route::get('orders/{customer?}/{provider?}/{owner?}/{status?}', 'OrderController@getOrdersDT');
 
+    //Orders Control Panel Purchases:
+    Route::get('orders-control-panel-purchases/{year}', 'OrderController@getOrdersControlPanelPurchasesDT');
+
+    //Orders Control Panel Sales:
+    Route::get('orders-control-panel-sales/{year}', 'OrderController@getOrdersControlPanelSalesDT');
+
     //Permissions:
     Route::get('permissions', 'PermissionController@getPermissionsDT');
 
@@ -218,6 +224,9 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
 
     //Roles:
     Route::get('roles', 'RoleController@getRolesDT');
+
+    //ScheduleEventTypes:
+    Route::get('schedule-event-types', 'ScheduleEventTypesController@getEventTypesDT');
 
     //ShipmentPatterns:
     Route::get('shipment-patterns', 'ShipmentPatternsController@getPatternsDT');

@@ -1,8 +1,8 @@
 @php
-$num = !$order->is_budget? false:($order->budget_num? $order->budget_num:$order->id);
+$num = !$row->is_budget? false:($row->budget_num? $row->budget_num:$row->id);
 @endphp
 
 @if($num)
-	<a href="{{ route('budgets.edit', $order) }}">{{ $num }}</a>
+	<a href="{{ route('budgets.edit', $row) }}">{{ $num }}</a>
 @endif
 

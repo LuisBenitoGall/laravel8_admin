@@ -6,6 +6,7 @@ use Livewire\Component;
 use Illuminate\Support\Facades\Session;
 
 //Models:
+use App\Models\Category;
 use App\Models\User;
 
 class UsersGrid extends Component{

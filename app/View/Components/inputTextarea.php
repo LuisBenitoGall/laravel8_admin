@@ -8,11 +8,11 @@ class inputTextarea extends Component{
     public $class;
     public $disabled;
     public $id;
-    public $lw;
     public $name; 
     public $readonly;
     public $required;
     public $value;
+    public $wire;
 
     /**
      * Create a new component instance.
@@ -23,20 +23,20 @@ class inputTextarea extends Component{
         $class = '', 
         $disabled = false, 
         $id = false,
-        $lw = false,
         $name,
         $readonly = false,
         $required = false,
-        $value = '' 
+        $value = '',
+        $wire = false
     ){
         $this->class = $class;
         $this->disabled = $disabled;  
         $this->id = $id;
-        $this->lw = $lw;
         $this->name = $name; 
         $this->readonly = $readonly;
         $this->required = $required;
         $this->value = $value;
+        $this->wire = $wire;
     }
 
     /**

@@ -13,6 +13,7 @@ use Illuminate\Support\Str;
 //Models:
 use App\Models\Account;
 use App\Models\Attribute;
+use App\Models\Batch;
 use App\Models\BudgetFormItems;
 use App\Models\BudgetForms;
 use App\Models\BudgetPatterns;
@@ -40,6 +41,13 @@ use App\Models\ImportOldDB;
 use App\Models\Incidence;
 use App\Models\IncidenceLines;
 use App\Models\IncidencePatterns;
+use App\Models\Invoice;
+use App\Models\InvoiceItems;
+use App\Models\InvoiceOrders;
+use App\Models\InvoicePatterns;
+use App\Models\InvoiceSettings;
+use App\Models\Item;
+use App\Models\ItemStatus;
 use App\Models\Module;
 use App\Models\Notification;
 use App\Models\Order;
@@ -57,11 +65,18 @@ use App\Models\ProductPatterns;
 use App\Models\ProductPrices;
 use App\Models\ProductSerials;
 use App\Models\ProductSerialsCards;
+use App\Models\Project;
 use App\Models\Province;
 use App\Models\PurchasePatterns;
 use App\Models\ResiduaryDays;
 use App\Models\Schedule;
+use App\Models\ScheduleEvents;
+use App\Models\ScheduleEventTypes;
 use App\Models\Store;
+use App\Models\Task;
+use App\Models\TaskDocs;
+use App\Models\TaskMessages;
+use App\Models\TaskStatus;
 use App\Models\Timetable;
 use App\Models\TimetableItems;
 use App\Models\TimetableSigned;
@@ -143,15 +158,26 @@ class ImportOldDBController extends Controller{
      * 60. Importar trackings de pedidos.
      * 61. Importar items de formulario de presupuestos.
      * 62. Importar agendas.
-     * 
-     * . Importar previsiones de facturación.
-     * 
-     * 
+     * 63. Importar tipos de evento.
+     * 64. Importar eventos de agenda.
+     * 65. Importar lotes.
+     * 66. Importar patrones de factura.
+     * 67. Importar configuraciones de facturas.
+     * 68. Importar facturas.
+     * 69. Importar previsiones de facturación.
+     * 70. Importar items de pedidos.
+     * 71. Importar status de items.
+     * 72. Importar proyectos.
+     * 73. Importar estados de tareas de proyecto.
+     * 74. Importar tareas.
+     * 75. Importar documentos de tareas.
+     * 76. Importar mensajes de tareas.
+     * 77. Importar líneas de facturas.
      */
     
     public function __construct(){
         //Idiomas:
-        $this->languages = Helpers::languages();
+        $this->languages = helpers::languages();
 
         //Moneda:
         $this->co_currency = CompanySettings::co_currency(0);
@@ -303,14 +329,36 @@ class ImportOldDBController extends Controller{
             // sleep(3);
             // $this->importSchedules();                   // 62.
             // sleep(3);
-
-            //$this->importOrderPrevisions();             // 
-            //sleep(3);
-
-            
-
-            //$this->importBudgetFormItems();             // .
-            //sleep(3);
+            // $this->importScheduleEventTypes();          // 63.
+            // sleep(3);
+            // $this->importScheduleEvents();              // 64.
+            // sleep(3);
+            // $this->importBatches();                     // 65.
+            // sleep(3);
+            // $this->importInvoicePatterns();             // 66.
+            // sleep(3);
+            // $this->importInvoiceSettings();             // 67.
+            // sleep(3);
+            // $this->importInvoices();                    // 68.
+            // sleep(3);
+            // $this->importOrderPrevisions();             // 69.
+            // sleep(3);
+            // $this->importItems();                       // 70.
+            // sleep(3);
+            // $this->importItemsStatus();                 // 71.
+            // sleep(3);
+            // $this->importProjects();                    // 72.
+            // sleep(3);
+            // $this->importTaskStatus();                  // 73.
+            // sleep(3);
+            // $this->importTasks();                       // 74.
+            // sleep(3);
+            // $this->importTaskDocs();                    // 75.
+            // sleep(3);
+            // $this->importTaskMessages();                // 76.
+            // sleep(3);
+            // $this->importInvoiceItems();                // 77.
+            // sleep(3);
 
             sleep(3);
             $this->endImportation();
@@ -2485,9 +2533,234 @@ class ImportOldDBController extends Controller{
             }
         }         
     }
+
+    /**
+     * 63. Importar tipos de evento.
+     */
+    public function importScheduleEventTypes(){
+        $data = DB::connection('mysql2')->table('schedule_event_types')->get();   
+        
+        if($data->count()){
+            Importaciones::create(['texto' => 'tipos de evento']);  
+            
+            DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+            DB::table('schedule_event_types')->truncate();
+            DB::statement('SET FOREIGN_KEY_CHECKS=1;'); 
+
+            foreach($data as $r){     
+                $i = new ScheduleEventTypes;
+                $i->id = $r->id;
+                $i->name = $r->name;
+                $i->slug = $r->slug;
+                $i->company_id = $r->company_id;
+                $i->user_id = $r->user_id;
+                $i->translations = $r->translations;
+                $i->description = $r->description;
+                $i->status = $r->status;
+                $i->deleted_at = $r->deleted_at;
+                $i->created_at = $r->created_at;
+                $i->updated_at = $r->updated_at;
+                $i->save();
+            }
+        }        
+    }
+
+    /**
+     * 64. Importar eventos de agenda.
+     */
+    public function importScheduleEvents(){
+        $data = DB::connection('mysql2')->table('schedule_events')->get();   
+        
+        if($data->count()){
+            Importaciones::create(['texto' => 'eventos de agenda']);  
+            
+            DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+            DB::table('schedule_events')->truncate();
+            DB::statement('SET FOREIGN_KEY_CHECKS=1;'); 
+
+            foreach($data as $r){   
+                $i = new ScheduleEvents;
+                $i->id = $r->id;
+                $i->title = $r->title;
+                $i->slug = $r->slug;
+                $i->description = $r->description;
+                $i->schedule_id = $r->schedule_id;
+                $i->author = $r->author;
+                $i->start = $r->start;
+                $i->end = $r->end;
+                $i->allDay = $r->allDay;
+                $i->responsible = $r->responsible;
+                $i->guests = $r->guests;
+                $i->products = $r->products;
+                $i->place = $r->place;
+                $i->status = $r->status;
+                $i->deleted_at = $r->deleted_at;
+                $i->created_at = $r->created_at;
+                $i->updated_at = $r->updated_at;
+                $i->save();
+            }
+        }          
+    }
+
+    /**
+     * 65. Importar lotes.
+     */
+    public function importBatches(){
+        $data = DB::connection('mysql2')->table('batches')->get();   
+        
+        if($data->count()){
+            Importaciones::create(['texto' => 'lotes']);  
+            
+            DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+            DB::table('batches')->truncate();
+            DB::statement('SET FOREIGN_KEY_CHECKS=1;'); 
+
+            foreach($data as $r){   
+                $i = new Batch;
+                $i->id = $r->id;
+                $i->product_id = $r->product_id;
+                //$i->work_order_id = NULL;     //Campo nuevo
+                $i->name = $r->name;
+                $i->deadline = $r->deadline;
+                $i->expiry_date = $r->expiry_date;
+                $i->initial_qty = $r->initial_qty;
+                $i->doc_num = $r->doc_num;
+                $i->doc = $r->doc;
+                $i->deleted_at = $r->deleted_at;
+                $i->created_at = $r->created_at;
+                $i->updated_at = $r->updated_at;
+                $i->save();
+            }
+        }          
+    }
+
+    /**
+     * 66. Importar patrones de factura.
+     */
+    public function importInvoicePatterns(){
+        $data = DB::connection('mysql2')->table('invoice_patterns')->get();
+
+        if($data->count()){
+            Importaciones::create(['texto' => 'patrones de facturas']);  
+            
+            DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+            DB::table('invoice_patterns')->truncate();
+            DB::statement('SET FOREIGN_KEY_CHECKS=1;'); 
+
+            foreach($data as $r){  
+                $i = new InvoicePatterns;
+                $i->id = $r->id;
+                $i->name = $r->name;
+                $i->slug = $r->slug;
+                $i->pattern = $r->pattern;
+                $i->yearly_reset = $r->yearly_reset;
+                $i->company_id = $r->company_id;
+                //$i->status = $r->status;      //Campo nuevo. Toma valor por defecto.
+                $i->deleted_at = $r->deleted_at;
+                $i->created_at = $r->created_at;
+                $i->updated_at = $r->updated_at;
+                $i->save();
+            }
+        }          
+    }
+
+    /**
+     * 67. Importar configuraciones de facturas.
+     */
+    public function importInvoiceSettings(){
+        $data = DB::connection('mysql2')->table('invoice_settings')->get();
+
+        if($data->count()){
+            Importaciones::create(['texto' => 'configuraciones de facturas']);  
+            
+            DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+            DB::table('invoice_settings')->truncate();
+            DB::statement('SET FOREIGN_KEY_CHECKS=1;'); 
+
+            foreach($data as $r){  
+                $i = new InvoiceSettings;
+                $i->id = $r->id;
+                $i->name = $r->name;
+                $i->slug = $r->slug;
+                $i->company_id = $r->company_id;
+                $i->conditions = $r->conditions;
+                $i->payment_method = $r->payment_method;
+                $i->observations = $r->observations;
+                $i->featured = $r->featured;
+                $i->status = $r->status;      
+                $i->deleted_at = $r->deleted_at;
+                $i->created_at = $r->created_at;
+                $i->updated_at = $r->updated_at;
+                $i->save();
+            }
+        }          
+    }
+
+    /**
+     * 68. Importar facturas.
+     */
+    public function importInvoices(){
+        $data = DB::connection('mysql2')->table('invoices')->get();
+
+        if($data->count()){
+            Importaciones::create(['texto' => 'facturas']);  
+            
+            DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+            DB::table('invoices')->truncate();
+            DB::statement('SET FOREIGN_KEY_CHECKS=1;'); 
+
+            foreach($data as $r){   
+                //El num_cardinal debe obtenerse a través del patrón de factura utilizado:
+                $ip = InvoicePatterns::select('pattern')->find($r->invoice_pattern_id);
+                $pattern = $ip && $ip->pattern? unserialize($ip->pattern):false;
+
+                if($pattern){
+                    $digits = end($pattern);
+                    $digits_ = $digits? trim($digits, '|'):false;
+                    $n = $digits_? strlen($digits_):false;
+
+                    //Del valor de invoice_num extraemos por la derecha, la cantidad de carácteres que indica su patrón, y convertimos el string a integer:
+                    $nums = $r->invoice_num? substr($r->invoice_num, -$n):false;
+                    $num_cardinal = $nums? (int) $nums:NULL;
+                }else{
+                    $num_cardinal = NULL;
+                }
+
+                $i = new Invoice;
+                $i->id = $r->id;
+                $i->refund = $r->refund;
+                $i->invoice_num = $r->invoice_num;
+                $i->num_cardinal = $num_cardinal;  //Campo nuevo. Calcular su valor
+                $i->pattern_id = $r->invoice_pattern_id;
+                $i->invoice_old_num = $r->old_invoice;
+                $i->order_id = $r->order_id;
+                $i->amount = $r->total_amount;
+                $i->with_iva = $r->with_iva;
+                $i->amount_with_iva = $r->amount_with_iva? $r->amount_with_iva:'0';
+                $i->fiscal_date = $r->fiscal_date;
+                $i->expiration_date = $r->expiration_date;
+                $i->user_id = $r->user_id;
+                $i->observations = $r->comments;
+                $i->template_id = $r->template_id;
+                $i->template = $r->template;
+                $i->printed = $r->printed;
+                $i->status = $r->status;
+                $i->blocked = $r->blocked;
+                $i->deleted_at = $r->deleted_at;
+                $i->created_at = $r->created_at;
+                $i->updated_at = $r->updated_at;
+                $i->save();
+
+                //Vincular a pedido:
+                // $io = new InvoiceOrders;
+                // $io->invoice_id = $r->id;
+                // $io->order_id = $r->order_id
+            }
+        }    
+    }
  
     /**
-     * . Importar previsiones de facturación.
+     * 69. Importar previsiones de facturación.
      */
     public function importOrderPrevisions(){
         $data = DB::connection('mysql2')->table('order_previsions')->get();
@@ -2515,7 +2788,277 @@ class ImportOldDBController extends Controller{
         }    
     }
 
-    
+    /**
+     * 70. Importar items de pedidos.
+     */
+    public function importItems(){
+        $data = DB::connection('mysql2')->table('items')->get();
+
+        if($data->count()){
+            Importaciones::create(['texto' => 'items de pedidos']);  
+            
+            DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+            DB::table('items')->truncate();
+            DB::statement('SET FOREIGN_KEY_CHECKS=1;'); 
+
+            foreach($data as $r){   
+                $i = new Item;
+                $i->id = $r->id;
+                $i->product_id = $r->product_id;
+                $i->order_id = $r->order_id;
+                $i->budget_form_block_id = $r->block_id;
+                $i->budget_form_item_id = $r->item_id;
+                //$i->budget_order = NULL;      //Campo nuevo
+                $i->concept = $r->concept;
+                $i->observations = $r->observations;
+                $i->qty = $r->qty;
+                $i->price = $r->price;
+                $i->item_no_price = $r->line_no_price;
+                $i->iva = $r->iva;
+                $i->discount = $r->discount;
+                $i->calculated_by_percent = $r->calculated_by_percent;
+                $i->invoiced = $r->invoiced;
+                $i->deposit_used = $r->deposit_used;
+                $i->days = $r->days;
+                $i->days_continue = $r->days_continue;
+                $i->days_continue_discount = $r->days_continue_discount;
+                $i->active = $r->active;
+                $i->status = $r->status;
+                $i->print = $r->print;
+                $i->user_id = $r->user_id;
+                $i->deleted_at = $r->deleted_at;
+                $i->created_at = $r->created_at;
+                $i->updated_at = $r->updated_at;
+                $i->save();
+            }
+        }    
+    }
+
+    /**
+     * 71. Importar status de items.
+     */
+    public function importItemsStatus(){
+        $data = DB::connection('mysql2')->table('item_status')->get();
+
+        if($data->count()){
+            Importaciones::create(['texto' => 'status de items de pedidos']);  
+            
+            DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+            DB::table('item_status')->truncate();
+            DB::statement('SET FOREIGN_KEY_CHECKS=1;'); 
+
+            foreach($data as $r){   
+                $i = new ItemStatus;
+                $i->id = $r->id;
+                $i->item_id = $r->item_id;
+                $i->provider_observations = $r->provider_observations;
+                $i->customer_observations = $r->customer_observations;
+                $i->status = $r->status;
+                $i->created_at = $r->created_at;
+                $i->updated_at = $r->updated_at;
+                $i->save();
+            }
+        }    
+    }
+
+    /**
+     * 72. Importar proyectos.
+     */
+    public function importProjects(){
+        $data = DB::connection('mysql2')->table('projects')->get();
+
+        if($data->count()){
+            Importaciones::create(['texto' => 'proyectos']);  
+            
+            DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+            DB::table('projects')->truncate();
+            DB::statement('SET FOREIGN_KEY_CHECKS=1;'); 
+
+            foreach($data as $r){   
+                $i = new Project;
+                $i->id = $r->id;
+                // $i->project_num = $r->project_num;               //Campos nuevos
+                // $i->num_cardinal = $r->num_cardinal;
+                // $i->pattern_id = $r->pattern_id;
+                // $i->project_old_num = $r->project_old_num;
+                $i->code = $r->code;
+                $i->contest_code = $r->contest_code;
+                $i->name = $r->name;
+                $i->slug = $r->slug;
+                $i->description = $r->description;
+                $i->briefing = $r->briefing;
+                $i->company_id = $r->company_id;
+                $i->user_id = $r->user_id;
+                $i->owner = $r->owner;
+                $i->team = $r->team;
+                // $i->restricted_access = $r->restricted_access;           //Campo nuevo
+                // $i->customer_id = $r->customer_id;                       //Campo nuevo
+                $i->estimated_delivery_date = $r->estimated_delivery_date;
+                $i->delivery_date = $r->delivery_date;
+                $i->hours_forecast = $r->hours_forecast;
+                // $i->hours_worked = $r->hours_worked;                     //Campo nuevo
+                // $i->task_hours = $r->task_hours;                         //Campo nuevo
+                $i->completed = $r->completed;
+                $i->groups = $r->groups;
+                $i->status = $r->status;
+                $i->deleted_at = $r->deleted_at;
+                $i->created_at = $r->created_at;
+                $i->updated_at = $r->updated_at;
+                $i->save();
+            }
+        }
+    }
+
+    /**
+     * 73. Importar estados de tareas de proyecto.
+     */
+    public function importTaskStatus(){
+        $data = DB::connection('mysql2')->table('project_status')->get();
+
+        if($data->count()){
+            Importaciones::create(['texto' => 'estados de tareas de proyecto']);  
+            
+            DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+            DB::table('task_status')->truncate();
+            DB::statement('SET FOREIGN_KEY_CHECKS=1;'); 
+
+            foreach($data as $r){   
+                $i = new TaskStatus;
+                $i->id = $r->id;
+                $i->name = $r->name;
+                $i->slug = $r->slug;
+                $i->company_id = $r->company_id;
+                $i->order = $r->order;
+                $i->created_at = $r->created_at;
+                $i->updated_at = $r->updated_at;
+                $i->save();
+            }
+        }
+    }
+
+    /**
+     * 74. Importar tareas.
+     */
+    public function importTasks(){
+        $data = DB::connection('mysql2')->table('tasks')->get();
+
+        if($data->count()){
+            Importaciones::create(['texto' => 'tareas']);  
+            
+            DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+            DB::table('tasks')->truncate();
+            DB::statement('SET FOREIGN_KEY_CHECKS=1;'); 
+
+            foreach($data as $r){   
+                $i = new Task;
+                $i->id = $r->id;
+                $i->name = $r->name;
+                $i->slug = $r->slug;
+                $i->description = $r->description;
+                $i->project_id = $r->project_id;
+                $i->user_id = $r->user_id;
+                $i->assigned_to = $r->assigned_to;
+                $i->delivery_date = $r->delivery_date;
+                // $i->estimated_hours = $r->estimated_hours;       //Campo nuevo
+                // $i->partial_hours = $r->partial_hours;           //Campo nuevo
+                $i->hours = $r->hours;
+                //$i->status = NULL;                                //Campo nuevo
+                $i->column_order = $r->column_order;
+                $i->deleted_at = $r->deleted_at;
+                $i->created_at = $r->created_at;
+                $i->updated_at = $r->updated_at;
+                $i->save();
+            }
+        }
+    }    
+
+    /**
+     * 75. Importar documentos de tareas. 
+     */           
+    public function importTaskDocs(){
+        $data = DB::connection('mysql2')->table('task_docs')->get();
+
+        if($data->count()){
+            Importaciones::create(['texto' => 'documentos de tareas']);  
+            
+            DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+            DB::table('task_docs')->truncate();
+            DB::statement('SET FOREIGN_KEY_CHECKS=1;'); 
+
+            foreach($data as $r){   
+                $i = new TaskDocs;
+                $i->id = $r->id;
+                $i->doc = $r->doc;
+                $i->task_id = $r->task_id;
+                //$i->featured = $r->featured;                      //Campo nuevo
+                $i->created_at = $r->created_at;
+                $i->updated_at = $r->updated_at;
+                $i->save();
+            }
+        }
+    }
+
+    /**
+     * 76. Importar mensajes de tareas.
+     */
+    public function importTaskMessages(){
+        $data = DB::connection('mysql2')->table('task_messages')->get();
+
+        if($data->count()){
+            Importaciones::create(['texto' => 'mensajes de tareas']);  
+            
+            DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+            DB::table('task_messages')->truncate();
+            DB::statement('SET FOREIGN_KEY_CHECKS=1;'); 
+
+            foreach($data as $r){   
+                $i = new TaskMessages;
+                $i->id = $r->id;
+                $i->message = $r->message;
+                $i->task_id = $r->task_id;
+                $i->from = $r->from;
+                $i->to = $r->to;
+                $i->taken = $r->taken;
+                $i->created_at = $r->created_at;
+                $i->updated_at = $r->updated_at;
+                $i->save();
+            }
+        }    
+    }
+
+    /**
+     * 77. Importar líneas de facturas.
+     */
+    public function importInvoiceItems(){
+        $data = DB::connection('mysql2')->table('invoice_lines')->get();
+
+        if($data->count()){
+            Importaciones::create(['texto' => 'líneas de factura']);  
+            
+            DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+            DB::table('invoice_items')->truncate();
+            DB::statement('SET FOREIGN_KEY_CHECKS=1;'); 
+
+            foreach($data as $r){   
+                $i = new InvoiceItems;
+                $i->id = $r->id;
+                $i->invoice_id = $r->invoice_id;
+                $i->item_id = $r->item_id;
+                $i->qty = $r->qty;
+                $i->price = $r->price;
+                $i->discount = $r->discount? $r->discount:'0';
+                $i->days = $r->days;
+                $i->days_continue = $r->days_continue;
+                $i->days_continue_discount = $r->days_continue_discount;
+                $i->amount = $r->amount;
+                $i->iva = $r->iva;
+                $i->created_at = $r->created_at;
+                $i->updated_at = $r->updated_at;
+                $i->save();
+            }
+        }    
+    }
+
 
 
     /**
