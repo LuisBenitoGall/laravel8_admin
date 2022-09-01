@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Helpers\Helpers;
+use App\Helpers\helpers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -91,6 +91,8 @@ use App\Models\UserWorkplaces;
 use App\Models\WorkCalendar;
 use App\Models\Workplace;
 use App\Models\WorkUserCalendar;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class ImportOldDBController extends Controller{
     /**
@@ -207,7 +209,7 @@ class ImportOldDBController extends Controller{
         if($request->ajax()){  
             DB::table('importaciones')->truncate();
             
-            // $this->importUsers(true);                   // 2.
+            $this->importUsers(true);                   // 2.
             // sleep(3);
             // $this->importCompanies();                   // 3.
             // sleep(3);
@@ -414,6 +416,9 @@ class ImportOldDBController extends Controller{
                     $i->created_at = $r->created_at;
                     $i->updated_at = $r->updated_at;
                     $i->save();
+
+                    //Guardamos rol:
+                    $i->assignRole('basico');
                 }
             }
         }

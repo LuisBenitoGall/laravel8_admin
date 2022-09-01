@@ -24,7 +24,7 @@
 			<div class="col-lg-10">
 				@foreach($roles as $rol)
 					@php
-					$checked = $user_roles[0]->id == $rol->id? true:false;
+					$checked = !empty($user_roles) && $user_roles[0]->id == $rol->id? true:false;
 					@endphp
 					
 					<x-radio name="roles" value="{{ $rol->id }}" required style="margin-bottom: 0; margin-top: 7px;" title="{{ $rol->name }}" checked="{{ $checked }}"/>	
@@ -32,7 +32,7 @@
 			</div>
 		</div>
 	@else
-		<input type="hidden" name="roles" value="{{ $user_roles[0]->id }}">
+		<input type="hidden" name="roles" value="@if(!empty($user_roles)) {{ $user_roles[0]->id }} @endif">
 	@endcan
 
 	<div class="form-group row">

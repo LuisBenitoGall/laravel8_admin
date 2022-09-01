@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Helpers\Helpers;
+use App\Helpers\helpers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -70,7 +70,7 @@ class UserController extends Controller{
 
     public function __construct(){
         //Idiomas:
-        $this->languages = Helpers::languages();
+        $this->languages = helpers::languages();
 
         $this->middleware('user_get', ['only' => ['edit', 'update', 'updatePwd', 'storeImage']]);
         //$this->middleware('user_timetables', ['only' => ['userTimetables']]);
