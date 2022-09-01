@@ -168,7 +168,7 @@ class UserController extends Controller{
      * 1.2. Listado de usuarios para DataTable.
      */
     public function getUsersDT($all = false){
-        $query = User::select('users.*', 'user_companies.categories',
+        $query = User::with('phones')->select('users.*', 'user_companies.categories',
             DB::raw('(SELECT image FROM user_images WHERE user_id = users.id AND featured = 1) AS Image')    
             )
         ->join('user_companies', 'users.id', '=', 'user_companies.user_id');
