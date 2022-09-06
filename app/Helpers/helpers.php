@@ -151,7 +151,7 @@ class Helpers{
 	/**
 	 * 1.4. Avatar.
 	 */
-	public function setAvatar($str1, $str2 = false){
+	public static function setAvatar($str1, $str2 = false){
 		$arr = [
 			'A' => '11E',
 	        'B' => '22D',
@@ -181,10 +181,21 @@ class Helpers{
 	        'Z' => 'EE1'
 	    ];
 
-        $l1 = strtoupper(substr($str1, 0, 1));
-        $l2 = $str2? strtoupper(substr($str2, 0, 1)):'';
-        $bg = '#'.$arr[$l1].$arr[$l2];
-        return '<span class="avatar" style="background-color: '.$bg.'">'.$l1.' '.$l2.'</span>';
+		// Convertimos a ASCII, para soportar cualquier caracter
+		$strA = mb_convert_encoding($str1, "ASCII");
+		$strB = mb_convert_encoding($str2, "ASCII");
+
+		// Obtenemos el primer caracter
+        $l1 = strtoupper(substr($strA, 0, 1));
+        $l2 = $strB? strtoupper(substr($strB, 0, 1)):'';
+
+		// Determinamos el color del icono
+		$bg1 = array_key_exists($l1,$arr) ? $arr[$l1] : '727' ;
+		$bg2 = array_key_exists($l2,$arr) ? $arr[$l2] : '96f' ;
+        $bg = "#$bg1$bg2";
+
+		// Generamos el html tag
+        return "<span class='avatar' style='background-color: $bg'>$l1 $l2</span>";
 	}
 
 	/**
