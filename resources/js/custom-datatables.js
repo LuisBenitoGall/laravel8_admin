@@ -842,27 +842,28 @@ $(document).ready(function(){
         // });
 
         var tableBudgets = $('#tblBudgets').DataTable({
-            "serverSide": true,
-            "processing": true,
-            "ajax": {
+            order: [[ 0, "desc" ]],
+            serverSide: true,
+            processing: true,
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/budgets/"+from,
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
-                {data: 'num', name: 'num', className: 'text-right'},
-                {data: 'budget_old_num', name: 'budget_old_num', className: 'text-right'},
-                {data: 'name', name: 'name'},
-                {data: 'order_num', name: 'order_num'},
+            columns: [
+                {data: 'num', name: 'orders.budget_num', className: 'text-right'},
+                {data: 'budget_old_num', name: 'orders.budget_old_num', className: 'text-right'},
+                {data: 'name', name: 'orders.name'},
+                {data: 'order_num', name: 'orders.order_num'},
                 {data: 'amount', name: 'amount', className: 'text-right'},
                 {data: 'modalidad', name: 'modalidad'},
                 {data: 'manager', name: 'manager'},
                 {data: 'alta', name: 'alta', className: 'text-right'},
                 {data: 'company', name: 'companies.name', "defaultContent": ""},
-                {data: 'estado', name: 'estado'},
-                {data: 'acciones', name: 'acciones', className: 'text-right'}
+                {data: 'estado', name: 'orders.budget_status'},
+                {data: 'acciones', name: 'acciones', orderable: false, searchable: false, className: 'text-right'}
             ]
         });
     }
@@ -3302,142 +3303,142 @@ $(document).ready(function(){
         var accounting_on = $('#myModuleAccounting').val() == 1? true:false;
 
         //Filters:
-        $('#tblOrders thead tr').clone(true).appendTo('#tblOrders thead');
-        $('#tblOrders thead tr:eq(1) th').each(function(i){
-            var title = $(this).text(); 
-            if(i == 10){
-                $(this).html('');
-            }else{
-                $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
-                // aquí el código retirado
+        // $('#tblOrders thead tr').clone(true).appendTo('#tblOrders thead');
+        // $('#tblOrders thead tr:eq(1) th').each(function(i){
+        //     var title = $(this).text(); 
+        //     if(i == 10){
+        //         $(this).html('');
+        //     }else{
+        //         $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
+        //         // aquí el código retirado
                 
-            }
+        //     }
 
-            $('input', this).on('keyup change', function(){
-                if(tableOrders.column(i).search() !== this.value){
-                    tableOrders
-                        .column(i)
-                        .search(this.value)
-                        .draw();
-                }
-            });
-        });
+        //     $('input', this).on('keyup change', function(){
+        //         if(tableOrders.column(i).search() !== this.value){
+        //             tableOrders
+        //                 .column(i)
+        //                 .search(this.value)
+        //                 .draw();
+        //         }
+        //     });
+        // });
         
         var tableOrders = $('#tblOrders').DataTable({
-            "order": [[ 0, "desc" ]],
-            "serverSide": true,
-            "processing": true,
+            order: [[ 0, "desc" ]],
+            serverSide: true,
+            processing: true,
             // drawCallback: function(){
             //     $('.select2-dt').select2();
             // },
-            "ajax": {
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/orders/"+customer+"/"+provider+"/"+owner+"/"+status,
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
-                {data: 'num', name: 'num', className: 'text-right'},
-                {data: 'order_old_num', name: 'order_old_num', className: 'text-right'},
-                {data: 'budget_num', name: 'budget_num', className: 'text-right'},
-                {data: 'order_parent', className: 'text-center'},
-                {data: 'purchase_num', className: 'text-right'},
-                {data: 'name'},
+            columns: [
+                {data: 'num', name: 'orders.order_num', className: 'text-right'},
+                {data: 'order_old_num', name: 'orders.order_old_num', className: 'text-right'},
+                {data: 'budget_num', name: 'orders.budget_num', className: 'text-right'},
+                {data: 'order_parent', name: 'orders.order_num', className: 'text-center'},
+                {data: 'purchase_num', name: 'orders.purchase_num', className: 'text-right'},
+                {data: 'name', name: 'orders.name'},
                 {data: 'amount', className: 'text-right'},
                 {data: 'fechaEntregaPrevista', className: 'text-right'},
-                //{data: 'businessArea'},
-                {data: 'cost_center'},
-                //{data: 'workplace'},
+                {data: 'cost_center', name: 'cost_centers.name'},
                 {data: 'estado', name: 'estado'},
-                {data: 'acciones', name: 'acciones', className: 'text-right'}
+                {data: 'acciones', name: 'acciones', orderable: false, searchable: false, className: 'text-right'}
             ]
-            // "columnDefs": [
-            //     {"targets": 0,
-            //     "render": function(data, type, row){
-            //         var num = row['order_num']? row['order_num']:row['id'];
-            //         var norder = '<a target="_blank" href="/admin/orders/'+row['id']+'/edit">'+num+'</a>';
-            //         return norder;
-            //     }
-            //     },
-            //     {"targets": 2,
-            //     "render": function(data, type, row){
-            //         var budget = '<a target="_blank" href="/admin/budgets/'+row['id']+'/edit">'+row['budget']+'</a>';
-            //         return budget;
-            //     }
-            //     },
-            //     {"targets": 3,
-            //     "render": function(data, type, row){
-            //         if(row['parent']){
-            //             return '<a target="_blank" href="/admin/orders/'+row['parent']+'/edit">'+txtAgrupacionVer+'</a>';
-            //         }else{
-            //             return '';
-            //         }
-            //     }
-            //     },
-            //     {"targets": -2,
-            //     "render": function(data, type, row){
-            //         return '<span class="xoption-'+row['id']+'">'+row['estado']+'</span>'; 
-            //     }
-            //     }, 
-            //     {"targets": -1,
-            //     "render": function(data, type, row){
-            //         //Estado múltiple:
-            //         var estado = multipleStatus(row['estados'], row['status'], row['id']);
+        });
+    }
 
-            //         //Facturar:
-            //         var facturar = '';
-            //         if(accounting_on && row['invoiceable']){
-            //             //Facturas de agrupación:
-            //             if(row['og_id']){
-            //                 facturar = '<a href="/admin/invoices/'+row['og_id']+'/by-order-group" class="btn btn-xs btn-success" rel="tooltip" title="'+txtFacturasAgrupacion+'"><i class="fa fa-layer-group"></i></a>';
-                        
-            //             //Facturas simples:
-            //             }else{
-            //                 if(row['invoiced']){
-            //                     //Estado facturación:
-            //                     if(row['invoices'] == '0'){
-            //                         var invoice_status = 'btn-info';
-            //                         var txtMsg = txtFacturar;
-            //                     }else if(row['invoices'] == 1){
-            //                         var invoice_status = 'btn-warning';  
-            //                         var txtMsg = txtFacturaParcial;
-            //                     }else if(row['invoices'] == 2){
-            //                         var invoice_status = 'btn-success';
-            //                         var txtMsg = txtFacturaCompleta;
-            //                     }
+    //Tabla Orders Control Panel Purchases:
+    if($('#tblOrdersControlPanelPurchases').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        var year = $('#dtYear').val();
+        var currency = $('#dtCurrency').val();
 
-            //                     facturar = '<a href="/admin/invoices/'+row['id']+'/by-order" class="btn btn-xs '+invoice_status+'" rel="tooltip" title="'+txtMsg+'"><i class="fa fa-file-invoice-dollar"></i></a>';
+        var tableOrdersCPPurchases = $('#tblOrdersControlPanelPurchases').DataTable({
+            order: [[ 0, "desc" ]],
+            serverSide: false,  //01/09/22: en false para permitir la suma de totales del footer.
+            processing: true,
+            autoWidth: false,
+            // drawCallback: function(){
+            //     $('.select2-dt').select2();
+            // },
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/orders-control-panel-purchases/"+year,
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'fecha', name: 'order_previsions.month'},
+                {data: 'provider', name: 'companies.name'},
+                {data: 'business_area', name: 'business_areas.name'},
+                {data: 'order_num', name: 'orders.order_num', className: 'text-right'},
+                {data: 'purchase_num', name: 'orders.purchase_num', className: 'text-right'},
+                {data: 'name', name: 'companies.name'},
+                {data: 'Nombre', name: 'users.name'},
+                {data: 'amount', name: 'amount', className: 'text-right'},
+                {data: 'a_facturar', name: 'a_facturar', className: 'text-right'},
+                {data: 'invoice_amount', name: 'invoice_amount', className: 'text-right'},
+                {data: 'acciones', name: 'action', orderable: false, searchable: false, className: 'text-right'}
+            ],
+            "footerCallback": function(row, data, start, end, display){
+                var api = this.api(), data;
+                var json = api.ajax.json();
 
-            //                 //Por facturar:
-            //                 }else{
-            //                     // facturar = '<a href="/admin/invoices/'+row['id']+'/create-from-order" class="btn btn-xs btn-info btn-confirm" rel="tooltip" title="'+txtFacturar+'" data-msg="'+txtFacturarConfirm+'"><i class="fa fa-file-invoice-dollar"></i></a>';
+                var currency = false;
+                api.rows().every(function(){
+                    var data = this.data();
+                });
 
-            //                     facturar = '<a href="#" class="btn btn-xs btn-info btnAddOrderToNewInvoice" rel="tooltip" title="'+txtFacturar+'" data-toggle="modal" data-target="#modal-generate-invoice" data-orderid="'+row['id']+'"><i class="fa fa-file-invoice-dollar"></i></a>';
-            //                 }
-            //             }
-            //         }
+                if(!currency) currency = '€';
 
-            //         //Editar:
-            //         var editar = '';
-            //         if(row['editar']){
-            //             var editar = '<a href="/admin/orders/'+row['id']+'/edit" class="btn btn-xs btn-info" rel="tooltip" title="'+txtEditar+'"><i class="fa fa-edit"></i></a>';
-            //         }
+                //Separamos el importe de la moneda:
+                var intVal = function(i){
+                    return typeof i === 'string'? 
+                    i.replace(/[\'+currency+',]/g, '')*1 :
+                    typeof i === 'number' ?
+                        i : 0;
+                };
 
-            //         //Eliminar:
-            //         var eliminar = '';
-            //         if(row['eliminar'] && !row['invoiced']){
-            //             var eliminar = '<form method="POST" action="/admin/orders/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
-            //                 eliminar += '<input name="_method" type="hidden" value="DELETE">';
-            //                 eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
-            //                 eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtEliminar+'" data-msg="'+txtPedidoConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
-            //             eliminar += '</form>';
-            //         }
+                // Total over all pages
+                // total = api
+                // .column(8)
+                // .data()
+                // .reduce(function(a, b){
+                //     return intVal(a) + intVal(b);
+                // }, 0);
 
-            //         return estado+' '+facturar+' '+editar+' '+eliminar;   
-            //     }
-            //     }
-            // ]
+                //Total:
+                total = api
+                .column(7, { search: 'applied' })
+                .data()
+                .reduce(function(a, b){
+                    return intVal(a) + intVal(b);
+                }, 0);
+
+                $(api.column(7).footer()).html(
+                    total.toFixed(2)+currency   
+                );
+
+                //Total por filtro aplicado:
+                a_facturar = api
+                .column(8, { search: 'applied' })
+                .data()
+                .reduce(function(a, b){
+                    return intVal(a) + intVal(b);
+                }, 0);
+
+                $(api.column(8).footer()).html(
+                    a_facturar.toFixed(2)+currency    
+                );
+            }
         });
     }
 
@@ -6266,5 +6267,5 @@ $(document).ready(function(){
             ]
         });
     }
-    
+
 });

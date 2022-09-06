@@ -199,7 +199,7 @@ if(!$initial_imports->value){
                                 </a>
 
                                 {{-- Bloqueo del selector --}}
-                                <span class="blocked-enter" @if($blocked) style="display: block;" rel="tooltip" title="{{ trans('textos.bloqueado_hasta') }} {{ $lastHour->hour }}h." @endif>
+                                <span class="blocked-enter" @if($blocked) style="display: block;" rel="tooltip" title="{{ trans('textos.bloqueado_hasta') }} {{ $blocked }}h." @endif>
                                     <i class="fa fa-ban"></i>    
                                 </span>
                             </li>
@@ -228,85 +228,89 @@ if(!$initial_imports->value){
                                         $seeConcept = '';
                                         @endphp
 
-                                        @foreach($timetable_items as $ti)
-                                            {{-- Omitimos los conceptos básicos de Entrada y Salida --}}
-                                            @if(!$ti->basic_item)
-                                                @if($ti->type == $flag)
-                                                    {{-- Omitimos los conceptos que hayan alcanzado el número de veces diario: --}}
-                                                    @if(isset($ti->qty))
-                                                        @foreach($nVeces as $vez)
+                                        @if(count($timetable_items))
+                                            @foreach($timetable_items as $ti)
+                                                {{-- Omitimos los conceptos básicos de Entrada y Salida --}}
+                                                @if(!$ti->basic_item)
+                                                    @if($ti->type == $flag)
+                                                        {{-- Omitimos los conceptos que hayan alcanzado el número de veces diario: --}}
+                                                        @if(isset($ti->qty))
+                                                            @foreach($nVeces as $vez)
+                                                                @php
+                                                                if($ti->id == $vez->id && $ti->qty >= $vez->qty){
+                                                                    $seeConcept = 'oculto';
+                                                                }
+                                                                @endphp
+                                                            @endforeach
+                                                        @endif
+
+                                                        {{-- Omitimos los conceptos si hay bloqueo hasta determinada hora --}}
+                                                        @if($blocked && $flag == 1)
                                                             @php
-                                                            if($ti->id == $vez->id && $ti->qty >= $vez->qty){
-                                                                $seeConcept = 'oculto';
-                                                            }
+                                                            $seeConcept = 'oculto';
                                                             @endphp
-                                                        @endforeach
-                                                    @endif
+                                                        @endif
 
-                                                    {{-- Omitimos los conceptos si hay bloqueo hasta determinada hora --}}
-                                                    @if($blocked && $flag == 1)
-                                                        @php
-                                                        $seeConcept = 'oculto';
-                                                        @endphp
-                                                    @endif
-
-                                                    {{-- Omitimos los conceptos de salida que son propias de un concepto de entrada --}}
-                                                    @if($ti->type == 2 && $ti->own_output > 0)
-                                                        @php
-                                                        $seeConcept = 'oculto';
-                                                        @endphp
-                                                    @endif
-
-                                                    <li class="{{ $seeConcept }}">
-                                                        <a href="{{ route('timetable.store', $ti->id) }}" class="one-click">
-                                                            <i class="fa fa-{{ $ti->icon }}"></i>
-                                                            {{ $ti->name }}
-                                                        </a>    
-                                                    </li>
-
-                                                    @php
-                                                    //Variable para controlar si mostrar las opciones adicionales:
-                                                    if($seeConcept == '') $with_aditionals_items = true;
-
-                                                    $seeConcept = '';
-                                                    @endphp
-                                                @endif
-
-                                                {{-- Habilitamos los conceptos básicos de Entrada y Salida dentro de la red de ADN por móvil --}}
-
-                                            {{-- Descomentar el siguiente código para habilitar los conceptos Entrada y Salida para Móvil --}}
-                                            @elseif($agent->isMobile() && is_array($setted_ips) && in_array($ip, $setted_ips))
-                                                @if($ti->type == $flag)
-                                                    @if(isset($ti->qty))
-                                                        @foreach($nVeces as $vez)
+                                                        {{-- Omitimos los conceptos de salida que son propias de un concepto de entrada --}}
+                                                        @if($ti->type == 2 && $ti->own_output > 0)
                                                             @php
-                                                            if($ti->id == $vez->id && $ti->qty >= $vez->qty){
-                                                                $seeConcept = 'oculto';
-                                                            }
+                                                            $seeConcept = 'oculto';
                                                             @endphp
-                                                        @endforeach
-                                                    @endif
+                                                        @endif
 
-                                                    {{-- Omitimos los conceptos si hay bloqueo hasta determinada hora --}}
-                                                    @if($blocked && $flag == 1)
+                                                        <li class="{{ $seeConcept }}">
+                                                            <a href="{{ route('timetable.store', $ti->id) }}" class="one-click">
+                                                                <i class="fa fa-{{ $ti->icon }}"></i>
+                                                                {{ $ti->name }}
+                                                            </a>    
+                                                        </li>
+
                                                         @php
-                                                        $seeConcept = 'oculto';
+                                                        //Variable para controlar si mostrar las opciones adicionales:
+                                                        if($seeConcept == '') $with_aditionals_items = true;
+
+                                                        $seeConcept = '';
                                                         @endphp
                                                     @endif
 
-                                                    <li class="{{ $seeConcept }}">
-                                                        <a href="{{ route('timetable.store', $ti->id) }}">
-                                                            <i class="fa fa-{{ $ti->icon }}"></i>
-                                                            {{ $ti->name }}
-                                                        </a>    
-                                                    </li>
+                                                    {{-- Habilitamos los conceptos básicos de Entrada y Salida dentro de la red de ADN por móvil --}}
 
-                                                    @php
-                                                    $seeConcept = '';
-                                                    @endphp
+                                                {{-- Descomentar el siguiente código para habilitar los conceptos Entrada y Salida para Móvil --}}
+                                                @elseif($agent->isMobile() && is_array($setted_ips) && in_array($ip, $setted_ips))
+                                                    @if($ti->type == $flag)
+                                                        @if(isset($ti->qty))
+                                                            @foreach($nVeces as $vez)
+                                                                @php
+                                                                if($ti->id == $vez->id && $ti->qty >= $vez->qty){
+                                                                    $seeConcept = 'oculto';
+                                                                }
+                                                                @endphp
+                                                            @endforeach
+                                                        @endif
+
+                                                        {{-- Omitimos los conceptos si hay bloqueo hasta determinada hora --}}
+                                                        @if($blocked && $flag == 1)
+                                                            @php
+                                                            $seeConcept = 'oculto';
+                                                            @endphp
+                                                        @endif
+
+                                                        <li class="{{ $seeConcept }}">
+                                                            <a href="{{ route('timetable.store', $ti->id) }}">
+                                                                <i class="fa fa-{{ $ti->icon }}"></i>
+                                                                {{ $ti->name }}
+                                                            </a>    
+                                                        </li>
+
+                                                        @php
+                                                        $seeConcept = '';
+                                                        @endphp
+                                                    @endif
                                                 @endif
-                                            @endif
-                                        @endforeach
+                                            @endforeach
+                                        @else
+                                            {{ trans('textos.horarios_conceptos_sin') }}
+                                        @endif
 
                                         {{-- Aviso de bloqueo de entrada --}}
                                         @if($blocked && $flag == 1)

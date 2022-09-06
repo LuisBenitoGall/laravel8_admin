@@ -22,7 +22,11 @@
 	<div class="col-12">						
 		<div class="card mb-3">
 			<div class="card-body">
-				<form method="post" autocomplete="off" action="{{ route('orders.control-panel-sales-year') }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
+				@php
+				$ruta = $order_type == 'compras'? 'control-panel-purchases-year':'control-panel-sales-year';
+				@endphp
+
+				<form method="post" autocomplete="off" action="{{ route('orders.'.$ruta) }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
 					{{ csrf_field() }}
 					<input type="hidden" name="order_type" id="orderType" value="{{ $order_type }}">
 

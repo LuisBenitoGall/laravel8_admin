@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Yajra\DataTables\DataTables;
 use File;
+use PDF;
 use Carbon\Carbon;
 
 //Models:
@@ -31,6 +32,7 @@ use App\Models\OrderDocs;
 use App\Models\OrderPatterns;
 use App\Models\OrderPrevisions;
 use App\Models\OrderSettings;
+use App\Models\Phone;
 use App\Models\Product;
 use App\Models\Project;
 use App\Models\ProjectOrders;
@@ -60,20 +62,24 @@ class OrderController extends Controller{
      * 11.1. Filtrar año para panel de control de ventas.
      * 11.2. Listado de pedidos del panel de control de ventas para DataTable.
      * 12. Panel control de compras.
+     * 12.1. Filtrar año para panel de control de compras.
+     * 12.2. Listado de pedidos del panel de control de compras para DataTable.
      * 13. Vincular compra a proyecto.
      * 14. Desvincular compra a proyecto.
      * 15. Activar entrega de pedido.
      * 16. Actualizar plantilla de pedido.
      * 17. Eliminar plantilla del pedido.
      * 18. Añadir descuento a pedido.
-     * 18.1. 
+     * 18.1. Eliminar descuento de pedido.
      * 19. Modificar cliente de pedido.
      * 20. Eliminar documento de orden de compra.
+     * 21. Imprimir pedido.
      */
     
     private $option = 'pedidos';
     private $module = 'orders';
     private $languages;
+    private $co_currency;
 
     public function __construct(){
         //Idiomas:
@@ -383,6 +389,9 @@ class OrderController extends Controller{
         ->addColumn('purchase_num', function($row){
             $purchase_number = $row->purchase_num? $row->purchase_num:($row->purchase_old_num? $row->purchase_old_num:'');
             return $purchase_number;
+        })
+        ->addColumn('name', function($row){
+            return $row->name;
         })
         ->addColumn('amount', function($row) use($currency){
             $amount = $row->getAmount();    
@@ -1254,9 +1263,6 @@ class OrderController extends Controller{
         ->rawColumns(['fecha', 'order_num'])
         ->orderColumn('fecha', 'customer')
         ->make(true);
-
-        $orders = $data->get();
-        return datatables($orders)->toJson();
     }
 
     /**
@@ -1277,7 +1283,102 @@ class OrderController extends Controller{
 
         $order_type = 'compras';
 
-        return view('admin.orders.control-panel')->with(compact('header', 'year', 'min_year', 'max_year', 'order_type'));
+        $currency = $this->co_currency;
+
+        return view('admin.orders.control-panel')->with(compact('header', 'year', 'min_year', 'max_year', 'order_type', 'currency'));
+    }
+
+    /**
+     * 12.1. Filtrar año para panel de control de compras.
+     */
+    public function controlPanelPurchasesPost(Request $request){
+        return redirect()->route('orders.control-panel-purchases', $request->year);
+    }
+
+    /**
+     * 12.2. Listado de pedidos del panel de control de compras para DataTable.
+     */
+    public function getOrdersControlPanelPurchasesDT($year){
+        //Estados de pedido que quedan fuera del panel: pedidos cancelados,...
+        $statusRejected = config('constants.ORDER_STATUS_NOT_INVOICED_');
+
+        $estados = helpers::orderStatus();
+
+        $currency = $this->co_currency;
+
+        $data = Order::select('orders.id', 'orders.name', 'orders.order_num', 'orders.order_old_num', 'orders.purchase_num', 'orders.purchase_old_num', 'orders.estimated_delivery_date', 'orders.delivery_date', 'orders.order_status', 'orders.invoiced', 'orders.discount', 'order_previsions.year', 'order_previsions.month', 'order_previsions.percent', 'orders.created_at', 'companies.name AS Provider', 'users.name AS Nombre', 'users.surname', 'cc.name AS finalCustomer', 'u_.name AS CustomerManagerName', 'u_.surname AS CustomerManagerSurname', 'business_areas.name AS businessArea')
+        ->join('order_previsions', 'orders.id', '=', 'order_previsions.order_id')
+        ->join('companies', 'orders.provider_id', '=', 'companies.id')
+        ->leftJoin('companies AS cc', 'orders.final_customer_id', '=', 'cc.id')
+        ->leftJoin('users', 'orders.provider_manager_id', '=', 'users.id')
+        ->leftJoin('users AS u_', 'orders.customer_manager_id', '=', 'u_.id')
+        ->leftJoin('business_areas', 'orders.customer_business_area_id', '=', 'business_areas.id')
+        ->where('orders.customer_id', session('currentCompany'))
+        ->where('orders.is_order', 1)
+        ->where('orders.invoiced', 0)
+        ->whereNull('orders.order_parent')
+        ->whereNull('order_previsions.invoice_id')
+        ->whereNull('order_previsions.deleted_at')
+        ->where('order_previsions.year', $year)
+        ->whereNotIn('orders.order_status', $statusRejected)
+        ->orderBy('orders.id', 'DESC')
+        ->orderBy('orders.created_at', 'DESC');
+
+        return DataTables::of($data)
+        ->addColumn('fecha', function($row){
+            $month = $row->month? helpers::yearMonths($row->month):'';
+            return '<span style="display: none">'.strtotime($row->year.'-'.$row->month.'-01').'</span>'.$month.' '.$row->year;
+        })
+        ->filterColumn('fecha', function($query, $keyword){
+            $sql = "order_previsions.year like ?";
+            $query->whereRaw($sql, ["%$keyword%"]);
+        })
+        ->addColumn('provider', function($row){
+            return $row->Provider;
+        })
+        ->addColumn('business_area', function($row){
+            return $row->businessArea;
+        })
+        ->addColumn('order_num', function($row){
+            $order_num = $row->order_num? $row->order_num:($row->order_old_num? $row->order_old_num:$row->id);
+            return '<a target="_blank" href="'.route('orders.edit', $row->id).'">'.$order_num.'</a>';
+        })   
+        ->addColumn('purchase_num', function($row){
+            $purchase_num = $row->purchase_num? $row->purchase_num:($row->purchase_old_num? $row->purchase_old_num:'');
+            return $purchase_num;
+        })
+        ->addColumn('name', function($row){
+            return $row->name;
+        })
+        ->addColumn('Nombre', function($row){
+            return $row->Nombre;
+        })
+        ->addColumn('finalCustomer', function($row){
+            return $row->finalCustomer;
+        })
+        ->addColumn('amount', function($row){
+            $amount = $row->getAmount();
+            return number_format($amount['amount_with_discount'], 2, '.', '');
+        })  
+        ->addColumn('a_facturar', function($row){ 
+            $amount = $row->getAmount();
+            if($row->percent && $row->percent < 100){
+                $a_facturar = helpers::percent($amount['amount_with_discount'], $row->percent);  
+                return number_format($a_facturar, 2, '.', '');
+            }else{
+                return number_format($amount['amount_with_discount'], 2, '.', '');
+            }    
+        })
+        ->addColumn('invoice_amount', function($row){ 
+            return Invoice::amountByOrder($row->id);
+        })
+        ->addColumn('acciones', function($row) use($estados){
+            $manage_status = false;
+            return view('admin.orders.partials.dt-actions', compact('row', 'estados', 'manage_status'));    
+        })
+        ->rawColumns(['fecha', 'order_num'])
+        ->orderColumn('fecha', 'customer')
+        ->make(true);
     }
 
     /**
@@ -1546,6 +1647,88 @@ class OrderController extends Controller{
 
         $msg = trans('textos.archivo_deleted');
         return redirect()->route('orders.edit', $order)->with(compact('msg'));
+    }
+
+    /**
+     * 21. Imprimir pedido.
+     */
+    public function print(Order $order){
+        if(!$order){
+            return redirect('/');
+            exit;   
+        }
+
+        $lines = Item::select('products.name', 'products.ref', 'products.price AS originalPrice', 'items.*')
+        ->leftJoin('products', 'items.product_id', '=', 'products.id')
+        ->where('items.order_id', $order->id)
+        ->get();
+
+        $provider = Company::find($order->provider_id);
+        $customer = Company::find($order->customer_id);
+
+        $template = $order->template? unserialize($order->template):false;
+
+        //Customizando CIF, ponemos espacio en blanco:
+        //$company->nif = helpers::setCif($company->nif);
+
+        $owner = User::select('name', 'surname')->find($order->owner);
+
+        
+
+        $fechaLiteral = Helpers::fechaLiteral($order->created_at, session()->get('locale'));
+
+        $company_settings = session('companySettings');
+
+        //Sede proveedor:
+        if($order->provider_workplace_id){
+            $provider_workplace = Workplace::select('workplaces.*', 'towns.name AS Town')
+            ->join('towns', 'workplaces.town_id', '=', 'towns.id')
+            ->where('workplaces.id', $order->provider_workplace_id)
+            ->first();  
+
+            $provider_phones = Phone::select('phone_number')
+            ->where('workplace_id', $provider_workplace->id)
+            ->get();
+        }else{
+            $provider_workplace = false;
+            $provider_phones = false;
+        }
+
+        //Sede cliente:
+        if($order->workplace_id){
+            $customer_workplace = Workplace::select('workplaces.*', 'towns.name AS Town')
+            ->join('towns', 'workplaces.town_id', '=', 'towns.id')
+            ->where('workplaces.id', $order->workplace_id)
+            ->first();  
+
+        }else{
+            $customer_workplace = false;
+        }
+
+        //Provider manager:
+        $provider_manager = false;
+        if($order->provider_manager_id){
+            $provider_manager = User::select('name', 'surname')->find($order->provider_manager_id);
+        }   
+
+        //Customer manager:
+        $customer_manager = false;
+        if($order->customer_manager_id){
+            $customer_manager = User::select('name', 'surname')->find($order->customer_manager_id);
+        }    
+
+        //Moneda:
+        $currency = $this->co_currency;
+
+
+
+
+
+        //Título .pdf:
+        $pdf_title = $order->order_num? helpers::slugFiles($order->order_num, '_', false):$order->id;
+
+        $pdf = PDF::loadView('pdf/order', compact('order', 'lines', 'provider', 'customer', 'owner', 'template', 'fechaLiteral', 'company_settings', 'provider_workplace', 'provider_phones', 'customer_workplace', 'provider_manager', 'customer_manager', 'currency'));
+        return $pdf->download($pdf_title.'.pdf'); 
     }
     
 }

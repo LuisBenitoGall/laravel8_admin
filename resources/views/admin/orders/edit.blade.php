@@ -167,8 +167,11 @@
 				@endcan
 			@endif
 
-			{{-- Acceso a presupuesto --}}
-			@if($module_budgets)
+			{{-- Acceso a presupuesto - condiciones 
+				1. Activado el módulo de presupuestos.
+				2. Exclusivo del proveedor.
+			--}}
+			@if($module_budgets && $order->provider_id == session('currentCompany'))
 				@can('budgets.edit')
 					@if($order->is_budget)
 						<a target="_blank" href="{{ route('budgets.edit', $order) }}" class="btn btn-info">
@@ -379,9 +382,10 @@
 			1. Disponer de permisos para eliminar facturas.
 			2. Que se cumplan las condiciones: $permitted = true.
 			3. Pedido no facturado.
+			4. Exclusivo para proveedor.
 		--}}
         @can('orders.destroy')
-        	@if($permitted && !$order->invoiced)
+        	@if($permitted && !$order->invoiced && $order->provider_id == session('currentCompany'))
 	        	<form method="POST" action="{{ route('orders.destroy', $order) }}" class="frm-inline" role="form" accept-charset="UTF-8">
 	                <input name="_method" type="hidden" value="DELETE">
 	                {{ csrf_field() }}
@@ -569,7 +573,11 @@ if($order->provider_team){
 			  			<a class="nav-link @if($tab == 'docs') active @endif" href="#tab-docs" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.documentos')) !!}</a>	
 			  		</li>
 
-			  		@if(!$order->is_group)
+			  		{{-- Template - condiciones: 
+						1. Para pedidos no grupales.
+						2. Exclusivo para proveedor.
+			  		--}}
+			  		@if(!$order->is_group && $order->provider_id == session('currentCompany'))
 				  		<li class="nav-item @if($tab == 'template') active @endif">
 				  			<a class="nav-link @if($tab == 'template') active @endif" href="#tab-template" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.plantilla')) !!}</a>	
 				  		</li>
@@ -601,7 +609,7 @@ if($order->provider_team){
 					</div>
 
 					{{-- Pedidos --}}
-					@if($order->is_group)
+					@if(!$order->is_group && $order->provider_id == session('currentCompany'))
 						<div class="tab-pane fade @if($tab == 'orders') show active @endif" role="tabpanel" id="tab-orders">
 							@include('admin.orders.partials.order-orders')	
 						</div>

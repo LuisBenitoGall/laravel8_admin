@@ -163,7 +163,7 @@ class ExpenseController extends Controller{
     /**
      * 3. Formulario nuevo gasto.
      */
-    public function create(){
+    public function create($project_id = ''){
         $header = [
             'option' => $this->option, 
             'suboption' => 'textos.gasto_nuevo',
@@ -195,7 +195,7 @@ class ExpenseController extends Controller{
 
         $languages = $this->languages;
 
-        return view('admin.expenses.create')->with(compact('header', 'types', 'projects', 'providers', 'currency', 'iva', 'languages'));    
+        return view('admin.expenses.create')->with(compact('header', 'project_id', 'types', 'projects', 'providers', 'currency', 'iva', 'languages'));    
     }
 
     /**

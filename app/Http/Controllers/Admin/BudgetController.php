@@ -169,7 +169,7 @@ class BudgetController extends Controller{
     public function getBudgetsDT($from = false){
         //Presupuestos para cliente:
         if($from == 'customers'){
-            $query = Order::select('orders.id', 'orders.discount', 'orders.budget_num', 'orders.budget_old_num', 'orders.name', 'orders.budget_status', 'orders.modality', 'orders.created_at', 'companies.name AS company', 'orders.id AS orderId', 'orders.order_num','orders.invoiced', 'users.name As Nombre', 'users.surname', 'u_.name AS CustomerManagerName', 'u_.surname AS CustomerManagerSurname')
+            $query = Order::select('orders.id', 'orders.is_order', 'orders.discount', 'orders.budget_num', 'orders.budget_old_num', 'orders.name', 'orders.budget_status', 'orders.modality', 'orders.created_at', 'companies.name AS company', 'orders.id AS orderId', 'orders.order_num','orders.invoiced', 'users.name As Nombre', 'users.surname', 'u_.name AS CustomerManagerName', 'u_.surname AS CustomerManagerSurname')
             ->join('companies', 'orders.customer_id', '=', 'companies.id')
             ->leftJoin('users', 'orders.provider_manager_id', '=', 'users.id')
             ->leftJoin('users AS u_', 'orders.customer_manager_id', '=', 'u_.id')
@@ -202,6 +202,14 @@ class BudgetController extends Controller{
         ->addColumn('num', function($budget) use($from){
             return view('admin.budgets.partials.dt-num', compact('budget', 'from')); 
         })
+        ->addColumn('order_num', function($budget){
+            if($budget->is_order){
+                $order_num = $budget->order_num? $budget->order_num:($budget->order_old_num? $budget->order_old_num:$budget->id);
+                return '<a target="_blank" href="'.route('orders.edit', $budget->id).'">'.$order_num.'</a>';
+            }else{
+                return '';
+            }
+        })
         ->addColumn('amount', function($budget) use($currency){
             $amount = $budget->getAmount();    
             return $amount['amount_with_discount'].$currency->symbol;
@@ -212,15 +220,27 @@ class BudgetController extends Controller{
         ->addColumn('manager', function($budget){
             return $budget->Nombre.' '.$budget->surname;
         })
+        ->filterColumn('manager', function($query, $keyword){
+            $sql = "CONCAT(users.name, ' ', users.surname) like ?";
+            $query->whereRaw($sql, ["%$keyword%"]);
+        })
         ->addColumn('alta', function($budget){
             return $budget->created_at->format($this->languages[session()->get('locale')][4]);    
         })
         ->addColumn('estado', function($budget) use($estados){
             return view('admin.budgets.partials.dt-status', compact('budget', 'estados'));    
         })
+        ->filterColumn('estado', function($query, $keyword) use($estados){
+            //01/09/22: no filtra. Corregir código.
+            $idx = $keyword > 0? array_search('$keyword', $estados):false;
+            if($idx){
+                $query->where("orders.budget_status", $idx);
+            }
+        })
         ->addColumn('acciones', function($budget) use($estados){
             return view('admin.budgets.partials.dt-actions', compact('budget', 'estados'));    
         })
+        ->rawColumns(['order_num'])
         ->make(true);
     }
 
@@ -913,7 +933,7 @@ class BudgetController extends Controller{
         $customer = Company::find($order->customer_id);
 
         //Template condiciones:
-        $template = unserialize($order->budget_template);
+        $template = $order->budget_template? unserialize($order->budget_template):false;
 
         $fechaLiteral = helpers::fechaLiteral($order->created_at, session()->get('locale'));
 
@@ -1008,8 +1028,6 @@ class BudgetController extends Controller{
         //Moneda:
         $currency = CompanySettings::co_currency(0);
 
-
-
         //Color corporativo:
         $bg_color = $company_settings->primary_color? $company_settings->primary_color:'#FFF';
 
@@ -1021,7 +1039,7 @@ class BudgetController extends Controller{
 
         //Según la modalidad de presupuesto utiliza una plantilla u otra:
         if($order->modality == config('constants.BUDGET_BASIC_MODALITY_')){
-            $pdf = PDF::loadView('pdf/budget-free', compact('order', 'company', 'customer', 'template', 'fechaLiteral', 'company_settings', 'provider_workplace', 'customer_workplace', 'provider_phones', 'manager_provider', 'manager_customer', 'blocks', 'itemsSelected', 'currency', 'bg_color', 'locale'));
+            $pdf = PDF::loadView('pdf/budget-free', compact('order', 'company', 'customer', 'template', 'fechaLiteral', 'company_settings', 'provider_workplace', 'customer_workplace', 'provider_phones', 'provider_manager', 'customer_manager', 'blocks', 'itemsSelected', 'currency', 'bg_color', 'locale'));
             return $pdf->download($pdf_title.'.pdf');
 
         }elseif($order->modality == config('constants.BUDGET_FORM_MODALITY_')){
@@ -1029,7 +1047,7 @@ class BudgetController extends Controller{
             return $pdf->download($pdf_title.'.pdf');  
 
         }elseif($order->modality == config('constants.BUDGET_CATALOGUE_MODALITY_')){
-            $pdf = PDF::loadView('pdf/budget-catalogue', compact('order', 'company', 'customer', 'template', 'fechaLiteral', 'company_settings', 'provider_workplace', 'customer_workplace', 'provider_phones', 'manager_provider', 'manager_customer', 'blocks', 'itemsSelected', 'currency', 'bg_color', 'locale'));
+            $pdf = PDF::loadView('pdf/budget-catalogue', compact('order', 'company', 'customer', 'template', 'fechaLiteral', 'company_settings', 'provider_workplace', 'customer_workplace', 'provider_phones', 'provider_manager', 'customer_manager', 'blocks', 'itemsSelected', 'currency', 'bg_color', 'locale'));
             return $pdf->download($pdf_title.'.pdf');
         }
     }

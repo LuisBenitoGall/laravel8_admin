@@ -67,7 +67,7 @@
 						{{-- Proyectos --}}
 						<label for="project_id" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.proyectos')) !!}</label>
 						<div class="col-lg-4">
-							<x-select name="project_id" class="select2" label="proyecto_selec" :options="$projects" info="expense-project"/>
+							<x-select name="project_id" class="select2" label="proyecto_selec" :options="$projects" value="{{ $project_id }}" info="expense-project"/>
 						</div>
 					</div>
 

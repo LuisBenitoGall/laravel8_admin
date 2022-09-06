@@ -362,7 +362,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
 
     // Expenses:
     Route::get('expenses', 'ExpenseController@index')->name('expenses.index');
-    Route::get('expenses/create', 'ExpenseController@create')->name('expenses.create')->middleware('permission:expenses.create');
+    Route::get('expenses/create/{project_id?}', 'ExpenseController@create')->name('expenses.create')->middleware('permission:expenses.create');
     Route::post('expenses/store', 'ExpenseController@store')->name('expenses.store')->middleware('permission:expenses.create');
     Route::get('expenses/{expense}/edit', 'ExpenseController@edit')->name('expenses.edit')->middleware('permission:expenses.edit');
     Route::put('expenses/{expense}/update', 'ExpenseController@update')->name('expenses.update')->middleware('permission:expenses.edit');
@@ -564,6 +564,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
 
     Route::get('control-panel', 'OrderController@index')->name('control-panel.index')->middleware('permission:orders.index');
     Route::post('orders/control-panel-sales-year', 'OrderController@controlPanelSalesPost')->name('orders.control-panel-sales-year')->middleware('permission:orders.index');
+    Route::post('orders/control-panel-purchases-year', 'OrderController@controlPanelPurchasesPost')->name('orders.control-panel-purchases-year')->middleware('permission:orders.index');
 
 
     Route::get('orders/create/{project_id?}', 'OrderController@create')->name('orders-forms.create')->middleware('permission:orders.create');

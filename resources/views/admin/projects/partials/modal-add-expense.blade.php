@@ -15,7 +15,7 @@
 
                     <div class="form-group row">
                         {{-- Gastos --}}
-                        <label for="orders" class="col-12">{{ ucfirst(trans('textos.gastos')) }}*</label>
+                        <label for="orders" class="col-12">{{ ucfirst(trans('textos.gastos_selec')) }}*</label>
                         <div class="col-12">
                             @php
                             $expenses_ = [];
@@ -30,7 +30,17 @@
                         </div>
                     </div>
 
-                    <x-btn-submit name="submit_add_expenses" label="{{ trans('textos.guardar') }}"/>
+                    <div class="form-group row">
+                        {{-- Crear nuevo gasto --}}
+                        <div class="col-md-2 offset-md-8">
+                            <a target="_blank" href="{{ route('expenses.create', $project->id) }}" class="btn btn-info float-right">
+                                <i class="fa fa-plus"></i>
+                                {!! ucfirst(trans('textos.gasto_nuevo')) !!}
+                            </a>
+                        </div>
+
+                        <x-btn-submit name="submit_add_expenses" class="float-right" label="{{ trans('textos.guardar') }}" inline="true"/>
+                    </div>
                 </form>   
             </div>
         </div>

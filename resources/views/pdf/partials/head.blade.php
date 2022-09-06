@@ -34,11 +34,11 @@
 			max-height: 50px;
 		}
 		header .address{
-			color: #888;
+			color: #FFF;
 			display: inline-block;
 			float: right;
 			font-size: .7rem !important;
-			line-height: 1.4rem;
+			line-height: 1.1rem;
 			text-align: right;
 			vertical-align: top;
 			width: 500px;
