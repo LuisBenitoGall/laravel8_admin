@@ -1,7 +1,6 @@
 @extends('admin.partials.layout')
 
 @section('content')
-
 {{-- Avisos --}}
 {{-- Riesgo crediticio --}}
 @if($customer_settings->credit_risk && $order_amount > $customer_settings->credit_risk)

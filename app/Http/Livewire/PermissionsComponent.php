@@ -26,11 +26,13 @@ class PermissionsComponent extends Component{
         $this->role = $role;
 
         //Permisos propios del rol:
-        if(empty($this->role_permissions)){
-            $rp = $role->permissions;
+        if($this->role){
+            if(empty($this->role_permissions)){
+                $rp = $role->permissions;
 
-            foreach($rp as $i){
-                array_push($this->role_permissions, $i->id);
+                foreach($rp as $i){
+                    array_push($this->role_permissions, $i->id);
+                }
             }
         }
     }

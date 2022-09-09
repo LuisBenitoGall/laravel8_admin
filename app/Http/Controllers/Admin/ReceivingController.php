@@ -25,6 +25,7 @@ class ReceivingController extends Controller{
      * 1. Recepción de pedidos.
      * 1.1. Listado de recepciones por DataTable.
      * 2. Guardar nueva recepción de pedido.
+     * 3. Editar recepción de pedido.
      */
     
     private $option = 'recepciones';
@@ -38,16 +39,16 @@ class ReceivingController extends Controller{
         $this->middleware('module_setted:orders');
 
         $this->middleware('order_get', ['only' => ['store']]);
+        $this->middleware('receiving_get', ['only' => ['edit']]);
     }
     
     public function index(){
         $header = [
             'option' => $this->option, 
-            'suboption' => 'textos.listado',
+            'suboption' => 'textos.recepciones_pendientes',
             'module' => $this->module,
-            'slug' => 'receivings'
+            'slug' => 'receiving'
         ]; 
-
 
         return view('admin.receivings.index')->with(compact('header'));
     }
@@ -56,14 +57,40 @@ class ReceivingController extends Controller{
      * 1.1. Listado de recepciones por DataTable.
      */
     public function getReceivingsDT(){
-        //$data = 
-        
+        $data = Delivery::select('deliveries.id', 'deliveries.delivery_num', 'deliveries.delivery_old_num', 'deliveries.origin', 'deliveries.send_date', 'deliveries.reception_date', 'deliveries.customer_observations', 'orders.id AS orderId', 'orders.purchase_num', 'orders.purchase_old_num', 'companies.name AS company')
+        ->join('companies', 'deliveries.provider_id', '=', 'companies.id')
+        ->leftJoin('delivery_orders', 'deliveries.id', '=', 'delivery_orders.delivery_id')
+        ->leftJoin('orders', 'delivery_orders.order_id', '=', 'orders.id')
+        ->where('deliveries.customer_id', session('currentCompany'))
+        ->where('deliveries.status', '0')
+        ->orderBy('deliveries.reception_date', 'ASC');
 
-        // return DataTables::of($data)   
-
-
-        // ->rawColumns(['order_parent'])
-        // ->make(true);
+        return DataTables::of($data)   
+        ->addColumn('reception_date', function($row){
+            return Carbon::parse($row->reception_date)->format($this->languages[session()->get('locale')][4]);
+        })
+        ->addColumn('provider', function($row){
+            return $row->company;
+        })
+        ->addColumn('orderNum', function($row){
+            $order = $row->purchase_num? $row->purchase_num:($row->purchase_old_num? $row->purchase_old_num:$row->orderId);
+            return '<a target="_blank" href="'.route('orders.edit', $row->orderId).'">'.$order.'</a>';
+        })
+        ->addColumn('deliveryNum', function($row){
+            if($row->delivery_num){
+                return $row->delivery_num;
+            }else{
+                return '';
+            }
+        })
+        ->addColumn('observations', function($row){
+            return $row->customer_observations;
+        })
+        ->addColumn('acciones', function($row){
+            return view('admin.receivings.partials.dt-actions', compact('row'));    
+        })
+        ->rawColumns(['orderNum'])
+        ->make(true);
     }
 
     /**
@@ -89,6 +116,17 @@ class ReceivingController extends Controller{
 
         $msg = trans('textos.recepcion_generada');
         return redirect()->route('orders.edit', [$order->id, false])->with(compact('msg'));
+    }
+
+    /**
+     * 3. Editar recepción de pedido.
+     */
+    public function edit(Delivery $delivery){
+        //Pedidos de la recepción:
+        $orders = Order::select('orders.id')
+        ->join('delivery_orders', 'orders.id', '=', 'delivery_orders.order_id')
+        ->where('delivery_orders.delivery_id', $delivery->id)
+        ->get();    
     }
 
 }

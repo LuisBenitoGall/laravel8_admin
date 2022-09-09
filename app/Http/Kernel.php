@@ -183,6 +183,8 @@ class Kernel extends HttpKernel{
 
         'quiz_get' => \App\Http\Middleware\QuizGetMiddleware::class,
 
+        'receiving_get' => \App\Http\Middleware\ReceivingGetMiddleware::class,
+
         'role_get' => \App\Http\Middleware\RoleGetMiddleware::class,
 
         'schedule_event_type_get' => \App\Http\Middleware\ScheduleEventTypeGetMiddleware::class,

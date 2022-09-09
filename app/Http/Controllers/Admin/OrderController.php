@@ -664,10 +664,17 @@ class OrderController extends Controller{
         ->pluck('name', 'id')
         ->toArray();
 
-        //Configuraciones de cliente:
+        //Configuraciones de cliente. Es relación obligatoria, de modo que en caso de no existir debe crearse.
         $customer_settings = CustomerProviders::where('customer_id', $order->customer_id)
         ->where('provider_id', $order->provider_id)
         ->first();
+        if(!$customer_settings){
+            $customer_settings = new CustomerProviders();  
+            $customer_settings->customer_id = $order->customer_id;
+            $customer_settings->provider_id = $order->provider_id;
+            $customer_settings->status = 1;
+            $customer_settings->save();
+        }
 
         //Confirmación pedido:
         $confirmed_by = false;

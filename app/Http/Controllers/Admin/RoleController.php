@@ -99,9 +99,11 @@ class RoleController extends Controller{
 
         $permissions = Permission::get();
 
+        $role = false;
+
         $action = 'create';
 
-        return view('admin.roles.create')->with(compact('header', 'functionalities', 'permissions', 'action'));
+        return view('admin.roles.create')->with(compact('header', 'functionalities', 'permissions', 'role', 'action'));
     }
 
     /**
