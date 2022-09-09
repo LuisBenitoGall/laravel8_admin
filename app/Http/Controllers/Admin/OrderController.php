@@ -704,7 +704,7 @@ class OrderController extends Controller{
         ->get();
 
         //Pedidos de las agrupación:
-        $ordersInGroup = false;
+        $ordersInGroup = [];
         $orders_off = false;
         $group_amount = false;
         if($order->is_group){
@@ -784,10 +784,18 @@ class OrderController extends Controller{
         } 
 
         //Entregas del pedido:
-        $deliveries = DeliveryOrders::select('delivery_orders.id', 'deliveries.id AS deliveryId', 'deliveries.delivery_num', 'deliveries.delivery_old_num')
+        $deliveries = DeliveryOrders::select('delivery_orders.id', 'deliveries.id AS deliveryId', 'deliveries.delivery_num', 'deliveries.delivery_old_num', 'deliveries.origin', 'deliveries.reception_date', 'deliveries.customer_observations', 'deliveries.provider_observations')
         ->join('deliveries', 'delivery_orders.delivery_id', '=', 'deliveries.id')
         ->where('delivery_orders.order_id', $order->id)
         ->get();
+
+        //Recepciones previstas, a partir de las entregas programadas:
+        $receivings = [];
+        if($order->customer_id == session('currentCompany')){
+            foreach($deliveries as $dlv){
+                array_push($receivings, $dlv);
+            }
+        }
       
         //Moneda:
         $currency = CompanySettings::co_currency(0);
@@ -828,7 +836,7 @@ class OrderController extends Controller{
         $module_projects = $this->settedModule('projects');
         $module_rrhh = $this->settedModule('rrhh');
         
-        return view('admin.orders.edit')->with(compact('header', 'order', 'tab', 'patterns', 'purchase_patterns', 'provider', 'provider_managers', 'provider_business_areas', 'provider_cost_centers', 'provider_workplaces', 'default_workplace', 'customer', 'customer_managers', 'customer_business_areas', 'customer_cost_centers', 'customer_workplaces', 'customer_settings', 'confirmed_by', 'customers', 'order_amount', 'order_amount_without_discount', 'order_groups', 'ordersInGroup', 'orders_off', 'group_amount', 'invoiced', 'invoices', 'previsions', 'products', 'projects', 'project', 'project_purchases', 'deliveries', 'currency', 'items', 'author', 'owner', 'iva', 'order_type', 'templates', 'languages', 'permitted', 'module_accounting', 'module_budgets', 'module_products', 'module_projects', 'module_rrhh', 'module_logistics'));
+        return view('admin.orders.edit')->with(compact('header', 'order', 'tab', 'patterns', 'purchase_patterns', 'provider', 'provider_managers', 'provider_business_areas', 'provider_cost_centers', 'provider_workplaces', 'default_workplace', 'customer', 'customer_managers', 'customer_business_areas', 'customer_cost_centers', 'customer_workplaces', 'customer_settings', 'confirmed_by', 'customers', 'order_amount', 'order_amount_without_discount', 'order_groups', 'ordersInGroup', 'orders_off', 'group_amount', 'invoiced', 'invoices', 'previsions', 'products', 'projects', 'project', 'project_purchases', 'deliveries', 'receivings', 'currency', 'items', 'author', 'owner', 'iva', 'order_type', 'templates', 'languages', 'permitted', 'module_accounting', 'module_budgets', 'module_products', 'module_projects', 'module_rrhh', 'module_logistics'));
     }
 
     /**
@@ -1131,9 +1139,13 @@ class OrderController extends Controller{
         ->addColumn('estado', function($item) use($estados){
             return view('admin.orders.partials.dt-item-status', compact('item', 'estados'));    
         })
+        ->addColumn('observations', function($item){
+            return $item->observations;
+        })
         ->addColumn('acciones', function($item) use($estados, $order, $environment){
             return view('admin.orders.partials.dt-item-actions', compact('item', 'estados', 'order', 'environment'));    
         })
+        ->rawColumns(['observations'])
         ->make(true);
     }
 
@@ -1473,11 +1485,11 @@ class OrderController extends Controller{
                 ->withErrors($validator)
                 ->withInput();
         }
-
+//dd($request->all(), $order);
         //Si viene declarada la plantilla:
         if($request->template_id){
             //Plantilla original:
-            if($order->template_id == $request->template_id){
+            if($order->order_template_id == $request->template_id){
                 $template = [
                     'conditions' => $request->conditions, 
                     'payment_method' => $request->payment_method,
@@ -1508,8 +1520,8 @@ class OrderController extends Controller{
 
         $template = serialize($template);
 
-        $order->template_id = $request->template_id;
-        $order->template = $template;
+        $order->order_template_id = $request->template_id;
+        $order->order_template = $template;
         $order->save();
 
         $msg = trans('textos.pedido_updated');
@@ -1520,8 +1532,8 @@ class OrderController extends Controller{
      * 17. Eliminar plantilla del pedido.
      */
     public function removeTemplate(Order $order){
-        $order->template_id = NULL;
-        $order->template = NULL;
+        $order->order_template_id = NULL;
+        $order->order_template = NULL;
         $order->save();
 
         $msg = trans('textos.pedido_updated');

@@ -2,6 +2,8 @@
 
 @section('content')
 
+<input type="hidden" id="dtCompanyId" value="{{ $company->id }}">
+
 <div class="row mb-3">
 	{{-- Acciones: --}}
 	<div class="col-sm-12">
@@ -57,7 +59,7 @@
 	<div class="col-12">
 		<div class="card mb-3">
 			<div class="card-body">	
-				<h3 class="mb-4">
+				<h3 class="mb-3">
 					<u>{{ ucfirst($company->name) }}</u>
 					@if($mother)
 						- {{ trans('textos.empresa_matriz') }} 
@@ -65,13 +67,39 @@
 					@endif
 				</h3>	
 
-				<form method="post" autocomplete="off" action="{{ route('companies.update', $company->id) }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
-					@method('PUT')
-					{{ csrf_field() }}
-					<input type="hidden" name="business_relationship" value="{{ $business_relationship }}">
-					
-					@include('admin.companies.partials.form-edit', ['company' => $company])
-				</form>
+				{{-- Info --}}
+				<div class="mb-3" style="width: 90%;">
+					{{-- Fecha alta --}}
+					<label class="mr-5">
+						{!! ucfirst(trans('textos.fecha_alta')) !!}: 
+						<b>
+							{{ $company->created_at->format($languages[session()->get('locale')][4].' H:i:s') }}
+						</b>
+					</label>
+				</div>
+
+				{{-- Tabs: --}}
+				<ul class="nav nav-tabs" role="tablist">
+					<li class="nav-item @if(!$tab) active @endif">
+			    		<a class="nav-link @if(!$tab) active @endif" href="#tab-info" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.informacion')) !!}</a>
+			  		</li>
+
+			  		<li class="nav-item @if($tab == 'sectors') active @endif">
+			  			<a class="nav-link @if($tab == 'sectors') active @endif" href="#tab-sectors" role="tab" data-toggle="tab">{{ ucfirst(trans('textos.sectores')) }}</a>	
+			  		</li>
+			  	</ul>
+
+			  	<div class="tab-content pt-4">
+					{{-- Cabecera --}}
+					<div class="tab-pane fade @if(!$tab) show active @endif" role="tabpanel" id="tab-info">
+						@include('admin.companies.partials.company-info')	
+					</div>
+
+					{{-- Sectores --}}
+					<div class="tab-pane fade @if($tab == 'sectors') show active @endif" role="tabpanel" id="tab-sectors">
+						@include('admin.companies.partials.company-sectors')	
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -80,5 +108,27 @@
 {{-- Modals --}}
 {{-- Vincular empresa a matriz --}}
 @include('admin.companies.partials.modal-link-mother')
+
+@push('scripts')
+<script>
+$(function(){
+	//Vincular / desvincular sectores a empresa.
+    $(document).on('change', '.btnCompanySector', function(){
+    	var elem = $(this);
+        var company_id = $('#dtCompanyId').val();
+        var category_id = elem.find('.chk').data('id');
+        $.get("/admin/company-sectors/store/"+company_id+"/"+category_id+"", function(response, state){
+            if(response){
+                $('.check-ko').remove();
+                elem.before('<i class="fa fa-check check-ok"></i>');
+                $('.check-ok').delay(1000).fadeOut();
+            }else{
+                elem.before('<i class="fa fa-exclamation-triangle check-ko"></i>');
+            }
+        });  
+    });
+});
+</script>
+@endpush
 
 @endsection

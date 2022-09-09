@@ -61,6 +61,9 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
 
     //CompanyAccounts:
     Route::get('company-accounts', 'CompanyAccountsController@getCompanyAccountsDT');
+
+    //CompanySectors:
+    Route::get('company-sectors/{company_id}', 'CompanySectorsController@getCompanySectorsDT');
     
     //Contents:
     Route::get('contents', 'ContentController@getContentsDT');
@@ -221,6 +224,9 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
 
     //Quizzes:
     Route::get('quizzes', 'QuizController@getQuizzesDT');
+
+    //Receivings:
+    Route::get('receivings', 'ReceivingController@getReceivingsDT');
 
     //Roles:
     Route::get('roles', 'RoleController@getRolesDT');

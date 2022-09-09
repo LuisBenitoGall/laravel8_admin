@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Helpers\Helpers;
+use App\Helpers\helpers;
 use App\Providers\AppServiceProvider;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,6 +17,7 @@ use File;
 
 //Models:
 use App\Models\Account;
+use App\Models\Category;
 use App\Models\Company;
 use App\Models\CompanyAccounts;
 use App\Models\CompanyModules;
@@ -55,6 +56,7 @@ class CompanyController extends Controller{
      * 14. Mostrar ficha de empresa.
      * 15. Establecer empresa matriz.
      * 16. Desvincular de empresa matriz.
+     * 17. Directorio por sectores.
      */
     
     private $option = 'empresas';
@@ -405,7 +407,7 @@ class CompanyController extends Controller{
     /**
      * 4. Editar empresa.
      */
-    public function edit(Company $company){
+    public function edit(Company $company, $tab = false){
         $header = [
             'option' => $this->option, 
             'suboption' => 'textos.empresa_editar',
@@ -438,7 +440,7 @@ class CompanyController extends Controller{
 
         $languages = $this->languages;
 
-        return view('admin.companies.edit', compact('header', 'company', 'noSelectCompany', 'business_relationship', 'mother', 'mother_companies', 'languages'));   
+        return view('admin.companies.edit', compact('header', 'company', 'tab', 'noSelectCompany', 'business_relationship', 'mother', 'mother_companies', 'languages'));   
     }
 
     /**
@@ -696,5 +698,27 @@ class CompanyController extends Controller{
 
         $msg = trans('textos.empresa_matriz_desvinculada');
         return redirect()->route('companies.edit', $company)->with(compact('msg'));
+    }
+
+    /**
+     * 17. Directorio por sectores.
+     */
+    public function sectors(){
+        $header = [
+            'option' => $this->option, 
+            'suboption' => 'textos.directorio_sectores',
+            'module' => $this->module,
+            'slug' => 'sectors'
+        ];
+
+        $sectors = Category::select('categories.id', 'categories.name', 'categories.slug', 'categories.subcategory')
+        ->join('modules', 'categories.module_id', '=', 'modules.id')
+        ->where('categories.status', 1)
+        ->where('modules.slug', 'companies')
+        ->with('sub_category')
+        ->orderBy('name', 'ASC')
+        ->get();  
+        
+        return view('admin.company_sectors.index')->with(compact('header', 'sectors'));
     }
 }

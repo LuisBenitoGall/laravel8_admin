@@ -1021,7 +1021,7 @@ $(document).ready(function(){
                 {data: 'inicio', className: 'text-right'},
                 {data: 'fin', className: 'text-right'},
                 {data: 'price', className: 'text-right'},
-                {data: 'status', className: 'text-center',},
+                {data: 'status', className: 'text-center'},
                 {data: 'id', className: 'text-right'}
             ],
             "columnDefs": [
@@ -1055,6 +1055,29 @@ $(document).ready(function(){
                     return eliminar;
                 }
                 }
+            ]
+        });
+    }
+
+    //Tabla Company Sectors:
+    if($('#tblCompanySectors').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        var company_id = $('#dtCompanyId').val();
+        
+        $('#tblCompanySectors').DataTable({
+            "serverSide": true,
+            "processing": true,
+            "ajax": {
+                "type": "GET",
+                "url": "/api/admin/company-sectors/"+company_id,
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            "columns": [
+                {data: 'name'},
+                {data: 'level'},
+                {data: 'acciones', className: 'text-right'}
             ]
         });
     }
@@ -4913,6 +4936,28 @@ $(document).ready(function(){
                     return estado+' '+editar+' '+eliminar;
                 }
                 }
+            ]
+        });
+    }
+
+    //Tabla Receivings:
+    if($('#tblReceivings').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+
+        $('#tblReceivings').DataTable({
+            "serverSide": true,
+            "processing": true,
+            "ajax": {
+                "type": "GET",
+                "url": "/api/admin/receivings",
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            "columns": [
+                {data: 'name'},
+                {data: 'description'},
+                {data: 'id', className: 'text-right'}
             ]
         });
     }

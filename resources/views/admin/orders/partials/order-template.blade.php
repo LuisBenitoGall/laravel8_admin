@@ -25,7 +25,7 @@
 				@endforeach
 			@endif
 
-			<x-select name="template_id" class="select2" :options="$templates_" label="plantilla_selec" value="{{ $order->template_id }}" required/>
+			<x-select name="template_id" class="select2" :options="$templates_" label="plantilla_selec" value="{{ $order->order_template_id }}" required/>
 		</div>
 
 		{{-- Reset valores originales de la plantilla --}}
@@ -40,7 +40,7 @@
 	<hr>
 
 	@php
-	$template = $order->template? unserialize($order->template):false;
+	$template = $order->order_template? unserialize($order->order_template):false;
 	@endphp
 
 	{{-- Condiciones --}}

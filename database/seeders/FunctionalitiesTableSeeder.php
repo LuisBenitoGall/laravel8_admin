@@ -110,6 +110,11 @@ class FunctionalitiesTableSeeder extends Seeder{
             'label' => 'empresas',
             'module' => 'companies'
             ],
+            ['name' => 'sectors',
+            'slug' => 'sectors',
+            'label' => 'directorio_sectores',
+            'module' => 'companies'
+            ],
             ['name' => 'company settings',
             'slug' => 'company-settings',
             'label' => 'empresas_configuracion_',
@@ -143,6 +148,11 @@ class FunctionalitiesTableSeeder extends Seeder{
             ['name' => 'providers',
             'slug' => 'providers',
             'label' => 'proveedores',
+            'module' => 'companies'
+            ],
+            ['name' => 'company-sectors',
+            'slug' => 'company-sectors',
+            'label' => 'sectores',
             'module' => 'companies'
             ],
 

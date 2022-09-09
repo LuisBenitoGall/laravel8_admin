@@ -35,11 +35,13 @@ class CategoryController extends Controller{
     public function __construct(){
         $this->modules = [
             'product-categories' => ['products', 'productos_categorias', 'product-categories'],
-            'user-categories' => ['users', 'usuarios_categorias', 'user-categories']
+            'user-categories' => ['users', 'usuarios_categorias', 'user-categories'],
+            'company-sectors' => ['companies', 'empresas_sectores', 'company-sectors']
         ];
         $this->entities = [
             'products' => ['product-categories', 'productos_nueva_categoria'],
-            'users' => ['user-categories', 'usuarios_nueva_categoria']
+            'users' => ['user-categories', 'usuarios_nueva_categoria'],
+            'companies' => ['company-sectors', 'sector_nuevo']
         ];
 
         $this->middleware('category_get', ['only' => ['edit', 'update', 'destroy']]);
@@ -91,9 +93,14 @@ class CategoryController extends Controller{
      * 1.1. Listado de categorías por módulo para DataTable.
      */
     public function getCategoriesDT($module_id){
+        //Las categorías de empresas no tienen company_id:
+        $exception = Module::select('id')->where('slug', 'companies')->first();
+
         $data = Category::select('id', 'name', 'slug', 'translations', 'subcategory', 'status'
         )
-        ->where('company_id', session('currentCompany'))
+        ->when($module_id != $exception->id, function($q){
+            return $q->where('company_id', session('currentCompany'));
+        })
         ->where('module_id', $module_id)
         ->orderBy('name', 'ASC');
 
@@ -164,6 +171,9 @@ class CategoryController extends Controller{
         switch($module->slug){
             case 'products':
                 $route = 'product-categories';
+                break;
+            case 'companies':
+                $route = 'company-sectors';
                 break;
             case 'users':
                 $route = 'user-categories';

@@ -320,6 +320,23 @@
 				@endif
 			@endif
 
+			{{-- Generar recepción - condiciones: 
+				1. Estar activo el módulo de Logística.
+				2. Exclusivo para cliente.
+				3. Disponer de permisos para editar pedidos.
+				...
+			--}}
+			@if($module_logistics)
+				@if($order->customer_id == session('currentCompany'))
+					@can('orders.edit')
+						<a href="#" class="btn btn-warning" data-toggle="modal" data-target="#modal-set-receivings">
+							<i class="fa fa-receipt"></i>
+							{!! ucfirst(trans('textos.recepcion_aviso')) !!}
+						</a>	
+					@endcan
+				@endif
+			@endif
+
 			{{-- Facturar - condiciones: 
 				1. Disponer de permisos para generar facturas.
 				2. Estar activo el módulo de contabilidad.
@@ -725,6 +742,12 @@ if($order->provider_team){
 
 {{-- Add purchase to project --}}
 @include('admin.orders.partials.modal-add-purchase-to-project')
+
+{{-- Modal set receivings --}}
+@include('admin.receivings.partials.modal-set-receivings')
+
+{{-- Modal edit receivings --}}
+@include('admin.receivings.partials.modal-edit-receivings')
 
 {{-- Generate invoice --}}
 @php

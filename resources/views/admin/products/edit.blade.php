@@ -230,7 +230,6 @@ $(function(){
     	var elem = $(this);
         var product_id = $('#productId').val();
         var category_id = elem.find('.chk').data('id');
-        alert(category_id);
         $.get("/admin/product-categories/store/"+product_id+"/"+category_id+"", function(response, state){
             if(response){
                 $('.check-ko').remove();

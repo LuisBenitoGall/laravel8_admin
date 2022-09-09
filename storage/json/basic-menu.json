@@ -109,6 +109,14 @@
 				"setted" : false
 			},
 			{
+				"suboption" : "sectores",
+				"label" : "directorio_sectores",
+				"url": "sectors.index",
+				"slug" : "sectors",
+				"permission" : "companies.index",
+				"setted" : false
+			},
+			{
 				"suboption" : "empresa-nueva",
 				"label" : "empresa_nueva",
 				"url": "companies.create",
@@ -167,10 +175,18 @@
 			{
 				"suboption" : "proveedores",
 				"label" : "proveedores",
-				"url": "providers.index",
+				"url" : "providers.index",
 				"slug" : "providers",
 				"permission" : "providers.index",
 				"setted" : "providers_management"
+			},
+			{
+				"suboption" : "sectores",
+				"label" : "sectores",
+				"url" : "company-sectors.index",
+				"slug" : "company-sectors",
+				"permission" : "sectors.index",
+				"setted" : false	
 			}
 		] 
 	},

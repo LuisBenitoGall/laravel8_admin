@@ -169,6 +169,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::get('categories', 'CategoryController@index')->name('categories.index');
     Route::get('product-categories', 'CategoryController@index')->name('product-categories.index');
     Route::get('user-categories', 'CategoryController@index')->name('user-categories.index');
+    Route::get('company-sectors', 'CategoryController@index')->name('company-sectors.index');
     Route::get('categories/{module}/create', 'CategoryController@create')->name('categories.create');
     Route::post('categories/store', 'CategoryController@store')->name('categories.store');
     Route::get('categories/{category}/edit', 'CategoryController@edit')->name('categories.edit');
@@ -190,7 +191,8 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::post('chat-room-users/accept-invitations', 'ChatRoomUsersController@acceptInvitations')->name('chat-room-users.accept-invitations');
 
     // Companies:
-    Route::resource('companies', 'CompanyController', ['except' => ['store']]);
+    Route::resource('companies', 'CompanyController', ['except' => ['edit', 'store']]);
+    Route::get('companies/{company}/edit/{tab?}', 'CompanyController@edit')->name('companies.edit');
     Route::post('companies/store', 'CompanyController@store')->name('companies.store');
     Route::post('companies/store-from-expense', 'CompanyController@storeFromExpense')->name('companies.store-from-expense');
     Route::get('companies/{company}/select', 'CompanyController@selectCompany')->name('companies.select');
@@ -225,6 +227,10 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     // Company Settings:
     Route::get('company-settings', 'CompanySettingsController@index')->name('company-settings.index');
     Route::post('company-settings/update', 'CompanySettingsController@update')->name('company-settings.update');
+
+    // Company Sectors:
+    Route::get('company-sectors/store/{company_id}/{category_id}', 'CompanySectorsController@store')->name('company-sectors.store');
+    Route::get('company-sectors/{category_id}/show', 'CompanySectorsController@show')->name('company-sectors.show');
 
     // Company UTEs:
     Route::get('company-utes/{ute}', 'CompanyUtesController@index')->name('company-utes.index');
@@ -760,6 +766,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
 
     // Receiving:
     Route::get('receiving', 'ReceivingController@index')->name('receiving.index');
+    Route::put('receiving/{order}', 'ReceivingController@store')->name('receiving.store')->middleware('permission:orders.edit');
 
     // Roles:
     Route::get('roles', 'RoleController@index')->name('roles.index')->middleware('permission:roles.index');
@@ -792,6 +799,9 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::get('schedules/{schedule}/edit', 'ScheduleController@edit')->name('schedules.edit')->middleware('permission:schedules.edit');
     Route::put('schedules/{schedule}/update', 'ScheduleController@update')->name('schedules.update')->middleware('permission:schedules.edit');
     Route::get('schedules/{schedule}/status/{status}', 'ScheduleController@status')->name('schedules.status')->middleware('permission:schedules.edit');
+
+    // Sectors:
+    Route::get('sectors', 'CompanyController@sectors')->name('sectors.index');
 
     // Shipment Patterns:
     Route::get('shipment-patterns', 'ShipmentPatternsController@index')->name('shipment-patterns.index')->middleware('permission:shipment-patterns.index');

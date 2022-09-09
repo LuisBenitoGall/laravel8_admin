@@ -30628,3 +30628,22 @@ ul li.rev .fa {
   position: absolute;
   right: 7px;
 }
+
+#seeCompanies .co-info {
+  background-color: #F5F8FA;
+  margin: 12px 0;
+  padding: 12px;
+  text-align: center;
+}
+#seeCompanies .co-info .co-img {
+  align-items: center;
+  -ms-display: flex;
+  display: flex;
+  height: 80px;
+  margin-bottom: 15px;
+  text-align: center;
+}
+#seeCompanies .co-info .co-img img {
+  margin: auto;
+  max-width: 180px;
+}

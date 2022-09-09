@@ -19,6 +19,7 @@ class CreateDeliveriesTable extends Migration{
             $table->unsignedBigInteger('pattern_id')->nullable();
             $table->foreign('pattern_id')->references('id')->on('delivery_patterns');
             $table->string('delivery_old_num')->nullable();
+            $table->char('origin',1)->nullable();       //c = cliente: p = proveedor. Indica si el item lo crea el cliente o el proveedor del pedido.
             //FK:
             $table->unsignedBigInteger('provider_id')->nullable();
             $table->foreign('provider_id')->references('id')->on('companies');
@@ -27,7 +28,8 @@ class CreateDeliveriesTable extends Migration{
             $table->foreign('customer_id')->references('id')->on('companies');
             $table->date('send_date')->nullable();
             $table->date('reception_date')->nullable();
-            $table->longText('observations')->nullable();
+            $table->longText('customer_observations')->nullable();
+            $table->longText('provider_observations')->nullable();
             //FK:
             $table->unsignedBigInteger('user_id')->nullable();
             $table->foreign('user_id')->references('id')->on('users');
