@@ -3,5 +3,8 @@
 @section('content')
     {{-- Notas --}}
     @livewire('notes-by-user')
+
+
+    
 	
 @endsection

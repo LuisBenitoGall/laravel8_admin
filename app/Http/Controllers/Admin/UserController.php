@@ -246,6 +246,7 @@ class UserController extends Controller{
 
         $roles = Role::whereNull('company_id')
         ->orWhere('company_id', session('currentCompany'))
+        ->orderBy('id', 'ASC')
         ->get();
 
         return view('admin.users.create')->with(compact('header', 'roles'));    
@@ -369,11 +370,13 @@ class UserController extends Controller{
         if(Auth::user()->hasRole('Super Admin')){
             $roles = Role::whereNull('company_id')
             ->orWhere('company_id', session('currentCompany'))
+            ->orderBy('id', 'ASC')
             ->get();
         }else{
             $roles = Role::where('name', '!=', config('constants.SUPER_ADMIN_'))
             ->whereNull('company_id')
             ->orWhere('company_id', session('currentCompany'))
+            ->orderBy('id', 'ASC')
             ->get();
         }
 

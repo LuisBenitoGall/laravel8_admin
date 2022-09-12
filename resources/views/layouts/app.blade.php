@@ -93,5 +93,7 @@
     <script src="{{ asset('js/plugins/slimscroll/jquery.slimscroll.min.js') }}"></script>
 
     @livewireScripts
+
+    @stack('scripts')
 </body>
 </html>

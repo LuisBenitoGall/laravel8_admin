@@ -22,10 +22,15 @@ class Functionality extends Model{
 
     /**
      * 1. Funcionalidades join módulos.
+     * 
+     * Se descartan los permisos que pertenezcan exclusivamente a Super Admin:
      */
     public static function permissionsJoinModule(){
+        $exceptions = config('constants.PERMISSIONS_OFF_');
+
         $data = Functionality::select('functionalities.*', 'modules.level')
         ->join('modules', 'functionalities.module_id', '=', 'modules.id')
+        ->whereNotIn('functionalities.slug', $exceptions)
         ->orderBy('functionalities.label', 'ASC')
         ->get();
 

@@ -149,6 +149,10 @@ TRUNCATE delivery_orders;
 TRUNCATE order_previsions;
 SET FOREIGN_KEY_CHECKS = 1;
 
+- Contar nº de tablas de la BD:
+SELECT COUNT(*) from information_schema.tables where TABLE_TYPE = 'BASE TABLE' and table_schema = 'admin8_db';
+
+
 ## GUÍA RÁPIDA DE CONFIGURACIÓN INICIAL: se enumeran los pasos a seguir para una correcta configuración de la aplicación en su puesta en marcha.
 1. Acceder a la aplicación con las credenciales proporcionadas.
 2. Menú: Empresas / Empresas -> Editar empresa. Completar los datos de la empresa. Es necesario introducir un NIF válido.

@@ -20,14 +20,26 @@
 			<label for="roles" class="col-lg-2 col-form-label">
 				{!! ucfirst(trans('textos.permisos')) !!}*
 			</label>
-			
+
 			<div class="col-lg-10">
 				@foreach($roles as $rol)
 					@php
 					$checked = !empty($user_roles) && $user_roles[0]->id == $rol->id? true:false;
 					@endphp
-					
-					<x-radio name="roles" value="{{ $rol->id }}" required style="margin-bottom: 0; margin-top: 7px;" title="{{ $rol->name }}" checked="{{ $checked }}"/>	
+
+					<label class="custom-chk-rdb mr-4" style="margin-bottom: 0; margin-top: 7px;">
+				        <input type="radio" name="roles" value="{{ $rol->id }}" @if($checked) checked @endif required>
+				        <span class="rdb chksmall"></span>
+
+				        @if($rol->name == config('constants.SUPER_ADMIN_'))
+				        	{{ config('constants.SUPER_ADMIN_') }}
+				        @else
+					        @php
+					        $rol_ = explode('/', $rol->name);
+					        @endphp
+				        	{!! ucfirst($rol_[1]) !!}
+				        @endif
+				    </label>   
 				@endforeach
 			</div>
 		</div>

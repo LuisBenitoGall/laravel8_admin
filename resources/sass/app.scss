@@ -11548,3 +11548,11 @@ ul{
         }   
     }
 }
+
+#modal-submit-company-register{
+    .sk-spinner-pulse.sk-spinner{
+        animation: sk-pulseScaleOut 2s infinite ease-in-out;
+        height: 80px;
+        width: 80px;
+    }
+}

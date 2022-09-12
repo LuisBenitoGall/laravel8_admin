@@ -34,14 +34,26 @@
 									@if($rol->name == config('constants.SUPER_ADMIN_'))
 										{{-- ... sólo puede ser adjudicados por otro Super Admin --}}
 										@if(Auth::user()->hasRole(config('constants.SUPER_ADMIN_')))
-											<x-radio name="roles" value="{{ $rol->id }}" required style="margin-bottom: 0; margin-top: 7px;" title="{{ $rol->name }}"/>
+											<label class="custom-chk-rdb mr-4" style="margin-bottom: 0; margin-top: 7px;">
+										        <input type="radio" name="roles" value="{{ $rol->id }}" required>
+										        <span class="rdb chksmall"></span>
+										        {{ $rol->name }}
+										    </label>   
 										@endif
 									@else
-										<x-radio name="roles" value="{{ $rol->id }}" required style="margin-bottom: 0; margin-top: 7px;" title="{{ $rol->name }}"/>	
+										<label class="custom-chk-rdb mr-4" style="margin-bottom: 0; margin-top: 7px;">
+									        <input type="radio" name="roles" value="{{ $rol->id }}" required>
+									        <span class="rdb chksmall"></span>
+
+									        @php
+									        $rol_ = explode('/', $rol->name);
+									        @endphp
+									        {!! ucfirst($rol_[1]) !!}
+									    </label>   
 									@endif
 								@endforeach
 
-								{!! App\Helpers\Helpers::info('user-roles') !!}
+								{!! App\Helpers\helpers::info('user-roles') !!}
 							</div>	
 						</div>
 					@else

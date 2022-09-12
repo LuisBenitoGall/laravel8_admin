@@ -25,6 +25,20 @@
     		</a>
         @endcan
 
+        {{-- Proveedores del producto - condiciones: 
+        	1. Disponer de permisos de edición de proveedores.
+			2. El producto debe tener gestión de stock.
+			...
+        --}}
+        @can('providers.edit')
+        	@if($product->stock_management)
+        		<a href="{{ route('product-providers.index', $product) }}" class="btn btn-info">
+	    			<i class="fa fa-building"></i>
+	    			{!! ucfirst(trans('textos.proveedores')) !!}
+	    		</a>	
+        	@endif
+        @endcan
+
 		{{-- Generar serials --}}
 		<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-add-serials">
 			<i class="fa fa-sort-numeric-down"></i>
@@ -174,7 +188,7 @@
 
 					{{-- Histórico de precios --}}
 					<div class="tab-pane fade @if($tab == 'prices') show active @endif" role="tabpanel" id="tab-prices">
-						{{-- @include('admin.products.partials.product-prices') --}}	
+						@include('admin.products.partials.product-prices')	
 					</div>
 
 					{{-- Números de serie --}}

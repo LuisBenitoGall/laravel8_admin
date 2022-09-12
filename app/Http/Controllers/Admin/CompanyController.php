@@ -287,6 +287,9 @@ class CompanyController extends Controller{
         $company->mother_co = $company->id;
         $company->save();
 
+        //Roles de la empresa:
+        $company->setCompanyRoles();
+
         //Creamos centro de trabajo por defecto:
         $wp = new Workplace();
         $wp->company_id = $company->id;
@@ -310,8 +313,12 @@ class CompanyController extends Controller{
                 $user->status = 1;
                 $user->save();
 
-                //Guardamos rol:
-                $role = $request->environment? $request->input('roles'):config('constants.ROLE_COMPANY_MANAGER_');
+                //Guardamos rol de manager, que obtenemos de los roles recién creados:
+                $role = Role::where('name', $company->id.'/manager')
+                ->where('company_id', $company->id)
+                ->first();
+
+                //$role = $request->environment? $request->input('roles'):config('constants.ROLE_COMPANY_MANAGER_');
                 $user->assignRole($role);
             }
 

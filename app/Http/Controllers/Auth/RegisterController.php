@@ -75,7 +75,8 @@ class RegisterController extends Controller{
         ]);
 
         //Guardamos rol:
-        $user->assignRole(config('constants.ROLE_COMPANY_MANAGER_'));
+        //10/09/22: se omite la asignación de role hasta la creación de la empresa, pues ésta genera automáticamente sus propios roles.
+        //$user->assignRole(config('constants.ROLE_COMPANY_MANAGER_'));
 
         return $user;
     }

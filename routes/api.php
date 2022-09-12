@@ -174,6 +174,9 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     //ProductPatterns:
     Route::get('product-patterns', 'ProductPatternsController@getPatternsDT');
 
+    //ProductProviders:
+    Route::get('product-providers/{product_id}', 'ProductProvidersController@getProvidersDT');
+
     //ProductSerials:
     Route::get('product-serials/{product_id}', 'ProductSerialsController@getSerialsDT');
 

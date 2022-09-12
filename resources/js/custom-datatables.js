@@ -2811,24 +2811,24 @@ $(document).ready(function(){
         var order = $('#myOrder').val();
 
         var tableOrderCustomerTeam = $('#tblOrderCustomerTeam').DataTable({
-            "serverSide": true,
-            "processing": true,
+            serverSide: true,
+            processing: true,
             // drawCallback: function() {
             //     $('.select2-dt').select2();
             // },
-            "ajax": {
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/order-teams/"+order+"/customer",
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name'},
                 {data: 'rol'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": 0,
                 "render": function(data, type, row){
                     if(row['Image']){
@@ -2847,10 +2847,10 @@ $(document).ready(function(){
                         show = '<a target="_blank" href="/admin/users/'+row['id']+'/show" class="btn btn-xs btn-info" rel="tooltip" title="'+txtVer+'"><i class="fa fa-eye"></i></a>';
                     }                    
 
-                    //Eliminar del pedido:
+                    //Eliminar miembro del equipo:
                     var eliminar = '';
                     if(row['rol'] == '' && row['customers_on']){
-                        eliminar = '<form method="POST" action="/admin/budget-orders/'+order+'" class="frm-inline" role="form" accept-charset="UTF-8">';
+                        eliminar = '<form method="POST" action="/admin/orders/'+order+'/remove-member" class="frm-inline" role="form" accept-charset="UTF-8">';
                             eliminar += '<input name="_method" type="hidden" value="DELETE">';
                             eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
                             eliminar += '<input type="hidden" name="member" value="'+row['id']+'">';
@@ -3248,10 +3248,10 @@ $(document).ready(function(){
                         show = '<a target="_blank" href="/admin/users/'+row['id']+'/show" class="btn btn-xs btn-info" rel="tooltip" title="'+txtVer+'"><i class="fa fa-eye"></i></a>';
                     }         
 
-                    //Eliminar del pedido:
+                    //Eliminar miembro del equipo:
                     var eliminar = '';
                     if(row['rol'] == '' && row['providers_on']){
-                        eliminar = '<form method="POST" action="/admin/budget-orders/'+order+'" class="frm-inline" role="form" accept-charset="UTF-8">';
+                        eliminar = '<form method="POST" action="/admin/orders/'+order+'/remove-member" class="frm-inline" role="form" accept-charset="UTF-8">';
                             eliminar += '<input name="_method" type="hidden" value="DELETE">';
                             eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
                             eliminar += '<input type="hidden" name="member" value="'+row['id']+'">';
@@ -3782,17 +3782,17 @@ $(document).ready(function(){
         var product_id = $('#productId').val();
 
         $('#tblProductCategories').DataTable({
-            "order": [[ 2, "desc" ]],
-            "serverSide": true,
-            "processing": true,
-            "ajax": {
+            order: [[ 2, "desc" ]],
+            serverSide: true,
+            processing: true,
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/product-categories/"+product_id,
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name'},
                 {data: 'level'},
                 {data: 'acciones', className: 'text-right'}
@@ -3805,22 +3805,22 @@ $(document).ready(function(){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
         
         $('#tblProductPatterns').DataTable({
-            "serverSide": true,
-            /*"processing": true,*/
-            "ajax": {
+            serverSide: true,
+            processing: true,
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/product-patterns",
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name', className: 'capitalize'},
                 {data: 'patron'},
                 {data: 'alta', className: 'text-right'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": -1,
                 "render": function(data, type, row){
                     //Estado:
@@ -3854,6 +3854,31 @@ $(document).ready(function(){
         });
     }
 
+    //Tabla Product Providers:
+    if($('#tblProductProviders').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        var product_id = $('#productId').val();
+        
+        $('#tblProductProviders').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/product-providers/"+product_id,
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'name', name: 'companies.name', className: 'capitalize'},
+                {data: 'product', name: 'products.name'},
+                {data: 'ref', name: 'products.ref', className: 'text-right'},
+                {data: 'price', className: 'text-right'},
+                {data: 'acciones', className: 'text-right'}
+            ]
+        });
+    }
+
     //Tabla Product Serial Attributes:
     if($('#tblProductSerialAttributes').length > 0){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
@@ -3876,16 +3901,16 @@ $(document).ready(function(){
         });
         
         var tableProductSerialAttributes = $('#tblProductSerialAttributes').DataTable({
-            "serverSide": false,
-            "processing": true,
-            "ajax": {
+            serverSide: false,
+            processing: true,
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/product-serials-cards/"+serial_id,
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name'},
                 {data: 'datatype'},
                 {data: 'description'},
@@ -4965,7 +4990,7 @@ $(document).ready(function(){
                 }
             },
             columns: [
-                {data: 'reception_date', name: 'deliveries.reception_date', className: 'text-right'},
+                {data: 'estimated_reception_date', name: 'deliveries.estimated_reception_date', className: 'text-right'},
                 {data: 'provider', name: 'companies.name'},
                 {data: 'orderNum', name: 'orders.purchase_num'},
                 {data: 'deliveryNum', name: 'deliveries.delivery_num'},
@@ -5006,30 +5031,7 @@ $(document).ready(function(){
             columns: [
                 {data: 'name'},
                 {data: 'description'},
-                {data: 'id', className: 'text-right'}
-            ],
-            columnDefs: [
-                {"targets": -1,
-                "render": function(data, type, row){
-                    //Editar:
-                    var editar = '';
-                    if(row['roles_edit']){
-                        editar = '<a href="/admin/roles/'+row['id']+'/edit" class="btn btn-xs btn-info btn-module" rel="tooltip" title="'+txtEditar+'"><i class="fa fa-edit"></i></a>';
-                    }
-
-                    //Eliminar:
-                    var eliminar = '';
-                    if(row['roles_destroy']){
-                        eliminar += '<form method="POST" action="roles/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
-                            eliminar += '<input name="_method" type="hidden" value="DELETE">';
-                            eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
-                            eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtEliminar+'" data-msg="'+txtRoleConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
-                        eliminar += '</form>';
-                    }
-
-                    return editar+' '+eliminar;
-                }
-                }
+                {data: 'acciones', className: 'text-right'}
             ]
         });
     }
@@ -5039,16 +5041,16 @@ $(document).ready(function(){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
         
         $('#tblScheduleEventTypes').DataTable({
-            "serverSide": true,
-            "processing": true,
-            "ajax": {
+            serverSide: true,
+            processing: true,
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/schedule-event-types",
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'event'},
                 {data: 'description'},
                 {data: 'acciones', className: 'text-right'}

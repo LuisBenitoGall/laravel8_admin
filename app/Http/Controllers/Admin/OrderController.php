@@ -74,6 +74,8 @@ class OrderController extends Controller{
      * 19. Modificar cliente de pedido.
      * 20. Eliminar documento de orden de compra.
      * 21. Imprimir pedido.
+     * 22. Añadir miembro a equipo.
+     * 23. Eliminar miembro de equipo.
      */
     
     private $option = 'pedidos';
@@ -191,7 +193,14 @@ class OrderController extends Controller{
             return Validator::make($data, [
                 'new_customer' => 'required|integer'
             ]); 
-        }
+
+        //Validación añadir miembro:
+        }elseif(isset($data['submit_member'])){
+            return Validator::make($data, [
+                'environment' => 'required',
+                'member' => 'required|integer'
+            ]); 
+        } 
     }
     
     /**
@@ -791,7 +800,7 @@ class OrderController extends Controller{
         } 
 
         //Entregas del pedido:
-        $deliveries = DeliveryOrders::select('delivery_orders.id', 'deliveries.id AS deliveryId', 'deliveries.delivery_num', 'deliveries.delivery_old_num', 'deliveries.origin', 'deliveries.reception_date', 'deliveries.customer_observations', 'deliveries.provider_observations')
+        $deliveries = DeliveryOrders::select('delivery_orders.id', 'deliveries.id AS deliveryId', 'deliveries.delivery_num', 'deliveries.delivery_old_num', 'deliveries.origin', 'deliveries.estimated_reception_date', 'deliveries.reception_date', 'deliveries.customer_observations', 'deliveries.provider_observations')
         ->join('deliveries', 'delivery_orders.delivery_id', '=', 'deliveries.id')
         ->where('delivery_orders.order_id', $order->id)
         ->get();
@@ -1748,6 +1757,66 @@ class OrderController extends Controller{
 
         $pdf = PDF::loadView('pdf/order', compact('order', 'lines', 'provider', 'customer', 'owner', 'template', 'fechaLiteral', 'company_settings', 'provider_workplace', 'provider_phones', 'customer_workplace', 'provider_manager', 'customer_manager', 'currency'));
         return $pdf->download($pdf_title.'.pdf'); 
+    }
+
+    /**
+     * 22. Añadir miembro a equipo.
+     */
+    public function addTeamMember(Request $request, Order $order){
+        $validator = $this->validator($request->all());
+        if($validator->fails()){
+            //Indicamos el origen de la acción realizada para manejar el modal:
+            $modal = $request->environment == 'customer'? 'modal-add-member-customer':'modal-add-member-provider';
+            $validator->getMessageBag()->add('accion', $modal);
+
+            return redirect('admin/orders/'.$order->id.'/edit/teams')
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        $team = $request->environment == 'customer'? unserialize($order->customer_team):unserialize($order->provider_team);
+
+        if(!$team){
+            $team = [(int)$request->member];
+        }else{
+            //Comprobamos que no exista en el array:
+            if(!in_array($request->member, $team)){
+                array_push($team, (int)$request->member);
+            }    
+        }
+
+        if($request->environment == 'customer'){
+            $order->customer_team = serialize($team);
+        }else{
+            $order->provider_team = serialize($team);    
+        }
+        $order->save();
+        
+        $msg = trans('textos.miembro_creado');
+        return redirect()->route('orders.edit', [$order, 'teams'])->with(compact('msg'));
+    }
+
+    /**
+     * 23. Eliminar miembro de equipo.
+     */
+    public function removeTeamMember(Request $request, Order $order){
+        $team = $request->environment == 'customer'? unserialize($order->customer_team):unserialize($order->provider_team);
+        $new_team = [];
+        foreach($team as $t){
+            if($t != $request->member){
+                array_push($new_team, $t);    
+            }
+        }
+
+        if($request->environment == 'customer'){
+            $order->customer_team = count($new_team)? serialize($new_team):NULL;
+        }else{
+            $order->provider_team = count($new_team)? serialize($new_team):NULL;    
+        }
+        $order->save();
+        
+        $msg = trans('textos.miembro_deleted');
+        return redirect()->route('orders.edit', [$order, 'teams'])->with(compact('msg'));
     }
     
 }

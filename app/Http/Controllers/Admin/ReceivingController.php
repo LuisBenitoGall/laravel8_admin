@@ -7,7 +7,6 @@ use App\Helpers\helpers;
 use App\Notifications\PurchaseMessage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -16,6 +15,7 @@ use File;
 use Carbon\Carbon;
 
 //Models:
+use App\Models\Company;
 use App\Models\Delivery;
 use App\Models\DeliveryOrders;
 use App\Models\Order;
@@ -26,6 +26,7 @@ class ReceivingController extends Controller{
      * 1.1. Listado de recepciones por DataTable.
      * 2. Guardar nueva recepción de pedido.
      * 3. Editar recepción de pedido.
+     * 4. Actualizar recepción de pedido.
      */
     
     private $option = 'recepciones';
@@ -38,10 +39,23 @@ class ReceivingController extends Controller{
 
         $this->middleware('module_setted:orders');
 
-        $this->middleware('order_get', ['only' => ['store']]);
+        $this->middleware('order_get', ['only' => ['store', 'update']]);
         $this->middleware('receiving_get', ['only' => ['edit']]);
     }
-    
+
+    //0. Validator:
+    protected function validator(array $data){
+        //Validación index:
+        if(isset($data['submit_update'])){
+            return Validator::make($data, [
+                'id' => 'required|integer'
+            ]);
+        }
+    }
+
+    /**
+     * 1. Recepción de pedidos.
+     */
     public function index(){
         $header = [
             'option' => $this->option, 
@@ -57,7 +71,7 @@ class ReceivingController extends Controller{
      * 1.1. Listado de recepciones por DataTable.
      */
     public function getReceivingsDT(){
-        $data = Delivery::select('deliveries.id', 'deliveries.delivery_num', 'deliveries.delivery_old_num', 'deliveries.origin', 'deliveries.send_date', 'deliveries.reception_date', 'deliveries.customer_observations', 'orders.id AS orderId', 'orders.purchase_num', 'orders.purchase_old_num', 'companies.name AS company')
+        $data = Delivery::select('deliveries.id', 'deliveries.delivery_num', 'deliveries.delivery_old_num', 'deliveries.origin', 'deliveries.send_date', 'deliveries.reception_date', 'deliveries.estimated_reception_date', 'deliveries.customer_observations', 'orders.id AS orderId', 'orders.purchase_num', 'orders.purchase_old_num', 'companies.name AS company')
         ->join('companies', 'deliveries.provider_id', '=', 'companies.id')
         ->leftJoin('delivery_orders', 'deliveries.id', '=', 'delivery_orders.delivery_id')
         ->leftJoin('orders', 'delivery_orders.order_id', '=', 'orders.id')
@@ -66,8 +80,8 @@ class ReceivingController extends Controller{
         ->orderBy('deliveries.reception_date', 'ASC');
 
         return DataTables::of($data)   
-        ->addColumn('reception_date', function($row){
-            return Carbon::parse($row->reception_date)->format($this->languages[session()->get('locale')][4]);
+        ->addColumn('estimated_reception_date', function($row){
+            return Carbon::parse($row->estimated_reception_date)->format($this->languages[session()->get('locale')][4]);
         })
         ->addColumn('provider', function($row){
             return $row->company;
@@ -97,13 +111,13 @@ class ReceivingController extends Controller{
      * 2. Guardar nueva recepción de pedido.
      */
     public function store(Request $request, Order $order){
-        $reception_date = $request->reception_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->reception_date):$request->reception_date:NULL;
+        $estimated_reception_date = $request->estimated_reception_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->reception_date):$request->estimated_reception_date:NULL;
 
         $dlv = new Delivery();
         $dlv->origin = 'c';     //Item que genera el cliente.
         $dlv->provider_id = $order->provider_id;
         $dlv->customer_id = $order->customer_id;
-        $dlv->reception_date = $reception_date;
+        $dlv->estimated_reception_date = $estimated_reception_date;
         $dlv->customer_observations = $request->customer_observations;
         $dlv->user_id = Auth::user()->id;
         $dlv->save();
@@ -121,12 +135,47 @@ class ReceivingController extends Controller{
     /**
      * 3. Editar recepción de pedido.
      */
-    public function edit(Delivery $delivery){
+    public function edit(Delivery $delivery, $tab = false){
+        $header = [
+            'option' => $this->option, 
+            'suboption' => 'textos.recepcion_tramitar',
+            'module' => $this->module,
+            'slug' => 'receiving'
+        ]; 
+
         //Pedidos de la recepción:
-        $orders = Order::select('orders.id')
+        $orders = Order::select('orders.id', 'orders.order_num', 'orders.order_old_num', 'orders.name')
         ->join('delivery_orders', 'orders.id', '=', 'delivery_orders.order_id')
         ->where('delivery_orders.delivery_id', $delivery->id)
-        ->get();    
+        ->get();  
+
+        $provider = Company::find($delivery->provider_id);  
+
+        $languages = $this->languages;
+
+        return view('admin.receivings.edit')->with(compact('header', 'delivery', 'tab', 'orders', 'provider', 'languages'));
+    }
+
+    /**
+     * 4. Actualizar recepción de pedido.
+     */
+    public function update(Request $request, $order_id){
+        $validator = $this->validator($request->all());
+        if($validator->fails()){
+            return redirect('/admin/orders/'.$order_id.'edit')
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        $delivery = Delivery::find($request->id);
+        if($request->estimated_reception_date){
+            $delivery->estimated_reception_date = $request->estimated_reception_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->estimated_reception_date):$request->estimated_reception_date:NULL;
+        }
+        $delivery->customer_observations = $request->customer_observations;
+        $delivery->save();
+
+        $msg = trans('textos.recepcion_actualizada');
+        return redirect()->route('orders.edit', [$order_id, false])->with(compact('msg'));
     }
 
 }

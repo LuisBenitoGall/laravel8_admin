@@ -912,6 +912,26 @@ $(function(){
         	return false;
         }
     });
+
+    //Modal editar recepción.
+    $('.btnEditReceiving').on('click', function(){
+    	var id = $(this).data('id');
+    	var receptiondate = $(this).data('receptiondate');
+    	var observations = $(this).data('observations');
+    	var origin = $(this).data('origin');
+
+    	$('#editReceivingId').val(id);
+    	$('#editCustomerObservations').val(observations);
+    	$('#editEstimatedReceptionDate').val(receptiondate);
+    	//Sólo edita la fecha si la recepción ha sido creada por el cliente:
+    	if(origin == 'c'){
+    		$('#editEstimatedReceptionDate').prop('disabled', false);	
+    		$('#estimatedReceptionDateText').hide();	
+    	}else{
+    		$('#editEstimatedReceptionDate').prop('disabled', true);
+    		$('#estimatedReceptionDateText').show();
+    	}  	
+    });
 });
 </script>
 @endpush

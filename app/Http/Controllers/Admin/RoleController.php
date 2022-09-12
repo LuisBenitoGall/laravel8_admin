@@ -9,8 +9,10 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Yajra\DataTables\DataTables;
 
 //Models:
+use App\Models\Company;
 use App\Models\Functionality;
 use App\Models\Module;
 use App\Models\User;
@@ -65,20 +67,34 @@ class RoleController extends Controller{
      * 1.1. Listado de roles para DataTable.
      */
     public function getRolesDT(){
-        $roles = Role::whereNull('company_id')
-        ->orWhere('company_id', session('currentCompany'))
-        ->get();
-
-        //Permisos del auth:
-        $roles_edit = Auth::user()->can('roles.edit');
-        $roles_destroy = Auth::user()->can('roles.destroy');
-
-        foreach($roles as $row){
-            $row->roles_edit = $roles_edit;
-            $row->roles_destroy = $roles_destroy;
+        //Roles: según sea Super Admin o no
+        if(Auth::user()->hasRole(config('constants.SUPER_ADMIN_'))){
+            $data = Role::whereNull('company_id')
+            ->orWhere('company_id', session('currentCompany'));
+        }else{
+            $data = Role::where('name', '!=', config('constants.SUPER_ADMIN_'))
+            ->whereNull('company_id')
+            ->orWhere('company_id', session('currentCompany'))
+            ->orderBy('id', 'ASC');
         }
 
-        return datatables($roles)->toJson(); 
+        return DataTables::of($data)
+        ->addColumn('name', function($row){
+            if($row->name == config('constants.SUPER_ADMIN_')){
+                return $row->name;
+            }else{
+                $p = explode('/', $row->name);
+                return ucfirst($p[1]);
+            }
+        })
+        ->addColumn('description', function($row){
+            return $row->description;
+        })
+        ->addColumn('acciones', function($row){
+            return view('admin.roles.partials.dt-actions', compact('row'));    
+        })
+        ->rawColumns(['description'])
+        ->make(true);
     }
 
     /**
@@ -121,12 +137,7 @@ class RoleController extends Controller{
         }   
 
         //Guardamos role:
-        $role = new Role();
-        $role->name = $request->name;
-        $role->guard_name = 'web';
-        $role->description = $request->description;
-        $role->company_id = session('currentCompany');
-        $role->save();
+        $role = Company::saveCompanyRole($request->name, session('currentCompany'), $request->description);
 
         //Guardamos permisos:
         $role->syncPermissions($request->permissions);

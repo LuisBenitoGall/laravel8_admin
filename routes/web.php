@@ -565,6 +565,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::post('orders/{order}/set-customer', 'OrderController@setCustomer')->name('orders.set-customer')->middleware('permission:orders.edit');
     Route::get('orders/{order}/remove-discount/{return?}', 'OrderController@removeDiscount')->name('orders.remove-discount')->middleware('permission:orders.edit');
     Route::post('orders/{order}/add-member', 'OrderController@addTeamMember')->name('orders.add-member')->middleware('permission:orders.edit');
+    Route::delete('orders/{order}/remove-member', 'OrderController@removeTeamMember')->name('orders.remove-member')->middleware('permission:orders.edit');
     Route::get('orders/{order}/remove-purchase-doc', 'OrderController@removePurchaseDoc')->name('orders.remove-purchase-doc')->middleware('permission:orders.edit');
     
 
@@ -636,6 +637,11 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::delete('product-patterns/{pattern}', 'ProductPatternsController@destroy')->name('product-patterns.destroy')->middleware('permission:products.edit');
     Route::post('product-patterns/{pattern}/update', 'ProductPatternsController@update')->name('product-patterns.update')->middleware('permission:products.edit');
     Route::get('product-patterns/status/{id}/{status}', 'ProductPatternsController@status')->name('product-patterns.status')->middleware('permission:product-patterns.edit');
+
+    //Product Providers:
+    Route::get('product-providers/{product}', 'ProductProvidersController@index')->name('product-providers.index')->middleware('permission:providers.edit');
+    Route::get('product-providers/{product}/create/{provider_id?}', 'ProductProvidersController@create')->name('product-providers.create')->middleware('permission:providers.edit');
+    Route::post('product-providers/{product}/set-provider', 'ProductProvidersController@setProvider')->name('product-providers.set-provider')->middleware('permission:providers.edit');
 
     // Product Serials:
     Route::post('product-serials/{product}/store', 'ProductSerialsController@store')->name('product-serials.store')->middleware('permission:products.edit');
@@ -767,7 +773,8 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     // Receiving:
     Route::get('receiving', 'ReceivingController@index')->name('receiving.index');
     Route::put('receiving/{order}', 'ReceivingController@store')->name('receiving.store')->middleware('permission:orders.edit');
-    Route::get('receiving/{delivery}/edit', 'ReceivingController@edit')->name('receiving.edit')->middleware('permission:receiving.edit');
+    Route::get('receiving/{delivery}/edit/{tab?}', 'ReceivingController@edit')->name('receiving.edit')->middleware('permission:receiving.edit');
+    Route::put('receiving/{order_id}/update', 'ReceivingController@update')->name('receiving.update')->middleware('permission:receiving.edit');
 
     // Roles:
     Route::get('roles', 'RoleController@index')->name('roles.index')->middleware('permission:roles.index');

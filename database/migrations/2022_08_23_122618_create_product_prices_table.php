@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Schema;
 class CreateProductPricesTable extends Migration{
     /**
      * Run the migrations.
+     * 
+     * Tabla para controlar el histórico de precios.
      *
      * @return void
      */

@@ -9,7 +9,7 @@
 					@if($order->customer_id == session('currentCompany'))
 						{{-- Debe estar activo el módulo de RRHH --}}
 						@if($module_rrhh)
-							<a href="#" class="btn btn-xs btn-warning ml-3 btnAddMember" data-toggle="modal" data-target="#modal-add-member" rel="tooltip" title="{{ trans('textos.miembro_add') }}" data-company="{{ $order->customer_id }}" data-environment="customer">
+							<a href="#" class="btn btn-xs btn-warning ml-3 btnAddMember" data-toggle="modal" data-target="#modal-add-member-customer" rel="tooltip" title="{{ trans('textos.miembro_add') }}" data-company="{{ $order->customer_id }}" data-environment="customer">
 								<i class="fa fa-plus"></i>
 							</a>
 						@else
@@ -45,7 +45,7 @@
 					@if($order->provider_id == session('currentCompany'))
 						{{-- Debe estar activo el módulo de RRHH --}}
 						@if($module_rrhh)
-							<a href="#" class="btn btn-xs btn-warning ml-3 btnAddMember" data-toggle="modal" data-target="#modal-add-member" rel="tooltip" title="{{ trans('textos.miembro_add') }}" data-company="{{ $order->provider_id }}" data-environment="provider">
+							<a href="#" class="btn btn-xs btn-warning ml-3 btnAddMember" data-toggle="modal" data-target="#modal-add-member-provider" rel="tooltip" title="{{ trans('textos.miembro_add') }}" data-company="{{ $order->provider_id }}" data-environment="provider">
 								<i class="fa fa-plus"></i>
 							</a>
 						@else

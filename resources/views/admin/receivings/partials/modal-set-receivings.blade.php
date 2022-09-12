@@ -25,9 +25,9 @@
 
 	                    <div class="form-group row">
 							{{-- Fecha recepción --}}
-							<label for="reception_date" class="col-12">{!! ucfirst(trans('textos.recepcion_fecha')) !!}</label>
+							<label for="estimated_reception_date" class="col-12">{!! ucfirst(trans('textos.recepcion_fecha')) !!}</label>
 							<div class="col-lg-8">
-								<x-date-picker name="reception_date" :format="$languages[config('app.locale')][4]"/>
+								<x-date-picker name="estimated_reception_date" :format="$languages[config('app.locale')][4]"/>
 							</div>
 						</div>
 
@@ -57,9 +57,13 @@
 
 		            		<tbody>
 		            			@foreach($receivings as $rcv)
+		            				@php
+		            				$receptionDate = \Carbon\Carbon::parse($rcv->estimated_reception_date)->format($languages[session()->get('locale')][4])
+		            				@endphp
+
 		            				<tr>
 		            					<td>
-		            						{!! \Carbon\Carbon::parse($rcv->reception_date)->format($languages[session()->get('locale')][4]) !!} 
+		            						{!! $receptionDate !!} 
 		            					</td>
 		            					<td class="text-center">
 		            						@if($rcv->status == 1)
@@ -70,7 +74,7 @@
 		            					</td>
 		            					<td class="text-right">
 		            						{{-- Editar --}}
-		            						<a href="" class="btn btn-xs btn-info btn-module" rel="tooltip" title="{{ trans('textos.editar') }}" data-toggle="modal" data-target="#modal-edit-receivings"><i class="fa fa-edit"></i></a>
+		            						<a href="" class="btn btn-xs btn-info btn-module btnEditReceiving" rel="tooltip" title="{{ trans('textos.editar') }}" data-toggle="modal" data-target="#modal-edit-receivings" data-id="{{ $rcv->id }}" data-receptiondate="{!! $receptionDate !!}" data-observations="{!! $rcv->customer_observations !!}" data-origin="{{ $rcv->origin }}"><i class="fa fa-edit"></i></a>
 		            					</td>
 		            				</tr>
 		            			@endforeach		

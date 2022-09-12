@@ -9,7 +9,7 @@
                 <div class="card-header">{!! trans('textos.empresa_registro') !!}</div>
 
                 <div class="card-body">
-                    <form method="post" action="{{ route('company.store') }}" accept-charset="utf-8" role="form">
+                    <form method="post" action="{{ route('company.store') }}" id="frmCompanyRegister" accept-charset="utf-8" role="form">
                         {{ csrf_field() }}
                         <input type="hidden" name="account_id" id="accountId" @if($accounts->count() == 1) value="{{ $accounts[0]->id }}" @endif>
                         <input type="hidden" name="guardian" value="{{ $guardian }}">
@@ -60,5 +60,22 @@
         </div>
     </div>
 </div>
+
+@include('web.partials.modal-submit-company-register')
+
+@push('scripts')
+<script>
+$(function(){
+    //Modal submit:
+    $('#frmCompanyRegister').on('submit', function(){
+        $('#modal-submit-company-register').modal({
+            backdrop: 'static', 
+            keyboard: false,
+            show: true
+        });
+    });
+});
+</script>
+@endpush
 
 @endsection

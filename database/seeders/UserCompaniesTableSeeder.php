@@ -21,6 +21,7 @@ class UserCompaniesTableSeeder extends Seeder{
     public function run(){
         //Creamos empresa piloto:
     	$data = [
+            'mother_co' => 1,
     		'name' => 'ACME',
     		'slug' => 'acme',
     		'nif' => '00000000A'

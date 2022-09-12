@@ -3,8 +3,8 @@
 @section('content')
 
 <div class="row mb-3">
+	{{-- Acciones: --}}
 	<div class="col-12">
-		{{-- Acciones: --}}
 		@can('budgets.index')
 			<a href="{{ route('budgets.index') }}" class="btn btn-info">
 				<i class="fa fa-angle-left"></i>

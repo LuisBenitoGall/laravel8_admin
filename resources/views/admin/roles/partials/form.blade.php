@@ -10,21 +10,32 @@
 	{{-- Name --}}
 	<label for="name" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.rol_titulo')) !!} *</label>
 	<div class="col-lg-4">
-		@php
-		$name = isset($role->name)? $role->name:'';
-		$readonly = $action == 'edit' && !$role->company == config('constants.SUPER_ADMIN_')? true:false;
-		@endphp
-		<x-input type="text" name="name" id="name" class="name-slug" maxlength="150" value="{{ $name }}" required info="role-name" readonly="{{ $readonly }}"/>
+		@if($action == 'edit')
+			<input type="hidden" name="name" value="{{ $role->name }}">
+
+			@php
+			$roleName = config('constants.SUPER_ADMIN_');
+			if($role->name != config('constants.SUPER_ADMIN_')){
+				$parts = explode('/', $role->name);	
+				$roleName = $parts[1];
+			}
+			@endphp
+			<x-input type="text" name="" class="name-slug" maxlength="150" value="{{ ucfirst($roleName) }}" required info="role-name" readonly="true"/>
+		@else
+			<x-input type="text" name="name" id="name" class="name-slug" maxlength="150" value="{{ ucfirst($name) }}" required info="role-name" readonly="{{ $readonly }}"/>
+		@endif
 	</div>
 
 	{{-- Switch desplegar opciones --}}
-	<label for="name" class="col-lg-3 col-form-label">{!! ucfirst(trans('textos.permisos_desplegar_todos')) !!}</label>
-	<div class="col-lg-2">
-		<label class="switch" style="margin-top: 6px;">
-  			<input type="checkbox" class="btnSlideAllPermissions">
-  			<span class="slider round"></span>
-		</label>
-	</div>
+	@if($role->name != config('constants.SUPER_ADMIN_'))
+		<label for="name" class="col-lg-3 col-form-label">{!! ucfirst(trans('textos.permisos_desplegar_todos')) !!}</label>
+		<div class="col-lg-2">
+			<label class="switch" style="margin-top: 6px;">
+	  			<input type="checkbox" class="btnSlideAllPermissions">
+	  			<span class="slider round"></span>
+			</label>
+		</div>
+	@endif
 </div>
 
 <div class="form-group row">

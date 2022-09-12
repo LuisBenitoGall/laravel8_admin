@@ -25,6 +25,7 @@ use App\Models\ProductAttributes;
 use App\Models\ProductDocs;
 use App\Models\ProductFavorites;
 use App\Models\ProductPatterns;
+use App\Models\ProductPrices;
 use App\Models\ProductUnits;
 
 class ProductController extends Controller{
@@ -248,10 +249,9 @@ class ProductController extends Controller{
         //$serials = false;
 
         //Histórico de precios:
-        // $prices = ProductPrices::where('product_id', $product->id)
-        // ->orderBy('id', 'DESC')
-        // ->get();
-        $prices = false;
+        $prices = ProductPrices::where('product_id', $product->id)
+        ->orderBy('id', 'DESC')
+        ->get();
 
         //Moneda:
         $currency = CompanySettings::co_currency(0);
@@ -338,6 +338,14 @@ class ProductController extends Controller{
             }
         }
 
+        //Guardar histórico de precios. La fecha de creación del registro indica hasta que fecha estuvo vigente el precio del producto hasta su actualización.
+        if($product->price != $request->price){
+            ProductPrices::create([
+                'product_id' => $product->id,
+                'price' => $product->price
+            ]);
+        }
+
         $arrTranslations = [];
         $arrTags = [];
         $arrDescription = [];
@@ -381,23 +389,6 @@ class ProductController extends Controller{
         $product->on_sale = $request->input('on_sale')? true:false;
         $product->status = $status;
         $product->save();
-
-        //Actualizamos precio en tabla product_prices:
-        // if($request->price){
-        //     $last_price = ProductPrices::latest('id')->first();
-        //     if(!$last_price || $last_price->price != $request->price){
-        //         if($last_price){
-        //             $last_price->status = 0;
-        //             $last_price->save();
-        //         }
-
-        //         //Creamos nuevo registro:
-        //         ProductPrices::create([
-        //             'product_id' => $product->id,
-        //             'price' => $request->price
-        //         ]);
-        //     }
-        // }
 
         $msg = trans('textos.producto_updated');
         return redirect()->route('products.edit', $product->id)->with(compact('msg'));

@@ -1,4 +1,4 @@
-<div class="modal fade modal-add-member" id="modal-add-member-provider" tabindex="-1" role="dialog" aria-labelledby="addMember" aria-hidden="true">
+<div class="modal fade modal-add-member-provider" id="modal-add-member-provider" tabindex="-1" role="dialog" aria-labelledby="addMember" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -11,7 +11,7 @@
             <div class="modal-body">
             	<form method="post" autocomplete="off" action="{{ route('orders.add-member', $order) }}" id="frmSaveChangeRound" accept-charset="utf-8" enctype="multipart/form-data" role="form">
                     {{ csrf_field() }}
-                    <input type="hidden" name="environment" id="myEnvironment">
+                    <input type="hidden" name="environment" id="myEnvironment" value="provider">
 
                     <div class="form-group row">
                     	{{-- Usuario --}}
