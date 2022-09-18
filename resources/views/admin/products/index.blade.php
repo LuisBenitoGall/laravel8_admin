@@ -2,6 +2,8 @@
 
 @section('content')
 
+<input type="hidden" id="myCompany" value="{{ $company->id }}">
+
 <div class="row mb-3">
 	{{-- Acciones: --}}
 	<div class="col-12">
@@ -20,8 +22,6 @@
         @endcan
 	</div>
 </div>
-
-<input type="hidden" id="myCompany" value="{{ $company->id }}">
 
 {{-- Vista listado --}}
 <div class="row">

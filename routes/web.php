@@ -642,6 +642,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::get('product-providers/{product}', 'ProductProvidersController@index')->name('product-providers.index')->middleware('permission:providers.edit');
     Route::get('product-providers/{product}/create/{provider_id?}', 'ProductProvidersController@create')->name('product-providers.create')->middleware('permission:providers.edit');
     Route::post('product-providers/{product}/set-provider', 'ProductProvidersController@setProvider')->name('product-providers.set-provider')->middleware('permission:providers.edit');
+    Route::post('product-providers/store', 'ProductProvidersController@store')->name('product-providers.store');
 
     // Product Serials:
     Route::post('product-serials/{product}/store', 'ProductSerialsController@store')->name('product-serials.store')->middleware('permission:products.edit');

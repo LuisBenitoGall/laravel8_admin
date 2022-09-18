@@ -10,7 +10,11 @@
 
             <div class="modal-body">
             	{{-- Componente Products Grid --}}
-				@livewire('products-grid', ['currency' => $currency, 'order_' => true, 'company' => false, 'customer' => $order->customer_id])
+                @php
+                $customer_ = isset($order)? $order->customer_id:session('currentCompany');
+                @endphp
+
+				@livewire('products-grid', ['currency' => $currency, 'order_' => true, 'company' => $provider, 'customer' => $customer_])
             </div>
         </div>
     </div>

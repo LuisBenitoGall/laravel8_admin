@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Helpers\Helpers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;-
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -154,7 +155,7 @@ class OrderGroupsController extends Controller{
             exit;
         }
 
-        $orders = Order::select('orders.id', 'orders.order_num', 'orders.order_old_num', 'orders.name', 'orders.created_at', 'orders.bag_amount', 'orders.order_status')
+        $data = Order::select('orders.id', 'orders.order_num', 'orders.order_old_num', 'orders.name', 'orders.purchase_num', 'orders.purchase_old_num', 'orders.created_at', 'orders.bag_amount', 'orders.order_status')
         ->where('orders.customer_id', $customer)
         ->where('orders.provider_id', session('currentCompany'))
         ->where('orders.is_group', 1)
@@ -169,46 +170,55 @@ class OrderGroupsController extends Controller{
         //Moneda:
         $currency = CompanySettings::co_currency(0);
 
-        return DataTables::of($orders)
-        ->addColumn('num', function($order){
-            return view('admin.orders.partials.dt-num', compact('order')); 
+        return DataTables::of($data)
+        ->addColumn('num', function($row){
+            return view('admin.orders.partials.dt-num', compact('row')); 
         })
-        ->addColumn('alta', function($order){
-            return $order->created_at->format($this->languages[session()->get('locale')][4]);    
+        ->addColumn('purchase', function($row){
+            $purchase = $row->purchase_num? $row->purchase_num:($row->purchase_old_num? $row->purchase_old_num:'');
+            return $purchase;
         })
-        ->addColumn('group_amount', function($order) use($currency){
-            $amount = $order->getGroupAmount();
+        ->filterColumn('purchase', function($query, $keyword){
+            $sql = "orders.purchase_num = ? OR orders.purchase_old_num = ?";
+            $query->whereRaw($sql, $keyword);
+        })
+        ->addColumn('alta', function($row){
+            return $row->created_at->format($this->languages[session()->get('locale')][4]);    
+        })
+        ->addColumn('group_amount', function($row) use($currency){
+            $amount = $row->getGroupAmount();
             return $amount.$currency->symbol; 
         })     
-        ->addColumn('bag_amount', function($order) use($currency){
-            return $order->bag_amount.$currency->symbol; 
+        ->addColumn('bag_amount', function($row) use($currency){
+            return $row->bag_amount.$currency->symbol; 
         }) 
-        ->addColumn('estado', function($order) use($estados){
-            return view('admin.orders.partials.dt-status', compact('order', 'estados'));    
+        ->addColumn('estado', function($row) use($estados){
+            return view('admin.orders.partials.dt-status', compact('row', 'estados'));    
         })
-        ->addColumn('acciones', function($order) use($estados){
-            return view('admin.orders.partials.dt-actions', compact('order', 'estados'));    
+        ->addColumn('acciones', function($row) use($estados){
+            $manage_status = false;
+            return view('admin.orders.partials.dt-actions', compact('row', 'estados', 'manage_status'));    
         })
         ->make(true);
 
 //REVISAR LAS CONDICIONES SIGUIENTES
 
         //Ampliación de información de los objetos:
-        if($orders){
-            //Comprobamos si tiene activo el módulo de contabilidad para poder facturar el pedido:
-            $invoice = $this->settedModule('contabilidad');
+        // if($data){
+        //     //Comprobamos si tiene activo el módulo de contabilidad para poder facturar el pedido:
+        //     $invoice = $this->settedModule('contabilidad');
 
-            foreach($groups as $row){
-
-
-                //Agrupación abierta:
-                $row->opened = in_array($row->status, config('constants.ORDER_GROUPS_OPENED_'))? true:false;
+        //     foreach($groups as $row){
 
 
-                //Facturación de pedido. El pedido debe estar en algún status que permita su facturación:
-                $row->invoice = in_array($row->status, config('constants.ORDER_STATUS_INVOICED_'))? $invoice:false;
-            }  
-        }
+        //         //Agrupación abierta:
+        //         $row->opened = in_array($row->status, config('constants.ORDER_GROUPS_OPENED_'))? true:false;
+
+
+        //         //Facturación de pedido. El pedido debe estar en algún status que permita su facturación:
+        //         $row->invoice = in_array($row->status, config('constants.ORDER_STATUS_INVOICED_'))? $invoice:false;
+        //     }  
+        // }
 
         //return datatables($groups)->toJson();
     }

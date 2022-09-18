@@ -625,7 +625,7 @@ if($order->provider_team){
 					</div>
 
 					{{-- Pedidos --}}
-					@if(!$order->is_group && $order->provider_id == session('currentCompany'))
+					@if($order->is_group && $order->provider_id == session('currentCompany'))
 						<div class="tab-pane fade @if($tab == 'orders') show active @endif" role="tabpanel" id="tab-orders">
 							@include('admin.orders.partials.order-orders')	
 						</div>

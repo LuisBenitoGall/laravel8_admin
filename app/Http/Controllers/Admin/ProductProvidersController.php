@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Helpers\helpers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -23,7 +24,9 @@ class ProductProvidersController extends Controller{
     /**
      * 1. Listado de proveedores por producto.
      * 1.1. Lista de proveedores por producto para DataTable.
+     * 2. Formulario correspondencia entre productos.
      * 2.1. Set proveedor.
+     * 2.2. Catálogo de productos del proveedor para DataTable.
      */
 
     private $option = 'catalogo';  
@@ -67,7 +70,8 @@ class ProductProvidersController extends Controller{
         ->join('companies', 'provider_id', '=', 'companies.id')
         ->leftJoin('products', 'product_providers.provider_product_id', '=', 'products.id')
         ->where('product_providers.customer_product_id', $product_id)
-        ->orderBy('companies.name', 'ASC');
+        ->orderBy('companies.name', 'ASC')
+        ->groupBy('products.id');
 
         return DataTables::of($data)
         ->addColumn('name', function($row){
@@ -120,10 +124,17 @@ class ProductProvidersController extends Controller{
             ->get();
         }
 
+        //Productos fuera de catálogo:
+        $products_out_catalogue = ProductProviders::where('provider_id', $provider_id)
+        ->where('customer_product_id', $product->id)
+        ->whereNull('provider_product_id')
+        ->orderBy('provider_product', 'ASC')
+        ->get();
+
         //Moneda:
         $currency = $this->currency;
 
-        return view('admin.product_providers.create')->with(compact('header', 'product', 'provider', 'providers', 'currency'));
+        return view('admin.product_providers.create')->with(compact('header', 'product', 'provider', 'providers', 'products_out_catalogue', 'currency'));
     }
 
     /**
@@ -131,5 +142,74 @@ class ProductProvidersController extends Controller{
      */
     public function setProvider(Request $request, Product $product){
         return redirect()->route('product-providers.create', [$product->id, $request->provider_id]);
+    }
+
+    /**
+     * 2.2. Catálogo de productos del proveedor para DataTable.
+     */
+    public function getProvidersCorrespondencesDT($product_id, $provider_id){
+        //Moneda:
+        $currency = $this->currency;
+
+        $data = Product::select('products.id', 'product_providers.provider_product_id', 'product_providers.provider_id', 'product_providers.provider_ref', 'product_providers.provider_product', 'products.name', 'products.ref', 'products.price',
+            DB::raw('(SELECT doc FROM product_docs WHERE product_id = products.id AND featured = 1 LIMIT 1) AS Image')
+        )
+        ->leftJoin('product_providers', 'products.id', '=', 'product_providers.provider_product_id')
+        ->where('products.status', 1)
+        ->where('products.on_sale', 1)
+        ->where('products.company_id', $provider_id)
+        ->orderBy('product_providers.provider_product_id', 'DESC')
+        ->orderBy('products.name', 'ASC')
+        ->groupBy('products.id');
+
+        return DataTables::of($data)
+        ->addColumn('name', function($row){
+            return $row->name;
+        })
+        ->addColumn('ref', function($row){
+            return $row->ref;
+        })
+        ->addColumn('image', function($row){
+            if($row->Image){
+                return '<img src="/img/products/'.$row->Image.'" width="50"><span style="display: none">1</span>';    
+            }    
+        })
+        ->addColumn('price', function($row) use($currency){
+            //Enlazar el precio personalizado para un cliente.
+            return $row->price.$currency->symbol;
+        })
+        ->addColumn('acciones', function($row){
+            return view('admin.product_providers.partials.dt-actions', compact('row'));    
+        })
+        ->rawColumns(['image'])
+        ->make(true);
+    }
+
+    /**
+     * 3. Guardar correspondencia de producto de proveedor.
+     */
+    public function store(Request $request){
+        if($request->ajax()){  
+            $exist = ProductProviders::where('customer_product_id', $request->customer_product_id)
+                ->where('provider_product_id', $request->provider_product_id)  
+                ->where('provider_id', $request->provider_id) 
+                ->first();
+
+            if(!$exist){
+                $row = new ProductProviders();
+                $row->customer_product_id = $request->customer_product_id;
+                $row->provider_product_id = $request->provider_product_id;
+                $row->provider_id = $request->provider_id;
+                $row->save();
+
+            }else{
+                ProductProviders::where('customer_product_id', $request->customer_product_id)
+                ->where('provider_product_id', $request->provider_product_id)  
+                ->where('provider_id', $request->provider_id) 
+                ->delete();
+            }   
+
+            return response()->json(true);
+        } 
     }
 }

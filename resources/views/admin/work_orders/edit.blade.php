@@ -111,6 +111,6 @@
 @include('admin.work_orders.partials.modal-edit-product')
 
 {{-- See catalogue --}}
-@include('admin.budget_order_shared_fields.partials.modal-see-catalogue')
+@include('admin.orders.partials.modal-see-catalogue')
 
 @endsection

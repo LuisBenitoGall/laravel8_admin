@@ -348,6 +348,7 @@ return [
 	'proveedor_cambio' => 'Cambio de proveedor',
 	'proveedor_cambio_error' => 'No es posible modificar el proveedor. Existe un pedido vinculado',
 	'proveedor_catalogo' => 'Catálogo de proveedor',
+	'proveedor_correspondencia_producto' => 'Correspondencias de proveedor para el producto',
 	'proveedor_nuevo' => 'nuevo proveedor',
 	'proveedor_nuevo_add' => 'Agrega nuevo proveedor',
 	'proveedor_editar' => 'editar proveedor',
@@ -2195,6 +2196,7 @@ return [
 	'mis_modulos' => 'Mis módulos',
 	'presupuestos_patrones' => 'Patrones para presupuestos',
 	'productos_categorias' => 'Categorías de productos',
+	'productos_fuera_catalogo' => 'Productos fuera de catálogo',
 	'productos_nueva_categoria' => 'Nueva categoría de productos',
 	'productos_patrones' => 'Productos patrones',
 	'facturas_patrones_' => 'Patrones de factura',
@@ -2682,5 +2684,6 @@ return [
 	'sector_selec_empresas' => 'Selecciona sector para obtener empresas',
 	'sectores' => 'sectores',
 	'sectores_indice' => 'Índice de sectores',
+	'correspondencia_ref' => 'Correspondencia de referencia',
 
 ];

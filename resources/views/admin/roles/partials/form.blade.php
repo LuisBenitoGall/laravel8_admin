@@ -22,12 +22,12 @@
 			@endphp
 			<x-input type="text" name="" class="name-slug" maxlength="150" value="{{ ucfirst($roleName) }}" required info="role-name" readonly="true"/>
 		@else
-			<x-input type="text" name="name" id="name" class="name-slug" maxlength="150" value="{{ ucfirst($name) }}" required info="role-name" readonly="{{ $readonly }}"/>
+			<x-input type="text" name="name" id="name" class="name-slug" maxlength="150" value="" required info="role-name"/>
 		@endif
 	</div>
 
 	{{-- Switch desplegar opciones --}}
-	@if($role->name != config('constants.SUPER_ADMIN_'))
+	@if(!$role || $role->name != config('constants.SUPER_ADMIN_'))
 		<label for="name" class="col-lg-3 col-form-label">{!! ucfirst(trans('textos.permisos_desplegar_todos')) !!}</label>
 		<div class="col-lg-2">
 			<label class="switch" style="margin-top: 6px;">

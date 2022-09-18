@@ -2893,22 +2893,23 @@ $(document).ready(function(){
         // });
         
         var tableOrderGroups = $('#tblOrderGroups').DataTable({
-            "serverSide": true,
-            "processing": true,
+            serverSide: true,
+            processing: true,
             // drawCallback: function() {
             //     $('.select2-dt').select2();
             // },
-            "ajax": {
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/order-groups/"+customer+"/"+year,
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'num', name: 'num', className: 'text-right'},
                 {data: 'order_old_num', name: 'order_old_num', className: 'text-right'},
-                {data: 'name', name: 'name'},
+                {data: 'name', name: 'orders.name'},
+                {data: 'purchase', name: 'purchase'},
                 {data: 'alta', name: 'alta', className: 'text-right'},
                 {data: 'group_amount', className: 'text-right'},
                 {data: 'bag_amount', className: 'text-right'},
@@ -3872,7 +3873,33 @@ $(document).ready(function(){
             columns: [
                 {data: 'name', name: 'companies.name', className: 'capitalize'},
                 {data: 'product', name: 'products.name'},
-                {data: 'ref', name: 'products.ref', className: 'text-right'},
+                {data: 'ref', name: 'products.ref'},
+                {data: 'price', className: 'text-right'},
+                {data: 'acciones', className: 'text-right'}
+            ]
+        });
+    }
+
+    //Tabla Product Providers Correspondences:
+    if($('#tblProductProvidersCorrespondences').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        var product_id = $('#productId').val();
+        var provider_id = $('#providerId').val();
+        
+        $('#tblProductProvidersCorrespondences').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/product-providers-correspondences/"+product_id+'/'+provider_id,
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'name', name: 'products.name'},
+                {data: 'ref', name: 'products.ref'},
+                {data: 'image', className: 'text-center'},
                 {data: 'price', className: 'text-right'},
                 {data: 'acciones', className: 'text-right'}
             ]
@@ -3916,32 +3943,7 @@ $(document).ready(function(){
                 {data: 'description'},
                 {data: 'value'},
                 {data: 'acciones', className: 'text-right'}
-            ],
-            // "columnDefs": [
-            //     {"targets": -1,
-            //     "render": function(data, type, row){
-            //         //Editar:
-            //         if(row['editar']){
-            //             var editar = '<a href="#" class="btn btn-sm btn-info btnEditParameter" rel="tooltip" title="'+txtParametroEditar+'" data-toggle="modal" data-target="#modal-edit-parameter" data-ppid="'+row['pscId'] +'" data-parameterid="'+row['id']+'" data-value="'+row['value']+'" data-opciones="'+row['opciones']+'"><i class="fa fa-edit"></i></a>';
-            //         }else{
-            //             var editar = '';
-            //         }
-
-            //         //Eliminar:
-            //         if(row['eliminar'] && row['pscId']){
-            //             var eliminar = '<form method="POST" action="/admin/product-serials-cards/'+row['pscId']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
-            //                 eliminar += '<input name="_method" type="hidden" value="DELETE">';
-            //                 eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
-            //                 eliminar += '<button type="submit" class="btn btn-sm btn-danger frm-confirm" rel="tooltip" title="'+txtParametroEliminar+'" data-msg="'+txtParametroConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
-            //             eliminar += '</form>';
-            //         }else{
-            //             var eliminar = '';
-            //         }
-
-            //         return editar+' '+eliminar;
-            //     }
-            //     } 
-            // ] 
+            ]
         });
     }
 
@@ -4418,63 +4420,22 @@ $(document).ready(function(){
         });
         
         var tableProviderProducts = $('#tblProviderProducts').DataTable({
-            "serverSide": true,
-            "processing": true,
-            "ajax": {
+            serverSide: true,
+            processing: true,
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/provider-products/"+provider,
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name'},
                 {data: 'descripcion'},
                 {data: 'image', className: 'text-center'},
                 {data: 'price', className: 'text-right'},
                 {data: 'acciones', className: 'text-right'}
             ]
-            // "columnDefs": [
-            //     {"targets": 2,
-            //     "render": function(data, type, row){
-            //         if(row['doc']){
-            //             return '<img src="/img/products/'+row['doc']+'" width="60">';      
-            //         }else{
-            //             return '<i class="fa fa-gift icono"></i>';    
-            //         }                   
-            //     }
-            //     }, 
-            //     {"targets": 3,
-            //     "render": function(data, type, row){
-            //         //Sólo se pueden modificar productos con precio fijo, no porcentual:
-            //         if(!row['calculated_by_percent'] || row['calculated_by_percent'] == '0'){
-            //             var readonly = row['active'] == 0? 'readonly':'';
-            //             var price = '<div class="input-group">';
-            //                 price += '<input type="text" class="form-control text-right customerProductPrice" data-customer="'+customer+'" data-product="'+row['id']+'" value="'+row['price']+'" '+readonly+'>';
-            //                 price += '<div class="input-group-append"><span class="input-group-addon">'+row['currency']+'</span></div>';
-            //             price += '</div>'; 
-            //             return price;  
-            //         }else{
-            //             return txtPrecioPorcentual;
-            //         } 
-            //     }
-            //     }, 
-            //     {"targets": -1,
-            //     "render": function(data, type, row){
-            //         //Estado:
-            //         if(!row['calculated_by_percent'] || row['calculated_by_percent'] == '0'){
-            //             var checked = row['active'] == 1? 'checked':'';
-            //             var estado = '<label class="custom-chk-rdb" rel="tooltip" title="'+txtProductoOnOff+'">';
-            //                 estado += '<input type="checkbox" name="active" '+checked+'><span class="chk btnCustomerProductStatus" data-product="'+row['id']+'" data-price="'+row['price']+'"></span>';
-            //             estado += '</label>';
-
-            //             return estado;
-            //         }else{
-            //             return '';
-            //         }
-            //     }
-            //     } 
-            // ] 
         });
     }
 
@@ -5899,24 +5860,24 @@ $(document).ready(function(){
         var method = all? '/all':'';
 
         //Filters:
-        $('#tblUsers thead tr').clone(true).appendTo('#tblUsers thead');
-        $('#tblUsers thead tr:eq(1) th').each(function(i){
-            var title = $(this).text();
-            if(i == 6){
-                $(this).html('');
-            }else{
-                $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
-            }
+        // $('#tblUsers thead tr').clone(true).appendTo('#tblUsers thead');
+        // $('#tblUsers thead tr:eq(1) th').each(function(i){
+        //     var title = $(this).text();
+        //     if(i == 6){
+        //         $(this).html('');
+        //     }else{
+        //         $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
+        //     }
      
-            $('input', this).on('keyup change', function(){
-                if(tableUsers.column(i).search() !== this.value){
-                    tableUsers
-                        .column(i)
-                        .search(this.value)
-                        .draw();
-                }
-            });
-        });
+        //     $('input', this).on('keyup change', function(){
+        //         if(tableUsers.column(i).search() !== this.value){
+        //             tableUsers
+        //                 .column(i)
+        //                 .search(this.value)
+        //                 .draw();
+        //         }
+        //     });
+        // });
         
         var tableUsers = $('#tblUsers').DataTable({
             "serverSide": true,
