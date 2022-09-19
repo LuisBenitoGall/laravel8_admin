@@ -70,6 +70,7 @@
 						<th class="text-center wdt50">#</th>
 						<th class="text-center wdt100">{!! ucfirst(trans('textos.n_manual')) !!}</th>
 						<th class="wdt200">{!! ucfirst(trans('textos.agrupacion')) !!}</th>
+						<th class="wdt100">{!! ucfirst(trans('textos.orden_compra')) !!}</th>
 						<th class="text-center wdt100">{!! ucfirst(trans('textos.fecha')) !!}</th>
 						<th class="text-center wdt50">{!! ucfirst(trans('textos.importe')) !!}</th> 
 						<th class="text-center wdt50">{!! ucfirst(trans('textos.bolsa')) !!}</th> 

@@ -13,6 +13,7 @@ use File;
 use Carbon\Carbon;
 
 //Models:
+use App\Models\Company;
 use App\Models\CompanySettings;
 use App\Models\Product;
 use App\Models\User;
@@ -139,6 +140,8 @@ class WorkOrderController extends Controller{
         //Productos. Activos y aptos para venta:
         $products = Product::companyProducts($work_order->company_id, $work_order->company_id);
 
+        $provider = Company::find($work_order->company_id);
+
         //Cambios bloqueados: establecer las condiciones por las que se pueden realizar ciertas acciones o no.
         $permitted = true;
 
@@ -147,7 +150,7 @@ class WorkOrderController extends Controller{
 
         $languages = $this->languages;
 
-        return view('admin.work_orders.edit')->with(compact('header', 'work_order', 'tab', 'patterns', 'author', 'products', 'permitted', 'currency', 'languages'));
+        return view('admin.work_orders.edit')->with(compact('header', 'work_order', 'tab', 'patterns', 'author', 'products', 'provider', 'permitted', 'currency', 'languages'));
     }
 
     /**

@@ -775,7 +775,7 @@ class OrderController extends Controller{
         ->get();
 
         //Productos. Activos y aptos para venta:
-        $products = Product::companyProducts($order->provider_id, $order->customer_id);
+        $products = Product::companyProducts($order->provider_id, $order->customer_id, true, true);
 
         //Proyectos:
         $projects = Project::select('id', 'code', 'name')

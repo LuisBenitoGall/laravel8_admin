@@ -14,7 +14,13 @@
 	</div>
 </div>
 
-<div class="row">
+<div class="row mb-3">
+	<div class="col-12 mb-3">
+		<h3>
+			{{ trans('textos.proveedor_correspondencia_producto') }} <u>{{ $product->name }}</u>
+		</h3>
+	</div>
+
 	<div class="col-12">						
 		<div class="card mb-3">
 			<div class="card-body">
@@ -28,7 +34,7 @@
 						</label>
 					</div>	
 
-				{{-- 3. Debe haber proveedores --}}
+				{{-- 2. Debe haber proveedores --}}
 				@elseif($providers && !$providers->count())
 					<div class="form-group row">
 						<label class="col-12 text-center text-warning mt-4">
@@ -66,15 +72,120 @@
 						</div>
 					</form>
 				@endif
-
-				@if($provider)
-					<br><br>
-					@livewire('products-grid', ['currency' => $currency, 'order_' => false, 'company' => $provider, 'customer' => session('currentCompany'), 'sale' => true])
-				@endif
-
 			</div>
 		</div>
 	</div>
 </div>
+
+{{-- Proveedor declarado --}}
+@if($provider)
+	<input type="hidden" id="productId" value="{{ $product->id }}">
+	<input type="hidden" id="providerId" value="{{ $provider->id }}">
+
+	{{-- Productos fuera de catálogo del proveedor --}}
+	@if($products_out_catalogue->count()){
+		<div class="row">
+			<div class="col-md-11 mb-3">
+				<h3>
+					{{ ucfirst(trans('textos.productos_fuera_catalogo')) }}
+					<u>{{ $provider->name }}</u>
+				</h3>
+			</div>	
+
+			<div class="table-responsive">
+				<table class="table table-hover dTable" id="tblProductProvidersOutCatalogue">
+					<thead>
+						<tr>
+							<th>{!! ucfirst(trans('textos.producto')) !!}</th>
+							<th>{!! ucfirst(trans('textos.referencia')) !!}</th>
+							<th class="text-center">{!! ucfirst(trans('textos.precio')) !!}</th>
+							<th class="text-center">{!! ucfirst(trans('textos.acciones')) !!}</th>
+						</tr>
+					</thead>
+
+					<tbody>
+						@foreach($products_out_catalogue as $poc)
+							<tr>
+								<td></td>
+								<td></td>
+								<td class="text-right"></td>
+								<td class="text-right"></td>
+							</tr>
+						@endforeach
+					</tbody>
+				</table>
+			</div>
+		</div>	
+	@endif
+
+	<div class="row">
+		<div class="col-md-11 mb-3">
+			<h3>
+				{{ ucfirst(trans('textos.catalogo')) }}
+				<u>{{ $provider->name }}</u>
+			</h3>
+		</div>	
+
+		<div class="table-responsive">
+			<table class="table table-hover dtabla" id="tblProductProvidersCorrespondences">
+				<thead>
+					<tr>
+						<th>{!! ucfirst(trans('textos.producto')) !!}</th>
+						<th>{!! ucfirst(trans('textos.referencia')) !!}</th>
+						<th class="text-center">{!! ucfirst(trans('textos.imagen')) !!}</th>
+						<th class="text-center">{!! ucfirst(trans('textos.precio')) !!}</th>
+						<th class="text-center">{!! ucfirst(trans('textos.acciones')) !!}</th>
+					</tr>
+				</thead>
+			</table>
+		</div>
+	</div>
+@endif
+
+@push('scripts')
+<script>
+$(function(){
+	//Setear correspondencia de referencia de proveedor.
+	$(document).on('change', '.chkSetRef', function(e){
+		e.preventDefault();
+		var elem = $(this);
+		var customer_product_id = $('#productId').val();
+		var provider_product_id = $(this).val();
+		var provider_id = $('#providerId').val();
+		if($(this).is(':checked')){
+            var status = 1;
+        }else{
+            var status = 0;
+        }  
+
+		$.ajax({
+			headers:{
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data:{
+                _token:$('meta[name="csrf-token"]').attr('content'),
+                customer_product_id:customer_product_id,
+                provider_id:provider_id,
+                provider_product_id:provider_product_id,
+                status:status
+            },
+            url: "/admin/product-providers/store",
+            type: "POST",
+            cache: false,
+            datatype: "JSON",
+            success: function(response){
+            	if(response){
+	                $('.check-ko').remove();
+	                elem.parent('label').before('<i class="fa fa-check check-ok"></i>');
+	                $('.check-ok').delay(1000).fadeOut();
+	            }else{
+	                elem.parent('label').before('<i class="fa fa-exclamation-triangle check-ko"></i>');
+	            }
+    		}
+        });
+	});
+});
+</script>
+@endpush
 
 @endsection		

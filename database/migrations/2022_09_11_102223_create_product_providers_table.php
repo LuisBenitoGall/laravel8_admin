@@ -26,7 +26,6 @@ class CreateProductProvidersTable extends Migration{
             $table->foreign('provider_id')->references('id')->on('companies');
             $table->string('provider_ref')->nullable();
             $table->text('provider_product')->nullable();
-            $table->softDeletes();
             $table->timestamps();
         });
     }

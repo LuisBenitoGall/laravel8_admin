@@ -69,7 +69,7 @@
 						</div>
 
 						{{-- Ver catálogo --}}
-						@if($modality == config('constants.BUDGET_CATALOGUE_MODALITY_'))
+						@if(!$modality || $modality == config('constants.BUDGET_CATALOGUE_MODALITY_'))
 							<div class="col-2 col-md-1">
 								<button class="btn btn-warning btnSeeCatalogue" title="{!! ucfirst(trans('textos.catalogo')) !!}" data-toggle="modal" data-target="#modal-see-catalogue">
 									<i class="fa fa-th"></i>
