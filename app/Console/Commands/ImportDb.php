@@ -283,8 +283,8 @@ class ImportDb extends Command
         $this->importProductSerialsCards();         // 56.
         $this->info('Importando Product Serials Cards');
         $this->output->progressAdvance();
-        $this->importIncidenceLines();              // 57.
-        $this->info('Importando Incidence Lines');
+        //$this->importIncidenceLines();              // 57.
+        //$this->info('Importando Incidence Lines');
         $this->output->progressAdvance();
         $this->importProductDocs();                 // 58.
         $this->info('Importando Product Docs');
@@ -385,6 +385,7 @@ class ImportDb extends Command
                 DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
                 foreach ($data as $r) {
+
                     $i = new User;
                     $i->id = $r->id;
                     $i->name = $r->name;
@@ -404,7 +405,7 @@ class ImportDb extends Command
                     $i->created_at = $r->created_at;
                     $i->updated_at = $r->updated_at;
                     $i->save();
-
+                   // dd($i);
                     //Guardamos rol:
                     $i->assignRole('basico');
                 }
@@ -1833,7 +1834,7 @@ class ImportDb extends Command
 
         //Array para guardar los id de presupuestos con pedido:
         $budgetsWithOrder = [];
-        $this->info("\n EL número de pedidos es  {$data->count()}");
+
         if ($data && $data->count()) {
             Importaciones::create(['texto' => 'pedidos']);
 
@@ -1936,7 +1937,6 @@ class ImportDb extends Command
                 ->whereNotIn('id', $budgetsWithOrder)
                 ->get();
 
-            $this->info("El número de presupuesto es {$budgets->count()}");
             foreach ($budgets as $b) {
                 $i = new Order;
                 $i->is_budget = 1;
@@ -2019,7 +2019,6 @@ class ImportDb extends Command
         //Incluimos las agrupaciones de pedidos. También generan id nuevo.
         $order_groups = DB::connection('mysql2')->table('order_groups')->get();
 
-        $this->info("El número de Order_group es {$order_groups->count()}");
         foreach ($order_groups as $og) {
             //Datos del presupuesto:
             $budget = false;
