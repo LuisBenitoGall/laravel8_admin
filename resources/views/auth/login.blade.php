@@ -17,7 +17,7 @@
 
                             <div class="col-md-6">
                                 {{-- Email --}}
-                                <x-input type="email" name="email" id="email" autocomplete="off" maxlength="150" autofocus="true" required/>
+                                <x-input type="email" name="email" id="email" autocomplete="off" maxlength="150" autofocus="true" value="" required/>
                             </div>
                         </div>
 

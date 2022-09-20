@@ -18,11 +18,11 @@ class input extends Component{
     public $max;
     public $maxlength;
     public $min;
-    public $name; 
+    public $name;
     public $placeholder;
     public $readonly;
     public $required;
-    public $type;   
+    public $type;
     public $value;
     public $warning;
     public $wire;
@@ -37,29 +37,29 @@ class input extends Component{
         $autofocus = false,
         $class = '',
         $datas = false,
-        $disabled = false, 
+        $disabled = false,
         $group = false,
         $groupvalue = '',
-        $id = false, 
-        $info = false, 
+        $id = false,
+        $info = false,
         $lw = false,
         $max = false,
-        $maxlength = false, 
+        $maxlength = false,
         $min = false,
         $name,
         $placeholder = false,
         $readonly = false,
-        $required = false,    
-        $type, 
+        $required = false,
+        $type,
         $value = '',
         $warning = false,
-        $wire = false       
+        $wire = false
     ){
         $this->type = $type;
         $this->name = $name;
         $this->id = $id;
         $this->class = $class;
-        $this->disabled = $disabled;   
+        $this->disabled = $disabled;
         $this->value = $value;
         $this->maxlength = $maxlength;
         $this->min = $min;
@@ -79,7 +79,7 @@ class input extends Component{
         $datos = '';
         if($datas){
             $arr = explode('|', $datas);
-            
+
             if(count($arr)){
                 foreach($arr as $row){
                     $p = explode(':', $row);
