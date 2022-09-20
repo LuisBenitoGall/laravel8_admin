@@ -19,10 +19,10 @@ class RoleSeeder extends Seeder{
     public function run(){
         //Creación role Super Admin y manager:
         Role::create(['name' => 'Super Admin']);
-        
+
         //10/09/22: estos roles se crearán a partir de ahora automáticamente al crearse cada empresa e irán vinculados a ésta. El rol de manager dispondrá ya de permisos prácticamente plenos a excepción de los de configuración de la aplicación.
         //Role::create(['name' => 'manager']);
-        //Role::create(['name' => 'basico']);
+        Role::create(['name' => 'basico']);
 
         //Módulos:
         $modules = Module::all();
