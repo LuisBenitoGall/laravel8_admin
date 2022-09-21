@@ -5,7 +5,7 @@ return [
     'manifest' => [
         'name' => "ADN - ERP",
         'short_name' => 'ADN',
-        'start_url' => '/',
+        'start_url' => 'https://admin.weareadn.com',
         'background_color' => '#ffffff',
         'theme_color' => '#000000',
         'display' => 'standalone',
