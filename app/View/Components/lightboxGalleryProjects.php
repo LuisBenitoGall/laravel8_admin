@@ -27,7 +27,7 @@ class LightboxGalleryProjects extends Component{
     /**
      * Render image + controls.
      */
-    public function renderImg($doc, $gallery = false){
+    public function renderImg_($doc, $gallery = false){
         $featured = $doc->featured == 1? 'destacado':'';
         $thumbnail = $doc->thumbnail == 1? 'destacado':'';
 
