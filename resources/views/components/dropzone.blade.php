@@ -1,4 +1,4 @@
-@props(['icon' => '', 'icons' => '', 'id' => false, 'msg' => '', 'mimes_img' => [], 'url' => false])
+@props(['icon' => '', 'icons' => '', 'id' => false, 'msg' => '', 'mimes_img' => '', 'url' => false])
 
 <div class="dropzone" @if($id) id="{{ $id }}" @endif></div>
 
@@ -14,7 +14,7 @@
 
 <script>
 var mimes_img = {!! $mimes_img !!};
-//var icons = {!! $icons !!};
+var icons = {!! $icons !!};
 
 
 
