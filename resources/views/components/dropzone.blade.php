@@ -37,7 +37,18 @@ var icons = {!! $icons !!};
 
 
 
+//Envío correcto:
+myDropzone.on('success', function(file, res, done){
+    //Sin acciones definidas.
+});
 
+//Error:
+myDropzone.on('error', function(file, res){
+    var msg = res.errors.photo[0];
+    $('.dz-error-message:last > span').text(msg);
+});
+
+Dropzone.autoDiscover = false;
 
 </script>
 @endpush
