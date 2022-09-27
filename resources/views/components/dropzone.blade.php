@@ -12,6 +12,9 @@
 @push('scripts')
 <script src="{{ asset('js/plugins/dropzone/dropzone.js') }}"></script>
 
+<script>
+var mimes_img = {!! $mimes_img !!};
+var icons = {!! $icons !!};
 
 
 
@@ -36,7 +39,6 @@
 
 
 
-
-
+</script>
 @endpush
 @endonce
