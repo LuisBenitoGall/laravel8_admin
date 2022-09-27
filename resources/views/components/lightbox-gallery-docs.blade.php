@@ -1,4 +1,8 @@
-@props(['docs', 'image_mimes'])
+@props(['docs'])
+
+@php
+$image_mimes = App\Helpers\helpers::imgMimeTypes();
+@endphp
 
 <div class="ibox">
     <div class="ibox-content">
