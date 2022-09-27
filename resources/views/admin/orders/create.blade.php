@@ -101,12 +101,12 @@
 							</div>
 						</div>
 
-						{{-- Selecciona usuarios del proveedor --}}
+						{{-- Selecciona usuarios del proveedor para compras --}}
 						@if($type == 'purchase')
 							<div class="form-group row">
 								<label for="receivers" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.notificar_a')) !!}</label>
 								<div class="col-lg-8">
-									<x-select name="receivers[]" id="purchaseReceivers" class="select2" multiple :options="[]"/>
+									<x-select name="receivers[]" id="purchaseReceivers" class="select2" multiple :options="[]" info="provider-users-notificate"/>
 								</div>
 							</div>	
 						@endif
@@ -125,10 +125,12 @@ $(function(){
 	var tipo = '{{ $type }}';
 	if(tipo == 'purchase'){
 		//Obtener destinatarios de notificación:
+		//24/09/2022: se modifica la consulta para obtener los usuarios vinculados al proveedor, no sólo los usuarios.
 		$('#formCustomerId').on('change', function(event){
 			var company = event.target.value;
 			$('#purchaseReceivers').empty();
-			$.get("/admin/employees/"+company+"/company-employees/true", function(response, state){
+			//$.get("/admin/employees/"+company+"/company-employees/true", function(response, state){
+			$.get("/admin/user-companies/"+company+"/show", function(response, state){
 				if(response){
 					for(i=0; i<response.length; i++){
 						$('#purchaseReceivers').append('<option value="'+response[i].id+'">'+response[i].name+' '+response[i].surname+'</option>');		

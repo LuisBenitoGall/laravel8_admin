@@ -105,71 +105,63 @@ class CustomerProductsController extends Controller{
      * @param  $cc_id cost_center
      */
     public function getProductsDT($customer_id, $ba_id = false, $cc_id = false){
-        $products = Product::where('company_id', session('currentCompany'))
-        ->where('status', 1)
-        ->orderBy('name', 'ASC')
-        ->get();
+        // $data = Product::where('company_id', session('currentCompany'))
+        // ->where('status', 1)
+        // ->orderBy('name', 'ASC');
+        
+        $data = Product::companyProducts(session('currentCompany'), $customer_id, true, true, false, true);
 
-        if($products->count() > 0){
-            $arr_product_id = [];
-            $arr_ids = [];
-            $arr_price = [];
-            if($customer_id){
-                if($ba_id) $ba_id = trim($ba_id);
+        //Moneda:
+        $currency = CompanySettings::co_currency(0);
 
-                if($ba_id){
-                    $customer_products = CustomerProducts::select('id', 'product_id', 'price')
-                    ->where('provider_id', session('currentCompany'))
-                    ->where('customer_id', $customer_id)
-                    ->where('ba_id', $ba_id)
-                    ->get();
-                }else{
-                    $customer_products = CustomerProducts::select('id', 'product_id', 'price')
-                    ->where('provider_id', session('currentCompany'))
-                    ->where('customer_id', $customer_id)
-                    ->whereNull('ba_id')
-                    ->get();   
-                }
-                
-                if($customer_products->count() > 0){
-                    foreach($customer_products as $cp){
-                        array_push($arr_product_id, $cp->product_id);
-                        $arr_ids[$cp->product_id] = $cp->id;
-                        $arr_price[$cp->product_id] = $cp->price;
-                    }
-                }
+        return DataTables::of($data)
+        ->addColumn('name', function($row){
+            //Enviamos el nombre del producto ya traducido:
+            $trans = unserialize($row->translations);
+            $producto = (isset($trans[session()->get('locale')]) && $trans[session()->get('locale')] != '' && $trans != '')? $trans[session()->get('locale')]:$row->name;
+            return ucfirst($producto);
+        })
+        ->addColumn('descripcion', function($row){
+            $description = unserialize($row->description);
+            $descripcion = (isset($description[session()->get('locale')]) && $description[session()->get('locale')] != '' && $description != '')? $description[session()->get('locale')]:$row->name;
+            return ucfirst($descripcion); 
+        })
+        ->addColumn('image', function($row){
+            if($row->Image){
+                return '<img src="'.asset('img/products/'.$row->Image).'" width="50"><span style="display: none">1</span>';
+            }else{
+                return '<i class="fa fa-gift icono"></i><span style="display: none">0</span>';    
             }
-
-            //Moneda:
-            $currency = CompanySettings::co_currency(0);
-
-            //Ampliación de información de los objetos:
-            foreach($products as $row){
-                //Enviamos el nombre del producto ya traducido:
-                $trans = unserialize($row->translations);
-                $producto = (isset($trans[session()->get('locale')]) && $trans[session()->get('locale')] != '' && $trans != '')? $trans[session()->get('locale')]:$row->name;
-                $row->producto = ucfirst($producto);
-
-                //Descripción:
-                $description = unserialize($row->description);
-                $descripcion = (isset($description[session()->get('locale')]) && $description[session()->get('locale')] != '' && $description != '')? $description[session()->get('locale')]:$row->name;
-                $row->descripcion = ucfirst($descripcion);
-
-                $row->currency = $currency->symbol;
-
-                //Producto activo. Le pasamos el customer_products id para poder eliminar la línea y el precio exclusivo que tenga.
-                if(in_array($row->id, $arr_product_id)){
-                    $row->active = true;
-                    $row->cp_id = $arr_ids[$row->id];
-                    $row->price = $arr_price[$row->id];
-                }else{
-                    $row->active = false;
-                    $row->cp_id = false;
-                }
+        })
+        ->addColumn('price', function($row) use($currency){
+            if($row->calculated_by_percent > 0){
+                return trans('textos.precio_porcentual');
+            }else{
+                return '<span style="display: none">'.$row->price.'</span>'.$row->price.$currency->symbol;     
             }
-        }
-
-        return datatables($products)->toJson();
+        })
+        ->addColumn('customer_price', function($row) use($customer_id, $currency){
+            //Sólo se pueden modificar productos con precio fijo, no porcentual:
+            if(!$row->calculated_by_percent || $row->calculated_by_percent == 0){
+                $readonly = false;
+                $price = $row->priceForCustomer? $row->priceForCustomer:$row->price;
+                $html = '<span style="display: none">'.$price.'</span>';
+                $html .= '<div class="input-group">';
+                    $html .= '<input type="text" class="form-control text-right customerProductPrice" data-customer="'.$customer_id.'" data-product="'.$row->id.'" value="'.$price.'" '.$readonly.'>';
+                    $html .= '<div class="input-group-append"><span class="input-group-addon">'.$currency->symbol.'</span></div>';
+                $html .= '</div>';
+                return $html;
+            }else{
+                return $row->calculated_by_percent.'%';
+            } 
+        })
+        ->addColumn('acciones', function($row){
+            //Indica si es tabla de clientes o proveedores.
+            $environment = 'customers';
+            return view('admin.customer_products.partials.dt-actions', compact('row', 'environment'));    
+        })
+        ->rawColumns(['image', 'price', 'customer_price'])
+        ->make(true);
     }
 
     /**
@@ -213,7 +205,9 @@ class CustomerProductsController extends Controller{
             }
         })
         ->addColumn('acciones', function($row){
-            return view('admin.customer_products.partials.dt-actions', compact('row'));    
+            //Indica si es tabla de clientes o proveedores.
+            $environment = false;
+            return view('admin.customer_products.partials.dt-actions', compact('row', 'environment'));    
         })
         ->rawColumns(['image'])
         ->make(true);

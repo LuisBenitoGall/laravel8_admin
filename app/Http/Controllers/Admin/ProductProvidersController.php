@@ -15,7 +15,9 @@ use File;
 
 //Models:
 use App\Models\Company;
+use App\Models\CompanyAccounts;
 use App\Models\CompanySettings;
+use App\Models\CustomerProducts;
 use App\Models\CustomerProviders;
 use App\Models\Product;
 use App\Models\ProductProviders;
@@ -27,6 +29,8 @@ class ProductProvidersController extends Controller{
      * 2. Formulario correspondencia entre productos.
      * 2.1. Set proveedor.
      * 2.2. Catálogo de productos del proveedor para DataTable.
+     * 3. Guardar correspondencia de producto de proveedor.
+     * 4. Obtener correspondencia de referencia de producto.
      */
 
     private $option = 'catalogo';  
@@ -66,7 +70,9 @@ class ProductProvidersController extends Controller{
         //Moneda:
         $currency = $this->currency;
 
-        $data = ProductProviders::select('product_providers.*', 'companies.name', 'products.name AS product', 'products.price', 'products.ref')
+        $data = ProductProviders::select('product_providers.*', 'companies.name', 'products.name AS product', 'products.price', 'products.ref',
+            DB::raw('(SELECT price FROM customer_products WHERE product_id = product_providers.provider_product_id AND provider_id = product_providers.provider_id AND customer_id = '.session('currentCompany').') AS priceForCustomer')
+        )
         ->join('companies', 'provider_id', '=', 'companies.id')
         ->leftJoin('products', 'product_providers.provider_product_id', '=', 'products.id')
         ->where('product_providers.customer_product_id', $product_id)
@@ -92,12 +98,15 @@ class ProductProvidersController extends Controller{
             }
         })   
         ->addColumn('price', function($row) use($currency){
-            // Enlazar el precio personalizado para un cliente.
-            return $row->price.$currency->symbol;
+            $price = $row->priceForCustomer? $row->priceForCustomer:$row->price;
+
+            return '<span style="display: none">'.$price.'</span>'.$price.$currency->symbol;
         })
         ->addColumn('acciones', function($row){
-            return view('admin.product_providers.partials.dt-actions', compact('row'));    
+            $selector = false;
+            return view('admin.product_providers.partials.dt-actions', compact('row', 'selector'));    
         })
+        ->rawColumns(['price'])
         ->make(true);
     }
 
@@ -113,6 +122,16 @@ class ProductProvidersController extends Controller{
         ];
 
         $provider = $provider_id? Company::find($provider_id):false;
+
+        //Cuenta de empresa del proveedor:
+        $account = false;
+        if($provider){
+            $account = CompanyAccounts::select('id', 'guardian', 'account_id')
+            ->where('company_id', $provider->id)
+            ->where('status', 1)
+            ->orderBy('id', 'DESC')
+            ->first();
+        }
 
         $providers = false;
         //La empresa ha de tener habilitada la gestión de proveedores:
@@ -134,7 +153,7 @@ class ProductProvidersController extends Controller{
         //Moneda:
         $currency = $this->currency;
 
-        return view('admin.product_providers.create')->with(compact('header', 'product', 'provider', 'providers', 'products_out_catalogue', 'currency'));
+        return view('admin.product_providers.create')->with(compact('header', 'product', 'provider', 'account', 'providers', 'products_out_catalogue', 'currency'));
     }
 
     /**
@@ -151,8 +170,9 @@ class ProductProvidersController extends Controller{
         //Moneda:
         $currency = $this->currency;
 
-        $data = Product::select('products.id', 'product_providers.provider_product_id', 'product_providers.provider_id', 'product_providers.provider_ref', 'product_providers.provider_product', 'products.name', 'products.ref', 'products.price',
-            DB::raw('(SELECT doc FROM product_docs WHERE product_id = products.id AND featured = 1 LIMIT 1) AS Image')
+        $data = Product::select('products.id', 'product_providers.provider_product_id', 'product_providers.provider_id', 'product_providers.provider_ref', 'product_providers.provider_product', 'products.name', 'products.ref', 'products.price', 'products.company_id',
+            DB::raw('(SELECT doc FROM product_docs WHERE product_id = products.id AND featured = 1 LIMIT 1) AS Image'),
+            DB::raw('(SELECT price FROM customer_products WHERE product_id = products.id AND provider_id = '.$provider_id.' AND customer_id = '.session('currentCompany').') AS priceForCustomer')
         )
         ->leftJoin('product_providers', 'products.id', '=', 'product_providers.provider_product_id')
         ->where('products.status', 1)
@@ -163,25 +183,43 @@ class ProductProvidersController extends Controller{
         ->groupBy('products.id');
 
         return DataTables::of($data)
-        ->addColumn('name', function($row){
+        ->editColumn('name', function($row){
             return $row->name;
         })
-        ->addColumn('ref', function($row){
+        ->editColumn('ref', function($row){
             return $row->ref;
         })
         ->addColumn('image', function($row){
             if($row->Image){
-                return '<img src="/img/products/'.$row->Image.'" width="50"><span style="display: none">1</span>';    
+                return '<img src="/img/products/'.$row->Image.'" width="50"><span style="display: none">1</span>'; 
+            }else{
+                return '<i class="fa fa-gift icono"></i><span style="display: none">0</span>';      
             }    
         })
-        ->addColumn('price', function($row) use($currency){
-            //Enlazar el precio personalizado para un cliente.
-            return $row->price.$currency->symbol;
+        ->addColumn('price', function($row) use($provider_id, $currency){
+            $price = $row->priceForCustomer? $row->priceForCustomer:$row->price;
+
+            return '<span style="display: none">'.$price.'</span>'.$price.$currency->symbol;
+        })
+        //25/09/2022: Revisar el filtro de price, no funciona:
+        ->filterColumn('price', function($query, $keyword, $row){
+            $query->where('products.price', $keyword)
+            ->whereHas('customer_products', function($q) use($keyword, $row){
+                $q->where('product_id', $row->id)
+                ->where('provider_id', $row->company_id)
+                ->where('customer_id', session('currentCompany'))
+                ->where('price', 'LIKE', "%$keyword%");
+            });
+
+
+            //$sql = "products.price = ? or customer_products.priceForCustomer = ?";
+            //$query->whereRaw($sql, [$keyword]);
         })
         ->addColumn('acciones', function($row){
-            return view('admin.product_providers.partials.dt-actions', compact('row'));    
+            $selector = true;
+            return view('admin.product_providers.partials.dt-actions', compact('row', 'selector'));    
         })
-        ->rawColumns(['image'])
+        ->rawColumns(['image', 'price'])
         ->make(true);
     }
 
@@ -211,5 +249,20 @@ class ProductProvidersController extends Controller{
 
             return response()->json(true);
         } 
+    }
+
+    /**
+     * 4. Obtener correspondencia de referencia de producto.
+     */
+    public function show(Request $request, $product_id){
+        if($request->ajax()){
+            $data = Product::select('products.id', 'products.name')
+            ->join('product_providers', 'products.id', '=', 'product_providers.customer_product_id')
+            ->where('product_providers.provider_product_id', $product_id)
+            ->where('products.company_id', session('currentCompany'))
+            ->first();
+
+            return response()->json($data);
+        }    
     }
 }

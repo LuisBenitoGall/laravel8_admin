@@ -10545,13 +10545,16 @@ ul{
 
 // Elementos ocultos:
 .answer_type_input,
-#budgetForms,
-#noBudgetForms,
 .price-by-percent,
 .price-by-percent_,
+.typeColor,
+.productForm,
 #isUte,
 #setValues,
-.typeColor{
+#budgetForms,
+#noBudgetForms,
+#customerRef,
+#movementForm{
     display: none;
 }
 

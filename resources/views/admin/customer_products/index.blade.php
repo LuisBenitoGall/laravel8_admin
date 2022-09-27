@@ -107,8 +107,11 @@
 					<th>{!! ucfirst(trans('textos.producto')) !!}</th>
 					<th>{!! ucfirst(trans('textos.descripcion')) !!}</th>
 					<th class="text-center wdt200">{!! ucfirst(trans('textos.imagen')) !!}</th>
-					<th class="text-center wdt100">{!! ucfirst(trans('textos.precio')) !!}</th>
-					<th class="text-center wdt200">{!! ucfirst(trans('textos.acciones')) !!}</th>
+					<th class="text-center wdt150">{!! ucfirst(trans('textos.precio_catalogo')) !!}</th>
+					@if($tbl == 'tblCustomerProducts')
+						<th class="text-center wdt150">{!! ucfirst(trans('textos.precio_cliente')) !!}</th>
+					@endif
+					<th class="text-center wdt100">{!! ucfirst(trans('textos.acciones')) !!}</th>
 				</tr>
 			</thead>
 		</table>

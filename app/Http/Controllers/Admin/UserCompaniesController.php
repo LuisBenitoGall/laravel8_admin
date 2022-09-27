@@ -24,6 +24,7 @@ class UserCompaniesController extends Controller{
      * 1.1. Listado de empresas vinculadas para DataTable.
      * 2. Vincular - desvincular empresa a usuario.
      * 3. Traspasar empresa a otro usuario.
+     * 4. Usuarios por empresa.
      */   
     
     private $option = 'usuarios'; 
@@ -241,5 +242,22 @@ class UserCompaniesController extends Controller{
 
         $msg = trans('textos.empresa_traspasada_msg');
         return redirect()->route('companies.index')->with(compact('msg'));
+    }
+
+    /**
+     * 4. Usuarios por empresa.
+     */
+    public function companyUsers($company_id){
+        if($company_id){
+            return User::select('users.id', 'users.name', 'users.surname')
+            ->join('user_companies', 'users.id', '=', 'user_companies.user_id')
+            ->where('user_companies.company_id', $company_id)
+            ->where('users.status', 1)
+            ->orderBy('users.name', 'ASC')
+            ->get();
+
+        }else{
+            return false;
+        }
     }
 }

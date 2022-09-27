@@ -265,6 +265,14 @@
 				"setted" : false	
 			},
 			{
+				"suboption" : "movimientos stock",
+				"label" : "stock_movimientos",
+				"url": "stock-movements.index",
+				"slug" : "stock-movements",
+				"permission" : "stock-movements.index",
+				"setted" : false	
+			},
+			{
 				"suboption" : "unidades",
 				"label" : "unidades",
 				"url": "units.index",

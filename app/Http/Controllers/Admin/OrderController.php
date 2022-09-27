@@ -360,7 +360,7 @@ class OrderController extends Controller{
         ->where('orders.is_order', true)
         ->where('orders.is_group', false)
         ->when($owner, function($q) use($owner){
-            return $q->where('orders.owner', $owner);
+            return $q->where('orders.provider_manager_id', $owner);
         })
         ->when($customer && is_numeric($customer), function($q) use($customer){
             return $q->where('orders.customer_id', $customer)
@@ -1651,6 +1651,7 @@ class OrderController extends Controller{
         $order->customer_order_doc = NULL;
         $order->customer_team = NULL;
         $order->customer_products = NULL;
+        $order->customer_confirmation = NULL;
         $order->confirmed_by = NULL;
         $order->confirm_code = NULL;
         $order->confirm_code_date = NULL;
@@ -1699,7 +1700,7 @@ class OrderController extends Controller{
         //Customizando CIF, ponemos espacio en blanco:
         //$company->nif = helpers::setCif($company->nif);
 
-        $owner = User::select('name', 'surname')->find($order->owner);
+        $owner = User::select('name', 'surname')->find($order->provider_manager_id);
 
         
 

@@ -437,7 +437,7 @@ $permitted = !$order || ($order && !$order->invoiced && !$order->parent)? true:f
     <script>
     //Sentencia para poder utilizar JQuery con Livewire:
     document.addEventListener('DOMContentLoaded', function(){
-        //Modal por si existen líneas que no pertenecen a ningún bloque de formulario:
+        // Modal por si existen líneas que no pertenecen a ningún bloque de formulario:
         var set_block = '{!! $setBlock !!}';
         if(set_block == '0'){
             $('#modal-set-block').modal({
@@ -447,7 +447,7 @@ $permitted = !$order || ($order && !$order->invoiced && !$order->parent)? true:f
             });
         }
 
-        //Nuevo item manual:
+        // Nuevo item manual:
         $('.btnAddBudgetItem').on('click', function(){
             //Cancelar:
             if($('.btnAddBudgetItem').hasClass('opened')){
@@ -472,7 +472,7 @@ $permitted = !$order || ($order && !$order->invoiced && !$order->parent)? true:f
             $('.btnAddBudgetItem').addClass('opened').html('<i class="fa fa-minus"></i> '+txtCancelar);   
         });
 
-        //Select2:
+        // Select2:
         $('.select2_lw').select2();
         $('.select2_lw').on('change', function(e){
             var block = $(this).select2('val');

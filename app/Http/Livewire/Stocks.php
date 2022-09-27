@@ -22,8 +22,9 @@ class Stocks extends Component{
     /**
      * 1. Render componente.
      * 2. Seleccionar producto.
-     * 3. Guardar stock.
-     * 4. Select 2.
+     * 3. Seleccionar almacén.
+     * 4. Guardar stock.
+     * 5. Select 2.
      */
 
     public $currency;
@@ -43,6 +44,7 @@ class Stocks extends Component{
     public $stores;
 
     protected $listeners = [
+        'movement_selected',
         'productSelected',
         'store_selected'
     ];
@@ -63,9 +65,6 @@ class Stocks extends Component{
         ->where('stock_management', 1)
         ->orderBy('name', 'ASC')
         ->get();
-
-        //Moneda:
-        $this->currency = CompanySettings::co_currency(0);
 
         //Idiomas:
         $this->languages = helpers::languages();
@@ -103,6 +102,9 @@ class Stocks extends Component{
         ->take(10)
         ->get();
 
+        //Moneda:
+        $this->currency = CompanySettings::co_currency(0);
+
         return view('livewire.stocks');
     }
 
@@ -134,7 +136,7 @@ class Stocks extends Component{
     }
 
     /**
-     * 3. Seleccionar almacén
+     * 3. Seleccionar almacén.
      */
     public function storeSelected($store_id){
         $this->store_selected = $store_id;
@@ -146,6 +148,8 @@ class Stocks extends Component{
     public function store(){
         $this->validate();
 
+        dd($this);
+
         //Validando almacén:
         $company = Store::select('company_id')->find($this->store_selected);
         if($company->company_id != session('currentCompany')){
@@ -153,7 +157,7 @@ class Stocks extends Component{
         }
 
         //Tipo de operación:
-        $operation = false;
+        $operation = NULL;
         foreach($this->movements as $mov){
             if($mov->id == $this->movement_selected){
                 $operation = $mov;
@@ -161,7 +165,6 @@ class Stocks extends Component{
         }
 
 
-        dd($operation);
         
         $result = 1;
 
@@ -172,7 +175,7 @@ class Stocks extends Component{
         $row->store_id = $this->store_selected;
         $row->user_id = Auth::user()->id;
         $row->qty = $this->qty;
-        $row->operation = NULL;
+        $row->operation = $operation;
         $row->result = $result;
         $row->doc = $this->doc;
         $row->doc_num = $this->doc_num;
@@ -182,12 +185,23 @@ class Stocks extends Component{
         $row->product_serial_id = NULL;
         $row->observations = $this->observations;
         $row->save();  
+
+        $this->resetForm();
     }
 
     /**
-     * 4. Select 2.
+     * 5. Select 2.
      */
     public function hydrate(){
         $this->emit('select2_lw');
+    }
+
+    /**
+     * 6. Reset formulario.
+     */
+    public function resetForm(){
+        $this->store_selected = '';
+        $this->movement_selected = '';
+        $this->reset(['movement_selected', 'qty', 'doc', 'doc_num', 'observations']);
     }
 }

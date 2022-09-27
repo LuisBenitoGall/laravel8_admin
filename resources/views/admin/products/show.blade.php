@@ -68,7 +68,12 @@
 
                         {{-- Precio --}}
                         <div class="m-t-md">
-                            <h2 class="product-main-price">{{ $product->price }}{{ $currency->symbol }} <small class="text-muted"></small> </h2>
+                        	@php
+                        	//Verificamos que el precio para cliente venga customizado:
+                        	$price = $customer_product && $customer_product->price? $customer_product->price:$product->price;
+                        	@endphp
+
+                            <h2 class="product-main-price">{{ $price }}{{ $currency->symbol }} <small class="text-muted"></small> </h2>
                         </div>
                         <hr>
 

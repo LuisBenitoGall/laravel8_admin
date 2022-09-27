@@ -25,15 +25,14 @@ class StockMovementsController extends Controller{
      * 6. Eliminar movimiento de stock.
      */
 
-    private $option = 'stocks';
-    private $module = 'stocks';
+    private $option = 'configuracion';
+    private $module = 'settings';
     private $languages;
 
     public function __construct(){
         //Idiomas:
         $this->languages = helpers::languages();
 
-        $this->middleware('module_setted:stocks');
         $this->middleware('stock_movement_get', ['only' => ['edit', 'update', 'destroy']]);
     }
 
@@ -73,8 +72,11 @@ class StockMovementsController extends Controller{
      * 1.1. Listado de movimientos para DataTable.
      */
     public function getMovementsDT(){
-        $data = StockMovements::where('basic', 1)
-        ->orWhere('company_id', session('currentCompany'));
+        //26/09/2022: se estandarizan los movimientos de stock para todas las empresas. Los movimientos son los mismos para todas las empresas y se gestionan como configuración del ERP por el SuperAdmin.
+        // $data = StockMovements::where('basic', 1)
+        // ->orWhere('company_id', session('currentCompany'));
+        
+        $data = StockMovements::orderBy('name', 'ASC')->get();
 
         $signs = helpers::signStockMovements();
 
@@ -147,9 +149,10 @@ class StockMovementsController extends Controller{
 
         $mov = new StockMovements();
         $mov->name = $request->name;
-        if(!$basic){
-            $mov->company_id = session('currentCompany'); 
-        }
+        //26/09/2022: se estandarizan los movimientos de stock para todas las empresas. Ya no se crean movimiento exclusivos por empresa.
+        // if(!$basic){
+        //     $mov->company_id = session('currentCompany'); 
+        // }
         $mov->acronym = $request->acronym;
         $mov->sign = $request->sign;
         $mov->basic = $basic;

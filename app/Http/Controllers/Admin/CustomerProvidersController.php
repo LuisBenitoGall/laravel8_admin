@@ -71,6 +71,7 @@ class CustomerProvidersController extends Controller{
         $this->middleware('customer_provider', ['only' => ['destroy', 'updateConditions']]);
         $this->middleware('customer_get', ['only' => ['editCustomer']]);
         $this->middleware('customer_post', ['only' => ['updateCustomerConfig']]);
+        $this->middleware('role_company', ['only' => ['addManager']]);
     } 
 
     //0. Validator:
@@ -89,7 +90,8 @@ class CustomerProvidersController extends Controller{
                 'company_id' => 'required|integer',
                 'name' => 'required|max:191',
                 'surname' => 'required|max:191',
-                'email' => 'required|string|email|max:191|unique:users,email'  
+                'email' => 'required|string|email|max:191|unique:users,email',
+                'role_id' => 'required|integer' 
             ],[
                 'email.unique' => trans('textos.email_existe')
             ]); 
@@ -137,12 +139,12 @@ class CustomerProvidersController extends Controller{
         $tabla = 'tblCustomers';
 
         //Roles básicos:
-        $basic_roles = $this->basicRoles();
+        //$basic_roles = $this->companyRoles();
 
         //Moneda:
         $currency = $this->co_currency;
 
-        return view('admin.customer_providers.index')->with(compact('header', 'tabla', 'basic_roles', 'currency'));   
+        return view('admin.customer_providers.index')->with(compact('header', 'tabla', 'currency'));   
     }  
 
     /**
@@ -154,15 +156,15 @@ class CustomerProvidersController extends Controller{
         $join = 'customers';
 
         return DataTables::of($data)
-        ->addColumn('name', function($row){
-            return $row->name; 
-        })
-        ->addColumn('tradename', function($row){
-            return $row->tradename; 
-        })
-        ->addColumn('nif', function($row){
-            return $row->nif; 
-        })
+        // ->addColumn('name', function($row){
+        //     return $row->name; 
+        // })
+        // ->addColumn('tradename', function($row){
+        //     return $row->tradename; 
+        // })
+        // ->addColumn('nif', function($row){
+        //     return $row->nif; 
+        // })
         ->addColumn('acciones', function($row) use($join){
             return view('admin.customer_providers.partials.dt-actions', compact('row', 'join'));    
         })
@@ -185,12 +187,12 @@ class CustomerProvidersController extends Controller{
         $tabla = 'tblProviders';
 
         //Roles básicos:
-        $basic_roles = $this->basicRoles();
+        //$basic_roles = $this->companyRoles();
 
         //Moneda:
         $currency = $this->co_currency;
 
-        return view('admin.customer_providers.index')->with(compact('header', 'tabla', 'basic_roles', 'currency'));   
+        return view('admin.customer_providers.index')->with(compact('header', 'tabla', 'currency'));   
     }
 
     /**
@@ -202,15 +204,15 @@ class CustomerProvidersController extends Controller{
         $join = 'providers';
 
         return DataTables::of($data)
-        ->addColumn('name', function($row){
-            return $row->name; 
-        })
-        ->addColumn('tradename', function($row){
-            return $row->tradename; 
-        })
-        ->addColumn('nif', function($row){
-            return $row->nif; 
-        })
+        // ->addColumn('name', function($row){
+        //     return $row->name; 
+        // })
+        // ->addColumn('tradename', function($row){
+        //     return $row->tradename; 
+        // })
+        // ->addColumn('nif', function($row){
+        //     return $row->nif; 
+        // })
         ->addColumn('acciones', function($row) use($join){
             return view('admin.customer_providers.partials.dt-actions', compact('row', 'join'));    
         })

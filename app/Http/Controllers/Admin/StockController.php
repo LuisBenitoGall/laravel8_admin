@@ -16,6 +16,7 @@ use File;
 
 //Models:
 use App\Models\Batch;
+use App\Models\CompanySettings;
 use App\Models\Employee;
 use App\Models\Inventory;
 use App\Models\Product;
@@ -28,6 +29,7 @@ class StockController extends Controller{
     /**
      * 1. Stock de productos.
      * 2. Histórico de movimientos de producto.
+     * 3. Select 2.
      */
 
     private $option = 'stocks';
@@ -59,7 +61,13 @@ class StockController extends Controller{
         $stockResultante = false;
 
         //Productos, sólo productos con gestión de stock:
-        $products = Product::companyProducts(session('currentCompany'), session('currentCompany'));
+        $products = Product::select('id', 'name', 'ref', 'manual_ref', 'translations', 'price', 'iva', 'batch', 'on_sale', 'created_at')
+        ->where('company_id', session('currentCompany'))
+        ->where('status', 1)
+        ->where('type', 'p')
+        ->where('stock_management', 1)
+        ->orderBy('name', 'ASC')
+        ->get();
 
         //Almacenes:
         $stores = Store::select('id', 'name', 'type')
@@ -68,14 +76,24 @@ class StockController extends Controller{
         ->get();
 
         //Movimientos de stock:
-        $movements = StockMovements::where('basic', 1)
-        ->orWhere('company_id', session('currentCompany'))
+        $movements = StockMovements::orderBy('name', 'ASC')
         ->get();
+
+        //Últimos movimientos de stock realizados.
+        $last_movements = Stock::select('stocks.created_at', 'products.id', 'products.name')
+        ->join('products', 'stocks.product_id', '=', 'products.id')
+        ->where('products.company_id', session('currentCompany'))
+        ->orderBy('stocks.created_at', 'DESC')
+        ->take(10)
+        ->get();
+
+        //Moneda:
+        $currency = CompanySettings::co_currency(0);
 
         //Employees:
         $employees = Employee::companyEmployees(session('currentCompany'));
 
-        return view('admin.stocks.index')->with(compact('header', 'storeSelected', 'stockMovId', 'productSelected', 'stockResultante', 'products', 'stores', 'movements', 'employees'));
+        return view('admin.stocks.index')->with(compact('header', 'storeSelected', 'stockMovId', 'productSelected', 'stockResultante', 'products', 'stores', 'movements', 'last_movements', 'currency', 'employees'));
     }
 
     /**
@@ -93,4 +111,6 @@ class StockController extends Controller{
 
         return view('admin.stocks.show')->with(compact('header', 'product'));
     }
+
+   
 }

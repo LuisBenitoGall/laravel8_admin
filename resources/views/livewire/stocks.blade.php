@@ -112,43 +112,57 @@
                     <h3 class="mb-2 mt-4">{{ ucfirst(trans('textos.stock_almacenes')) }}</h3>
 
                     {{-- Almacenes --}}
-                    <table class="table" id="tblStores" wire:ignore>
-                        <thead>
-                            <tr>
-                                <th>{{ ucfirst(trans('textos.almacen')) }}</th>
-                                <th>{{ ucfirst(trans('textos.lote')) }}</th>
-                                <th class="text-center">Stock</th>
-                                <th class="text-center">{{ ucfirst(trans('textos.acciones')) }}</th>
-                            </tr>
-                        </thead>
-
-                        <tbody>
-                            @foreach($stores as $store)
+                    @if($stores->count())
+                        <table class="table" id="tblStores" wire:ignore>
+                            <thead>
                                 <tr>
-                                    {{-- Producto --}}
-                                    <td>{{ $store->name }}</td>
-                                    {{-- Lote --}}
-                                    <td></td>
-                                    {{-- Stock --}}
-                                    <td class="text-right">
-                                        @if($stock_by_store[$store->id] > 0)
-                                            {{ $stock_by_store[$store->id] }}
-                                        @else
-                                            0
-                                        @endif
-                                    </td>
-                                    {{-- Acciones --}}
-                                    <td class="text-right">
-                                        <a href="#" class="btn-xs btn btn-info btnSelectStore" wire:click="storeSelected({{ $store->id }})"  data-store="{{ $store->id }}" rel="tooltip" title="{{ ucfirst(trans('textos.almacen_selec')) }}">
-                                            <i class="fa fa-filter"></i>
-                                        </a>
-
-                                        {{-- wire.click="storeSelected({{ $store->id }})" --}}
-                                    </td>
+                                    <th>{{ ucfirst(trans('textos.almacen')) }}</th>
+                                    <th>{{ ucfirst(trans('textos.lote')) }}</th>
+                                    <th class="text-center">Stock</th>
+                                    <th class="text-center">{{ ucfirst(trans('textos.acciones')) }}</th>
                                 </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                            </thead>
+
+                            <tbody>
+                                @foreach($stores as $store)
+                                    <tr>
+                                        {{-- Producto --}}
+                                        <td>{{ $store->name }}</td>
+                                        {{-- Lote --}}
+                                        <td></td>
+                                        {{-- Stock --}}
+                                        <td class="text-right">
+                                            @if($stock_by_store[$store->id] > 0)
+                                                {{ $stock_by_store[$store->id] }}
+                                            @else
+                                                0
+                                            @endif
+                                        </td>
+                                        {{-- Acciones --}}
+                                        <td class="text-right">
+                                            <a href="#" class="btn-xs btn btn-info btnSelectStore" wire:click="storeSelected({{ $store->id }})" data-store="{{ $store->id }}" rel="tooltip" title="{{ ucfirst(trans('textos.almacen_selec')) }}">
+                                                <i class="fa fa-filter"></i>
+                                            </a>
+
+                                            {{-- wire.click="storeSelected({{ $store->id }})" --}}
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+
+                    {{-- Sin almacenes --}}
+                    @else
+                        <div class="form-group row">
+                            <label class="col-12 text-center text-warning mt-4">
+                                <b>{!! ucfirst(trans('textos.almacen_alert')) !!}</b> 
+                                <a target="_blank" href="{{ route('stores.create') }}" class="btn btn-info ml-4">
+                                    <i class="fa fa-plus"></i>
+                                    {!! ucfirst(trans('textos.almacen_nuevo')) !!}
+                                </a>
+                            </label>
+                        </div>  
+                    @endif
 
                 {{-- Sin producto seleccionado --}}
                 @else
@@ -158,7 +172,10 @@
                 @endif
 
                 {{-- Formulario --}}
-                <div class="mt-5 @if(!$store_selected) d-none @endif">
+                <div class="mt-5" wire:ignore id="movementForm">
+                    {{-- Movimiento de stock --}}
+                    <h3 class="mb-3 mt-4">{{ ucfirst(trans('textos.movimiento')) }}</h3>
+
                     <form wire:submit.prevent="store" autocomplete="off" id="frm-stock" accept-charset="utf-8" enctype="multipart/form-data" role="form">
                         {{ csrf_field() }}
 
@@ -166,7 +183,7 @@
                             {{-- Movimientos de stock --}}
                             <label for="movement" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.movimientos')) !!}*</label>
                             <div class="col-lg-5" wire:ignore>
-                                <select class="form-control select2" name="movement" id="movement" wire:model.defer="movement_selected">
+                                <select name="movement" id="movementSelected" class="form-control select2_lw" required wire:model.defer="movement_selected">
                                     <option value="">{{ trans('textos.movimiento_selec') }}</option>  
                                     @foreach($movements as $mov){
                                         <option value="{{ $mov->id }}">({{ strtoupper($mov->acronym) }}) {{ ucfirst($mov->name) }}</option>
@@ -191,7 +208,7 @@
                                 <label for="employee" class="col-md-3 col-form-label">{!! ucfirst(trans('textos.empleados')) !!}</label>
                                 <div class="col-md-9">
                                     <select class="form-control select2" name="employee" id="employee">
-                                        <option value="">{{ trans('textos.empleado_selec') }}</option>  
+                                        <option value="">{{ trans('textos.empleado_selec') }}</option> 
 
                                         @foreach($employees as $row){
                                             <option value="{{ $row->id }}">{{ $row->name }}{{ $row->surname }}</option>
@@ -234,6 +251,21 @@
                         <x-btn-submit name="submit_save" label="{{ trans('textos.guardar') }}"/>
                     </form>
                 </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
             </div>
         </div>
     </div>
@@ -242,7 +274,7 @@
     // Selectores:
     //document.addEventListener('livewire:load', function(){
     document.addEventListener('DOMContentLoaded', function(){
-        $('#product').select2(); 
+        $('#product, #movementSelected').select2(); 
 
         // Selección producto:
         $('#product').on('change', function(e){   
@@ -253,50 +285,43 @@
         $(document).on('click', '.btnSelectStore', function(){
             $('#tblStores td').removeClass('selected');
             var store = $(this).data('store');
-            console.log(store);
             @this.set('store_selected', store);
 
             $(this).closest('tr').find('td').addClass('selected');
+
+            //Mostramos formulario:
+            $('#movementForm').slideDown();           
         });
 
-        // Selección movimiento stock:
-        $('#movement').on('change', function(e){   
-            @this.set('movement_selected', this.value);
+        // Select2:
+        $('.select2_lw').select2();
+        $('.select2_lw').on('change', function(e){
+            var movement_selected = $(this).select2('val');
+            @this.set('movement_selected', movement_selected);
         });
 
-
-
-        
-
-        
-
-
-
-
-    });
-
-
-    $(document).ready(function(){
-        
-
-
-
-
+        //Modificar valor dinámicamente en Select2:
         window.initSelect2 = () => {
-
+            jQuery("#movementSelected").select2({
+                minimumResultsForSearch: 2,
+                allowClear: false,
+                width: '100%'
+            });
         }
-
         initSelect2();
         window.livewire.on('select2_lw', ()=>{
             initSelect2();
-        });   
+        });
+        
 
         
 
 
+
     });
 
+    
 
-
+    
     </script>
 </div>

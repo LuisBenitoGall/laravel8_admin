@@ -22,7 +22,7 @@ class RoleGetMiddleware{
 
         if(!$role){
             $alert = trans('textos.role_no_existe');
-            return redirect()->route('roles.index')->with(compact('alert'));   
+            return redirect()->route('companies.index')->with(compact('alert'));   
             exit; 
         }
 

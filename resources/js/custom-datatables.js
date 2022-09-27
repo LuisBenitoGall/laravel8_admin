@@ -147,16 +147,16 @@ $(document).ready(function(){
     //Tabla Accounts:
     if($('#tblAccounts').length > 0){
         $('#tblAccounts').DataTable({
-            "serverSide": true,
-            "processing": true,
-            "ajax": {
+            serverSide: true,
+            processing: true,
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/accounts",
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name'},
                 {data: 'rate', className: 'text-right'},
                 {data: 'duration', className: 'text-right'},
@@ -170,18 +170,18 @@ $(document).ready(function(){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
 
         var tableAttributes = $('#tblAttributes').DataTable({
-            "serverSide": true,
-            "processing": true, 
+            serverSide: true,
+            processing: true, 
             //scrollX: true,
             //fixedColumns: true,
-            "ajax": {
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/attributes",
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name'},
                 {data: 'description'},
                 {data: 'datatype'},
@@ -193,16 +193,16 @@ $(document).ready(function(){
     //Tabla Banks:
     if($('#tblBanks').length > 0){
         $('#tblBanks').DataTable({
-            "serverSide": true,
-            "processing": true,
-            "ajax": {
+            serverSide: true,
+            processing: true,
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/banks",
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name'},
                 {data: 'tradename'},
                 {data: 'eu_code'},
@@ -215,16 +215,16 @@ $(document).ready(function(){
     //Tabla Batch Patterns:
     if($('#tblBatchPatterns').length > 0){
         $('#tblBatchPatterns').DataTable({
-            "serverSide": true,
-            "processing": true,
-            "ajax": {
+            serverSide: true,
+            processing: true,
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/batch-patterns",
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name', className: 'capitalize'},
                 {data: 'patron'},
                 {data: 'reset', className: 'text-center'},
@@ -260,20 +260,20 @@ $(document).ready(function(){
         });
         
         var tableBudgetFormBlocks = $('#tblBudgetFormBlocks').DataTable({
-            "serverSide": true,
-            "processing": true,
-            "ajax": {
+            serverSide: true,
+            processing: true,
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/budget-form-items/"+form,
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": -1,
                 "render": function(data, type, row){
                     var trans = '';
@@ -327,20 +327,20 @@ $(document).ready(function(){
         });
 
         var tableBudgetFormCustomers = $('#tblBudgetFormCustomers').DataTable({
-            "serverSide": true,
-            /*"processing": true,*/
-            "ajax": {
+            serverSide: true,
+            /*processing: true,*/
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/budget-form-customers/"+form,
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": -1,
                 "render": function(data, type, row){
                     //Formulario vinculado a cliente:
@@ -385,25 +385,25 @@ $(document).ready(function(){
         });
         
         var tableBudgetFormItems = $('#tblBudgetFormItems').DataTable({
-            "serverSide": true,
-            /*"processing": true, */
+            serverSide: true,
+            /*processing: true, */
             //scrollX: true,
             //fixedColumns: true,
-            "ajax": {
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/budget-form-items/"+form+"/1",
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name'},
                 {data: 'Bloque'},
                 {data: 'price', className: 'text-right'},
                 {data: 'discount', className: 'text-right'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {
                     "targets": 0,
                     "width": "50%"
@@ -474,21 +474,21 @@ $(document).ready(function(){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
         
         $('#tblBudgetForms').DataTable({
-            "serverSide": true,
-            /*"processing": true,*/
-            "ajax": {
+            serverSide: true,
+            /*processing: true,*/
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/budget-forms",
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name'},
                 {data: 'alta', className: 'text-right'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": -1,
                 "render": function(data, type, row){
                     //Editar:
@@ -537,19 +537,19 @@ $(document).ready(function(){
         var order = $('#myOrder').val();
 
         var tableBudgetItems = $('#tblBudgetItems').DataTable({
-            "serverSide": true,
-            /*"processing": true,*/
+            serverSide: true,
+            /*processing: true,*/
             drawCallback: function() {
                 $('.select2-dt').select2();
             },
-            "ajax": {
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/order-items/"+order+"/"+environment,
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'id', className: 'text-right'},
                 {data: 'concept', className: 'capitalize'},
                 {data: 'qty', className: 'text-right'},
@@ -561,7 +561,7 @@ $(document).ready(function(){
                 // {className: 'dt-control', "orderable": false, "data": null,
                 // "defaultContent": ''}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": 0,
                 "render": function(data, type, row, meta){
                     return meta.row + meta.settings._iDisplayStart + 1;
@@ -682,23 +682,23 @@ $(document).ready(function(){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
         
         $('#tblBudgetPatterns').DataTable({
-            "serverSide": true,
-            /*"processing": true,*/
-            "ajax": {
+            serverSide: true,
+            /*processing: true,*/
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/budget-patterns",
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name', className: 'capitalize'},
                 {data: 'patron'},
                 {data: 'id', className: 'text-center'},
                 {data: 'alta', className: 'text-right'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": 2,
                 "render": function(data, type, row){
                     if(row['yearly_reset'] == 1){
@@ -761,21 +761,21 @@ $(document).ready(function(){
         });
         
         var tableBudgetSettings = $('#tblBudgetSettings').DataTable({
-            "serverSide": true,
-            /*"processing": true,*/
-            "ajax": {
+            serverSide: true,
+            /*processing: true,*/
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/budget-settings",
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name', className: 'capitalize'},
                 {data: 'alta', className: 'text-right'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": -1,
                 "render": function(data, type, row){
                     var estado = '';
@@ -876,20 +876,20 @@ $(document).ready(function(){
         $('#companyId').remove();
         
         $('#tblBusinessAreas').DataTable({
-            "serverSide": true,
-            /*"processing": true,*/
-            "ajax": {
+            serverSide: true,
+            /*processing: true,*/
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/business-areas/"+company_id+"/"+business_relationship,
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": -1,
                 "render": function(data, type, row){
                     var estado = '';
@@ -933,19 +933,19 @@ $(document).ready(function(){
         var module_id = $('#moduleId').val();
 
         var tableCategories = $('#tblCategories').DataTable({
-            "serverSide": true,
-            "processing": true,
+            serverSide: true,
+            processing: true,
             "language": {
                 processing: '<i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span>'
             },
-            "ajax": {
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/categories/"+module_id,
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name', name: 'name'},
                 {data: 'level', name: 'level'},
                 {data: 'acciones', className: 'text-right'}
@@ -978,19 +978,19 @@ $(document).ready(function(){
         });
 
         var tableCompanies = $('#tblCompanies').DataTable({
-            "serverSide": true,
-            "processing": true,
+            serverSide: true,
+            processing: true,
             "language": {
                 processing: '<i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span>'
             },
-            "ajax": {
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/companies",
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name'},
                 {data: 'tradename'},
                 {data: 'alta', className: 'text-right'},
@@ -1007,16 +1007,16 @@ $(document).ready(function(){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
         
         $('#tblCompanyAccounts').DataTable({
-            "serverSide": true,
-            /*"processing": true,*/
-            "ajax": {
+            serverSide: true,
+            /*processing: true,*/
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/company-accounts",
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name'},
                 {data: 'inicio', className: 'text-right'},
                 {data: 'fin', className: 'text-right'},
@@ -1024,7 +1024,7 @@ $(document).ready(function(){
                 {data: 'status', className: 'text-center'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": 3,
                 "render": function(data, type, row){
                     return row['price']+row['currency'];
@@ -1065,16 +1065,16 @@ $(document).ready(function(){
         var company_id = $('#dtCompanyId').val();
         
         $('#tblCompanySectors').DataTable({
-            "serverSide": true,
-            "processing": true,
-            "ajax": {
+            serverSide: true,
+            processing: true,
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/company-sectors/"+company_id,
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name'},
                 {data: 'level'},
                 {data: 'acciones', className: 'text-right'}
@@ -1107,21 +1107,21 @@ $(document).ready(function(){
         });
         
         var tableContents = $('#tblContents').DataTable({
-            "serverSide": true,
-            /*"processing": true,*/
-            "ajax": {
+            serverSide: true,
+            /*processing: true,*/
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/contents",
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name'},
                 {data: 'code'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": -1,
                 "render": function(data, type, row){
                     var estado = '';
@@ -1159,23 +1159,23 @@ $(document).ready(function(){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
         
         $('#tblContracts').DataTable({
-            "serverSide": true,
-            /*"processing": true,*/
-            "ajax": {
+            serverSide: true,
+            /*processing: true,*/
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/contracts",
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name'},
                 {data: 'alta', className: 'text-right'},
                 {data: 'duration', className: 'text-right'},
                 {data: 'with_holidays', className: 'text-center'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": 3,
                 "render": function(data, type, row){
                     if(row['with_holidays']){
@@ -1225,20 +1225,20 @@ $(document).ready(function(){
         $('#companyId').remove();
         
         $('#tblCostCenters').DataTable({
-            "serverSide": true,
-            /*"processing": true,*/
-            "ajax": {
+            serverSide: true,
+            /*processing: true,*/
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/cost-centers/"+company_id+"/"+business_relationship,
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": -1,
                 "render": function(data, type, row){
                     var estado = '';
@@ -1281,16 +1281,16 @@ $(document).ready(function(){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
 
         $('#tblCountries').DataTable({
-            "serverSide": true,
-            /*"processing": true,*/
-            "ajax": {
+            serverSide: true,
+            /*processing: true,*/
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/countries",
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name'},
                 {data: 'code'},
                 {data: 'alfa2'},
@@ -1298,7 +1298,7 @@ $(document).ready(function(){
                 {data: 'flag'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": 0,
                 "render": function(data, type, row){
                     return row['name'].charAt(0).toUpperCase()+row['name'].slice(1);
@@ -1365,23 +1365,23 @@ $(document).ready(function(){
         });
         
         var tableCurrencies = $('#tblCurrencies').DataTable({
-            "serverSide": false,
-            /*"processing": true,*/
-            "ajax": {
+            serverSide: false,
+            /*processing: true,*/
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/currencies",
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name'},
                 {data: 'code'},
                 {data: 'number', className: 'text-right'},
                 {data: 'symbol', className: 'text-center'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": -1,
                 "render": function(data, type, row){
                     var estado = '';
@@ -1425,7 +1425,7 @@ $(document).ready(function(){
         $('#tblCustomerProducts thead tr').clone(true).appendTo('#tblCustomerProducts thead');
         $('#tblCustomerProducts thead tr:eq(1) th').each(function(i){
             var title = $(this).text();
-            if(i == 4){
+            if(i == 2 || i == 4 || i == 5){
                 $(this).html('');
             }else{
                 $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
@@ -1442,63 +1442,23 @@ $(document).ready(function(){
         });
         
         var tableCustomerProducts = $('#tblCustomerProducts').DataTable({
-            "serverSide": true,
-            /*"processing": true,*/
-            "ajax": {
+            serverSide: true,
+            processing: true,
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/customer-products/"+customer+"/"+ba,
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
-                {data: 'producto'},
-                {data: 'descripcion'},
-                {data: 'id', className: 'text-center'},
-                {data: 'price', className: 'text-right'},
-                {data: 'id', className: 'text-right'}
-            ],
-            "columnDefs": [
-                {"targets": 2,
-                "render": function(data, type, row){
-                    if(row['doc']){
-                        return '<img src="/img/products/'+row['doc']+'" width="60">';      
-                    }else{
-                        return '<i class="fa fa-gift icono"></i>';    
-                    }                   
-                }
-                }, 
-                {"targets": 3,
-                "render": function(data, type, row){
-                    //Sólo se pueden modificar productos con precio fijo, no porcentual:
-                    if(!row['calculated_by_percent'] || row['calculated_by_percent'] == '0'){
-                        var readonly = row['active'] == 0? 'readonly':'';
-                        var price = '<div class="input-group">';
-                            price += '<input type="text" class="form-control text-right customerProductPrice" data-customer="'+customer+'" data-product="'+row['id']+'" value="'+row['price']+'" '+readonly+'>';
-                            price += '<div class="input-group-append"><span class="input-group-addon">'+row['currency']+'</span></div>';
-                        price += '</div>'; 
-                        return price;  
-                    }else{
-                        return txtPrecioPorcentual;
-                    } 
-                }
-                }, 
-                {"targets": -1,
-                "render": function(data, type, row){
-                    //Estado:
-                    if(!row['calculated_by_percent'] || row['calculated_by_percent'] == '0'){
-                        var checked = row['active'] == 1? 'checked':'';
-                        var estado = '<label class="custom-chk-rdb" rel="tooltip" title="'+txtProductoOnOff+'">';
-                            estado += '<input type="checkbox" name="active" '+checked+'><span class="chk btnCustomerProductStatus" data-product="'+row['id']+'" data-price="'+row['price']+'"></span>';
-                        estado += '</label>';
-
-                        return estado;
-                    }else{
-                        return '';
-                    }
-                }
-                } 
-            ] 
+            columns: [
+                {data: 'name', name: 'products.name'},
+                {data: 'descripcion', name:"products.description"},
+                {data: 'image', className: 'text-center', orderable: false, searchable: false},
+                {data: 'price', name: 'products.price', className: 'text-right'},
+                {data: 'customer_price', className: 'text-right', orderable: false, searchable: false},
+                {data: 'acciones', className: 'text-right', orderable: false, searchable: false}
+            ]
         });
     }
 
@@ -1527,58 +1487,21 @@ $(document).ready(function(){
         });
         
         var tableCustomers = $('#tblCustomers').DataTable({
-            "serverSide": true,
-            "processing": true,
-            "ajax": {
+            serverSide: true,
+            processing: true,
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/customers",
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
-                {data: 'name'},
-                {data: 'tradename'},
-                {data: 'nif'},
+            columns: [
+                {data: 'name', name: 'companies.name'},
+                {data: 'tradename', name: 'companies.tradename'},
+                {data: 'nif', name: 'companies.nif'},
                 {data: 'acciones', className: 'text-right'}
-            ],
-            // "columnDefs": [
-            //     {"targets": -1,
-            //     "render": function(data, type, row){
-            //         //Estado:
-            //         var estado = '';
-            //         //Responsables:
-            //         var users = '';
-            //         //Configuraciones:
-            //         var config = '';
-            //         if(row['status_permission']){
-            //             var checked = (row['status'] == 1)? 'checked':'';
-            //             estado = '<label class="custom-chk-rdb" rel="tooltip" title="'+txtOnOff+'">';
-            //                 estado += '<input type="checkbox" name="status" '+checked+' ><span class="chk chk-action" data-id="'+row['cp_id']+'" data-ctrl="customers/status"></span>';
-            //             estado += '</label>';
-
-           
-
-       
-            //         //Editar:
-            //         var editar = '';
-            //         if(!row['account'] || row['account']['guardian'] == row['current_company'] || row['edit']){
-            //             editar = '<a href="/admin/customers/'+row['id']+'/edit" class="btn btn-xs btn-info" rel="tooltip" title="'+txtEditar+'"><i class="fa fa-edit"></i></a>';
-            //         }
-
-         
-
-            //         //Nueva venta + Catálogo:
-            //         var venta = '';
-            //         var catalogo = '';
-            //         if(row['catalogue']){
-            //             venta = '<a href="/admin/orders/'+row['id']+'/sale" class="btn btn-xs btn-info btn-module" rel="tooltip" title="'+txtVentaNueva+'"><i class="fa fa-cart-plus"></i></a>';
-
-            
-
-            
-
-          
+            ]
         });
     }
 
@@ -1587,16 +1510,16 @@ $(document).ready(function(){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
 
         $('#tblDayTypes').DataTable({
-            "serverSide": false,
-            /*"processing": true,*/
-            "ajax": {
+            serverSide: false,
+            processing: true,
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/day-types",
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name'},
                 {data: 'color'},
                 {data: 'is_working', className: 'text-center'},
@@ -1605,7 +1528,7 @@ $(document).ready(function(){
                 {data: 'modifiable', className: 'text-center'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": 1,
                 "render": function(data, type, row){
                     return '<span class="colorEx mr-2" style="background-color: '+row['color']+'"></span> '+row['color'];
@@ -1697,23 +1620,23 @@ $(document).ready(function(){
         });
         
         var tableDeliveries = $('#tblDeliveries').DataTable({
-            "serverSide": true,
-            /*"processing": true,*/
-            "ajax": {
+            serverSide: true,
+            processing: true,
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/deliveries",
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'id', className: 'text-right'},
                 {data: 'name'},
                 {data: 'alta', className: 'text-right'},
                 {data: 'estado'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": 0,
                 "render": function(data, type, row){
                     var num = row['id'];
@@ -1792,26 +1715,26 @@ $(document).ready(function(){
         });
 
         var tableDeliveriesOrders = $('#tblDeliveriesOrders').DataTable({
-            "serverSide": true,
-            /*"processing": true,*/
+            serverSide: true,
+            processing: true,
             drawCallback: function() {
                 $('.select2-dt').select2();
             },
-            "ajax": {
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/deliveries-orders",
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'num', className: 'text-right'},
                 {data: 'name'},
                 {data: 'company'},
                 {data: 'id'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": 0,
                 "render": function(data, type, row){
                     var num = row['id'];
@@ -1877,23 +1800,23 @@ $(document).ready(function(){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
         
         $('#tblDeliveryPatterns').DataTable({
-            "serverSide": true,
-            /*"processing": true,*/
-            "ajax": {
+            serverSide: true,
+            processing: true,
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/delivery-patterns",
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name', className: 'capitalize'},
                 {data: 'patron'},
                 {data: 'id', className: 'text-center'},
                 {data: 'alta', className: 'text-right'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": 2,
                 "render": function(data, type, row){
                     if(row['yearly_reset'] == 1){
@@ -1941,17 +1864,17 @@ $(document).ready(function(){
         var edition_id = $('#editionId').val();
         
         var tableEditionQuestions = $('#tblEditionQuestions').DataTable({
-            "order": [[ 0, "asc" ]],
-            "serverSide": true,
-            /*"processing": true,*/
-            "ajax": {
+            order: [[ 0, "asc" ]],
+            serverSide: true,
+            processing: true,
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/quiz-edition-questions/"+edition_id,
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'order', className: 'text-right reorder'},
                 {data: 'name'},
                 {data: 'tipo'},
@@ -1959,7 +1882,7 @@ $(document).ready(function(){
                 {data: 'time', className: 'text-right'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": 4,
                 "render": function(data, type, row){
                     if(row['time']){
@@ -2003,23 +1926,23 @@ $(document).ready(function(){
         var edition_id = $('#editionId').val();
         
         $('#tblEditionTeams').DataTable({
-            "serverSide": true,
-            /*"processing": true,*/
-            "ajax": {
+            serverSide: true,
+            processing: true,
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/quiz-edition-teams/"+edition_id,
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name', className: 'capitalize'},
                 {data: 'id', className: 'text-center'},
                 {data: 'points', className: 'text-right'},
                 {data: 'time', className: 'text-right'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": 1,
                 "render": function(data, type, row){
                     if(row['logo']){
@@ -2074,16 +1997,16 @@ $(document).ready(function(){
         });
         
         var tableEmployees = $('#tblEmployees').DataTable({
-            "serverSide": true,
-            "processing": true,
-            "ajax": {
+            serverSide: true,
+            processing: true,
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/employees",
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'empleado'},
                 {data: 'inicio', className: 'text-right'},
                 {data: 'fin', className: 'text-right'},
@@ -2091,7 +2014,7 @@ $(document).ready(function(){
                 {data: 'id', className: 'text-center'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": 4,
                 "render": function(data, type, row){
                     var status = '';
@@ -2129,16 +2052,16 @@ $(document).ready(function(){
         var to = $('#dtTo').val();
 
         var tblEmployeesHours = $('#tblEmployeesHours').DataTable({
-            "serverSide": true,
-            "processing": true,
-            "ajax": {
+            serverSide: true,
+            processing: true,
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/employees-timetable/"+workplace_id+"/"+from+"/"+to,
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'employee'},
                 {data: 'worked_hours', className: 'text-right'},
                 {data: 'working_hours', className: 'text-right'},
@@ -2154,16 +2077,16 @@ $(document).ready(function(){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
 
         var tableExpenses = $('#tblExpenses').DataTable({
-            "serverSide": true,
-            "processing": true,
-            "ajax": {
+            serverSide: true,
+            processing: true,
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/expenses",
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'concept'},
                 {data: 'expensed_in', className: 'text-right'},
                 {data: 'amount', className: 'text-right'},
@@ -2182,22 +2105,22 @@ $(document).ready(function(){
         var group_id = $('#groupId').val();
         
         $('#tblGroupMembers').DataTable({
-            "serverSide": true,
-            /*"processing": true,*/
-            "ajax": {
+            serverSide: true,
+            /*processing: true,*/
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/group-members/"+group_id,
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name'},
                 {data: 'rol'},
                 {data: 'alta'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": 0,
                 "render": function(data, type, row){
                     return row['name']+' '+row['surname'];
@@ -2234,16 +2157,16 @@ $(document).ready(function(){
         //var tokenDT = $('meta[name="csrf-token"]').attr('content');
         
         $('#tblGroups').DataTable({
-            "serverSide": true,
-            "processing": true,
-            "ajax": {
+            serverSide: true,
+            processing: true,
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/groups",
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name'},
                 {data: 'alta', name: 'alta', className: 'text-right'},
                 {data: 'description'},
@@ -2257,23 +2180,23 @@ $(document).ready(function(){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
         
         $('#tblInvoicePatterns').DataTable({
-            "serverSide": true,
-            "processing": true,
-            "ajax": {
+            serverSide: true,
+            processing: true,
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/invoice-patterns",
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name', className: 'capitalize'},
                 {data: 'patron'},
                 {data: 'id', className: 'text-center'},
                 {data: 'alta', className: 'text-right'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": 2,
                 "render": function(data, type, row){
                     if(row['yearly_reset'] == 1){
@@ -2320,21 +2243,21 @@ $(document).ready(function(){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
         
         $('#tblInvoiceSettings').DataTable({
-            "serverSide": false,
-            /*"processing": true,*/
-            "ajax": {
+            serverSide: false,
+            /*processing: true,*/
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/invoice-settings",
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name', className: 'capitalize'},
                 {data: 'alta', className: 'text-right'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": -1,
                 "render": function(data, type, row){
                     var checked = (row['status'] == 1)? 'checked':'';
@@ -2404,19 +2327,19 @@ $(document).ready(function(){
         
         $('#tblInvoices').DataTable({
             "order": [[ 3, "desc" ]],
-            "serverSide": false,
-            /*"processing": true,*/
+            serverSide: false,
+            /*processing: true,*/
             drawCallback: function(){
                 $('.select2-dt').select2();
             },
-            "ajax": {
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/"+api_route,
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'invoice_num', className: 'text-right'},
                 {data: 'name'},
                 {data: 'id'},
@@ -2428,7 +2351,7 @@ $(document).ready(function(){
                 {data: 'estado'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": 0,
                 "render": function(data, type, row){
                     var num = row['invoice_num']? row['invoice_num']:row['id'];
@@ -2533,22 +2456,22 @@ $(document).ready(function(){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
         
         $('#tblIpAccess').DataTable({
-            "serverSide": true,
-            /*"processing": true,*/
-            "ajax": {
+            serverSide: true,
+            /*processing: true,*/
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/ip-access",
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'group'},
                 {data: 'ip_start'},
                 {data: 'ip_end'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": -1,
                 "render": function(data, type, row){
                     //Eliminar:
@@ -2570,23 +2493,23 @@ $(document).ready(function(){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
         
         $('#tblModules').DataTable({
-            "serverSide": true,
-            /*"processing": true,*/
-            "ajax": {
+            serverSide: true,
+            /*processing: true,*/
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/modules",
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'module', className: 'capitalize'},
                 {data: 'nivel'},
                 {data: 'id', className: 'text-center'},
                 {data: 'id', className: 'text-center'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": 2,
                 "render": function(data, type, row){
                     var icon = '<i class="fa fa-'+row['icon']+'"></i>';
@@ -2661,23 +2584,23 @@ $(document).ready(function(){
         
         var tableNotificationsRead = $('#tblNotificationsRead').DataTable({
             "order": [[ 2, "desc" ]],
-            "serverSide": true,
-            /*"processing": true,*/
-            "ajax": {
+            serverSide: true,
+            /*processing: true,*/
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/notifications-read",
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'id', className: 'capitalize'},
                 {data: 'id'},
                 {data: 'id', className: 'text-right'},
                 {data: 'id', className: 'text-right'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": 0,
                 "render": function(data, type, row){
                     return row['data']['title'];
@@ -2749,22 +2672,22 @@ $(document).ready(function(){
         
         var tableNotificationsUnread = $('#tblNotificationsUnread').DataTable({
             "order": [[ 2, "desc" ]],
-            "serverSide": true,
-            /*"processing": true,*/
-            "ajax": {
+            serverSide: true,
+            /*processing: true,*/
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/notifications-unread",
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'id', className: 'capitalize'},
                 {data: 'id'},
                 {data: 'id', className: 'text-right'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": 0,
                 "render": function(data, type, row){
                     return row['data']['title'];
@@ -2918,7 +2841,7 @@ $(document).ready(function(){
                 {data: 'estado', name: 'estado'},
                 {data: 'acciones', name: 'acciones', className: 'text-right'}
             ]
-            // "columnDefs": [
+            // columnDefs: [
             //     {"targets": 0,
             //     "render": function(data, type, row){
             //         var norder = '<a href="/admin/orders/'+row['id']+'/edit">'+row['id']+'</a>';
@@ -2999,19 +2922,19 @@ $(document).ready(function(){
         var environment = $('#myEnvironment').val();
 
         var tableOrderItems = $('#tblOrderItems').DataTable({
-            "serverSide": true,
-            "processing": true,
+            serverSide: true,
+            processing: true,
             // drawCallback: function() {
             //     $('.select2-dt').select2();
             // },
-            "ajax": {
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/order-items/"+order+"/"+environment,
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'id', className: 'text-right'},
                 {data: 'concept', className: 'capitalize'},
                 {data: 'qty', className: 'text-right'},
@@ -3022,7 +2945,7 @@ $(document).ready(function(){
                 {data: 'estado'},
                 {data: 'acciones', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": 0,
                 "render": function(data, type, row, meta){
                     return meta.row + meta.settings._iDisplayStart + 1;
@@ -3149,23 +3072,23 @@ $(document).ready(function(){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
         
         $('#tblOrderPatterns').DataTable({
-            "serverSide": true,
-            /*"processing": true,*/
-            "ajax": {
+            serverSide: true,
+            /*processing: true,*/
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/order-patterns",
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name', className: 'capitalize'},
                 {data: 'patron'},
                 {data: 'id', className: 'text-center'},
                 {data: 'alta', className: 'text-right'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": 2,
                 "render": function(data, type, row){
                     if(row['yearly_reset'] == 1){
@@ -3213,24 +3136,24 @@ $(document).ready(function(){
         var order = $('#myOrder').val();
 
         var tableOrderProviderTeam = $('#tblOrderProviderTeam').DataTable({
-            "serverSide": true,
-            /*"processing": true,*/
+            serverSide: true,
+            /*processing: true,*/
             // drawCallback: function() {
             //     $('.select2-dt').select2();
             // },
-            "ajax": {
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/order-teams/"+order+"/provider",
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name'},
                 {data: 'rol'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": 0,
                 "render": function(data, type, row){
                     if(row['Image']){
@@ -3271,21 +3194,21 @@ $(document).ready(function(){
     //Tabla Order Settings:
     if($('#tblOrderSettings').length > 0){
         $('#tblOrderSettings').DataTable({
-            "serverSide": true,
-            /*"processing": true,*/
-            "ajax": {
+            serverSide: true,
+            processing: true,
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/order-settings",
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name', className: 'capitalize'},
                 {data: 'alta', className: 'text-right'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": -1,
                 "render": function(data, type, row){
                     var checked = (row['status'] == 1)? 'checked':'';
@@ -3598,23 +3521,23 @@ $(document).ready(function(){
         });
         
         var tablePermissions = $('#tblPermissions').DataTable({
-            "serverSide": true,
-            "processing": true, 
+            serverSide: true,
+            processing: true, 
             //scrollX: true,
             //fixedColumns: true,
-            "ajax": {
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/permissions",
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name'},
                 {data: 'permission'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": -1,
                 "render": function(data, type, row){
                     //Eliminar:
@@ -3639,22 +3562,22 @@ $(document).ready(function(){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
         
         $('#tblProcedurePatterns').DataTable({
-            "serverSide": true,
-            /*"processing": true,*/
-            "ajax": {
+            serverSide: true,
+            /*processing: true,*/
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/procedure-patterns",
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name', className: 'capitalize'},
                 {data: 'patron'},
                 {data: 'alta', className: 'text-right'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": -1,
                 "render": function(data, type, row){
                     //Estado:
@@ -3693,16 +3616,16 @@ $(document).ready(function(){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
 
         $('#tblProcedures').DataTable({
-            "serverSide": true,
-            "processing": true,
-            "ajax": {
+            serverSide: true,
+            processing: true,
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/procedures",
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'procedure_num', className: 'capitalize'},
                 {data: 'name'},
                 {data: 'alta', className: 'text-right'},
@@ -3710,7 +3633,7 @@ $(document).ready(function(){
                 {data: 'id'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": 4,
                 "render": function(data, type, row){
                     return row['nombre']+' '+row['surname'];
@@ -3759,16 +3682,16 @@ $(document).ready(function(){
         var product_id = $('#productId').val();
 
         $('#tblProductAttributes').DataTable({
-            "serverSide": true,
-            "processing": true,
-            "ajax": {
+            serverSide: true,
+            processing: true,
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/product-attributes/"+product_id,
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name'},
                 {data: 'datatype'},
                 {data: 'value'},
@@ -3899,9 +3822,9 @@ $(document).ready(function(){
             columns: [
                 {data: 'name', name: 'products.name'},
                 {data: 'ref', name: 'products.ref'},
-                {data: 'image', className: 'text-center'},
-                {data: 'price', className: 'text-right'},
-                {data: 'acciones', className: 'text-right'}
+                {data: 'image', className: 'text-center', orderable: false, searchable: false},
+                {data: 'price', name: 'price', className: 'text-right'},
+                {data: 'acciones', className: 'text-right', orderable: false, searchable: false}
             ]
         });
     }
@@ -3953,16 +3876,16 @@ $(document).ready(function(){
         var product_id = $('#productId').val();
 
         $('#tblProductSerials').DataTable({
-            "serverSide": true,
-            "processing": true,
-            "ajax": {
+            serverSide: true,
+            processing: true,
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/product-serials/"+product_id,
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'serial'},
                 {data: 'alta', className: 'text-right'},
                 {data: 'employee'},
@@ -3978,21 +3901,21 @@ $(document).ready(function(){
         
         $('#tblProductUnits').DataTable({
             "order": [[ 2, "desc" ]],
-            "serverSide": false,
-            "processing": true,
-            "ajax": {
+            serverSide: false,
+            processing: true,
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/product-units/"+product_id,
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'unit', className: 'capitalize'},
                 {data: 'symbol'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": -1,
                 "render": function(data, type, row){
                     //Estado:
@@ -4040,16 +3963,16 @@ $(document).ready(function(){
         });
         
         var tableProducts = $('#tblProducts').DataTable({
-            "serverSide": true,
-            "processing": true,
-            "ajax": {
+            serverSide: true,
+            processing: true,
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/products/"+company,
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'producto'},
                 {data: 'descripcion'},
                 {data: 'price', className: 'text-right'},
@@ -4057,7 +3980,7 @@ $(document).ready(function(){
                 {data: 'id', className: 'text-center'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": 2,
                 "render": function(data, type, row){
                     return row['price']+'€';    
@@ -4140,16 +4063,16 @@ $(document).ready(function(){
         var project_id = $('#myProject').val();
 
         $('#tblProjectExpenses').DataTable({
-            "serverSide": true,
-            "processing": true,
-            "ajax": {
+            serverSide: true,
+            processing: true,
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/project-expenses/"+project_id,
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'concept'},
                 {data: 'expensed_in', className: 'text-right'},
                 {data: 'amount', className: 'text-right'},
@@ -4197,22 +4120,22 @@ $(document).ready(function(){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
         
         $('#tblProjectPatterns').DataTable({
-            "serverSide": true,
-            "processing": true,
-            "ajax": {
+            serverSide: true,
+            processing: true,
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/project-patterns",
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name', className: 'capitalize'},
                 {data: 'patron'},
                 {data: 'alta', className: 'text-right'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": -1,
                 "render": function(data, type, row){
                     //Estado:
@@ -4274,16 +4197,16 @@ $(document).ready(function(){
         });
 
         var tableProjects = $('#tblProjects').DataTable({
-            "serverSide": true,
-            "processing": true,
-            "ajax": {
+            serverSide: true,
+            processing: true,
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/projects/"+status,
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name'},
                 {data: 'customer'},
                 {data: 'id', className: 'text-right'},
@@ -4295,7 +4218,7 @@ $(document).ready(function(){
                 {data: 'estado'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": 0,
                 "render": function(data, type, row){
                     return '<a href="/admin/projects/'+row['id']+'/edit">'+row['name']+'</a>';
@@ -4432,9 +4355,9 @@ $(document).ready(function(){
             columns: [
                 {data: 'name'},
                 {data: 'descripcion'},
-                {data: 'image', className: 'text-center'},
+                {data: 'image', className: 'text-center', orderable: false, searchable: false},
                 {data: 'price', className: 'text-right'},
-                {data: 'acciones', className: 'text-right'}
+                {data: 'acciones', className: 'text-right', orderable: false, searchable: false}
             ]
         });
     }
@@ -4464,70 +4387,21 @@ $(document).ready(function(){
         });
         
         var tableProviders = $('#tblProviders').DataTable({
-            "serverSide": true,
-            "processing": true,
-            "ajax": {
+            serverSide: true,
+            processing: true,
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/providers",
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
-                {data: 'name'},
-                {data: 'tradename'},
-                {data: 'nif'},
+            columns: [
+                {data: 'name', name: 'companies.name'},
+                {data: 'tradename', name: 'companies.tradename'},
+                {data: 'nif', name: 'companies.nif'},
                 {data: 'acciones', className: 'text-right'}
             ]
-            /*"columnDefs": [
-                {"targets": -1,
-                "render": function(data, type, row){
-                    //Estado:
-                    var estado = '';
-                    //Responsables:
-                    var users = '';
-                    if(row['status_permission']){
-                        var checked = (row['status'] == 1)? 'checked':'';
-                        estado = '<label class="custom-chk-rdb" rel="tooltip" title="'+txtOnOff+'">';
-                            estado += '<input type="checkbox" name="status" '+checked+' ><span class="chk chk-action" data-id="'+row['cp_id']+'" data-ctrl="customers/status"></span>';
-                        estado += '</label>';
-
-                        users = '<a href="#" class="btn btn-xs btn-info btn-module btnAddManager" rel="tooltip" title="'+txtResponsableAdd+'" data-toggle="modal" data-target="#modal-add-manager" data-id="'+row['id']+'" data-company="'+row['name']+'"><i class="fa fa-user-plus"></i></a>';
-                    }
-
-                    //Editar:
-                    var editar = '';
-                    if(!row['account'] || row['account']['guardian'] == row['current_company'] || row['edit']){
-                        editar = '<a href="/admin/providers/'+row['id']+'/edit" class="btn btn-xs btn-info" rel="tooltip" title="'+txtEditar+'"><i class="fa fa-edit"></i></a>';
-                    }
-
-                    //Ver:
-                    var ver = '<a href="/admin/providers/'+row['cp_id']+'/show" class="btn btn-xs btn-info btn-module" rel="tooltip" title="'+txtVer+'"><i class="fa fa-eye"></i></a>';
-
-                    //Nueva compra:
-                    var compra = '';
-                    var catalogo = '';
-                    if(row['catalogue']){
-                        compra = '<a href="/admin/orders/'+row['id']+'/purchase" class="btn btn-xs btn-info btn-module" rel="tooltip" title="'+txtCompraNueva+'"><i class="fa fa-cart-plus"></i></a>';
-                    
-                        catalogo = '<a href="/admin/products/'+row['id']+'" class="btn btn-xs btn-info btn-module" rel="tooltip" title="'+txtCatalogoVer+'"><i class="fa fa-gift"></i></a>';
-                    }
-                    
-                    //Eliminar:
-                    var eliminar = '';
-                    if(row['delete_permission']){
-                        eliminar = '<form method="POST" action="customers/'+row['cp_id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
-                            eliminar += '<input name="_method" type="hidden" value="DELETE">';
-                            eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
-                            eliminar += '<input type="hidden" name="tipo" value="provider">';
-                            eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtProveedorEliminar+'" data-msg="'+txtProveedorConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
-                        eliminar += '</form>';
-                    }
-
-                    return estado+' '+editar+' '+ver+' '+compra+' '+catalogo+' '+users+' '+eliminar;
-                }
-                }
-            ] */
         });
     }
 
@@ -4537,20 +4411,20 @@ $(document).ready(function(){
         var country_id = $('#countryId').val();
         
         $('#tblProvinces').DataTable({
-            "serverSide": true,
-            /*"processing": true,*/
-            "ajax": {
+            serverSide: true,
+            /*processing: true,*/
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/provinces/"+country_id,
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": -1,
                 "render": function(data, type, row){
                     var estado = '';                    
@@ -4595,23 +4469,23 @@ $(document).ready(function(){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
         
         $('#tblPurchasePatterns').DataTable({
-            "serverSide": true,
-            /*"processing": true,*/
-            "ajax": {
+            serverSide: true,
+            /*processing: true,*/
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/purchase-patterns",
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name', className: 'capitalize'},
                 {data: 'patron'},
                 {data: 'id', className: 'text-center'},
                 {data: 'alta', className: 'text-right'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": 2,
                 "render": function(data, type, row){
                     if(row['yearly_reset'] == 1){
@@ -4659,21 +4533,21 @@ $(document).ready(function(){
         var question_id = $('#questionId').val();
         
         $('#tblQuestionAnswers').DataTable({
-            "serverSide": true,
-            /*"processing": true,*/
-            "ajax": {
+            serverSide: true,
+            /*processing: true,*/
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/question-answers/"+question_id,
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name'},
                 {data: 'value', className: 'text-right'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": -1,
                 "render": function(data, type, row){
                     if(row['editar']){
@@ -4709,22 +4583,22 @@ $(document).ready(function(){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
         
         $('#tblQuestions').DataTable({
-            "serverSide": true,
-            /*"processing": true,*/
-            "ajax": {
+            serverSide: true,
+            /*processing: true,*/
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/questions",
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name'},
                 {data: 'question'},
                 {data: 'tipo'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": -1,
                 "render": function(data, type, row){
                     var estado = '';
@@ -4784,16 +4658,16 @@ $(document).ready(function(){
         });
         
         var tableQuizEditions = $('#tblQuizEditions').DataTable({
-            "serverSide": true,
-            "processing": true,
-            "ajax": {
+            serverSide: true,
+            processing: true,
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/quiz-editions",
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name'},
                 {data: 'quiz'},
                 {data: 'alta', className: 'text-right'},
@@ -4803,7 +4677,7 @@ $(document).ready(function(){
                 {data: 'time', className: 'text-right'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": 1,
                 "render": function(data, type, row){
                     return '<a target="_blank" href="/admin/quizzes/'+row['quiz_id']+'/edit">'+row['quiz']+'</a>';
@@ -4873,22 +4747,22 @@ $(document).ready(function(){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
         
         $('#tblQuizzes').DataTable({
-            "serverSide": true,
-            /*"processing": true,*/
-            "ajax": {
+            serverSide: true,
+            /*processing: true,*/
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/quizzes",
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name'},
                 {data: 'alta', className: 'text-right'},
                 {data: 'description'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": 2,
                 "render": function(data, type, row){
                     return row['description'];
@@ -5024,23 +4898,23 @@ $(document).ready(function(){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
         
         $('#tblShipmentPatterns').DataTable({
-            "serverSide": true,
-            /*"processing": true,*/
-            "ajax": {
+            serverSide: true,
+            /*processing: true,*/
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/shipment-patterns",
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name', className: 'capitalize'},
                 {data: 'patron'},
                 {data: 'id', className: 'text-center'},
                 {data: 'alta', className: 'text-right'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": 2,
                 "render": function(data, type, row){
                     if(row['yearly_reset'] == 1){
@@ -5088,22 +4962,22 @@ $(document).ready(function(){
         var process_id = $('#processId').val();
         
         $('#tblStaffPickCandidates').DataTable({
-            "serverSide": true,
-            /*"processing": true,*/
-            "ajax": {
+            serverSide: true,
+            /*processing: true,*/
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/staff-pick-candidates/"+process_id,
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name', className: 'capitalize'},
                 {data: 'id', className: 'text-center'},
                 {data: 'alta', className: 'text-right'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": 0,
                 "render": function(data, type, row){
                     return row['name']+' '+row['surname'];
@@ -5150,22 +5024,22 @@ $(document).ready(function(){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
         
         $('#tblStaffPicks').DataTable({
-            "serverSide": true,
-            /*"processing": true,*/
-            "ajax": {
+            serverSide: true,
+            /*processing: true,*/
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/staff-picks",
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name', className: 'capitalize'},
                 {data: 'published_from', className: 'text-right'},
                 {data: 'published_to', className: 'text-right'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": 0,
                 "render": function(data, type, row){
                     if(row['name']){
@@ -5212,55 +5086,22 @@ $(document).ready(function(){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
         
         $('#tblStockMovements').DataTable({
-            "serverSide": false,
-            "processing": true,
-            "ajax": {
+            serverSide: false,
+            processing: true,
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/stock-movements",
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name'},
                 {data: 'acronym', className: 'text-center'},
                 {data: 'sign'},
                 {data: 'explicacion'},
                 {data: 'acciones', className: 'text-right'}
             ]
-            // "columnDefs": [
-
-            //     {"targets": -1,
-            //     "render": function(data, type, row){
-            //         //Translations:
-            //         if( (row['basic'] != 1 || row['permisos'])){
-            //             var trans = linkTranslations(row['id'], 'stock_movements', txtTraducciones);
-            //         }else{
-            //             var trans = '';
-            //         }
-
-            //         //Editar:
-            //         if( (row['basic'] != 1 || row['permisos'])){
-            //             var editar = '<a href="/admin/stock-movements/'+row['id']+'/edit" class="btn btn-sm btn-info btn-module" rel="tooltip" title="'+txtEditar+'"><i class="fa fa-edit"></i></a>';
-            //         }else{
-            //             var editar = '';
-            //         }
-
-            //         //Eliminar:
-            //         if( row['basic'] != 1 ){
-            //             var eliminar = '<form method="POST" action="/admin/stock-movements/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
-            //                 eliminar += '<input name="_method" type="hidden" value="DELETE">';
-            //                 eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
-            //                 eliminar += '<button type="submit" class="btn btn-sm btn-danger frm-confirm" rel="tooltip" title="'+txtMovimientoEliminar+'" data-msg="'+txtMovimientoConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
-            //             eliminar += '</form>';
-            //         }else{
-            //             var eliminar = '';
-            //         }
-
-            //         return trans+' '+editar+' '+eliminar;
-            //     }
-            //     }
-            // ]
         });
     }
 
@@ -5269,16 +5110,16 @@ $(document).ready(function(){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
         
         $('#tblStores').DataTable({
-            "serverSide": false,
-            "processing": true,
-            "ajax": {
+            serverSide: false,
+            processing: true,
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/stores",
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name'},
                 {data: 'tipo'},
                 {data: 'alta', className: 'text-right'},
@@ -5292,22 +5133,22 @@ $(document).ready(function(){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
 
         $('#tblTeams').DataTable({
-            "serverSide": true,
-            /*"processing": true,*/
-            "ajax": {
+            serverSide: true,
+            processing: true,
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/teams",
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name'},
                 {data: 'id', className: 'text-right'},
                 {data: 'id', className: 'text-center'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": 1,
                 "render": function(data, type, row){
                     return '<span style="display: none">'+row['created_at']+'</span>'+row['alta'];
@@ -5362,16 +5203,16 @@ $(document).ready(function(){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
 
         $('#tblTimetableItems').DataTable({
-            "serverSide": true,
-            /*"processing": true,*/
-            "ajax": {
+            serverSide: true,
+            /*processing: true,*/
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/timetable-items",
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name'},
                 {data: 'type'},
                 {data: 'fixed', className: 'text-right'},
@@ -5384,7 +5225,7 @@ $(document).ready(function(){
                 {data: 'reviewable', className: 'text-center'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": 0,
                 "render": function(data, type, row){
                     return row['name'].charAt(0).toUpperCase()+row['name'].slice(1);
@@ -5490,20 +5331,20 @@ $(document).ready(function(){
         var province_id = $('#provinceId').val();
         
         $('#tblTowns').DataTable({
-            "serverSide": true,
-            /*"processing": true,*/
-            "ajax": {
+            serverSide: true,
+            /*processing: true,*/
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/towns/"+province_id,
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": -1,
                 "render": function(data, type, row){
                     var estado = '';
@@ -5540,21 +5381,21 @@ $(document).ready(function(){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
         
         $('#tblUnits').DataTable({
-            "serverSide": true,
-            /*"processing": true,*/
-            "ajax": {
+            serverSide: true,
+            /*processing: true,*/
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/units/",
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name'},
                 {data: 'symbol'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": -1,
                 "render": function(data, type, row){
                     var estado = '';
@@ -5596,20 +5437,20 @@ $(document).ready(function(){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
         
         $('#tblUserCategories').DataTable({
-            "serverSide": true,
-            /*"processing": true,*/
-            "ajax": {
+            serverSide: true,
+            /*processing: true,*/
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/user-categories",
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": -1,
                 "render": function(data, type, row){
                     var estado = '';
@@ -5649,20 +5490,20 @@ $(document).ready(function(){
         var first_row = true;
         
         $('#tblUserCompanies').DataTable({
-            "serverSide": true,
-            /*"processing": true,*/
-            "ajax": {
+            serverSide: true,
+            /*processing: true,*/
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/user-companies/"+user,
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": -1,
                 "render": function(data, type, row){
                     //Estado:
@@ -5695,16 +5536,16 @@ $(document).ready(function(){
         var user = $('#myUser').val();
 
         $('#tblUserTimetables').DataTable({
-            "serverSide": false,
-            "processing": true,
-            "ajax": {
+            serverSide: false,
+            processing: true,
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/user-timetables/"+from+"/"+to+"/"+user,
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'fecha', className: 'text-right'},
                 {data: 'hour', className: 'text-right'},
                 {data: 'name'},
@@ -5764,7 +5605,7 @@ $(document).ready(function(){
             }
 
 
-            // "columnDefs": [
+            // columnDefs: [
             //     {"targets": 0,
             //     //"render": $.fn.dataTable.render.moment( 'YYYY/MM/DD', 'DD-MM-YYYY' )
             //     "render": function(data, type, row){
@@ -5880,19 +5721,19 @@ $(document).ready(function(){
         // });
         
         var tableUsers = $('#tblUsers').DataTable({
-            "serverSide": true,
-            "processing": true,
+            serverSide: true,
+            processing: true,
             "language": {
                 processing: '<i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span>'
             },
-            "ajax": {
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/users"+method,
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'user', name: "users.name"},
                 {data: 'alta', name: "users.created_at", className: 'text-right'},
                 {data: 'email', name: "users.email"},
@@ -5929,16 +5770,16 @@ $(document).ready(function(){
         });
 
         var tableVehicles = $('#tblVehicles').DataTable({
-            "serverSide": true,
-            "processing": true,
-            "ajax": {
+            serverSide: true,
+            processing: true,
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/vehicles",
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name'},
                 {data: 'type'},
                 {data: 'car_license'},
@@ -5948,7 +5789,7 @@ $(document).ready(function(){
                 {data: 'alta', className: 'text-right'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": 0,
                 "render": function(data, type, row){
                     var html = '';
@@ -6007,23 +5848,23 @@ $(document).ready(function(){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
 
         $('#tblWorkOrderPatterns').DataTable({
-            "serverSide": true,
-            /*"processing": true,*/
-            "ajax": {
+            serverSide: true,
+            /*processing: true,*/
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/work-order-patterns",
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name', className: 'capitalize'},
                 {data: 'patron'},
                 {data: 'id', className: 'text-center'}, 
                 {data: 'alta', className: 'text-right'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": 2,
                 "render": function(data, type, row){
                     if(row['yearly_reset'] == 1){
@@ -6073,16 +5914,16 @@ $(document).ready(function(){
         var work_order = $('#workOrderId').val();
 
          $('#tblWorkOrderProducts').DataTable({
-            "serverSide": false,
-            /*"processing": true,*/
-            "ajax": {
+            serverSide: false,
+            /*processing: true,*/
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/work-order-products/"+work_order,
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'id', className: 'text-right'},
                 {data: 'name', className: 'capitalize'},
                 {data: 'planned_qty', className: 'text-right'},
@@ -6091,7 +5932,7 @@ $(document).ready(function(){
                 {data: 'estado'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": -2,
                 "render": function(data, type, row){
                     return '<span class="xoption-'+row['id']+'">'+row['estado']+'</span>'; 
@@ -6158,19 +5999,19 @@ $(document).ready(function(){
         });
         
         var tableWorkOrders = $('#tblWorkOrders').DataTable({
-            "serverSide": true,
-            /*"processing": true,*/
+            serverSide: true,
+            /*processing: true,*/
             drawCallback: function(){
                 $('.select2-dt').select2();
             },
-            "ajax": {
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/work-orders",
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'id', className: 'text-right'},
                 {data: 'name'},
                 {data: 'fechaEntregaPrevista', className: 'text-right'}, 
@@ -6178,7 +6019,7 @@ $(document).ready(function(){
                 {data: 'estado'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": 0,
                 "render": function(data, type, row){
                     var num = row['work_order_num']? row['work_order_num']:row['id'];
@@ -6233,22 +6074,22 @@ $(document).ready(function(){
         $('#companyId').remove();
         
         $('#tblWorkplaces').DataTable({
-            "serverSide": true,
-            /*"processing": true,*/
-            "ajax": {
+            serverSide: true,
+            /*processing: true,*/
+            ajax: {
                 "type": "GET",
                 "url": "/api/admin/workplaces/"+company_id+"/"+business_relationship,
                 "error": function(reason){
                     console.log(reason);
                 }
             },
-            "columns": [
+            columns: [
                 {data: 'name'},
                 {data: 'Town'},
                 {data: 'id', className: 'text-center'},
                 {data: 'id', className: 'text-right'}
             ],
-            "columnDefs": [
+            columnDefs: [
                 {"targets": 2,
                 "render": function(data, type, row){
                     if(row['logo']){

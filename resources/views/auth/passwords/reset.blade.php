@@ -11,6 +11,7 @@
                 <div class="card-body">
                     <form method="POST" action="{{ route('password.update') }}" accept-charset="utf-8" role="form">
                         @csrf
+                        <input type="hidden" name="token" value="{{ $token }}">
 
                         {{-- Email --}}
                         <div class="form-group row">
@@ -35,7 +36,7 @@
                                 <x-input type="password" name="password_confirmation" id="password-confirm" autocomplete="new-password" maxlength="12" required/>
                             </div>
                         </div>
-
+                        
                         <div class="form-group row mb-0">
                             <div class="col-md-6 offset-md-4">
                                 <button type="submit" class="btn btn-primary">

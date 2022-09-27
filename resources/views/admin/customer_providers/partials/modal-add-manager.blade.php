@@ -16,7 +16,7 @@
 
                     <div class="form-group row">
                         {{-- Nombre del responsable --}}
-                        <label for="name" class="col-lg-12">{!! ucfirst(trans('textos.nombre')) !!} *</label>
+                        <label for="name" class="col-lg-12">{!! ucfirst(trans('textos.nombre')) !!}*</label>
                         <div class="col-lg-12">
                             <x-input type="text" name="name" autocomplete="off" maxlength="100" required/>
                         </div>
@@ -24,7 +24,7 @@
 
                     <div class="form-group row">
                         {{-- Apellidos --}}
-                        <label for="surname" class="col-lg-12">{!! ucfirst(trans('textos.apellidos')) !!} *</label>
+                        <label for="surname" class="col-lg-12">{!! ucfirst(trans('textos.apellidos')) !!}*</label>
                         <div class="col-lg-12">
                             <x-input type="text" name="surname" autocomplete="off" maxlength="150" required/>
                         </div>
@@ -32,7 +32,7 @@
 
                     <div class="form-group row">
                         {{-- Email --}}
-                        <label for="email" class="col-lg-12">Email *</label>
+                        <label for="email" class="col-lg-12">Email*</label>
                         <div class="col-lg-12">
                             <x-input type="email" name="email" autocomplete="off" maxlength="100" required/>
                         </div>
@@ -48,19 +48,9 @@
 
                     <div class="form-group row">
                         {{-- Role --}}
-                        <label for="role_id" class="col-lg-12">{!! ucfirst(trans('textos.role')) !!}</label>
+                        <label for="role_id" class="col-lg-12">{!! ucfirst(trans('textos.role')) !!}*</label>
                         <div class="col-lg-12">
-                            @php
-                            $options[] = ''; 
-                            @endphp
-
-                            @foreach($basic_roles as $role)    
-                                @php
-                                $options[$role->id] = $role->name;
-                                @endphp 
-                            @endforeach
-
-                            <x-select name="role_id" class="select2" :options="$options" info="customer-role"/>
+                            <x-select name="role_id" id="roleId" class="select2" :options="[]" required info="customer-role"/>
                         </div>
                     </div>
                     

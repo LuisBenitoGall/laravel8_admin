@@ -203,6 +203,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::get('companies/{company}/show', 'CompanyController@show')->name('companies.show');
     Route::post('companies/set-mother', 'CompanyController@setMother')->name('companies.set-mother')->middleware('permission:companies.edit');
     Route::get('companies/{company}/unlink-mother', 'CompanyController@unlinkMother')->name('companies.unlink-mother')->middleware('permission:companies.edit');
+    Route::get('companies/{company_id}/roles', 'CompanyController@getCompanyRoles')->name('companies.roles');
 
     // Company Accounts:
     Route::get('company-accounts', 'CompanyAccountsController@index')->name('company-accounts.index');
@@ -643,6 +644,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::get('product-providers/{product}/create/{provider_id?}', 'ProductProvidersController@create')->name('product-providers.create')->middleware('permission:providers.edit');
     Route::post('product-providers/{product}/set-provider', 'ProductProvidersController@setProvider')->name('product-providers.set-provider')->middleware('permission:providers.edit');
     Route::post('product-providers/store', 'ProductProvidersController@store')->name('product-providers.store');
+    Route::get('product-providers/{product_id}/show', 'ProductProvidersController@show')->name('product-providers.show');
 
     // Product Serials:
     Route::post('product-serials/{product}/store', 'ProductSerialsController@store')->name('product-serials.store')->middleware('permission:products.edit');
@@ -964,6 +966,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::get('user-companies/{user}', 'UserCompaniesController@index')->name('user-companies.index')->middleware('permission:users.edit');
     Route::get('user-companies/status/{company_id}/{user_id}/{status}', 'UserCompaniesController@status')->name('user-companies.status');
     Route::post('user-companies/transfer', 'UserCompaniesController@transferCompany')->name('user-companies.transfer')->middleware('permission:companies.edit');
+    Route::get('user-companies/{company_id}/show', 'UserCompaniesController@companyUsers')->name('user-companies.show');
 
     // User Cost Centers:
     Route::post('user-cost-centers/store', 'UserCostCentersController@store')->name('user-cost-centers.store');

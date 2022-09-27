@@ -82,6 +82,15 @@ $(document).ready(function(){
 
         $('#newResponsable b').text(company);
         $('#cpCompanyId').val(id);
+
+        //Roles de la empresa:
+        $.get("/admin/companies/"+id+"/roles", function(response, state){
+            if(response){
+                for(i=0; i<response.length; i++){
+                    $("#roleId").append('<option value="'+response[i].id+'">'+response[i].name+'</option>');    
+                }    
+            }
+        });
     });
 
     //Modal edición configuraciones de cliente.

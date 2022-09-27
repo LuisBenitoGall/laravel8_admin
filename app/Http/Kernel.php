@@ -185,6 +185,7 @@ class Kernel extends HttpKernel{
 
         'receiving_get' => \App\Http\Middleware\ReceivingGetMiddleware::class,
 
+        'role_company' => \App\Http\Middleware\RoleCompanyMiddleware::class,
         'role_get' => \App\Http\Middleware\RoleGetMiddleware::class,
 
         'schedule_event_type_get' => \App\Http\Middleware\ScheduleEventTypeGetMiddleware::class,

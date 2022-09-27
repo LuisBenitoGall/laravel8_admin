@@ -26,6 +26,7 @@ use App\Models\ProductDocs;
 use App\Models\ProductFavorites;
 use App\Models\ProductPatterns;
 use App\Models\ProductPrices;
+use App\Models\ProductProviders;
 use App\Models\ProductUnits;
 
 class ProductController extends Controller{
@@ -187,13 +188,28 @@ class ProductController extends Controller{
         }
 
         $msg = trans('textos.producto_creado_ok');
+        //Redirección para empresas tuteladas:
         if($request->tutored){
-            //Obtenemos id de relación entre cliente y proveedor:
-            $cp = CustomerProviders::select('id')
-            ->where('customer_id', session('currentCompany'))
-            ->where('provider_id', $request->tutored)
-            ->first();
-            return redirect()->route('provider-products.index', $cp)->with(compact('msg'));
+            //Regreso a referencia de proveedor para cliente:
+            if($request->return && $request->return == 'product-providers'){
+                //Guardamos el producto como referencia de proveedor para la empresa en session:
+                $pp = new ProductProviders();
+                $pp->customer_product_id = $request->customer_product_id;
+                $pp->provider_product_id = $product->id;
+                $pp->provider_id = $request->tutored;
+                $pp->provider_product = $request->name;
+                $pp->save();
+
+                return redirect()->route('product-providers.create', [$request->customer_product_id, $request->tutored])->with(compact('msg'));
+
+            }else{
+                //Obtenemos id de relación entre cliente y proveedor:
+                $cp = CustomerProviders::select('id')
+                ->where('customer_id', session('currentCompany'))
+                ->where('provider_id', $request->tutored)
+                ->first();
+                return redirect()->route('provider-products.index', $cp)->with(compact('msg'));
+            }
 
         }else{
             return redirect()->route('products.edit', $product)->with(compact('msg'));    
@@ -339,7 +355,7 @@ class ProductController extends Controller{
         }
 
         //Guardar histórico de precios. La fecha de creación del registro indica hasta que fecha estuvo vigente el precio del producto hasta su actualización.
-        if($product->price != $request->price){
+        if($product->price != $request->price && $product->price > 0){
             ProductPrices::create([
                 'product_id' => $product->id,
                 'price' => $product->price
@@ -439,6 +455,16 @@ class ProductController extends Controller{
             'slug' => 'products'
         ]; 
 
+        //Si el producto no pertenece a la empresa en sesión, comprobamos si es producto de proveedor y el precio está personalizado.
+        $customer_product = false;
+        if($product->company_id != session('currentCompany')){
+            $customer_product = CustomerProducts::select('price')
+            ->where('product_id', $product->id)
+            ->where('provider_id', $product->company_id)
+            ->where('customer_id', session('currentCompany'))
+            ->first();
+        }
+
         //Documentos:
         $docs = ProductDocs::select('id', 'doc', 'type', 'featured')
         ->where('product_id', $product->id) 
@@ -466,6 +492,6 @@ class ProductController extends Controller{
 
         $languages = $this->languages;
 
-        return view('admin.products.show', compact('header', 'product', 'docs', 'units', 'favorite', 'currency', 'iva', 'languages'));  
+        return view('admin.products.show', compact('header', 'product', 'customer_product', 'docs', 'units', 'favorite', 'currency', 'iva', 'languages'));  
     }
 }

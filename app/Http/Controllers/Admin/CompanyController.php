@@ -57,6 +57,7 @@ class CompanyController extends Controller{
      * 15. Establecer empresa matriz.
      * 16. Desvincular de empresa matriz.
      * 17. Directorio por sectores.
+     * 18. Roles por empresa.
      */
     
     private $option = 'empresas';
@@ -727,5 +728,21 @@ class CompanyController extends Controller{
         ->get();  
         
         return view('admin.company_sectors.index')->with(compact('header', 'sectors'));
+    }
+
+    /**
+     * 18. Roles por empresa.
+     */
+    public function getCompanyRoles(Request $request, $company_id){
+        if($request->ajax()){    
+            $data = $this->companyRoles($company_id);
+
+            foreach($data as $r){
+                $p = explode('/', $r->name);
+                $r->name = $p[1];
+            }
+
+            return response()->json($data);
+        }
     }
 }

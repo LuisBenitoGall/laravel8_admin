@@ -415,6 +415,11 @@
 <input type="hidden" id="dtController" value="items">
 <input type="hidden" id="myEnvironment" value="orders">
 <input type="hidden" id="myOrder" value="{{ $order->id }}">
+@php
+//Indica si es vista de vendedor o comprador:
+$perspective = session('currentCompany') == $order->provider_id? 'sale':'purchase';
+@endphp
+<input type="hidden" id="myPerspective" value="{{ $perspective }}">
 
 @php
 //Customer Team:
@@ -519,7 +524,7 @@ if($order->provider_team){
 						@php
 						$customer_confirmation = $order->customer_confirmation != ''? \Carbon\Carbon::parse($order->customer_confirmation)->format($languages[session()->get('locale')][4]):'';
 						@endphp
-						<label class="mr-5">
+						<label class="mr-5 bg-success p-1">
 							{!! ucfirst(trans('textos.confirmado_por')) !!}:
 							<b>
 								{{ $confirmed_by->name }} {{ $confirmed_by->surname }}, {{ $customer_confirmation }} 	

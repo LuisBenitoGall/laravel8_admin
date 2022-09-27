@@ -37,7 +37,8 @@
 					        @php
 					        $rol_ = explode('/', $rol->name);
 					        @endphp
-				        	{!! ucfirst($rol_[1]) !!}
+				        	
+				        	@if($rol_[1]) {!! ucfirst($rol_[1]) !!} @endif
 				        @endif
 				    </label>   
 				@endforeach

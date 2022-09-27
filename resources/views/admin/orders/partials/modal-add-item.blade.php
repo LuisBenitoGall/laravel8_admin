@@ -81,9 +81,19 @@
 					{{-- Línea manual. Para pedidos de compra si el producto no consta en el catálogo. Su precio es 0 --}}
 					@if(session('currentCompany') == $order->customer_id)
 						<div class="form-group row">
-							<label for="concept" class="col-md-2 col-form-label">{!! ucfirst(trans('textos.producto_manual')) !!}</label>	
+							<label for="concept" class="col-md-2 col-form-label sinpadding-left">{!! ucfirst(trans('textos.producto_manual')) !!}</label>	
 							<div class="col-md-10">
 								<x-input type="text" name="concept" id="productManual" autocomplete="off" info="order-product-manual"/>
+							</div>
+						</div>
+					@endif
+
+					{{-- Correspondencia de referencia de producto para compras. --}}
+					@if(session('currentCompany') == $order->customer_id)
+						<div class="form-group row" id="customerRef">
+							<div class="col-md-10 offset-md-2">
+								<p class="text-warning" style="margin-bottom: 5px;">{{ trans('textos.correspondencia_ref_texto') }}:</p>
+								<span></span>
 							</div>
 						</div>
 					@endif
@@ -178,15 +188,17 @@
 <script>
 $(function(){
 	var products = {!! json_encode($products) !!}
+	var perspective = $('#myPerspective').val();
 
 	// Limpiar formulario nuevo item.
 	$('.btnAddItem').on('click', function(){
 	    $('#frmAddItem').trigger("reset");
 	});
 
-	// Obtener precio de producto.
+	// Obtener precio de producto + correspondencia de referencia (compras).
 	$('#productId').on('change', function(e){
 	    var product_id = e.target.value;
+	    $('#customerRef').hide();
 	    //Buscamos precio:
 	    products.forEach(function(i){
 	        if(i.id == product_id){
@@ -214,6 +226,16 @@ $(function(){
 	    });
 
 	    $('#productManual').val('');
+
+	    //Buscamos correspondencia de referencia del producto seleccionado:
+	    if(perspective == 'purchase'){
+	    	$.get("/admin/product-providers/"+product_id+"/show", function(response, state){
+	    		if(response && response.id){
+	    			$('#customerRef span').html('<b>'+response.name+'</b><a target="_blank" href="/admin/products/'+response.id+'/show" class="ml-3" title="'+txtVer+'"><i class="fa fa-eye"></i></a>');
+	    			$('#customerRef').fadeIn();
+	    		}
+	    	});
+	    }
 	});
 	
 	$('#productManual').on('change', function(){

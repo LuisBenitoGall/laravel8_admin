@@ -43,6 +43,7 @@ class Controller extends BaseController{
      * 10. Subir logo.
      * 10.1. Subir archivo.
      * 11. Roles básicos.
+     * 11.1. Roles por empresa.
      * 12. Importaciones iniciales.
      * 13. Generación número por patrón.
      *
@@ -272,6 +273,16 @@ class Controller extends BaseController{
     public function basicRoles(){
         return Role::where('name', '!=', config('constants.SUPER_ADMIN_'))
             ->whereNull('company_id')
+            ->get();
+    }
+
+    /**
+     * 11.1. Roles por empresa.
+     */
+    public function companyRoles($company_id){
+        return Role::select('id', 'name')
+            ->where('company_id', $company_id)
+            ->orderBy('name', 'ASC')
             ->get();
     }
 

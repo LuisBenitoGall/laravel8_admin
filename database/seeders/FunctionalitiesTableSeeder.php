@@ -67,6 +67,11 @@ class FunctionalitiesTableSeeder extends Seeder{
             'label' => 'contenidos',
             'module' => 'settings'
             ],
+            ['name' => 'stock-movements',
+            'slug' => 'stock-movements',
+            'label' => 'stock_movimientos',
+            'module' => 'settings'
+            ],
             ['name' => 'units',
             'slug' => 'units',
             'label' => 'unidades',
@@ -201,11 +206,6 @@ class FunctionalitiesTableSeeder extends Seeder{
             ['name' => 'stores',
             'slug' => 'stores',
             'label' => 'almacenes',
-            'module' => 'stocks'
-            ],
-            ['name' => 'stock-movements',
-            'slug' => 'stock-movements',
-            'label' => 'stocks_movimientos_',
             'module' => 'stocks'
             ],
             ['name' => 'stocks',
