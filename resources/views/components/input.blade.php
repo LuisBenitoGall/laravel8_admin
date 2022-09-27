@@ -1,4 +1,4 @@
-@props(['autocomplete' => false,'class', 'autofocus' => false , 'datas' => false, 'disabled' => false, 'group' => false, 'groupvalue' => '', 'id' => false, 'info' => false, 'lw' => false, 'max' => false, 'maxlength' => false, 'min' => false, 'name' => '',  'placeholder' => false, 'readonly' => false, 'required' => false, 'type' => '', 'value' => '', 'warning' => false, 'wire' => false])
+@props(['autocomplete' => false,'class'=>'', 'autofocus' => false , 'datas' => false, 'disabled' => false, 'group' => false, 'groupvalue' => '', 'id' => false, 'info' => false, 'lw' => false, 'max' => false, 'maxlength' => false, 'min' => false, 'name' => '',  'placeholder' => false, 'readonly' => false, 'required' => false, 'type' => '', 'value' => '', 'warning' => false, 'wire' => false])
 
 <div>
     @if($group)
