@@ -13,7 +13,7 @@ $image_mimes = App\Helpers\helpers::imgMimeTypes();
                     @if(in_array($doc->type, $image_mimes))
                         {{-- Método render de la imagen --}}
                         @php
-                        $html = renderImg($doc, true);
+                        $html = App\Helpers\helpers::renderImg($doc, true);
                         @endphp
                         {!! $html !!}
                     @else
@@ -27,7 +27,7 @@ $image_mimes = App\Helpers\helpers::imgMimeTypes();
                 @foreach($other_files as $doc_)
                     {{-- Método render de la imagen --}}
                      @php
-                    $html_ = renderImg($doc_);
+                    $html_ = App\Helpers\helpers::renderImg($doc_);
                     @endphp
                     {!! $html_ !!}
                 @endforeach
