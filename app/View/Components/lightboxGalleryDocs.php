@@ -29,6 +29,15 @@ class lightboxGalleryDocs extends Component{
     }
 
     /**
+     * Get the view / contents that represent the component.
+     *
+     * @return \Illuminate\Contracts\View\View|\Closure|string
+     */
+    public function render(){
+        return view('components.lightbox-gallery-docs');
+    }
+
+    /**
      * Render image + controls.
      */
     public function renderImg($doc, $gallery = false){
@@ -65,14 +74,5 @@ class lightboxGalleryDocs extends Component{
         </div>';   
 
         return $render; 
-    }
-
-    /**
-     * Get the view / contents that represent the component.
-     *
-     * @return \Illuminate\Contracts\View\View|\Closure|string
-     */
-    public function render(){
-        return view('components.lightbox-gallery-docs');
     }
 }
