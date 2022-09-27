@@ -16,7 +16,7 @@
 var mimes_img = {!! $mimes_img !!};
 var icons = {!! $icons !!};
 
-//Dropzone imágenes:
+//Dropzone imágenes:                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
 var myDropzone = new Dropzone('.dropzone', {
     url: '{{ $url }}',
     paramName: 'file',
