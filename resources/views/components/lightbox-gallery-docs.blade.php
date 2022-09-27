@@ -1,4 +1,4 @@
-@props(['docs'])
+@props(['docs', 'image_mimes'])
 
 <div class="ibox">
     <div class="ibox-content">
