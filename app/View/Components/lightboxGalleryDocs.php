@@ -40,7 +40,7 @@ class lightboxGalleryDocs extends Component{
     /**
      * Render image + controls.
      */
-    public function renderImg_($doc, $gallery = false){
+    public function renderImg($doc, $gallery = false){
         $render = '<div class="gallery-item col-sm-3 mb-4">
             <div class="gallery-img">';
             if($gallery){
