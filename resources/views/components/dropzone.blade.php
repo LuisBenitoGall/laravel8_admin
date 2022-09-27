@@ -20,8 +20,8 @@ var icons = {!! $icons !!};
 var myDropzone = new Dropzone('.dropzone', {
     url: '{{ $url }}',
     paramName: 'file',
-    aceptedFiles: 'image/*',
-    //maxFilesize: 2,     //2MB
+    aceptedFiles: ['image/*'],
+    maxFilesize: 2,     //2MB
     maxFiles: 10,
     headers: {
         'X-CSRF-TOKEN': '{{ csrf_token() }}'
