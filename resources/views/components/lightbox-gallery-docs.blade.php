@@ -1,4 +1,4 @@
-@props(['docs'])
+@props(['docs' => false])
 
 @php
 $image_mimes = App\Helpers\helpers::imgMimeTypes();

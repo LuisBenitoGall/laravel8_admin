@@ -9,6 +9,7 @@ class lightboxGalleryDocs extends Component{
     public $docs;
     //public $image_mimes;
     public $other_files;
+    public $renderImg;
     public $schema;
 
     /**
