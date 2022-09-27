@@ -116,15 +116,34 @@
 
                         {{-- Acciones --}}
                         {{-- Editar --}}
-                        <a target="_blank" href="{{-- {{ route('products.edit', $product) }} --}}" class="btn btn-xs btn-info float-right ml-1" id="productEdit" rel="tooltip" title="{{ ucfirst(trans('textos.producto_editar')) }}"><i class="fa fa-edit"></i></a>
+                        <a target="_blank" href="" class="btn btn-xs btn-info float-right ml-1" id="productEdit" rel="tooltip" title="{{ ucfirst(trans('textos.producto_editar')) }}"><i class="fa fa-edit"></i></a>
 
                         {{-- Stock --}}
                         <a target="_blank" href="{{-- {{ route('stocks.show', $product) }} --}}" class="btn btn-xs btn-info float-right" id="productStockHistory" rel="tooltip" title="{{ ucfirst(trans('textos.movimientos_historico_ver')) }}"><i class="fa fa-tasks"></i></a>
                     </div>
                     <hr>
 
+                    {{-- Stock por almacenes --}}
                     <h3 class="mb-2 mt-4">{{ ucfirst(trans('textos.stock_almacenes')) }}</h3>
 
+                    <div class="row mt-3">
+	                    <div class="table-responsive col-12">
+		                    <table class="table" id="tblStoresStock">
+		                        <thead>
+		                            <tr>
+		                                <th>{{ ucfirst(trans('textos.almacen')) }}</th>
+		                                <th>{{ ucfirst(trans('textos.lote')) }}</th>
+		                                <th class="text-center">Stock</th>
+		                                <th class="text-center">{{ ucfirst(trans('textos.acciones')) }}</th>
+		                            </tr>
+		                        </thead>
+
+		                        <tbody>
+		                        	
+		                        </tbody>
+		                    </table>
+	                	</div>
+                	</div>
                 </div>
 
                 {{-- Aviso antes de selecciona producto --}}
@@ -171,8 +190,27 @@ $(function(){
 			$('#productIva b').text(product.iva+'%');
 			var batch = product.batch == 1? '<i class="fa fa-check text-success ml-1"></i>':'<i class="fa fa-ban text-danger ml-1"></i>';
 			$('#productBatches span').html(batch);
-                                
-                           
+            $('#productEdit').attr('href', '/admin/products/'+product_id+'/edit'); 
+            $('#productStockHistory').attr('href', '/admin/stocks/'+product_id+'/show');    
+
+        	//Stock por almacenes:
+			// $('#tblStoresStock').DataTable({
+	  //           serverSide: false,
+	  //           processing: true,
+	  //           ajax: {
+	  //               "type": "GET",
+	  //               "url": "/api/admin/stores-stock/"+product_id,
+	  //               "error": function(reason){
+	  //                   console.log(reason);
+	  //               }
+	  //           },
+	  //           columns: [
+	  //               {data: 'name'},
+	  //               {data: 'batch'},
+	  //               {data: 'stock', className: 'text-right'},
+	  //               {data: 'acciones', className: 'text-right'}
+	  //           ]
+	  //       });        	             
 
 
 		}

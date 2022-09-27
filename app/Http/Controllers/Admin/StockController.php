@@ -28,6 +28,7 @@ use App\Models\Store;
 class StockController extends Controller{
     /**
      * 1. Stock de productos.
+     * 1.1. Stock por almacén para DataTables.
      * 2. Histórico de movimientos de producto.
      * 3. Select 2.
      */
@@ -94,6 +95,34 @@ class StockController extends Controller{
         $employees = Employee::companyEmployees(session('currentCompany'));
 
         return view('admin.stocks.index')->with(compact('header', 'storeSelected', 'stockMovId', 'productSelected', 'stockResultante', 'products', 'stores', 'movements', 'last_movements', 'currency', 'employees'));
+    }
+
+    /**
+     * 1.1. Stock por almacén para DataTables.
+     */
+    public function getStoresStockDT($product_id){
+        $data = Store::select('stocks.id', 'stocks.qty', 'stocks.result', 'stores.id AS storeId', 'stores.name')
+        ->leftJoin('stocks', 'stores.id', '=', 'stocks.store_id')
+        ->where('stocks.product_id', $product_id)
+        ->groupBy('stores.id')
+        ->get();
+
+        //dd($data);
+
+        return DataTables::of($data)
+        ->addColumn('name', function($row){
+            return $row->name; 
+        })
+        ->addColumn('batch', function($row){
+            return ''; 
+        })
+        ->addColumn('stock', function($row){
+            return $row->result; 
+        })
+        ->addColumn('acciones', function($row){
+            return '';   
+        })
+        ->make(true);
     }
 
     /**
