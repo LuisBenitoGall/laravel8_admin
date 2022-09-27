@@ -7,3 +7,36 @@
 <link rel="stylesheet" href="{{ asset('css/plugins/dropzone/dropzone.css') }}">
 @endpush
 @endonce
+
+@once
+@push('scripts')
+<script src="{{ asset('js/plugins/dropzone/dropzone.js') }}"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@endpush
+@endonce
