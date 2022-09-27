@@ -2097,7 +2097,7 @@ class Helpers{
 	/**
 	 * 7.2. Render documentos proyectos.
 	 */
-	public static function renderDocsProjects($doc, $gallery = false, $schema){
+	public static function renderDocsProjects($doc, $gallery = false){
 		$featured = $doc->featured == 1? 'destacado':'';
         $thumbnail = $doc->thumbnail == 1? 'destacado':'';
 
