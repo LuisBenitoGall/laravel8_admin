@@ -16,6 +16,18 @@
 var mimes_img = {!! $mimes_img !!};
 var icons = {!! $icons !!};
 
+//Dropzone imágenes:
+var myDropzone = new Dropzone('.dropzone', {
+    url: '{{ $url }}',
+    paramName: 'file',
+    aceptedFiles: 'image/*',
+    maxFilesize: 2, //MB    
+    maxFiles: 10,
+    headers: {
+        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+    },
+    dictDefaultMessage: '<i class="fa fa-{{ $icon }}"></i> {{ trans("textos.".$msg) }}'
+});
 
 
 
