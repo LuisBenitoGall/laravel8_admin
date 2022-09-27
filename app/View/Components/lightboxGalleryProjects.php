@@ -7,7 +7,7 @@ use App\Helpers\Helpers;
 
 class LightboxGalleryProjects extends Component{
     public $docs;
-    public $image_mimes;
+    //public $image_mimes;
     public $other_files;
 
     /**
@@ -20,7 +20,7 @@ class LightboxGalleryProjects extends Component{
         $other_files = []
     ){
         $this->docs = $docs;
-        $this->image_mimes = Helpers::imgMimeTypes();
+        //$this->image_mimes = Helpers::imgMimeTypes();
         $this->other_files = $other_files;
     }
 
