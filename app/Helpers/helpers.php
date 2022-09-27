@@ -69,6 +69,9 @@ class Helpers{
 	 * 6. Cálculos:
 	 *  6.1. Porcentaje.
 	 *  6.2. Importe de línea de presupuesto-pedido.
+	 *
+	 * 7. HTML:
+	 * 	7.1. Render galería imágenes.
 	 */ 
 	
 	/**
@@ -2051,13 +2054,9 @@ class Helpers{
 		}
 	}
 
-
-
-
-
-
-
-
+	/**
+	 * 7.1. Render galería imágenes.
+	 */
 	public static function renderImg($doc, $gallery = false, $schema){
 	    $render = '<div class="gallery-item col-sm-3 mb-4">
 	        <div class="gallery-img">';
