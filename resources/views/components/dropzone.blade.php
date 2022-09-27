@@ -1,4 +1,4 @@
-@props(['icon' => '', 'icons' => [], 'id' => false, 'msg' => [], 'mimes_img' => '', 'url' => false])
+@props(['icon' => '', 'icons' => [], 'id' => false, 'msg' => '', 'mimes_img' => [], 'url' => false])
 
 <div class="dropzone" @if($id) id="{{ $id }}" @endif></div>
 
@@ -13,8 +13,8 @@
 <script src="{{ asset('js/plugins/dropzone/dropzone.js') }}"></script>
 
 <script>
-var mimes_img = {!! json_encode($mimes_img) !!};
-var icons = {!! json_encode($icons) !!};
+var mimes_img = {!! $mimes_img !!};
+var icons = {!! $icons !!};
 
 //Dropzone imágenes:
 var myDropzone = new Dropzone('.dropzone', {
