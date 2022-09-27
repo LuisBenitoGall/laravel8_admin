@@ -1,4 +1,4 @@
-@props(['icon' => '', 'id' => false, 'msg' => '', 'mimes_img' => [], 'url' => false])
+@props(['icon' => '', 'icons' => [], 'id' => false, 'msg' => '', 'mimes_img' => [], 'url' => false])
 
 <div class="dropzone" @if($id) id="{{ $id }}" @endif></div>
 
@@ -17,17 +17,17 @@ var mimes_img = {!! $mimes_img !!};
 var icons = {!! $icons !!};
 
 //Dropzone imágenes:
-// var myDropzone = new Dropzone('.dropzone', {
-//     url: '{{ $url }}',
-//     paramName: 'file',
-//     aceptedFiles: 'image/*',
-//     maxFilesize: 2,     
-//     maxFiles: 10,
-//     headers: {
-//         'X-CSRF-TOKEN': '{{ csrf_token() }}'
-//     },
-//     dictDefaultMessage: '<i class="fa fa-{{ $icon }}"></i> {{ trans("textos.".$msg) }}'
-// });
+var myDropzone = new Dropzone('.dropzone', {
+    url: '{{ $url }}',
+    paramName: 'file',
+    aceptedFiles: 'image/*',
+    maxFilesize: 2, //MB    
+    maxFiles: 10,
+    headers: {
+        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+    },
+    dictDefaultMessage: '<i class="fa fa-{{ $icon }}"></i> {{ trans("textos.".$msg) }}'
+});
 
 //Envío correcto:
 myDropzone.on('success', function(file, res, done){
