@@ -13,7 +13,8 @@ $image_mimes = App\Helpers\helpers::imgMimeTypes();
                         {{-- Filtramos las imágenes --}}
                         @if(in_array($doc->type, $image_mimes))
                             {{-- Método render de la imagen --}}
-                            {!! $renderImg($doc, true) !!}
+                            {{-- {!! $renderImg($doc, true) !!} --}}
+                            {!!  App\Helpers\helpers::renderDocsProducts($doc, true) !!}
                         @else
                             @php
                             array_push($other_files, $doc);
@@ -25,7 +26,8 @@ $image_mimes = App\Helpers\helpers::imgMimeTypes();
                 {{-- Render otros archivos --}}
                 @foreach($other_files as $doc)
                     {{-- Método render de la imagen --}}
-                    {!! $renderImg($doc) !!}   
+                    {{-- {!! $renderImg($doc) !!} --}}
+                    {!!  App\Helpers\helpers::renderDocsProducts($doc) !!}    
                 @endforeach
             </div>
 
