@@ -454,11 +454,9 @@ class ImportOldDBController extends Controller{
                 $i->save();
 
                 //Roles básicos por empresa.
-                $i->->setCompanyRoles();
+                $i->setCompanyRoles();
             }
-
         }
-
     }
 
     /**
