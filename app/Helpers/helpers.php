@@ -73,6 +73,7 @@ class Helpers{
 	 * 7. HTML:
 	 * 	7.1. Render galería imágenes.
 	 * 	7.2. Render documentos proyectos.
+	 * 	7.3. Render documentos productos.
 	 */ 
 	
 	/**
@@ -2150,5 +2151,55 @@ class Helpers{
         </div>';   
 
         return $render; 
+	}
+
+	/**
+	 * 7.3. Render documentos productos.
+	 */
+	public static function renderDocsProducts($doc, $gallery = false){
+		$featured = $doc->featured == 1? 'destacado':'';
+
+        $render = '<div class="gallery-item col-sm-3 mb-4">
+            <div class="gallery-img">';
+            if($gallery){
+                $render .= '<a href="/img/products/'.$doc->doc.'" data-gallery="">
+                    <img src="/img/products/'.$doc->doc.'">
+                    </a>';
+            }else{
+                $render .= '<span class="icon">
+                    <i class="fa fa-file mb-2"></i><br>
+                    '.$doc->doc.'
+                </span>';    
+            }
+
+            $render .= '</div><div class="gallery-controls">';
+                //Imagen destacada:
+                if($gallery){
+                    $render .= '<span>
+                        <button class="btn-controls btnDestacar '.$featured.'" rel="tooltip" title="'.ucfirst(trans('textos.imagen_destacada')).'" data-img="'.$doc->id.'" data-product="'.$doc->product_id.'" data-modulo="product-docs">
+                            <i class="fa fa-star"></i>  
+                        </button>
+                    </span>'; 
+                }  
+
+                //Descargar:
+                if(!$gallery){
+                    $render .= '<span>
+                        <a href="/img/products/'.$doc->doc.'" download="'.$doc->doc.'" rel="tooltip" title="'.trans('textos.archivo_descargar').'">
+                            <i class="fa fa-download"></i>
+                        </a>
+                    </span>';
+                }
+
+                //Eliminar:
+                $render .= '<span>
+                    <a href="/admin/product-docs/'.$doc->id.'/destroy" class="btn-confirm btn-controls" data-msg="'.ucfirst(trans('textos.archivo_confirm_eliminar')).'" rel="tooltip" title="'.ucfirst(trans('textos.archivo_eliminar')).'">
+                        <i class="fa fa-trash"></i>
+                    </a>
+                </span> 
+            </div>
+        </div>';   
+
+        return $render; 	
 	}
 }

@@ -27,7 +27,7 @@ class lightboxGalleryProducts extends Component{
     /**
      * Render image + controls.
      */
-    public function renderImg($doc, $gallery = false){
+    public function renderImg_($doc, $gallery = false){
         $featured = $doc->featured == 1? 'destacado':'';
 
         $render = '<div class="gallery-item col-sm-3 mb-4">

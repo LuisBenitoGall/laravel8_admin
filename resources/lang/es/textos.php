@@ -2431,7 +2431,7 @@ return [
 	'horas_previstas_aviso' => 'El número de horas previstas de las tareas supera al total de horas previstas del proyecto',
 	'horas_trabajadas_aviso' => 'El número de horas trabajadas supera el número de horas previstas del proyecto',
 	'sin_imagen_principal_aviso' => 'No tienes seleccionada ninguna imagen como principal',
-	'sin_imagen_thumbnail_aviso' => 'No tienes seleccionada ninguna imagen como thumbnail',
+	'sin_imagen_thumbnail_aviso' => 'No tienes seleccionada ninguna imagen como thumbnail del proyecto',
 	'pendientes' => 'pendientes',
 	'estadisticas' => 'Estadísticas',
 	'selec_proyecto_estado' => 'Filtra por estado de los proyectos',
