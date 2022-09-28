@@ -418,7 +418,7 @@ class ImportOldDBController extends Controller{
                     $i->save();
 
                     //Guardamos rol:
-                    $i->assignRole('basico');
+                    //$i->assignRole('basico');
                 }
             }
         }
@@ -667,6 +667,18 @@ class ImportOldDBController extends Controller{
                 $i->created_at = $r->created_at;
                 $i->updated_at = $r->updated_at;
                 $i->save();
+
+                //Asignamos roles de empresa a user. A las empresas ADN se les genera -de entrada- role de manager. Al resto role básico.
+                $adn_companies = [3,4,8,202,227,275]; 
+                
+                if(in_array($r->company_id, $adn_companies)){
+                    $company_roles = Role::where('company_id', $r->company_id)->orderBy('id', 'ASC')->first();
+                }else{
+                    $company_roles = Role::where('company_id', $r->company_id)->orderBy('id', 'DESC')->first();
+                }
+
+                $user = User::find($i->user_id);
+                $user->assignRole($company_roles->name);
             }
         }
     }
