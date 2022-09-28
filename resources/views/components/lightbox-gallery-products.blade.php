@@ -8,17 +8,19 @@ $image_mimes = App\Helpers\helpers::imgMimeTypes();
     <div class="ibox-content">
         <div class="lightBoxGallery">
             <div class="row">
-                @foreach($docs as $doc)
-                    {{-- Filtramos las imágenes --}}
-                    @if(in_array($doc->type, $image_mimes))
-                        {{-- Método render de la imagen --}}
-                        {!! $renderImg($doc, true) !!}
-                    @else
-                        @php
-                        array_push($other_files, $doc);
-                        @endphp
-                    @endif
-                @endforeach
+                @if(count($docs))
+                    @foreach($docs as $doc)
+                        {{-- Filtramos las imágenes --}}
+                        @if(in_array($doc->type, $image_mimes))
+                            {{-- Método render de la imagen --}}
+                            {!! $renderImg($doc, true) !!}
+                        @else
+                            @php
+                            array_push($other_files, $doc);
+                            @endphp
+                        @endif
+                    @endforeach
+                @endif
 
                 {{-- Render otros archivos --}}
                 @foreach($other_files as $doc)
