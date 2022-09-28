@@ -1,3 +1,5 @@
+@props(['images' => []])
+
 <div class="ibox">
     <div class="ibox-content">
         <div class="lightBoxGallery">
