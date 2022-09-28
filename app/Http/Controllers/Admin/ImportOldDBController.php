@@ -678,7 +678,9 @@ class ImportOldDBController extends Controller{
                 }
 
                 $user = User::find($i->user_id);
-                $user->assignRole($company_roles->name);
+                if($user && $company_roles){
+                    $user->assignRole($company_roles->name);     
+                }
             }
         }
     }
