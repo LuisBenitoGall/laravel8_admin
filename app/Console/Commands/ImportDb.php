@@ -86,6 +86,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Spatie\Permission\Models\Permission;
 
 class ImportDb extends Command
 {
@@ -405,7 +406,7 @@ class ImportDb extends Command
                     $i->created_at = $r->created_at;
                     $i->updated_at = $r->updated_at;
                     $i->save();
-                   // dd($i);
+                    // dd($i);
                     //Guardamos rol:
                     $i->assignRole('basico');
                 }
@@ -442,6 +443,7 @@ class ImportDb extends Command
                 $i->created_at = $r->created_at;
                 $i->updated_at = $r->updated_at;
                 $i->save();
+                $i->setCompanyRoles();
             }
 
         }
@@ -3126,6 +3128,37 @@ class ImportDb extends Command
                 $i->created_at = $r->created_at;
                 $i->updated_at = $r->updated_at;
                 $i->save();
+            }
+        }
+    }
+
+    /**
+     * 3. Roles básicos por empresa.
+     */
+    public function setCompanyRoles()
+    {
+        $basic_roles = ['manager', 'basic'];
+
+        //Permisos exclusivos del Super Admin, por lo que no pueden vincularse a ningún otro role:
+        $exceptions = config('constants.PERMISSIONS_OFF_');
+
+        $permissions = Permission::get();
+
+        //Pasamos a un array todos los permisos válidos para el manager:
+        $arr = [];
+        foreach ($permissions as $p) {
+            $segments = explode('.', $p->name);
+            if (!in_array($segments[0], $exceptions)) {
+                array_push($arr, $p->id);
+            }
+        }
+
+        foreach ($basic_roles as $br) {
+            $role = Company::saveCompanyRole($br, $this->id);
+
+            //Exclusivo para manager:
+            if ($br == 'manager') {
+                $role->syncPermissions($arr);
             }
         }
     }

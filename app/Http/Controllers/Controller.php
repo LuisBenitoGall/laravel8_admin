@@ -30,8 +30,11 @@ use Spatie\Permission\Models\Role;
 class Controller extends BaseController{
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
+
+
+
     /**
-     * 1. Países. 
+     * 1. Países.
      * 2. Provincias por país.
      * 3. Poblaciones por provincia.
      * 4. Generar .json de módulos.
@@ -47,15 +50,15 @@ class Controller extends BaseController{
      * 12. Importaciones iniciales.
      * 13. Generación número por patrón.
      *
-     * 
+     *
      * 5. Convertir fecha.
-     * 
+     *
      * 8. Obtener browser agent.
      * 9. Módulos asociados.
      * 13. Actualizar importe de factura por modificación en pedido.
      * 14. Sincronizar fechas de entrega y entrega prevista para pedidos y proyectos.
-     */ 
-    
+     */
+
     /**
      * 1. Países.
      *
@@ -65,7 +68,7 @@ class Controller extends BaseController{
         if($status == ''){
             $data = Country::select('name', 'id')->get();
         }else{
-            $data = Country::select('name', 'id')->where('status', $status)->get(); 
+            $data = Country::select('name', 'id')->where('status', $status)->get();
         }
 
         //Si sólo hay un país, devolvemos sólo el id:
@@ -84,7 +87,7 @@ class Controller extends BaseController{
 
     /**
      * 2. Provincias por país.
-     * 
+     *
      * @param  [type]  $id    [description]
      * @param  string  $status [description]
      * @param  boolean $array [description]
@@ -94,7 +97,7 @@ class Controller extends BaseController{
         if($status == ''){
             $data = Province::select('name', 'id')->where('country_id', '=', $id)->get();
         }else{
-            $data = Province::select('name', 'id')->where('country_id', '=', $id)->where('status', $status)->get();    
+            $data = Province::select('name', 'id')->where('country_id', '=', $id)->where('status', $status)->get();
         }
 
         //Convertir a array:
@@ -106,13 +109,13 @@ class Controller extends BaseController{
             return $response;
 
         }else{
-            return $data;   
+            return $data;
         }
     }
 
     /**
      * 3. Poblaciones por provincia.
-     * 
+     *
      * @param  [type]  $id    [description]
      * @param  string  $status [description]
      * @param  boolean $array [description]
@@ -122,7 +125,7 @@ class Controller extends BaseController{
         if($status == ''){
             $data = Town::select('name', 'id')->where('province_id', '=', $id)->get();
         }else{
-            $data = Town::select('name', 'id')->where('province_id', '=', $id)->where('status', $status)->get();   
+            $data = Town::select('name', 'id')->where('province_id', '=', $id)->where('status', $status)->get();
         }
 
         //Convertir a array:
@@ -170,7 +173,7 @@ class Controller extends BaseController{
     }
 
     /**
-     * 6. Generar .json de funcionalidades. 
+     * 6. Generar .json de funcionalidades.
      *
      * @return .json
      */
@@ -189,7 +192,7 @@ class Controller extends BaseController{
 
         if(session('modules')){
             $data = Module::where('slug', $module)->first();
-            $exist = $data && in_array($data->id, session('modules'))? true:false;    
+            $exist = $data && in_array($data->id, session('modules'))? true:false;
         }
         return $exist;
     }
@@ -210,8 +213,8 @@ class Controller extends BaseController{
             }else{
                 return false;
             }
-        }    
-    }  
+        }
+    }
 
     /**
      * 9. Session módulos por empresa.
@@ -224,7 +227,7 @@ class Controller extends BaseController{
 
         foreach($modules as $row){
             \Session::push('modules', $row->module_id);
-        }  
+        }
     }
 
     /**
@@ -243,7 +246,7 @@ class Controller extends BaseController{
             }else{
                 return false;
             }
-        }    
+        }
     }
 
     /**
@@ -264,7 +267,7 @@ class Controller extends BaseController{
             }
         }else{
             return NULL;
-        }     
+        }
     }
 
     /**
@@ -312,7 +315,7 @@ class Controller extends BaseController{
         $arrPattern = unserialize($pattern->pattern);
 
         //Casos especiales:
-        if($table == 'purchase'){ 
+        if($table == 'purchase'){
             $table = 'order';
             $change_again = 'purchase';
         }elseif($table == 'budget'){
@@ -326,7 +329,7 @@ class Controller extends BaseController{
         }
 
         switch($change_again){
-            case 'purchase':    
+            case 'purchase':
                 $cardinal_ = 'purchase_num_cardinal';
                 $pattern_ = 'purchase_pattern_id';
                 break;
@@ -341,7 +344,7 @@ class Controller extends BaseController{
             default:
                 $cardinal_ = 'num_cardinal';
                 $pattern_ = 'pattern_id';
-                break;    
+                break;
         }
 
         // $cardinal_ = $change_again == 'purchase'? 'purchase_num_cardinal':'num_cardinal';
@@ -395,11 +398,11 @@ class Controller extends BaseController{
                         break;
                     case $bloque_digitos:
                         $pattern_num .= $key;
-                        break;  
+                        break;
                     default:
                         $pattern_num .= $sgm;
                         break;
-                }    
+                }
             }
 
             //Comprobamos que el número creado no exista previamente:
