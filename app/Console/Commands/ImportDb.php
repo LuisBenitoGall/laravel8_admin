@@ -87,6 +87,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class ImportDb extends Command
 {
@@ -645,18 +646,17 @@ class ImportDb extends Command
     /**
      * 10. Importar Usuarios por empresas.
      */
-    public function importUserCompanies()
-    {
+    public function importUserCompanies(){
         $data = DB::connection('mysql2')->table('user_companies')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'usuarios por empresas']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('user_companies')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new UserCompanies;
                 $i->id = $r->id;
                 $i->user_id = $r->user_id;
@@ -665,6 +665,18 @@ class ImportDb extends Command
                 $i->created_at = $r->created_at;
                 $i->updated_at = $r->updated_at;
                 $i->save();
+
+                //Asignamos roles de empresa a user. A las empresas ADN se les genera -de entrada- role de manager. Al resto role básico.
+                $adn_companies = [3,4,8,202,227,275];
+
+                if(in_array($r->company_id, $adn_companies)){
+                    $company_roles = Role::where('company_id', $r->company_id)->orderBy('id', 'ASC')->first();
+                }else{
+                    $company_roles = Role::where('company_id', $r->company_id)->orderBy('id', 'DESC')->first();
+                }
+
+                $user = User::find($i->user_id);
+                $user->assignRole($company_roles->name);
             }
         }
     }
@@ -3132,36 +3144,6 @@ class ImportDb extends Command
         }
     }
 
-    /**
-     * 3. Roles básicos por empresa.
-     */
-    public function setCompanyRoles()
-    {
-        $basic_roles = ['manager', 'basic'];
-
-        //Permisos exclusivos del Super Admin, por lo que no pueden vincularse a ningún otro role:
-        $exceptions = config('constants.PERMISSIONS_OFF_');
-
-        $permissions = Permission::get();
-
-        //Pasamos a un array todos los permisos válidos para el manager:
-        $arr = [];
-        foreach ($permissions as $p) {
-            $segments = explode('.', $p->name);
-            if (!in_array($segments[0], $exceptions)) {
-                array_push($arr, $p->id);
-            }
-        }
-
-        foreach ($basic_roles as $br) {
-            $role = Company::saveCompanyRole($br, $this->id);
-
-            //Exclusivo para manager:
-            if ($br == 'manager') {
-                $role->syncPermissions($arr);
-            }
-        }
-    }
 
 
     /**
