@@ -452,6 +452,9 @@ class ImportOldDBController extends Controller{
                 $i->created_at = $r->created_at;
                 $i->updated_at = $r->updated_at;
                 $i->save();
+
+                //Roles básicos por empresa.
+                $i->->setCompanyRoles();
             }
 
         }
