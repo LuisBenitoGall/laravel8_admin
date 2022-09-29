@@ -22,7 +22,7 @@ if(!$initial_imports->value){
 
     if($imports_done){
         $initial_imports->value = true;
-        $initial_imports->save();    
+        $initial_imports->save();
     }
 }
 @endphp
@@ -34,7 +34,7 @@ if(!$initial_imports->value){
         	<div class="navbar-header">
         		{{-- Minimizar menú lateral --}}
                 <a class="navbar-minimalize minimalize-styl-2 btn btn-primary no-spinner " href="#">
-                	<i class="fa fa-bars"></i> 
+                	<i class="fa fa-bars"></i>
                 </a>
 
                 {{-- Buscador --}}
@@ -43,17 +43,17 @@ if(!$initial_imports->value){
                         <input type="text" placeholder="{{ ucfirst(trans('textos.buscar')) }}..." class="form-control" name="top-search" id="top-search">
                     </div>
                 </form> --}}
-            </div>    
+            </div>
 
-            <ul class="nav navbar-top-links navbar-right"> 
-            	{{-- Control horario --}}       
+            <ul class="nav navbar-top-links navbar-right">
+            	{{-- Control horario --}}
                 @if($setTimetable)
                     @php
                     //Obtenemos conceptos horarios de la empresa.
                     $timetable_items = App\Models\TimetableItems::where('company_id', session('currentCompany'))->get();
                     @endphp
 
-                    {{-- Condiciones: 
+                    {{-- Condiciones:
                         1. Deben existir conceptos horarios.
                         2. El usuario debe tener activo un empleo.
                     --}}
@@ -67,7 +67,7 @@ if(!$initial_imports->value){
                         $aditional_items_in = false;
                         $aditional_items_out = false;
 
-                        //Conceptos de control horario con limitación de veces:                        
+                        //Conceptos de control horario con limitación de veces:
                         $nVeces = App\Models\Timetable::select('timetable_items.id', 'timetable_items.qty')
                         ->join('timetable_items', 'timetables.item_id', '=', 'timetable_items.id')
                         ->where('timetables.user_id', Auth::user()->id)
@@ -99,26 +99,26 @@ if(!$initial_imports->value){
                                 {{-- Entrada simple --}}
                                 @if($ti->basic_item && $ti->type == 1)
                                     @php
-                                    $entradaId = $ti->id; 
+                                    $entradaId = $ti->id;
                                     @endphp
                                 @endif
 
                                 {{-- Salida simple --}}
                                 @if($ti->basic_item && $ti->type == 2)
                                     @php
-                                    $salidaId = $ti->id; 
+                                    $salidaId = $ti->id;
                                     @endphp
-                                @endif   
+                                @endif
 
                                 {{-- Otros tipos de entrada --}}
-                                @if(!$ti->basic_item && $ti->type == 1) 
+                                @if(!$ti->basic_item && $ti->type == 1)
                                     @php
                                     $aditional_items_in = true;
                                     @endphp
                                 @endif
 
                                 {{-- Otros tipos de salida --}}
-                                @if(!$ti->basic_item && $ti->type == 2) 
+                                @if(!$ti->basic_item && $ti->type == 2)
                                     @php
                                     $aditional_items_out = true;
                                     @endphp
@@ -137,22 +137,22 @@ if(!$initial_imports->value){
                                     $unlock_hour = App\Helpers\helpers::getTimeFromMinutes($total_minutes);
 
                                     if(date('Y-m-d').' '.$unlock_hour > date('Y-m-d H:i')){
-                                        $blocked = $unlock_hour; 
+                                        $blocked = $unlock_hour;
                                     }
                                     @endphp
                                 @endif
 
-                                {{-- Bloqueo de conceptos 2 
+                                {{-- Bloqueo de conceptos 2
                                     Si la hora del último registro es superior a la hora actual:
                                 --}}
                                 {{-- 16/08/22 revisar esta condición, no acabo de entenderla --}}
                                 {{-- @if($lastHour && $lastHour->hour >= date('H:i:s', time()))
                                     @php
                                     $blocked = $lastHour->hour;
-                                    @endphp    
+                                    @endphp
                                 @endif --}}
                             @endforeach
-                        @endif  
+                        @endif
 
                         {{-- Concepto de entrada --}}
                         @if(!$lastHour || $lastHour->flag == 2)
@@ -180,11 +180,11 @@ if(!$initial_imports->value){
                         {{-- @if($agent->isDesktop()) --}}
 
                         {{-- Descomentar la línea siguiente para habilitar la detección de IP --}}
-                        @if($agent->isDesktop() && is_array($setted_ips) && in_array($ip, $setted_ips))    
+                        @if($agent->isDesktop() && is_array($setted_ips) && in_array($ip, $setted_ips))
                             <li class="HourlyControl basicHourlyControl list-inline-item notif display-none" id="HCdesktop">
                                 <a href="{{ route('timetable.store', $tipoCH) }}" class="arrow-none btnHourlyControl {{ $actionCH }} one-click" role="button">
                                     @if($actionCH == 'entrada')
-                                        {{ ucfirst(trans('textos.entrar')) }} 
+                                        {{ ucfirst(trans('textos.entrar')) }}
                                     @else
                                         {{-- Concepto con salida propia --}}
                                         @if($own_output)
@@ -200,12 +200,12 @@ if(!$initial_imports->value){
 
                                 {{-- Bloqueo del selector --}}
                                 <span class="blocked-enter" @if($blocked) style="display: block;" rel="tooltip" title="{{ trans('textos.bloqueado_hasta') }} {{ $blocked }}h." @endif>
-                                    <i class="fa fa-ban"></i>    
+                                    <i class="fa fa-ban"></i>
                                 </span>
                             </li>
-                        @endif      
+                        @endif
 
-                        {{-- Conceptos adicionales. Condiciones: 
+                        {{-- Conceptos adicionales. Condiciones:
                             1. Deben existir conceptos adicionales de entrada o salida:
                             2. El último registro de entrada no debe tener concepto de salida propio.
                             3. No debe existir ningún bloqueo horario ($blocked)
@@ -214,7 +214,7 @@ if(!$initial_imports->value){
                             <li class="HourlyControl subItems_ list-inline-item dropdown notif" @if($blocked) style="display: none" @endif>
                                 <a href="#" class="nav-link dropdown-toggle arrow-none" data-toggle="dropdown" role="button" aria-haspopup="false" aria-expanded="false">
                                     <span class="btnHourlyControl {{ $actionCH }}">
-                                        <i class="fa fa-fw fa-caret-down"></i>  
+                                        <i class="fa fa-fw fa-caret-down"></i>
                                     </span>
                                 </a>
 
@@ -262,7 +262,7 @@ if(!$initial_imports->value){
                                                             <a href="{{ route('timetable.store', $ti->id) }}" class="one-click">
                                                                 <i class="fa fa-{{ $ti->icon }}"></i>
                                                                 {{ $ti->name }}
-                                                            </a>    
+                                                            </a>
                                                         </li>
 
                                                         @php
@@ -299,7 +299,7 @@ if(!$initial_imports->value){
                                                             <a href="{{ route('timetable.store', $ti->id) }}">
                                                                 <i class="fa fa-{{ $ti->icon }}"></i>
                                                                 {{ $ti->name }}
-                                                            </a>    
+                                                            </a>
                                                         </li>
 
                                                         @php
@@ -330,11 +330,11 @@ if(!$initial_imports->value){
                         //Mostrar selector de opciones adicionales:
                         var with_aditionals_items = '{{ $with_aditionals_items }}';
                         if(!with_aditionals_items){
-                            $('.subItems_').hide();    
+                            $('.subItems_').hide();
                         }
                         </script>
                     @endif
-                @endif	
+                @endif
 
                 {{-- Selector idioma --}}
                 @if(count($languages) > 1)
@@ -361,7 +361,7 @@ if(!$initial_imports->value){
                                     <li>
                                         <a href="{!! route('locale', $lang[0]) !!}">
                                             {!! $lang[3] !!}
-                                        </a>    
+                                        </a>
                                     </li>
 
                                     @php
@@ -378,8 +378,8 @@ if(!$initial_imports->value){
                     <a class="dropdown-toggle count-info" data-toggle="dropdown" href="javascript:void(0);" role="button" rel="tooltip" title="{{ ucfirst(trans('textos.notificaciones')) }}">
                         <i class="fa fa-bell"></i>
                         <span class="label label-danger" id="notificationsQty"
-                            @if(count(auth()->user()->unreadNotifications) == 0) style="display:none;" @endif>
-                            {{ count(auth()->user()->unreadNotifications) }}
+                            @if(\Auth::user()->unreadNotifications()->count() == 0) style="display:none;" @endif>
+                            {{ Auth::user()->unreadNotifications()->count() }}
                         </span>
                     </a>
 
@@ -401,14 +401,14 @@ if(!$initial_imports->value){
                                         {!! $notification->data['title'] !!}
 
                                         <small class="text-warning pull-right">{!! $notification->created_at->diffForHumans() !!}</small>
-                                    </a>    
+                                    </a>
                                 </li>
                             @endif
 
                             @if($i == 5 && count(auth()->user()->unreadNotifications) > 5)
                                 <li class="notification_">
                                     <a href="{!! route('notifications.index') !!}">
-                                        <i class="fa fa-envelope"></i> 
+                                        <i class="fa fa-envelope"></i>
                                         ...
                                     </a>
                             @endif
@@ -430,12 +430,12 @@ if(!$initial_imports->value){
                         <li class="notify-all">
                             <a href="{!! route('notifications.index') !!}">
                                 {{ ucfirst(trans('textos.ver_todo')) }}
-                            </a>    
+                            </a>
                         </li>
                         <li class="notify-all">
                             <a href="{{ route('notifications-read') }}">
                                 {{ ucfirst(trans('textos.notificaciones_marcar')) }}
-                            </a>    
+                            </a>
                         </li>
                     </ul>
                 </li>
@@ -462,7 +462,7 @@ if(!$initial_imports->value){
                     <a href="{{ route('chat.index') }}" role="button" class="count-info" rel="tooltip" title="{{ ucfirst(trans('textos.chat')) }}">
                         <i class="fa fa-comments"></i>
                         <span class="label label-success" id="chat-messages-num">
-                            
+
                         </span>
                     </a>
                 </li>
@@ -483,7 +483,7 @@ if(!$initial_imports->value){
                                 {{ csrf_field() }}
                                 <input type="hidden" name="url" value="{!! url()->full() !!}">
 
-                                <input type="text" name="name" id="preferenceName" class="form-control">  
+                                <input type="text" name="name" id="preferenceName" class="form-control">
                                 <small class="text-warning">
                                     {!! trans('textos.guarda_pantalla') !!}
                                 </small>
@@ -495,7 +495,7 @@ if(!$initial_imports->value){
                 {{-- Selector de empresa: desde algunas páginas no se puede cambiar de empresa --}}
                 @if(session('companies'))
                 	<li class="list-inline-item" style="min-width: 200px;">
-                    
+
                         @if(count(session('companies')) > 1 && !isset($noSelectCompany))
                             <select class="form-control select-company select2">
                                 @if(!session('currentCompany'))
@@ -508,26 +508,26 @@ if(!$initial_imports->value){
                                     @endphp
 
                                     <option value="{{ $c->id }}" {{ $selected }}>{{ $c->name }}</option>
-                                @endforeach   
-                            </select>  
+                                @endforeach
+                            </select>
                         @else
                             @foreach(session('companies') as $c)
                                 @if($c->id == session('currentCompany'))
                                     <h5 class="companyName">{{ $c->name }}</h5>
                                 @endif
                             @endforeach
-                        @endif 
+                        @endif
                     </li>
                 @else
 
-                @endif   
+                @endif
 
-                {{-- Administrador: --}}   
+                {{-- Administrador: --}}
                 <li class="dropdown">
                 	@php
-                    $avatar = Auth::user()->images()->first(); 
+                    $avatar = Auth::user()->images()->first();
                     @endphp
-                    
+
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false">
                 		<img class="rounded-circle avatar" src="@if($avatar) {{ asset('img/users/'.$avatar->image) }} @else {{ asset('img/users/user.png') }} @endif" alt="{{ Auth::user()->name }}"/>
                 	</a>
@@ -554,7 +554,7 @@ if(!$initial_imports->value){
                             </form>
                         </li>
                 	</ul>
-                </li>      
+                </li>
             </ul>
         </nav>
     </div>
@@ -590,5 +590,5 @@ if(!$initial_imports->value){
             <div class="alert alert-danger" role="alert">
                 {!! session('alert') !!}
             </div>
-        @endif    
+        @endif
 

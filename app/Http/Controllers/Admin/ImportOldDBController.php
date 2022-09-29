@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Helpers\helpers;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
@@ -678,6 +679,7 @@ class ImportOldDBController extends Controller{
                 }
 
                 $user = User::find($i->user_id);
+                dd(Arr::exists($user->roles(),'model_id'));
                 if($user && $company_roles){
                     if(!$user->hasRole($company_roles->name)) {
                         $user->assignRole($company_roles->name);

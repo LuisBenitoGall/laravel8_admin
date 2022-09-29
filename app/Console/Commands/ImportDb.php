@@ -83,6 +83,7 @@ use App\Models\Workplace;
 use App\Models\WorkUserCalendar;
 use Illuminate\Console\Command;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -409,7 +410,7 @@ class ImportDb extends Command
                     $i->save();
                     // dd($i);
                     //Guardamos rol:
-                    $i->assignRole('basico');
+                    //$i->assignRole('basico');
                 }
             }
         }
@@ -646,17 +647,18 @@ class ImportDb extends Command
     /**
      * 10. Importar Usuarios por empresas.
      */
-    public function importUserCompanies(){
+    public function importUserCompanies()
+    {
         $data = DB::connection('mysql2')->table('user_companies')->get();
 
-        if($data->count()){
+        if ($data->count()) {
             Importaciones::create(['texto' => 'usuarios por empresas']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('user_companies')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach($data as $r){
+            foreach ($data as $r) {
                 $i = new UserCompanies;
                 $i->id = $r->id;
                 $i->user_id = $r->user_id;
@@ -667,21 +669,35 @@ class ImportDb extends Command
                 $i->save();
 
                 //Asignamos roles de empresa a user. A las empresas ADN se les genera -de entrada- role de manager. Al resto role básico.
-                $adn_companies = [3,4,8,202,227,275];
+                $adn_companies = [3, 4, 8, 202, 227, 275];
 
-                if(in_array($r->company_id, $adn_companies)){
+                if (in_array($r->company_id, $adn_companies)) {
                     $company_roles = Role::where('company_id', $r->company_id)->orderBy('id', 'ASC')->first();
-                }else{
+                } else {
                     $company_roles = Role::where('company_id', $r->company_id)->orderBy('id', 'DESC')->first();
                 }
 
                 $user = User::find($i->user_id);
 
-                    if($user && $company_roles){
-                        if(!$user->hasRole($company_roles->name)) {
+                if ($user && $company_roles) {
+
+                    if (!$user->hasRole($company_roles->name)) {
+                        if (Arr::exists($user->roles, 0)) {
+                            $model_id = Arr::first($user->roles, function ($value) {
+                                return $value->pivot->model_id;
+                            });
+
+                            if ($model_id->pivot->model_id !== $user->id) {
+                                $user->assignRole($company_roles->name);
+                            }
+                        } else {
+
                             $user->assignRole($company_roles->name);
+
                         }
+
                     }
+                }
 
 
             }
@@ -3150,7 +3166,6 @@ class ImportDb extends Command
             }
         }
     }
-
 
 
     /**
