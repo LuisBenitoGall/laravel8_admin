@@ -445,7 +445,7 @@ class ImportDb extends Command
                 $i->created_at = $r->created_at;
                 $i->updated_at = $r->updated_at;
                 $i->save();
-                $i->setCompanyRoles();
+               // $i->setCompanyRoles();
             }
 
         }
