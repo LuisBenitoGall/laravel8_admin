@@ -1,40 +1,40 @@
 @php
-// Detectar IP:
-$ip = request()->ip();
+    // Detectar IP:
+    $ip = request()->ip();
 
-// Agent:
-use Jenssegers\Agent\Agent;
-$agent = new Agent();
+    // Agent:
+    use Jenssegers\Agent\Agent;
+    $agent = new Agent();
 
-// Control horario:
-$controller = new App\Http\Controllers\Controller;
-$setTimetable = $controller->settedModule('timetables');
+    // Control horario:
+    $controller = new App\Http\Controllers\Controller;
+    $setTimetable = $controller->settedModule('timetables');
 
-// Idiomas:
-$languages = App\Helpers\Helpers::languages();
+    // Idiomas:
+    $languages = App\Helpers\Helpers::languages();
 
-//Configuraciones 1ª vez:
-$initial_imports = App\Models\AppSettings::select('id', 'value')->where('field', 'initial_imports')->first();
-$imports_done = false;
-if(!$initial_imports->value){
-    $imports = new App\Http\Controllers\Controller;
-    $imports_done = $imports->initialImports();
+    //Configuraciones 1ª vez:
+    $initial_imports = App\Models\AppSettings::select('id', 'value')->where('field', 'initial_imports')->first();
+    $imports_done = false;
+    if(!$initial_imports->value){
+        $imports = new App\Http\Controllers\Controller;
+        $imports_done = $imports->initialImports();
 
-    if($imports_done){
-        $initial_imports->value = true;
-        $initial_imports->save();
+        if($imports_done){
+            $initial_imports->value = true;
+            $initial_imports->save();
+        }
     }
-}
 @endphp
 
 <div id="page-wrapper" class="gray-bg dashbard-1">
-	{{-- Top Menu --}}
-	<div class="row border-bottom">
-		<nav class="navbar navbar-static-top" role="navigation" style="margin-bottom: 0">
-        	<div class="navbar-header">
-        		{{-- Minimizar menú lateral --}}
+    {{-- Top Menu --}}
+    <div class="row border-bottom">
+        <nav class="navbar navbar-static-top" role="navigation" style="margin-bottom: 0">
+            <div class="navbar-header">
+                {{-- Minimizar menú lateral --}}
                 <a class="navbar-minimalize minimalize-styl-2 btn btn-primary no-spinner " href="#">
-                	<i class="fa fa-bars"></i>
+                    <i class="fa fa-bars"></i>
                 </a>
 
                 {{-- Buscador --}}
@@ -46,11 +46,11 @@ if(!$initial_imports->value){
             </div>
 
             <ul class="nav navbar-top-links navbar-right">
-            	{{-- Control horario --}}
+                {{-- Control horario --}}
                 @if($setTimetable)
                     @php
-                    //Obtenemos conceptos horarios de la empresa.
-                    $timetable_items = App\Models\TimetableItems::where('company_id', session('currentCompany'))->get();
+                        //Obtenemos conceptos horarios de la empresa.
+                        $timetable_items = App\Models\TimetableItems::where('company_id', session('currentCompany'))->get();
                     @endphp
 
                     {{-- Condiciones:
@@ -59,39 +59,39 @@ if(!$initial_imports->value){
                     --}}
                     @if($timetable_items->count() && session('userEmployee'))
                         @php
-                        //Separamos los conceptos básicos de Entrada y Salida:
-                        $entradaId = false;
-                        $salidaId = false;
+                            //Separamos los conceptos básicos de Entrada y Salida:
+                            $entradaId = false;
+                            $salidaId = false;
 
-                        //Para mostrar los items adicionales:
-                        $aditional_items_in = false;
-                        $aditional_items_out = false;
+                            //Para mostrar los items adicionales:
+                            $aditional_items_in = false;
+                            $aditional_items_out = false;
 
-                        //Conceptos de control horario con limitación de veces:
-                        $nVeces = App\Models\Timetable::select('timetable_items.id', 'timetable_items.qty')
-                        ->join('timetable_items', 'timetables.item_id', '=', 'timetable_items.id')
-                        ->where('timetables.user_id', Auth::user()->id)
-                        ->where('timetable_items.qty', '>', 0)
-                        ->whereDate('timetables.date', Carbon\Carbon::today())
-                        ->get();
+                            //Conceptos de control horario con limitación de veces:
+                            $nVeces = App\Models\Timetable::select('timetable_items.id', 'timetable_items.qty')
+                            ->join('timetable_items', 'timetables.item_id', '=', 'timetable_items.id')
+                            ->where('timetables.user_id', Auth::user()->id)
+                            ->where('timetable_items.qty', '>', 0)
+                            ->whereDate('timetables.date', Carbon\Carbon::today())
+                            ->get();
 
-                        //Obtenemos último registro horario del usuario, si es Entrada o Salida
-                        $lastHour = App\Models\Timetable::select('hour', 'flag', 'item_id')
-                        ->where('user_id', Auth::user()->id)
-                        ->orderBy('date', 'DESC')
-                        ->orderBy('hour', 'DESC')
-                        ->orderBy('id', 'DESC')
-                        ->first();
+                            //Obtenemos último registro horario del usuario, si es Entrada o Salida
+                            $lastHour = App\Models\Timetable::select('hour', 'flag', 'item_id')
+                            ->where('user_id', Auth::user()->id)
+                            ->orderBy('date', 'DESC')
+                            ->orderBy('hour', 'DESC')
+                            ->orderBy('id', 'DESC')
+                            ->first();
 
-                        //Si el registro es de entrada comprobamos si tiene concepto de salida propio. En caso verdadero será esta la única opción de salida que se le muestre al usuario.
-                        $own_output = false;
-                        if($lastHour && $lastHour->flag == 1){
-                            $own_output = App\Models\TimetableItems::where('own_output', $lastHour->item_id)->first();
-                        }
+                            //Si el registro es de entrada comprobamos si tiene concepto de salida propio. En caso verdadero será esta la única opción de salida que se le muestre al usuario.
+                            $own_output = false;
+                            if($lastHour && $lastHour->flag == 1){
+                                $own_output = App\Models\TimetableItems::where('own_output', $lastHour->item_id)->first();
+                            }
 
-                        //Opciones de entrada bloqueadas para conceptos con un tiempo máximo o duración mínima:
-                        $blocked = false;
-                        $with_aditionals_items = false;
+                            //Opciones de entrada bloqueadas para conceptos con un tiempo máximo o duración mínima:
+                            $blocked = false;
+                            $with_aditionals_items = false;
                         @endphp
 
                         @if($timetable_items->count() && !$own_output)
@@ -99,46 +99,46 @@ if(!$initial_imports->value){
                                 {{-- Entrada simple --}}
                                 @if($ti->basic_item && $ti->type == 1)
                                     @php
-                                    $entradaId = $ti->id;
+                                        $entradaId = $ti->id;
                                     @endphp
                                 @endif
 
                                 {{-- Salida simple --}}
                                 @if($ti->basic_item && $ti->type == 2)
                                     @php
-                                    $salidaId = $ti->id;
+                                        $salidaId = $ti->id;
                                     @endphp
                                 @endif
 
                                 {{-- Otros tipos de entrada --}}
                                 @if(!$ti->basic_item && $ti->type == 1)
                                     @php
-                                    $aditional_items_in = true;
+                                        $aditional_items_in = true;
                                     @endphp
                                 @endif
 
                                 {{-- Otros tipos de salida --}}
                                 @if(!$ti->basic_item && $ti->type == 2)
                                     @php
-                                    $aditional_items_out = true;
+                                        $aditional_items_out = true;
                                     @endphp
                                 @endif
 
                                 {{-- Bloqueo de conceptos 1 --}}
                                 @if($lastHour && $lastHour->item_id == $ti->id && $ti->max > 0)
                                     @php
-                                    //Convertimos la última hora a minutos y le sumamos el tiempo máximo.
-                                    $minutes = App\Helpers\helpers::getMinutes($lastHour->hour);
-                                    //16/07/21: se pone un fijo de 5 minutos para el tiempo máximo:
-                                    $max_time = 5;
-                                    $total_minutes = $minutes + $max_time; //$ti->max;
+                                        //Convertimos la última hora a minutos y le sumamos el tiempo máximo.
+                                        $minutes = App\Helpers\helpers::getMinutes($lastHour->hour);
+                                        //16/07/21: se pone un fijo de 5 minutos para el tiempo máximo:
+                                        $max_time = 5;
+                                        $total_minutes = $minutes + $max_time; //$ti->max;
 
-                                    //Hora de desbloqueo:
-                                    $unlock_hour = App\Helpers\helpers::getTimeFromMinutes($total_minutes);
+                                        //Hora de desbloqueo:
+                                        $unlock_hour = App\Helpers\helpers::getTimeFromMinutes($total_minutes);
 
-                                    if(date('Y-m-d').' '.$unlock_hour > date('Y-m-d H:i')){
-                                        $blocked = $unlock_hour;
-                                    }
+                                        if(date('Y-m-d').' '.$unlock_hour > date('Y-m-d H:i')){
+                                            $blocked = $unlock_hour;
+                                        }
                                     @endphp
                                 @endif
 
@@ -157,23 +157,23 @@ if(!$initial_imports->value){
                         {{-- Concepto de entrada --}}
                         @if(!$lastHour || $lastHour->flag == 2)
                             @php
-                            $tipoCH = $entradaId;
-                            $actionCH = 'entrada';
-                            $flag = 1;
+                                $tipoCH = $entradaId;
+                                $actionCH = 'entrada';
+                                $flag = 1;
                             @endphp
 
-                        {{-- Concepto de salida --}}
+                            {{-- Concepto de salida --}}
                         @else
                             @php
-                            $tipoCH = !$own_output? $salidaId:$own_output->id;
-                            $actionCH = 'salida';
-                            $flag = 2;
+                                $tipoCH = !$own_output? $salidaId:$own_output->id;
+                                $actionCH = 'salida';
+                                $flag = 2;
                             @endphp
                         @endif
 
                         {{-- IP´s de la empresa --}}
                         @php
-                        $setted_ips = session('companySettings') && session('companySettings')->ip? unserialize(session('companySettings')->ip):false;
+                            $setted_ips = session('companySettings') && session('companySettings')->ip? unserialize(session('companySettings')->ip):false;
                         @endphp
 
                         {{-- Comentar la línea siguiente para habilitar deteccíon de IP --}}
@@ -181,8 +181,10 @@ if(!$initial_imports->value){
 
                         {{-- Descomentar la línea siguiente para habilitar la detección de IP --}}
                         @if($agent->isDesktop() && is_array($setted_ips) && in_array($ip, $setted_ips))
-                            <li class="HourlyControl basicHourlyControl list-inline-item notif display-none" id="HCdesktop">
-                                <a href="{{ route('timetable.store', $tipoCH) }}" class="arrow-none btnHourlyControl {{ $actionCH }} one-click" role="button">
+                            <li class="HourlyControl basicHourlyControl list-inline-item notif display-none"
+                                id="HCdesktop">
+                                <a href="{{ route('timetable.store', $tipoCH) }}"
+                                   class="arrow-none btnHourlyControl {{ $actionCH }} one-click" role="button">
                                     @if($actionCH == 'entrada')
                                         {{ ucfirst(trans('textos.entrar')) }}
                                     @else
@@ -199,7 +201,8 @@ if(!$initial_imports->value){
                                 </a>
 
                                 {{-- Bloqueo del selector --}}
-                                <span class="blocked-enter" @if($blocked) style="display: block;" rel="tooltip" title="{{ trans('textos.bloqueado_hasta') }} {{ $blocked }}h." @endif>
+                                <span class="blocked-enter" @if($blocked) style="display: block;" rel="tooltip"
+                                      title="{{ trans('textos.bloqueado_hasta') }} {{ $blocked }}h." @endif>
                                     <i class="fa fa-ban"></i>
                                 </span>
                             </li>
@@ -211,8 +214,10 @@ if(!$initial_imports->value){
                             3. No debe existir ningún bloqueo horario ($blocked)
                         --}}
                         @if( ($aditional_items_in && $flag == 1) || ($aditional_items_out && $flag == 2) )
-                            <li class="HourlyControl subItems_ list-inline-item dropdown notif" @if($blocked) style="display: none" @endif>
-                                <a href="#" class="nav-link dropdown-toggle arrow-none" data-toggle="dropdown" role="button" aria-haspopup="false" aria-expanded="false">
+                            <li class="HourlyControl subItems_ list-inline-item dropdown notif"
+                                @if($blocked) style="display: none" @endif>
+                                <a href="#" class="nav-link dropdown-toggle arrow-none" data-toggle="dropdown"
+                                   role="button" aria-haspopup="false" aria-expanded="false">
                                     <span class="btnHourlyControl {{ $actionCH }}">
                                         <i class="fa fa-fw fa-caret-down"></i>
                                     </span>
@@ -225,7 +230,7 @@ if(!$initial_imports->value){
                                         </li>
 
                                         @php
-                                        $seeConcept = '';
+                                            $seeConcept = '';
                                         @endphp
 
                                         @if(count($timetable_items))
@@ -237,9 +242,9 @@ if(!$initial_imports->value){
                                                         @if(isset($ti->qty))
                                                             @foreach($nVeces as $vez)
                                                                 @php
-                                                                if($ti->id == $vez->id && $ti->qty >= $vez->qty){
-                                                                    $seeConcept = 'oculto';
-                                                                }
+                                                                    if($ti->id == $vez->id && $ti->qty >= $vez->qty){
+                                                                        $seeConcept = 'oculto';
+                                                                    }
                                                                 @endphp
                                                             @endforeach
                                                         @endif
@@ -247,43 +252,44 @@ if(!$initial_imports->value){
                                                         {{-- Omitimos los conceptos si hay bloqueo hasta determinada hora --}}
                                                         @if($blocked && $flag == 1)
                                                             @php
-                                                            $seeConcept = 'oculto';
+                                                                $seeConcept = 'oculto';
                                                             @endphp
                                                         @endif
 
                                                         {{-- Omitimos los conceptos de salida que son propias de un concepto de entrada --}}
                                                         @if($ti->type == 2 && $ti->own_output > 0)
                                                             @php
-                                                            $seeConcept = 'oculto';
+                                                                $seeConcept = 'oculto';
                                                             @endphp
                                                         @endif
 
                                                         <li class="{{ $seeConcept }}">
-                                                            <a href="{{ route('timetable.store', $ti->id) }}" class="one-click">
+                                                            <a href="{{ route('timetable.store', $ti->id) }}"
+                                                               class="one-click">
                                                                 <i class="fa fa-{{ $ti->icon }}"></i>
                                                                 {{ $ti->name }}
                                                             </a>
                                                         </li>
 
                                                         @php
-                                                        //Variable para controlar si mostrar las opciones adicionales:
-                                                        if($seeConcept == '') $with_aditionals_items = true;
+                                                            //Variable para controlar si mostrar las opciones adicionales:
+                                                            if($seeConcept == '') $with_aditionals_items = true;
 
-                                                        $seeConcept = '';
+                                                            $seeConcept = '';
                                                         @endphp
                                                     @endif
 
                                                     {{-- Habilitamos los conceptos básicos de Entrada y Salida dentro de la red de ADN por móvil --}}
 
-                                                {{-- Descomentar el siguiente código para habilitar los conceptos Entrada y Salida para Móvil --}}
+                                                    {{-- Descomentar el siguiente código para habilitar los conceptos Entrada y Salida para Móvil --}}
                                                 @elseif($agent->isMobile() && is_array($setted_ips) && in_array($ip, $setted_ips))
                                                     @if($ti->type == $flag)
                                                         @if(isset($ti->qty))
                                                             @foreach($nVeces as $vez)
                                                                 @php
-                                                                if($ti->id == $vez->id && $ti->qty >= $vez->qty){
-                                                                    $seeConcept = 'oculto';
-                                                                }
+                                                                    if($ti->id == $vez->id && $ti->qty >= $vez->qty){
+                                                                        $seeConcept = 'oculto';
+                                                                    }
                                                                 @endphp
                                                             @endforeach
                                                         @endif
@@ -291,7 +297,7 @@ if(!$initial_imports->value){
                                                         {{-- Omitimos los conceptos si hay bloqueo hasta determinada hora --}}
                                                         @if($blocked && $flag == 1)
                                                             @php
-                                                            $seeConcept = 'oculto';
+                                                                $seeConcept = 'oculto';
                                                             @endphp
                                                         @endif
 
@@ -303,7 +309,7 @@ if(!$initial_imports->value){
                                                         </li>
 
                                                         @php
-                                                        $seeConcept = '';
+                                                            $seeConcept = '';
                                                         @endphp
                                                     @endif
                                                 @endif
@@ -325,13 +331,13 @@ if(!$initial_imports->value){
 
                         {{-- Control mediante timeout .js --}}
                         <script>
-                        var blocked_timetables = '{{ $blocked }}';
+                            var blocked_timetables = '{{ $blocked }}';
 
-                        //Mostrar selector de opciones adicionales:
-                        var with_aditionals_items = '{{ $with_aditionals_items }}';
-                        if(!with_aditionals_items){
-                            $('.subItems_').hide();
-                        }
+                            //Mostrar selector de opciones adicionales:
+                            var with_aditionals_items = '{{ $with_aditionals_items }}';
+                            if (!with_aditionals_items) {
+                                $('.subItems_').hide();
+                            }
                         </script>
                     @endif
                 @endif
@@ -339,9 +345,11 @@ if(!$initial_imports->value){
                 {{-- Selector idioma --}}
                 @if(count($languages) > 1)
                     <li class="dropdown">
-                        <a class="dropdown-toggle" data-toggle="dropdown" href="javascript:void(0);" role="button" rel="tooltip" title="{{ ucfirst(trans('textos.idiomas')) }}">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="javascript:void(0);" role="button"
+                           rel="tooltip" title="{{ ucfirst(trans('textos.idiomas')) }}">
                             <i class="fa fa-globe"></i>
-                            <span class="current-idm">{{ (session()->get('locale') != NULL)? session()->get('locale'):App::getLocale() }}</span>
+                            <span
+                                class="current-idm">{{ (session()->get('locale') != NULL)? session()->get('locale'):App::getLocale() }}</span>
                         </a>
 
                         <ul class="dropdown-menu dropdown-alerts">
@@ -350,14 +358,14 @@ if(!$initial_imports->value){
                             </li>
 
                             @php
-                            $divider = 0;
+                                $divider = 0;
                             @endphp
 
                             @foreach($languages as $lang)
                                 @if($lang[0] != App::getLocale() && $lang[5])
-                                	@if($divider > 0)
-                                		<li class="dropdown-divider"></li>
-                                	@endif
+                                    @if($divider > 0)
+                                        <li class="dropdown-divider"></li>
+                                    @endif
                                     <li>
                                         <a href="{!! route('locale', $lang[0]) !!}">
                                             {!! $lang[3] !!}
@@ -365,8 +373,8 @@ if(!$initial_imports->value){
                                     </li>
 
                                     @php
-                            		$divider++;
-                            		@endphp
+                                        $divider++;
+                                    @endphp
                                 @endif
                             @endforeach
                         </ul>
@@ -374,21 +382,22 @@ if(!$initial_imports->value){
                 @endif
 
                 {{-- Notificaciones --}}
-            	<li class="dropdown position-relative">
-                    <a class="dropdown-toggle count-info" data-toggle="dropdown" href="javascript:void(0);" role="button" rel="tooltip" title="{{ ucfirst(trans('textos.notificaciones')) }}">
+                <li class="dropdown position-relative">
+                    <a class="dropdown-toggle count-info" data-toggle="dropdown" href="javascript:void(0);"
+                       role="button" rel="tooltip" title="{{ ucfirst(trans('textos.notificaciones')) }}">
                         <i class="fa fa-bell"></i>
-                        <span class="label label-danger" id="notificationsQty"
-                            @if(\Auth::user()->unreadNotifications()->count() == 0) style="display:none;" @endif>
-                            {{ Auth::user()->unreadNotifications()->count() }}
-                        </span>
+                        {{--   <span class="label label-danger" id="notificationsQty"
+                               @if(Auth::user()->unreadNotifications()->count() == 0) style="display:none;" @endif>
+                               {{ Auth::user()->unreadNotifications()->count() }}
+                           </span>--}}
                     </a>
 
                     <ul class="dropdown-menu dropdown-alerts">
                         <li class="dm-header">
-                           {!! ucfirst(trans('textos.notificaciones')) !!}
+                            {!! ucfirst(trans('textos.notificaciones')) !!}
                         </li>
 
-                        @php
+                        {{--@php
                         //Mostramos un máximo de 5
                         $i = 1;
                         @endphp
@@ -425,7 +434,7 @@ if(!$initial_imports->value){
                                     <i class="fa fa-sync"></i>
                                 </a>
                             </li>
-                        @endforelse
+                        @endforelse--}}
 
                         <li class="notify-all">
                             <a href="{!! route('notifications.index') !!}">
@@ -442,24 +451,27 @@ if(!$initial_imports->value){
 
                 {{-- Nueva notificación --}}
                 <li>
-                    <a href="{{ route('messages.create') }}" role="button" rel="tooltip" title="{{ ucfirst(trans('textos.notificacion_nueva')) }}">
+                    <a href="{{ route('messages.create') }}" role="button" rel="tooltip"
+                       title="{{ ucfirst(trans('textos.notificacion_nueva')) }}">
                         <i class="fa fa-paper-plane"></i>
                     </a>
                 </li>
 
                 {{-- Notas --}}
                 <li class="dropdown">
-                    <a href="#" role="button" class="count-info" rel="tooltip" title="{{ ucfirst(trans('textos.notas')) }}" data-toggle="modal" data-target="#modal-add-note">
+                    <a href="#" role="button" class="count-info" rel="tooltip"
+                       title="{{ ucfirst(trans('textos.notas')) }}" data-toggle="modal" data-target="#modal-add-note">
                         <i class="fa fa-sticky-note"></i>
                         <span class="label label-warning" id="notesQty">
-                            {{ Auth::user()->notes() }}
+                            {{ optional(Auth::user())->notes()  ?? 0}}
                         </span>
                     </a>
                 </li>
 
                 {{-- Chat --}}
                 <li class="dropdown">
-                    <a href="{{ route('chat.index') }}" role="button" class="count-info" rel="tooltip" title="{{ ucfirst(trans('textos.chat')) }}">
+                    <a href="{{ route('chat.index') }}" role="button" class="count-info" rel="tooltip"
+                       title="{{ ucfirst(trans('textos.chat')) }}">
                         <i class="fa fa-comments"></i>
                         <span class="label label-success" id="chat-messages-num">
 
@@ -469,7 +481,8 @@ if(!$initial_imports->value){
 
                 {{-- Preferencias --}}
                 <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false" rel="tooltip" title="{{ ucfirst(trans('textos.opciones_preferidas')) }}">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="false"
+                       aria-expanded="false" rel="tooltip" title="{{ ucfirst(trans('textos.opciones_preferidas')) }}">
                         <i class="fa fa-ellipsis-v"></i>
                     </a>
 
@@ -494,7 +507,7 @@ if(!$initial_imports->value){
 
                 {{-- Selector de empresa: desde algunas páginas no se puede cambiar de empresa --}}
                 @if(session('companies'))
-                	<li class="list-inline-item" style="min-width: 200px;">
+                    <li class="list-inline-item" style="min-width: 200px;">
 
                         @if(count(session('companies')) > 1 && !isset($noSelectCompany))
                             <select class="form-control select-company select2">
@@ -504,7 +517,7 @@ if(!$initial_imports->value){
 
                                 @foreach(session('companies') as $c)
                                     @php
-                                    $selected = $c->id == session('currentCompany')? 'selected':'';
+                                        $selected = $c->id == session('currentCompany')? 'selected':'';
                                     @endphp
 
                                     <option value="{{ $c->id }}" {{ $selected }}>{{ $c->name }}</option>
@@ -524,16 +537,23 @@ if(!$initial_imports->value){
 
                 {{-- Administrador: --}}
                 <li class="dropdown">
-                	@php
-                    $avatar = Auth::user()->images()->first();
+                    @php
+                        $avatar = null;
+                            if (!Auth::user()->images->isEmpty()){
+                            $avatar = Auth::user()->images()->first();
+                            }
+
                     @endphp
 
-                    <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false">
-                		<img class="rounded-circle avatar" src="@if($avatar) {{ asset('img/users/'.$avatar->image) }} @else {{ asset('img/users/user.png') }} @endif" alt="{{ Auth::user()->name }}"/>
-                	</a>
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="false"
+                       aria-expanded="false">
+                        <img class="rounded-circle avatar"
+                             src=" {{ !is_null($avatar)  ? asset('img/users/'.$avatar->images) : asset('img/users/user.png') }}"
+                             alt="{{ Auth::user()->name }}"/>
+                    </a>
 
-                	<ul class="dropdown-menu dropdown-alerts" style="margin-top: -4px;">
-                		<li class="dm-header">
+                    <ul class="dropdown-menu dropdown-alerts" style="margin-top: -4px;">
+                        <li class="dm-header">
                             {!! trans('textos.hola') !!}, {{ Auth::user()->name }}
                         </li>
 
@@ -546,14 +566,14 @@ if(!$initial_imports->value){
                         <li class="dropdown-divider"></li>
 
                         {{-- Logout --}}
-                       	<li>
+                        <li>
                             <form action="{{ route('logout') }}" method="POST" id="frmLogout">
                                 @csrf
                                 <i class="fa fa-power-off"></i>
                                 <input type="submit" value="Logout">
                             </form>
                         </li>
-                	</ul>
+                    </ul>
                 </li>
             </ul>
         </nav>
@@ -562,18 +582,18 @@ if(!$initial_imports->value){
     {{-- Page Heading --}}
     <div class="row wrapper border-bottom white-bg page-heading">
         <div class="col-lg-9">
-        	@if(isset($header))
-            	<h2>
+            @if(isset($header))
+                <h2>
                     {!! ucfirst(trans('textos.'.$header['option'])) !!}
                 </h2>
 
-            	@if(isset($header['suboption']))
-		            <ol class="breadcrumb">
-		                <li class="breadcrumb-item">
-		                    <a href="">{!! ucfirst(trans($header['suboption'])) !!}</a>
-		                </li>
-		            </ol>
-		        @endif
+                @if(isset($header['suboption']))
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="">{!! ucfirst(trans($header['suboption'])) !!}</a>
+                        </li>
+                    </ol>
+                @endif
             @endif
         </div>
     </div>
@@ -590,5 +610,5 @@ if(!$initial_imports->value){
             <div class="alert alert-danger" role="alert">
                 {!! session('alert') !!}
             </div>
-        @endif
+@endif
 
