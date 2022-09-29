@@ -148,9 +148,9 @@ class ImportDb extends Command
         $this->importBusinessAreas();               // 9.
         $this->info('Importando Business Areas');
         $this->output->progressAdvance();
-        $this->importUserCompanies();               // 10.
+        /*$this->importUserCompanies();               // 10.
         $this->info('Importando User Companies');
-        $this->output->progressAdvance();
+        $this->output->progressAdvance();*/
         $this->importContracts();                   // 11.
         $this->info('Importando Contratos');
         $this->output->progressAdvance();
