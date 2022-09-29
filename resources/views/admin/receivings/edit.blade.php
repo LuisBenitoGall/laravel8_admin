@@ -53,7 +53,11 @@
 					<label class="mr-5">
 						{!! ucfirst(trans('textos.albaran')) !!}: 
 						<b>
-							{{ $delivery->delivery_num }}
+							@if($delivery->delivery_num)
+								{{ $delivery->delivery_num }}
+							@else
+								{{ $delivery->delivery_old_num }}
+							@endif
 						</b>
 					</label>
 
@@ -73,7 +77,7 @@
 			  		{{-- Pedidos de la recepción --}}
 			  		@foreach($orders as $order)
 			  			@php
-			  			$order_num = $order->order_num? $order->order_num:($order->order_old_num? $order->order_old_num:$order->id);
+			  			$order_num = $order->purchase_num? $order->purchase_num:($order->purchase_old_num? $order->purchase_old_num:$order->id);
 			  			@endphp
 
 			  			<li class="nav-item @if($tab == $order->id) active @endif">

@@ -16,8 +16,10 @@ use Carbon\Carbon;
 
 //Models:
 use App\Models\Company;
+use App\Models\CompanySettings;
 use App\Models\Delivery;
 use App\Models\DeliveryOrders;
+use App\Models\Item;
 use App\Models\Order;
 
 class ReceivingController extends Controller{
@@ -32,23 +34,26 @@ class ReceivingController extends Controller{
     private $option = 'recepciones';
     private $module = 'logistics';
     private $languages;
+    private $co_currency;
 
     public function __construct(){
         //Idiomas:
         $this->languages = helpers::languages();
 
-        $this->middleware('module_setted:orders');
+        //Moneda:
+        $this->co_currency = CompanySettings::co_currency(0);
 
-        $this->middleware('order_get', ['only' => ['store', 'update']]);
-        $this->middleware('receiving_get', ['only' => ['edit']]);
+        $this->middleware('module_setted:orders');
+        $this->middleware('order_get', ['only' => ['store']]);
+        $this->middleware('receiving_get', ['only' => ['edit', 'update']]);
     }
 
     //0. Validator:
     protected function validator(array $data){
-        //Validación index:
+        //Validación update:
         if(isset($data['submit_update'])){
             return Validator::make($data, [
-                'id' => 'required|integer'
+                
             ]);
         }
     }
@@ -111,7 +116,7 @@ class ReceivingController extends Controller{
      * 2. Guardar nueva recepción de pedido.
      */
     public function store(Request $request, Order $order){
-        $estimated_reception_date = $request->estimated_reception_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->reception_date):$request->estimated_reception_date:NULL;
+        $estimated_reception_date = $request->estimated_reception_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->estimated_reception_date):$request->estimated_reception_date:NULL;
 
         $dlv = new Delivery();
         $dlv->origin = 'c';     //Item que genera el cliente.
@@ -149,33 +154,45 @@ class ReceivingController extends Controller{
         ->where('delivery_orders.delivery_id', $delivery->id)
         ->get();  
 
-        $provider = Company::find($delivery->provider_id);  
+        $ordersArr = [];
+        foreach($orders as $o){
+            array_push($ordersArr, $o->id);
+        }
+        $items = Item::select('id', 'product_id', 'order_id', 'concept', 'qty', 'price', 'iva')
+        ->whereIn('order_id', $ordersArr)
+        ->orderBy('order_id', 'ASC')
+        ->orderBy('concept', 'ASC')
+        ->get();
+
+        $provider = Company::find($delivery->provider_id); 
+
+        $currency = $this->co_currency; 
 
         $languages = $this->languages;
 
-        return view('admin.receivings.edit')->with(compact('header', 'delivery', 'tab', 'orders', 'provider', 'languages'));
+        return view('admin.receivings.edit')->with(compact('header', 'delivery', 'tab', 'orders', 'items', 'provider', 'currency', 'languages'));
     }
 
     /**
      * 4. Actualizar recepción de pedido.
      */
-    public function update(Request $request, $order_id){
+    public function update(Request $request, Delivery $delivery){
         $validator = $this->validator($request->all());
         if($validator->fails()){
-            return redirect('/admin/orders/'.$order_id.'edit')
+            return redirect('/admin/receiving/'.$delivery->id.'/edit')
                 ->withErrors($validator)
                 ->withInput();
         }
 
-        $delivery = Delivery::find($request->id);
-        if($request->estimated_reception_date){
-            $delivery->estimated_reception_date = $request->estimated_reception_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->estimated_reception_date):$request->estimated_reception_date:NULL;
+        $delivery->delivery_old_num = $request->delivery_old_num;
+        if($request->reception_date){
+            $delivery->reception_date = $request->reception_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->reception_date):$request->reception_date:NULL;
         }
         $delivery->customer_observations = $request->customer_observations;
         $delivery->save();
 
         $msg = trans('textos.recepcion_actualizada');
-        return redirect()->route('orders.edit', [$order_id, false])->with(compact('msg'));
+        return redirect()->route('receiving.edit', [$delivery->id, false])->with(compact('msg'));
     }
 
 }

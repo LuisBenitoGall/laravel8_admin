@@ -777,7 +777,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::get('receiving', 'ReceivingController@index')->name('receiving.index');
     Route::put('receiving/{order}', 'ReceivingController@store')->name('receiving.store')->middleware('permission:orders.edit');
     Route::get('receiving/{delivery}/edit/{tab?}', 'ReceivingController@edit')->name('receiving.edit')->middleware('permission:receiving.edit');
-    Route::put('receiving/{order_id}/update', 'ReceivingController@update')->name('receiving.update')->middleware('permission:receiving.edit');
+    Route::put('receiving/{delivery}/update', 'ReceivingController@update')->name('receiving.update')->middleware('permission:receiving.edit');
 
     // Roles:
     Route::get('roles', 'RoleController@index')->name('roles.index')->middleware('permission:roles.index');

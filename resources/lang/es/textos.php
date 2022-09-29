@@ -2475,6 +2475,7 @@ return [
 	'peso_max_requerido' => 'El valor es requerido si se indica la tara del vehículo',
 	'carga_max_permitida' => 'Carga máxima permitida',
 	'albaran' => 'Albarán',
+	'albaran_num' => 'Nº albarán',
 	'albaranes_numeracion' => 'Numeración de albaranes',
 	'albaranes_numeracion_texto' => 'Crea patrones para la numeración de los albaranes de envío',
 	'albaranes_patron_editar' => 'Editar patrón de albaranes',

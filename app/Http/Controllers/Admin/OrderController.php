@@ -487,6 +487,22 @@ class OrderController extends Controller{
         $customer_id = $request->type == 'sale'? $request->company_id:session('currentCompany');
         $provider_id = $request->type == 'purchase'? $request->company_id:session('currentCompany');
 
+        //Centro de trabajo del empleado autor del pedido:
+        $workplace = UserWorkplaces::select('workplaces.id')
+        ->join('workplaces', 'user_workplaces.workplace_id', '=', 'workplaces.id')
+        ->where('user_workplaces.user_id', Auth::user()->id)
+        ->where('workplaces.company_id', session('currentCompany'))
+        ->first();
+        //Según sea una compra o una venta:
+        if($request->type == 'sale'){
+            $provider_workplace_id = $workplace? $workplace->id:NULL;
+            $customer_workplace_id = NULL;
+
+        }elseif($request->type == 'purchase'){
+            $customer_workplace_id = $workplace? $workplace->id:NULL;
+            $provider_workplace_id = NULL;
+        }
+
         //Slug:
         $slug = $request->name? Str::slug($request->name):NULL;
 
@@ -506,9 +522,11 @@ class OrderController extends Controller{
             $order->customer_manager_id = Auth::user()->id;
         }
         $order->provider_id = $provider_id;
+        $order->provider_workplace_id = $provider_workplace_id;
         if($request->type == 'sale'){
             $order->provider_manager_id = Auth::user()->id;
         }
+        $order->customer_workplace_id = $customer_workplace_id;
         $order->save();
 
         //Guardamos previsión de facturación por defecto:
@@ -1218,13 +1236,14 @@ class OrderController extends Controller{
 
         $currency = $this->co_currency;
 
-        $data = Order::select('orders.id', 'orders.name', 'orders.order_num', 'orders.order_old_num', 'orders.purchase_num', 'orders.purchase_old_num', 'orders.estimated_delivery_date', 'orders.delivery_date', 'orders.order_status', 'orders.invoiced', 'orders.discount', 'order_previsions.year', 'order_previsions.month', 'order_previsions.percent', 'orders.created_at', 'companies.name AS Customer', 'users.name AS Nombre', 'users.surname', 'cc.name AS finalCustomer', 'u_.name AS CustomerManagerName', 'u_.surname AS CustomerManagerSurname', 'business_areas.name AS businessArea')
+        $data = Order::select('orders.id', 'orders.name', 'orders.order_num', 'orders.order_old_num', 'orders.purchase_num', 'orders.purchase_old_num', 'orders.estimated_delivery_date', 'orders.delivery_date', 'orders.order_status', 'orders.invoiced', 'orders.discount', 'order_previsions.year', 'order_previsions.month', 'order_previsions.percent', 'orders.created_at', 'companies.name AS Customer', 'users.name AS Nombre', 'users.surname', 'cc.name AS finalCustomer', 'u_.name AS CustomerManagerName', 'u_.surname AS CustomerManagerSurname', 'business_areas.name AS businessArea', 'workplaces.name AS workplace')
         ->join('order_previsions', 'orders.id', '=', 'order_previsions.order_id')
         ->join('companies', 'orders.customer_id', '=', 'companies.id')
         ->leftJoin('companies AS cc', 'orders.final_customer_id', '=', 'cc.id')
         ->leftJoin('users', 'orders.provider_manager_id', '=', 'users.id')
         ->leftJoin('users AS u_', 'orders.customer_manager_id', '=', 'u_.id')
         ->leftJoin('business_areas', 'orders.customer_business_area_id', '=', 'business_areas.id')
+        ->leftJoin('workplaces', 'orders.provider_workplace_id', '=', 'workplaces.id')
         ->where('orders.provider_id', session('currentCompany'))
         ->where('orders.is_order', 1)
         ->where('orders.invoiced', 0)
@@ -1264,6 +1283,9 @@ class OrderController extends Controller{
         })
         ->addColumn('Nombre', function($row){
             return $row->Nombre;
+        })
+        ->addColumn('workplace', function($row){
+            return $row->workplace;
         })
         ->addColumn('finalCustomer', function($row){
             return $row->finalCustomer;

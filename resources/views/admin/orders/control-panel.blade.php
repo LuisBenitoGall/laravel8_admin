@@ -63,6 +63,7 @@
 					<th class="wdt200">{!! ucfirst(trans('textos.pedido_titulo')) !!}</th>
 					<th class="wdt150">{!! ucfirst(trans('textos.responsable')) !!}</th>
 					@if($order_type != 'compras')
+						<th class="wdt150">{!! ucfirst(trans('textos.centro_trabajo')) !!}</th>
 						<th class="text-center wdt150">{!! ucfirst(trans('textos.cliente_final')) !!}</th>
 					@endif
 					<th class="text-center wdt50">{!! ucfirst(trans('textos.importe')) !!}</th>
@@ -78,6 +79,7 @@
 					<td></td>
 					<td></td>
 					@if($order_type != 'compras')
+						<td></td>
 						<td></td>
 					@endif
 					<td></td>

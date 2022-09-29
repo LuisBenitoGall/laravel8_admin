@@ -3436,6 +3436,7 @@ $(document).ready(function(){
                 {data: 'purchase_num', name: 'orders.purchase_num', className: 'text-right'},
                 {data: 'name', name: 'companies.name'},
                 {data: 'Nombre', name: 'users.name'},
+                {data: 'workplace', name: 'workplaces.name'},
                 {data: 'finalCustomer', name: 'companies.name'},
                 {data: 'amount', name: 'amount', className: 'text-right'},
                 {data: 'a_facturar', name: 'a_facturar', className: 'text-right'},
@@ -3471,18 +3472,6 @@ $(document).ready(function(){
 
                 //Total:
                 total = api
-                .column(8, { search: 'applied' })
-                .data()
-                .reduce(function(a, b){
-                    return intVal(a) + intVal(b);
-                }, 0);
-
-                $(api.column(8).footer()).html(
-                    total.toFixed(2)+currency   
-                );
-
-                //Total por filtro aplicado:
-                a_facturar = api
                 .column(9, { search: 'applied' })
                 .data()
                 .reduce(function(a, b){
@@ -3490,6 +3479,18 @@ $(document).ready(function(){
                 }, 0);
 
                 $(api.column(9).footer()).html(
+                    total.toFixed(2)+currency   
+                );
+
+                //Total por filtro aplicado:
+                a_facturar = api
+                .column(10, { search: 'applied' })
+                .data()
+                .reduce(function(a, b){
+                    return intVal(a) + intVal(b);
+                }, 0);
+
+                $(api.column(10).footer()).html(
                     a_facturar.toFixed(2)+currency    
                 );
             }

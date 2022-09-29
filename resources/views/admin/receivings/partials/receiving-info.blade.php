@@ -13,6 +13,17 @@
 			<x-date-picker name="reception_date" value="{{ $receptionDate }}" :format="$languages[config('app.locale')][4]"/>
 		</div>
 
+		{{-- Nº albarán manual - condiciones: 
+			1. Si no viene declarado el número de albarán automático.
+			...
+		--}}
+		@if(!$delivery->delivery_num)
+			<label for="delivery_old_num" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.albaran_num')) !!}</label>
+			<div class="col-lg-3">
+				<x-input type="text" name="delivery_old_num" value="{{ $delivery->delivery_old_num }}" placeholder="{!! ucfirst(trans('textos.albaran_num')) !!}" autocomplete="off" maxlength="255"/>
+			</div>
+		@endif
+
 		{{-- Cerrar recepción --}}
 		<label for="status" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.recepcion_cerrar')) !!}</label>
 		<div class="col-lg-1">
