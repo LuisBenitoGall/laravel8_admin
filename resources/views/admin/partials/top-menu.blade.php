@@ -538,10 +538,10 @@
                 {{-- Administrador: --}}
                 <li class="dropdown">
                     @php
-                        $avatar = null;
-                            if (!Auth::user()->images->isEmpty()){
-                            $avatar = Auth::user()->images()->first();
-                            }
+                        $avatar= null;
+                        if (!Auth::user()->images->isEmpty()){
+                        $avatar = Auth::user()->images()->first();
+                        }
 
                     @endphp
 
