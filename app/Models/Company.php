@@ -12,11 +12,11 @@ use Spatie\Permission\Models\Permission;
 
 class Company extends Model{
     /**
-     * 1. Almacenes de la empresa. 
+     * 1. Almacenes de la empresa.
      * 2. Tipos de jornada de la empresa.
      * 3. Roles básicos por empresa.
      */
-    
+
     use HasFactory;
     use SoftDeletes;
 
@@ -24,25 +24,25 @@ class Company extends Model{
 
     protected $dates = ['deleted_at'];
 
-    protected $fillable = ['mother_co', 'name', 'slug', 'tradename', 'logo', 'nif', 'ccc', 'is_ute', 'ute_start_at', 'ute_finish_at'];  
+    protected $fillable = ['mother_co', 'name', 'slug', 'tradename', 'logo', 'nif', 'ccc', 'is_ute', 'ute_start_at', 'ute_finish_at'];
 
     /**
-     * 1. Almacenes de la empresa. 
+     * 1. Almacenes de la empresa.
      */
     public function stores(){
         return $this->hasMany(Store::class);
-    }  
+    }
 
     /**
      * 2. Tipos de jornada de la empresa.
      */
     public function day_types(){
         return $this->hasMany(DayTypes::class);
-    } 
+    }
 
     /**
      * 3. Roles básicos por empresa.
-     */ 
+     */
     public function setCompanyRoles(){
         $basic_roles = ['manager', 'basic'];
 
@@ -54,21 +54,26 @@ class Company extends Model{
         //Pasamos a un array todos los permisos válidos para el manager:
         $arr = [];
         foreach($permissions as $p){
+
             $segments = explode('.', $p->name);
             if(!in_array($segments[0], $exceptions)){
+
                 array_push($arr, $p->id);
             }
+
         }
 
         foreach($basic_roles as $br){
+
             $role = Company::saveCompanyRole($br, $this->id);
 
             //Exclusivo para manager:
             if($br == 'manager'){
                 $role->syncPermissions($arr);
+               //dd($role->name);
             }
         }
-    } 
+    }
 
     /**
      * 4. Guardar role por empresa.

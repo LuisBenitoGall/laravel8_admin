@@ -676,7 +676,14 @@ class ImportDb extends Command
                 }
 
                 $user = User::find($i->user_id);
-                $user->assignRole($company_roles->name);
+
+                    if($user && $company_roles){
+                        if(!$user->hasRole($company_roles->name)) {
+                            $user->assignRole($company_roles->name);
+                        }
+                    }
+
+
             }
         }
     }
