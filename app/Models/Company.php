@@ -49,7 +49,7 @@ class Company extends Model{
         //Permisos exclusivos del Super Admin, por lo que no pueden vincularse a ningún otro role:
         $exceptions = config('constants.PERMISSIONS_OFF_');
 
-        $permissions = Permission::get();
+        $permissions = Permission::all();
 
         //Pasamos a un array todos los permisos válidos para el manager:
         $arr = [];
@@ -69,7 +69,7 @@ class Company extends Model{
 
             //Exclusivo para manager:
             if($br == 'manager'){
-                $role->syncPermissions($arr);
+                $role->givePermissionTo($arr);
                //dd($role->name);
             }
         }
