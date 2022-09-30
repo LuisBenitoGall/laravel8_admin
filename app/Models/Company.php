@@ -70,7 +70,7 @@ class Company extends Model{
             //Exclusivo para manager:
             if($br == 'manager'){
                 $role->syncPermissions($arr);
-               //dd($role->name);
+               dd($role->name);
             }
         }
     }
