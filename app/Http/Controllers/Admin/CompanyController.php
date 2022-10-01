@@ -289,7 +289,7 @@ class CompanyController extends Controller{
         $company->save();
 
         //Roles de la empresa:
-        $company->setCompanyRoles();
+        $company->setCompanyRoles(true);
 
         //Creamos centro de trabajo por defecto:
         $wp = new Workplace();

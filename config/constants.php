@@ -48,7 +48,7 @@ return [
     'ORDER_STATUS_INVOICED_' => [10, 40, 70],           //Status de pedidos facturables. 
     'ORDER_STATUS_NOT_DELETED_' => [15, 40, 50, 70],    //Status de pedidos no eliminables.
     'ORDER_STATUS_NOT_INVOICED_' => [30],               //Status de pedidos no facturables.
-    'PERMISSIONS_OFF_' => ['accounts', 'modules', 'permissions', 'currencies', 'banks', 'countries', 'contents', 'units'],                  //Permisos exclusivos para los Super Admin.
+    'PERMISSIONS_OFF_' => ['accounts', 'modules', 'permissions', 'currencies', 'banks', 'countries', 'contents', 'units', 'stock-movements'],                  //Permisos exclusivos para los Super Admin.
     'QUESTION_CROSSWORD_' => 30,
     'QUESTION_FREE_TEXT_' => 20,
     'QUESTION_TEST_' => 10,

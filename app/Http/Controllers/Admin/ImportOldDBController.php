@@ -177,6 +177,8 @@ class ImportOldDBController extends Controller{
      * 76. Importar mensajes de tareas.
      * 77. Importar líneas de facturas.
      */
+    
+    public $adn_companies;
 
     public function __construct(){
         //Idiomas:
@@ -187,6 +189,8 @@ class ImportOldDBController extends Controller{
 
         //IVA:
         $this->co_iva = CompanySettings::co_iva();
+
+        $this->adn_companies = [3,4,8,202,227,275];
     }
 
     /**
@@ -210,7 +214,7 @@ class ImportOldDBController extends Controller{
         if($request->ajax()){
             DB::table('importaciones')->truncate();
 
-            $this->importUsers(true);                   // 2.
+            // $this->importUsers(true);                   // 2.
             // sleep(3);
             // $this->importCompanies();                   // 3.
             // sleep(3);
@@ -300,8 +304,8 @@ class ImportOldDBController extends Controller{
             // sleep(3);
             // $this->importPurchasePatterns();            // 46.
             // sleep(3);
-             $this->importOrders();                      // 47.
-             sleep(3);
+            // $this->importOrders();                      // 47.
+            // sleep(3);
             // $this->importCustomerProviders();           // 48.
             // sleep(3);
             // $this->importOrderDocs();                   // 49.
@@ -348,19 +352,19 @@ class ImportOldDBController extends Controller{
             // sleep(3);
             // $this->importItems();                       // 70.
             // sleep(3);
-            // $this->importItemsStatus();                 // 71.
-            // sleep(3);
-            // $this->importProjects();                    // 72.
-            // sleep(3);
-            // $this->importTaskStatus();                  // 73.
-            // sleep(3);
-            // $this->importTasks();                       // 74.
-            // sleep(3);
-            // $this->importTaskDocs();                    // 75.
-            // sleep(3);
-            // $this->importTaskMessages();                // 76.
-            // sleep(3);
-            // $this->importInvoiceItems();                // 77.
+            $this->importItemsStatus();                 // 71.
+            sleep(3);
+            $this->importProjects();                    // 72.
+            sleep(3);
+            $this->importTaskStatus();                  // 73.
+            sleep(3);
+            $this->importTasks();                       // 74.
+            sleep(3);
+            $this->importTaskDocs();                    // 75.
+            sleep(3);
+            $this->importTaskMessages();                // 76.
+            sleep(3);
+            $this->importInvoiceItems();                // 77.
             // sleep(3);
 
             sleep(3);
@@ -386,7 +390,7 @@ class ImportOldDBController extends Controller{
     /**
      * 2. Importación usuarios.
      */
-    public function importUsers($on = false){
+    public function importUsers($on = true){
         if($on){
             $data = DB::connection('mysql2')->table('users')->get();
 
@@ -436,7 +440,12 @@ class ImportOldDBController extends Controller{
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('companies')->truncate();
+            DB::table('roles')->truncate();
+            DB::table('role_has_permissions')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
+            //Creamos de nuevo el role Super Admin por defecto:
+            Role::create(['name' => 'Super Admin']);
 
             foreach($data as $r){
                 $i = new Company;
@@ -453,9 +462,29 @@ class ImportOldDBController extends Controller{
                 $i->created_at = $r->created_at;
                 $i->updated_at = $r->updated_at;
                 $i->save();
+            }
 
+            $permissions = Permission::all();
+
+            //Permisos exclusivos del Super Admin, por lo que no pueden vincularse a ningún otro role:
+            $exceptions = config('constants.PERMISSIONS_OFF_');
+
+            //Pasamos a un array todos los permisos válidos para el manager:
+            $arr = [];
+            foreach($permissions as $p){
+                $segments = explode('.', $p->name);
+                if(!in_array($segments[0], $exceptions)){
+                    array_push($arr, $p->id);
+                }
+            }
+
+            //Obtenemos las empresas creadas y generamos sus roles:
+            $companies = Company::select('id')->get();
+
+            foreach($companies as $c){
                 //Roles básicos por empresa.
-                $i->setCompanyRoles();
+                $set_permissions = in_array($c->id, $this->adn_companies)? true:false;
+                $c->setCompanyRoles($set_permissions, $arr);
             }
         }
     }
@@ -670,20 +699,18 @@ class ImportOldDBController extends Controller{
                 $i->save();
 
                 //Asignamos roles de empresa a user. A las empresas ADN se les genera -de entrada- role de manager. Al resto role básico.
-                $adn_companies = [3,4,8,202,227,275];
-
-                if(in_array($r->company_id, $adn_companies)){
+                if(in_array($r->company_id, $this->adn_companies)){
                     $company_roles = Role::where('company_id', $r->company_id)->orderBy('id', 'ASC')->first();
                 }else{
                     $company_roles = Role::where('company_id', $r->company_id)->orderBy('id', 'DESC')->first();
                 }
 
                 $user = User::find($i->user_id);
-                dd(Arr::exists($user->roles(),'model_id'));
+                //dd(Arr::exists($user->roles(),'model_id'));
                 if($user && $company_roles){
-                    if(!$user->hasRole($company_roles->name)) {
+                    //if(!$user->hasRole($company_roles->name)) {
                         $user->assignRole($company_roles->name);
-                    }
+                    //}
                 }
             }
         }
@@ -2988,7 +3015,7 @@ class ImportOldDBController extends Controller{
                 // $i->estimated_hours = $r->estimated_hours;       //Campo nuevo
                 // $i->partial_hours = $r->partial_hours;           //Campo nuevo
                 $i->hours = $r->hours;
-                //$i->status = NULL;                                //Campo nuevo
+                $i->status = 1;                                //Campo nuevo
                 $i->column_order = $r->column_order;
                 $i->deleted_at = $r->deleted_at;
                 $i->created_at = $r->created_at;

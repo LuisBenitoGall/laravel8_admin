@@ -43,34 +43,31 @@ class Company extends Model{
     /**
      * 3. Roles básicos por empresa.
      */
-    public function setCompanyRoles(){
+    public function setCompanyRoles($set_permissions = true, $arr = false){
         $basic_roles = ['manager', 'basic'];
 
-        //Permisos exclusivos del Super Admin, por lo que no pueden vincularse a ningún otro role:
-        $exceptions = config('constants.PERMISSIONS_OFF_');
-
-        $permissions = Permission::all();
-
-        //Pasamos a un array todos los permisos válidos para el manager:
-        $arr = [];
-        foreach($permissions as $p){
-
-            $segments = explode('.', $p->name);
-            if(!in_array($segments[0], $exceptions)){
-
-                array_push($arr, $p->id);
-            }
-
-        }
-
         foreach($basic_roles as $br){
-
             $role = Company::saveCompanyRole($br, $this->id);
 
             //Exclusivo para manager:
-            if($br == 'manager'){
+            if($br == 'manager' && $set_permissions){
+                if(!$arr){
+                    //Permisos exclusivos del Super Admin, por lo que no pueden vincularse a ningún otro role:
+                    $exceptions = config('constants.PERMISSIONS_OFF_');
+
+                    $permissions = Permission::all();
+
+                    //Pasamos a un array todos los permisos válidos para el manager:
+                    $arr = [];
+                    foreach($permissions as $p){
+                        $segments = explode('.', $p->name);
+                        if(!in_array($segments[0], $exceptions)){
+                            array_push($arr, $p->id);
+                        }
+                    }
+                }
+
                 $role->givePermissionTo($arr);
-               //dd($role->name);
             }
         }
     }

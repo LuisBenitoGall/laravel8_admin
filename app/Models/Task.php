@@ -38,10 +38,12 @@ class Task extends Model{
         $mimes = Helpers::imgMimeTypes();   
 
         foreach($docs as $doc){
-            $type = mime_content_type('./img/tasks/'.$doc->doc);
-            if(in_array($type, $mimes)){
-                return $doc;
-                break;
+            if(file_exists('./img/tasks/'.$doc->doc)){
+                $type = mime_content_type('./img/tasks/'.$doc->doc);
+                if(in_array($type, $mimes)){
+                    return $doc;
+                    break;
+                }
             }
         }
 
