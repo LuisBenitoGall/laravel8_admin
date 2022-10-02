@@ -49,6 +49,7 @@ use App\Models\InvoicePatterns;
 use App\Models\InvoiceSettings;
 use App\Models\Item;
 use App\Models\ItemStatus;
+use App\Models\MigrationErrors;
 use App\Models\Module;
 use App\Models\Notification;
 use App\Models\Order;
@@ -213,6 +214,7 @@ class ImportOldDBController extends Controller{
     public function start(Request $request){
         if($request->ajax()){
             DB::table('importaciones')->truncate();
+            DB::table('migration_errors')->truncate();
 
             // $this->importUsers(true);                   // 2.
             // sleep(3);
@@ -354,16 +356,16 @@ class ImportOldDBController extends Controller{
             // sleep(3);
             $this->importItemsStatus();                 // 71.
             sleep(3);
-            $this->importProjects();                    // 72.
-            sleep(3);
-            $this->importTaskStatus();                  // 73.
-            sleep(3);
-            $this->importTasks();                       // 74.
-            sleep(3);
-            $this->importTaskDocs();                    // 75.
-            sleep(3);
-            $this->importTaskMessages();                // 76.
-            sleep(3);
+            // $this->importProjects();                    // 72.
+            // sleep(3);
+            // $this->importTaskStatus();                  // 73.
+            // sleep(3);
+            // $this->importTasks();                       // 74.
+            // sleep(3);
+            // $this->importTaskDocs();                    // 75.
+            // sleep(3);
+            // $this->importTaskMessages();                // 76.
+            // sleep(3);
             $this->importInvoiceItems();                // 77.
             // sleep(3);
 
@@ -2845,44 +2847,93 @@ class ImportOldDBController extends Controller{
      * 70. Importar items de pedidos.
      */
     public function importItems(){
-        $data = DB::connection('mysql2')->table('items')->get();
+        //Omitimos los registros eliminados.
+        //Separamos la consulta en partes:
+        $partes = [
+            ['offset' => 0,         'limit' => 10000],
+            ['offset' => 10000,     'limit' => 10000],
+            ['offset' => 20000,     'limit' => 10000],
+            ['offset' => 30000,     'limit' => 10000]
+        ];
+        $indice = 0;    //Cambiamos el valor del índice en cada vuelta.
+
+        $data = DB::connection('mysql2')->table('items')
+        ->whereNull('deleted_at')
+        ->offset($partes[$indice]['offset'])
+        ->limit($partes[$indice]['limit'])
+        ->get();
+
+        //Consultas por budget_id:
+        //$data = DB::connection('mysql2')->table('items')->where('budget_id', 3638)->get();
+
+        //dd($data);
+
 
         if($data->count()){
             Importaciones::create(['texto' => 'items de pedidos']);
 
-            DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-            DB::table('items')->truncate();
-            DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+            //Truncate sólo se ejecuta en la primera vuelta.
+            if($indice == 0){
+                DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+                DB::table('items')->truncate();
+                DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+            }
 
             foreach($data as $r){
-                $i = new Item;
-                $i->id = $r->id;
-                $i->product_id = $r->product_id;
-                $i->order_id = $r->order_id;
-                $i->budget_form_block_id = $r->block_id;
-                $i->budget_form_item_id = $r->item_id;
-                //$i->budget_order = NULL;      //Campo nuevo
-                $i->concept = $r->concept;
-                $i->observations = $r->observations;
-                $i->qty = $r->qty;
-                $i->price = $r->price;
-                $i->item_no_price = $r->line_no_price;
-                $i->iva = $r->iva;
-                $i->discount = $r->discount;
-                $i->calculated_by_percent = $r->calculated_by_percent;
-                $i->invoiced = $r->invoiced;
-                $i->deposit_used = $r->deposit_used;
-                $i->days = $r->days;
-                $i->days_continue = $r->days_continue;
-                $i->days_continue_discount = $r->days_continue_discount;
-                $i->active = $r->active;
-                $i->status = $r->status;
-                $i->print = $r->print;
-                $i->user_id = $r->user_id;
-                $i->deleted_at = $r->deleted_at;
-                $i->created_at = $r->created_at;
-                $i->updated_at = $r->updated_at;
-                $i->save();
+                //Definir order_id correcto.
+                //Comprobamos si existe order_id:
+                if($r->order_id){
+                    $order_id = $r->order_id;    
+                }elseif($r->budget_id){
+                    $o = Order::select('id')->where('old_budget_id', $r->budget_id)->first();
+                    $order_id = $o? $o->id:false;
+                    
+                }else{
+                    $me = new MigrationErrors();
+                    $me->model = 'sin order ni presu';
+                    $me->id_ = $r->id;
+                    $me->save();
+
+                    $order_id = false;
+                }
+                
+                if($order_id){
+                    $i = new Item;
+                    //$i->id = $r->id;                      //Id se genera nuevo. Se guarda en nueva columna el anterior id.
+                    $i->product_id = $r->product_id;
+                    $i->order_id = $order_id;
+                    $i->budget_form_block_id = $r->block_id;
+                    $i->budget_form_item_id = $r->item_id;
+                    //$i->budget_order = NULL;      //Campo nuevo
+                    $i->concept = $r->concept;
+                    $i->observations = $r->observations;
+                    $i->qty = $r->qty;
+                    $i->price = $r->price;
+                    $i->item_no_price = $r->line_no_price;
+                    $i->iva = $r->iva;
+                    $i->discount = $r->discount;
+                    $i->calculated_by_percent = $r->calculated_by_percent;
+                    $i->invoiced = $r->invoiced;
+                    $i->deposit_used = $r->deposit_used;
+                    $i->days = $r->days;
+                    $i->days_continue = $r->days_continue;
+                    $i->days_continue_discount = $r->days_continue_discount;
+                    $i->active = $r->active;
+                    $i->status = $r->status;
+                    $i->print = $r->print;
+                    $i->user_id = $r->user_id;
+                    $i->deleted_at = $r->deleted_at;
+                    $i->created_at = $r->created_at;
+                    $i->updated_at = $r->updated_at;
+                    $i->old_id = $r->id;
+                    $i->save();
+
+                }else{
+                    $me = new MigrationErrors();
+                    $me->model = 'items';
+                    $me->id_ = $r->id;
+                    $me->save();
+                }
             }
         }
     }
@@ -2901,15 +2952,20 @@ class ImportOldDBController extends Controller{
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
             foreach($data as $r){
-                $i = new ItemStatus;
-                $i->id = $r->id;
-                $i->item_id = $r->item_id;
-                $i->provider_observations = $r->provider_observations;
-                $i->customer_observations = $r->customer_observations;
-                $i->status = $r->status;
-                $i->created_at = $r->created_at;
-                $i->updated_at = $r->updated_at;
-                $i->save();
+                //Obtenemos el nuevo item_id, pues es un valor regenerado.
+                $item = Item::select('id')->where('old_id', $r->item_id)->first();
+
+                if($item){
+                    $i = new ItemStatus;
+                    //$i->id = $r->id;
+                    $i->item_id = $item->id;
+                    $i->provider_observations = $r->provider_observations;
+                    $i->customer_observations = $r->customer_observations;
+                    $i->status = $r->status;
+                    $i->created_at = $r->created_at;
+                    $i->updated_at = $r->updated_at;
+                    $i->save();
+                }
             }
         }
     }
@@ -3093,21 +3149,26 @@ class ImportOldDBController extends Controller{
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
             foreach($data as $r){
-                $i = new InvoiceItems;
-                $i->id = $r->id;
-                $i->invoice_id = $r->invoice_id;
-                $i->item_id = $r->item_id;
-                $i->qty = $r->qty;
-                $i->price = $r->price;
-                $i->discount = $r->discount? $r->discount:'0';
-                $i->days = $r->days;
-                $i->days_continue = $r->days_continue;
-                $i->days_continue_discount = $r->days_continue_discount;
-                $i->amount = $r->amount;
-                $i->iva = $r->iva;
-                $i->created_at = $r->created_at;
-                $i->updated_at = $r->updated_at;
-                $i->save();
+                //Obtenemos el nuevo item_id, pues es un valor regenerado.
+                $item = Item::select('id')->where('old_id', $r->item_id)->first();
+
+                if($item){
+                    $i = new InvoiceItems;
+                    //$i->id = $r->id;
+                    $i->invoice_id = $r->invoice_id;
+                    $i->item_id = $item->id;
+                    $i->qty = $r->qty;
+                    $i->price = $r->price;
+                    $i->discount = $r->discount? $r->discount:'0';
+                    $i->days = $r->days;
+                    $i->days_continue = $r->days_continue;
+                    $i->days_continue_discount = $r->days_continue_discount;
+                    $i->amount = $r->amount;
+                    $i->iva = $r->iva;
+                    $i->created_at = $r->created_at;
+                    $i->updated_at = $r->updated_at;
+                    $i->save();
+                }
             }
         }
     }
