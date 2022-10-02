@@ -45,7 +45,7 @@ class datePicker extends Component{
 
         //Formato de fecha:
         $format = str_replace('d', 'dd', $format);
-        $format = str_replace('Y', 'yyyy', $format);
+        //$format = str_replace('Y', 'yyyy', $format);
         $format = str_replace('m', 'mm', $format);
         $this->format = $format;  
     }
