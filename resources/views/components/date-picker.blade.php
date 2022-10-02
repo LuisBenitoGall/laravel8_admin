@@ -34,7 +34,7 @@ $(function(){
         calendarWeeks: true,
         // clearBtn: true,
         //format: '{{-- $format --}}',
-        format: 'd/m/Y',
+        format: 'dd/mm/yyyy',
         keyboardNavigation: false,
         language: '{{ config('app.locale') }}',
         todayBtn: true,
