@@ -33,7 +33,7 @@ $(function(){
         autoclose: true,
         calendarWeeks: true,
         // clearBtn: true,
-        //format: '{{ $format }}',
+        //format: '{{-- $format --}}',
         format: 'd/m/Y',
         keyboardNavigation: false,
         language: '{{ config('app.locale') }}',
