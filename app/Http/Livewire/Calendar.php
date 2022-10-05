@@ -78,7 +78,7 @@ class Calendar extends Component{
                 $this->userDates[$ud->date] = [
                     'id' => $ud->id,
                     'day_type' => $ud->day_type_id, 
-                    'color' => $ud->day_type_id? $arrDayTypesColor[$ud->day_type_id]:'',
+                    'color' => $ud->day_type_id && array_key_exists($ud->day_type_id, $arrDayTypesColor)? $arrDayTypesColor[$ud->day_type_id]:'',
                     'notified' => $ud->notified,
                     'doc' => $ud->doc,
                     'status' => $ud->status

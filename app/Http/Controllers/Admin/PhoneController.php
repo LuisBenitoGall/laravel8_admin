@@ -16,7 +16,8 @@ class PhoneController extends Controller{
      */
     
     public function __construct(){
-        $this->middleware('phone_get', ['only' => ['destroy']]);
+        //05/10/22: temporalmente se inactiva el middleware hasta modificar la query del mismo pues no devuelve correctamente los resultados.
+        //$this->middleware('phone_get', ['only' => ['destroy']]);
     }
     
     /**

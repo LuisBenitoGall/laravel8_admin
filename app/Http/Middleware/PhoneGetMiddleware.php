@@ -26,9 +26,9 @@ class PhoneGetMiddleware{
         //Comprobamos que el teléfono pertenezca a la empresa o esté gestionado por otra empresa:
         $exist = Phone::select('phones.id', 'phones.workplace_id')
         ->join('workplaces', 'phones.workplace_id', '=', 'workplaces.id')
-        ->join('company_accounts', 'workplaces.company_id', '=', 'company_accounts.company_id')
+        ->leftJoin('company_accounts', 'workplaces.company_id', '=', 'company_accounts.company_id')
         ->where('phones.id', $phone_id)
-        ->where('company_accounts.status', 1)
+        //->where('company_accounts.status', 1)
         ->where(function($q) use($currentCompany){
             $q->where('company_accounts.company_id', $currentCompany)
             ->orWhere('company_accounts.guardian', $currentCompany);

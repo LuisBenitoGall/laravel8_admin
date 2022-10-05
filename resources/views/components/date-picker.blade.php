@@ -34,6 +34,7 @@ $(function(){
         calendarWeeks: true,
         // clearBtn: true,
         //format: '{{-- $format --}}',
+        //02/10/22: provisionalmente se pasa un formato fijo hasta dar con el problema que ocurre al pasar el formato según el idioma.
         format: 'dd/mm/yyyy',
         keyboardNavigation: false,
         language: '{{ config('app.locale') }}',

@@ -207,7 +207,7 @@
                                     <span class="user-date" style="background-color: {{ $userDates[$date]['color'] }};">
                                         {{-- Validación --}}
                                         @if($userDates[$date]['status'])
-                                            <i class="fa fa-check" rel="tooltip" title="@if($userDates[$date]['day_type']) {!! $dayTypesArr[$userDates[$date]['day_type']] !!} @endif {{ trans('textos.validado') }}"></i>
+                                            <i class="fa fa-check" rel="tooltip" title="@if($userDates[$date]['day_type'] && array_key_exists($userDates[$date]['day_type'], $dayTypesArr)) {!! $dayTypesArr[$userDates[$date]['day_type']] !!} @endif {{ trans('textos.validado') }}"></i>
                                         @else
                                             <i class="fa fa-question-circle" rel="tooltip" title="@if($userDates[$date]['day_type']) {!! $dayTypesArr[$userDates[$date]['day_type']] !!} @endif {{ trans('textos.pendiente_validar') }}"></i>
                                         @endif
