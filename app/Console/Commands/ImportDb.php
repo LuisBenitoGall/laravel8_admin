@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Helpers\Helpers;
 use App\Models\Account;
 use App\Models\Attribute;
 use App\Models\Batch;
@@ -38,6 +39,7 @@ use App\Models\InvoicePatterns;
 use App\Models\InvoiceSettings;
 use App\Models\Item;
 use App\Models\ItemStatus;
+use App\Models\MigrationErrors;
 use App\Models\Module;
 use App\Models\Notification;
 use App\Models\Order;
@@ -98,7 +100,7 @@ class ImportDb extends Command
      * @var string
      */
     protected $signature = 'import:db';
-
+    public $adn_companies;
     /**
      * The console command description.
      *
@@ -113,6 +115,16 @@ class ImportDb extends Command
      */
     public function __construct()
     {
+        //Idiomas:
+        $this->languages = helpers::languages();
+
+        //Moneda:
+        $this->co_currency = CompanySettings::co_currency(0);
+
+        //IVA:
+        $this->co_iva = CompanySettings::co_iva();
+
+        $this->adn_companies = [3,4,8,202,227,275];
         parent::__construct();
     }
 
@@ -124,233 +136,163 @@ class ImportDb extends Command
         Currency::import();
         $this->output->progressStart(0);
         DB::table('importaciones')->truncate();
-        $this->importUsers(true);                   // 2.
-        $this->info('Importando usuarios');
-        $this->output->progressAdvance();
-        $this->importCompanies();                   // 3.
-        $this->info('Importando Compañias');
-        $this->output->progressAdvance();
-        $this->importCountries();                   // 4.
-        $this->info('Importando Countries');
-        $this->output->progressAdvance();
-        $this->importProvinces();                   // 5.
-        $this->info('Importando Provincias');
-        $this->output->progressAdvance();
-        $this->importTowns();                       // 6.
-        $this->info('Importando Towns');
-        $this->output->progressAdvance();
-        $this->importWorkplaces();                  // 7.
-        $this->info('Importando WorkPlaces');
-        $this->output->progressAdvance();
-        $this->importCostCenters();                 // 8.
-        $this->info('Importando Centers');
-        $this->output->progressAdvance();
-        $this->importBusinessAreas();               // 9.
-        $this->info('Importando Business Areas');
-        $this->output->progressAdvance();
-        $this->importUserCompanies();               // 10.
-        $this->info('Importando User Companies');
-        $this->output->progressAdvance();
-        $this->importContracts();                   // 11.
-        $this->info('Importando Contratos');
-        $this->output->progressAdvance();
-        $this->importDayTypes();                    // 12.
-        $this->info('Importando Day Types');
-        $this->output->progressAdvance();
-        $this->importDayTypesSettings();            // 13.
-        $this->info('Importando Day Type Settings');
-        $this->output->progressAdvance();
-        $this->importDayTypesSettingsUser();        // 14.
-        $this->info('Importando  Day Type Setting User');
-        $this->output->progressAdvance();
-        $this->importUserWorkplaces();              // 15.
-        $this->info('Importando User Work Places');
-        $this->output->progressAdvance();
-        $this->importUserCostCenters();             // 16.
-        $this->info('Importando User Cost Centers');
-        $this->output->progressAdvance();
-        $this->importUserBusinessAreas();           // 17.
-        $this->info('Importando User Bussines Areas');
-        $this->output->progressAdvance();
-        $this->importBusinessAreasSettings();       // 18.
-        $this->info('Importando Business Areas Settings');
-        $this->output->progressAdvance();
-        $this->importEmployees();                   // 19.          **¡ATENCIÓN!
-        $this->info('Importando Employees');
-        $this->output->progressAdvance();
-        $this->importAccounts();                    // 20.
-        $this->info('Importando Accounts');
-        $this->output->progressAdvance();
-        $this->importCompanyAccounts();             // 21.
-        $this->info('Importando Company Accounts');
-        $this->output->progressAdvance();
-        $this->importUserImages();                  // 22.
-        $this->info('Importando User Images');
-        $this->output->progressAdvance();
-        $this->importPhones();                      // 23.
-        $this->info('Importando Phones');
-        $this->output->progressAdvance();
-        $this->importCategories();                   // 24.
-        $this->info('Importando Categoories');
-        $this->output->progressAdvance();
-        $this->importCompanyModules();              // 25.
-        $this->info('Importando Company Modules');
-        $this->output->progressAdvance();
-        $this->importCompanySettings();             // 26.
-        $this->info('Importando Company Settings');
-        $this->output->progressAdvance();
-        $this->importGroups();                      // 27.
-        $this->info('Importando Groups');
-        $this->output->progressAdvance();
-        $this->importGroupMembers();                // 28.
-        $this->info('Importando Group Members');
-        $this->output->progressAdvance();
-        $this->importNotifications();               // 29.
-        $this->info('Importando Notifications');
-        $this->output->progressAdvance();
-        $this->importPreferences();                 // 30.
-        $this->info('Importando Preferences');
-        $this->output->progressAdvance();
-        $this->importStores();                      // 31.
-        $this->info('Importando Stores');
-        $this->output->progressAdvance();
-        $this->importProductPatterns();             // 32.
-        $this->info('Importando Product Patterns');
-        $this->output->progressAdvance();
-        $this->importTimetableItems();              // 33.          **¡ATENCIÓN!
-        $this->info('Importando Time Table Items ***Atención***');
-        $this->output->progressAdvance();
-        $this->importTimetableSigned();             // 34.
-        $this->info('Importando Time Table Signed');
-        $this->output->progressAdvance();
-        $this->importTimetables();                  // 35.
-        $this->info('Importando Time Tables');
-        $this->output->progressAdvance();
-        $this->importUserTimetables();              // 36.
-        $this->info('Importando User Time Table');
-        $this->output->progressAdvance();
-        $this->importWorkCalendars();               // 37.
-        $this->info('Importando Work Calendars');
-        $this->output->progressAdvance();
-        $this->importWorkUserCalendars();           // 38.
-        $this->info('Importando Work User Calendars');
-        $this->output->progressAdvance();
-        $this->importResiduaryDays();               // 39.
-        $this->info('Importando ResiduaryDays');
-        $this->output->progressAdvance();
-        $this->importBudgetForms();                 // 40.
-        $this->info('Importando Budget Forms');
-        $this->output->progressAdvance();
-        $this->importProducts();                    // 41.
-        $this->info('Importando Product');
-        $this->output->progressAdvance();
-        $this->importBudgetPatterns();              // 42.
-        $this->info('Importando Budget Patterns');
-        $this->output->progressAdvance();
-        $this->importBudgetSettings();              // 43.
-        $this->info('Importando Budget Settings');
-        $this->output->progressAdvance();
-        $this->importOrderPatterns();               // 44.
-        $this->info('Importando Order Patterns');
-        $this->output->progressAdvance();
-        $this->importOrderSettings();               // 45.
-        $this->info('Importando Order Settings');
-        $this->output->progressAdvance();
-        $this->importPurchasePatterns();            // 46.
-        $this->info('Importando Purchase Patterns');
-        $this->output->progressAdvance();
-        $this->importOrders();                      // 47.
-        $this->info('Importando Orders');
-        $this->output->progressAdvance();
-        $this->importCustomerProviders();           // 48.
-        $this->info('Importando Customer Providers');
-        $this->output->progressAdvance();
-        $this->importOrderDocs();                   // 49.
-        $this->info('Importando Order Docs');
-        $this->output->progressAdvance();
-        $this->importCustomerProducts();            // 50.
-        $this->info('Importando Customer Products');
-        $this->output->progressAdvance();
-        $this->importIncidencePatterns();           // 51.
-        $this->info('Importando Incidence Patterns');
-        $this->output->progressAdvance();
-        $this->importAttributes();                  // 53.
-        $this->info('Importando Attributes');
-        $this->output->progressAdvance();
-        $this->importProductAttributes();           // 54.
-        $this->info('Importando Product Attribute');
-        $this->output->progressAdvance();
-        $this->importProductSerials();              // 55.
-        $this->info('Product Serials');
-        $this->output->progressAdvance();
-        $this->importProductSerialsCards();         // 56.
-        $this->info('Importando Product Serials Cards');
-        $this->output->progressAdvance();
-        //$this->importIncidenceLines();              // 57.
-        //$this->info('Importando Incidence Lines');
-        $this->output->progressAdvance();
-        $this->importProductDocs();                 // 58.
-        $this->info('Importando Product Docs');
-        $this->output->progressAdvance();
-        $this->importProductPrices();               // 59.
-        $this->info('Importando Product Prices');
-        $this->output->progressAdvance();
-        $this->importOrderTrackings();              // 60.
-        $this->info('Importando Order Trackings');
-        $this->output->progressAdvance();
-        $this->importBudgetFormItems();             // 61.
-        $this->info('Importando Budget Form Items');
-        $this->output->progressAdvance();
-        $this->importSchedules();                   // 62.
-        $this->info('Importando Schedules');
-        $this->output->progressAdvance();
-        $this->importScheduleEventTypes();          // 63.
-        $this->info('Importando Schedule Event Types');
-        $this->output->progressAdvance();
-        $this->importScheduleEvents();              // 64.
-        $this->info('Importando Schedule Events');
-        $this->output->progressAdvance();
-        $this->importBatches();                     // 65.
-        $this->info('Importando Batches');
-        $this->output->progressAdvance();
-        $this->importInvoicePatterns();             // 66.
-        $this->info('Importando Invoices Patterns');
-        $this->output->progressAdvance();
-        $this->importInvoiceSettings();             // 67.
-        $this->info('Importando Invoice Settings');
-        $this->output->progressAdvance();
-        $this->importInvoices();                    // 68.
-        $this->info('Importando Invoices');
-        $this->output->progressAdvance();
-        $this->importOrderPrevisions();             // 69.
-        $this->info('Importando Order Previsions');
-        $this->output->progressAdvance();
-        $this->importItems();                       // 70.
-        $this->info('Importando Items');
-        $this->output->progressAdvance();
-        $this->importItemsStatus();                 // 71.
-        $this->info('Importando Item Status');
-        $this->output->progressAdvance();
-        $this->importProjects();                    // 72.
-        $this->info('Importando Projects');
-        $this->output->progressAdvance();
-        $this->importTaskStatus();                  // 73.
-        $this->info('Importando Task Status');
-        $this->output->progressAdvance();
-        $this->importTasks();                       // 74.
-        $this->info('Importando Tasks');
-        $this->output->progressAdvance();
-        $this->importTaskDocs();                    // 75.
-        $this->info('Importando Task Docs');
-        $this->output->progressAdvance();
-        $this->importTaskMessages();                // 76.
-        $this->info('Importando Task Messages');
-        $this->output->progressAdvance();
-        $this->importInvoiceItems();                // 77.
-        $this->info('Importando Invoice Items');
-        $this->output->progressAdvance();
+        DB::table('migration_errors')->truncate();
+
+         $this->importUsers(true);
+         sleep(3);
+         $this->importCompanies();
+         sleep(3);
+         $this->importCountries();
+         sleep(3);
+         $this->importProvinces();
+         sleep(3);
+         $this->importTowns();
+         sleep(3);
+         $this->importWorkplaces();
+         sleep(3);
+         $this->importCostCenters();
+         sleep(3);
+         $this->importBusinessAreas();
+         sleep(3);
+         $this->importUserCompanies();
+         sleep(3);
+         $this->importContracts();
+         sleep(3);
+         $this->importDayTypes();
+         sleep(3);
+         $this->importDayTypesSettings();
+         sleep(3);
+         $this->importDayTypesSettingsUser();
+         sleep(3);
+         $this->importUserWorkplaces();
+         sleep(3);
+         $this->importUserCostCenters();
+         sleep(3);
+         $this->importUserBusinessAreas();
+         sleep(3);
+         $this->importBusinessAreasSettings();
+         sleep(3);
+         $this->importEmployees();
+         sleep(3);
+         $this->importAccounts();
+         sleep(3);
+         $this->importCompanyAccounts();
+         sleep(3);
+         $this->importUserImages();
+         sleep(3);
+         $this->importPhones();
+         sleep(3);
+         $this->importCategories();
+         sleep(3);
+         $this->importCompanyModules();
+         sleep(3);
+         $this->importCompanySettings();
+         sleep(3);
+         $this->importGroups();
+         sleep(3);
+         $this->importGroupMembers();
+         sleep(3);
+         $this->importNotifications();
+         sleep(3);
+         $this->importPreferences();
+         sleep(3);
+         $this->importStores();
+         sleep(3);
+         $this->importProductPatterns();
+         sleep(3);
+         $this->importTimetableItems();
+         sleep(3);
+         $this->importTimetableSigned();
+         sleep(3);
+         $this->importTimetables();
+         sleep(3);
+         $this->importUserTimetables();
+         sleep(3);
+         $this->importWorkCalendars();
+         sleep(3);
+         $this->importWorkUserCalendars();
+         sleep(3);
+         $this->importResiduaryDays();
+         sleep(3);
+         $this->importBudgetForms();
+         sleep(3);
+         $this->importProducts();
+         sleep(3);
+         $this->importBudgetPatterns();
+         sleep(3);
+         $this->importBudgetSettings();
+         sleep(3);
+         $this->importOrderPatterns();
+         sleep(3);
+         $this->importOrderSettings();
+         sleep(3);
+         $this->importPurchasePatterns();             //46.
+         sleep(3);
+         $this->importOrders();
+         sleep(3);
+         $this->importCustomerProviders();
+         sleep(3);
+         $this->importOrderDocs();
+         sleep(3);
+         $this->importCustomerProducts();
+         sleep(3);
+         $this->importIncidencePatterns();
+         sleep(3);
+         $this->importIncidences();
+         sleep(3);
+         $this->importAttributes();
+         sleep(3);
+         $this->importProductAttributes();
+         sleep(3);
+         $this->importProductSerials();
+         sleep(3);
+         $this->importProductSerialsCards();
+         sleep(3);
+         $this->importIncidenceLines();
+         sleep(3);
+         $this->importProductDocs();
+         sleep(3);
+         $this->importProductPrices();
+         sleep(3);
+         $this->importOrderTrackings();
+         sleep(3);
+         $this->importBudgetFormItems();
+         sleep(3);
+         $this->importSchedules();
+         sleep(3);
+         $this->importScheduleEventTypes();
+         sleep(3);
+         $this->importScheduleEvents();
+         sleep(3);
+         $this->importBatches();
+         sleep(3);
+         $this->importInvoicePatterns();
+         sleep(3);
+         $this->importInvoiceSettings();
+         sleep(3);
+         $this->importInvoices();
+         sleep(3);
+         $this->importOrderPrevisions();
+         sleep(3);
+         $this->importItems();
+         sleep(3);
+        $this->importItemsStatus();
+        sleep(3);
+         $this->importProjects();
+         sleep(3);
+         $this->importTaskStatus();
+         sleep(3);
+         $this->importTasks();
+         sleep(3);
+         $this->importTaskDocs();
+         sleep(3);
+         $this->importTaskMessages();
+         sleep(3);
+        $this->importInvoiceItems();
+         sleep(3);
+
+        sleep(3);
         $this->endImportation();
-        $this->info('Finalizando Importanción');
         $this->output->progressFinish();
         return $this->info('La importación se ha realizado con exíto.');
     }
@@ -375,20 +317,18 @@ class ImportDb extends Command
     /**
      * 2. Importación usuarios.
      */
-    public function importUsers($on = false)
-    {
-        if ($on) {
+    public function importUsers($on = true){
+        if($on){
             $data = DB::connection('mysql2')->table('users')->get();
 
-            if ($data->count()) {
+            if($data->count()){
                 Importaciones::create(['texto' => 'usuarios']);
 
                 DB::statement('SET FOREIGN_KEY_CHECKS=0;');
                 DB::table('users')->truncate();
                 DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-                foreach ($data as $r) {
-
+                foreach($data as $r){
                     $i = new User;
                     $i->id = $r->id;
                     $i->name = $r->name;
@@ -408,7 +348,7 @@ class ImportDb extends Command
                     $i->created_at = $r->created_at;
                     $i->updated_at = $r->updated_at;
                     $i->save();
-                    // dd($i);
+
                     //Guardamos rol:
                     //$i->assignRole('basico');
                 }
@@ -419,18 +359,22 @@ class ImportDb extends Command
     /**
      * 3. Importación empresas.
      */
-    public function importCompanies()
-    {
+    public function importCompanies(){
         $data = DB::connection('mysql2')->table('companies')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'empresas']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('companies')->truncate();
+            DB::table('roles')->truncate();
+            DB::table('role_has_permissions')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            //Creamos de nuevo el role Super Admin por defecto:
+            Role::create(['name' => 'Super Admin']);
+
+            foreach($data as $r){
                 $i = new Company;
                 $i->id = $r->id;
                 $i->name = $r->name;
@@ -445,28 +389,47 @@ class ImportDb extends Command
                 $i->created_at = $r->created_at;
                 $i->updated_at = $r->updated_at;
                 $i->save();
-              $i->setCompanyRoles();
             }
 
-        }
+            $permissions = Permission::all();
 
+            //Permisos exclusivos del Super Admin, por lo que no pueden vincularse a ningún otro role:
+            $exceptions = config('constants.PERMISSIONS_OFF_');
+
+            //Pasamos a un array todos los permisos válidos para el manager:
+            $arr = [];
+            foreach($permissions as $p){
+                $segments = explode('.', $p->name);
+                if(!in_array($segments[0], $exceptions)){
+                    array_push($arr, $p->id);
+                }
+            }
+
+            //Obtenemos las empresas creadas y generamos sus roles:
+            $companies = Company::select('id')->get();
+
+            foreach($companies as $c){
+                //Roles básicos por empresa.
+                $set_permissions = in_array($c->id, $this->adn_companies)? true:false;
+                $c->setCompanyRoles($set_permissions, $arr);
+            }
+        }
     }
 
     /**
      * 4. Importación países.
      */
-    public function importCountries()
-    {
+    public function importCountries(){
         $data = DB::connection('mysql2')->table('countries')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'países']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('countries')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new Country;
                 $i->id = $r->id;
                 $i->name = $r->name;
@@ -487,18 +450,17 @@ class ImportDb extends Command
     /**
      * 5. Importación provincias.
      */
-    public function importProvinces()
-    {
+    public function importProvinces(){
         $data = DB::connection('mysql2')->table('provinces')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'provincias']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('provinces')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new Province;
                 $i->id = $r->id;
                 $i->name = $r->name;
@@ -517,8 +479,7 @@ class ImportDb extends Command
      * 6. Importar poblaciones.
      * Omitir las poblaciones de España, pues se carga con el seeder.
      */
-    public function importTowns()
-    {
+    public function importTowns(){
         // $data = DB::connection('mysql2')->table('towns')
         // ->select('towns.*')
         // ->join('provinces', 'towns.province_id', '=', 'provinces.id')
@@ -527,14 +488,14 @@ class ImportDb extends Command
 
         $data = DB::connection('mysql2')->table('towns')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'poblaciones']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('towns')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new Town;
                 $i->id = $r->id;
                 $i->name = $r->name;
@@ -552,18 +513,17 @@ class ImportDb extends Command
     /**
      * 7. Importar centros de trabajo.
      */
-    public function importWorkplaces()
-    {
+    public function importWorkplaces(){
         $data = DB::connection('mysql2')->table('workplaces')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'centros de trabajo']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('workplaces')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new Workplace;
                 $i->id = $r->id;
                 $i->name = $r->name;
@@ -589,18 +549,17 @@ class ImportDb extends Command
     /**
      * 8. Importar centros de coste.
      */
-    public function importCostCenters()
-    {
+    public function importCostCenters(){
         $data = DB::connection('mysql2')->table('cost_centers')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'centros de coste']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('cost_centers')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new CostCenters;
                 $i->id = $r->id;
                 $i->company_id = $r->company_id;
@@ -618,18 +577,17 @@ class ImportDb extends Command
     /**
      * 9. Importar áreas de negocio.
      */
-    public function importBusinessAreas()
-    {
+    public function importBusinessAreas(){
         $data = DB::connection('mysql2')->table('business_areas')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'áreas de negocio']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('business_areas')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new BusinessAreas;
                 $i->id = $r->id;
                 $i->company_id = $r->company_id;
@@ -647,18 +605,17 @@ class ImportDb extends Command
     /**
      * 10. Importar Usuarios por empresas.
      */
-    public function importUserCompanies()
-    {
+    public function importUserCompanies(){
         $data = DB::connection('mysql2')->table('user_companies')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'usuarios por empresas']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('user_companies')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new UserCompanies;
                 $i->id = $r->id;
                 $i->user_id = $r->user_id;
@@ -669,37 +626,19 @@ class ImportDb extends Command
                 $i->save();
 
                 //Asignamos roles de empresa a user. A las empresas ADN se les genera -de entrada- role de manager. Al resto role básico.
-                $adn_companies = [3, 4, 8, 202, 227, 275];
-
-                if (in_array($r->company_id, $adn_companies)) {
+                if(in_array($r->company_id, $this->adn_companies)){
                     $company_roles = Role::where('company_id', $r->company_id)->orderBy('id', 'ASC')->first();
-                } else {
+                }else{
                     $company_roles = Role::where('company_id', $r->company_id)->orderBy('id', 'DESC')->first();
                 }
 
                 $user = User::find($i->user_id);
-
-                if ($user && $company_roles) {
-
-                    if (!$user->hasRole($company_roles->name)) {
-                        if (Arr::exists($user->roles, 0)) {
-                            $model_id = Arr::first($user->roles, function ($value) {
-                                return $value->pivot->model_id;
-                            });
-
-                            if ($model_id->pivot->model_id !== $user->id) {
-                                $user->assignRole($company_roles->name);
-                            }
-                        } else {
-
-                            $user->assignRole($company_roles->name);
-
-                        }
-
-                    }
+                //dd(Arr::exists($user->roles(),'model_id'));
+                if($user && $company_roles){
+                    //if(!$user->hasRole($company_roles->name)) {
+                    $user->assignRole($company_roles->name);
+                    //}
                 }
-
-
             }
         }
     }
@@ -707,18 +646,17 @@ class ImportDb extends Command
     /**
      * 11. Importar contratos laborales.
      */
-    public function importContracts()
-    {
+    public function importContracts(){
         $data = DB::connection('mysql2')->table('contracts')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'contratos laborales']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('contracts')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new Contract;
                 $i->id = $r->id;
                 $i->name = $r->name;
@@ -738,18 +676,17 @@ class ImportDb extends Command
     /**
      * 12. Tipos de jornada.
      */
-    public function importDayTypes()
-    {
+    public function importDayTypes(){
         $data = DB::connection('mysql2')->table('day_types')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'tipos de jornada']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('day_types')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new DayTypes;
                 $i->id = $r->id;
                 $i->company_id = $r->company_id;
@@ -772,18 +709,17 @@ class ImportDb extends Command
     /**
      * 13. Importar configuraciones tipos de jornada.
      */
-    public function importDayTypesSettings()
-    {
+    public function importDayTypesSettings(){
         $data = DB::connection('mysql2')->table('day_types_configs')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'configuraciones de tipos de jornada']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('day_types_configs')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new DayTypesConfig;
                 $i->id = $r->id;
                 $i->day_type_id = $r->day_type_id;
@@ -802,18 +738,17 @@ class ImportDb extends Command
     /**
      * 14. Importar configuraciones tipos de jornada para usuario.
      */
-    public function importDayTypesSettingsUser()
-    {
+    public function importDayTypesSettingsUser(){
         $data = DB::connection('mysql2')->table('day_types_users_configs')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'configuraciones de tipos de jornada para usuario']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('day_types_users_configs')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new DayTypesUsersConfig;
                 $i->id = $r->id;
                 $i->user_id = $r->user_id;
@@ -830,18 +765,17 @@ class ImportDb extends Command
     /**
      *  15. Importar usuarios por Centros de trabajo.
      */
-    public function importUserWorkplaces()
-    {
+    public function importUserWorkplaces(){
         $data = DB::connection('mysql2')->table('user_workplaces')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'usuarios por Centros de trabajo']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('user_workplaces')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new UserWorkplaces;
                 $i->id = $r->id;
                 $i->user_id = $r->user_id;
@@ -857,18 +791,17 @@ class ImportDb extends Command
     /**
      * 16. Importar usuarios por Centros de coste.
      */
-    public function importUserCostCenters()
-    {
+    public function importUserCostCenters(){
         $data = DB::connection('mysql2')->table('user_cost_centers')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'usuarios por Centros de coste']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('user_cost_centers')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new UserCostCenters;
                 $i->id = $r->id;
                 $i->user_id = $r->user_id;
@@ -884,18 +817,17 @@ class ImportDb extends Command
     /**
      * 17. Importar usuarios por Áreas de negocio.
      */
-    public function importUserBusinessAreas()
-    {
+    public function importUserBusinessAreas(){
         $data = DB::connection('mysql2')->table('user_business_areas')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'usuarios por Áreas de negocio']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('user_business_areas')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new UserBusinessAreas;
                 $i->id = $r->id;
                 $i->user_id = $r->user_id;
@@ -911,18 +843,17 @@ class ImportDb extends Command
     /**
      * 18. Importar configuraciones Áreas de negocio.
      */
-    public function importBusinessAreasSettings()
-    {
+    public function importBusinessAreasSettings(){
         $data = DB::connection('mysql2')->table('business_area_settings')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'configuraciones de Áreas de negocio']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('business_area_settings')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new BusinessAreaSettings;
                 $i->id = $r->id;
                 $i->ba_id = $r->ba_id;
@@ -941,18 +872,17 @@ class ImportDb extends Command
      *
      * **¡ATENCIÓN! revisar los resultados de la importación con workplace_id = NULL.
      */
-    public function importEmployees()
-    {
+    public function importEmployees(){
         $data = DB::connection('mysql2')->table('employees')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'empleados']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('employees')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 //Obtenemos worplace_id, campo que no existía en la anterior BD.
                 $workplace = UserWorkplaces::select('user_workplaces.workplace_id')
                     ->join('workplaces', 'user_workplaces.workplace_id', '=', 'workplaces.id')
@@ -961,7 +891,7 @@ class ImportDb extends Command
                     ->where('contracts.id', $r->contract_id)
                     ->first();
 
-                if (!$workplace) {
+                if(!$workplace){
                     $workplace = UserWorkplaces::select('workplace_id')
                         ->where('user_id', $r->user_id)
                         ->orderBy('id', 'DESC')
@@ -972,7 +902,7 @@ class ImportDb extends Command
                 $i->id = $r->id;
                 $i->user_id = $r->user_id;
                 $i->contract_id = $r->contract_id;
-                $i->workplace_id = $workplace ? $workplace->workplace_id : NULL;
+                $i->workplace_id = $workplace? $workplace->workplace_id:NULL;
                 $i->job_title = $r->job_title;
                 $i->start_date = $r->start_date;
                 $i->end_date = $r->end_date;
@@ -992,18 +922,17 @@ class ImportDb extends Command
     /**
      * 20. Importar cuentas.
      */
-    public function importAccounts()
-    {
+    public function importAccounts(){
         $data = DB::connection('mysql2')->table('accounts')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'cuentas']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('accounts')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new Account;
                 $i->id = $r->id;
                 $i->name = $r->name;
@@ -1023,18 +952,17 @@ class ImportDb extends Command
     /**
      * 21. Importar cuentas por empresas.
      */
-    public function importCompanyAccounts()
-    {
+    public function importCompanyAccounts(){
         $data = DB::connection('mysql2')->table('company_accounts')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'cuentas por empresas']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('company_accounts')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new CompanyAccounts;
                 $i->id = $r->id;
                 $i->company_id = $r->company_id;
@@ -1056,18 +984,17 @@ class ImportDb extends Command
     /**
      * 22. Importar imágenes por usuario.
      */
-    public function importUserImages()
-    {
+    public function importUserImages(){
         $data = DB::connection('mysql2')->table('user_images')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'imágenes por usuario']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('user_images')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new UserImage;
                 $i->id = $r->id;
                 $i->image = $r->image;
@@ -1084,18 +1011,17 @@ class ImportDb extends Command
     /**
      * 23. Importar teléfonos.
      */
-    public function importPhones()
-    {
+    public function importPhones(){
         $data = DB::connection('mysql2')->table('phones')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'teléfonos']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('phones')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new Phone;
                 $i->id = $r->id;
                 $i->user_id = $r->user_id;
@@ -1113,18 +1039,17 @@ class ImportDb extends Command
     /**
      * 24. Importar categorías.
      */
-    public function importCategories()
-    {
+    public function importCategories(){
         $data = DB::connection('mysql2')->table('categories')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'categorías']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('categories')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new Category;
                 $i->id = $r->id;
                 $i->company_id = $r->company_id;
@@ -1145,21 +1070,20 @@ class ImportDb extends Command
     /**
      * 25. Importa módulos por empresa.
      */
-    public function importCompanyModules()
-    {
+    public function importCompanyModules(){
         $data = DB::connection('mysql2')->table('company_modules')
             ->select('company_modules.*', 'modules.slug')
             ->join('modules', 'company_modules.module_id', '=', 'modules.id')
             ->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'módulos por empresas']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('company_modules')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $module = Module::select('id')
                     ->where('label', $r->slug)
                     ->first();
@@ -1179,18 +1103,17 @@ class ImportDb extends Command
     /**
      * 26. Importar configuraciones por empresa.
      */
-    public function importCompanySettings()
-    {
+    public function importCompanySettings(){
         $data = DB::connection('mysql2')->table('company_settings')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'configuraciones por empresa']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('company_settings')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new CompanySettings;
                 $i->id = $r->id;
                 $i->company_id = $r->company_id;
@@ -1218,18 +1141,17 @@ class ImportDb extends Command
     /**
      * 27. Importar grupos.
      */
-    public function importGroups()
-    {
+    public function importGroups(){
         $data = DB::connection('mysql2')->table('groups')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'grupos']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('groups')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new Group;
                 $i->id = $r->id;
                 $i->company_id = $r->company_id;
@@ -1248,18 +1170,17 @@ class ImportDb extends Command
     /**
      * 28. Importar miembros de grupos.
      */
-    public function importGroupMembers()
-    {
+    public function importGroupMembers(){
         $data = DB::connection('mysql2')->table('group_members')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'miembros de grupos']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('group_members')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new GroupMembers;
                 $i->id = $r->id;
                 $i->group_id = $r->group_id;
@@ -1277,18 +1198,17 @@ class ImportDb extends Command
     /**
      * 29. Importar notificaciones.
      */
-    public function importNotifications()
-    {
+    public function importNotifications(){
         $data = DB::connection('mysql2')->table('notifications')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'notificaciones']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('notifications')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new Notification;
                 $i->id = $r->id;
                 $i->type = $r->type;
@@ -1306,21 +1226,20 @@ class ImportDb extends Command
     /**
      * 30. Importar preferencias.
      */
-    public function importPreferences()
-    {
+    public function importPreferences(){
         $data = DB::connection('mysql2')->table('preferences')
             ->select('preferences.*', 'modules.slug')
             ->leftJoin('modules', 'preferences.module_id', '=', 'modules.id')
             ->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'preferencias']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('preferences')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $module = Module::select('id')
                     ->where('label', $r->slug)
                     ->first();
@@ -1330,7 +1249,7 @@ class ImportDb extends Command
                 $i->name = $r->name;
                 $i->url = $r->url;
                 $i->user_id = $r->user_id;
-                $i->module_id = $module ? $module->id : NULL;
+                $i->module_id = $module? $module->id:NULL;
                 $i->created_at = $r->created_at;
                 $i->updated_at = $r->updated_at;
                 $i->save();
@@ -1341,18 +1260,17 @@ class ImportDb extends Command
     /**
      * 31. Importar almacenes.
      */
-    public function importStores()
-    {
+    public function importStores(){
         $data = DB::connection('mysql2')->table('stores')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'almacenes']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('stores')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new Store;
                 $i->id = $r->id;
                 $i->name = $r->name;
@@ -1372,18 +1290,17 @@ class ImportDb extends Command
     /**
      * 32. Importar patrones de producto.
      */
-    public function importProductPatterns()
-    {
+    public function importProductPatterns(){
         $data = DB::connection('mysql2')->table('product_patterns')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'patrones de producto']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('product_patterns')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new ProductPatterns;
                 $i->id = $r->id;
                 $i->name = $r->name;
@@ -1405,18 +1322,17 @@ class ImportDb extends Command
      * **¡ATENCIÓN! revisar el campo basic_item pues es nuevo.  Los items de Entrada y Salida básicos deben considerarse como basic_item.
      * **¡ATENCIÓN! revisar el campo own_ouptput pues es nuevo. Revisar los items que puedan tener item propio de salida.
      */
-    public function importTimetableItems()
-    {
+    public function importTimetableItems(){
         $data = DB::connection('mysql2')->table('timetable_items')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'items de horario']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('timetable_items')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new TimetableItems;
                 $i->id = $r->id;
                 $i->company_id = $r->company_id;
@@ -1444,18 +1360,17 @@ class ImportDb extends Command
     /**
      * 34. Importar horarios firmados.
      */
-    public function importTimetableSigned()
-    {
+    public function importTimetableSigned(){
         $data = DB::connection('mysql2')->table('timetable_signed')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'horarios firmados']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('timetable_signed')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new TimetableSigned;
                 $i->id = $r->id;
                 $i->user_id = $r->user_id;
@@ -1474,18 +1389,17 @@ class ImportDb extends Command
     /**
      * 35. Importar horarios.
      */
-    public function importTimetables()
-    {
+    public function importTimetables(){
         $data = DB::connection('mysql2')->table('timetables')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'horarios']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('timetables')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new Timetable;
                 $i->id = $r->id;
                 $i->date = $r->date;
@@ -1506,18 +1420,17 @@ class ImportDb extends Command
     /**
      * 36. Importar horarios de usuario.
      */
-    public function importUserTimetables()
-    {
+    public function importUserTimetables(){
         $data = DB::connection('mysql2')->table('user_timetables')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'horarios de usuario']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('user_timetables')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new UserTimetables;
                 $i->id = $r->id;
                 $i->user_id = $r->user_id;
@@ -1536,18 +1449,17 @@ class ImportDb extends Command
     /**
      * 37. Importar calendarios laborales.
      */
-    public function importWorkCalendars()
-    {
+    public function importWorkCalendars(){
         $data = DB::connection('mysql2')->table('work_calendars')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'calendarios laborales']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('work_calendars')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new WorkCalendar;
                 $i->id = $r->id;
                 $i->workplace_id = $r->workplace_id;
@@ -1564,18 +1476,17 @@ class ImportDb extends Command
     /**
      * 38. Importar calendarios laborales de usuario.
      */
-    public function importWorkUserCalendars()
-    {
+    public function importWorkUserCalendars(){
         $data = DB::connection('mysql2')->table('work_user_calendars')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'calendarios laborales de usuario']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('work_user_calendars')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new WorkUserCalendar;
                 $i->id = $r->id;
                 $i->user_id = $r->user_id;
@@ -1595,18 +1506,17 @@ class ImportDb extends Command
     /**
      * 39. Importar fechas acumuladas del calendario laboral.
      */
-    public function importResiduaryDays()
-    {
+    public function importResiduaryDays(){
         $data = DB::connection('mysql2')->table('residuary_days')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'fechas acumuladas del calendario laboral']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('residuary_days')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new ResiduaryDays;
                 $i->id = $r->id;
                 $i->user_id = $r->user_id;
@@ -1623,18 +1533,17 @@ class ImportDb extends Command
     /**
      * 40. Importar formularios de presupuesto.
      */
-    public function importBudgetForms()
-    {
+    public function importBudgetForms(){
         $data = DB::connection('mysql2')->table('budget_forms')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'formularios para presupuestos']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('budget_forms')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new BudgetForms;
                 $i->id = $r->id;
                 $i->name = $r->name;
@@ -1654,18 +1563,17 @@ class ImportDb extends Command
     /**
      * 41. Importar productos.
      */
-    public function importProducts()
-    {
+    public function importProducts(){
         $data = DB::connection('mysql2')->table('products')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'productos']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('products')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new Product;
                 $i->id = $r->id;
                 $i->name = $r->name;
@@ -1698,18 +1606,17 @@ class ImportDb extends Command
     /**
      * 42. Importar patrones de presupuestos.
      */
-    public function importBudgetPatterns()
-    {
+    public function importBudgetPatterns(){
         $data = DB::connection('mysql2')->table('budget_patterns')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'patrones de presupuestos']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('budget_patterns')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new BudgetPatterns;
                 $i->id = $r->id;
                 $i->name = $r->name;
@@ -1729,18 +1636,17 @@ class ImportDb extends Command
     /**
      * 43. Importar configuraciones de presupuestos.
      */
-    public function importBudgetSettings()
-    {
+    public function importBudgetSettings(){
         $data = DB::connection('mysql2')->table('budget_settings')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'configuraciones de presupuestos']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('budget_settings')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new BudgetSettings;
                 $i->id = $r->id;
                 $i->name = $r->name;
@@ -1763,18 +1669,17 @@ class ImportDb extends Command
     /**
      * 44. Importar patrones de pedidos.
      */
-    public function importOrderPatterns()
-    {
+    public function importOrderPatterns(){
         $data = DB::connection('mysql2')->table('order_patterns')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'patrones de pedidos']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('order_patterns')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new OrderPatterns;
                 $i->id = $r->id;
                 $i->name = $r->name;
@@ -1794,18 +1699,17 @@ class ImportDb extends Command
     /**
      * 45. Importar configuraciones de pedidos.
      */
-    public function importOrderSettings()
-    {
+    public function importOrderSettings(){
         $data = DB::connection('mysql2')->table('order_settings')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'configuraciones de pedidos']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('order_settings')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new OrderSettings;
                 $i->id = $r->id;
                 $i->name = $r->name;
@@ -1828,18 +1732,17 @@ class ImportDb extends Command
     /**
      * 46. Importar patrones de compras.
      */
-    public function importPurchasePatterns()
-    {
+    public function importPurchasePatterns(){
         $data = DB::connection('mysql2')->table('purchase_patterns')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'patrones de compras']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('purchase_patterns')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new PurchasePatterns;
                 $i->id = $r->id;
                 $i->name = $r->name;
@@ -1863,8 +1766,7 @@ class ImportDb extends Command
      *
      * ** ¡ATENCIÓN! la importación da error por exceder la memoria: Allowed memory size of 536870912 bytes exhausted (tried to allocate 33558528 bytes)
      */
-    public function importOrders()
-    {
+    public function importOrders(){
         //Inicialmente cargamos los registros de la tabla orders.
         $data = DB::connection('mysql2')->table('orders')->get();
         //$data = false;
@@ -1872,17 +1774,17 @@ class ImportDb extends Command
         //Array para guardar los id de presupuestos con pedido:
         $budgetsWithOrder = [];
 
-        if ($data && $data->count()) {
+        if($data && $data->count()){
             Importaciones::create(['texto' => 'pedidos']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('orders')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 //Datos del presupuesto:
                 $budget = false;
-                if ($r->budget_id) {
+                if($r->budget_id){
                     $budget = DB::connection('mysql2')->table('budgets')
                         ->where('id', $r->budget_id)
                         ->first();
@@ -1892,25 +1794,25 @@ class ImportDb extends Command
 
                 $i = new Order;
                 $i->id = $r->id;
-                $i->is_budget = $r->budget_id ? 1 : '0';
+                $i->is_budget = $r->budget_id? 1:'0';
                 $i->is_order = 1;   //Inicialmente se obtienen de la BD antigua los pedidos.
-                $i->name = $r->name ? $r->name : ($budget ? $budget->name : NULL);
-                $i->slug = $r->name ? Str::slug($r->name) : ($budget ? $budget->slug : NULL);
-                $i->recid = $budget ? $budget->recid : NULL;
-                $i->budget_num = $budget ? $budget->bkey : NULL;
-                $i->budget_num_cardinal = $budget ? $budget->bkey_num : NULL;
-                $i->budget_pattern_id = $budget ? $budget->budget_pattern_id : NULL;
-                $i->budget_old_num = $budget ? $budget->old_budget : NULL;
-                $i->modality = $budget ? $budget->modality : NULL;
-                $i->form_id = $budget ? $budget->form_id : NULL;
-                $i->accepted_date = $budget ? $budget->accepted_date : NULL;
-                $i->accepted_by = $budget ? $budget->accepted_by : NULL;
-                $i->budget_status = $budget ? $budget->status : '0';
-                $i->description = $budget ? $budget->description : NULL;
-                $i->comments = $budget ? $budget->comments : NULL;
-                $i->budget_file_name = $budget ? $budget->file_name : NULL;
-                $i->budget_template_id = $budget ? $budget->template_id : NULL;
-                $i->budget_template = $budget ? $budget->template : NULL;
+                $i->name = $r->name? $r->name:($budget? $budget->name:NULL);
+                $i->slug = $r->name? Str::slug($r->name):($budget? $budget->slug:NULL);
+                $i->recid = $budget? $budget->recid:NULL;
+                $i->budget_num = $budget? $budget->bkey:NULL;
+                $i->budget_num_cardinal = $budget? $budget->bkey_num:NULL;
+                $i->budget_pattern_id = $budget? $budget->budget_pattern_id:NULL;
+                $i->budget_old_num = $budget? $budget->old_budget:NULL;
+                $i->modality = $budget? $budget->modality:NULL;
+                $i->form_id = $budget? $budget->form_id:NULL;
+                $i->accepted_date = $budget? $budget->accepted_date:NULL;
+                $i->accepted_by = $budget? $budget->accepted_by:NULL;
+                $i->budget_status = $budget? $budget->status:'0';
+                $i->description = $budget? $budget->description:NULL;
+                $i->comments = $budget? $budget->comments:NULL;
+                $i->budget_file_name = $budget? $budget->file_name:NULL;
+                $i->budget_template_id = $budget? $budget->template_id:NULL;
+                $i->budget_template = $budget? $budget->template:NULL;
                 $i->order_parent = NULL;        //Para las agrupaciones
                 $i->is_group = '0';
                 $i->order_num = $r->order_num;
@@ -1963,7 +1865,7 @@ class ImportDb extends Command
                 $i->updated_at = $r->updated_at;
 
                 //Campos temporales.  A eliminar una vez concluida y validada la migración.
-                $i->old_budget_id = $budget ? $budget->id : NULL;
+                $i->old_budget_id = $budget? $budget->id:NULL;
                 $i->old_order_id = $r->id;
 
                 $i->save();
@@ -1974,7 +1876,7 @@ class ImportDb extends Command
                 ->whereNotIn('id', $budgetsWithOrder)
                 ->get();
 
-            foreach ($budgets as $b) {
+            foreach($budgets as $b){
                 $i = new Order;
                 $i->is_budget = 1;
                 $i->is_order = '0';
@@ -2056,10 +1958,10 @@ class ImportDb extends Command
         //Incluimos las agrupaciones de pedidos. También generan id nuevo.
         $order_groups = DB::connection('mysql2')->table('order_groups')->get();
 
-        foreach ($order_groups as $og) {
+        foreach($order_groups as $og){
             //Datos del presupuesto:
             $budget = false;
-            if ($og->budget_id) {
+            if($og->budget_id){
                 $budget = DB::connection('mysql2')->table('budgets')
                     ->where('id', $og->budget_id)
                     ->first();
@@ -2069,22 +1971,22 @@ class ImportDb extends Command
             $i->is_budget = '0';
             $i->is_order = 1;
             $i->name = $og->name;
-            $i->slug = $og->name ? Str::slug($og->name) : NULL;
-            $i->recid = $budget ? $budget->recid : NULL;
-            $i->budget_num = $budget ? $budget->bkey : NULL;
-            $i->budget_num_cardinal = $budget ? $budget->bkey_num : NULL;
-            $i->budget_pattern_id = $budget ? $budget->budget_pattern_id : NULL;
-            $i->budget_old_num = $budget ? $budget->old_budget : NULL;
-            $i->modality = $budget ? $budget->modality : NULL;
-            $i->form_id = $budget ? $budget->form_id : NULL;
-            $i->accepted_date = $budget ? $budget->accepted_date : NULL;
-            $i->accepted_by = $budget ? $budget->accepted_by : NULL;
-            $i->budget_status = $budget ? $budget->status : '0';
-            $i->description = $budget ? $budget->description : NULL;
-            $i->comments = $budget ? $budget->comments : NULL;
-            $i->budget_file_name = $budget ? $budget->file_name : NULL;
-            $i->budget_template_id = $budget ? $budget->template_id : NULL;
-            $i->budget_template = $budget ? $budget->template : NULL;
+            $i->slug = $og->name? Str::slug($og->name):NULL;
+            $i->recid = $budget? $budget->recid:NULL;
+            $i->budget_num = $budget? $budget->bkey:NULL;
+            $i->budget_num_cardinal = $budget? $budget->bkey_num:NULL;
+            $i->budget_pattern_id = $budget? $budget->budget_pattern_id:NULL;
+            $i->budget_old_num = $budget? $budget->old_budget:NULL;
+            $i->modality = $budget? $budget->modality:NULL;
+            $i->form_id = $budget? $budget->form_id:NULL;
+            $i->accepted_date = $budget? $budget->accepted_date:NULL;
+            $i->accepted_by = $budget? $budget->accepted_by:NULL;
+            $i->budget_status = $budget? $budget->status:'0';
+            $i->description = $budget? $budget->description:NULL;
+            $i->comments = $budget? $budget->comments:NULL;
+            $i->budget_file_name = $budget? $budget->file_name:NULL;
+            $i->budget_template_id = $budget? $budget->template_id:NULL;
+            $i->budget_template = $budget? $budget->template:NULL;
             $i->order_old_num = $og->old_order_group;
             $i->order_status = $og->status;
             $i->pay_order = $og->pay_order;
@@ -2104,7 +2006,7 @@ class ImportDb extends Command
                 ->where('og_id', $og->id)
                 ->get();
 
-            foreach ($pedidos_grupo as $pg) {
+            foreach($pedidos_grupo as $pg){
                 Order::where('id', $pg->order_id)
                     ->update(['order_parent' => $i->id]);
             }
@@ -2114,18 +2016,17 @@ class ImportDb extends Command
     /**
      * 48. Importar relación clientes - proveedores.
      */
-    public function importCustomerProviders()
-    {
+    public function importCustomerProviders(){
         $data = DB::connection('mysql2')->table('customer_providers')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'clientes - proveedores']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('customer_providers')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new CustomerProviders;
                 $i->id = $r->id;
                 $i->customer_id = $r->customer_id;
@@ -2152,18 +2053,17 @@ class ImportDb extends Command
     /**
      * 49. Importar documentos de pedidos.
      */
-    public function importOrderDocs()
-    {
+    public function importOrderDocs(){
         $data = DB::connection('mysql2')->table('order_docs')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'documentos de pedidos']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('order_docs')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 //Obtenemos el order_id actualizado:
                 $order = Order::select('id')
                     ->where('old_order_id', $r->order_id)
@@ -2172,7 +2072,7 @@ class ImportDb extends Command
                 $i = new OrderDocs;
                 $i->id = $r->id;
                 $i->doc = $r->doc;
-                $i->order_id = $order ? $order->id : $r->order_id;
+                $i->order_id = $order? $order->id:$r->order_id;
                 //$i->type = $r->type;      //Campo nuevo. Toma valor por defecto.
                 $i->created_at = $r->created_at;
                 $i->updated_at = $r->updated_at;
@@ -2184,18 +2084,17 @@ class ImportDb extends Command
     /**
      * 50. Importar productos por cliente.
      */
-    public function importCustomerProducts()
-    {
+    public function importCustomerProducts(){
         $data = DB::connection('mysql2')->table('customer_products')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'productos por cliente']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('customer_products')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new CustomerProducts;
                 $i->id = $r->id;
                 $i->product_id = $r->product_id;
@@ -2214,18 +2113,17 @@ class ImportDb extends Command
     /**
      * 51. Importar patrones de incidencias.
      */
-    public function importIncidencePatterns()
-    {
+    public function importIncidencePatterns(){
         $data = DB::connection('mysql2')->table('incidence_patterns')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'patrones de incidencias']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('incidence_patterns')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new IncidencePatterns;
                 $i->id = $r->id;
                 $i->name = $r->name;
@@ -2247,18 +2145,17 @@ class ImportDb extends Command
      *
      * ** ¡ATENCIÓN! Completar el campo incidence_num_cardinal pues de la tabla antigua no proviene la numeración.
      */
-    public function importIncidences()
-    {
+    public function importIncidences(){
         $data = DB::connection('mysql2')->table('incidences')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'incidencias']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('incidences')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new Incidence;
                 $i->id = $r->id;
                 $i->incidence_num = $r->incidence_num;
@@ -2284,18 +2181,17 @@ class ImportDb extends Command
      *
      * Antigua tabla parameters.
      */
-    public function importAttributes()
-    {
+    public function importAttributes(){
         $data = DB::connection('mysql2')->table('parameters')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'atributos']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('attributes')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new Attribute;
                 $i->id = $r->id;
                 $i->name = $r->name;
@@ -2316,18 +2212,17 @@ class ImportDb extends Command
     /**
      * 54. Importar atributos de producto.
      */
-    public function importProductAttributes()
-    {
+    public function importProductAttributes(){
         $data = DB::connection('mysql2')->table('product_parameters')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'atributos de productos']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('product_attributes')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new ProductAttributes;
                 $i->id = $r->id;
                 $i->product_id = $r->product_id;
@@ -2343,18 +2238,17 @@ class ImportDb extends Command
     /**
      * 55. Importar números de serie de productos.
      */
-    public function importProductSerials()
-    {
+    public function importProductSerials(){
         $data = DB::connection('mysql2')->table('product_serials')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'números de serie de productos']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('product_serials')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new ProductSerials;
                 $i->id = $r->id;
                 $i->product_id = $r->product_id;
@@ -2370,18 +2264,17 @@ class ImportDb extends Command
     /**
      * 56. Importar attributos por número de serie.
      */
-    public function importProductSerialsCards()
-    {
+    public function importProductSerialsCards(){
         $data = DB::connection('mysql2')->table('product_serials_cards')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'atributos de números de serie']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('product_serials_cards')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new ProductSerialsCards;
                 $i->id = $r->id;
                 $i->product_serial_id = $r->product_serial_id;
@@ -2397,18 +2290,17 @@ class ImportDb extends Command
     /**
      * 57. Importar líneas de incidencia.
      */
-    public function importIncidenceLines()
-    {
+    public function importIncidenceLines(){
         $data = DB::connection('mysql2')->table('incidence_lines')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'líneas de incidencias']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('incidence_lines')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new IncidenceLines;
                 $i->id = $r->id;
                 $i->incidence_id = $r->incidence_id;
@@ -2429,18 +2321,17 @@ class ImportDb extends Command
     /**
      * 58. Importar documentos de productos.
      */
-    public function importProductDocs()
-    {
+    public function importProductDocs(){
         $data = DB::connection('mysql2')->table('product_docs')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'documentos de productos']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('product_docs')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new ProductDocs;
                 $i->id = $r->id;
                 $i->doc = $r->doc;
@@ -2457,18 +2348,17 @@ class ImportDb extends Command
     /**
      * 59. Importar precios de productos.
      */
-    public function importProductPrices()
-    {
+    public function importProductPrices(){
         $data = DB::connection('mysql2')->table('product_prices')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'precios de productos']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('product_prices')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new ProductPrices;
                 $i->id = $r->id;
                 $i->product_id = $r->product_id;
@@ -2485,18 +2375,17 @@ class ImportDb extends Command
     /**
      * 60. Importar trackings de pedidos.
      */
-    public function importOrderTrackings()
-    {
+    public function importOrderTrackings(){
         $data = DB::connection('mysql2')->table('order_trackings')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'tracking de pedidos']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('order_trackings')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new OrderTracking;
                 $i->id = $r->id;
                 $i->order_id = $r->order_id;
@@ -2513,51 +2402,50 @@ class ImportDb extends Command
     /**
      * 61. Importar items de formulario de presupuestos.
      */
-    public function importBudgetFormItems()
-    {
+    public function importBudgetFormItems(){
         $data = DB::connection('mysql2')->table('budget_form_items')
             ->select('budget_form_items.*', 'budget_forms.company_id')
             ->leftJoin('budget_forms', 'budget_form_items.form_id', '=', 'budget_forms.id')
             ->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'items de formulario de presupuestos']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('budget_form_items')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 //Sincronizamos el budget_id de la BD antigua con el order_id actual.
                 $order_id = NULL;
-                if ($r->budget_id) {
+                if($r->budget_id){
                     $order = Order::select('id')
                         ->where('old_budget_id', $r->budget_id)
                         ->first();
 
-                    $order_id = $order ? $order->id : NULL;
+                    $order_id = $order? $order->id:NULL;
                 }
 
                 //Cada item perteneciente a un bloque debe crearse como producto.
                 $product_id = NULL;
-                if ($r->recid > 0) {
+                if($r->recid > 0){
                     //Comprobamos por company_id y el campo 'name' que no exista previamente en la tabla products.
                     $product = Product::select('id', 'price', 'calculated_by_percent')
                         ->where('name', $r->name)
                         ->where('company_id', $r->company_id)
                         ->first();
 
-                    if ($product) {
+                    if($product){
                         $product->price = $r->price;
                         $product->calculated_by_percent = $r->calculate_by_percent;
                         $product->save();
 
                         $product_id = $product->id;
 
-                    } else {
+                    }else{
                         $p = new Product;
                         $p->name = $r->name;
-                        $p->slug = $r->name ? Str::slug($r->name) : 'producto-sin-nombre';
+                        $p->slug = $r->name? Str::slug($r->name):'producto-sin-nombre';
                         $p->company_id = $r->company_id;
                         $p->type = 'p';
                         $p->price = $r->price;
@@ -2595,18 +2483,17 @@ class ImportDb extends Command
     /**
      * 62. Importar agendas.
      */
-    public function importSchedules()
-    {
+    public function importSchedules(){
         $data = DB::connection('mysql2')->table('schedules')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'agendas']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('schedules')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new Schedule;
                 $i->id = $r->id;
                 $i->company_id = $r->company_id;
@@ -2630,18 +2517,17 @@ class ImportDb extends Command
     /**
      * 63. Importar tipos de evento.
      */
-    public function importScheduleEventTypes()
-    {
+    public function importScheduleEventTypes(){
         $data = DB::connection('mysql2')->table('schedule_event_types')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'tipos de evento']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('schedule_event_types')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new ScheduleEventTypes;
                 $i->id = $r->id;
                 $i->name = $r->name;
@@ -2662,18 +2548,17 @@ class ImportDb extends Command
     /**
      * 64. Importar eventos de agenda.
      */
-    public function importScheduleEvents()
-    {
+    public function importScheduleEvents(){
         $data = DB::connection('mysql2')->table('schedule_events')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'eventos de agenda']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('schedule_events')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new ScheduleEvents;
                 $i->id = $r->id;
                 $i->title = $r->title;
@@ -2700,18 +2585,17 @@ class ImportDb extends Command
     /**
      * 65. Importar lotes.
      */
-    public function importBatches()
-    {
+    public function importBatches(){
         $data = DB::connection('mysql2')->table('batches')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'lotes']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('batches')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new Batch;
                 $i->id = $r->id;
                 $i->product_id = $r->product_id;
@@ -2733,18 +2617,17 @@ class ImportDb extends Command
     /**
      * 66. Importar patrones de factura.
      */
-    public function importInvoicePatterns()
-    {
+    public function importInvoicePatterns(){
         $data = DB::connection('mysql2')->table('invoice_patterns')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'patrones de facturas']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('invoice_patterns')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new InvoicePatterns;
                 $i->id = $r->id;
                 $i->name = $r->name;
@@ -2764,18 +2647,17 @@ class ImportDb extends Command
     /**
      * 67. Importar configuraciones de facturas.
      */
-    public function importInvoiceSettings()
-    {
+    public function importInvoiceSettings(){
         $data = DB::connection('mysql2')->table('invoice_settings')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'configuraciones de facturas']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('invoice_settings')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new InvoiceSettings;
                 $i->id = $r->id;
                 $i->name = $r->name;
@@ -2797,31 +2679,30 @@ class ImportDb extends Command
     /**
      * 68. Importar facturas.
      */
-    public function importInvoices()
-    {
+    public function importInvoices(){
         $data = DB::connection('mysql2')->table('invoices')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'facturas']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('invoices')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 //El num_cardinal debe obtenerse a través del patrón de factura utilizado:
                 $ip = InvoicePatterns::select('pattern')->find($r->invoice_pattern_id);
-                $pattern = $ip && $ip->pattern ? unserialize($ip->pattern) : false;
+                $pattern = $ip && $ip->pattern? unserialize($ip->pattern):false;
 
-                if ($pattern) {
+                if($pattern){
                     $digits = end($pattern);
-                    $digits_ = $digits ? trim($digits, '|') : false;
-                    $n = $digits_ ? strlen($digits_) : false;
+                    $digits_ = $digits? trim($digits, '|'):false;
+                    $n = $digits_? strlen($digits_):false;
 
                     //Del valor de invoice_num extraemos por la derecha, la cantidad de carácteres que indica su patrón, y convertimos el string a integer:
-                    $nums = $r->invoice_num ? substr($r->invoice_num, -$n) : false;
-                    $num_cardinal = $nums ? (int)$nums : NULL;
-                } else {
+                    $nums = $r->invoice_num? substr($r->invoice_num, -$n):false;
+                    $num_cardinal = $nums? (int) $nums:NULL;
+                }else{
                     $num_cardinal = NULL;
                 }
 
@@ -2835,7 +2716,7 @@ class ImportDb extends Command
                 $i->order_id = $r->order_id;
                 $i->amount = $r->total_amount;
                 $i->with_iva = $r->with_iva;
-                $i->amount_with_iva = $r->amount_with_iva ? $r->amount_with_iva : '0';
+                $i->amount_with_iva = $r->amount_with_iva? $r->amount_with_iva:'0';
                 $i->fiscal_date = $r->fiscal_date;
                 $i->expiration_date = $r->expiration_date;
                 $i->user_id = $r->user_id;
@@ -2861,18 +2742,17 @@ class ImportDb extends Command
     /**
      * 69. Importar previsiones de facturación.
      */
-    public function importOrderPrevisions()
-    {
+    public function importOrderPrevisions(){
         $data = DB::connection('mysql2')->table('order_previsions')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'previsiones de facturación']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('order_previsions')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new OrderPrevisions;
                 $i->id = $r->id;
                 $i->order_id = $r->order_id;
@@ -2891,46 +2771,94 @@ class ImportDb extends Command
     /**
      * 70. Importar items de pedidos.
      */
-    public function importItems()
-    {
-        $data = DB::connection('mysql2')->table('items')->get();
+    public function importItems(){
+        //Omitimos los registros eliminados.
+        //Separamos la consulta en partes:
+        $partes = [
+            ['offset' => 0,         'limit' => 10000],
+            ['offset' => 10000,     'limit' => 10000],
+            ['offset' => 20000,     'limit' => 10000],
+            ['offset' => 30000,     'limit' => 10000]
+        ];
+        $indice = 0;    //Cambiamos el valor del índice en cada vuelta.
 
-        if ($data->count()) {
+        $data = DB::connection('mysql2')->table('items')
+            ->whereNull('deleted_at')
+            ->offset($partes[$indice]['offset'])
+            ->limit($partes[$indice]['limit'])
+            ->get();
+
+        //Consultas por budget_id:
+        //$data = DB::connection('mysql2')->table('items')->where('budget_id', 3638)->get();
+
+        //dd($data);
+
+
+        if($data->count()){
             Importaciones::create(['texto' => 'items de pedidos']);
 
-            DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-            DB::table('items')->truncate();
-            DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+            //Truncate sólo se ejecuta en la primera vuelta.
+            if($indice == 0){
+                DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+                DB::table('items')->truncate();
+                DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+            }
 
-            foreach ($data as $r) {
-                $i = new Item;
-                $i->id = $r->id;
-                $i->product_id = $r->product_id;
-                $i->order_id = $r->order_id;
-                $i->budget_form_block_id = $r->block_id;
-                $i->budget_form_item_id = $r->item_id;
-                //$i->budget_order = NULL;      //Campo nuevo
-                $i->concept = $r->concept;
-                $i->observations = $r->observations;
-                $i->qty = $r->qty;
-                $i->price = $r->price;
-                $i->item_no_price = $r->line_no_price;
-                $i->iva = $r->iva;
-                $i->discount = $r->discount;
-                $i->calculated_by_percent = $r->calculated_by_percent;
-                $i->invoiced = $r->invoiced;
-                $i->deposit_used = $r->deposit_used;
-                $i->days = $r->days;
-                $i->days_continue = $r->days_continue;
-                $i->days_continue_discount = $r->days_continue_discount;
-                $i->active = $r->active;
-                $i->status = $r->status;
-                $i->print = $r->print;
-                $i->user_id = $r->user_id;
-                $i->deleted_at = $r->deleted_at;
-                $i->created_at = $r->created_at;
-                $i->updated_at = $r->updated_at;
-                $i->save();
+            foreach($data as $r){
+                //Definir order_id correcto.
+                //Comprobamos si existe order_id:
+                if($r->order_id){
+                    $order_id = $r->order_id;
+                }elseif($r->budget_id){
+                    $o = Order::select('id')->where('old_budget_id', $r->budget_id)->first();
+                    $order_id = $o? $o->id:false;
+
+                }else{
+                    $me = new MigrationErrors();
+                    $me->model = 'sin order ni presu';
+                    $me->id_ = $r->id;
+                    $me->save();
+
+                    $order_id = false;
+                }
+
+                if($order_id){
+                    $i = new Item;
+                    //$i->id = $r->id;                      //Id se genera nuevo. Se guarda en nueva columna el anterior id.
+                    $i->product_id = $r->product_id;
+                    $i->order_id = $order_id;
+                    $i->budget_form_block_id = $r->block_id;
+                    $i->budget_form_item_id = $r->item_id;
+                    //$i->budget_order = NULL;      //Campo nuevo
+                    $i->concept = $r->concept;
+                    $i->observations = $r->observations;
+                    $i->qty = $r->qty;
+                    $i->price = $r->price;
+                    $i->item_no_price = $r->line_no_price;
+                    $i->iva = $r->iva;
+                    $i->discount = $r->discount;
+                    $i->calculated_by_percent = $r->calculated_by_percent;
+                    $i->invoiced = $r->invoiced;
+                    $i->deposit_used = $r->deposit_used;
+                    $i->days = $r->days;
+                    $i->days_continue = $r->days_continue;
+                    $i->days_continue_discount = $r->days_continue_discount;
+                    $i->active = $r->active;
+                    $i->status = $r->status;
+                    $i->print = $r->print;
+                    $i->user_id = $r->user_id;
+                    $i->deleted_at = $r->deleted_at;
+                    $i->created_at = $r->created_at;
+                    $i->updated_at = $r->updated_at;
+                    $i->old_id = $r->id;
+                    $i->save();
+
+                }else{
+                    $me = new MigrationErrors();
+                    $me->model = 'items';
+                    $me->id_ = $r->id;
+                    $me->save();
+                }
             }
         }
     }
@@ -2938,27 +2866,31 @@ class ImportDb extends Command
     /**
      * 71. Importar status de items.
      */
-    public function importItemsStatus()
-    {
+    public function importItemsStatus(){
         $data = DB::connection('mysql2')->table('item_status')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'status de items de pedidos']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('item_status')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
-                $i = new ItemStatus;
-                $i->id = $r->id;
-                $i->item_id = $r->item_id;
-                $i->provider_observations = $r->provider_observations;
-                $i->customer_observations = $r->customer_observations;
-                $i->status = $r->status;
-                $i->created_at = $r->created_at;
-                $i->updated_at = $r->updated_at;
-                $i->save();
+            foreach($data as $r){
+                //Obtenemos el nuevo item_id, pues es un valor regenerado.
+                $item = Item::select('id')->where('old_id', $r->item_id)->first();
+
+                if($item){
+                    $i = new ItemStatus;
+                    //$i->id = $r->id;
+                    $i->item_id = $item->id;
+                    $i->provider_observations = $r->provider_observations;
+                    $i->customer_observations = $r->customer_observations;
+                    $i->status = $r->status;
+                    $i->created_at = $r->created_at;
+                    $i->updated_at = $r->updated_at;
+                    $i->save();
+                }
             }
         }
     }
@@ -2966,18 +2898,17 @@ class ImportDb extends Command
     /**
      * 72. Importar proyectos.
      */
-    public function importProjects()
-    {
+    public function importProjects(){
         $data = DB::connection('mysql2')->table('projects')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'proyectos']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('projects')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new Project;
                 $i->id = $r->id;
                 // $i->project_num = $r->project_num;               //Campos nuevos
@@ -3015,18 +2946,17 @@ class ImportDb extends Command
     /**
      * 73. Importar estados de tareas de proyecto.
      */
-    public function importTaskStatus()
-    {
+    public function importTaskStatus(){
         $data = DB::connection('mysql2')->table('project_status')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'estados de tareas de proyecto']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('task_status')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new TaskStatus;
                 $i->id = $r->id;
                 $i->name = $r->name;
@@ -3043,18 +2973,17 @@ class ImportDb extends Command
     /**
      * 74. Importar tareas.
      */
-    public function importTasks()
-    {
+    public function importTasks(){
         $data = DB::connection('mysql2')->table('tasks')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'tareas']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('tasks')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new Task;
                 $i->id = $r->id;
                 $i->name = $r->name;
@@ -3067,7 +2996,7 @@ class ImportDb extends Command
                 // $i->estimated_hours = $r->estimated_hours;       //Campo nuevo
                 // $i->partial_hours = $r->partial_hours;           //Campo nuevo
                 $i->hours = $r->hours;
-                //$i->status = NULL;                                //Campo nuevo
+                $i->status = 1;                                //Campo nuevo
                 $i->column_order = $r->column_order;
                 $i->deleted_at = $r->deleted_at;
                 $i->created_at = $r->created_at;
@@ -3080,18 +3009,17 @@ class ImportDb extends Command
     /**
      * 75. Importar documentos de tareas.
      */
-    public function importTaskDocs()
-    {
+    public function importTaskDocs(){
         $data = DB::connection('mysql2')->table('task_docs')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'documentos de tareas']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('task_docs')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new TaskDocs;
                 $i->id = $r->id;
                 $i->doc = $r->doc;
@@ -3107,18 +3035,17 @@ class ImportDb extends Command
     /**
      * 76. Importar mensajes de tareas.
      */
-    public function importTaskMessages()
-    {
+    public function importTaskMessages(){
         $data = DB::connection('mysql2')->table('task_messages')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'mensajes de tareas']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('task_messages')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
+            foreach($data as $r){
                 $i = new TaskMessages;
                 $i->id = $r->id;
                 $i->message = $r->message;
@@ -3136,33 +3063,37 @@ class ImportDb extends Command
     /**
      * 77. Importar líneas de facturas.
      */
-    public function importInvoiceItems()
-    {
+    public function importInvoiceItems(){
         $data = DB::connection('mysql2')->table('invoice_lines')->get();
 
-        if ($data->count()) {
+        if($data->count()){
             Importaciones::create(['texto' => 'líneas de factura']);
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('invoice_items')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-            foreach ($data as $r) {
-                $i = new InvoiceItems;
-                $i->id = $r->id;
-                $i->invoice_id = $r->invoice_id;
-                $i->item_id = $r->item_id;
-                $i->qty = $r->qty;
-                $i->price = $r->price;
-                $i->discount = $r->discount ? $r->discount : '0';
-                $i->days = $r->days;
-                $i->days_continue = $r->days_continue;
-                $i->days_continue_discount = $r->days_continue_discount;
-                $i->amount = $r->amount;
-                $i->iva = $r->iva;
-                $i->created_at = $r->created_at;
-                $i->updated_at = $r->updated_at;
-                $i->save();
+            foreach($data as $r){
+                //Obtenemos el nuevo item_id, pues es un valor regenerado.
+                $item = Item::select('id')->where('old_id', $r->item_id)->first();
+
+                if($item){
+                    $i = new InvoiceItems;
+                    //$i->id = $r->id;
+                    $i->invoice_id = $r->invoice_id;
+                    $i->item_id = $item->id;
+                    $i->qty = $r->qty;
+                    $i->price = $r->price;
+                    $i->discount = $r->discount? $r->discount:'0';
+                    $i->days = $r->days;
+                    $i->days_continue = $r->days_continue;
+                    $i->days_continue_discount = $r->days_continue_discount;
+                    $i->amount = $r->amount;
+                    $i->iva = $r->iva;
+                    $i->created_at = $r->created_at;
+                    $i->updated_at = $r->updated_at;
+                    $i->save();
+                }
             }
         }
     }
