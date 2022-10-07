@@ -1858,6 +1858,7 @@ class ImportDb extends Command
                 $i->discount = $r->discount;
                 $i->discount_amount = $r->discount_amount;
                 $i->bag_amount = '0';
+                $i->customer_items = $r->customer_items;
                 $i->invoiced = $r->invoiced;
                 //$i->prepare_delivery = '0';       //Campo nuevo. Toma el valor por defecto.
                 $i->deleted_at = $r->deleted_at;
@@ -2784,8 +2785,8 @@ class ImportDb extends Command
 
         $data = DB::connection('mysql2')->table('items')
             ->whereNull('deleted_at')
-            ->offset($partes[$indice]['offset'])
-            ->limit($partes[$indice]['limit'])
+            //->offset($partes[$indice]['offset'])
+           // ->limit($partes[$indice]['limit'])
             ->get();
 
         //Consultas por budget_id:
