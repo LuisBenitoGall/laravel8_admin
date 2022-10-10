@@ -1916,15 +1916,15 @@ button:focus {
 }
 .btn-success {
   color: #fff;
-  background-color: $info;
-  border-color: $info;
+  background-color: $success;
+  border-color: $success;
 }
 .btn-success:hover,
 .btn-success:focus,
 .btn-success.focus {
   color: #fff;
-  background-color: #1a7bb9;
-  border-color: #1a7bb9;
+  background-color: $success;
+  border-color: $success;
 }
 .btn-success.disabled,
 .btn-success:disabled {
@@ -3196,6 +3196,7 @@ select.form-control:not([size]):not([multiple]) {
   padding-left: 0;
 }
 .form-control,
+.form-control-sm,
 .single-line {
   background-color: #FFFFFF;
   background-image: none;
@@ -3208,6 +3209,7 @@ select.form-control:not([size]):not([multiple]) {
   width: 100%;
 }
 .form-control:focus,
+.form-control-sm:focus,
 .single-line:focus {
   border-color: $primary;
 }
@@ -5217,7 +5219,8 @@ body.body-small .footer.fixed {
     width: 100% !important;
 
     &.dataTable,
-    &.dtabla{
+    &.dtabla,
+    &.modal-table{
         table-layout:fixed;
 
         .wdt50{
@@ -5278,6 +5281,12 @@ body.body-small .footer.fixed {
     td{
         border-top: 1px solid #dee2e6;
         padding: 0.75rem;
+
+        .form-control-sm{
+            display: inline-block;
+            vertical-align: bottom;
+            width: calc(100% - 25px);
+        }
     }
 }
 

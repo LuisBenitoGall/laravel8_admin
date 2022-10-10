@@ -81,7 +81,7 @@ class DeliveryController extends Controller{
         $editar = Auth::user()->can('deliveries.edit');
         $eliminar = Auth::user()->can('deliveries.destroy');
 
-        $arrEstados = Helpers::deliveryStatus();
+        $arrEstados = helpers::deliveryStatus();
         //Pasamos array a string con los índices:
         $strEstados = '';
         foreach($arrEstados as $idx => $est){

@@ -7,6 +7,7 @@ use App\Helpers\helpers;
 use App\Notifications\PurchaseMessage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -29,6 +30,7 @@ class ReceivingController extends Controller{
      * 2. Guardar nueva recepción de pedido.
      * 3. Editar recepción de pedido.
      * 4. Actualizar recepción de pedido.
+     * 5. Recepción completa de pedido.
      */
     
     private $option = 'recepciones';
@@ -158,10 +160,25 @@ class ReceivingController extends Controller{
         foreach($orders as $o){
             array_push($ordersArr, $o->id);
         }
-        $items = Item::select('id', 'product_id', 'order_id', 'concept', 'qty', 'price', 'iva')
-        ->whereIn('order_id', $ordersArr)
-        ->orderBy('order_id', 'ASC')
-        ->orderBy('concept', 'ASC')
+        //Items de los pedidos y su correspondencia con referencias del cliente.
+        $items = Item::select('items.id', 'items.product_id', 'items.order_id', 'items.concept', 'items.qty', 'items.price', 'items.iva',
+            DB::raw('(SELECT SUM(qty) FROM delivery_items WHERE item_id = items.id) AS prev_qty'),
+            DB::raw('(SELECT p.name FROM products p 
+                left join product_providers pp
+                on p.id = pp.customer_product_id
+                WHERE pp.provider_product_id = items.product_id
+                AND pp.provider_id = '.$delivery->provider_id.'
+                AND p.company_id = '.session('currentCompany').') AS internal_ref'),
+            DB::raw('(SELECT p.id FROM products p 
+                left join product_providers pp
+                on p.id = pp.customer_product_id
+                WHERE pp.provider_product_id = items.product_id
+                AND pp.provider_id = '.$delivery->provider_id.'
+                AND p.company_id = '.session('currentCompany').') AS internal_id')
+        )
+        ->whereIn('items.order_id', $ordersArr)
+        ->orderBy('items.order_id', 'ASC')
+        ->orderBy('items.concept', 'ASC')
         ->get();
 
         $provider = Company::find($delivery->provider_id); 
@@ -193,6 +210,26 @@ class ReceivingController extends Controller{
 
         $msg = trans('textos.recepcion_actualizada');
         return redirect()->route('receiving.edit', [$delivery->id, false])->with(compact('msg'));
+    }
+
+    /**
+     * 5. Recepción completa de pedido.
+     */
+    public function storeAllOrder(Order $order){
+        //Recepciones del pedido, en array:
+        $receptions =  DeliveryOrders::where('order_id', $order->id)
+        ->pluck('delivery_id')
+        ->toArray();
+
+        //Líneas del pedido y condición de producto si tiene gestión de stock y lotes.
+        // $order_items = Item::select('items.id', 'items.qty', 'products.id AS productId', )
+        // ->leftJoin('products', 'items.product_id', '=', 'product.sid')
+        // ->where('items.order_id', $order->id)
+        // ->get();
+
+
+
+        //dd($order, $receptions);
     }
 
 }

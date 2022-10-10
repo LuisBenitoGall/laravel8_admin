@@ -55,6 +55,8 @@ class InvoiceController extends Controller{
     private $option = 'contabilidad';
     private $module = 'accounting';
     private $languages;
+    private $co_currency;
+    private $co_iva;
 
     public function __construct(){
         //Idiomas:

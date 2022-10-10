@@ -343,6 +343,10 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::get('deliveries/{delivery}/status/{status}', 'DeliveryController@status')->name('deliveries.status');
     Route::get('deliveries/{delivery}/reset-num', 'DeliveryController@resetNum')->name('deliveries.reset-num')->middleware('permission:deliveries.edit');
 
+    // Delivery Items:
+    Route::post('delivery-items/store', 'DeliveryItemsController@store')->name('delivery-items.store')->middleware('permission:deliveries.edit');
+    Route::get('delivery-items/{delivery}/destroy/{item_id}', 'DeliveryItemsController@destroy')->name('delivery-items.destroy')->middleware('permission:deliveries.edit');
+
     // Delivery Patterns:
     Route::get('delivery-patterns', 'DeliveryPatternsController@index')->name('delivery-patterns.index')->middleware('permission:delivery-patterns.index');
     Route::get('delivery-patterns/create', 'DeliveryPatternsController@create')->name('delivery-patterns.create')->middleware('permission:delivery-patterns.create');
@@ -644,6 +648,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::get('product-providers/{product}/create/{provider_id?}', 'ProductProvidersController@create')->name('product-providers.create')->middleware('permission:providers.edit');
     Route::post('product-providers/{product}/set-provider', 'ProductProvidersController@setProvider')->name('product-providers.set-provider')->middleware('permission:providers.edit');
     Route::post('product-providers/store', 'ProductProvidersController@store')->name('product-providers.store');
+    Route::post('product-providers/store-from-provider', 'ProductProvidersController@storeFromProvider')->name('product-providers.store-from-provider');
     Route::get('product-providers/{product_id}/show', 'ProductProvidersController@show')->name('product-providers.show');
 
     // Product Serials:
@@ -776,6 +781,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     // Receiving:
     Route::get('receiving', 'ReceivingController@index')->name('receiving.index');
     Route::put('receiving/{order}', 'ReceivingController@store')->name('receiving.store')->middleware('permission:orders.edit');
+    Route::get('receiving/{order}/all-order', 'ReceivingController@storeAllOrder')->name('receiving.all-order')->middleware('permission:receiving.edit');
     Route::get('receiving/{delivery}/edit/{tab?}', 'ReceivingController@edit')->name('receiving.edit')->middleware('permission:receiving.edit');
     Route::put('receiving/{delivery}/update', 'ReceivingController@update')->name('receiving.update')->middleware('permission:receiving.edit');
 

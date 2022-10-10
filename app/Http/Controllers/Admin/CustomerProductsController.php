@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Helpers\Helpers;
+use App\Helpers\helpers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
@@ -94,7 +94,14 @@ class CustomerProductsController extends Controller{
         ->orderBy('end_date', 'DESC')
         ->first();
 
-        return view('admin.customer_products.index')->with(compact('header', 'customer', 'provider', 'business_area', 'areas', 'account'));
+        //Productos de la empresa en session:
+        $session_products = Product::where('company_id', session('currentCompany'))
+        ->where('type', 'p')
+        ->where('status', 1)
+        ->pluck('name', 'id')
+        ->toArray();
+
+        return view('admin.customer_products.index')->with(compact('header', 'customer', 'provider', 'business_area', 'areas', 'account', 'session_products'));
     }
 
     /**
@@ -189,6 +196,9 @@ class CustomerProductsController extends Controller{
             $descripcion = (isset($description[session()->get('locale')]) && $description[session()->get('locale')] != '' && $description != '')? $description[session()->get('locale')]:$row->name;
             return ucfirst($descripcion); 
         })
+        ->addColumn('internal_ref', function($row){
+            return 'xxxxx';
+        })
         ->addColumn('image', function($row){
             if($row->Image){
                 return '<img src="'.asset('img/products/'.$row->Image).'" width="50"><span style="display: none">1</span>';
@@ -206,10 +216,10 @@ class CustomerProductsController extends Controller{
         })
         ->addColumn('acciones', function($row){
             //Indica si es tabla de clientes o proveedores.
-            $environment = false;
+            $environment = 'providers';
             return view('admin.customer_products.partials.dt-actions', compact('row', 'environment'));    
         })
-        ->rawColumns(['image'])
+        ->rawColumns(['internal_ref', 'image'])
         ->make(true);
     }
 

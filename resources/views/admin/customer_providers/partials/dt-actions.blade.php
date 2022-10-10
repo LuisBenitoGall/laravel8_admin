@@ -5,7 +5,7 @@
 	@endphp
 
 	<label class="custom-chk-rdb" rel="tooltip" title="{{ trans('textos.'.$title) }}">
-        <input type="checkbox" name="status" @if($row->status) checked @endif><span class="chk chk-action" data-id="{{ $row->cp_id }}" data-ctrl="customers/status"></span>
+        <input type="checkbox" name="status" @if($row->cp_status) checked @endif><span class="chk chk-action" data-id="{{ $row->cp_id }}" data-ctrl="customers/status"></span>
     </label>
 
     {{-- Ver --}}

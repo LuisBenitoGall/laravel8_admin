@@ -408,61 +408,19 @@ class CustomerProvidersController extends Controller{
      * 8. Obtener info de empresas por criterio.
      */
     private function getCompaniesData($join, $condition){
-        $data = CustomerProviders::select('customer_providers.id AS cp_id', 'customer_providers.ba_id', 'customer_providers.workplace_id', 'customer_providers.cc_id', 'customer_providers.discount', 'customer_providers.credit_risk', 'customer_providers.status', 'companies.id', 'companies.name', 'companies.tradename', 'companies.logo', 'companies.nif', 'company_accounts.guardian', 'company_accounts.status')
+        $data = CustomerProviders::select('customer_providers.id AS cp_id', 'customer_providers.ba_id', 'customer_providers.workplace_id', 'customer_providers.cc_id', 'customer_providers.discount', 'customer_providers.credit_risk', 'customer_providers.status AS cp_status', 'companies.id', 'companies.name', 'companies.tradename', 'companies.logo', 'companies.nif', 'company_accounts.guardian', 'company_accounts.status')
         ->join('companies', 'customer_providers.'.$join, '=', 'companies.id')
-        ->join('company_accounts', 'companies.id', '=', 'company_accounts.company_id')
-        ->where('customer_providers.'.$condition, session('currentCompany'));
-        //->get();
+        ->leftJoin('company_accounts', 'companies.id', '=', 'company_accounts.company_id')
+        ->where('customer_providers.'.$condition, session('currentCompany'))
+        ->get();
+
+        //dd($data);
 
         //Array de empresas asociadas al usuario en sesión:
         $companies = [];
         foreach(session('companies') as $co){
             array_push($companies, $co->id);
         }
-
-
-
-        // if($data){
-        //     /* Comprobamos si tiene activos los siguientes módulos: 
-        //     - contabilidad (accounting)
-        //     - catalogo (products)
-        //     */
-        //     $payment_conditions = $this->settedModule('accounting');
-        //     $catalogue = $this->settedModule('products');
-
-        //     /* Comprobamos los siguientes permisos:
-        //     - modificar estado
-        //     - eliminar 
-        //      */
-        //     $environment = $join == 'customer_id'? 'customers.edit':'providers.edit';
-        //     $status_permission = Auth::user()->can($environment);
-
-        //     $environment2 = $join == 'customer_id'? 'customers.destroy':'providers.destroy';
-        //     $delete_permission = Auth::user()->can($environment2);
-
-        //     foreach($data as $row){
-        //         //Condiciones de pago:
-        //         $row->conditions = $payment_conditions;
-
-        //         //Catálogo:
-        //         $row->catalogue = $catalogue;
-
-        //         //Permisos modificar estado:
-        //         $row->status_permission = $status_permission;
-
-        //         //Permisos eliminar:
-        //         $row->delete_permission = $delete_permission;
-
-        //         //Comprobamos si la empresa tienen activa la cuenta de empresa. En caso negativo, sus datos pueden ser editados por el proveedor:
-        //         $row->account = CompanyAccounts::getCompanyAccount($row->id);
-
-        //         //También se puede editar si la empresa está vinculada al usuario en sesión:
-        //         $row->edit = in_array($row->id, $companies)? true:false;
-
-        //         //Empresa en sesión:
-        //         $row->current_company = session('currentCompany');
-        //     }
-        // } 
 
         return $data;
     }

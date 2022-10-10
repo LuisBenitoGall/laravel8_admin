@@ -36,7 +36,7 @@
 					<label class="mr-5">
 						{!! ucfirst(trans('textos.tipo')) !!}: 
 						<b>
-							{!! App\Helpers\Helpers::questionTypes($question->type) !!}
+							@if($question->type) {!! App\Helpers\helpers::questionTypes($question->type) !!} @endif
 						</b>
 					</label>
 
@@ -45,7 +45,7 @@
 						<label class="mr-5">
 							{!! ucfirst(trans('textos.respuesta_tipo')) !!}: 
 							<b>
-								{!! App\Helpers\Helpers::answerValueTypes($question->answer_type) !!}
+								{!! App\Helpers\helpers::answerValueTypes($question->answer_type) !!}
 							</b>
 						</label>
 					@endif
@@ -73,9 +73,9 @@
 			    		<a class="nav-link @if(!$tab) active @endif" href="#tab-question-info" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.info_general')) !!}</a>
 			  		</li>
 
-			  		<li class="nav-item @if($tab == 'answers') active @endif">
+			  		{{-- <li class="nav-item @if($tab == 'answers') active @endif">
 			    		<a class="nav-link @if($tab == 'answers') active @endif" href="#tab-question-answers" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.respuestas')) !!}</a>
-			  		</li>
+			  		</li> --}}
 			  	</ul>
 
 			  	<div class="tab-content pt-5">
@@ -85,9 +85,9 @@
 					</div>	
 
 					{{-- Respuestas --}}
-					<div class="tab-pane fade @if($tab == 'answers') show active @endif" role="tabpanel" id="tab-question-answers">
+					{{-- <div class="tab-pane fade @if($tab == 'answers') show active @endif" role="tabpanel" id="tab-question-answers">
 						@include('admin.questions.partials.question-answers')
-					</div>
+					</div> --}}
 				</div>
 			</div>
 		</div>	

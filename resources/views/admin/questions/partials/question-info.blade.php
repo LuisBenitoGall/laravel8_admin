@@ -34,12 +34,50 @@
 	        </label>
 		</div>
 	</div>
-
+{{ dd($question) }}
 	<div class="form-group row">
 		{{-- Pregunta --}}
 		<label for="question" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.cuestion')) !!}*</label>
 		<div class="col-lg-10">
-			<x-input-textarea name="question" value="{{ $question->question }}" required/>
+			@php
+			$arr = $question->question? unserialize($question->question):false;
+			$q = $arr? $arr[session()->get('locale')]:'';
+			@endphp
+
+			<x-input-textarea name="question" class="editor" value="{!! $q !!}" required/>
+		</div>
+	</div>
+
+	{{ dd($question) }}
+
+	<div class="form-group row">
+		{{-- Opciones de respuesta --}}
+		<label for="options" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.opciones_respuesta')) !!}*</label>
+		<div class="col-lg-10">
+			<div class="row">
+				@php
+
+				$options = $question->options? unserialize($question->options):[];
+				dd($options);
+				$i = 0;
+				@endphp
+
+				@foreach($options[config('constants.IDM_')] as $op)
+					<div class="col-lg-10 mb-3">
+						{{-- <x-input type="text" name="options_{{ config('constants.IDM_') }}[]" value="{!! $op !!}" autocomplete="off" maxlength="255"/> --}}
+					</div>	
+					<div class="col-lg-2 mb-3">
+						<label class="custom-chk-rdb mr-4" style="margin-bottom: 10px;">
+					        <input type="radio" name="right_option" value="{{ $i }}" @if($question->right_option == $i) checked @endif required>
+					        <span class="rdb chk"></span>
+					    </label>   
+					</div>
+
+					@php
+					$i++;
+					@endphp
+				@endforeach
+			</div>
 		</div>
 	</div>
 
@@ -64,10 +102,6 @@
 		{{-- Imágenes --}}
 		<label for="images" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.imagenes')) !!}</label>
 		<div class="col-lg-10">
-			@php
-			$images = $question->images()->get();
-			@endphp
-
 			@if($images->count())
 				<x-lightbox-gallery-questions :images="$images"/>
 			@endif

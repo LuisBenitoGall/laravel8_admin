@@ -18,8 +18,8 @@
 				<tr>
 					<th>{!! ucfirst(trans('textos.titulo')) !!}</th>
 					<th>{!! ucfirst(trans('textos.cuestion')) !!}</th>
-					<th>{!! ucfirst(trans('textos.tipo')) !!}</th>
-					<th class="text-center">{!! ucfirst(trans('textos.acciones')) !!}</th>
+					<th class="wdt100">{!! ucfirst(trans('textos.tipo')) !!}</th>
+					<th class="text-center wdt200">{!! ucfirst(trans('textos.acciones')) !!}</th>
 				</tr>
 			</thead>
 		</table>

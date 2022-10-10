@@ -164,7 +164,7 @@ class WorkplaceController extends Controller{
 
         //Nº de workplaces existentes para marcar como principal:
         $workplaces = Workplace::select('id')
-        ->where('company_id', session('currentCompany'))
+        ->where('company_id', $company_id)
         ->get();
 
         $featured = $workplaces->count() == 0? 1:0;

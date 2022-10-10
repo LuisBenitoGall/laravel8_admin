@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Session;
 
 class Workplace extends Model{
     /**
@@ -48,11 +49,12 @@ class Workplace extends Model{
             }
         }
         if(!$belongs){
-            $resp = trans('textos.no_permisos_accion');     
-        }
-            
+            $resp = trans('textos.no_permisos_accion'); 
+        }    
+
         //Comprobamos que la empresa mantiene relación de cliente o proveedor y es guardián:
-        if(!$belongs && $business_relationship){
+        //06/10/22: se omite por ahora la condición && $business_relationship hasta entender qué hace realmente.
+        if(!$belongs){
             $exist = false;
 
             //Si la empresa en session es guardián de la empresa editada:
@@ -69,6 +71,8 @@ class Workplace extends Model{
 
             if(!$exist){
                 $resp = trans('textos.no_permisos_accion');
+            }else{
+                $resp = false;
             }
         }
 
