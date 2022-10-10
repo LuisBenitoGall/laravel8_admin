@@ -104,7 +104,7 @@ class ItemController extends Controller{
 
         $ni = new Item();
         $ni->product_id = $item->product_id;
-        $ni->budget_order_id = $item->budget_order_id;
+        $ni->order_id = $item->order_id;
         $ni->budget_form_block_id = $item->budget_form_block_id;
         $ni->budget_form_item_id = $item->budget_form_item_id;
         $ni->concept = $item->concept.'-'.trans('textos.copia');
@@ -125,11 +125,8 @@ class ItemController extends Controller{
         $ni->user_id = Auth::user()->id;
         $ni->save();
 
-        $shared = BudgetOrderSharedFields::select('budget_id', 'order_id')
-        ->find($item->budget_order_id); 
-
         $msg = trans('textos.linea_duplicada_ok');
-        return redirect()->route('budgets.edit', [$shared->budget_id, 'items'])->with(compact('msg'));
+        return redirect()->route('budgets.edit', [$item->order_id, 'items'])->with(compact('msg'));
     }
 
     /**
@@ -268,21 +265,19 @@ class ItemController extends Controller{
         $file = $request->file('items');
 
         //Eliminamos registros anteriores del pedido:
-        TempImportOrderItems::where('budget_order_id', $request->shared_id)->delete();
+        TempImportOrderItems::where('order_id', $request->order_id)->delete();
 
         //Importación:
-        Excel::import(new OrderItemsImport($request->shared_id), $file);
-
-        $shared = BudgetOrderSharedFields::select('id', 'provider_id', 'order_id')->find($request->shared_id);
+        Excel::import(new OrderItemsImport($request->order_id), $file);
 
         //Procesamos los datos temporales hacia la tabla items:
-        $data = TempImportOrderItems::where('budget_order_id', $request->shared_id)
+        $data = TempImportOrderItems::where('order_id', $request->order_id)
         ->orderBy('id', 'ASC')
         ->get();
         if($data->count() > 0){
             foreach($data as $r){
                 $item = new Item();
-                $item->budget_order_id = $r->budget_order_id;
+                $item->order_id = $r->order_id;
                 //$item->ref = $r->ref;
                 $item->concept = $r->concept;
                 $item->observations = $r->observations;
@@ -296,10 +291,10 @@ class ItemController extends Controller{
         }
 
         //Eliminamos -de nuevo- registros anteriores del pedido:
-        //TempImportOrderItems::where('budget_order_id', $request->shared_id)->delete();
+        //TempImportOrderItems::where('budget_order_id', $request->order_id)->delete();
 
         $msg = trans('textos.importacion_ok');
-        return redirect()->route('orders.edit', $shared->order_id)->with(compact('msg'));
+        return redirect()->route('orders.edit', $item->order_id)->with(compact('msg'));
     }
 
     /**
