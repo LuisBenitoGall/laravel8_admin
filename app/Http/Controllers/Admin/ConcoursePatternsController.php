@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Helpers\helpers;
 use Illuminate\Http\Request;
 
+//Models:
+use App\Models\CompanySettings;
+
 class ConcoursePatternsController extends Controller{
     /**
      * 1. Patrones de referencia de concurso.
