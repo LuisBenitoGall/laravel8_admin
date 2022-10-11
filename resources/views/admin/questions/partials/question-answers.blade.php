@@ -7,5 +7,9 @@
 				<th class="text-center">{!! ucfirst(trans('textos.acciones')) !!}</th>
 			</tr>
 		</thead>
+
+		<tbody>
+			
+		</tbody>
 	</table>
 </div>

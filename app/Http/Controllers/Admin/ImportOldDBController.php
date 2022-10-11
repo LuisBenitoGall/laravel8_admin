@@ -1044,7 +1044,8 @@ class ImportOldDBController extends Controller{
                 $i->guardian = $r->guardian;
                 $i->account_id = $r->account_id;
                 $i->start_date = $r->start_date;
-                $i->end_date = $r->end_date;
+                //$i->end_date = $r->end_date;
+                $i->end_date = '2024-12-31';
                 $i->price = $r->price;
                 $i->payment_date = $r->payment_date;
                 $i->status = $r->status;

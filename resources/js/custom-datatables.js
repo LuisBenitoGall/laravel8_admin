@@ -4327,7 +4327,7 @@ $(document).ready(function(){
         $('#tblProviderProducts thead tr').clone(true).appendTo('#tblProviderProducts thead');
         $('#tblProviderProducts thead tr:eq(1) th').each(function(i){
             var title = $(this).text();
-            if(i == 2 || i == 4){
+            if(i == 3 || i == 5){
                 $(this).html('');
             }else{
                 $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
@@ -4356,6 +4356,7 @@ $(document).ready(function(){
             columns: [
                 {data: 'name'},
                 {data: 'descripcion'},
+                {data: 'internal_ref'},
                 {data: 'image', className: 'text-center', orderable: false, searchable: false},
                 {data: 'price', className: 'text-right'},
                 {data: 'acciones', className: 'text-right', orderable: false, searchable: false}
@@ -4585,7 +4586,7 @@ $(document).ready(function(){
         
         $('#tblQuestions').DataTable({
             serverSide: true,
-            /*processing: true,*/
+            processing: true,
             ajax: {
                 "type": "GET",
                 "url": "/api/admin/questions",
@@ -4596,40 +4597,8 @@ $(document).ready(function(){
             columns: [
                 {data: 'name'},
                 {data: 'question'},
-                {data: 'tipo'},
-                {data: 'id', className: 'text-right'}
-            ],
-            columnDefs: [
-                {"targets": -1,
-                "render": function(data, type, row){
-                    var estado = '';
-                    var editar = '';
-                    var eliminar = '';
-
-                    if(row['editar']){
-                        //Estado:
-                        var checked = (row['status'] == 1)? 'checked':'';
-                        estado = '<label class="custom-chk-rdb" rel="tooltip" title="'+txtCuestionOnOff+'">';
-                            estado += '<input type="checkbox" name="status" '+checked+'><span class="chk chk-action" data-id="'+row['id']+'" data-ctrl="/admin/questions/status"></span>';
-                        estado += '</label>';
-
-                        //Editar:
-                        editar = '<a href="/admin/questions/'+row['id']+'/edit" class="btn btn-xs btn-info btn-module" rel="tooltip" title="'+txtEditar+'"><i class="fa fa-edit"></i></a>';
-                    }
-
-                    //Eliminar:
-                    var eliminar = '';
-                    if(row['eliminar']){
-                        eliminar = '<form method="POST" action="/admin/questions/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
-                            eliminar += '<input name="_method" type="hidden" value="DELETE">';
-                            eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
-                            eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtEliminar+'" data-msg="'+txtCuestionConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
-                        eliminar += '</form>';
-                    }
-
-                    return estado+' '+editar+' '+eliminar;
-                }
-                }
+                {data: 'type'},
+                {data: 'acciones', className: 'text-right'}
             ]
         });
     }
@@ -4749,7 +4718,7 @@ $(document).ready(function(){
         
         $('#tblQuizzes').DataTable({
             serverSide: true,
-            /*processing: true,*/
+            processing: true,
             ajax: {
                 "type": "GET",
                 "url": "/api/admin/quizzes",
@@ -4900,7 +4869,7 @@ $(document).ready(function(){
         
         $('#tblShipmentPatterns').DataTable({
             serverSide: true,
-            /*processing: true,*/
+            processing: true,
             ajax: {
                 "type": "GET",
                 "url": "/api/admin/shipment-patterns",
@@ -5026,7 +4995,7 @@ $(document).ready(function(){
         
         $('#tblStaffPicks').DataTable({
             serverSide: true,
-            /*processing: true,*/
+            processing: true,
             ajax: {
                 "type": "GET",
                 "url": "/api/admin/staff-picks",

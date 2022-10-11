@@ -106,6 +106,9 @@
 				<tr>
 					<th>{!! ucfirst(trans('textos.producto')) !!}</th>
 					<th>{!! ucfirst(trans('textos.descripcion')) !!}</th>
+					@if($tbl == 'tblProviderProducts')
+						<th>{!! ucfirst(trans('textos.ref_interna')) !!}</th>
+					@endif
 					<th class="text-center wdt200">{!! ucfirst(trans('textos.imagen')) !!}</th>
 					<th class="text-center wdt150">{!! ucfirst(trans('textos.precio_catalogo')) !!}</th>
 					@if($tbl == 'tblCustomerProducts')
@@ -117,6 +120,10 @@
 		</table>
 	</div>
 </div>
+
+{{-- Modals --}}
+{{-- Modal de correspondencia de referencia --}}
+@include('admin.customer_products.partials.modal-set-reference')
 
 @push('scripts')
 <script>
@@ -166,6 +173,12 @@ $(function(){
                 elem.parent('div').before('<i class="fa fa-exclamation-triangle check-ko"></i>');
             }
         }); 
+    });
+
+    // Modal correspondencia referencia de proveedor.
+    $(document).on('click', '.btnProviderProduct', function(){
+    	var provider_product = $(this).data('id');	
+    	$('#providerProductId').val(provider_product);
     });
 });
 </script>

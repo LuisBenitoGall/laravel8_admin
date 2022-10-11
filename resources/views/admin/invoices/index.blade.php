@@ -4,6 +4,18 @@
 
 <input type="hidden" id="dtController" value="invoices">
 
+<div class="row mb-3">
+	{{-- Acciones: --}}
+	<div class="col-12">
+		{{-- Introducir factura de compra --}}
+		<a href="{{ route('orders.control-panel-sales') }}" class="btn btn-info">
+			<i class="fa fa-plus"></i>
+			{!! ucfirst(trans('textos.factura_compra_introducir')) !!}
+		</a>
+
+	</div>
+</div>
+
 {{-- Filtros --}}
 <div class="row mb-3">
 	<div class="col-12">						

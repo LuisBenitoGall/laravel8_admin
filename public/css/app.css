@@ -19796,16 +19796,16 @@ button:focus {
 
 .btn-success {
   color: #fff;
-  background-color: #19ABD4;
-  border-color: #19ABD4;
+  background-color: #18a689;
+  border-color: #18a689;
 }
 
 .btn-success:hover,
 .btn-success:focus,
 .btn-success.focus {
   color: #fff;
-  background-color: #1a7bb9;
-  border-color: #1a7bb9;
+  background-color: #18a689;
+  border-color: #18a689;
 }
 
 .btn-success.disabled,
@@ -21274,6 +21274,7 @@ select.form-control:not([size]):not([multiple]) {
 }
 
 .form-control,
+.form-control-sm,
 .single-line {
   background-color: #FFFFFF;
   background-image: none;
@@ -21287,6 +21288,7 @@ select.form-control:not([size]):not([multiple]) {
 }
 
 .form-control:focus,
+.form-control-sm:focus,
 .single-line:focus {
   border-color: #23c6c8;
 }
@@ -23645,44 +23647,44 @@ body.body-small .footer.fixed {
 .table {
   width: 100% !important;
 }
-.table.dataTable, .table.dtabla {
+.table.dataTable, .table.dtabla, .table.modal-table {
   table-layout: fixed;
 }
-.table.dataTable .wdt50, .table.dtabla .wdt50 {
+.table.dataTable .wdt50, .table.dtabla .wdt50, .table.modal-table .wdt50 {
   width: 50px !important;
 }
-.table.dataTable .wdt100, .table.dtabla .wdt100 {
+.table.dataTable .wdt100, .table.dtabla .wdt100, .table.modal-table .wdt100 {
   width: 100px !important;
 }
-.table.dataTable .wdt150, .table.dtabla .wdt150 {
+.table.dataTable .wdt150, .table.dtabla .wdt150, .table.modal-table .wdt150 {
   width: 150px !important;
 }
-.table.dataTable .wdt200, .table.dtabla .wdt200 {
+.table.dataTable .wdt200, .table.dtabla .wdt200, .table.modal-table .wdt200 {
   width: 200px !important;
 }
-.table.dataTable .wdt250, .table.dtabla .wdt250 {
+.table.dataTable .wdt250, .table.dtabla .wdt250, .table.modal-table .wdt250 {
   width: 250px !important;
 }
-.table.dataTable .wdt300, .table.dtabla .wdt300 {
+.table.dataTable .wdt300, .table.dtabla .wdt300, .table.modal-table .wdt300 {
   width: 300px !important;
 }
-.table.dataTable .min_wdt150, .table.dtabla .min_wdt150 {
+.table.dataTable .min_wdt150, .table.dtabla .min_wdt150, .table.modal-table .min_wdt150 {
   min-width: 150px !important;
 }
-.table.dataTable .min_wdt200, .table.dtabla .min_wdt200 {
+.table.dataTable .min_wdt200, .table.dtabla .min_wdt200, .table.modal-table .min_wdt200 {
   min-width: 200px !important;
 }
-.table.dataTable .DTsearch, .table.dtabla .DTsearch {
+.table.dataTable .DTsearch, .table.dtabla .DTsearch, .table.modal-table .DTsearch {
   border: 1px solid #f6993f !important;
   font-size: 11px !important;
   height: 25px;
   padding-left: 4px;
   width: 100%;
 }
-.table.dataTable select.DTsearch, .table.dtabla select.DTsearch {
+.table.dataTable select.DTsearch, .table.dtabla select.DTsearch, .table.modal-table select.DTsearch {
   color: #888 !important;
 }
-.table.dataTable tfoot td, .table.dtabla tfoot td {
+.table.dataTable tfoot td, .table.dtabla tfoot td, .table.modal-table tfoot td {
   background-color: #FFFFE8;
   padding-left: 8px;
   padding-right: 8px;
@@ -23700,6 +23702,11 @@ body.body-small .footer.fixed {
 .modal-table td {
   border-top: 1px solid #dee2e6;
   padding: 0.75rem;
+}
+.modal-table td .form-control-sm {
+  display: inline-block;
+  vertical-align: bottom;
+  width: calc(100% - 25px);
 }
 
 .table-responsive {

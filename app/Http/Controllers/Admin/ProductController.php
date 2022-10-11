@@ -188,6 +188,7 @@ class ProductController extends Controller{
         }
 
         $msg = trans('textos.producto_creado_ok');
+        
         //Redirección para empresas tuteladas:
         if($request->tutored){
             //Regreso a referencia de proveedor para cliente:

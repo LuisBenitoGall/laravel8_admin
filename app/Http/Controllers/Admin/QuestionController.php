@@ -6,12 +6,15 @@ use App\Http\Controllers\Controller;
 use App\Helpers\Helpers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Yajra\DataTables\DataTables;
 
 //Models:
 use App\Models\Question;
+use App\Models\QuestionImages;
 use App\Models\QuizEditionAnswers;
 use App\Models\QuizEditionQuestions;
 
@@ -25,6 +28,7 @@ class QuestionController extends Controller{
      * 5. Actualizar cuestión.
      * 6. Eliminar cuestión.
      * 7. Estado de la cuestión.
+     * 8. Importar Mucibo Quiz.
      */
     
     private $option = 'concursos';
@@ -70,6 +74,9 @@ class QuestionController extends Controller{
             'slug' => 'questions'
         ];   
 
+        //Importación Mucibo DB:
+        //$this->importMuciboQuiz();
+
         return view('admin.questions.index')->with(compact('header'));  
     }
 
@@ -77,22 +84,32 @@ class QuestionController extends Controller{
      * 1.1. Listado de cuestiones para DataTable.
      */
     public function getQuestionsDT(){
-        $questions = Question::where('company_id', session('currentCompany'))->get();
+        $data = Question::where('company_id', session('currentCompany'))->get();
 
-        //Permisos del usuario:
-        $editar = Auth::user()->can('questions.edit');
-        $eliminar = Auth::user()->can('questions.destroy');   
-        
-        //Ampliación de información de los objetos:
-        foreach($questions as $row){
-            //Permisos para las acciones:
-            $row->editar = $editar;
-            $row->eliminar = $eliminar; 
-
-            $row->tipo = Helpers::questionTypes($row->type);
-        }
-
-        return datatables($questions)->toJson(); 
+        return DataTables::of($data)
+        ->addColumn('name', function($row){
+            return $row->name;
+        })
+        ->addColumn('question', function($row){
+            $question = $row->question? unserialize($row->question):false;
+            if($question){
+                return $question[session()->get('locale')];
+            }else{
+                return '';
+            }
+        })
+        ->addColumn('type', function($row){
+            if($row->type){
+                return helpers::questionTypes($row->type);
+            }else{
+                return '';
+            }    
+        })
+        ->addColumn('acciones', function($row){
+            return view('admin.questions.partials.dt-actions', compact('row'));    
+        })
+        ->rawColumns(['question'])
+        ->make(true);
     }
 
     /**
@@ -165,9 +182,11 @@ class QuestionController extends Controller{
             'slug' => 'questions'
         ];   
 
+        $images = $question->images()->get();
+
         $languages = $this->languages;
 
-        return view('admin.questions.edit')->with(compact('header', 'question', 'tab', 'languages'));
+        return view('admin.questions.edit')->with(compact('header', 'question', 'tab', 'images', 'languages'));
     }
 
     /**
@@ -181,10 +200,22 @@ class QuestionController extends Controller{
             ->withInput();    
         }
 
+        //dd($request->all());
+
         //Slug:
         $slug = Str::slug($request->name);
 
         $status = $request->status? 1:0;
+
+        $arrQuestion = [];
+        $arrOptions = [];
+        foreach($this->languages as $lang){
+            $question = 
+            $options = 'options_'.$lang[0];
+            $arrOptions[$lang[0]] = $request->input($options);
+        }
+
+        $strOptions = serialize($arrOptions);
 
         $keywords = isset($request->keywords)? $request->keywords:NULL;
 
@@ -194,6 +225,8 @@ class QuestionController extends Controller{
         $question->name = $request->name;
         $question->slug = $slug;
         $question->question = $request->question;
+        $question->options = $strOptions;
+        $question->right_option = $request->right_option;
         $question->videos = $request->videos;
         $question->keywords = $keywords;
         $question->keywords_min = $request->keywords_min;
@@ -227,6 +260,44 @@ class QuestionController extends Controller{
             $resp = ($question)? true:false;
             return response()->json($resp);
         }    
+    }
+
+    /**
+     * 8. Importar Mucibo Quiz.
+     */
+    public function importMuciboQuiz(){
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        DB::table('question_images')->truncate();
+        DB::table('questions')->truncate();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
+        $data = DB::connection('mysql_mucibo')->table('questions')->get();   
+
+        foreach($data as $r){
+            $q = new Question();
+            $q->company_id = session('currentCompany');
+            $q->name = $r->name;
+            $q->slug = Str::slug($r->name);
+            $q->question = $r->description;
+            $q->options = $r->answers;
+            $q->right_option = $r->correct_answer;
+            $q->videos = $r->video;
+            $q->type = 10;
+            //$q->answer_type = 
+            //$q->keywords = 
+            //$q->keywords_min = 
+            //$q->time = 
+            $q->status = 1;
+            $q->deleted_at = $r->deleted_at;
+            $q->save();
+
+            //Imágenes:
+            $i = new QuestionImages();
+            $i->image = $r->image;
+            $i->question_id = $q->id;
+            $i->featured = 1;
+            $i->save();
+        }
     }
 
 }

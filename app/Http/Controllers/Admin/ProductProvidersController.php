@@ -30,6 +30,7 @@ class ProductProvidersController extends Controller{
      * 2.1. Set proveedor.
      * 2.2. Catálogo de productos del proveedor para DataTable.
      * 3. Guardar correspondencia de producto de proveedor.
+     * 3.1. Guardar correspondencia de producto de proveedor desde catálogo de proveedor.
      * 4. Obtener correspondencia de referencia de producto.
      */
 
@@ -228,10 +229,7 @@ class ProductProvidersController extends Controller{
      */
     public function store(Request $request){
         if($request->ajax()){  
-            $exist = ProductProviders::where('customer_product_id', $request->customer_product_id)
-                ->where('provider_product_id', $request->provider_product_id)  
-                ->where('provider_id', $request->provider_id) 
-                ->first();
+            $exist = $this->existRefProviderCustomer($request->customer_product_id, $request->provider_product_id, $request->provider_id);
 
             if(!$exist){
                 $row = new ProductProviders();
@@ -249,6 +247,47 @@ class ProductProvidersController extends Controller{
 
             return response()->json(true);
         } 
+    }
+
+    /**
+     * 3.1. Guardar correspondencia de producto de proveedor desde catálogo de proveedor.
+     */
+    public function storeFromProvider(Request $request){
+        //Proveedor del producto:
+        $provider = Product::select('company_id')->find($request->provider_product_id);
+
+        $exist = $this->existRefProviderCustomer($request->customer_product_id, $request->provider_product_id, $provider->company_id);
+
+        //Relación cliente proveedor:
+        $cp = CustomerProviders::select('id')
+        ->where('customer_id', session('currentCompany'))
+        ->where('provider_id', $provider->company_id)
+        ->first();
+
+        if(!$exist){
+            $row = new ProductProviders();
+            $row->customer_product_id = $request->customer_product_id;
+            $row->provider_product_id = $request->provider_product_id;
+            $row->provider_id = $provider->company_id;
+            $row->save();
+
+            $msg = trans('textos.correspondencia_ref_saved');
+            return redirect()->route('provider-products.index', $cp->id)->with(compact('msg'));
+
+        }else{
+            $alert = trans('textos.correspondencia_ref_alert');
+            return redirect()->route('provider-products.index', $cp->id)->with(compact('alert'));
+        }
+    }
+
+    /**
+     * 3.2. Verificando existe relación de referencia entre cliente y proveedor.
+     */
+    public function existRefProviderCustomer($customer_product_id, $provider_product_id, $provider_id){
+        return ProductProviders::where('customer_product_id', $customer_product_id)
+            ->where('provider_product_id', $provider_product_id)  
+            ->where('provider_id', $provider_id) 
+            ->first();
     }
 
     /**
