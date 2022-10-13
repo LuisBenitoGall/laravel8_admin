@@ -30,7 +30,7 @@
 <div id="page-wrapper" class="gray-bg dashbard-1">
     {{-- Top Menu --}}
     <div class="row border-bottom">
-        <nav class="navbar navbar-static-top" role="navigation" style="margin-bottom: 0">
+        <nav class="navbar navbar-static-top" role="navigation">
             <div class="navbar-header">
                 {{-- Minimizar menú lateral --}}
                 <a class="navbar-minimalize minimalize-styl-2 btn btn-primary no-spinner " href="#">
@@ -44,6 +44,11 @@
                     </div>
                 </form> --}}
             </div>
+
+            {{-- Botón menú top responsive --}}
+            <a class="btn-top-links minimalize-styl-2 btn btn-warning no-spinner" href="#">
+                <i class="fa fa-bars"></i>
+            </a>
 
             <ul class="nav navbar-top-links navbar-right">
                 {{-- Control horario --}}

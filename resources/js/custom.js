@@ -135,6 +135,7 @@ $(document).ready(function () {
     6. Botón Ladda.
     7. Bloquear doble submit en formularios.
     8. Bloqueo de botones tras 1 click.
+    9. Menú opciones top responsive.
     */
 
     //Hora del control horario:
@@ -234,6 +235,12 @@ $(document).ready(function () {
         $('.one-click').each(function (index) {
             $(this).prop("disabled", true);
         });
+    });
+
+    // 9. Menú opciones top responsive.
+    $('.btn-top-links').on('click', function(e){
+        e.preventDefault();
+        $(".navbar-top-links").toggle();
     });
 });
 

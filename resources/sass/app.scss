@@ -1361,27 +1361,23 @@ ul.nav-second-level {
 }
 /* **************** / FORMS **************** */
 
-
-/* **************** MEDIA QUERIES **************** */
-@media(max-width: 991px){
-    .modal .form-group .col-form-label{
-        text-align: left;
-    }
-}
-
-@media (min-width: 768px) {
-    .navbar-right {
-        margin-right: -15px;
-    }
-}
 .navbar.navbar-static-top {
-  padding: 0;
-  width: 100%;
-  align-items: inherit;
+    margin-bottom: 0;
+    padding: 0;
+    width: 100%;
+    align-items: inherit;
+
+    .btn-top-links{
+        display: none;
+        position: absolute;
+        right: 20px;
+        top: 0;
+        z-index: 1000;
+    }
 }
 .navbar-static-top .dropdown-menu {
-  right: 0;
-  left: auto;
+    right: 0;
+    left: auto;
 }
 .count-info{ 
     .label{
@@ -1394,7 +1390,7 @@ ul.nav-second-level {
     }
 }
 .arrow {
-  float: right;
+    float: right;
 }
 .fa.arrow:before {
   content: "\f104";
@@ -8922,114 +8918,7 @@ body.landing-page {
   background-color: #1dc5a3;
   border-color: #1dc5a3;
 }
-@media (min-width: 768px) {
-  .landing-page {
-    /* Navbar positioning foo */
-    /* The navbar becomes detached from the top, so we round the corners */
-    /* Bump up size of carousel content */
-  }
-  .landing-page .navbar-wrapper .container {
-    padding-right: 15px;
-    padding-left: 15px;
-  }
-  .landing-page .navbar-wrapper .navbar {
-    padding-right: 0;
-    padding-left: 0;
-  }
-  .landing-page .navbar-wrapper .navbar {
-    border-radius: 4px;
-  }
-  .landing-page .carousel-caption p {
-    margin-bottom: 20px;
-    font-size: 14px;
-    line-height: 1.4;
-  }
-  .landing-page .featurette-heading {
-    font-size: 50px;
-  }
-}
-@media (max-width: 992px) {
-  .landing-page .carousel-image {
-    display: none;
-  }
-}
-@media (max-width: 768px) {
-  .landing-page .carousel-caption,
-  .landing-page .carousel-caption.blank {
-    left: 5%;
-    top: 80px;
-  }
-  .landing-page .carousel-caption h1 {
-    font-size: 28px;
-  }
-  .landing-page .navbar.navbar-scroll .navbar-brand {
-    margin-top: 6px;
-  }
-  .landing-page .navbar-default {
-    background-color: #fff;
-    border-color: #fff;
-    padding: 15px 0;
-  }
-  .landing-page .navbar-default .navbar-nav > .active > a:focus {
-    background: transparent;
-    color: inherit;
-  }
-  .landing-page .navbar-default .nav li a {
-    color: #676a6c;
-  }
-  .landing-page .navbar-default .nav li a:hover {
-    color: $primary;
-  }
-  .landing-page .navbar-wrapper .navbar {
-    padding-top: 0;
-    padding-bottom: 5px;
-    border-bottom: 1px solid #e7eaec;
-    border-radius: 0;
-  }
-  .landing-page .nav > li > a {
-    padding: 10px 10px 15px 10px;
-  }
-  .landing-page .navbar-nav > li > a {
-    padding: 20px 10px;
-  }
-  .landing-page .navbar .navbar-brand {
-    margin-top: 5px;
-    border-radius: 5px;
-    font-size: 12px;
-    padding: 10px;
-    height: auto;
-  }
-  .landing-page .navbar-wrapper .navbar {
-    padding-left: 15px;
-    padding-right: 5px;
-  }
-  .landing-page .navbar-default .navbar-nav > .active > a,
-  .landing-page .navbar-default .navbar-nav > .active > a:hover {
-    color: inherit;
-  }
-  .landing-page .carousel-control {
-    display: none;
-  }
-}
-@media (min-width: 992px) {
-  .landing-page .featurette-heading {
-    margin-top: 120px;
-  }
-}
-@media (max-width: 768px) {
-  .landing-page .navbar .navbar-header {
-    display: block;
-    float: none;
-  }
-  .landing-page .navbar .navbar-header .navbar-toggle {
-    background-color: #ffffff;
-    padding: 9px 10px;
-    border: none;
-  }
-  .landing-page .nav.navbar-right {
-    flex-direction: column;
-  }
-}
+
 .landing-page .navbar-toggle {
   color: #ddd;
   float: right;
@@ -11566,5 +11455,167 @@ ul{
         animation: sk-pulseScaleOut 2s infinite ease-in-out;
         height: 80px;
         width: 80px;
+    }
+}
+
+/**
+ * RESPONSIVE MEDIA QUERIES
+ */
+@media (min-width: 992px) {
+    .landing-page .featurette-heading {
+        margin-top: 120px;
+    }
+}
+
+@media (min-width: 768px) {
+    .landing-page {
+    /* Navbar positioning foo */
+    /* The navbar becomes detached from the top, so we round the corners */
+    /* Bump up size of carousel content */
+
+        .navbar-wrapper{
+            .container {
+                padding-right: 15px;
+                padding-left: 15px;
+            }
+            .navbar {
+                border-radius: 4px;
+                padding-right: 0;
+                padding-left: 0;
+              }
+        }
+        .carousel-caption p {
+            margin-bottom: 20px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        .featurette-heading {
+            font-size: 50px;
+        }
+    }
+
+    .navbar-right {
+        margin-right: -15px;
+    }
+}
+
+@media (max-width: 992px) {
+    .landing-page .carousel-image {
+        display: none;
+    }
+
+    .modal .form-group .col-form-label{
+        text-align: left;
+    }
+}
+
+@media (max-width: 768px) {
+    .landing-page{ 
+        .carousel-caption,
+        .carousel-caption.blank {
+            left: 5%;
+            top: 80px;
+        }
+        .carousel-caption h1 {
+            font-size: 28px;
+        }
+        .navbar.navbar-scroll .navbar-brand {
+            margin-top: 6px;
+        }
+        .navbar-default {
+            background-color: #fff;
+            border-color: #fff;
+            padding: 15px 0;
+        
+            .navbar-nav > .active > a:focus {
+                background: transparent;
+                color: inherit;
+            }
+            .navbar-nav > .active > a,
+            .navbar-nav > .active > a:hover {
+                color: inherit;
+            }
+            .nav li a {
+                color: #676a6c;
+                &:hover {
+                    color: $primary;
+                }
+            }
+        }
+        .navbar-default 
+        .carousel-control {
+            display: none;
+        }
+        .navbar-wrapper .navbar {
+            padding-left: 15px;
+            padding-right: 5px;
+            padding-top: 0;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #e7eaec;
+            border-radius: 0;
+        }
+        .nav > li > a {
+            padding: 10px 10px 15px 10px;
+        }
+        .navbar-nav > li > a {
+            padding: 20px 10px;
+        }
+        .navbar .navbar-brand {
+            margin-top: 5px;
+            border-radius: 5px;
+            font-size: 12px;
+            padding: 10px;
+            height: auto;
+        }
+        .navbar .navbar-header {
+            display: block;
+            float: none;
+            .navbar-toggle {
+                background-color: #ffffff;
+                padding: 9px 10px;
+                border: none;
+            }
+        }
+        .nav.navbar-right {
+            flex-direction: column;
+        }
+    }
+
+    .navbar.navbar-static-top {
+        .btn-top-links{
+            display: block;
+        }
+    }
+
+    .nav.navbar-top-links{
+        background-color: $grey-light2;
+        display: none;
+        padding: 40px;
+        position: absolute;
+        right: 0;
+        top: 0;
+        z-index: 100;
+
+        li{
+            clear: both !important;
+            display: block;
+            width: 100%;
+            
+            &.HourlyControl{
+                display: inline-block;
+                width: auto;
+            }
+
+            a{
+                font-size: 20px;
+
+                &.btnHourlyControl #currentHour{
+                    width: 100px;
+                }
+            }
+            span.btnHourlyControl{
+                font-size: 22px;    
+            }
+        }
     }
 }
