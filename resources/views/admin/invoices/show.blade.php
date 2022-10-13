@@ -66,8 +66,8 @@
                             @endif
                         </address>
                         <p>
-                            <span><strong>{{ trans('textos.fecha_factura') }}:</strong> Marh 18, 2014</span><br/>
-                            <span><strong>Due Date:</strong> March 24, 2014</span>
+                            <span><strong>{{ trans('textos.factura_fecha') }}:</strong> @if($invoice->fiscal_date) {!! \Carbon\Carbon::parse($invoice->fiscal_date)->format($languages[session()->get('locale')][4]) !!} @endif</span><br/>
+                            <span><strong>{{ trans('textos.fecha_vencimiento') }}:</strong> @if($invoice->expiration_date) {!! \Carbon\Carbon::parse($invoice->expiration_date)->format($languages[session()->get('locale')][4]) !!} @endif</span>
                         </p>
                     </div>
                 </div>
@@ -76,20 +76,65 @@
                     <table class="table invoice-table">
                         <thead>
 	                        <tr>
-	                            <th>Item List</th>
-	                            <th>Quantity</th>
-	                            <th>Unit Price</th>
-	                            <th>Tax</th>
-	                            <th>Total Price</th>
+	                            <th>{{ ucfirst(trans('textos.concepto')) }}</th>
+	                            <th class="text-center">{{ trans('textos.cantidad') }}</th>
+	                            <th class="text-center">{{ trans('textos.precio') }}</th>
+	                            <th class="text-center">IVA</th>
+	                            <th class="text-center">{{ trans('textos.importe') }}</th>
 	                        </tr>
                         </thead>
 
                         <tbody>
+                        	@php
+                        	$subtotal = 0;
+                        	$iva = 0;
+                        	$total = 0;
+                        	@endphp
 
+                        	@foreach($items as $item)
+                        		@php
+	                        	$subtotal = $subtotal + $item->amount;
+	                        	$percent = App\Helpers\helpers::percent($item->amount, $item->iva);
+	                        	$iva = $iva + $percent;
+	                        	$total = $total + $item->amount + $percent;
+	                        	@endphp
 
+                        		<tr>
+                        			<td>{{ $item->concept }}</td>
+                        			<td class="text-right">{{ $item->qty }}</td>
+                        			<td class="text-right">{{ $item->price }}{{ $currency->symbol }}</td>
+                        			<td class="text-right">{{ $item->iva }}%</td>
+                        			<td class="text-right">{{ $item->amount }}{{ $currency->symbol }}</td>
+                        		</tr>
+                        	@endforeach
                         </tbody>
                     </table>
                 </div>
+
+                <table class="table invoice-total">
+                    <tbody>
+	                    <tr>
+	                        <td><strong>{{ ucfirst(trans('textos.subtotal')) }}:</strong></td>
+	                        <td>{{ $subtotal }}{{ $currency->symbol }}</td>
+	                    </tr>
+	                    <tr>
+	                        <td><strong>IVA :</strong></td>
+	                        <td>{{ $iva }}{{ $currency->symbol }}</td>
+	                    </tr>
+	                    <tr>
+	                        <td><strong>{{ ucfirst(trans('textos.total')) }}:</strong></td>
+	                        <td>{{ $total }}{{ $currency->symbol }}</td>
+	                    </tr>
+                    </tbody>
+                </table>
+
+                
+                @if($invoice->observations)
+	                <div class="well m-t">
+	                	<strong>{{ ucfirst(trans('textos.observaciones')) }}</strong>
+	                    {!! $invoice->observations !!}
+	                </div>
+	            @endif
 			</div>
 		</div>
 	</div>

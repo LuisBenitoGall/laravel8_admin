@@ -2024,14 +2024,14 @@ class Helpers{
             
             //Aplicando descuento de días continuos:
             if($item->days_continue > 0 && $item->days_continue_discount){
-                $jc_percentage = Helpers::percent($amount, $item->days_continue_discount);
+                $jc_percentage = helpers::percent($amount, $item->days_continue_discount);
                 $amount = $amount - $jc_percentage;
             }
         }
 
         //Descuento sobre la línea:
         if($item->discount){
-            $discount = Helpers::percent($amount, $item->discount);   
+            $discount = helpers::percent($amount, $item->discount);   
             $amount = $amount - $discount;  
         }
 

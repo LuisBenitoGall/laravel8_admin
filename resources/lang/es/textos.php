@@ -2034,6 +2034,7 @@ return [
 	'factura_desbloquear_confirm' => 'Confirma que deseas desbloquear esta factura. Esta acción actualizará en la factura los cambios que se hayan realizado en el pedido.',
 	'factura_bloqueada_ok' => 'La factura ha sido bloqueada correctamente',
 	'factura_desbloqueada_ok' => 'La factura ha sido desbloqueada correctamente',
+	'factura_fecha' => 'Fecha de factura',
 	'patrones_concurso' => 'Patrones concurso',
 	'concurso' => 'concurso',
 	'concursos' => 'concursos',

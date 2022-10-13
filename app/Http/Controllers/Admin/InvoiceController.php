@@ -23,6 +23,7 @@ use App\Models\Company;
 use App\Models\CompanySettings;
 use App\Models\CustomerProviders;
 use App\Models\Invoice;
+use App\Models\InvoiceItems;
 use App\Models\InvoiceOrders;
 use App\Models\InvoicePatterns;
 use App\Models\InvoicePayments;
@@ -941,8 +942,17 @@ class InvoiceController extends Controller{
             $provider_workplace = Workplace::companyFeaturedWorkplace($order->provider_id);
         }
 
+        $items = InvoiceItems::select('invoice_items.*', 'items.concept')
+        ->leftJoin('items', 'invoice_items.item_id', '=', 'items.id')
+        ->where('invoice_id', $invoice->id)
+        ->get();
+
+        $languages = $this->languages;
+
+        //Moneda:
+        $currency = $this->co_currency;
         
-        return view('admin.invoices.show')->with(compact('header', 'invoice', 'order', 'customer', 'customer_workplace', 'provider', 'provider_workplace'));  
+        return view('admin.invoices.show')->with(compact('header', 'invoice', 'order', 'customer', 'customer_workplace', 'provider', 'provider_workplace', 'items', 'languages', 'currency'));  
     }
 
     /**
