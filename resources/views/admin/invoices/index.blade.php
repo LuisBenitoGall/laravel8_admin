@@ -17,12 +17,12 @@
 
 {{-- Filtros --}}
 <div class="row">
-	<div class="col-12">						
+	<div class="col-12">
 		<div class="card mb-3">
 			<div class="card-body">
 				<form method="post" autocomplete="off" action="{{ route('invoices.list') }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
 					{{ csrf_field() }}
-				
+
 					<div class="form-group row">
 						<div class="col-md-10 offset-md-2">
 							<p class="text-warning">{!! trans('textos.selec_cliente_proveedor_factura') !!}</p>
@@ -84,7 +84,7 @@
 
 				@else
 					@if($customer->id == session('currentCompany'))
-						{!! ucfirst(trans('textos.facturas_compras_a')) !!} <b>{{ $provider->name }}</b>
+						{!! ucfirst(trans('textos.facturas_compras_a')) !!} <b>{{ $provider->name ?? '' }}</b>
 					@elseif($provider->id == session('currentCompany'))
 						{!! ucfirst(trans('textos.facturas_ventas_a')) !!} <b>{{ $customer->name }}</b>
 					@endif
@@ -100,7 +100,7 @@
 						<th class="wdt150">
 							@if($invoicesType == 'facturas_compras')
 								{!! ucfirst(trans('textos.proveedor')) !!}
-							@else	
+							@else
 								{!! ucfirst(trans('textos.cliente')) !!}
 							@endif
 						</th>
@@ -125,7 +125,7 @@
 						<td></td>
 						<td></td>
 						<td></td>
-					</tr>	
+					</tr>
 				</tfoot>
 			</table>
 		</div>
@@ -136,21 +136,19 @@
 		<div class="col-12 text-center pt-4">
 			<h2>{!! trans('textos.filtra_facturas') !!}.</h2>
 		</div>
-	</div>	
+	</div>
 @endif
 
 @push('scripts')
 <script>
 $(function(){
 	//Toggle selector clientes o proveedores:
-	// $('#customerId').on('change', function(e){
-	// 	$('#providerId').val(['']);	
-	// 	$('#providerId').trigger('change');
-	// });
-	// $('#providerId').on('change', function(e){
-	// 	$('#customerId').val(['']);	
-	// 	$('#customerId').trigger('change');
-	// });
+	 $('#customerId').on('change', function(e){
+         $('#providerId').val(['']).trigger('change.select2');
+	 });
+	 $('#providerId').on('change', function(e){
+         $('select#customerId').val(['']).trigger('change.select2');
+	 });
 });
 </script>
 @endpush
