@@ -1,24 +1,24 @@
 /* ***************** FUNCTIONS: ***************** */
 // File input:
-$(function() {
+$(function () {
     // Create the close button
     var closebtn = $('<button/>', {
-        type:"button",
+        type: "button",
         text: 'x',
         id: 'close-preview',
         style: 'font-size: initial;',
     });
-    closebtn.attr("class","close pull-right");
+    closebtn.attr("class", "close pull-right");
     // Set the popover default content
     $('.image-preview').popover({
-        trigger:'manual',
-        html:true,
-        title: "<strong>"+txtPreview+"</strong>"+$(closebtn)[0].outerHTML,
+        trigger: 'manual',
+        html: true,
+        title: "<strong>" + txtPreview + "</strong>" + $(closebtn)[0].outerHTML,
         content: "There's no image",
-        placement:'bottom'
+        placement: 'bottom'
     });
     // Clear event
-    $('.image-preview-clear').click(function(){
+    $('.image-preview-clear').click(function () {
         var parent = $(this).closest('.image-preview');
 
         // $('.image-preview').attr("data-content","").popover('hide');
@@ -27,101 +27,106 @@ $(function() {
         // $('.image-preview-input input:file').val("");
         // $(".image-preview-input-title").text(txtBuscar);
 
-        parent.find('.image-preview').attr("data-content","").popover('hide');
+        parent.find('.image-preview').attr("data-content", "").popover('hide');
         parent.find('.image-preview-filename').val("");
         parent.find('.image-preview-clear').hide();
         parent.find('.image-preview-input input:file').val("");
-        parent.find(".image-preview-input-title").text(txtBuscar); 
-    }); 
+        parent.find(".image-preview-input-title").text(txtBuscar);
+    });
     // Create the preview image
-    $(".image-preview-input input:file").change(function (){    
+    $(".image-preview-input input:file").change(function () {
         var parent = $(this).closest('.image-preview');
 
         var img = $('<img/>', {
             id: 'dynamic',
-            width:150
+            width: 150
             //height:100
-        });      
+        });
         var file = this.files[0];
         var reader = new FileReader();
         // Set preview image into the popover data-content
         reader.onload = function (e) {
             // $(".image-preview-input-title").text(txtCambiar);
             // $(".image-preview-clear").show();
-            // $(".image-preview-filename").val(file.name);            
+            // $(".image-preview-filename").val(file.name);
             // img.attr('src', e.target.result);
             // $(".image-preview").attr("data-content",$(img)[0].outerHTML).popover("show");
 
             parent.find(".image-preview-input-title").text(txtCambiar);
             parent.find(".image-preview-clear").show();
-            parent.find(".image-preview-filename").val(file.name);            
+            parent.find(".image-preview-filename").val(file.name);
             img.attr('src', e.target.result);
-            parent.attr("data-content",$(img)[0].outerHTML).popover("show");
-        }        
+            parent.attr("data-content", $(img)[0].outerHTML).popover("show");
+        }
         reader.readAsDataURL(file);
-    });  
+    });
 });
 
 // Select 2. ¡Atención! la declaración genérica de este componente NO puede ir ni en el document Ready ni en window Load, pues en ese caso no funcionan las declaraciones específicas del componente en los modal.
-if($('.select2').length > 0){
+if ($('.select2').length > 0) {
     $('.select2').select2({
+        tags: true,
         width: '100%',
         language: {
-            noResults: function(){
-                return txtResultadosNoEncontrados;        
+            noResults: function () {
+                return txtResultadosNoEncontrados;
             },
-            searching: function(){
-                return txtBuscando+'...';
+            searching: function () {
+                return txtBuscando + '...';
             }
         }
     });
 
-    /*$('.select2').on('change', function (e){ 
+    /*$('.select2').on('change', function (e){
         var data = $('.select2').select2("val");
         //@this.set('ottPlatform', data);
     });*/
 }
 
 // Mensajes de alerta.
-function divMsg(msg, danger = false){
-    var css = danger? 'alert-danger':'alert-success';
+function divMsg(msg, danger = false) {
+    var css = danger ? 'alert-danger' : 'alert-success';
     $('.alert').remove();
-    $('#mainContent').prepend('<div class="alert '+css+'" role="alert">'+msg+'</div>');
+    $('#mainContent').prepend('<div class="alert ' + css + '" role="alert">' + msg + '</div>');
 }
 
 // Set cookie.
 let setCookie = (name, value, days) => {
-    let expires = ""; 
-    if(days){
+    let expires = "";
+    if (days) {
         let date = new Date();
         date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
         expires = "; expires=" + date.toUTCString();
-    }document.cookie = name + "=" + (value || "") + expires + "; path=/";
+    }
+    document.cookie = name + "=" + (value || "") + expires + "; path=/";
 };
 
 // Get cookie.
-let getCookie = name => { 
+let getCookie = name => {
     let nameEQ = name + "=";
-    let ca = document.cookie.split(";"); for (var i = 0; i < ca.length; i++){ 
+    let ca = document.cookie.split(";");
+    for (var i = 0; i < ca.length; i++) {
         let c = ca[i];
-        while(c.charAt(0) === " ") c = c.substring(1, c.length); 
-        if(c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+        while (c.charAt(0) === " ") c = c.substring(1, c.length);
+        if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
     }
     return null;
 };
 
 // Rotación:
-jQuery.fn.rotate = function(degrees){
-    $(this).css({'-webkit-transform' : 'rotate('+ degrees +'deg)',
-        '-moz-transform' : 'rotate('+ degrees +'deg)',
-        '-ms-transform' : 'rotate('+ degrees +'deg)',
-        'transform' : 'rotate('+ degrees +'deg)'});
+jQuery.fn.rotate = function (degrees) {
+    $(this).css({
+        '-webkit-transform': 'rotate(' + degrees + 'deg)',
+        '-moz-transform': 'rotate(' + degrees + 'deg)',
+        '-ms-transform': 'rotate(' + degrees + 'deg)',
+        'transform': 'rotate(' + degrees + 'deg)'
+    });
     return $(this);
 };
 
 // ************************************ DOCUMENT READY: ************************************
-$(document).ready(function(){
-    /* ***************** INDICE DE MÉTODOS: ***************** 
+$(document).ready(function () {
+    /* ***************** INDICE DE MÉTODOS: *****************
     1. Tooltips.
     2. Editor texto.
     3. Botón animado.
@@ -131,10 +136,10 @@ $(document).ready(function(){
     7. Bloquear doble submit en formularios.
     8. Bloqueo de botones tras 1 click.
     */
-   
+
     //Hora del control horario:
     horaActual();
-   
+
     //window.location.reload(true);
 
     // 1. Tooltips:
@@ -142,7 +147,7 @@ $(document).ready(function(){
     //$('.progress').tooltip('show');
 
     // 2. Editor texto:
-    if($('.editor').length > 0){
+    if ($('.editor').length > 0) {
         $('.editor').trumbowyg({
             lang: idm,
             autogrow: true,
@@ -173,7 +178,7 @@ $(document).ready(function(){
             //         ],
             //         allowCustomSize: false
             //     }
-            // }      
+            // }
         });
     }
 
@@ -184,20 +189,20 @@ $(document).ready(function(){
             $(this).append('<i class="ml-2 fa fa-spinner fa-spin"></i>');
             if($(this).hasClass('close-animation')){
                 setTimeout(function(){
-                    $('.fa-spinner').delay(2000).remove();    
+                    $('.fa-spinner').delay(2000).remove();
                 }, 2000);
-            }  
-        }  
+            }
+        }
     });*/
-    $(document).on('click', '.swal-button--cancel, button.close, .modal', function(){
-        $('.fa-spinner').remove();    
+    $(document).on('click', '.swal-button--cancel, button.close, .modal', function () {
+        $('.fa-spinner').remove();
     });
 
     // 4. Scroll top horizontal.
-    $(".scroll-top").scroll(function(){
+    $(".scroll-top").scroll(function () {
         $(".scroll-bottom").scrollLeft($(".scroll-top").scrollLeft());
     });
-    $(".scroll-bottom").scroll(function(){
+    $(".scroll-bottom").scroll(function () {
         $(".scroll-top").scrollLeft($(".scroll-bottom").scrollLeft());
     });
 
@@ -207,34 +212,34 @@ $(document).ready(function(){
     });
 
     // 6. Botón Ladda.
-    var l = $( '.ladda-button_' ).ladda();
-    l.click(function(){
+    var l = $('.ladda-button_').ladda();
+    l.click(function () {
         // Start loading
         l.ladda('start');
 
         // Do something in backend and then stop ladda
         // setTimeout() is only for demo purpose
-        setTimeout(function(){
+        setTimeout(function () {
             l.ladda('stop');
         }, 3000);
     });
 
     // 7. Bloquear doble submit en formularios.
-    $(document).on('submit', '.frm-one-click', function(){
+    $(document).on('submit', '.frm-one-click', function () {
         $(":submit").prop("disabled", true);
     });
 
     // 8. Bloqueo de botones tras 1 click.
-    $(document).on('click', '.one-click', function(){
-        $('.one-click').each(function(index){
+    $(document).on('click', '.one-click', function () {
+        $('.one-click').each(function (index) {
             $(this).prop("disabled", true);
         });
     });
 });
 
 // ************************************ WINDOW LOAD: ************************************
-$(window).on('load', function(){
-    /* ***************** INDICE DE MÉTODOS: ***************** 
+$(window).on('load', function () {
+    /* ***************** INDICE DE MÉTODOS: *****************
     1. Eliminar preview imagen seleccionada.
     2. Modal traducciones.
         2.1. Guardar traducciones de strings.
@@ -264,7 +269,7 @@ $(window).on('load', function(){
     20. Mini-modal.
         20.1. Modificar opción mini-modal.
     21. Vuelta a top page.
-        21.1. Mostrar - ocultar botón de top page. 
+        21.1. Mostrar - ocultar botón de top page.
     22. Máscara para horas.
     23. Histórico de horas trabajadas en tarea.
     24. Selector de modalidad de presupuesto.
@@ -273,24 +278,24 @@ $(window).on('load', function(){
     27. Aplicar descuento por defecto del cliente a líneas del pedido, tanto nueva como edición.
     28. Cálculo precio + precio con iva en gastos.
     */
-   
+
     // 1. Eliminar preview imagen seleccionada:
-    $(document).on('click', '#close-preview', function(){ 
+    $(document).on('click', '#close-preview', function () {
         //$('.image-preview').popover('hide');
         $(this).closest('.popover').popover('hide');
         // Hover before close the preview
         /*$('.image-preview').hover(
             function () {
                $('.image-preview').popover('show');
-            }, 
+            },
              function () {
                $('.image-preview').popover('hide');
             }
-        ); */    
-    });  
+        ); */
+    });
 
     // 2. Modal traducciones:
-    $(document).on('click', '.btn-translations', function(){
+    $(document).on('click', '.btn-translations', function () {
         var id = $(this).data('id');
         var schema = $(this).data('schema');
         $('.input-translation').val('');
@@ -298,17 +303,17 @@ $(window).on('load', function(){
         $('#objId').val(id);
         $('#schema').val(schema);
 
-        $.get("/string_translation/"+id+"/"+schema, function(response, state){
-            if(response){
-                for(var i in response){
-                    $('#lang-'+i).val(response[i]);
-                } 
-            }  
+        $.get("/string_translation/" + id + "/" + schema, function (response, state) {
+            if (response) {
+                for (var i in response) {
+                    $('#lang-' + i).val(response[i]);
+                }
+            }
         });
-    }); 
+    });
 
     // 2.1. Guardar traducciones de strings:
-    $(document).on('submit', '#frm-translations', function(e){
+    $(document).on('submit', '#frm-translations', function (e) {
         e.preventDefault();
         var data = $(this).serialize();
         $('#modal-translations').modal('toggle');
@@ -316,44 +321,44 @@ $(window).on('load', function(){
         $.ajax({
             url: "/languages/store_string",
             type: "POST",
-            data: data, 
+            data: data,
             cache: false,
             datatype: "JSON",
-            success: function(response){
+            success: function (response) {
                 divMsg(response);
             }
         });
     });
 
     // 3. Activar / desactivar item:
-    $(document).on('click', '.chk-action', function(){
+    $(document).on('click', '.chk-action', function () {
         var status = '';
         var elem = $(this);
         //Atención!!: detecta el estado previo a la acción, de modo que :checked es si queda deseleccionado:
-        if(elem.siblings('input').is(':checked')){
+        if (elem.siblings('input').is(':checked')) {
             status = 0;
-        }else{
+        } else {
             status = 1;
-        }  
+        }
         var id = $(this).data('id');
         var ctrl = $(this).data('ctrl');
-        $.get(ctrl+"/"+id+"/"+status+"", function(response, state){
-            if(response){
+        $.get(ctrl + "/" + id + "/" + status + "", function (response, state) {
+            if (response) {
                 $('.check-ko').remove();
                 elem.parent('label').before('<i class="fa fa-check check-ok"></i>');
                 $('.check-ok').delay(1000).fadeOut();
-            }else{
+            } else {
                 elem.parent('label').before('<i class="fa fa-exclamation-triangle check-ko"></i>');
             }
-        }); 
+        });
     });
 
     // 4. Confirmación de acciones:
-    $(document).on('click', '.btn-confirm', function(e){
+    $(document).on('click', '.btn-confirm', function (e) {
         e.preventDefault();
         var linkURL = $(this).attr("href");
         var msg = $(this).data('msg');
-        
+
         swal.fire({
             title: msg,
             text: "",
@@ -365,18 +370,18 @@ $(window).on('load', function(){
             confirmButtonText: txtContinuar,
             cancelButtonText: txtCancelar
         }).then((result) => {
-            if(result.isConfirmed){
+            if (result.isConfirmed) {
                 window.location.href = linkURL;
             }
-        });       
+        });
     });
 
     // 4.1. Confirmación de acción por formulario:
-    $(document).on('click', '.frm-confirm', function(e){
+    $(document).on('click', '.frm-confirm', function (e) {
         e.preventDefault();
         var msg = $(this).data('msg');
         var form = $(this).closest('form');
-        
+
         swal.fire({
             title: msg,
             text: "",
@@ -388,15 +393,15 @@ $(window).on('load', function(){
             confirmButtonText: txtContinuar,
             cancelButtonText: txtCancelar
         }).then((result) => {
-            if(result.isConfirmed){
+            if (result.isConfirmed) {
                 form.submit();
             }
-        });       
+        });
     });
 
-    // 4.2. 
-    $(document).on('click', '.btnDelete', function(e){
-        e.preventDefault();  
+    // 4.2.
+    $(document).on('click', '.btnDelete', function (e) {
+        e.preventDefault();
         var msg = $(this).data('msg');
         var model = $(this).data('model');
         var id = $(this).data('id');
@@ -412,22 +417,22 @@ $(window).on('load', function(){
             confirmButtonText: txtEliminar,
             cancelButtonText: txtCancelar
         }).then((result) => {
-            if(result.isConfirmed){
-                
+            if (result.isConfirmed) {
+
             }
-        });       
+        });
     });
 
     // 5. Modals flash.
-    if(typeof msg_errores_ != 'undefined' && msg_errores_){
-        $('.invalid-feedback').css('display','block').show();
-        $('.modal.'+msg_errores_).modal({
+    if (typeof msg_errores_ != 'undefined' && msg_errores_) {
+        $('.invalid-feedback').css('display', 'block').show();
+        $('.modal.' + msg_errores_).modal({
             show: true
-        }); 
+        });
     }
 
     // 6. Toggle vista lista - cuadrícula.
-    $('.btn-toggle.list').on('click', function(){
+    $('.btn-toggle.list').on('click', function () {
         $(this).addClass('active');
         $('.btn-toggle.grid').removeClass('active');
         $('.toggle-view-grid').fadeOut();
@@ -435,9 +440,9 @@ $(window).on('load', function(){
 
         //Cookie:
         var cookie = $(this).data('cookie');
-        setCookie(cookie+"View", "list");    
+        setCookie(cookie + "View", "list");
     });
-    $('.btn-toggle.grid').on('click', function(){
+    $('.btn-toggle.grid').on('click', function () {
         $(this).addClass('active');
         $('.btn-toggle.list').removeClass('active');
         $('.toggle-view-list').fadeOut();
@@ -445,38 +450,38 @@ $(window).on('load', function(){
 
         //Cookie:
         var cookie = $(this).data('cookie');
-        setCookie(cookie+"View", "grid");    
+        setCookie(cookie + "View", "grid");
     });
 
-    function ifCookie(cookie){
-        if(cookie == 'grid'){
+    function ifCookie(cookie) {
+        if (cookie == 'grid') {
             $('.btn-toggle.list').removeClass('active');
             $('.btn-toggle.grid').addClass('active');
             $('.toggle-view-list').hide();
-            $('.toggle-view-grid').fadeIn();    
+            $('.toggle-view-grid').fadeIn();
         }
     }
 
     // 6.1. Leer cookie productos.
-    if($('#tblProducts').length > 0){
+    if ($('#tblProducts').length > 0) {
         var cookie = getCookie('productsView');
         ifCookie(cookie);
     }
 
     // 6.2. Leer cookie proyectos.
-    if($('#tblProjects').length > 0){
+    if ($('#tblProjects').length > 0) {
         var cookie = getCookie('projectsView');
         ifCookie(cookie);
     }
 
     // 6.3. Leer cookie usuarios.
-    if($('#tblUsers').length > 0){
+    if ($('#tblUsers').length > 0) {
         var cookie = getCookie('usersView');
         ifCookie(cookie);
-    }    
+    }
 
     // 7. Copiar a portapapeles.
-    $('.copia').on('click', function(){
+    $('.copia').on('click', function () {
         var elem = $(this);
         var text1 = $(this).text();
         text = text1.trim();
@@ -491,12 +496,12 @@ $(window).on('load', function(){
         document.execCommand("copy");
         //eliminamos el input temporal
         $temp.remove();
-        elem.append('<span class="warning-copy">'+txtTextoCopiado+'</span>');
+        elem.append('<span class="warning-copy">' + txtTextoCopiado + '</span>');
         $('.warning-copy').delay(1000).fadeOut();
     });
 
     // 7.1. Copiar a portapapeles desde link.
-    $('.copia2').on('click', function(e){
+    $('.copia2').on('click', function (e) {
         e.preventDefault();
         var elem = $(this);
         var text1 = elem.data('text');
@@ -512,34 +517,34 @@ $(window).on('load', function(){
         document.execCommand("copy");
         //eliminamos el input temporal
         $temp.remove();
-        elem.append('<span class="warning-copy">'+txtTextoCopiado+'</span>');
+        elem.append('<span class="warning-copy">' + txtTextoCopiado + '</span>');
         $('.warning-copy').delay(1000).fadeOut();
     });
 
-    $('.copia3').on('click', function(e){
+    $('.copia3').on('click', function (e) {
         e.preventDefault();
         var copyText = $(this).data('text');
 
-          /* Select the text field */
+        /* Select the text field */
         //copyText.select();
         //copyText.setSelectionRange(0, 99999); /* For mobile devices */
 
-           /* Copy the text inside the text field */
-          navigator.clipboard.writeText(copyText);
+        /* Copy the text inside the text field */
+        navigator.clipboard.writeText(copyText);
 
-          /* Alert the copied text */
-          alert("Copied the text: " + copyText);
+        /* Alert the copied text */
+        alert("Copied the text: " + copyText);
     });
 
     // 8. Destacar imagen.
-    $('.btn-featured').on('click', function(e){
+    $('.btn-featured').on('click', function (e) {
         e.preventDefault();
         var este = $(this);
         var img = $(this).data('img');
         var modulo = $(this).data('modulo');
 
-        if(img && modulo){
-            $.get("/admin/"+modulo+"/set-featured/"+img, function(response, state){
+        if (img && modulo) {
+            $.get("/admin/" + modulo + "/set-featured/" + img, function (response, state) {
                 $('.btn-featured').removeClass('featured');
                 este.addClass('featured');
             });
@@ -547,54 +552,54 @@ $(window).on('load', function(){
     });
 
     // 8.1. Imagen pública.
-    $('.btn-public').on('click', function(e){
+    $('.btn-public').on('click', function (e) {
         e.preventDefault();
         var este = $(this);
         var img = $(this).data('img');
         var modulo = $(this).data('modulo');
 
-        if(img && modulo){
-            $.get("/admin/"+modulo+"/set-public/"+img, function(response, state){
-                if(response.public){
+        if (img && modulo) {
+            $.get("/admin/" + modulo + "/set-public/" + img, function (response, state) {
+                if (response.public) {
                     este.addClass('public');
-                }else{
-                    este.removeClass('public');    
-                }                
+                } else {
+                    este.removeClass('public');
+                }
             });
         }
     });
 
     // 9. Seleccionar empresa.
-    $('.select-company').on('change', function(event){
+    $('.select-company').on('change', function (event) {
         var id = event.target.value;
-        window.location.href = '/admin/companies/'+id+'/select';
+        window.location.href = '/admin/companies/' + id + '/select';
     });
 
     // 10. Modal selector empresa inicial.
-    if($('#modal-select-company, #modal-modality').length > 0){
+    if ($('#modal-select-company, #modal-modality').length > 0) {
         $('#modal-select-company, #modal-modality').modal({
-            backdrop: 'static', 
+            backdrop: 'static',
             keyboard: false,
             toggle: true
-        });    
+        });
     }
 
     // 11. Provincias por país.
-    $('#country_id').on('change', function(event){
+    $('#country_id').on('change', function (event) {
         //Limpiamos posibles valores de provincia y población:
         $('#province_id').empty().val('');
         $('#town_id').html('');
-        $('#country_id option:selected').each(function(){
+        $('#country_id option:selected').each(function () {
             var id = event.target.value;
 
-            if(id == null || id == 0){
-                $('#province_id').attr('disabled','disabled');
-            }else{
+            if (id == null || id == 0) {
+                $('#province_id').attr('disabled', 'disabled');
+            } else {
                 $('#province_id').removeAttr('disabled');
-                $.get("/country_provinces/"+id+"", function(response, state){
-                    $("#province_id").append('<option value="">'+txtProvinciaSelec+'</option>');
-                    for(i=0; i<response.length; i++){
-                        $("#province_id").append('<option value="'+response[i].id+'">'+response[i].name+'</option>');    
+                $.get("/country_provinces/" + id + "", function (response, state) {
+                    $("#province_id").append('<option value="">' + txtProvinciaSelec + '</option>');
+                    for (i = 0; i < response.length; i++) {
+                        $("#province_id").append('<option value="' + response[i].id + '">' + response[i].name + '</option>');
                     }
                 });
             }
@@ -602,20 +607,20 @@ $(window).on('load', function(){
     });
 
     // 12. Poblaciones por provincia.
-    $('#province_id').on('change', function(event){
+    $('#province_id').on('change', function (event) {
         //Limpiamos posibles valores de población:
         $('#town_id').empty().val('');
-        $('#province_id option:selected').each(function(){
+        $('#province_id option:selected').each(function () {
             var id = event.target.value;
-            
-            if(id == null || id == 0){
-                $('#town_id').attr('disabled','disabled');
-            }else{
+
+            if (id == null || id == 0) {
+                $('#town_id').attr('disabled', 'disabled');
+            } else {
                 $('#town_id').removeAttr('disabled');
-                $.get("/province-towns/"+id+"", function(response, state){
-                    $("#town_id").append('<option value="">'+txtPoblacionSelec+'</option>');
-                    for(i=0; i<response.length; i++){
-                        $("#town_id").append('<option value="'+response[i].id+'">'+response[i].name+'</option>');    
+                $.get("/province-towns/" + id + "", function (response, state) {
+                    $("#town_id").append('<option value="">' + txtPoblacionSelec + '</option>');
+                    for (i = 0; i < response.length; i++) {
+                        $("#town_id").append('<option value="' + response[i].id + '">' + response[i].name + '</option>');
                     }
                 });
             }
@@ -623,18 +628,18 @@ $(window).on('load', function(){
     });
 
     // 13. Habilitar buscador Select2 en modals.
-    $('.modal').on('shown.bs.modal', function(){
+    $('.modal').on('shown.bs.modal', function () {
         $('.modal').removeAttr("tabindex");
     });
 
     // 14. Valor máximo admitido en un campo.
-    $('.max-value').on('change', function(){
+    $('.max-value').on('change', function () {
         var value = $(this).val();
         var max = $(this).data('maxvalue');
 
-        if(value > max){
+        if (value > max) {
             swal.fire({
-                title: txtValorNoSuperiorA+' '+max,
+                title: txtValorNoSuperiorA + ' ' + max,
                 text: "",
                 icon: 'warning',
                 iconColor: color_warning,
@@ -646,19 +651,19 @@ $(window).on('load', function(){
             }).then((result) => {
                 $(this).val('');
                 return false;
-            }); 
-        }      
+            });
+        }
     });
 
     // 15. Validar decimales.
-    $(document).on('change', '.set-decimals', function(){
-        var value = $(this).val(); 
+    $(document).on('change', '.set-decimals', function () {
+        var value = $(this).val();
         //Reemplazamos comas por puntos:
         var value = value.replace(/,/g, '.');
         //Patrón de formato correcto con 2 decimales:
-        var regexp = /^\d*(\.\d{1})?\d{0,1}$/;  
-        if(!regexp.test(value)){
-             swal.fire({
+        var regexp = /^\d*(\.\d{1})?\d{0,1}$/;
+        if (!regexp.test(value)) {
+            swal.fire({
                 title: txtValorIncorrecto,
                 text: "",
                 icon: 'warning',
@@ -671,42 +676,42 @@ $(window).on('load', function(){
             }).then((result) => {
                 $(this).val('');
                 return false;
-            }); 
-        }else{
+            });
+        } else {
             $(this).val(value);
         }
     });
 
     // 16. Añadir segmento a formulario de generación de patrones.
-    $(document).on('click', '.btnAddSegment', function(e){
-        e.preventDefault(); 
-        $('.fa-spinner').remove(); 
+    $(document).on('click', '.btnAddSegment', function (e) {
+        e.preventDefault();
+        $('.fa-spinner').remove();
 
         //Comprobamos si la opción de digits ya ha sido incluida en el patrón:
         var texto = true;
-        $('.segment-options').each(function(){
+        $('.segment-options').each(function () {
             //console.log($(this).val());
-            if($(this).val() == 'digits'){
+            if ($(this).val() == 'digits') {
                 texto = false;
-            } 
+            }
         });
-        
+
         var segment = $('.clones').html();
-        $('.segments').append(segment);  
+        $('.segments').append(segment);
     });
-    $(document).on('click', '.btnRemoveSegment', function(){
+    $(document).on('click', '.btnRemoveSegment', function () {
         $(this).closest('.segment').remove();
     });
-    $(document).on('change', '.segment-options', function(event){
+    $(document).on('change', '.segment-options', function (event) {
         var elem = $(this).closest('.segment');
         var option = $(this).find('option:selected').val();
-        if(option == 'text'){
+        if (option == 'text') {
             elem.find('.segment_text').prop('disabled', false).focus();
-        }else{
-            if(option == 'digits'){
-                $('#submitPattern').prop('disabled', false);   
+        } else {
+            if (option == 'digits') {
+                $('#submitPattern').prop('disabled', false);
             }
-            elem.find('.segment_text').prop('disabled', true);    
+            elem.find('.segment_text').prop('disabled', true);
         }
     });
 
@@ -748,56 +753,56 @@ $(window).on('load', function(){
     // }, 30000);
 
     // 18. Rotación caret arrow.
-    $(document).on('click', '.toggle-arrow', function(){
+    $(document).on('click', '.toggle-arrow', function () {
         elem = $(this);
         $('.toggle-arrow .fa').not(this).rotate(0);
-        if(elem.hasClass('collapsed')){
+        if (elem.hasClass('collapsed')) {
             elem.find('.fa').rotate(0);
-        }else{
-            elem.find('.fa').rotate(180);   
+        } else {
+            elem.find('.fa').rotate(180);
         }
     });
 
     // 19. Producto favorito.
-    $(document).on('click', '.btnAddFavorite', function(){
+    $(document).on('click', '.btnAddFavorite', function () {
         elem = $(this);
         var product = $(this).data('product');
-        $.get("/admin/product-favorites/"+product+"/add-remove", function(response, state){
-            if(response == 'save'){
-                elem.html('<i class="fa fa-star destacado"></i> '+txtFavorito);
-            }else{
-                elem.html('<i class="fa fa-star"></i> '+txtFavoritosAdd);
+        $.get("/admin/product-favorites/" + product + "/add-remove", function (response, state) {
+            if (response == 'save') {
+                elem.html('<i class="fa fa-star destacado"></i> ' + txtFavorito);
+            } else {
+                elem.html('<i class="fa fa-star"></i> ' + txtFavoritosAdd);
             }
         });
     });
 
     // 20. Mini-modal.
-    $(document).on('click', '.btnMiniModal', function(){
+    $(document).on('click', '.btnMiniModal', function () {
         var elem = $(this);
         var next = elem.next('.mini-modal-content');
         //Cerrar:
-        if(elem.hasClass('opened')){
+        if (elem.hasClass('opened')) {
             elem.next('.mini-modal-content').animate({
                 width: 0,
-                height: 0,  
+                height: 0,
             }, 500);
             next.find('.mini-modal-items').fadeOut();
             elem.removeClass('opened btn-warning');
-        //Abrir:
-        }else{
+            //Abrir:
+        } else {
             //Contamos número de opciones para obtener altura del div:
             var h = parseInt(next.find('p').length * 35) + parseInt(20);
 
             $('.mini-modal-content').animate({
                 width: 0,
-                height: 0, 
+                height: 0,
             }, 500);
             $('.btnMiniModal').removeClass('opened btn-warning');
             $('.mini-modal-items').fadeOut();
-        
+
             next.animate({
                 width: "180px",
-                height: h+"px", 
+                height: h + "px",
             }, 500);
             next.css('z-indez', '999');
             next.find('.mini-modal-items').fadeIn();
@@ -806,21 +811,21 @@ $(window).on('load', function(){
     });
 
     // 20.1. Modificar opción mini-modal.
-    $(document).on('click', '.mm-option', function(){
+    $(document).on('click', '.mm-option', function () {
         var elem = $(this);
         var id = elem.data('id');
         var option = elem.data('option');
         var text = elem.text();
         var controller = $('#dtController').val();
-        $.get("/admin/"+controller+"/"+id+"/status/"+option, function(response, state){
-            if(response){
+        $.get("/admin/" + controller + "/" + id + "/status/" + option, function (response, state) {
+            if (response) {
                 elem.siblings().removeClass('selected');
                 elem.addClass('selected');
-                $('.xoption-'+id).text(text);
+                $('.xoption-' + id).text(text);
 
                 $('.mini-modal-content').animate({
                     width: 0,
-                    height: 0, 
+                    height: 0,
                 }, 500);
                 $('.btnMiniModal').removeClass('opened btn-warning');
                 $('.mini-modal-items').fadeOut();
@@ -829,148 +834,148 @@ $(window).on('load', function(){
     });
 
     // 21. Vuelta a top page.
-    $("#toTop").click(function(e){
+    $("#toTop").click(function (e) {
         e.preventDefault();
         $("html, body").animate({scrollTop: 0}, 1000);
     });
 
-    // 21.1. Mostrar - ocultar botón de top page. 
-    $(document).scroll(function(){
+    // 21.1. Mostrar - ocultar botón de top page.
+    $(document).scroll(function () {
         var y = $(this).scrollTop();
-        if(y>400){
+        if (y > 400) {
             $('#toTop').fadeIn();
-        }else{
+        } else {
             $('#toTop').fadeOut();
         }
     });
 
     // 22. Máscara para horas.
-    $(document).on('change', '.maskHours', function(){
+    $(document).on('change', '.maskHours', function () {
         var hour = $(this).val();
-        if(hour.includes(':')){
+        if (hour.includes(':')) {
             var p = hour.split(':');
-            var hours = parseInt(p[0]) > 0 && parseInt(p[0]) < 24? p[0] < 10? '0'+p[0]:p[0]:'00';
+            var hours = parseInt(p[0]) > 0 && parseInt(p[0]) < 24 ? p[0] < 10 ? '0' + p[0] : p[0] : '00';
             //if(hours != '00' && !hour.includes('0') && hours < 10) hours = '0'+hours;
-            var minutes = parseInt(p[1]) > 0 && parseInt(p[1]) < 60? p[1]:'00';
-            if(minutes != '00' && !minutes.includes('0') && minutes < 10) minutes = '0'+minutes;
-            var new_hour = hours+':'+minutes;
+            var minutes = parseInt(p[1]) > 0 && parseInt(p[1]) < 60 ? p[1] : '00';
+            if (minutes != '00' && !minutes.includes('0') && minutes < 10) minutes = '0' + minutes;
+            var new_hour = hours + ':' + minutes;
             $(this).val(new_hour);
 
-        }else if(Number.isInteger(parseInt(hour))){
+        } else if (Number.isInteger(parseInt(hour))) {
             //Eliminamos 0 a la izquierda:
             hour = Number(hour);
-            if(hour < 23){
-                if(hour < 10) hour = '0'+hour;
-                $(this).val(hour+':00');   
-            }else{
+            if (hour < 23) {
+                if (hour < 10) hour = '0' + hour;
+                $(this).val(hour + ':00');
+            } else {
                 $(this).val('');
             }
-            
-        }else{
+
+        } else {
             $(this).val('');
         }
     });
 
     // 23. Histórico de horas trabajadas en tarea.
-    $(document).on('click', '.btnWorkingTime', function(){
-        var task_id = $(this).data('task'); 
+    $(document).on('click', '.btnWorkingTime', function () {
+        var task_id = $(this).data('task');
         $('#workingTimeTaskId').val(task_id);
-        $('#working-time-historical').empty().append('<i class="ml-2 fa fa-spinner fa-spin"></i>').fadeIn(); 
-        $.get("/admin/tasks/"+task_id+"/working-time", function(response, state){
-            if(response){ 
+        $('#working-time-historical').empty().append('<i class="ml-2 fa fa-spinner fa-spin"></i>').fadeIn();
+        $.get("/admin/tasks/" + task_id + "/working-time", function (response, state) {
+            if (response) {
                 var total = 0;
 
                 var html = '<div class="row"><table class="table">';
-                    html += '<thead><tr><th class="text-center">'+txtFecha+'</th><th class="text-center">'+txtHoras+'</th><th class="text-center">'+txtAcciones+'</th></tr></thead>';
-                    html += '<tbody>';
-                        for(j=0; j<response.length; j++){ 
-                            total = parseInt(total) + parseInt(response[j].time_);
-                            var hours = response[j].time_ / 60;
-                            html += '<tr>'; 
-                                html += '<td class="text-right">'+response[j].date_+'</td>';
-                                html += '<td class="text-right">'+hours+'h.</td>';
-                                html += '<td class="text-right">';
-                                    html += '<a href="/admin/tasks/'+task_id+'/delete-working-time/'+j+'" class="btn btn-xs btn-danger btn-confirm" rel="tooltip" title="'+txtEliminar+'" data-msg="'+txtHorasConfirmEliminar+'"><i class="fa fa-trash"></i></a>';
-                                html += '</td>';
-                            html += '</tr>';
-                        }
-                    html += '</tbody>';
-                    html += '<tfoot>';
-                        html += '<tr>';
-                            total = total / 60;
-                            html += '<td class="text-right">'+txtTotal+'</td>';
-                            html += '<td class="text-right">'+total+'h.</td>';
-                            html += '<td></td>';
-                        html += '</tr>';    
-                    html += '</tfoot>';
+                html += '<thead><tr><th class="text-center">' + txtFecha + '</th><th class="text-center">' + txtHoras + '</th><th class="text-center">' + txtAcciones + '</th></tr></thead>';
+                html += '<tbody>';
+                for (j = 0; j < response.length; j++) {
+                    total = parseInt(total) + parseInt(response[j].time_);
+                    var hours = response[j].time_ / 60;
+                    html += '<tr>';
+                    html += '<td class="text-right">' + response[j].date_ + '</td>';
+                    html += '<td class="text-right">' + hours + 'h.</td>';
+                    html += '<td class="text-right">';
+                    html += '<a href="/admin/tasks/' + task_id + '/delete-working-time/' + j + '" class="btn btn-xs btn-danger btn-confirm" rel="tooltip" title="' + txtEliminar + '" data-msg="' + txtHorasConfirmEliminar + '"><i class="fa fa-trash"></i></a>';
+                    html += '</td>';
+                    html += '</tr>';
+                }
+                html += '</tbody>';
+                html += '<tfoot>';
+                html += '<tr>';
+                total = total / 60;
+                html += '<td class="text-right">' + txtTotal + '</td>';
+                html += '<td class="text-right">' + total + 'h.</td>';
+                html += '<td></td>';
+                html += '</tr>';
+                html += '</tfoot>';
                 html += '</table></div>';
 
-                if(total > 0){
+                if (total > 0) {
                     $('#working-time-historical').html(html);
-                }else{
-                    $('#working-time-historical').html('<span class="text-warning">'+txtResultadosNoEncontrados+'</span>');
+                } else {
+                    $('#working-time-historical').html('<span class="text-warning">' + txtResultadosNoEncontrados + '</span>');
                 }
 
-            }else{
-                $('.fa-spinner').remove(); 
-                $('#working-time-historical').append('<span class="text-warning">'+txtResultadosNoEncontrados+'</span>');   
+            } else {
+                $('.fa-spinner').remove();
+                $('#working-time-historical').append('<span class="text-warning">' + txtResultadosNoEncontrados + '</span>');
             }
         });
     });
 
     // 24. Selector de modalidad de presupuesto.
-    $('#selectBudgetModality').on('change', function(event){
+    $('#selectBudgetModality').on('change', function (event) {
         var option = event.target.value;
 
         $('#budgetForms, #noBudgetForms, #activeModule').fadeOut();
         $('#sbtNewBudget').prop('disabled', false);
 
         //Si la opción seleccionada es por formulario (option 10), comprobamos que existan:
-        if(option == 10){
+        if (option == 10) {
             //Comprobamos que el cliente no tenga una formulario vinculado por defecto:
             var customer_id = $('#formCustomerId').val();
 
-            if(customer_id != ''){
-                $.get("/admin/customers/own-budget-form/"+customer_id+"/", function(response, state){
-                    if(response.budget_form_id){
+            if (customer_id != '') {
+                $.get("/admin/customers/own-budget-form/" + customer_id + "/", function (response, state) {
+                    if (response.budget_form_id) {
                         //Marcamos formulario por defecto:
                         var arr = [response.budget_form_id];
 
                         //Atención al modo de marcar como selected las opciones en un Select2:
                         $('#budgetForm').val(arr);
                         $('#budgetForm').trigger('change');
-                    } 
+                    }
 
                     var numforms = $('#numForms').val();
-                    if(numforms > 0){
+                    if (numforms > 0) {
                         $('#budgetForms').slideDown(500);
-                            
-                    }else{
+
+                    } else {
                         $('#sbtNewBudget').prop('disabled', true);
-                        $('#noBudgetForms').fadeIn();    
+                        $('#noBudgetForms').fadeIn();
                     }
-                }); 
+                });
             }
         }
     });
 
     // 25. Seleccionar icono.
-    $('.iconGallery').on('click', function(){
+    $('.iconGallery').on('click', function () {
         $('.iconGallery').removeClass('selected');
         $(this).addClass('selected');
         var icono = $(this).data('icono');
-        $('.iconValue').val(icono);    
+        $('.iconValue').val(icono);
     });
 
-    if(typeof blocked_timetables != 'undefined' && blocked_timetables){
-        var stopInterval = setInterval(function(){
+    if (typeof blocked_timetables != 'undefined' && blocked_timetables) {
+        var stopInterval = setInterval(function () {
             var f = new Date();
-            var hours = (f.getHours() < 10)? '0'+f.getHours():f.getHours(); 
-            var minutes = (f.getMinutes() < 10)? '0'+f.getMinutes():f.getMinutes();
-            var seconds = (f.getSeconds() < 10)? '0'+f.getSeconds():f.getSeconds();
-            hora = hours+":"+minutes+":"+seconds;
+            var hours = (f.getHours() < 10) ? '0' + f.getHours() : f.getHours();
+            var minutes = (f.getMinutes() < 10) ? '0' + f.getMinutes() : f.getMinutes();
+            var seconds = (f.getSeconds() < 10) ? '0' + f.getSeconds() : f.getSeconds();
+            hora = hours + ":" + minutes + ":" + seconds;
 
-            if(hora > blocked_timetables){
+            if (hora > blocked_timetables) {
                 $('.blocked-hour').remove();
                 $('.HourlyControl.subItems_').fadeIn();
                 $('.blocked-enter').fadeOut();
@@ -984,30 +989,30 @@ $(window).on('load', function(){
         }, 2500);
     }
 
-    // 26. Modal editar item.   
-    $(document).on('click', '.btnEditItem', function(){
+    // 26. Modal editar item.
+    $(document).on('click', '.btnEditItem', function () {
         var id = $(this).data('id');
         $('#frmEditItem').trigger("reset");
-        $('#itemObservations_').trumbowyg('html','');
-        $.get("/admin/items/"+id+"/edit", function(response, state){
-            if(response){
+        $('#itemObservations_').trumbowyg('html', '');
+        $.get("/admin/items/" + id + "/edit", function (response, state) {
+            if (response) {
                 console.log(response);
                 $('#itemId_').val(id);
                 $('#itemConcept_').val(response.concept);
                 $('#itemObservations_').trumbowyg('html', response.observations);
 
-                //Precio por porcentaje:    
-                if(response.price  == '0' && response.calculated_by_percent > 0){
-                    $('.price-fixed_').fadeOut(400, function(){
-                        $('.price-by-percent_').fadeIn();    
+                //Precio por porcentaje:
+                if (response.price == '0' && response.calculated_by_percent > 0) {
+                    $('.price-fixed_').fadeOut(400, function () {
+                        $('.price-by-percent_').fadeIn();
                     });
                     $('#itemCalculatedByPercent_').val(response.calculated_by_percent);
                     $('#itemPrice_').val('');
 
-                //Precio fijo:
-                }else{
-                    $('.price-by-percent_').fadeOut(400, function(){
-                        $('.price-fixed_').fadeIn(); 
+                    //Precio fijo:
+                } else {
+                    $('.price-by-percent_').fadeOut(400, function () {
+                        $('.price-fixed_').fadeIn();
                     });
                     $('#itemQty_').val(response.qty);
                     $('#itemDays_').val(response.days);
@@ -1021,34 +1026,34 @@ $(window).on('load', function(){
     });
 
     // 27. Aplicar descuento por defecto del cliente a líneas del pedido, tanto nueva como edición.
-    $('.btnApplyDiscount').on('click', function(e){
+    $('.btnApplyDiscount').on('click', function (e) {
         e.preventDefault();
         var discount = $(this).data('discount');
         $('#productDiscount').val(discount);
     });
-    $('.btnApplyDiscount_').on('click', function(e){
+    $('.btnApplyDiscount_').on('click', function (e) {
         e.preventDefault();
         var discount = $(this).data('discount');
         $('#itemDiscount_').val(discount);
     });
 
     // 28. Cálculo precio + precio con iva en gastos.
-    $('#expenseAmount').on('change', function(){
+    $('#expenseAmount').on('change', function () {
         var iva = $('#expenseIva').val();
         var amount = $('#expenseAmount').val();
-        if(iva > 0 && !isNaN(amount)){
-            var amount_with_iva = amount * iva / 100;   
+        if (iva > 0 && !isNaN(amount)) {
+            var amount_with_iva = amount * iva / 100;
             var total = parseFloat(amount) + parseFloat(amount_with_iva);
             $('#expenseAmount_with_iva').val(total.toFixed(2));
         }
     });
-    $('#expenseAmount_with_iva').on('change', function(){
+    $('#expenseAmount_with_iva').on('change', function () {
         var iva = $('#expenseIva').val();
         var amount_with_iva = $('#expenseAmount_with_iva').val();
-        if(iva > 0 && !isNaN(amount_with_iva)){
-            var amount = amount_with_iva / ( parseFloat(iva / 100) + parseInt(1));
+        if (iva > 0 && !isNaN(amount_with_iva)) {
+            var amount = amount_with_iva / (parseFloat(iva / 100) + parseInt(1));
             $('#expenseAmount').val(amount.toFixed(2));
         }
     });
-    
+
 });

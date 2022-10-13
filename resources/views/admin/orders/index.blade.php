@@ -79,7 +79,7 @@
 				@endif
 			</h3>
 		</div>
-			
+
 		<div class="table-responsive">
 			<table class="table table-hover dtabla" id="tblOrders">
 				<thead>
@@ -139,7 +139,7 @@
 							<div class="col-lg-4">
 								<span class="deleteValue">
 									<i class="fa fa-times"></i>
-								</span>	
+								</span>
 
 								<input type="text" name="from" class="form-control dateTimePicker" autocomplete="off" maxlength="15" data-fecha="" value="{{ old('from') }}" readonly required>
 
@@ -154,7 +154,7 @@
 							<div class="col-lg-4">
 								<span class="deleteValue">
 									<i class="fa fa-times"></i>
-								</span>	
+								</span>
 
 								<input type="text" name="to" class="form-control dateTimePicker endDay" autocomplete="off" maxlength="15" data-fecha="" value="{{ old('to') }}" readonly required>
 
@@ -178,11 +178,23 @@
 		<div class="col-12 text-center pt-4">
 			<h2>{!! trans('textos.filtra_pedidos') !!}.</h2>
 		</div>
-	</div>	
+	</div>
 @endif
 
 {{-- Modals: --}}
 {{-- Factura --}}
 {{-- @include('admin.orders.partials.modal-generate-invoice') --}}
-
+@push('scripts')
+    <script>
+        $(function(){
+            //Toggle selector clientes o proveedores:
+            $('#customerId').on('change', function(e){
+                $('#providerId').val(['']).trigger('change.select2');
+            });
+            $('#providerId').on('change', function(e){
+                $('select#customerId').val(['']).trigger('change.select2');
+            });
+        });
+    </script>
+@endpush
 @endsection
