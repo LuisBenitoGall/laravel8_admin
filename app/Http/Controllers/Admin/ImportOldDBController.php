@@ -178,7 +178,7 @@ class ImportOldDBController extends Controller{
      * 76. Importar mensajes de tareas.
      * 77. Importar líneas de facturas.
      */
-    
+
     public $adn_companies;
 
     public function __construct(){
@@ -2884,11 +2884,11 @@ class ImportOldDBController extends Controller{
                 //Definir order_id correcto.
                 //Comprobamos si existe order_id:
                 if($r->order_id){
-                    $order_id = $r->order_id;    
+                    $order_id = $r->order_id;
                 }elseif($r->budget_id){
                     $o = Order::select('id')->where('old_budget_id', $r->budget_id)->first();
                     $order_id = $o? $o->id:false;
-                    
+
                 }else{
                     $me = new MigrationErrors();
                     $me->model = 'sin order ni presu';
@@ -2897,7 +2897,7 @@ class ImportOldDBController extends Controller{
 
                     $order_id = false;
                 }
-                
+
                 if($order_id){
                     $i = new Item;
                     //$i->id = $r->id;                      //Id se genera nuevo. Se guarda en nueva columna el anterior id.
