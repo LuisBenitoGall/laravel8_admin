@@ -106,7 +106,7 @@ class ImportDb extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Migración de la BD de la v6 to v8';
 
     /**
      * Create a new command instance.
@@ -139,159 +139,159 @@ class ImportDb extends Command
         DB::table('migration_errors')->truncate();
 
         $this->importUsers(true);
-        sleep(3);
-        $this->importCompanies();
-        sleep(3);
-        $this->importCountries();
-        sleep(3);
-        $this->importProvinces();
-        sleep(3);
-        $this->importTowns();
-        sleep(3);
-        $this->importWorkplaces();
-        sleep(3);
-        $this->importCostCenters();
-        sleep(3);
-        $this->importBusinessAreas();
-        sleep(3);
-        $this->importUserCompanies();
-        sleep(3);
-        $this->importContracts();
-        sleep(3);
-        $this->importDayTypes();
-        sleep(3);
-        $this->importDayTypesSettings();
-        sleep(3);
-        $this->importDayTypesSettingsUser();
-        sleep(3);
-        $this->importUserWorkplaces();
-        sleep(3);
-        $this->importUserCostCenters();
-        sleep(3);
-        $this->importUserBusinessAreas();
-        sleep(3);
-        $this->importBusinessAreasSettings();
-        sleep(3);
-        $this->importEmployees();
-        sleep(3);
-        $this->importAccounts();
-        sleep(3);
-        $this->importCompanyAccounts();
-        sleep(3);
-        $this->importUserImages();
-        sleep(3);
-        $this->importPhones();
-        sleep(3);
-        $this->importCategories();
-        sleep(3);
-        $this->importCompanyModules();
-        sleep(3);
-        $this->importCompanySettings();
-        sleep(3);
-        $this->importGroups();
-        sleep(3);
-        $this->importGroupMembers();
-        sleep(3);
-        $this->importNotifications();
-        sleep(3);
-        $this->importPreferences();
-        sleep(3);
-        $this->importStores();
-        sleep(3);
-        $this->importProductPatterns();
-        sleep(3);
-        $this->importTimetableItems();
-        sleep(3);
-        $this->importTimetableSigned();
-        sleep(3);
-        $this->importTimetables();
-        sleep(3);
-        $this->importUserTimetables();
-        sleep(3);
-        $this->importWorkCalendars();
-        sleep(3);
-        $this->importWorkUserCalendars();
-        sleep(3);
-        $this->importResiduaryDays();
-        sleep(3);
-        $this->importBudgetForms();
-        sleep(3);
-        $this->importProducts();
-        sleep(3);
-        $this->importBudgetPatterns();
-        sleep(3);
-        $this->importBudgetSettings();
-        sleep(3);
-        $this->importOrderPatterns();
-        sleep(3);
-        $this->importOrderSettings();
-        sleep(3);
-        $this->importPurchasePatterns();             //46.
-        sleep(3);
-        $this->importOrders();
-        sleep(3);
-        $this->importCustomerProviders();
-        sleep(3);
-        $this->importOrderDocs();
-        sleep(3);
-        $this->importCustomerProducts();
-        sleep(3);
-        $this->importIncidencePatterns();
-        sleep(3);
-        $this->importIncidences();
-        sleep(3);
-        $this->importAttributes();
-        sleep(3);
-        $this->importProductAttributes();
-        sleep(3);
-        $this->importProductSerials();
-        sleep(3);
-        $this->importProductSerialsCards();
-        sleep(3);
-        $this->importIncidenceLines();
-        sleep(3);
-        $this->importProductDocs();
-        sleep(3);
-        $this->importProductPrices();
-        sleep(3);
-        $this->importOrderTrackings();
-        sleep(3);
-        $this->importBudgetFormItems();
-        sleep(3);
-        $this->importSchedules();
-        sleep(3);
-        $this->importScheduleEventTypes();
-        sleep(3);
-        $this->importScheduleEvents();
-        sleep(3);
-        $this->importBatches();
-        sleep(3);
-        $this->importInvoicePatterns();
-        sleep(3);
-        $this->importInvoiceSettings();
-        sleep(3);
-        $this->importInvoices();
-        sleep(3);
-        $this->importOrderPrevisions();
-        sleep(3);
-        $this->importItems();
-        sleep(3);
-        $this->importItemsStatus();
-        sleep(3);
-        $this->importProjects();
-        sleep(3);
-        $this->importTaskStatus();
-        sleep(3);
-        $this->importTasks();
-        sleep(3);
-        $this->importTaskDocs();
-        sleep(3);
-        $this->importTaskMessages();
-        sleep(3);
-        $this->importInvoiceItems();
-        sleep(3);
 
-        sleep(3);
+        $this->importCompanies();
+
+        $this->importCountries();
+
+        $this->importProvinces();
+
+        $this->importTowns();
+
+        $this->importWorkplaces();
+
+        $this->importCostCenters();
+
+        $this->importBusinessAreas();
+
+        $this->importUserCompanies();
+
+        $this->importContracts();
+
+        $this->importDayTypes();
+
+        $this->importDayTypesSettings();
+
+        $this->importDayTypesSettingsUser();
+
+        $this->importUserWorkplaces();
+
+        $this->importUserCostCenters();
+
+        $this->importUserBusinessAreas();
+
+        $this->importBusinessAreasSettings();
+
+        $this->importEmployees();
+
+        $this->importAccounts();
+
+        $this->importCompanyAccounts();
+
+        $this->importUserImages();
+
+        $this->importPhones();
+
+        $this->importCategories();
+
+        $this->importCompanyModules();
+
+        $this->importCompanySettings();
+
+        $this->importGroups();
+
+        $this->importGroupMembers();
+
+        $this->importNotifications();
+
+        $this->importPreferences();
+
+        $this->importStores();
+
+        $this->importProductPatterns();
+
+        $this->importTimetableItems();
+
+        $this->importTimetableSigned();
+
+        $this->importTimetables();
+
+        $this->importUserTimetables();
+
+        $this->importWorkCalendars();
+
+        $this->importWorkUserCalendars();
+
+        $this->importResiduaryDays();
+
+        $this->importBudgetForms();
+
+        $this->importProducts();
+
+        $this->importBudgetPatterns();
+
+        $this->importBudgetSettings();
+
+        $this->importOrderPatterns();
+
+        $this->importOrderSettings();
+
+        $this->importPurchasePatterns();             //46.
+
+        $this->importOrders();
+
+        $this->importCustomerProviders();
+
+        $this->importOrderDocs();
+
+        $this->importCustomerProducts();
+
+        $this->importIncidencePatterns();
+
+        $this->importIncidences();
+
+        $this->importAttributes();
+
+        $this->importProductAttributes();
+
+        $this->importProductSerials();
+
+        $this->importProductSerialsCards();
+
+        $this->importIncidenceLines();
+
+        $this->importProductDocs();
+
+        $this->importProductPrices();
+
+        $this->importOrderTrackings();
+
+        $this->importBudgetFormItems();
+
+        $this->importSchedules();
+
+        $this->importScheduleEventTypes();
+
+        $this->importScheduleEvents();
+
+        $this->importBatches();
+
+        $this->importInvoicePatterns();
+
+        $this->importInvoiceSettings();
+
+        $this->importInvoices();
+
+        $this->importOrderPrevisions();
+
+        $this->importItems();
+
+        $this->importItemsStatus();
+
+        $this->importProjects();
+
+        $this->importTaskStatus();
+
+        $this->importTasks();
+
+        $this->importTaskDocs();
+
+        $this->importTaskMessages();
+
+        $this->importInvoiceItems();
+
+
+
         $this->endImportation();
         $this->output->progressFinish();
         return $this->info('La importación se ha realizado con exíto.');
