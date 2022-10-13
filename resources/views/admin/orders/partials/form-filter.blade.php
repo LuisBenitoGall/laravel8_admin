@@ -19,7 +19,6 @@
 					<div class="form-group row">
 						{{-- Año --}}
 						@php
-						$year = false;
 						$selected_year = $year? $year:date('Y');
 						@endphp
 						@include('admin.partials.selector-year', ['selected_year' => $selected_year])

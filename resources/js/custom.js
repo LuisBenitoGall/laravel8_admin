@@ -133,7 +133,7 @@ $(document).ready(function(){
     */
    
     //Hora del control horario:
-    //horaActual();
+    horaActual();
    
     //window.location.reload(true);
 

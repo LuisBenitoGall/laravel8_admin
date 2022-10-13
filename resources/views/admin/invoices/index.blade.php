@@ -8,16 +8,15 @@
 	{{-- Acciones: --}}
 	<div class="col-12">
 		{{-- Introducir factura de compra --}}
-		<a href="{{ route('orders.control-panel-sales') }}" class="btn btn-info">
+		<a href="{{ route('invoices.create-from-provider') }}" class="btn btn-info">
 			<i class="fa fa-plus"></i>
 			{!! ucfirst(trans('textos.factura_compra_introducir')) !!}
 		</a>
-
 	</div>
 </div>
 
 {{-- Filtros --}}
-<div class="row mb-3">
+<div class="row">
 	<div class="col-12">						
 		<div class="card mb-3">
 			<div class="card-body">
@@ -65,23 +64,30 @@
 </div>
 
 @if($customer || $provider)
-	<input type="hidden" id="myCustomer" value="@if($customer){{ $customer->id }}@endif">
-	<input type="hidden" id="myProvider" value="@if($provider){{ $provider->id }}@endif">
+	<input type="hidden" id="myCustomer" value="{{ $customer_id }}">
+	<input type="hidden" id="myProvider" value="{{ $provider_id }}">
 	<input type="hidden" id="myYear" value="{{ $year }}">
 
 	@php
-	$totalInvoicesAmount = false;
+	$totalInvoicesAmount = 0;
 	@endphp
 
 	{{-- Tabla --}}
 	<div class="row">
 		<div class="col-12 mb-3">
 			<h3>
-				@if($customer && $provider)
-					{!! trans('textos.facturas_de') !!} 
-					<b>{{ $provider->name }}</b> 
-					{!! trans('textos.a') !!} 
-					<b>{{ $customer->name }}</b>
+				@if($customer_id == 'all')
+					{!! trans('textos.facturas_ventas_relacion_general') !!}
+
+				@elseif($provider_id == 'all')
+					{!! trans('textos.facturas_compras_relacion_general') !!}
+
+				@else
+					@if($customer->id == session('currentCompany'))
+						{!! ucfirst(trans('textos.facturas_compras_a')) !!} <b>{{ $provider->name }}</b>
+					@elseif($provider->id == session('currentCompany'))
+						{!! ucfirst(trans('textos.facturas_ventas_a')) !!} <b>{{ $customer->name }}</b>
+					@endif
 				@endif
 			</h3>
 		</div>
@@ -91,7 +97,13 @@
 				<thead>
 					<tr>
 						<th class="text-center wdt50">#</th>
-						<th class="text-center wdt150">{!! ucfirst(trans('textos.cliente')) !!}</th>
+						<th class="wdt150">
+							@if($invoicesType == 'facturas_compras')
+								{!! ucfirst(trans('textos.proveedor')) !!}
+							@else	
+								{!! ucfirst(trans('textos.cliente')) !!}
+							@endif
+						</th>
 						<th class="text-center wdt100">{!! ucfirst(trans('textos.responsable')) !!}</th>
 						<th class="text-center wdt50">{!! ucfirst(trans('textos.fecha')) !!}</th>
 						<th class="text-center wdt100">{!! ucfirst(trans('textos.fecha_vencimiento')) !!}</th>
@@ -102,7 +114,6 @@
 					</tr>
 				</thead>
 
-
 				<tfoot>
 					<tr>
 						<td></td>
@@ -110,7 +121,7 @@
 						<td></td>
 						<td></td>
 						<td class="text-right"><b>{{ trans('textos.total') }}</b></td>
-						<td class="text-right">{{ $totalInvoicesAmount }}@if(isset($currency)){{ $currency->symbol }}@endif</td>
+						<td class="text-right">{{ $totalInvoicesAmount }}{{ $currency->symbol }}</td>
 						<td></td>
 						<td></td>
 						<td></td>
@@ -127,5 +138,21 @@
 		</div>
 	</div>	
 @endif
+
+@push('scripts')
+<script>
+$(function(){
+	//Toggle selector clientes o proveedores:
+	// $('#customerId').on('change', function(e){
+	// 	$('#providerId').val(['']);	
+	// 	$('#providerId').trigger('change');
+	// });
+	// $('#providerId').on('change', function(e){
+	// 	$('#customerId').val(['']);	
+	// 	$('#customerId').trigger('change');
+	// });
+});
+</script>
+@endpush
 
 @endsection

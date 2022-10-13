@@ -36,7 +36,6 @@ class DeliveryItemsController extends Controller{
      */
     public function store(Request $request){
         if($request->ajax()){ 
-
             $row = new DeliveryItems();
             $row->delivery_id = $request->delivery_id;
             $row->item_id = $request->id;

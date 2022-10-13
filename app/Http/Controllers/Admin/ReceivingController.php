@@ -19,9 +19,11 @@ use Carbon\Carbon;
 use App\Models\Company;
 use App\Models\CompanySettings;
 use App\Models\Delivery;
+use App\Models\DeliveryItems;
 use App\Models\DeliveryOrders;
 use App\Models\Item;
 use App\Models\Order;
+use App\Models\Stock;
 
 class ReceivingController extends Controller{
     /**
@@ -182,7 +184,7 @@ class ReceivingController extends Controller{
         ->get();
 
         $provider = Company::find($delivery->provider_id); 
-
+                                                                                                                                                                           
         $currency = $this->co_currency; 
 
         $languages = $this->languages;
@@ -215,21 +217,86 @@ class ReceivingController extends Controller{
     /**
      * 5. Recepción completa de pedido.
      */
-    public function storeAllOrder(Order $order){
+    public function storeAllOrder(Delivery $delivery, Order $order){
         //Recepciones del pedido, en array:
         $receptions =  DeliveryOrders::where('order_id', $order->id)
         ->pluck('delivery_id')
         ->toArray();
 
-        //Líneas del pedido y condición de producto si tiene gestión de stock y lotes.
-        // $order_items = Item::select('items.id', 'items.qty', 'products.id AS productId', )
-        // ->leftJoin('products', 'items.product_id', '=', 'product.sid')
-        // ->where('items.order_id', $order->id)
-        // ->get();
+        if(count($receptions)){
+            //Creamos la recepción:
+            $dlv = new Delivery();
+            $dlv->origin = 'c';     //Item que genera el cliente.
+            $dlv->provider_id = $order->provider_id;
+            $dlv->customer_id = $order->customer_id;
+            $dlv->estimated_reception_date = $estimated_reception_date;
+            $dlv->customer_observations = $request->customer_observations;
+            $dlv->user_id = Auth::user()->id;
+            $dlv->save();
+
+            //Guardamos vínculo pedido - entrega:
+            $do = new DeliveryOrders();
+            $do->delivery_id = $dlv->id;
+            $do->order_id = $order->id;
+            $do->save();
+
+            //Líneas del pedido y condición de producto si tiene gestión de stock y lotes.
+            $order_items = Item::select('items.id', 'items.qty', 'products.id AS productId', 'products.stock_management', 'products.batch')
+            ->leftJoin('products', 'items.product_id', '=', 'products.id')
+            ->where('items.order_id', $order->id)
+            ->get();
+
+            foreach($order_items as $oi){
+                //Comprobamos la cantidad pendiente de recibir:
+                $received = DeliveryItems::where('item_id', $oi->id)->sum('qty');
+
+                //Si la cantidad recibida es inferior a la del pedido, completamos la entrega con la diferencia:
+                if($received < $oi->qty){
+                    $diff = $oi->qty - $received;
+
+                    //Agregamos la línea de recepción:
+                    $row = new DeliveryItems();
+                    $row->delivery_id = $delivery->id;
+                    $row->item_id = $oi->id;
+                    $row->qty = $diff;
+                    $row->user_id = Auth::user()->id;
+                    $row->save();
+
+                    //Si el producto tiene gestión de stock:
+                    if($oi->stock_management){
+                        //Obtenemos correspondencia de referencia del proveedor:
+                        $my_ref = 
+
+                        $data = [
+                            'product_id' => $request->input('product_id'),
+                            'stock_mov_id'  => $request->input('stock_mov_id'), 
+                            'batch_id' => $batchId,
+                            'store_id' => $request->input('store_id'),
+                            'user_id' => Auth::user()->id,
+                            'qty' => $request->input('qty'),
+                            'operation' => $operation,
+                            'result' => $result,
+                            'doc' => $fileName,
+                            'doc_num' => $request->doc_num,
+                            'for_user' => $for_user,
+                            'returned_at' => $returned_at,
+                            'product_serial_id' => $request->product_serial_id,
+                            'observations' => $request->input('observations'),
+                            'store_destiny' => $request->input('store_destiny')    
+                        ];
+                        Stock::movStock($data);
+                    }
+                }
+            }
+
+        }else{
+            $alert = trans('textos.recepciones_pendientes_no');
+            return redirect()->route('receiving.edit', [$delivery->id, 'tab-'.$order->id])->with(compact('alert'));
+        }
 
 
 
-        //dd($order, $receptions);
+        dd($order, $receptions);
     }
 
 }

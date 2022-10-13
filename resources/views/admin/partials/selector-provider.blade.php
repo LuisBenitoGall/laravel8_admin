@@ -11,7 +11,7 @@
 		$providerId = $provider? $provider->id:$selected;
 		@endphp
 
-		<x-select name="provider_id" class="select2" label="proveedor_selec" :options="$providers_" value="{{ $providerId }}"/>
+		<x-select name="provider_id" id="providerId" class="select2" label="proveedor_selec" :options="$providers_" value="{{ $providerId }}"/>
 	</div>
 
 @else

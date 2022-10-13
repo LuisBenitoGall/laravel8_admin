@@ -8,7 +8,7 @@
 		</a>	
 
 		{{-- Recepcionar pedido completo --}}
-		<a target="_blank" href="{{ route('receiving.all-order', $ord_->id) }}" class="btn btn-warning btn-confirm" data-msg="{{ trans('textos.recepcion_pedido_completo_aviso') }}">
+		<a target="_blank" href="{{ route('receiving.all-order', [$delivery->id, $ord_->id]) }}" class="btn btn-warning btn-confirm" data-msg="{{ trans('textos.recepcion_pedido_completo_aviso') }}">
 			<i class="fa fa-sign-in-alt"></i>
 			{!! trans('textos.recepcion_pedido_completo') !!}
 		</a>

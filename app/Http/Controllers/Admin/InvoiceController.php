@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Yajra\DataTables\DataTables;
 use File;
 use PDF;
 use Carbon\Carbon;
@@ -29,15 +30,19 @@ use App\Models\InvoiceSettings;
 use App\Models\Item;
 use App\Models\Order;
 use App\Models\OrderPrevisions;
+use App\Models\Workplace;
 
 class InvoiceController extends Controller{
     /**
      * 1. Facturas de clientes.
      * 1.1. Listado de facturas para DataTable.
-     * 1.2. Listado de facturas por cliente y proveedor para DataTable.
+     * 1.2. Listado de facturas por cliente o proveedor para DataTable.
      * 2. Generar factura desde pedido.
      * 2.1. Generar factura desde agrupación de pedidos.
+     * 2.2. Introducir factura de proveedor.
+     * 2.3. Guardar factura de proveedor.
      * 3. Editar factura.
+     * 3.1. Mostrar factura.
      * 4. Actualizar factura.
      * 5. Imprimir factura.
      * 6. Setear info para listado de facturas.
@@ -50,6 +55,7 @@ class InvoiceController extends Controller{
      * 12. Activar - desactivar IVA en factura.
      * 13. Generar factura de abono.
      * 14. Eliminar pedido de factura de agrupación.
+     * 15. Introducir factura de proveedor.
      */
     
     private $option = 'contabilidad';
@@ -118,22 +124,45 @@ class InvoiceController extends Controller{
                 'refund_amount' => 'required_if:refund,==,p'
             ],[
                 'concept.required_if' => trans('textos.concepto_obligatorio'),
-                'refund_amount.required_if' => trans('textos.importe_obligatorio'),
+                'refund_amount.required_if' => trans('textos.importe_obligatorio')
             ]);
 
+        //Validación factura desde proveedor:
+        }elseif(isset($data['submit_from_provider'])){
+            return Validator::make($data, [
+                'provider_id' => 'required|numeric',
+                'invoice_old_num' => 'required'
+            ]);
         }
     }
 
     /**
      * 1. Facturas por cliente o proveedor.
      */
-    public function index($year = false, $customer_id = false, $provider_id = false){
+    public function index($year = false, $company = false){
+        $customer_id = false;
+        $provider_id = false;
+        $invoicesType = 'facturas';
+        
+        if($company){
+            $p = explode('-', $company);
+
+            //Ventas:
+            if($p[0] == 'c'){
+                $provider_id = session('currentCompany');
+                $customer_id = $p[1];
+
+            //Compras:
+            }elseif($p[0] == 'p'){
+                $customer_id = session('currentCompany');
+                $provider_id = $p[1];
+            }
+        }
+
         if($customer_id && $customer_id == session('currentCompany')){
             $invoicesType = 'facturas_compras';
         }elseif($provider_id && $provider_id == session('currentCompany')){
             $invoicesType = 'facturas_ventas';
-        }else{
-            $invoicesType = 'facturas';
         }   
         
         $header = [
@@ -145,11 +174,14 @@ class InvoiceController extends Controller{
 
         if(!$year) $year = Date('Y');
 
-        $customer = $customer_id? Company::find($customer_id):false;
-        $provider = $provider_id? Company::find($provider_id):false;
+        $customer = $customer_id && $customer_id != 'all'? Company::find($customer_id):false;
+        $provider = $provider_id && $provider_id != 'all'? Company::find($provider_id):false;
 
         $customers = false;
         $providers = false;
+
+        //Moneda:
+        $currency = $this->co_currency; 
 
         //Comprobamos si la empresa hace gestión de clientes:
         if(session('companySettings')['customers_management'] == 1){
@@ -161,21 +193,13 @@ class InvoiceController extends Controller{
             $providers = CustomerProviders::getCompanyProviders(session('currentCompany'));
         }
 
-        return view('admin.invoices.index')->with(compact('header', 'year', 'customer_id', 'provider_id', 'customer', 'provider', 'customers', 'providers'));
+        return view('admin.invoices.index')->with(compact('header', 'invoicesType', 'year', 'customer_id', 'provider_id', 'customer', 'provider', 'customers', 'providers', 'currency'));
     }
 
     /**
      * 1.1. Listado de facturas para DataTable.
      */
     public function getInvoicesBy(Request $request){
-        //Si no se informa de proveedor, éste es la empresa en sesión:
-        $provider_id = $request->provider_id? $request->provider_id:session('currentCompany');
-        $customer_id = false;
-
-        $customerInfo = $request->customer_id > 0? Company::find($request->customer_id):false;
-        $providerInfo = $provider_id > 0? Company::find($provider_id):false;
-        $currentCompany = session('currentCompany');
-
         //Si viene declarado el número de factura redirigimos:
         if($request->invoice_id){
             $invoiceId = $request->invoice_id;
@@ -259,59 +283,130 @@ class InvoiceController extends Controller{
             }
         }
 
-        //Sólo podemos tomar un criterio, nunca ambos:
-        if($request->customer_id){
-            $customer_id = $request->customer_id;
-            $provider_id = session('currentCompany');   
-            session(['invoiceCompanySelected' => ['customer', $request->customer_id]]);
-        
-        }else{
-            $customer_id = false;
-            if(!$request->customer_id){
-                session(['invoiceCompanySelected' => ['provider', $provider_id]]);   
-            }
-        }
+        $company = $request->customer_id? 'c-'.$request->customer_id:'p-'.$request->provider_id;
 
-        if($provider_id && $customer_id){
-            return redirect()->route('invoices.index', [$request->year, $customer_id, $provider_id]);
-        }else{
-            return redirect()->route('invoices.index', [$request->year]);
-        }
+        return redirect()->route('invoices.index', [$request->year, $company]);
     }
 
     /**
-     * 1.2. Listado de facturas por cliente y proveedor para DataTable.
+     * 1.2. Listado de facturas por cliente o proveedor para DataTable.
      */
     public function getInvoicesDT($year = false, $customer = false, $provider = false){
-        $customer = $customer == 0? false:$customer;
-        $provider = $provider == 0? false:$provider;
+        //Ambito de las facturas:
+        $environment = $provider == session('currentCompany') || $customer == 'all'? 'sales':'purchases';
 
-        $query = Invoice::select('invoices.*', 'companies.name', 'companies.tradename', 'cost_centers.name AS costCenter', 'users.name AS Nombre', 'users.surname')
+        //Campo de búsqueda de la empresa: proveedor o cliente.
+        $company_field = $provider == session('currentCompany') || $customer == 'all'? 'customer':'provider';
+
+        $data = Invoice::select('invoices.*', 'companies.name', 'companies.tradename', 'cost_centers.name AS costCenter', 'users.name AS Nombre', 'users.surname')
         ->leftJoin('orders', 'invoices.order_id', '=', 'orders.id')
-        ->leftJoin('companies', 'orders.customer_id', '=', 'companies.id')
-        ->leftJoin('cost_centers', 'orders.provider_cost_center_id', '=', 'cost_centers.id')
-        ->leftJoin('users', 'orders.provider_manager_id', '=', 'users.id')
+        ->leftJoin('companies', 'orders.'.$company_field.'_id', '=', 'companies.id')
+        ->leftJoin('cost_centers', 'orders.'.$company_field.'_cost_center_id', '=', 'cost_centers.id')
+        ->leftJoin('users', 'orders.'.$company_field.'_manager_id', '=', 'users.id')
         ->whereYear('invoices.fiscal_date', $year)
-        ->whereNull('invoices.deleted_at');
-        //Filtro cliente:
-        $providerId = $provider? $provider:session('currentCompany');
-        $query->when($customer, function($q) use($customer, $providerId){
-            return $q->where('orders.customer_id', $customer)->where('orders.provider_id', $providerId);
-        });
-        //Filtro proveedor: 
-        $query->when($provider, function($q) use($provider){
-            return $q->where('orders.provider_id', $provider);
-        }); 
-        //Filtro por defecto:
-        $currentCompany = session('currentCompany');
-        $query->when(!$customer && !$provider, function($q) use($currentCompany){
-            return $q->where('orders.provider_id', $currentCompany);
-        });
-        $invoices = $query->orderBy('invoices.created_at', 'DESC')->get(); 
+        ->whereNull('invoices.deleted_at')
+        ->when($customer && $provider, function($q) use($customer, $provider){
+            if(is_numeric($customer) && is_numeric($provider)){
+                return $q->where('orders.customer_id', $customer)
+                ->where('orders.provider_id', $provider);
+
+            }elseif($customer == 'all'){
+                return $q->where('orders.provider_id', $provider);
+
+            }elseif($provider == 'all'){
+                return $q->where('orders.customer_id', $customer);
+            }
+        })
+        ->orderBy('invoices.created_at', 'DESC');
+
+        // $query->when($customer && is_int($customer), function($q) use($customer){
+        //     return $q->where('orders.customer_id', $customer);
+        // });
+        // //Filtro proveedor: 
+        // $query->when($provider && is_int($provider), function($q) use($provider){
+        //     return $q->where('orders.provider_id', $provider);
+        // });
+        
+        $estados = helpers::invoiceStatus();
+
+        //Moneda:
+        $currency = $this->co_currency;        
+
+        return DataTables::of($data) 
+        ->addColumn('invoice_num', function($row){
+            $num = $row->invoice_num? $row->invoice_num:($row->invoice_old_num? $row->invoice_old_num:$row->id);
+            return '<a href="'.route('invoices.edit', $row).'">'.$num.'</a>'; 
+        })
+        ->addColumn('company', function($row) use($environment){
+            return $row->name;
+        })
+        ->addColumn('manager', function($row) use($environment){
+            return $row->Nombre.' '.$row->surname;
+        })
+        ->addColumn('fiscal_date', function($row){
+            return Carbon::parse($row->fiscal_date)->format($this->languages[session()->get('locale')][4]);
+        })
+        ->addColumn('expiration_date', function($row){
+            return Carbon::parse($row->expiration_date)->format($this->languages[session()->get('locale')][4]);
+        })
+        ->addColumn('amount', function($row) use($currency){
+            return $row->amount;
+        })
+        ->addColumn('month', function($row){
+            $datestamp = strtotime($row->fiscal_date); 
+            $month = date("m", $datestamp);
+            $month = helpers::yearMonths($month);
+            return ucfirst($month);
+        })
+        ->addColumn('estado', function($row) use($estados){
+            return view('admin.invoices.partials.dt-status', compact('row', 'estados'));    
+        })
+        ->addColumn('acciones', function($row) use($estados, $environment){
+            $manage_status = true;
+            return view('admin.invoices.partials.dt-actions', compact('row', 'estados', 'environment', 'manage_status'));    
+        })
+        ->rawColumns(['invoice_num'])
+        ->make(true);
+
+
+
+
+
+
+
+
+
+        //Campo de búsqueda de la empresa: proveedor o cliente.
+        // $company_field = $provider? 'provider_id':'customer_id';
+
+        // $query = Invoice::select('invoices.*', 'companies.name', 'companies.tradename', 'cost_centers.name AS costCenter', 'users.name AS Nombre', 'users.surname')
+        // ->leftJoin('orders', 'invoices.order_id', '=', 'orders.id')
+        // ->leftJoin('companies', 'orders.'.$company_field, '=', 'companies.id')
+        // ->leftJoin('cost_centers', 'orders.provider_cost_center_id', '=', 'cost_centers.id')
+        // ->leftJoin('users', 'orders.provider_manager_id', '=', 'users.id')
+        // ->whereYear('invoices.fiscal_date', $year)
+        // ->whereNull('invoices.deleted_at');
+        // //Filtro cliente:
+        // $providerId = $provider? $provider:session('currentCompany');
+        // $query->when($customer, function($q) use($customer, $providerId){
+        //     return $q->where('orders.customer_id', $customer)->where('orders.provider_id', $providerId);
+        // });
+        // //Filtro proveedor: 
+        // $query->when($provider, function($q) use($provider){
+        //     return $q->where('orders.provider_id', $provider);
+        // }); 
+        // //Filtro por defecto:
+        // $currentCompany = session('currentCompany');
+        // $query->when(!$customer && !$provider, function($q) use($currentCompany){
+        //     return $q->where('orders.provider_id', $currentCompany);
+        // });
+        // $invoices = $query->orderBy('invoices.created_at', 'DESC'); 
+
+        
 
         //Ampliación de información de los objetos:
-        $data = $this->setInvoicesData($invoices);
-        return datatables($data)->toJson();
+        //$this->setInvoicesData($invoices, $environment);
+        //return datatables($data)->toJson();
     }
 
     /**
@@ -599,6 +694,86 @@ class InvoiceController extends Controller{
     }
 
     /**
+     * 2.2. Introducir factura de proveedor.
+     */
+    public function createFromProvider(){
+        $header = [
+            'option' => $this->option, 
+            'suboption' => 'textos.factura_compra_introducir',
+            'module' => $this->module,
+            'slug' => 'invoices'
+        ];   
+
+        $providers = Company::join('customer_providers', 'companies.id', '=', 'customer_providers.provider_id')
+        ->where('customer_providers.customer_id', session('currentCompany'))
+        ->where('customer_providers.status', 1)
+        ->pluck('companies.name', 'companies.id')
+        ->toArray();
+
+        //Pedidos de compra:
+        $orders = Order::select(
+            DB::raw("CONCAT(purchase_num, ' - ', name) AS purchase"),'id')
+        ->where('is_order', 1)
+        ->where('customer_id', session('currentCompany'))
+        ->pluck('purchase', 'id')
+        ->toArray();
+
+        $languages = $this->languages;
+
+        $currency = $this->co_currency;
+
+        return view('admin.invoices.invoice-by-provider')->with(compact('header', 'providers', 'orders', 'languages', 'currency'));          
+    }
+
+    /**
+     * 2.3. Guardar factura de proveedor.
+     */
+    public function storeFromProvider(Request $request){
+        $validator = $this->validator($request->all());
+        if($validator->fails()){
+            return redirect('/admin/invoices/create-fom-provider')
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        //Creamos pedido si no existe:
+        if(!$request->order_id){
+            $order = new Order();
+            $order->is_order = 1;
+            $order->customer_id = session('currentCompany');
+            $order->provider_id = $request->provider_id;
+            $order->order_status = config('constants.ORDER_FINISHED_');     //Damos el pedido por finalizado.
+            $order->invoiced = 1;
+            $order->save();
+
+        }else{
+            $order = Order::select('id', 'invoiced')->find($request->order_id);
+            $order->invoiced = 1;
+            $order->save();
+        }
+
+        //Formateando fechas:
+        $fiscal_date = $request->fiscal_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->fiscal_date):$request->fiscal_date:NULL;
+        $expiration_date = $request->expiration_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->expiration_date):$request->expiration_date:NULL;
+
+        //Creamos factura:
+        $inv = new Invoice();
+        $inv->order_id = $order->id;
+        $inv->amount = $request->amount;
+        $inv->with_iva = $request->iva;
+        $inv->amount_with_iva = $request->amount_with_iva;
+        $inv->fiscal_date = $fiscal_date;
+        $inv->expiration_date = $expiration_date;
+        $inv->user_id = Auth::user()->id;
+        $inv->observations = $request->observations;
+        $inv->status = $request->status;   
+        $inv->save();
+
+        $msg = trans('textos.factura_creada');
+        return redirect()->route('invoices.edit', [$inv->id, false])->with(compact('msg'));       
+    }
+
+    /**
      * 3. Editar factura.
      */
     public function edit(Invoice $invoice, $tab = false){
@@ -733,6 +908,44 @@ class InvoiceController extends Controller{
     }
 
     /**
+     * 3.1. Mostrar factura.
+     */
+    public function show(Invoice $invoice){
+        $header = [
+            'option' => $this->option, 
+            'suboption' => 'textos.factura_ver',
+            'module' => $this->module,
+            'slug' => 'invoices'
+        ];  
+
+        //Pedido:
+        $order = Order::find($invoice->order_id); 
+
+        //CLIENTE:
+        $customer = Company::select('id', 'name', 'tradename')->find($order->customer_id); 
+
+        $cw_id = $order->customer_workplace_id;
+        if($cw_id){
+            $customer_workplace = Workplace::getWorkplace($cw_id);
+        }else{
+            $customer_workplace = Workplace::companyFeaturedWorkplace($order->customer_id);
+        }
+
+        //PROVEEDOR:
+        $provider = Company::select('id', 'name', 'tradename')->find($order->provider_id);
+
+        $pw_id = $order->provider_workplace_id;
+        if($pw_id){
+            $provider_workplace = Workplace::getWorkplace($pw_id);
+        }else{
+            $provider_workplace = Workplace::companyFeaturedWorkplace($order->provider_id);
+        }
+
+        
+        return view('admin.invoices.show')->with(compact('header', 'invoice', 'order', 'customer', 'customer_workplace', 'provider', 'provider_workplace'));  
+    }
+
+    /**
      * 4. Actualizar factura.
      */
     public function update(Request $request, Invoice $invoice){
@@ -844,7 +1057,7 @@ class InvoiceController extends Controller{
     /**
      * 6. Setear info para listado de facturas.
      */
-    public function setInvoicesData($invoices){
+    public function setInvoicesData($data, $environment){
         //Moneda:
         $currency = $this->co_currency;
 
@@ -854,6 +1067,25 @@ class InvoiceController extends Controller{
         foreach($arrEstados as $idx => $est){
             $strEstados .= $idx.'|'.$est.';';
         }
+
+        return DataTables::of($data) 
+        ->addColumn('invoice_num', function($row){
+            $num = $row->invoice_num? $row->invoice_num:($row->invoice_old_num? $row->invoice_old_num:$row->id);
+            return '<a href="'.route('invoices.edit', $row).'">'.$num.'</a>'; 
+        })
+        ->addColumn('company', function($row) use($environment){
+            return $row->name;
+        })
+
+
+
+
+
+        ->rawColumns(['invoice_num'])
+        ->make(true);
+
+
+
 
         //Permisos del usuario:
         $editar = Auth::user()->can('invoices.edit');
@@ -1239,5 +1471,8 @@ class InvoiceController extends Controller{
         $msg = trans('textos.factura_agrupacion_pedido_eliminado');
         return redirect()->route('invoices.edit', $invoice)->with(compact('msg'));
     }
+
+    
+    
 }
 

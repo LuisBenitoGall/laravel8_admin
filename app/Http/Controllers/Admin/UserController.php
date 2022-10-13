@@ -40,6 +40,7 @@ use App\Models\WorkUserCalendar;
 use App\Models\Workplace;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\Traits\HasRoles;
 
 class UserController extends Controller{
 	/**

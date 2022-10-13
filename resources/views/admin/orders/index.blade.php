@@ -2,6 +2,8 @@
 
 @section('content')
 
+<input type="hidden" id="dtController" value="orders">
+
 <div class="row mb-3">
 	{{-- Acciones: --}}
 	<div class="col-12">
@@ -47,8 +49,6 @@
 	</div>
 </div>
 
-<input type="hidden" id="dtController" value="orders">
-
 {{-- Formulario filtro --}}
 @include('admin.orders.partials.form-filter')
 
@@ -56,9 +56,11 @@
 	<input type="hidden" id="myCustomer" value="@if($customer){{ $customer->id }}@endif">
 	<input type="hidden" id="myProvider" value="@if($provider){{ $provider->id }}@endif">
 	<input type="hidden" id="myOwner" value="@if($owner){{ $owner }}@else{{ 0 }}@endif">
+	<input type="hidden" id="myYear" value="{{ $year }}">
 	<input type="hidden" id="myStatus" value="@if($status){{ $status }}@else{{ 0 }}@endif">
 	<input type="hidden" id="myModuleAccounting" value="{{ $module_accounting }}">
 
+	{{-- Tabla --}}
 	<div class="row">
 		<div class="col-12 mb-3">
 			<h3>
@@ -69,19 +71,11 @@
 					{!! trans('textos.compras_relacion_general') !!}
 
 				@else
-					@if($customer)
-						@if($customer->id == session('currentCompany'))
-							{!! trans('textos.compras_de') !!} 
-						@else
-							{!! trans('textos.ventas_de') !!}
-						@endif
-						<b>{{ $provider->name }}</b>
+					@if($customer->id == session('currentCompany'))
+						{!! ucfirst(trans('textos.compras_a')) !!} <b>{{ $provider->name }}</b>
+					@elseif($provider->id == session('currentCompany'))
+						{!! ucfirst(trans('textos.ventas_a')) !!} <b>{{ $customer->name }}</b>
 					@endif
-
-					@if($provider)
-						{!! trans('textos.a') !!} 
-						<b>{{ $customer->name }}</b> 
-					@endif	
 				@endif
 			</h3>
 		</div>
@@ -91,8 +85,14 @@
 				<thead>
 					<tr>
 						<th class="text-center wdt50">#</th>
-						{{-- <th>{!! ucfirst(trans('textos.pedido_num')) !!}</th> --}}
 						<th class="text-center wdt100">{!! ucfirst(trans('textos.n_manual')) !!}</th>
+						<th class="wdt150">
+							@if($ordersType == 'compras')
+								{!! ucfirst(trans('textos.proveedor')) !!}
+							@else
+								{!! ucfirst(trans('textos.cliente')) !!}
+							@endif
+						</th>
 						<th class="text-center wdt100">{!! ucfirst(trans('textos.presupuesto')) !!}</th>
 						<th class="text-center wdt100">{!! ucfirst(trans('textos.agrupacion')) !!}</th>
 						<th class="text-center wdt100">{!! ucfirst(trans('textos.orden_compra')) !!}</th>

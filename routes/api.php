@@ -148,7 +148,7 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     Route::get('order-teams/{order?}/{environment?}', 'OrderController@getTeamDT');
 
     //Orders:
-    Route::get('orders/{customer?}/{provider?}/{owner?}/{status?}', 'OrderController@getOrdersDT');
+    Route::get('orders/{year?}/{customer?}/{provider?}/{owner?}/{status?}', 'OrderController@getOrdersDT');
 
     //Orders Control Panel Purchases:
     Route::get('orders-control-panel-purchases/{year}', 'OrderController@getOrdersControlPanelPurchasesDT');

@@ -2299,24 +2299,24 @@ $(document).ready(function(){
         var poId = $('#poId').val();        //by purchase order.
 
         //Filters:
-        $('#tblInvoices thead tr').clone(true).appendTo('#tblInvoices thead');
-        $('#tblInvoices thead tr:eq(1) th').each(function(i){
-            var title = $(this).text();
-            if(i == 8){
-                $(this).html('');
-            }else{
-                $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
-            }
+        // $('#tblInvoices thead tr').clone(true).appendTo('#tblInvoices thead');
+        // $('#tblInvoices thead tr:eq(1) th').each(function(i){
+        //     var title = $(this).text();
+        //     if(i == 8){
+        //         $(this).html('');
+        //     }else{
+        //         $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
+        //     }
      
-            $('input', this).on('keyup change', function(){
-                if(tableInvoices.column(i).search() !== this.value){
-                    tableInvoices
-                        .column(i)
-                        .search(this.value)
-                        .draw();
-                }
-            });
-        });
+        //     $('input', this).on('keyup change', function(){
+        //         if(tableInvoices.column(i).search() !== this.value){
+        //             tableInvoices
+        //                 .column(i)
+        //                 .search(this.value)
+        //                 .draw();
+        //         }
+        //     });
+        // });
 
         var api_route = 'invoices/'+year+'/'+customer+'/'+provider;
         if(orderId){
@@ -2326,12 +2326,13 @@ $(document).ready(function(){
         }
         
         $('#tblInvoices').DataTable({
-            "order": [[ 3, "desc" ]],
-            serverSide: false,
-            /*processing: true,*/
-            drawCallback: function(){
-                $('.select2-dt').select2();
-            },
+            order: [[ 3, "desc" ]],
+            serverSide: true,
+            processing: true,
+            autoWidth: false,
+            // drawCallback: function(){
+            //     $('.select2-dt').select2();
+            // },
             ajax: {
                 "type": "GET",
                 "url": "/api/admin/"+api_route,
@@ -2340,91 +2341,29 @@ $(document).ready(function(){
                 }
             },
             columns: [
-                {data: 'invoice_num', className: 'text-right'},
-                {data: 'name'},
-                {data: 'id'},
-                {data: 'fechaFactura', className: 'text-right'},
-                {data: 'fechaVencimiento', className: 'text-right'},
-                {data: 'amount', className: 'text-right'},
+                {data: 'invoice_num', name: 'invoices.invoice_num', className: 'text-right'},
+                {data: 'company', name: 'companies.name'},
+                {data: 'manager', name: 'users.name'},
+                {data: 'fiscal_date', className: 'text-right'},
+                {data: 'expiration_date', className: 'text-right'},
+                {data: 'amount', name: 'invoices.amount', className: 'text-right'},
                 {data: 'month'},
                 //{data: 'workplace'},
                 {data: 'estado'},
-                {data: 'id', className: 'text-right'}
-            ],
-            columnDefs: [
-                {"targets": 0,
-                "render": function(data, type, row){
-                    var num = row['invoice_num']? row['invoice_num']:row['id'];
-                    var ninvoice = '<a target="_blank" href="/admin/invoices/'+row['id']+'/edit">'+num+'</a>';
-
-                    return ninvoice;
-                }
-                },
-                {"targets": 2,
-                "render": function(data, type, row){
-                    return row['Nombre']+' '+row['surname'];
-                }
-                },    
-                {"targets": 3,
-                "render": function(data, type, row){
-                    return '<span style="display: none">'+row['fiscal_date']+'</span>'+row['fechaFactura'];
-                }
-                },
-                {"targets": 5,
-                "render": function(data, type, row){
-                    return row['amount']+''+row['currency'];
-                }
-                },   
-                {"targets": -2,
-                "render": function(data, type, row){
-                    return '<span class="xoption-'+row['id']+'">'+row['estado']+'</span>'; 
-                }
-                }, 
-                {"targets": -1,
-                "render": function(data, type, row){
-                    //Estado múltiple:
-                    //1. Dispone de los permisos.
-                    //2. No se encuentra bloqueada.
-                    var estado = '';
-                    if(row['editar'] && row['blocked'] == '0'){
-                        estado += multipleStatus(row['estados'], row['status'], row['id']);
-                    }
-
-                    //Editar:
-                    var editar = '';
-                    if(row['editar']){
-                        editar += '<a href="/admin/invoices/'+row['id']+'/edit" class="btn btn-xs btn-info" rel="tooltip" title="'+txtEditar+'"><i class="fa fa-edit"></i></a>';
-                    }
-
-                    //Eliminar:
-                    //1. Si dispone de los permisos.
-                    //2. En estado pendiente.
-                    //3. Si no está bloqueada.
-                    var eliminar = '';
-                    if(row['eliminar'] && row['status'] == 1 && row['blocked'] == '0'){
-                        eliminar += '<form method="POST" action="/admin/invoices/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
-                            eliminar += '<input name="_method" type="hidden" value="DELETE">';
-                            eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
-                            eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtEliminar+'" data-msg="'+txtFacturaConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
-                        eliminar += '</form>';
-                    }
-
-                    return estado+' '+editar+' '+eliminar;
-                }
-                }
+                {data: 'acciones', className: 'text-right'}
             ],
             "footerCallback": function(row, data, start, end, display){
-                if(typeof year != 'undefined'){
+                // if(typeof year != 'undefined'){
                     var api = this.api(), data;
+                    var json = api.ajax.json();
 
                     var currency = false;
                     var refund = false;
                     api.rows().every(function(){
                         var data = this.data();
-                        if(!currency){
-                            currency = data.currency;
-                        }
                     });
+
+                    if(!currency) currency = '€';
      
                     // Remove the formatting to get integer data for summation
                     var intVal = function(i){
@@ -2434,9 +2373,9 @@ $(document).ready(function(){
                         typeof i === 'number' ?
                             i : 0;
                     };
-     
-                    //Total por filtro aplicado:
-                    total_amount = api
+
+                    //Total:
+                    total = api
                     .column(5, { search: 'applied' })
                     .data()
                     .reduce(function(a, b){
@@ -2444,9 +2383,21 @@ $(document).ready(function(){
                     }, 0);
 
                     $(api.column(5).footer()).html(
-                        total_amount.toFixed(2)+currency    
+                        total.toFixed(2)+currency   
                     );
-                }
+     
+                    //Total por filtro aplicado:
+                    // total_amount = api
+                    // .column(5, { search: 'applied' })
+                    // .data()
+                    // .reduce(function(a, b){
+                    //     return intVal(a) + intVal(b);
+                    // }, 0);
+
+                    // $(api.column(5).footer()).html(
+                    //     total_amount.toFixed(2)+currency    
+                    // );
+                //}
             }
         });
     }
@@ -3246,6 +3197,7 @@ $(document).ready(function(){
         var customer = $('#myCustomer').val() != ''? $('#myCustomer').val():false;
         var provider = $('#myProvider').val() != ''? $('#myProvider').val():false;
         var owner = $('#myOwner').val() && $('#myOwner').val() != ''? $('#myOwner').val():false;
+        var year = $('#myYear').val();
         var status = $('#myStatus').val() && $('#myStatus').val() != ''? $('#myStatus').val():false;
         var accounting_on = $('#myModuleAccounting').val() == 1? true:false;
 
@@ -3280,7 +3232,7 @@ $(document).ready(function(){
             // },
             ajax: {
                 "type": "GET",
-                "url": "/api/admin/orders/"+customer+"/"+provider+"/"+owner+"/"+status,
+                "url": "/api/admin/orders/"+year+"/"+customer+"/"+provider+"/"+owner+"/"+status,
                 "error": function(reason){
                     console.log(reason);
                 }
@@ -3288,6 +3240,7 @@ $(document).ready(function(){
             columns: [
                 {data: 'num', name: 'orders.order_num', className: 'text-right'},
                 {data: 'order_old_num', name: 'orders.order_old_num', className: 'text-right'},
+                {data: 'company', name: 'companies.name'},
                 {data: 'budget_num', name: 'orders.budget_num', className: 'text-right'},
                 {data: 'order_parent', name: 'orders.order_num', className: 'text-center'},
                 {data: 'purchase_num', name: 'orders.purchase_num', className: 'text-right'},
@@ -3296,7 +3249,7 @@ $(document).ready(function(){
                 {data: 'fechaEntregaPrevista', className: 'text-right'},
                 {data: 'cost_center', name: 'cost_centers.name'},
                 {data: 'estado', name: 'estado'},
-                {data: 'acciones', name: 'acciones', orderable: false, searchable: false, className: 'text-right'}
+                {data: 'acciones', orderable: false, searchable: false, className: 'text-right'}
             ]
         });
     }

@@ -95,6 +95,7 @@ use App\Models\Workplace;
 use App\Models\WorkUserCalendar;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\Traits\HasRoles;
 
 class ImportOldDBController extends Controller{
     /**
@@ -178,6 +179,8 @@ class ImportOldDBController extends Controller{
      * 76. Importar mensajes de tareas.
      * 77. Importar líneas de facturas.
      */
+    
+    use HasRoles;
     
     public $adn_companies;
 
@@ -354,8 +357,8 @@ class ImportOldDBController extends Controller{
             // sleep(3);
             // $this->importItems();                       // 70.
             // sleep(3);
-            $this->importItemsStatus();                 // 71.
-            sleep(3);
+            // $this->importItemsStatus();                 // 71.
+            // sleep(3);
             // $this->importProjects();                    // 72.
             // sleep(3);
             // $this->importTaskStatus();                  // 73.
@@ -366,7 +369,7 @@ class ImportOldDBController extends Controller{
             // sleep(3);
             // $this->importTaskMessages();                // 76.
             // sleep(3);
-            $this->importInvoiceItems();                // 77.
+            // $this->importInvoiceItems();                // 77.
             // sleep(3);
 
             sleep(3);
@@ -688,6 +691,7 @@ class ImportOldDBController extends Controller{
 
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('user_companies')->truncate();
+            DB::table('model_has_roles')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
             foreach($data as $r){
@@ -708,13 +712,20 @@ class ImportOldDBController extends Controller{
                 }
 
                 $user = User::find($i->user_id);
-                //dd(Arr::exists($user->roles(),'model_id'));
-                if($user && $company_roles){
-                    //if(!$user->hasRole($company_roles->name)) {
-                        $user->assignRole($company_roles->name);
-                    //}
+
+                //Contamos roles del usuario:
+                $user_roles = $user? $user->getRoleNames():false;
+                //$user->loadCount('model_has_roles');
+                if($user_roles){
+                    if(!$user_roles->count() && $company_roles){
+                        //dd(Arr::exists($user->roles(),'model_id'));
+                        //if(!$user->hasRole($company_roles->name)) {
+                            $user->assignRole($company_roles->name);
+                        //}
+                    }
                 }
             }
+            exit;
         }
     }
 

@@ -218,9 +218,9 @@ class OrderController extends Controller{
             return redirect()->route('orders.index');
         }
 
-        if($customer_id && ($provider_id == session('currentCompany') || $customer_id == 'all') ){
+        if($provider_id == session('currentCompany') || $customer_id == 'all'){
             $ordersType = 'ventas';
-        }elseif($provider_id && ($customer_id == session('currentCompany') || $provider_id == 'all') ){
+        }elseif($customer_id == session('currentCompany') || $provider_id == 'all'){
             $ordersType = 'compras';
         }else{
             $ordersType = 'listado';
@@ -233,17 +233,10 @@ class OrderController extends Controller{
             'slug' => 'orders'
         ]; 
 
-        //Cliente:
-        $customer = false;
-        if($customer_id && is_numeric($customer_id)){
-            $customer = Company::find($customer_id);
-        }
+        $year = $year? $year:Date('Y');
 
-        //Proveedor:
-        $provider = false;
-        if($provider_id && is_numeric($provider_id)){
-            $provider = Company::find($provider_id);
-        }
+        $customer = $customer_id && $customer_id != 'all'? Company::find($customer_id):false;
+        $provider = $provider_id && $provider_id != 'all'? Company::find($provider_id):false;
 
         //Comprobamos si la empresa hace gestión de clientes:
         $customers = false;
@@ -282,7 +275,7 @@ class OrderController extends Controller{
         //Módulos activos:
         $module_accounting = $this->settedModule('accounting');
 
-        return view('admin.orders.index')->with(compact('header', 'owner', 'status', 'customer_id', 'provider_id', 'customer', 'provider', 'customers', 'providers', 'owners', 'order_status', 'module_accounting'));
+        return view('admin.orders.index')->with(compact('header', 'year', 'owner', 'status', 'customer_id', 'provider_id', 'customer', 'provider', 'ordersType', 'customers', 'providers', 'owners', 'order_status', 'module_accounting'));
     }
 
     /**
@@ -343,34 +336,40 @@ class OrderController extends Controller{
     /**
      * 1.2. Listado de pedidos por cliente y proveedor para DataTable.
      */
-    public function getOrdersDT($customer = false, $provider = false, $owner = false, $status = false){
+    public function getOrdersDT($year = false, $customer = false, $provider = false, $owner = false, $status = false){
         //La empresa en sesión debe ser cliente o proveedor del pedido.
         if($customer && $customer != session('currentCompany') && $provider && $provider != session('currentCompany')){
             return false;
             exit;
         }
 
-        $environment = $customer != session('currentCompany')? 'provider':'customer';
+        $company_field = $provider == session('currentCompany') || $customer == 'all'? 'customer':'provider';
 
         //Obtenemos pedidos simples, no agrupaciones:
-        $data = Order::select('orders.id', 'orders.is_budget', 'orders.budget_num', 'orders.discount', 'orders.order_parent', 'orders.name', 'orders.order_num', 'orders.order_old_num', 'orders.estimated_delivery_date', 'orders.purchase_num', 'orders.purchase_old_num', 'orders.delivery_date', 'orders.order_status', 'orders.invoiced', 'orders.created_at', 'business_areas.name AS businessArea', 'cost_centers.name AS costCenter')
+        $data = Order::select('orders.id', 'orders.is_budget', 'orders.budget_num', 'orders.discount', 'orders.order_parent', 'orders.name', 'orders.order_num', 'orders.order_old_num', 'orders.estimated_delivery_date', 'orders.purchase_num', 'orders.purchase_old_num', 'orders.delivery_date', 'orders.order_status', 'orders.invoiced', 'orders.created_at', 'companies.name AS company', 'business_areas.name AS businessArea', 'cost_centers.name AS costCenter')
+        ->join('companies', 'orders.'.$company_field.'_id', '=', 'companies.id')
         ->leftJoin('business_areas', 'orders.customer_business_area_id', '=', 'business_areas.id')
         ->leftJoin('cost_centers', 'orders.customer_cost_center_id', '=', 'cost_centers.id')
         //->leftJoin('workplaces', 'orders.workplace_id', '=', 'workplaces.id')
         ->where('orders.is_order', true)
         ->where('orders.is_group', false)
+        ->whereYear('orders.created_at', $year)
         ->when($owner, function($q) use($owner){
             return $q->where('orders.provider_manager_id', $owner);
         })
-        ->when($customer && is_numeric($customer), function($q) use($customer){
-            return $q->where('orders.customer_id', $customer)
-            ->orWhere('orders.final_customer_id', $customer);
-        })
-        ->when($provider && is_numeric($provider), function($q) use($provider){
-            return $q->where('orders.provider_id', $provider);
+        ->when($customer && $provider, function($q) use($customer, $provider){
+            if(is_numeric($customer) && is_numeric($provider)){
+                return $q->where('orders.customer_id', $customer)
+                ->where('orders.provider_id', $provider);
+
+            }elseif($customer == 'all'){
+                return $q->where('orders.provider_id', $provider);
+
+            }elseif($provider == 'all'){
+                return $q->where('orders.customer_id', $customer);
+            }
         })
         ->orderBy('orders.created_at', 'DESC');
-        //->get();
         //Filtro status:
         /*$query->when($status && $status != '', function($q) use($status){
             return $q->where('orders.status', $status);
@@ -379,11 +378,14 @@ class OrderController extends Controller{
         $estados = helpers::orderStatus();
 
         //Moneda:
-        $currency = CompanySettings::co_currency(0);
+        $currency = $this->co_currency;
 
         return DataTables::of($data)
         ->addColumn('num', function($row){
             return view('admin.orders.partials.dt-num', compact('row')); 
+        })
+        ->addColumn('company', function($row){
+            return $row->company;
         })
         ->addColumn('budget_num', function($row){
             return view('admin.orders.partials.dt-budget-num', compact('row')); 
@@ -407,7 +409,11 @@ class OrderController extends Controller{
             return $amount['amount_with_discount'].$currency->symbol;
         })
         ->addColumn('fechaEntregaPrevista', function($row){
-            return Carbon::parse($row->estimated_delivery_date)->format($this->languages[session()->get('locale')][4]);   
+            if($row->estimated_delivery_date){
+                return Carbon::parse($row->estimated_delivery_date)->format($this->languages[session()->get('locale')][4]);   
+            }else{
+                return '';
+            }
         })
         ->addColumn('cost_center', function($row){
             return $row->costCenter;    

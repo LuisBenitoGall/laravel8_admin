@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 
 class Workplace extends Model{
@@ -12,6 +13,8 @@ class Workplace extends Model{
 	 * 1. Empresa del centro de trabajo. 
      * 2. Validación del centro de trabajo para middleware.
      * 3. Centros de trabajo por empresa.
+     * 4. Centro de trabajo principal de empresa.
+     * 5. Centro de trabajo por id.
 	 */
 
     use HasFactory;
@@ -83,7 +86,7 @@ class Workplace extends Model{
      * 3. Centros de trabajo por empresa.
      */
     public static function companyWorkplaces($company_id){
-        $data = Workplace::select('workplaces.id', 'workplaces.name', 'towns.name AS Town')
+        $data = Workplace::select('workplaces.id', 'workplaces.name', 'workplaces.address', 'workplaces.cp', 'towns.name AS Town')
         ->leftJoin('towns', 'workplaces.town_id', '=', 'towns.id')
         ->where('workplaces.company_id', $company_id)
         ->where('workplaces.status', 1)
@@ -91,5 +94,35 @@ class Workplace extends Model{
         ->get();   
 
         return $data; 
+    }
+
+    /**
+     * 4. Centro de trabajo principal de empresa.
+     */
+    public static function companyFeaturedWorkplace($company_id){
+        $data = Workplace::select('workplaces.id', 'workplaces.name', 'workplaces.address', 'workplaces.cp', 'towns.name AS Town', 'phones.phone_number')
+        ->leftJoin('towns', 'workplaces.town_id', '=', 'towns.id')
+        ->leftJoin('phones', 'workplaces.id', '=', 'phones.workplace_id')
+        ->where('workplaces.company_id', $company_id)
+        ->where('workplaces.featured', 1)
+        ->where('workplaces.status', 1)
+        ->first();   
+
+        return $data; 
+    }
+
+    /**
+     * 5. Centro de trabajo por id.
+     */
+    public static function getWorkplace($id){
+        $data = Workplace::select('workplaces.id', 'workplaces.name', 'workplaces.address', 'workplaces.cp', 'towns.name AS Town', 'phones.phone_number')
+        ->leftJoin('towns', 'workplaces.town_id', '=', 'towns.id')
+        ->leftJoin('phones', 'workplaces.id', '=', 'phones.workplace_id')
+        ->where('workplaces.id', $id)
+        ->where('workplaces.featured', 1)
+        ->where('workplaces.status', 1)
+        ->first();   
+
+        return $data;
     }
 }

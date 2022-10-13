@@ -443,10 +443,13 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::get('invoice-settings/{template}/featured', 'InvoiceSettingsController@featured')->name('invoice-settings.featured')->middleware('permission:invoices.edit');
 
     // Invoices:
-    Route::get('invoices/list/{year?}/{customer_id?}/{provider_id?}', 'InvoiceController@index')->name('invoices.index')->middleware('permission:invoices.index');
+    Route::get('invoices/list/{year?}/{company?}', 'InvoiceController@index')->name('invoices.index')->middleware('permission:invoices.index');
     Route::post('invoices', 'InvoiceController@getInvoicesBy')->name('invoices.list')->middleware('permission:invoices.index');
     Route::post('invoices/create-from-order', 'InvoiceController@createFromOrder')->name('invoices.create-from-order')->middleware('permission:invoices.create');
+    Route::get('invoices/create-from-provider', 'InvoiceController@createFromProvider')->name('invoices.create-from-provider')->middleware('permission:invoices.create');
+    Route::post('invoices/store-from-provider', 'InvoiceController@storeFromProvider')->name('invoices.store-from-provider')->middleware('permission:invoices.create');
     Route::get('invoices/{invoice}/edit/{tab?}', 'InvoiceController@edit')->name('invoices.edit')->middleware('permission:invoices.edit');
+    Route::get('invoices/{invoice}/show', 'InvoiceController@show')->name('invoices.show');
     Route::put('invoices/{invoice}/update', 'InvoiceController@update')->name('invoices.update')->middleware('permission:invoices.edit');
     Route::get('invoices/{invoice}/print', 'InvoiceController@print')->name('invoices.print');
     Route::get('invoices/{invoice}/status/{status}', 'InvoiceController@status')->name('invoices.status');
@@ -781,7 +784,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     // Receiving:
     Route::get('receiving', 'ReceivingController@index')->name('receiving.index');
     Route::put('receiving/{order}', 'ReceivingController@store')->name('receiving.store')->middleware('permission:orders.edit');
-    Route::get('receiving/{order}/all-order', 'ReceivingController@storeAllOrder')->name('receiving.all-order')->middleware('permission:receiving.edit');
+    Route::get('receiving/{delivery}/all-order/{order}', 'ReceivingController@storeAllOrder')->name('receiving.all-order')->middleware('permission:receiving.edit');
     Route::get('receiving/{delivery}/edit/{tab?}', 'ReceivingController@edit')->name('receiving.edit')->middleware('permission:receiving.edit');
     Route::put('receiving/{delivery}/update', 'ReceivingController@update')->name('receiving.update')->middleware('permission:receiving.edit');
 

@@ -18,7 +18,7 @@
 		$required_ = isset($required) && $required? true:false;
 		@endphp
 
-		<x-select name="customer_id" class="select2" label="cliente_selec" :options="$customers_" value="{{ $customerId }}" required="{{ $required_ }}"/>
+		<x-select name="customer_id" id="customerId" class="select2" label="cliente_selec" :options="$customers_" value="{{ $customerId }}" required="{{ $required_ }}"/>
 	</div>
 
 @else
