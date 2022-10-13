@@ -18,7 +18,7 @@ class Calendar extends Component{
      * 2. Seleccionar fecha.
      * 3. Seleccionar tipo de jornada.
      */
-    
+
     public $date;
     public $day_type;
     public $dayTypes;
@@ -38,8 +38,8 @@ class Calendar extends Component{
         //Array de colores de los tipos de jornada:
         $arrDayTypesColor = [];
         foreach($this->dayTypes as $dt){
-            $arrDayTypesColor[$dt->id] = $dt->color; 
-            $this->dayTypesArr[$dt->id] = $dt->name;   
+            $arrDayTypesColor[$dt->id] = $dt->color;
+            $this->dayTypesArr[$dt->id] = $dt->name;
         }
 
         $this->weekDays = helpers::weekDays();
@@ -56,16 +56,15 @@ class Calendar extends Component{
         //Componemos el array de fecha seleccionadas:
         foreach($dates_data as $dd){
             $this->selectedDates[$dd->date] = [
-                'day_type' => $dd->day_type_id, 
+                'day_type' => $dd->day_type_id,
                 'color' => $dd->day_type_id && isset($arrDayTypesColor[$dd->day_type_id])? $arrDayTypesColor[$dd->day_type_id]:'',
                 'hours' => $dd->hours
-            ];    
+            ];
         }
 
         //Información del usuario:
         if($user){
             $this->user = $user;
-
             //Fechas del usuario:
             $user_dates = WorkUserCalendar::select('id', 'day_type_id', 'date', 'notified', 'doc', 'status')
             ->where('user_id', $user->id)
@@ -77,12 +76,12 @@ class Calendar extends Component{
             foreach($user_dates as $ud){
                 $this->userDates[$ud->date] = [
                     'id' => $ud->id,
-                    'day_type' => $ud->day_type_id, 
+                    'day_type' => $ud->day_type_id,
                     'color' => $ud->day_type_id && array_key_exists($ud->day_type_id, $arrDayTypesColor)? $arrDayTypesColor[$ud->day_type_id]:'',
                     'notified' => $ud->notified,
                     'doc' => $ud->doc,
                     'status' => $ud->status
-                ];      
+                ];
             }
         }
     }
@@ -124,12 +123,12 @@ class Calendar extends Component{
                 }else{
                     //Actualizamos ...
                     if($thisDate->day_type_id != $this->day_type->id){
-                        $thisDate->day_type_id = $this->day_type->id;    
+                        $thisDate->day_type_id = $this->day_type->id;
 
-                    //... o eliminamos si el tipo de jornada es el mismo que ya existía:    
+                    //... o eliminamos si el tipo de jornada es el mismo que ya existía:
                     }else{
-                        $thisDate->day_type_id = NULL;   
-                        $save_in_array_user = false; 
+                        $thisDate->day_type_id = NULL;
+                        $save_in_array_user = false;
                     }
                     $thisDate->save();
                 }
@@ -141,7 +140,7 @@ class Calendar extends Component{
                 if($save_in_array_user){
                     $this->userDates[$wuc_date] = [
                         'id' => $wuc_id,
-                        'day_type' => $this->day_type->id, 
+                        'day_type' => $this->day_type->id,
                         'color' => $this->day_type->color,
                         'notified' => NULL,
                         'doc' => NULL,
@@ -175,24 +174,24 @@ class Calendar extends Component{
                 }else{
                     //Actualizamos ...
                     if($thisDate->day_type_id != $this->day_type->id){
-                        $thisDate->day_type_id = $this->day_type->id; 
+                        $thisDate->day_type_id = $this->day_type->id;
                         //Si la jornada NO es laborable, se eliminan las horas de trabajo:
                         if(!$this->day_type->is_working){
                             $thisDate->hours = NULL;
-                        }  
-                        $thisDate->save(); 
+                        }
+                        $thisDate->save();
 
-                    //... o eliminamos si el tipo de jornada es el mismo que ya existía:    
+                    //... o eliminamos si el tipo de jornada es el mismo que ya existía:
                     }else{
                         $thisDate->delete();
                         $save_in_array = false;
-                    }                
+                    }
                 }
 
                 //Guardamos en el array de fechas seleccionadas...
                 if($save_in_array){
                     $this->selectedDates[$thisDate->date] = [
-                        'day_type' => $this->day_type->id, 
+                        'day_type' => $this->day_type->id,
                         'color' => $this->day_type->color,
                         'hours' => ''
                     ];
@@ -211,7 +210,7 @@ class Calendar extends Component{
         foreach($this->dayTypes as $dt){
             if($day_type == $dt->id){
                 $this->day_type = $dt;
-                break;    
+                break;
             }
         }
     }
@@ -220,6 +219,6 @@ class Calendar extends Component{
      * 4. Cancelar selección de tipo de jornada.
      */
     public function cancelDayType(){
-        $this->day_type = false;   
+        $this->day_type = false;
     }
 }
