@@ -1854,7 +1854,7 @@ class OrderController extends Controller{
      */
     public function aboutProviders(Request $request, $provider_id){
         if($request->ajax()){ 
-            $data = Order::
+            //$data = Order::
 
         }     
     }

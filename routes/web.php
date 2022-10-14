@@ -1081,4 +1081,4 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 // Import Old DB:
-Route::get('/admin/import_db/{activate?}', 'Admin\ImportOldDBController@index')->name('import_db.index');
+//Route::get('/admin/import_db/{activate?}', 'Admin\ImportOldDBController@index')->name('import_db.index');

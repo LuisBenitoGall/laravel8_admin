@@ -216,8 +216,8 @@ class ImportOldDBController extends Controller{
      */
     public function start(Request $request){
         if($request->ajax()){
-            DB::table('importaciones')->truncate();
-            DB::table('migration_errors')->truncate();
+            // DB::table('importaciones')->truncate();
+            // DB::table('migration_errors')->truncate();
 
             // $this->importUsers(true);                   // 2.
             // sleep(3);
@@ -372,8 +372,8 @@ class ImportOldDBController extends Controller{
             // $this->importInvoiceItems();                // 77.
             // sleep(3);
 
-            sleep(3);
-            $this->endImportation();
+            // sleep(3);
+            // $this->endImportation();
         }
     }
 
