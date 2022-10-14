@@ -76,13 +76,21 @@ class Company extends Model{
      * 4. Guardar role por empresa.
      */
     public static function saveCompanyRole($name, $company_id, $description = NULL){
-        $role = new Role();
-        $role->name = $company_id.'/'.$name;
-        $role->guard_name = 'web';
-        $role->description = $description;
-        $role->company_id = $company_id;
-        $role->save();
+        //Comprobamos que no exista el role:
+        $role_name = $company_id.'/'.$name;
+        $exists = Role::where('name', $role_name)->first();
 
-        return $role;
+        if(!$exists){
+            $role = new Role();
+            $role->name = $role_name;
+            $role->guard_name = 'web';
+            $role->description = $description;
+            $role->company_id = $company_id;
+            $role->save();
+
+            return $role;
+        }else{
+            return false;
+        }
     }
 }

@@ -186,6 +186,7 @@ class RoleController extends Controller{
 
         $companies = Company::join('user_companies', 'companies.id', '=', 'user_companies.company_id')
         ->where('user_companies.user_id', session('currentCompany'))
+        ->where('companies.id', '!=', session('currentCompany'))
         ->pluck('companies.name', 'companies.id')
         ->toArray();
 
@@ -296,8 +297,10 @@ class RoleController extends Controller{
             $parts = explode('/', $main_role->name);
             $role = Company::saveCompanyRole($parts[1], $co, $main_role->description); 
 
-            foreach($permissions as $p){
-                $role->givePermissionTo($p);            
+            if($role){
+                foreach($permissions as $p){
+                    $role->givePermissionTo($p);            
+                }
             }
         }
 
