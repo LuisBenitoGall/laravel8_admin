@@ -31,7 +31,8 @@ class CreateInvoicesTable extends Migration{
             //FK:
             $table->unsignedBigInteger('user_id')->nullable();
             $table->foreign('user_id')->references('id')->on('users');
-            $table->longText('observations')->nullable();
+            $table->longText('provider_observations')->nullable();
+            $table->longText('customer_observations')->nullable();
             //FK:
             $table->unsignedBigInteger('template_id')->nullable();
             $table->foreign('template_id')->references('id')->on('invoice_settings');

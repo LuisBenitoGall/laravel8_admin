@@ -21,7 +21,9 @@ class TaskGetMiddleware{
         $company = Task::select('projects.company_id')
         ->join('projects', 'tasks.project_id', '=', 'projects.id')
         ->where('tasks.id', $request->segments()[2])
-        ->first();    
+        ->first(); 
+
+        //dd($company);   
 
         if(!$company){
             $alert = trans('textos.registro_inexistente');

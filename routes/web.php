@@ -449,6 +449,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::get('invoices/create-from-provider', 'InvoiceController@createFromProvider')->name('invoices.create-from-provider')->middleware('permission:invoices.create');
     Route::post('invoices/store-from-provider', 'InvoiceController@storeFromProvider')->name('invoices.store-from-provider')->middleware('permission:invoices.create');
     Route::get('invoices/{invoice}/edit/{tab?}', 'InvoiceController@edit')->name('invoices.edit')->middleware('permission:invoices.edit');
+    Route::get('invoices/{invoice}/edit-purchase/{tab?}', 'InvoiceController@editPurchase')->name('invoices.edit-purchase')->middleware('permission:invoices.edit');
     Route::get('invoices/{invoice}/show', 'InvoiceController@show')->name('invoices.show');
     Route::put('invoices/{invoice}/update', 'InvoiceController@update')->name('invoices.update')->middleware('permission:invoices.edit');
     Route::get('invoices/{invoice}/print', 'InvoiceController@print')->name('invoices.print');
@@ -575,8 +576,9 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::post('orders/{order}/add-member', 'OrderController@addTeamMember')->name('orders.add-member')->middleware('permission:orders.edit');
     Route::delete('orders/{order}/remove-member', 'OrderController@removeTeamMember')->name('orders.remove-member')->middleware('permission:orders.edit');
     Route::get('orders/{order}/remove-purchase-doc', 'OrderController@removePurchaseDoc')->name('orders.remove-purchase-doc')->middleware('permission:orders.edit');
+    Route::get('orders/{provider_id}/orders-about-providers', 'OrderController@aboutProviders')->name('orders.orders-about-providers');
     
-
+    
     Route::get('control-panel', 'OrderController@index')->name('control-panel.index')->middleware('permission:orders.index');
     Route::post('orders/control-panel-sales-year', 'OrderController@controlPanelSalesPost')->name('orders.control-panel-sales-year')->middleware('permission:orders.index');
     Route::post('orders/control-panel-purchases-year', 'OrderController@controlPanelPurchasesPost')->name('orders.control-panel-purchases-year')->middleware('permission:orders.index');

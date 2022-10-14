@@ -81,7 +81,12 @@
 		{{-- Observaciones --}}
 		<label for="observations" class="col-md-2 col-form-label">{!! ucfirst(trans('textos.observaciones')) !!}</label>
 		<div class="col-md-10">
-			<x-input-textarea name="observations" class="editor" value="{{ $invoice->observations }}"/>
+			@php
+			//Se editan las observaciones del cliente o del proveedor según sea vista de compra o venta.
+			$observations = $is_sale? $invoice->provider_observations:$invoice->customer_observations;
+			@endphp
+
+			<x-input-textarea name="observations" class="editor" value="{{ $observations }}"/>
 		</div>
 	</div>
 

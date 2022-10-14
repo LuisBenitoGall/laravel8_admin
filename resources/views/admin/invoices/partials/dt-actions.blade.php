@@ -5,7 +5,10 @@
 	@endif
 
     {{-- Editar --}}
-	<a href="{{ route('invoices.edit', $row) }}" class="btn btn-xs btn-info" rel="tooltip" title="{{ ucfirst(trans('textos.editar')) }}"><i class="fa fa-edit"></i></a>
+    @php
+    $route = $environment == 'sales'? 'edit':'edit-purchase';
+    @endphp
+	<a href="{{ route('invoices.'.$route, $row) }}" class="btn btn-xs btn-info" rel="tooltip" title="{{ ucfirst(trans('textos.editar')) }}"><i class="fa fa-edit"></i></a>
 @endcan
 
 {{-- Ver --}}

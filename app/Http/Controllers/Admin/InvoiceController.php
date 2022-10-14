@@ -43,7 +43,8 @@ class InvoiceController extends Controller{
      * 2.2. Introducir factura de proveedor.
      * 2.3. Guardar factura de proveedor.
      * 3. Editar factura.
-     * 3.1. Mostrar factura.
+     * 3.1. Editar factura por parte de cliente.
+     * 3.2. Mostrar factura.
      * 4. Actualizar factura.
      * 5. Imprimir factura.
      * 6. Setear info para listado de facturas.
@@ -76,7 +77,9 @@ class InvoiceController extends Controller{
         $this->co_iva = CompanySettings::co_iva();
 
         $this->middleware('module_setted:accounting');
-        $this->middleware('invoice_get', ['only' => ['edit', 'update', 'print', 'block', 'updateTemplate', 'destroy']]);
+        $this->middleware('invoice_customer_get', ['only' => ['editPurchase']]);
+        $this->middleware('invoice_get', ['only' => ['edit', 'block', 'updateTemplate', 'destroy']]);
+        $this->middleware('invoice_update_get', ['only' => ['update', 'print']]);
         $this->middleware('invoice_post', ['only' => ['refund']]);
         $this->middleware('invoice_modality', ['only' => ['createFromOrder']]);
         $this->middleware('invoice_order_remove', ['only' => ['removeFromInvoice']]);
@@ -711,19 +714,11 @@ class InvoiceController extends Controller{
         ->pluck('companies.name', 'companies.id')
         ->toArray();
 
-        //Pedidos de compra:
-        $orders = Order::select(
-            DB::raw("CONCAT(purchase_num, ' - ', name) AS purchase"),'id')
-        ->where('is_order', 1)
-        ->where('customer_id', session('currentCompany'))
-        ->pluck('purchase', 'id')
-        ->toArray();
-
         $languages = $this->languages;
 
         $currency = $this->co_currency;
 
-        return view('admin.invoices.invoice-by-provider')->with(compact('header', 'providers', 'orders', 'languages', 'currency'));          
+        return view('admin.invoices.invoice-by-provider')->with(compact('header', 'providers', 'languages', 'currency'));          
     }
 
     /**
@@ -766,7 +761,7 @@ class InvoiceController extends Controller{
         $inv->fiscal_date = $fiscal_date;
         $inv->expiration_date = $expiration_date;
         $inv->user_id = Auth::user()->id;
-        $inv->observations = $request->observations;
+        $inv->provider_observations = $request->provider_observations;
         $inv->status = $request->status;   
         $inv->save();
 
@@ -784,6 +779,9 @@ class InvoiceController extends Controller{
             'module' => $this->module,
             'slug' => 'invoices'
         ]; 
+
+        //Entorno: venta.
+        $is_sale = true;
 
         //Pedido:
         $order = Order::find($invoice->order_id);
@@ -864,7 +862,7 @@ class InvoiceController extends Controller{
         }
 
         //Moneda:
-        $currency = CompanySettings::co_currency(0);
+        $currency = $this->co_currency;
 
         $languages = $this->languages;
 
@@ -905,11 +903,95 @@ class InvoiceController extends Controller{
             if($ba->featured == 1) $bank_featured = $ba->id;
         }
 
-        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'order', 'suborders', 'invoiced', 'invoices', 'refund', 'customer', 'provider', 'items', 'patterns', 'payments', 'templates', 'featuredTemplate', 'currency', 'languages', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'payment_methods', 'bank_accounts', 'bank_featured'));
+        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'is_sale', 'order', 'suborders', 'invoiced', 'invoices', 'refund', 'customer', 'provider', 'items', 'patterns', 'payments', 'templates', 'featuredTemplate', 'currency', 'languages', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'payment_methods', 'bank_accounts', 'bank_featured'));
     }
 
     /**
-     * 3.1. Mostrar factura.
+     * 3.1. Editar factura por parte de cliente.
+     */
+    public function editPurchase(Invoice $invoice, $tab = false){
+        $header = [
+            'option' => $this->option, 
+            'suboption' => 'textos.factura_compra_editar',
+            'module' => $this->module,
+            'slug' => 'invoices'
+        ]; 
+
+        //Entorno: compra.
+        $is_sale = false;
+
+        //Pedido:
+        $order = Order::find($invoice->order_id);
+
+        //Importe facturado:
+        $invoiced = $order->getInvoicedAmount();
+
+        //Facturas del pedido:
+        $invoices = Invoice::select('id', 'amount', 'amount_with_iva')
+        ->where('order_id', $order->id)
+        ->get();
+
+        $refund = false;
+
+        //CLIENTE:
+        $customer = Company::select('id', 'name', 'tradename')->find($order->customer_id); 
+
+        //PROVEEDOR:
+        $provider = Company::select('id', 'name', 'tradename')->find($order->provider_id);
+
+        //Líneas del pedido: 
+        $items = Item::where('order_id', $order->id)
+        ->orderBy('concept', 'ASC')
+        ->get();
+
+        //Moneda:
+        $currency = $this->co_currency;
+
+        $languages = $this->languages;
+
+        $patterns = false;
+
+        //Pagos:
+        $payments = InvoicePayments::where('invoice_id', $invoice->id)
+        ->orderBy('created_at', 'DESC')
+        ->get();
+
+        //Templates:
+        $templates = [];
+
+        //Template por defecto:
+        $featuredTemplate = false;
+
+        //Cambios bloqueados: establece en función de si el pedido está facturado o no, las opciones que quedan bloqueadas.
+        $permitted = true;
+
+        $module_budgets = $this->settedModule('budgets');
+        $module_products = $this->settedModule('products');
+        $module_projects = $this->settedModule('projects');
+
+        //Importe:
+        if($order->bag_amount){
+            $order_amount = $order->bag_amount;
+        }else{
+            $items = $order->items();
+            $arr_amounts = $order->getAmount();    
+
+            $order_amount = $arr_amounts['amount_with_discount'];
+            $order_amount_without_discount = $arr_amounts['amount_without_discount'];
+        } 
+
+        //Métodos de pago:
+        $payment_methods = helpers::paymentMethods();
+
+        //Cuentas bancarias:
+        $bank_accounts = [];
+        $bank_featured = false;
+
+        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'is_sale', 'order', 'invoiced', 'invoices', 'refund', 'customer', 'provider', 'items', 'currency', 'languages', 'patterns', 'payments', 'templates', 'featuredTemplate', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'payment_methods', 'bank_accounts', 'bank_featured'));
+    }
+
+    /**
+     * 3.2. Mostrar factura.
      */
     public function show(Invoice $invoice){
         $header = [
@@ -959,37 +1041,51 @@ class InvoiceController extends Controller{
      * 4. Actualizar factura.
      */
     public function update(Request $request, Invoice $invoice){
-        //Número de factura:
-        $invoice_num = false;
-        if($request->pattern_id){
-            $patternNum = $this->setPatternNumber('invoice', $request->pattern_id);
-        } 
+        //Discriminamos si el update lo hace el vendedor o el comprador:
+        $order = $invoice->order_id? Order::select('customer_id', 'provider_id')->find($invoice->order_id):false;
 
-        //Formateando fechas:
-        $fiscal_date = $request->fiscal_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->fiscal_date):$request->fiscal_date:NULL;
-        $expiration_date = $request->expiration_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->expiration_date):$request->expiration_date:NULL;
+        $is_sale = $order && $order->provider_id == session('currentCompany')? true:false;
 
-        //Actualizando datos:
-        if($request->pattern_id){
-            if(!empty($patternNum)){
-                $invoice->invoice_num = $patternNum['pattern_num'];  
-                $invoice->num_cardinal = $patternNum['num']; 
-            }            
-            $invoice->pattern_id = $request->pattern_id;
+        //Venta:
+        if($is_sale){
+            //Número de factura:
+            $invoice_num = false;
+            if($request->pattern_id){
+                $patternNum = $this->setPatternNumber('invoice', $request->pattern_id);
+            } 
+
+            //Formateando fechas:
+            $fiscal_date = $request->fiscal_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->fiscal_date):$request->fiscal_date:NULL;
+            $expiration_date = $request->expiration_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->expiration_date):$request->expiration_date:NULL;
+
+            //Actualizando datos:
+            if($request->pattern_id){
+                if(!empty($patternNum)){
+                    $invoice->invoice_num = $patternNum['pattern_num'];  
+                    $invoice->num_cardinal = $patternNum['num']; 
+                }            
+                $invoice->pattern_id = $request->pattern_id;
+            }
+
+            //Campos que sólo se actualizan si la factura NO está bloqueada:
+            if(!$invoice->blocked){
+                $invoice->invoice_old_num = $request->invoice_old_num;
+                $invoice->fiscal_date = $fiscal_date;
+                $invoice->expiration_date = $expiration_date;
+                $invoice->status = $request->status? $request->status:'0';
+            }
+            $invoice->provider_observations = $request->observations;
+
+        //Compra:
+        }else{
+            $invoice->customer_observations = $request->observations;    
         }
 
-        //Campos que sólo se actualizan si la factura NO está bloqueada:
-        if(!$invoice->blocked){
-            $invoice->invoice_old_num = $request->invoice_old_num;
-            $invoice->fiscal_date = $fiscal_date;
-            $invoice->expiration_date = $expiration_date;
-            $invoice->status = $request->status? $request->status:'0';
-        }
-        $invoice->observations = $request->observations;
         $invoice->save();
 
         $msg = trans('textos.factura_updated');
-        return redirect()->route('invoices.edit', [$invoice, false])->with(compact('msg'));
+        $route = $is_sale? 'edit':'edit-purchase';
+        return redirect()->route('invoices.'.$route, [$invoice, false])->with(compact('msg'));
     }
 
     /**
@@ -1401,7 +1497,7 @@ class InvoiceController extends Controller{
         $refund->fiscal_date = $invoice->fiscal_date;
         $refund->expiration_date = $invoice->expiration_date;
         $refund->user_id = Auth::user()->id;
-        $refund->observations = $request->concept;
+        $refund->provider_observations = $request->concept;
         $refund->template_id = $invoice->template_id;
         $refund->template = $invoice->template;
         $refund->save();

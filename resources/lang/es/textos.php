@@ -1374,6 +1374,7 @@ return [
 	'fecha_vencimiento_prevista' => 'Fecha vencimiento prevista',
 	'factura' => 'Factura',
 	'factura_acumulado' => 'Acumulado factura',
+	'factura_compra_editar' => 'Editar factura de compra',
 	'factura_compra_introducir' => 'Introducir factura de compra',
 	'factura_editar' => 'Editar factura',
 	'facturar' => 'Facturar',

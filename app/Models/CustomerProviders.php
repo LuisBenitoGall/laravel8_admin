@@ -53,7 +53,7 @@ class CustomerProviders extends Model{
     public static function customerProvider($customer, $provider){
         $data = CustomerProviders::where('customer_id', $customer)
         ->where('provider_id', $provider)
-        ->where('status', 1)
+        //->where('status', 1)
         ->first();
 
         return $data;

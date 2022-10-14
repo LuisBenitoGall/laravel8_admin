@@ -2802,7 +2802,7 @@ class ImportOldDBController extends Controller{
                 $i->invoice_old_num = $r->old_invoice;
                 $i->order_id = $r->order_id;
                 $i->amount = $r->total_amount;
-                $i->with_iva = $r->with_iva;
+                $i->with_iva = config('constants.IVA_DEFAULT_');
                 $i->amount_with_iva = $r->amount_with_iva? $r->amount_with_iva:'0';
                 $i->fiscal_date = $r->fiscal_date;
                 $i->expiration_date = $r->expiration_date;

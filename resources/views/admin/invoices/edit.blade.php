@@ -4,7 +4,7 @@
 
 @php
 $disabled = $invoice->blocked? true:false;
-$readonly = $invoice->blocked? true:false;
+$readonly = $invoice->blocked && !$is_sale? true:false;
 @endphp
 
 <div class="row mb-3">
@@ -18,9 +18,14 @@ $readonly = $invoice->blocked? true:false;
 			</a>
 		@endcan
 
-		{{-- Presupuesto --}}
+		{{-- Presupuesto - condiciones: 
+			1. Permisos de edición.
+			2. Pedido existe en formato presupuesto.
+			3. Se trata de una venta.
+			...
+		--}}
 		@can('budgets.edit')
-			@if($order->is_budget)
+			@if($order->is_budget && $is_sale)
 				<a target="_blank" href="{{ route('budgets.edit', $order->id) }}" class="btn btn-info">
 					<i class="fa fa-file-alt"></i>
 					{!! ucfirst(trans('textos.presupuesto')) !!}
@@ -66,9 +71,10 @@ $readonly = $invoice->blocked? true:false;
 
 		{{-- Agregar cobro - condiciones: 
 			1. No debe tratarse de una factura de abono.
+			2. Ser una venta.
 			...
 		--}}
-		@if(!$invoice->refund)
+		@if(!$invoice->refund && $is_sale)
 			<a href="#" class="btn btn-warning" data-toggle="modal" data-target="#modal-add-payment">
 				<i class="fa fa-cash-register"></i>
 				{{ ucfirst(trans('textos.cobro_add')) }}
@@ -99,15 +105,19 @@ $readonly = $invoice->blocked? true:false;
 	        @endif
         @endcan
 
-		{{-- Bloquear factura / factura bloqueada --}}
-		@if(!$invoice->blocked)
-			<a href="{{ route('invoices.block', $invoice) }}" class="btn btn-warning close-animation btn-confirm ml-3" data-msg="{{ trans('textos.factura_bloquear_confirm') }}" rel="tooltip" title="{!! ucfirst(trans('textos.factura_bloquear')) !!}">
-				<i class="fa fa-unlock"></i>
-			</a>
-		@else
-			<a href="#" class="btn btn-danger close-animation ml-3" rel="tooltip" title="{!! ucfirst(trans('textos.factura_bloqueada')) !!}">
-				<i class="fa fa-lock"></i>
-			</a>		
+		{{-- Bloquear factura / factura bloqueada - condiciones: 
+			1. Ser una venta.
+		--}}
+		@if($is_sale)
+			@if(!$invoice->blocked)
+				<a href="{{ route('invoices.block', $invoice) }}" class="btn btn-warning close-animation btn-confirm ml-3" data-msg="{{ trans('textos.factura_bloquear_confirm') }}" rel="tooltip" title="{!! ucfirst(trans('textos.factura_bloquear')) !!}">
+					<i class="fa fa-unlock"></i>
+				</a>
+			@else
+				<a href="#" class="btn btn-danger close-animation ml-3" rel="tooltip" title="{!! ucfirst(trans('textos.factura_bloqueada')) !!}">
+					<i class="fa fa-lock"></i>
+				</a>		
+			@endif
 		@endif
 	</div>
 </div>
@@ -234,12 +244,17 @@ $readonly = $invoice->blocked? true:false;
 				  		</li>
 				  	@endif
 
-			  		<li class="nav-item @if($tab == 'template') active @endif">
-			  			<a class="nav-link @if($tab == 'template') active @endif" href="#tab-template" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.plantilla')) !!}</a>	
-			  		</li>
+				  	@if($is_sale)
+				  		<li class="nav-item @if($tab == 'template') active @endif">
+				  			<a class="nav-link @if($tab == 'template') active @endif" href="#tab-template" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.plantilla')) !!}</a>	
+				  		</li>
+				  	@endif
 
 			  		<li class="nav-item @if($tab == 'payments') active @endif">
-			  			<a class="nav-link @if($tab == 'payments') active @endif" href="#tab-payments" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.cobros')) !!}</a>	
+			  			@php
+			  			$text = $is_sale? 'cobros':'pagos';
+			  			@endphp
+			  			<a class="nav-link @if($tab == 'payments') active @endif" href="#tab-payments" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.'.$text)) !!}</a>	
 			  		</li>
 			  	</ul>
 
@@ -262,9 +277,11 @@ $readonly = $invoice->blocked? true:false;
 					@endif
 
 					{{-- Plantilla --}}
-					<div class="tab-pane fade @if($tab == 'template') show active @endif" role="tabpanel" id="tab-template">
-						@include('admin.invoices.partials.invoice-template')	
-					</div>
+					@if($is_sale)
+						<div class="tab-pane fade @if($tab == 'template') show active @endif" role="tabpanel" id="tab-template">
+							@include('admin.invoices.partials.invoice-template')	
+						</div>
+					@endif
 
 					{{-- Cobros --}}
 					<div class="tab-pane fade @if($tab == 'payments') show active @endif" role="tabpanel" id="tab-payments">

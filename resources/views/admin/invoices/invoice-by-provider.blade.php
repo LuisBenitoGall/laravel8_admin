@@ -34,7 +34,7 @@
 						{{-- Pedido --}}
 						<label for="order_id" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.pedido_compra')) !!}</label>
 						<div class="col-lg-4">
-							<x-select name="order_id" class="select2" label="pedido_selec" :options="$orders"/>
+							<x-select name="order_id" id="orderId" class="select2" label="pedido_selec" :options="[]" disabled/>
 						</div>
 					</div>
 
@@ -119,5 +119,33 @@
 {{-- Modals --}}
 {{-- Add provider --}}
 @include('admin.expenses.partials.modal-add-provider')
+
+@push('scripts')
+<script>
+$(function(){
+	//Selección de pedidos en función del proveedor:
+	$('#expenseProvider').on('change', function (event){
+        $('#town_id').html('');
+        $('#expenseProvider option:selected').each(function (){
+            var id = event.target.value;	
+
+            if (id == null || id == 0) {
+                $('#providerId').attr('disabled', 'disabled');
+            }else{
+                $('#providerId').removeAttr('disabled');
+	            $.get("admin/orders/" + id + "/about-providers", function (response, state) {
+	                $("#provider_id").append('<option value="">' + txtPedidoSelec + '</option>');
+	                for (i = 0; i < response.length; i++){
+                    	$("#providerId").append('<option value="' + response[i].id + '">' + response[i].name + '</option>');
+	                }
+	            });
+	        }
+        });
+    });
+
+});
+</script>
+@endpush
+	
 
 @endsection

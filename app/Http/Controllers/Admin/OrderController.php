@@ -76,6 +76,7 @@ class OrderController extends Controller{
      * 21. Imprimir pedido.
      * 22. Añadir miembro a equipo.
      * 23. Eliminar miembro de equipo.
+     * 24. Pedidos según proveedor.
      */
     
     private $option = 'pedidos';
@@ -1846,6 +1847,16 @@ class OrderController extends Controller{
         
         $msg = trans('textos.miembro_deleted');
         return redirect()->route('orders.edit', [$order, 'teams'])->with(compact('msg'));
+    }
+
+    /**
+     * 24. Pedidos según proveedor.
+     */
+    public function aboutProviders(Request $request, $provider_id){
+        if($request->ajax()){ 
+            $data = Order::
+
+        }     
     }
     
 }
