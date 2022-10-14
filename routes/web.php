@@ -798,6 +798,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::put('roles/{role}', 'RoleController@update')->name('roles.update')->middleware('permission:roles.edit');
     Route::delete('roles/{role}', 'RoleController@destroy')->name('roles.destroy')->middleware('permission:roles.destroy');
     Route::get('roles/get-slug/{texto}', 'RoleController@create_slug')->name('roles.get-slug');
+    Route::post('roles/copy', 'RoleController@copy')->name('roles.copy')->middleware('permission:roles.create');
 
     // Schedule Event Types:
     Route::get('schedule-event-types', 'ScheduleEventTypesController@index')->name('schedule-event-types.index')->middleware('permission:schedules.edit');
