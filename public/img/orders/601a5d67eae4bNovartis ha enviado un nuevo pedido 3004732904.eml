@@ -1,0 +1,9669 @@
+Delivered-To: mcasado@weareadn.com
+Received: by 2002:a55:95ca:0:b029:cc:4263:65e2 with SMTP id i10csp134089egb;
+        Tue, 2 Feb 2021 13:16:50 -0800 (PST)
+X-Received: by 2002:a9d:7753:: with SMTP id t19mr18024427otl.114.1612300610126;
+        Tue, 02 Feb 2021 13:16:50 -0800 (PST)
+ARC-Seal: i=3; a=rsa-sha256; t=1612300610; cv=pass;
+        d=google.com; s=arc-20160816;
+        b=pVcMpubuGw2ICocsSCk4DXDEKcjEh9qm39galhuGeoNFrvOJugLz5A6HAzsgynGJqq
+         I18umOlIpHhsN3U6o8Zxg3nr1LjN89Jf0RIBATUuY4UnlJpJKxWFyzjqUKTilAKz3/5A
+         EoTNYEBJk357FHku4w3yHZQNiBM/Hi1PMy58ig0TfD85jb3xnQIjn22vnh6hK+kcvL4+
+         wCyu9shtahL7FxGJ9V56wckSHq7KGJBiLEsBYbJ3a5PW4ZSqUmP9Z4FKV70p0STkPwtj
+         OoN1XaS5cLD7RhtpN71kKtbeKsJb8qWxe8FTI3RwTvM8Gh4V7QoBs7TKt4ukGwqUOUQ5
+         VruQ==
+ARC-Message-Signature: i=3; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-unsubscribe:list-archive:list-help:list-post:list-id
+         :mailing-list:precedence:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:dkim-signature;
+        bh=bfsdR1LFVZSwMuLbWqMgERy91c/PLlVXqgmMlfiR37Q=;
+        b=zQYLJ65A8eAXvoWAeOwDwbZHUkzZjpui0/O32ffvfPNVdM5Llg4zFdZ8ThDcNWE+xG
+         ATpX6PG3CtsKfM3hR83te1sqiYVYJVs/f9w+DLaEvaWhBqAdnAzq0yNJJWyhfT9fOK24
+         rfgOeVC6+WvgRK2Q0DHKlPnGXqPNm1k3vJbMi8Mfbj74HLm0t2NlaptY5RoGx1YZAyiK
+         tDL/wWUWWVtFb6pDmry7xp7YX8R4Gm50ArLME4xZ/ojwfBQ+9j6M5F2TuiVh2Q8bjl6v
+         cirZhQsJVwa5q+lcwt9dbh142AWwc2sFYe1PTg4cjNJm36A/kPihhPGwCbJYf6dMrPi0
+         u1JQ==
+ARC-Authentication-Results: i=3; mx.google.com;
+       dkim=pass header.i=@weareadn.com header.s=google header.b=KkTHU7Di;
+       arc=pass (i=2 spf=pass spfdomain=weareadn.com dkim=pass dkdomain=weareadn.com);
+       spf=pass (google.com: domain of oc+bncbdkn5jwhtmhbbqmc46aamgqeujegkdy@weareadn.com designates 209.85.220.69 as permitted sender) smtp.mailfrom=oc+bncBDKN5JWHTMHBBQMC46AAMGQEUJEGKDY@weareadn.com
+Return-Path: <oc+bncBDKN5JWHTMHBBQMC46AAMGQEUJEGKDY@weareadn.com>
+Received: from mail-sor-f69.google.com (mail-sor-f69.google.com. [209.85.220.69])
+        by mx.google.com with SMTPS id s27sor21001oij.14.2021.02.02.13.16.49
+        for <mcasado@weareadn.com>
+        (Google Transport Security);
+        Tue, 02 Feb 2021 13:16:50 -0800 (PST)
+Received-SPF: pass (google.com: domain of oc+bncbdkn5jwhtmhbbqmc46aamgqeujegkdy@weareadn.com designates 209.85.220.69 as permitted sender) client-ip=209.85.220.69;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@weareadn.com header.s=google header.b=KkTHU7Di;
+       arc=pass (i=2 spf=pass spfdomain=weareadn.com dkim=pass dkdomain=weareadn.com);
+       spf=pass (google.com: domain of oc+bncbdkn5jwhtmhbbqmc46aamgqeujegkdy@weareadn.com designates 209.85.220.69 as permitted sender) smtp.mailfrom=oc+bncBDKN5JWHTMHBBQMC46AAMGQEUJEGKDY@weareadn.com
+ARC-Seal: i=2; a=rsa-sha256; t=1612300609; cv=pass;
+        d=google.com; s=arc-20160816;
+        b=yboK+PJtOg/wRAHpO8NLPX9rUtwAXJdPanGCPCXoSs6y99aclS1lmBN9fCu+pSLxtt
+         8tOd36E21/qnZUpG7AnZfIaUy8Bp2kU2Tj6RxFobffSm+CU6UCvmbSOUbmqpQYv+04zt
+         1UStJewYytNY2aUPSEz0LMdzABJlqa7OE6nM3xMoYeGiDaTDJrCgOfzwVRklNd9EVC2i
+         3fwnrO3X0hFty43lWNN5W8rbpNETbiWyWCYSWAPNBmot5CGTg7R5u5vKNxZRMp8agbvQ
+         mg9seDb8QSeDEBNU2KEf0yj+/iUgybi+E4gc8CVtK7n09s/G2GKt2oemwyEcWv1dzwXE
+         Xcsw==
+ARC-Message-Signature: i=2; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-unsubscribe:list-archive:list-help:list-post:list-id
+         :mailing-list:precedence:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:dkim-signature;
+        bh=bfsdR1LFVZSwMuLbWqMgERy91c/PLlVXqgmMlfiR37Q=;
+        b=ZKNYeiFmYff5JZe2i8CcjtvP7loJtdOyIxc9li/w23CELGrnWH98umV5GK6x/vEsQC
+         6qmDxyUhdt9AwSa1WX/4zyyC4YJ1t+96i1ODgGMDrheR/DOgTKfJrIMsfBmXzWVp1P7i
+         mnZphm+Ohoasjq2yq29Ju9asSduvp0j8gZDbDla4xFJ7jLU6BbpQGj2sC+oYyuQURTDE
+         5v4hn8MBU75l2VnAGbssVvNCvPOEVjp5o07lMnyrpkrX5TOElcDBx+7VQZpE/c9dTVgw
+         HRb9I6/46AZCiGhT89JeKHSLh5NZ+5gw5vPDv1Hn4RYkNTOhr9aT3ljXnfRswxbYSdLH
+         7GFw==
+ARC-Authentication-Results: i=2; mx.google.com;
+       dkim=pass header.i=@weareadn.com header.s=google header.b="bdy/ikX3";
+       spf=pass (google.com: domain of mflores@weareadn.com designates 209.85.220.41 as permitted sender) smtp.mailfrom=mflores@weareadn.com
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=weareadn.com; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :x-original-sender:x-original-authentication-results:precedence
+         :mailing-list:list-id:list-post:list-help:list-archive
+         :list-unsubscribe;
+        bh=bfsdR1LFVZSwMuLbWqMgERy91c/PLlVXqgmMlfiR37Q=;
+        b=KkTHU7Di3pCr0MGLXLGOPffUhXikajscECTPNlMqXtahPfmdMhjTZdB5aW/sCK6bUJ
+         ORr4raY7JpdUz1w9GJHPUJoBj/ervnIB1VL7UBVfj09wg+qSXFyrf0gUFA45XSBvjrVo
+         cEMJcNGlOShXhb7OqBml+u4n7BeAvVVGI4ntqkVin0tCFatiaj75dAYCcfhmSuXsyFHY
+         43dFcMPqQbgu+fckv3x+rCPvPGMLW5sb3u9sJHk0t0w7L2WgJINjgXqH9+bYisWm3BMY
+         mG//8VrmyIMsWNN41BDIN7OJY81UN3opNRcnBSuph0OmSZ38fa5czpvIczpxyBFwZo4l
+         XFow==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:x-original-sender
+         :x-original-authentication-results:precedence:mailing-list:list-id
+         :x-spam-checked-in-group:list-post:list-help:list-archive
+         :list-unsubscribe;
+        bh=bfsdR1LFVZSwMuLbWqMgERy91c/PLlVXqgmMlfiR37Q=;
+        b=OUaEeUyG6/i3D8t5SwMp5wy/5qpMi89y1Pyo/Yz5tNDa6M0x24Qq8dvf4w//SICqlz
+         dOCg8zBxqs76J4iHdARGrV1qOLaXbRZ7W2YBbf3AXiIi0Uex+MP3NPSxSooam8Fac5+h
+         gvZ6cIUCek+oUBvkSyFluSVDIJyK2WuR7FcjXaCJts/VIjAmsVBlClw5GsOVmyiR50E4
+         Rw6LHt32zVExu/IoojaTbj4S3Kis9c2YzVyC3gnlJdsYRJxo57hh7wK4JSvQKvHWMhIQ
+         AYRndhD8nu2RNXQGrLP4xpASqeIHUXS88ETHPj/Yr0OeM5Qam7vgd5sTtvhBwl1QuR6Z
+         tRgQ==
+X-Gm-Message-State: AOAM533tno1XSMCHqKhT/yl5LJp6W2tjqomlSw1SfJPC1nWOrdsBH660
+	ibkd3vdAQcc2TXYLGBx734StHsqd
+X-Google-Smtp-Source: ABdhPJwH69gtqFo7G9xTxJ39IXJKpgGk7wq4QeBEcDZUvrFoUTgFX6v7RkljnbBgu4ZR40YQ0rKk/g==
+X-Received: by 2002:aca:f486:: with SMTP id s128mr4096491oih.113.1612300609456;
+        Tue, 02 Feb 2021 13:16:49 -0800 (PST)
+X-BeenThere: oc@weareadn.com
+Received: by 2002:a05:6830:1e4a:: with SMTP id e10ls5201528otj.7.gmail; Tue,
+ 02 Feb 2021 13:16:49 -0800 (PST)
+X-Received: by 2002:a9d:71c6:: with SMTP id z6mr17444229otj.276.1612300608565;
+        Tue, 02 Feb 2021 13:16:48 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1612300608; cv=none;
+        d=google.com; s=arc-20160816;
+        b=jWStHUNshS73FuvqJCJhrBOJfqjJCRpgqvE06F4QR6LdD1/2dKrs7zj0AnzY5K1G/r
+         +FEmfqaDrwTGCS0VwluhTgYviwuMPzLHBPek3il+LNT/dkQhl21OYS6Ul1WinMpLeMra
+         b8ngR0frh6BNME/75UU+JOn+WAL6hZR0F1ol4W+TPFySozS8NTNO8a7h+68ydEEwqDJ8
+         2FippF/mtNfcVzW51FtGOBSnrnogIxaR954gWgF6GoNxZn62GEkh/Le+Fbgpn6hr6ZE3
+         DLufF3kROpUlja3z3zusZdvAwHJF6dCoH1TQvORvXPvFuQrqM3Gv6NHHbGqvmX8Tf7wH
+         PUfQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
+         :dkim-signature;
+        bh=bfsdR1LFVZSwMuLbWqMgERy91c/PLlVXqgmMlfiR37Q=;
+        b=YLAOdOGvctCx7L1REG+U4STAL7N8HUNa/nTZvLeyXAFn7ldnPjkME8w18i8n5xQgXB
+         o8+vHn/k33tn300Q1axE22W7hr5NsExanGVOShJt25znqF+eiKJ01LyKmjqQJqamt+ou
+         /BoCUiKkuC9RXNxFrpCyMUqiL15w1sarmeERfU+xdk5MQR3gjnZlcN0+Qpz9Uuy7nUIb
+         L4e3CmktXljNeeFqeXOLOrKRnNlo5sB5KvZURxRnFLIXExAqsi+YJgbhoFf6xRdoJCSj
+         WxAMySRsSFFtJb5nafRdRypzWTWW3XWwfwhUpYIUTGx6Li7MbitTHIHlcASIVLJutjVh
+         JM2A==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@weareadn.com header.s=google header.b="bdy/ikX3";
+       spf=pass (google.com: domain of mflores@weareadn.com designates 209.85.220.41 as permitted sender) smtp.mailfrom=mflores@weareadn.com
+Received: from mail-sor-f41.google.com (mail-sor-f41.google.com. [209.85.220.41])
+        by mx.google.com with SMTPS id i4sor2221135ota.145.2021.02.02.13.16.48
+        for <oc@weareadn.com>
+        (Google Transport Security);
+        Tue, 02 Feb 2021 13:16:48 -0800 (PST)
+Received-SPF: pass (google.com: domain of mflores@weareadn.com designates 209.85.220.41 as permitted sender) client-ip=209.85.220.41;
+X-Received: by 2002:a05:6830:1182:: with SMTP id u2mr16421187otq.258.1612300607885;
+ Tue, 02 Feb 2021 13:16:47 -0800 (PST)
+MIME-Version: 1.0
+References: <AN-ORD-EID#prod#6a62mneyfblblcdj5#5#AN-PO-CLB#6suLjUfiYMdiDQz0LFj9Xb/y1DKyE7Ix62wSblP13w81kHpKVeUpX4xcxSa8lZoqjVY6ea8TRIVYw/XuPibzRB0ApNtHETraiNN84wpsxh7loQzgAGsaRIx/QdPB2vRK#635284832.1612294956829.JavaMail.anprod@app964.snv.ariba.com>
+In-Reply-To: <AN-ORD-EID#prod#6a62mneyfblblcdj5#5#AN-PO-CLB#6suLjUfiYMdiDQz0LFj9Xb/y1DKyE7Ix62wSblP13w81kHpKVeUpX4xcxSa8lZoqjVY6ea8TRIVYw/XuPibzRB0ApNtHETraiNN84wpsxh7loQzgAGsaRIx/QdPB2vRK#635284832.1612294956829.JavaMail.anprod@app964.snv.ariba.com>
+From: Marcelo Flores <mflores@weareadn.com>
+Date: Tue, 2 Feb 2021 22:16:36 +0100
+Message-ID: <CADXMXXVOcYXOi=AftsdtxKvkbD8jm6Q6vxoTsifKtP5j8m+LRg@mail.gmail.com>
+Subject: Fwd: Novartis ha enviado un nuevo pedido 3004732904
+To: Ordres de Compra <oc@weareadn.com>
+Content-Type: multipart/mixed; boundary="0000000000000172ab05ba60fdf4"
+X-Original-Sender: mflores@weareadn.com
+X-Original-Authentication-Results: mx.google.com;       dkim=pass
+ header.i=@weareadn.com header.s=google header.b="bdy/ikX3";       spf=pass
+ (google.com: domain of mflores@weareadn.com designates 209.85.220.41 as
+ permitted sender) smtp.mailfrom=mflores@weareadn.com
+Precedence: list
+Mailing-list: list oc@weareadn.com; contact oc+owners@weareadn.com
+List-ID: <oc.weareadn.com>
+X-Spam-Checked-In-Group: oc@weareadn.com
+X-Google-Group-Id: 597757308949
+List-Post: <https://groups.google.com/a/weareadn.com/group/oc/post>, <mailto:oc@weareadn.com>
+List-Help: <https://support.google.com/a/weareadn.com/bin/topic.py?topic=25838>,
+ <mailto:oc+help@weareadn.com>
+List-Archive: <https://groups.google.com/a/weareadn.com/group/oc/>
+List-Unsubscribe: <mailto:googlegroups-manage+597757308949+unsubscribe@googlegroups.com>,
+ <https://groups.google.com/a/weareadn.com/group/oc/subscribe>
+
+--0000000000000172ab05ba60fdf4
+Content-Type: multipart/alternative; boundary="0000000000000172aa05ba60fdf2"
+
+--0000000000000172aa05ba60fdf2
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+Marcelo Flores
+ADN
+Industria 127, 3a planta / 08025 BCN
+93.450.72.41 / 606.45.22.09
+www.weareadn.com
+
+---------- Forwarded message ---------
+De: '"Novartis"' via adn info COM <adninfocom@weareadn.com>
+Date: mar., 2 feb. 2021 20:42
+Subject: Novartis ha enviado un nuevo pedido 3004732904
+To: <adn@adncomunicacio.com>
+
+
+Puede contestar a este mensaje. Ariba Network u otro servicio de Ariba
+Cloud enviar=C3=A1 su respuesta al destinatario adecuado del mensaje y lo
+enlazar=C3=A1 a su documento correspondiente. SAP Ariba almacena su informa=
+ci=C3=B3n
+de contacto (direcci=C3=B3n de correo electr=C3=B3nico y nombre) de acuerdo=
+ a las
+directrices en
+https://service.ariba.com/w/collab-platform/common/tou/es/MessagingPolicy.h=
+tml.
+Al contestar a este mensaje est=C3=A1 aceptando las condiciones en las
+directrices.
+[image: ARIBA NETWORK]
+Novartis ha enviado un nuevo pedido
+Si hay m=C3=A1s de una direcci=C3=B3n de correo electr=C3=B3nico asociada c=
+on su
+organizaci=C3=B3n para la entrega de pedidos, se enviar=C3=A1 tambi=C3=A9n =
+una copia de
+este pedido a las dem=C3=A1s direcciones.
+Su cliente le ha enviado este pedido a trav=C3=A9s de Ariba Network.
+Procesar pedido
+<https://service.ariba.com/Supplier.aw/ad/laDoc?sc=3DZjNlOTAxNDAtYWVmMy00OT=
+Y4LTk1ZjctYmQxZTQ0YTE0NWVhOjUwMDAwMDAwMDAwMDAwMDAwMDY3NTIwMzc1OjU%3D&acctty=
+pe=3DTElHSFQ%3D>
+Enviar
+factura PDF <pdfinvoice-prod@ansmtp.ariba.com?subject=3DAN01003603018>
+
+Para acceder al pedido:Continuar
+<https://service.ariba.com/Supplier.aw/ad/documentDetail?docPayload=3D16122=
+94952271_443735439%40147.167.50.42&community=3D5&anp=3DAriba>
+
+*Este pedido de compra fue entregado por Ariba Network.   Para obtener m=C3=
+=A1s
+informaci=C3=B3n acerca de Ariba y Ariba Network, visite https://www.ariba.=
+com
+<https://www.ariba.com>.*
+
+Desde:
+Novartis Farmac=C3=A9utica S.A.
+Apartado de correos 1557
+08080 BARCELONA
+08
+Espa=C3=B1a
+Tel=C3=A9fono:  +ES () +34 93 3069999
+*Para: *
+*ADN Comunicaci=C3=B3, SL*
+carrer Industria, 127
+08025 Barcelona
+Barcelona
+Espa=C3=B1a
+Tel=C3=A9fono:
+Fax:
+Correo electr=C3=B3nico: fiscal@adncomunicacio.com
+Pedido de compra
+
+(Nuevo)
+3004732904
+Importe:
+
+685,00
+ EUR
+
+
+Informaci=C3=B3n de contacto
+Direcci=C3=B3n del proveedor
+Gerard Alonso Blasco
+Otra informaci=C3=B3n
+SystemID: P70CLNT060
+Terms and Condition:
+https://prod.novartis.es/terminos-y-condiciones-de-compra
+
+Expedir todos los art=C3=ADculos a
+Novartis Farmac=C3=A9utica S.A.
+
+Gran Via de les CortsCatalanes 764
+08013 Barcelona
+08
+Espa=C3=B1a
+C=C3=B3digo de expedici=C3=B3n:  ES068013764
+Tel=C3=A9fono:  + () +34933064464
+Correo electr=C3=B3nico:  javier.malpesa@novartis.com
+
+
+Facturar a
+Novartis Farmac=C3=A9utica S.A.
+Apartado de correos 1557
+08080 BARCELONA
+08
+Espa=C3=B1a
+Tel=C3=A9fono:  +ES () +34 93 3069999
+
+
+Entregar a
+Gerard Alonso Blasco
+-/-/-
+
+Art=C3=ADculos en l=C3=ADnea
+N=C3=BAmero de l=C3=ADnea N=C3=BAmero de repartos N=C2=BA de pieza/Descripc=
+i=C3=B3n Tipo
+Devoluci=C3=B3n Cant.
+(Unidad) Fecha para la que se requiere Precio por unidad Subtotal
+1
+Material
+  1,00 (EA) 15 feb 2021 260,00 EUR 260,00 EUR
+
+CONCEPT & PROJECT MANAGER
+
+
+Comentarios
+PRESUPUESTO N=C2=BA C2021-0040
+
+Expedir a
+ES06 Novartis Farmac=C3=A9utica S.A.
+Gran Via de les CortsCatalanes 764
+8013 Barcelona
+08
+Espa=C3=B1a
+
+Contabilidad
+Porcentual Porcentual 100.00
+
+Contabilidad
+CC P403581
+
+Otra informaci=C3=B3n
+Dominio de la clasificaci=C3=B3n: UNSPSC
+C=C3=B3digo de clasificaci=C3=B3n: 3505010
+N=C3=BAmero de l=C3=ADnea  N=C3=BAmero de repartos  N=C2=BA de pieza/Descri=
+pci=C3=B3n    Tipo
+Devoluci=C3=B3n  Cant. (Unidad)  Fecha para la que se requiere  Precio por
+unidad  Subtotal
+2
+Material
+  1,00 (EA) 15 feb 2021 360,00 EUR 360,00 EUR
+
+DISE=C3=91O Y CREATIVIDAD
+
+
+Expedir a
+ES06 Novartis Farmac=C3=A9utica S.A.
+Gran Via de les CortsCatalanes 764
+8013 Barcelona
+08
+Espa=C3=B1a
+
+Contabilidad
+Porcentual Porcentual 100.00
+
+Contabilidad
+CC P403581
+
+Otra informaci=C3=B3n
+Dominio de la clasificaci=C3=B3n: UNSPSC
+C=C3=B3digo de clasificaci=C3=B3n: 3505010
+N=C3=BAmero de l=C3=ADnea  N=C3=BAmero de repartos  N=C2=BA de pieza/Descri=
+pci=C3=B3n    Tipo
+Devoluci=C3=B3n  Cant. (Unidad)  Fecha para la que se requiere  Precio por
+unidad  Subtotal
+3
+Material
+  1,00 (EA) 15 feb 2021 65,00 EUR 65,00 EUR
+
+POST PRODUCCI=C3=93N
+
+
+Expedir a
+ES06 Novartis Farmac=C3=A9utica S.A.
+Gran Via de les CortsCatalanes 764
+8013 Barcelona
+08
+Espa=C3=B1a
+
+Contabilidad
+Porcentual Porcentual 100.00
+
+Contabilidad
+CC P403581
+
+Otra informaci=C3=B3n
+Dominio de la clasificaci=C3=B3n: UNSPSC
+C=C3=B3digo de clasificaci=C3=B3n: 3505010
+Pedido enviado el: martes 2 feb 2021 20:42 GMT+01:00
+Recibido por Ariba Network el: martes 2 feb 2021 20:42 GMT+01:00
+Este pedido ha sido enviado por Novartis AN01003603018 y entregado por
+Ariba Network.
+
+
+Subtotal:
+
+685,00
+ EUR
+=C2=BFTiene preguntas o comentarios para su cliente?
+Enviar mensaje
+<https://service.ariba.com/Supplier.aw/ad/collabPo?sc=3DZjNlOTAxNDAtYWVmMy0=
+0OTY4LTk1ZjctYmQxZTQ0YTE0NWVhOjUwMDAwMDAwMDAwMDAwMDAwMDY3NTIwMzc1OjU%3D>
+  Procesar pedido
+<https://service.ariba.com/Supplier.aw/ad/laDoc?sc=3DZjNlOTAxNDAtYWVmMy00OT=
+Y4LTk1ZjctYmQxZTQ0YTE0NWVhOjUwMDAwMDAwMDAwMDAwMDAwMDY3NTIwMzc1OjU%3D&acctty=
+pe=3DTElHSFQ%3D>
+  Enviar factura PDF
+<pdfinvoice-prod@ansmtp.ariba.com?subject=3DAN01003603018>
+Acerca de este mensaje
+Si tiene cualquier pregunta p=C3=B3ngase en contacto con *Novartis*. Si ust=
+ed no
+es la persona apropiada para recibir este mensaje, env=C3=ADelo a la person=
+a que
+corresponda dentro de su empresa.
+Nota: Todas las transacciones relacionadas con los pedidos de su cliente
+son =C3=BAnicamente entre usted y su cliente y est=C3=A1n sujetas a las con=
+diciones
+de los acuerdos ya existentes entre usted y su cliente. Ariba no es un
+agente de su cliente y no es responsable de ninguna parte del contenido del
+pedido de compra que se haya enviado en representaci=C3=B3n de este.
+
+<https://itunes.apple.com/us/app/ariba-supplier-mobile/id1056749681?ls=3D1&=
+mt=3D8>
+  <https://play.google.com/store/apps/details?id=3Dcom.sap.ariba.mint>
+C=C3=A1mbiese a m=C3=B3vil
+Ariba, Inc., 3420 Hillview Ave, Bldg3, Palo Alto, CA 94304, USA
+Declaraci=C3=B3n de privacidad de SAP Ariba
+<https://www.ariba.com/legal/ariba_privacy_statement.cfm> | Directrices
+sobre datos de Ariba
+<https://www.ariba.com/legal/ariba_data_policy.cfm> | Centro
+de ayuda <https://uex.ariba.com/le/email-light-account-registered>
+
+--0000000000000172aa05ba60fdf2
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"auto"><br><br><div data-smartmail=3D"gmail_signature">Marcelo F=
+lores<br>ADN<br>Industria 127, 3a planta / 08025 BCN<br>93.450.72.41 / 606.=
+45.22.09<br><a href=3D"http://www.weareadn.com">www.weareadn.com</a></div><=
+/div><br><div class=3D"gmail_quote"><div dir=3D"ltr" class=3D"gmail_attr">-=
+--------- Forwarded message ---------<br>De: <strong class=3D"gmail_sendern=
+ame" dir=3D"auto">&#39;&quot;Novartis&quot;&#39; via adn info COM</strong> =
+<span dir=3D"auto">&lt;<a href=3D"mailto:adninfocom@weareadn.com">adninfoco=
+m@weareadn.com</a>&gt;</span><br>Date: mar., 2 feb. 2021 20:42<br>Subject: =
+Novartis ha enviado un nuevo pedido 3004732904<br>To:  &lt;<a href=3D"mailt=
+o:adn@adncomunicacio.com">adn@adncomunicacio.com</a>&gt;<br></div><br><br><=
+div style=3D"background-color:#fff;padding:10px 0px">
+<div>
+    <p>
+        <span style=3D"color:#767676">
+            Puede contestar a este mensaje. Ariba Network u otro servicio d=
+e Ariba Cloud enviar=C3=A1 su respuesta al destinatario adecuado del mensaj=
+e y lo enlazar=C3=A1 a su documento correspondiente. SAP Ariba almacena su =
+informaci=C3=B3n de contacto (direcci=C3=B3n de correo electr=C3=B3nico y n=
+ombre) de acuerdo a las directrices en <a href=3D"https://service.ariba.com=
+/w/collab-platform/common/tou/es/MessagingPolicy.html" target=3D"_blank" re=
+l=3D"noreferrer">https://service.ariba.com/w/collab-platform/common/tou/es/=
+MessagingPolicy.html</a>. Al contestar a este mensaje est=C3=A1 aceptando l=
+as condiciones en las directrices.
+        </span>
+    </p>
+</div>
+
+</div>
+
+
+
+
+
+
+
+
+
+<table border=3D"0" cellpadding=3D"0" cellspacing=3D"0" style=3D"width:100%=
+">
+    <tr>
+        <td valign=3D"top" align=3D"left" style=3D"border:0px;margin:0px;te=
+xt-align:left;background-color:#16476f" class=3D"m_-8517796485531143414blue=
+Header">
+            <img style=3D"padding:10px" alt=3D"ARIBA NETWORK" height=3D"30"=
+ width=3D"150" src=3D"https://service.ariba.com/an/p/Ariba/img_interactive_=
+email_logo.png" border=3D"0">
+        </td>
+    </tr>
+    <tr>
+        <td align=3D"center" style=3D"text-align:center">
+            <table border=3D"0" cellpadding=3D"0" cellspacing=3D"0" style=
+=3D"padding:10px 30px;background-color:#ececec;width:100%;text-align:center=
+">
+                <tr>
+                    <td>
+                       =20
+<table cellspacing=3D"0" cellpadding=3D"0" width=3D"100%">
+<tr>
+<td style=3D"padding-top:20px" bgcolor=3D"#ececec"></td>
+</tr>
+<tr>
+<td style=3D"border:1px solid #dddddd;background-color:#ffffff!important" c=
+lass=3D"m_-8517796485531143414tdStyle">
+<table cellspacing=3D"0" cellpadding=3D"0" style=3D"width:100%">
+<tr>
+<td style=3D"padding:20px 25px;text-align:left" colspan=3D"2">
+<span class=3D"m_-8517796485531143414poHeaderTitleStyle" style=3D"font-size=
+:26px;font-family:HelveticaNeue-Light,Helvetica Neue Light,Helvetica,Helvet=
+ica Neue,HelveticaNeue;font-weight:300;color:#363636;line-height:1.15">Nova=
+rtis ha enviado un nuevo pedido</span>
+</td>
+</tr>
+<tr>
+<td colspan=3D"2">
+
+<table cellspacing=3D"0" cellpadding=3D"0" style=3D"width:97%;margin-left:2=
+5px;margin-right:25px">
+
+<tr>
+<td colspan=3D"2" style=3D"padding-top:10px;font-family:Verdana,Arial,Helve=
+tica,sans-serif!important;font-size:12px!important;color:#ffa62f">
+Si hay m=C3=A1s de una direcci=C3=B3n de correo electr=C3=B3nico asociada c=
+on su organizaci=C3=B3n para la entrega de pedidos, se enviar=C3=A1 tambi=
+=C3=A9n una copia de este pedido a las dem=C3=A1s direcciones.
+</td>
+</tr>
+
+
+<tr>
+<td colspan=3D"2" style=3D"font-family:Arial,Helvetica,sans-serif;font-size=
+:15px;color:#363636;line-height:1.33;text-align:left" class=3D"m_-851779648=
+5531143414poHeaderTextStyle">
+Su cliente le ha enviado este pedido a trav=C3=A9s de Ariba Network.
+</td>
+</tr>
+
+
+</table>
+
+</td>
+</tr>
+
+
+<tr>
+<td style=3D"width:5%;padding:10px;text-align:right">
+<img style=3D"max-height:40px" src=3D"https://service.ariba.com//an/logos/A=
+N01003603018.gif">
+</td>
+</tr>
+
+
+<tr>
+<td style=3D"padding:10px 25px 20px 25px" colspan=3D"2">
+<table cellpadding=3D"0" cellspacing=3D"0" width=3D"100%">
+
+<tr>
+<td width=3D"40%"></td>
+<td align=3D"center" bgcolor=3D"#00679e" style=3D"border-radius:0px;white-s=
+pace:nowrap;border:1px solid #00679e" class=3D"m_-8517796485531143414button=
+Container" width=3D"7%">
+<a style=3D"font-size:15px;font-family:Arial,Helvetica,sans-serif;color:#ff=
+ffff!important;text-decoration:none;border-radius:0px;padding:10px;letter-s=
+pacing:0.1px;border:1px solid #00679e;display:inline-block" class=3D"m_-851=
+7796485531143414laPoEmailButtonsStyle" href=3D"https://service.ariba.com/Su=
+pplier.aw/ad/laDoc?sc=3DZjNlOTAxNDAtYWVmMy00OTY4LTk1ZjctYmQxZTQ0YTE0NWVhOjU=
+wMDAwMDAwMDAwMDAwMDAwMDY3NTIwMzc1OjU%3D&amp;accttype=3DTElHSFQ%3D" target=
+=3D"_blank" rel=3D"noreferrer">
+Procesar pedido
+</a>
+</td>
+<td width=3D"5%"></td>
+<td align=3D"center" bgcolor=3D"#00679e" style=3D"border-radius:0px;white-s=
+pace:nowrap;border:1px solid #00679e" class=3D"m_-8517796485531143414button=
+Container" width=3D"7%">
+<a style=3D"font-size:15px;font-family:Arial,Helvetica,sans-serif;color:#ff=
+ffff!important;text-decoration:none;border-radius:0px;padding:10px;letter-s=
+pacing:0.1px;border:1px solid #00679e;display:inline-block" class=3D"m_-851=
+7796485531143414laPoEmailButtonsStyle" href=3D"mailto:pdfinvoice-prod@ansmt=
+p.ariba.com?subject=3DAN01003603018" target=3D"_blank" rel=3D"noreferrer">
+Enviar factura PDF
+</a>
+</td>
+<td width=3D"40%"></td>
+</tr>
+
+</table>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+<tr>
+<td style=3D"padding-top:20px" bgcolor=3D"#ececec"></td>
+</tr>
+<tr>
+<td style=3D"border:1px solid #dddddd;background-color:#ffffff!important" c=
+lass=3D"m_-8517796485531143414tdStyle">
+<table cellspacing=3D"0" cellpadding=3D"0" width=3D"100%">
+<tr>
+
+<td>
+<u></u>
+
+
+
+
+
+
+
+
+
+
+
+
+<div>
+
+<table width=3D"80%" align=3D"center" style=3D"border:1px solid #9c9cb8;mar=
+gin-top:15px">
+<tr>
+<td>
+<table width=3D"100%" align=3D"center" border=3D"0" cellpadding=3D"2" cells=
+pacing=3D"2">
+<tr>
+<td><span style=3D"color:#555580;font:bold 11px/15px Verdana,Arial,Helvetic=
+a,sans-serif">Para acceder al pedido:</span><a href=3D"https://service.arib=
+a.com/Supplier.aw/ad/documentDetail?docPayload=3D1612294952271_443735439%40=
+147.167.50.42&amp;community=3D5&amp;anp=3DAriba" target=3D"_blank" rel=3D"n=
+oreferrer">Continuar</a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+
+<table align=3D"center" cellspacing=3D"0" cellpadding=3D"0" width=3D"95%">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<tr>
+
+<td style=3D"vertical-align:top" width=3D"100%" valign=3D"top" align=3D"lef=
+t" colspan=3D"4"><br><i>Este pedido de compra fue entregado por Ariba Netwo=
+rk.=C2=A0=C2=A0
+Para obtener m=C3=A1s informaci=C3=B3n acerca de Ariba y Ariba Network, vis=
+ite <a href=3D"https://www.ariba.com" target=3D"_blank" rel=3D"noreferrer">=
+https://www.ariba.com</a>.</i><br><br></td>
+
+
+</tr>
+
+
+
+
+
+
+
+
+
+
+<tr>
+
+
+
+
+<td colspan=3D"2" align=3D"left" valign=3D"top" style=3D"vertical-align:top=
+" class=3D"m_-8517796485531143414poHeaderIEAddress">
+
+
+
+
+
+
+
+
+
+
+<table cellspacing=3D"2" cellpadding=3D"0"><tr>
+
+
+
+
+<td colspan=3D"2" align=3D"left" valign=3D"top" style=3D"vertical-align:top=
+"><table cellspacing=3D"2" cellpadding=3D"0">
+
+
+
+
+
+
+
+
+<tr>
+
+
+<td style=3D"vertical-align:top;vertical-align:top;padding-top:2px" valign=
+=3D"top" align=3D"left" colspan=3D"2"><span class=3D"m_-8517796485531143414=
+bodyBold">Desde:</span></td>
+
+
+
+
+</tr>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<td><span style=3D"vertical-align:top">
+
+
+
+
+
+
+
+
+
+<tr>
+<td colspan=3D"2" align=3D"left" valign=3D"top" style=3D"vertical-align:top=
+">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table cellspacing=3D"2" cellpadding=3D"0"></table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<span style=3D"vertical-align:top;font-weight:bold;padding-right:5px">
+Novartis Farmac=C3=A9utica S.A.
+
+
+
+
+
+
+
+
+</span>
+
+
+
+<br>
+
+
+
+
+
+
+
+
+
+
+
+
+<span style=3D"vertical-align:top">
+
+
+Apartado de correos 1557<br>
+
+
+
+08080=20
+BARCELONA
+<br>
+
+08
+<br>
+Espa=C3=B1a
+
+</span>
+
+
+<br>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<span>
+Tel=C3=A9fono:=C2=A0</span>
+
+
+<span>
++ES () +34 93 3069999 </span>
+
+
+
+<br>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</td>
+</tr>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</span>
+
+
+
+
+
+
+
+
+</td></table></td>
+
+
+
+
+</tr></table>
+
+
+
+
+
+
+
+
+
+
+
+</td>
+
+
+
+<td class=3D"m_-8517796485531143414paddingTop5 m_-8517796485531143414poHead=
+erIEAddress" colspan=3D"1" valign=3D"top" align=3D"left">
+<table cellpadding=3D"0" cellspacing=3D"0">
+<tr>
+<td style=3D"padding-right:2px" valign=3D"top">
+<b>Para:=C2=A0</b>
+</td>
+</tr>
+<tr>
+<td valign=3D"top" align=3D"left">
+<table cellpadding=3D"0" cellspacing=3D"0">
+<tr>
+
+<td valign=3D"top" align=3D"left">
+
+
+<b>ADN Comunicaci=C3=B3, SL</b>
+
+</td>
+
+
+</tr>
+<tr>
+
+<td valign=3D"top" align=3D"left">
+
+
+
+
+carrer Industria, 127<br>
+
+
+
+08025=20
+Barcelona
+<br>
+
+Barcelona
+<br>
+Espa=C3=B1a
+
+
+</td>
+
+
+</tr>
+<tr>
+
+<td valign=3D"top" align=3D"left">
+
+
+Tel=C3=A9fono:=20
+</td>
+
+
+</tr>
+<tr>
+
+<td valign=3D"top" align=3D"left">
+
+
+Fax:=20
+</td>
+
+
+</tr>
+<tr>
+
+<td valign=3D"top" align=3D"left">
+
+
+Correo electr=C3=B3nico: <a href=3D"mailto:fiscal@adncomunicacio.com" targe=
+t=3D"_blank" rel=3D"noreferrer">fiscal@adncomunicacio.com</a>
+
+
+
+</td>
+
+
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</td>
+
+<td colspan=3D"1" valign=3D"top" align=3D"right">
+<table>
+<tr>
+<td align=3D"right">
+Pedido de compra
+
+
+</td>
+</tr>
+<tr>
+<td align=3D"right">
+
+
+
+<div class=3D"m_-8517796485531143414poHeaderStatusStyle">(Nuevo)</div>
+
+
+
+
+
+<span style=3D"text-align:right;line-height:18px">
+
+3004732904
+
+</span>
+
+
+
+
+
+<div>
+<table border=3D"0" cellpadding=3D"0" cellspacing=3D"0"><tr>
+<td>
+<div align=3D"right">
+Importe:
+</div>
+</td>
+
+<td>
+<div align=3D"left">
+=C2=A0
+</div>
+</td>
+<td>
+<div align=3D"right">
+685,00
+</div>
+</td>
+<td>
+<div align=3D"right" style=3D"padding-right:0px">
+=C2=A0EUR
+</div>
+</td>
+
+
+</tr></table>
+</div>
+
+
+
+
+<div>
+
+
+</div>
+
+
+</td>
+</tr>
+</table>
+</td>
+
+
+</tr>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<td><span>
+</span><tr><td colspan=3D"4" style=3D"border-bottom:1px solid #d9d9d9">=C2=
+=A0</td></tr>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<tr>
+
+
+
+
+<td colspan=3D"3" align=3D"left" valign=3D"top" style=3D"vertical-align:top=
+" width=3D"80%"><table style=3D"padding-bottom:20px" width=3D"100%" cellspa=
+cing=3D"2" cellpadding=3D"0">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<tr>
+
+<td style=3D"vertical-align:bottom;padding-bottom:0px" valign=3D"bottom" al=
+ign=3D"left" colspan=3D"1"><div style=3D"padding-top:20px">
+<span>
+Informaci=C3=B3n de contacto
+</span>
+<span class=3D"m_-8517796485531143414ANBodyText">
+
+</span>
+</div>
+</td>
+
+
+</tr>
+
+
+
+<tr>
+
+
+
+
+<td style=3D"vertical-align:top" valign=3D"top" align=3D"left" colspan=3D"1=
+">
+<table cellspacing=3D"0" cellpadding=3D"0">
+
+
+
+
+
+
+
+
+<tr><td colspan=3D"4" align=3D"left" valign=3D"top" style=3D"vertical-align=
+:top">
+
+
+
+
+
+<table cellspacing=3D"2" cellpadding=3D"0">
+
+
+
+<tr>
+<td colspan=3D"2" align=3D"left" valign=3D"top" style=3D"vertical-align:top=
+">
+
+
+
+
+
+
+
+
+<span style=3D"vertical-align:top;font-weight:bold">
+Direcci=C3=B3n del proveedor
+
+
+
+
+
+
+
+
+</span>
+
+
+
+<br>
+
+
+
+
+
+
+
+
+
+<span style=3D"vertical-align:top">
+Gerard Alonso Blasco
+
+
+
+
+
+
+
+
+</span>
+
+
+
+<br>
+
+
+
+
+
+
+
+
+
+</td>
+</tr>
+
+
+
+</table>
+
+
+
+
+</td></tr>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</table>
+</td>
+
+
+
+
+
+<td style=3D"vertical-align:top" valign=3D"top" align=3D"left" colspan=3D"1=
+">
+<table cellspacing=3D"0" cellpadding=3D"0">
+
+
+
+
+
+</table>
+</td>
+
+
+
+
+</tr>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<tr>
+<td colspan=3D"2" align=3D"left" valign=3D"top" style=3D"vertical-align:top=
+">
+
+
+
+
+
+
+
+<table cellspacing=3D"2" cellpadding=3D"0">
+
+
+
+
+
+
+</table>
+
+
+
+
+
+</td>
+</tr>
+
+
+
+
+
+
+
+
+
+
+
+<tr>
+
+
+
+
+<td colspan=3D"3" align=3D"left" valign=3D"top" style=3D"vertical-align:top=
+"><table width=3D"100%" cellspacing=3D"2" cellpadding=3D"0">
+
+
+
+
+
+
+
+
+<tr>
+
+<td style=3D"vertical-align:bottom;padding-bottom:0px" valign=3D"bottom" al=
+ign=3D"left" colspan=3D"2"><div style=3D"padding-top:20px">
+<span>
+Otra informaci=C3=B3n<span class=3D"m_-8517796485531143414ANBodyText">
+
+</span>
+</span>
+<span class=3D"m_-8517796485531143414ANBodyText">
+
+</span>
+</div>
+</td>
+
+
+</tr>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<tr>
+
+
+
+
+
+<td colspan=3D"1" valign=3D"top" align=3D"left" width=3D"160px">
+
+
+SystemID:
+
+</td>
+
+
+
+
+
+
+<td style=3D"vertical-align:top" valign=3D"top" align=3D"left" colspan=3D"1=
+">P70CLNT060</td>
+
+
+</tr>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<tr>
+
+
+
+
+
+<td colspan=3D"1" valign=3D"top" align=3D"left" width=3D"160px">
+
+
+Terms and Condition:
+
+</td>
+
+
+
+
+
+
+<td style=3D"vertical-align:top" valign=3D"top" align=3D"left" colspan=3D"1=
+"><a href=3D"https://prod.novartis.es/terminos-y-condiciones-de-compra" tar=
+get=3D"_blank" rel=3D"noreferrer">https://prod.novartis.es/terminos-y-condi=
+ciones-de-compra</a></td>
+
+
+</tr>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</table></td>
+
+
+
+
+</tr>
+
+
+
+
+
+
+
+</table></td>
+
+
+
+
+
+
+
+
+<td colspan=3D"1" align=3D"right" valign=3D"top" style=3D"vertical-align:to=
+p" width=3D"20%"><table style=3D"padding-left:5px" cellspacing=3D"2" cellpa=
+dding=3D"0">
+
+
+
+
+
+
+
+
+
+
+
+
+</table></td>
+
+
+
+
+</tr>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<tr>
+
+
+
+
+<td colspan=3D"4" align=3D"left" valign=3D"top" style=3D"vertical-align:top=
+"><table class=3D"m_-8517796485531143414poHeaderIESpecfic" style=3D"height:=
+100%;width:100%;table-layout:fixed;margin-top:10px" cellspacing=3D"0" cellp=
+adding=3D"0">
+
+
+
+<tr>
+
+
+
+
+<td colspan=3D"1" align=3D"left" valign=3D"top" style=3D"vertical-align:top=
+;border:1px solid #d9d9d9"><table cellspacing=3D"2" cellpadding=3D"0">
+
+
+
+<tr>
+
+
+
+
+<td colspan=3D"2" align=3D"left" valign=3D"top" style=3D"vertical-align:top=
+"><table cellspacing=3D"2" cellpadding=3D"0">
+
+
+
+
+
+
+
+
+
+
+
+
+<tr>
+
+
+
+
+
+
+
+
+
+
+<td style=3D"vertical-align:bottom;padding-bottom:0px" valign=3D"bottom" al=
+ign=3D"left" colspan=3D"3"><div class=3D"m_-8517796485531143414poHeaderLege=
+ndStyle" style=3D"padding-top:0px">
+<span>
+Expedir todos los art=C3=ADculos a<span class=3D"m_-8517796485531143414ANBo=
+dyText">
+
+</span>
+</span>
+<span class=3D"m_-8517796485531143414ANBodyText">
+
+</span>
+</div>
+</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</tr>
+
+
+
+
+
+
+
+<tr>
+<td colspan=3D"2" align=3D"left" valign=3D"top" style=3D"vertical-align:top=
+">
+
+
+
+
+
+
+
+
+<span style=3D"vertical-align:top;font-weight:bold">
+Novartis Farmac=C3=A9utica S.A.
+
+
+
+
+
+
+
+
+</span>
+
+
+
+<br>
+
+
+
+
+
+
+
+
+
+
+
+
+<span style=3D"vertical-align:top">
+
+
+<br>
+
+Gran Via de les CortsCatalanes 764<br>
+
+08013=20
+Barcelona
+<br>
+
+08
+<br>
+Espa=C3=B1a
+
+</span>
+
+
+<br>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<span>
+C=C3=B3digo de expedici=C3=B3n:=C2=A0</span>
+
+
+
+<span style=3D"vertical-align:top">
+ES068013764
+
+
+
+
+
+
+
+
+</span>
+
+
+
+<br>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<span>
+Tel=C3=A9fono:=C2=A0</span>
+
+
+<span>
++ () +34933064464 </span>
+
+
+
+<br>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<span>
+Correo electr=C3=B3nico:=C2=A0</span>
+
+
+
+<span style=3D"vertical-align:top"><a href=3D"mailto:javier.malpesa@novarti=
+s.com" target=3D"_blank" rel=3D"noreferrer">javier.malpesa@novartis.com</a>
+
+
+
+
+
+
+
+</span>
+
+
+
+<br>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</td>
+</tr>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</table></td>
+
+
+
+
+</tr>
+
+
+
+
+</table></td>
+
+
+
+
+
+
+
+
+
+<td><span>
+</span><td width=3D"10px">=C2=A0</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<td colspan=3D"1" align=3D"left" valign=3D"top" style=3D"vertical-align:top=
+;border:1px solid #d9d9d9"><table cellspacing=3D"2" cellpadding=3D"0">
+
+
+
+<tr>
+
+
+
+
+<td colspan=3D"2" align=3D"left" valign=3D"top" style=3D"vertical-align:top=
+"><table cellspacing=3D"2" cellpadding=3D"0">
+
+
+
+
+
+
+
+
+<tr>
+
+<td style=3D"vertical-align:bottom;padding-bottom:0px" width=3D"65%" valign=
+=3D"bottom" align=3D"left" colspan=3D"2"><div class=3D"m_-85177964855311434=
+14poHeaderLegendStyle" style=3D"padding-top:0px">
+<span>
+Facturar a<span class=3D"m_-8517796485531143414ANBodyText">
+
+</span>
+</span>
+<span class=3D"m_-8517796485531143414ANBodyText">
+
+</span>
+</div>
+</td>
+
+
+</tr>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<tr>
+<td colspan=3D"2" align=3D"left" valign=3D"top" style=3D"vertical-align:top=
+">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table cellspacing=3D"2" cellpadding=3D"0"></table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<span style=3D"vertical-align:top;font-weight:bold;padding-right:5px">
+Novartis Farmac=C3=A9utica S.A.
+
+
+
+
+
+
+
+
+</span>
+
+
+
+<br>
+
+
+
+
+
+
+
+
+
+
+
+
+<span style=3D"vertical-align:top">
+
+
+Apartado de correos 1557<br>
+
+
+
+08080=20
+BARCELONA
+<br>
+
+08
+<br>
+Espa=C3=B1a
+
+</span>
+
+
+<br>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<span>
+Tel=C3=A9fono:=C2=A0</span>
+
+
+<span>
++ES () +34 93 3069999 </span>
+
+
+
+<br>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</td>
+</tr>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</table></td>
+
+
+
+
+</tr>
+
+
+
+
+</table></td>
+
+
+
+
+
+
+
+
+
+<td><span>
+</span><td width=3D"10px">=C2=A0</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<td colspan=3D"1" align=3D"left" valign=3D"top" style=3D"vertical-align:top=
+;border:1px solid #d9d9d9"><table cellspacing=3D"2" cellpadding=3D"0">
+
+
+
+<tr>
+
+
+
+
+<td colspan=3D"2" align=3D"left" valign=3D"top" style=3D"vertical-align:top=
+"><table cellspacing=3D"2" cellpadding=3D"0">
+
+
+
+
+
+
+
+
+<tr>
+
+<td style=3D"vertical-align:bottom;padding-bottom:0px" valign=3D"bottom" al=
+ign=3D"left" colspan=3D"1"><div class=3D"m_-8517796485531143414poHeaderLege=
+ndStyle" style=3D"padding-top:0px">
+<span>
+Entregar a<span class=3D"m_-8517796485531143414ANBodyText">
+
+</span>
+</span>
+<span class=3D"m_-8517796485531143414ANBodyText">
+
+</span>
+</div>
+</td>
+
+
+</tr>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<tr>
+
+
+
+
+<td style=3D"vertical-align:top;vertical-align:top" colspan=3D"1" valign=3D=
+"top" align=3D"left">
+
+
+Gerard Alonso Blasco
+
+
+
+
+
+
+
+
+</td>
+
+
+
+</tr>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<tr>
+
+
+
+
+<td style=3D"vertical-align:top;vertical-align:top" colspan=3D"1" valign=3D=
+"top" align=3D"left">
+
+
+-/-/-
+
+
+
+
+
+
+
+
+</td>
+
+
+
+</tr>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</table></td>
+
+
+
+
+</tr>
+
+
+
+
+</table></td>
+
+
+
+
+
+
+</td></td></tr>
+
+
+
+
+</table></td>
+
+
+
+
+</tr>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<td><span class=3D"m_-8517796485531143414scrollTableWrapper" style=3D"verti=
+cal-align:top">
+
+<tr>
+
+<td style=3D"vertical-align:top" width=3D"100%" valign=3D"top" align=3D"lef=
+t" colspan=3D"4">
+<table width=3D"100%" cellspacing=3D"0" class=3D"m_-8517796485531143414scro=
+llTableWrapper">
+<tr>
+<td colspan=3D"100" class=3D"m_-8517796485531143414tableHeader">
+
+<div>
+<h2><div>Art=C3=ADculos en l=C3=ADnea</div></h2>
+</div>
+
+
+<div class=3D"m_-8517796485531143414floatRight">
+
+</div>
+
+<div class=3D"m_-8517796485531143414headerBatchNavigationPadding">
+</div>
+
+
+</td>
+</tr>
+<tr>
+
+
+
+
+
+
+<th class=3D"m_-8517796485531143414tableHead" align=3D"left">N=C3=BAmero de=
+ l=C3=ADnea</th>
+<th class=3D"m_-8517796485531143414tableHead" align=3D"left">N=C3=BAmero de=
+ repartos</th>
+<th class=3D"m_-8517796485531143414tableHead" align=3D"left">N=C2=BA de pie=
+za/Descripci=C3=B3n</th>
+<th class=3D"m_-8517796485531143414tableHead" align=3D"left"></th>
+<th class=3D"m_-8517796485531143414tableHead" align=3D"left">Tipo</th>
+<th class=3D"m_-8517796485531143414tableHead" align=3D"left">Devoluci=C3=B3=
+n</th>
+<th class=3D"m_-8517796485531143414tableHead" align=3D"left">Cant. (Unidad)=
+</th>
+<th class=3D"m_-8517796485531143414tableHead" align=3D"left">Fecha para la =
+que se requiere</th>
+<th style=3D"text-align:right" class=3D"m_-8517796485531143414tableHead" al=
+ign=3D"left">Precio por unidad</th>
+<th style=3D"text-align:right" class=3D"m_-8517796485531143414tableHead" al=
+ign=3D"left">Subtotal</th>
+
+
+</tr>
+<td><div></div>
+
+
+
+
+
+
+
+
+<tr id=3D"m_-8517796485531143414_3ricqb" bgcolor=3D"#ffffff">
+
+
+
+
+
+
+
+
+
+<td style=3D"vertical-align:top" width=3D"1%" valign=3D"top" align=3D"left"=
+ colspan=3D"1" class=3D"m_-8517796485531143414tableBodyClass"><span>
+<table class=3D"m_-8517796485531143414tableBodyClass" cellpadding=3D"0" cel=
+lspacing=3D"0">
+<tr>
+
+
+
+
+
+<td>
+
+1
+
+</td>
+
+
+
+</tr>
+</table>
+</span></td>
+
+
+
+
+
+
+
+
+
+<td style=3D"vertical-align:top" valign=3D"top" align=3D"left" colspan=3D"1=
+" class=3D"m_-8517796485531143414tableBodyClass">
+
+</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<td><span>
+</span><td class=3D"m_-8517796485531143414tableBodyClass">=C2=A0</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   =20
+
+
+
+<td style=3D"vertical-align:top" width=3D"1%" valign=3D"top" align=3D"left"=
+ colspan=3D"1" nowrap class=3D"m_-8517796485531143414tableBodyClass">
+
+=C2=A0
+
+</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<td style=3D"vertical-align:top" valign=3D"top" align=3D"left" colspan=3D"1=
+" class=3D"m_-8517796485531143414tableBodyClass">
+
+<div style=3D"float:left;display:inline-block">
+<div>
+
+Material
+
+</div>
+<div>
+
+</div>
+<div>
+
+</div>
+</div>
+
+</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<td style=3D"vertical-align:top;vertical-align:top" valign=3D"top" align=3D=
+"left" colspan=3D"1" class=3D"m_-8517796485531143414tableBodyClass">
+
+
+=C2=A0
+
+
+
+
+
+
+
+</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<td colspan=3D"1" align=3D"left" valign=3D"top" style=3D"vertical-align:top=
+" class=3D"m_-8517796485531143414tableBodyClass">
+
+
+
+
+
+
+
+
+<span style=3D"vertical-align:top">
+1,00
+
+
+
+
+
+</span>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<span>
+
+(EA)
+
+
+
+
+</span>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<td style=3D"vertical-align:top;vertical-align:top" valign=3D"top" align=3D=
+"left" colspan=3D"1" class=3D"m_-8517796485531143414tableBodyClass">
+
+
+15 feb 2021
+
+
+
+
+
+
+
+
+
+
+
+</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<td style=3D"vertical-align:top" valign=3D"top" align=3D"left" colspan=3D"1=
+" class=3D"m_-8517796485531143414tableBodyClass">
+<span>
+260,00 EUR</span>
+</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<td style=3D"vertical-align:top" valign=3D"top" align=3D"right" colspan=3D"=
+1" class=3D"m_-8517796485531143414tableBodyClass">
+
+
+260,00 EUR
+
+
+</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</td></tr>
+
+<tr id=3D"m_-8517796485531143414_kokgf" bgcolor=3D"#ffffff">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<td><span>
+</span><td>=C2=A0</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<td><span>
+</span><td>=C2=A0</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<td colspan=3D"100" align=3D"left" valign=3D"top" style=3D"vertical-align:t=
+op"><table cellspacing=3D"2" cellpadding=3D"0">
+
+
+
+<tr>
+<td colspan=3D"12" align=3D"left" valign=3D"top" style=3D"vertical-align:to=
+p;width:100%;padding:0 5px 3px 3px">
+
+
+
+
+
+
+
+
+
+<table cellspacing=3D"2" cellpadding=3D"0">
+
+
+<tr>
+
+
+
+
+<td style=3D"vertical-align:top;vertical-align:top" colspan=3D"1" valign=3D=
+"top" align=3D"left">
+
+
+CONCEPT &amp; PROJECT MANAGER
+
+
+
+
+
+
+
+
+</td>
+
+
+
+</tr>
+
+
+
+
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</td>
+</tr>
+
+
+
+</table></td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</td></td></tr>
+
+
+
+
+
+
+<tr id=3D"m_-8517796485531143414_hhyzid" bgcolor=3D"#ffffff">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<td><span>
+</span><td>=C2=A0</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<td colspan=3D"12" align=3D"left" valign=3D"top" style=3D"vertical-align:to=
+p"><table style=3D"width:100%;padding:5px 25px 5px 0px" cellspacing=3D"2" c=
+ellpadding=3D"0">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<tr>
+
+<td style=3D"vertical-align:bottom;padding-bottom:0px" valign=3D"bottom" al=
+ign=3D"left" colspan=3D"2"><div style=3D"padding-top:15px">
+<span>
+Comentarios<span class=3D"m_-8517796485531143414ANBodyText">
+
+</span>
+</span>
+<span class=3D"m_-8517796485531143414ANBodyText">
+
+</span>
+</div>
+</td>
+
+
+</tr>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<tr>
+
+
+
+
+<td style=3D"vertical-align:top;vertical-align:top" colspan=3D"3" valign=3D=
+"top" align=3D"left" width=3D"100%">
+
+
+PRESUPUESTO N=C2=BA C2021-0040
+
+
+
+
+
+
+
+
+</td>
+
+
+
+</tr>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<tr>
+
+
+
+
+
+
+
+
+
+
+
+
+<td style=3D"vertical-align:bottom;padding-bottom:0px" valign=3D"bottom" al=
+ign=3D"left" colspan=3D"2"><div class=3D"m_-8517796485531143414poHeaderLege=
+ndStyle" style=3D"padding-top:25px;margin-top:10px;padding-left:20px">
+<span>
+Expedir a<span class=3D"m_-8517796485531143414ANBodyText">
+
+</span>
+</span>
+<span class=3D"m_-8517796485531143414ANBodyText">
+
+</span>
+</div>
+</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</tr>
+
+
+
+
+
+
+
+
+
+<tr>
+
+
+
+
+
+
+
+
+<td colspan=3D"2" align=3D"left" valign=3D"top" style=3D"vertical-align:top=
+" width=3D"100%;"><table cellspacing=3D"2" cellpadding=3D"5">
+
+
+<tr>
+
+
+
+
+<td style=3D"vertical-align:top;vertical-align:top;font-weight:bold" colspa=
+n=3D"1" valign=3D"top" align=3D"left" width=3D"50%">
+
+
+ES06 Novartis Farmac=C3=A9utica S.A.
+
+
+
+
+
+
+
+
+
+</td>
+
+
+
+</tr>
+
+
+
+
+
+
+
+
+
+
+<tr>
+
+<td style=3D"vertical-align:top;vertical-align:top" colspan=3D"2" valign=3D=
+"top" align=3D"left">
+
+
+
+
+Gran Via de les CortsCatalanes 764<br>
+
+
+
+8013=20
+Barcelona
+<br>
+
+08
+<br>
+Espa=C3=B1a
+
+
+</td>
+
+
+</tr>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</table></td>
+
+
+
+
+
+
+
+
+
+</tr>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<tr>
+
+<td style=3D"vertical-align:bottom;padding-bottom:0px" valign=3D"bottom" al=
+ign=3D"left" colspan=3D"2"><div style=3D"padding-top:25px">
+<span>
+Contabilidad<span class=3D"m_-8517796485531143414ANBodyText">
+
+</span>
+</span>
+<span class=3D"m_-8517796485531143414ANBodyText">
+
+</span>
+</div>
+</td>
+
+
+</tr>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<tr><td colspan=3D"12" align=3D"left" valign=3D"top" style=3D"vertical-alig=
+n:top" class=3D"m_-8517796485531143414accountingSegment">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table cellspacing=3D"2" cellpadding=3D"0">
+
+
+
+
+
+<tr>
+
+
+
+
+
+
+
+
+
+
+
+<td style=3D"vertical-align:top;vertical-align:top;padding:5px 10px;border-=
+bottom:1px solid #e5e5e5;width:30%" valign=3D"top" align=3D"left" colspan=
+=3D"1">
+ Porcentual
+
+
+
+
+
+
+
+
+</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<td style=3D"vertical-align:top;vertical-align:top;padding:5px 10px;border-=
+bottom:1px solid #e5e5e5;width:30%" valign=3D"top" align=3D"left" colspan=
+=3D"1">
+Porcentual
+
+
+
+
+
+
+
+
+</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<td style=3D"vertical-align:top;vertical-align:top;padding:5px 10px;border-=
+bottom:1px solid #e5e5e5;width:40%" valign=3D"top" align=3D"left" colspan=
+=3D"1">
+100.00=20
+
+
+
+
+
+
+
+
+</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</tr>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table cellspacing=3D"2" cellpadding=3D"0"></table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</td></tr>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<tr>
+
+<td style=3D"vertical-align:bottom;padding-bottom:0px" valign=3D"bottom" al=
+ign=3D"left" colspan=3D"2"><div style=3D"padding-top:25px">
+<span>
+Contabilidad<span class=3D"m_-8517796485531143414ANBodyText">
+
+</span>
+</span>
+<span class=3D"m_-8517796485531143414ANBodyText">
+
+</span>
+</div>
+</td>
+
+
+</tr>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<tr><td colspan=3D"12" align=3D"left" valign=3D"top" style=3D"vertical-alig=
+n:top" class=3D"m_-8517796485531143414accountingSegment">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table cellspacing=3D"2" cellpadding=3D"0">
+
+
+
+
+
+<tr>
+
+
+
+
+
+
+
+
+
+
+
+<td style=3D"vertical-align:top;vertical-align:top;padding:5px 10px;border-=
+bottom:1px solid #e5e5e5;width:30%" valign=3D"top" align=3D"left" colspan=
+=3D"1">
+CC
+
+
+
+
+
+
+
+
+</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<td style=3D"vertical-align:top;vertical-align:top;padding:5px 10px;border-=
+bottom:1px solid #e5e5e5;width:40%" valign=3D"top" align=3D"left" colspan=
+=3D"1">
+P403581
+
+
+
+
+
+
+
+
+</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</tr>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table cellspacing=3D"2" cellpadding=3D"0"></table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</td></tr>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<tr><td colspan=3D"12" align=3D"left" valign=3D"top" style=3D"vertical-alig=
+n:top" width=3D"100%">
+
+
+
+<span style=3D"padding-bottom:0px"><div style=3D"padding-top:25px">
+<span>
+
+Otra informaci=C3=B3n
+</span>
+<span class=3D"m_-8517796485531143414ANBodyText">
+
+</span>
+</div>
+</span>
+
+
+
+
+
+
+
+
+
+
+
+
+<table cellspacing=3D"0" cellpadding=3D"0">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<tr>
+
+
+
+
+
+<td colspan=3D"1" valign=3D"top" align=3D"left" width=3D"160px">
+
+
+Dominio de la clasificaci=C3=B3n:
+
+</td>
+
+
+
+
+
+
+
+
+<td style=3D"vertical-align:top;vertical-align:top" valign=3D"top" align=3D=
+"left" colspan=3D"1">
+UNSPSC
+
+
+
+
+
+
+
+</td>
+
+
+
+</tr>
+
+
+
+
+
+
+<tr>
+
+
+
+
+
+<td colspan=3D"1" valign=3D"top" align=3D"left" width=3D"160px">
+
+
+C=C3=B3digo de clasificaci=C3=B3n:
+
+</td>
+
+
+
+
+
+
+
+
+<td style=3D"vertical-align:top;vertical-align:top" valign=3D"top" align=3D=
+"left" colspan=3D"1">
+3505010
+
+
+
+
+
+
+
+</td>
+
+
+
+</tr>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</table>
+
+
+
+
+</td></tr>
+
+
+
+</table></td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</td></tr>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<tr>
+
+
+<th class=3D"m_-8517796485531143414tableHead" align=3D"left">N=C3=BAmero de=
+ l=C3=ADnea=C2=A0</th>
+<th class=3D"m_-8517796485531143414tableHead" align=3D"left">N=C3=BAmero de=
+ repartos=C2=A0</th>
+<th class=3D"m_-8517796485531143414tableHead" align=3D"left">N=C2=BA de pie=
+za/Descripci=C3=B3n=C2=A0</th>
+<th class=3D"m_-8517796485531143414tableHead" align=3D"left">=C2=A0</th>
+<th class=3D"m_-8517796485531143414tableHead" align=3D"left">Tipo=C2=A0</th=
+>
+<th class=3D"m_-8517796485531143414tableHead" align=3D"left">Devoluci=C3=B3=
+n=C2=A0</th>
+<th class=3D"m_-8517796485531143414tableHead" align=3D"left">Cant. (Unidad)=
+=C2=A0</th>
+<th class=3D"m_-8517796485531143414tableHead" align=3D"left">Fecha para la =
+que se requiere=C2=A0</th>
+<th style=3D"text-align:right" class=3D"m_-8517796485531143414tableHead" al=
+ign=3D"left">Precio por unidad=C2=A0</th>
+<th style=3D"text-align:right" class=3D"m_-8517796485531143414tableHead" al=
+ign=3D"left">Subtotal=C2=A0</th>
+
+</tr>
+
+
+<tr id=3D"m_-8517796485531143414_zusvcb" bgcolor=3D"#ffffff">
+
+
+
+
+
+
+
+
+
+<td style=3D"vertical-align:top" width=3D"1%" valign=3D"top" align=3D"left"=
+ colspan=3D"1" class=3D"m_-8517796485531143414tableBodyClass"><span>
+<table class=3D"m_-8517796485531143414tableBodyClass" cellpadding=3D"0" cel=
+lspacing=3D"0">
+<tr>
+
+
+
+
+
+<td>
+
+2
+
+</td>
+
+
+
+</tr>
+</table>
+</span></td>
+
+
+
+
+
+
+
+
+
+<td style=3D"vertical-align:top" valign=3D"top" align=3D"left" colspan=3D"1=
+" class=3D"m_-8517796485531143414tableBodyClass">
+
+</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<td><span>
+</span><td class=3D"m_-8517796485531143414tableBodyClass">=C2=A0</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   =20
+
+
+
+<td style=3D"vertical-align:top" width=3D"1%" valign=3D"top" align=3D"left"=
+ colspan=3D"1" nowrap class=3D"m_-8517796485531143414tableBodyClass">
+
+=C2=A0
+
+</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<td style=3D"vertical-align:top" valign=3D"top" align=3D"left" colspan=3D"1=
+" class=3D"m_-8517796485531143414tableBodyClass">
+
+<div style=3D"float:left;display:inline-block">
+<div>
+
+Material
+
+</div>
+<div>
+
+</div>
+<div>
+
+</div>
+</div>
+
+</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<td style=3D"vertical-align:top;vertical-align:top" valign=3D"top" align=3D=
+"left" colspan=3D"1" class=3D"m_-8517796485531143414tableBodyClass">
+
+
+=C2=A0
+
+
+
+
+
+
+
+</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<td colspan=3D"1" align=3D"left" valign=3D"top" style=3D"vertical-align:top=
+" class=3D"m_-8517796485531143414tableBodyClass">
+
+
+
+
+
+
+
+
+<span style=3D"vertical-align:top">
+1,00
+
+
+
+
+
+</span>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<span>
+
+(EA)
+
+
+
+
+</span>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<td style=3D"vertical-align:top;vertical-align:top" valign=3D"top" align=3D=
+"left" colspan=3D"1" class=3D"m_-8517796485531143414tableBodyClass">
+
+
+15 feb 2021
+
+
+
+
+
+
+
+
+
+
+
+</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<td style=3D"vertical-align:top" valign=3D"top" align=3D"left" colspan=3D"1=
+" class=3D"m_-8517796485531143414tableBodyClass">
+<span>
+360,00 EUR</span>
+</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<td style=3D"vertical-align:top" valign=3D"top" align=3D"right" colspan=3D"=
+1" class=3D"m_-8517796485531143414tableBodyClass">
+
+
+360,00 EUR
+
+
+</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</td></tr>
+
+<tr id=3D"m_-8517796485531143414_kejjzc" bgcolor=3D"#ffffff">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<td><span>
+</span><td>=C2=A0</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<td><span>
+</span><td>=C2=A0</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<td colspan=3D"100" align=3D"left" valign=3D"top" style=3D"vertical-align:t=
+op"><table cellspacing=3D"2" cellpadding=3D"0">
+
+
+
+<tr>
+<td colspan=3D"12" align=3D"left" valign=3D"top" style=3D"vertical-align:to=
+p;width:100%;padding:0 5px 3px 3px">
+
+
+
+
+
+
+
+
+
+<table cellspacing=3D"2" cellpadding=3D"0">
+
+
+<tr>
+
+
+
+
+<td style=3D"vertical-align:top;vertical-align:top" colspan=3D"1" valign=3D=
+"top" align=3D"left">
+
+
+DISE=C3=91O Y CREATIVIDAD
+
+
+
+
+
+
+
+
+</td>
+
+
+
+</tr>
+
+
+
+
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</td>
+</tr>
+
+
+
+</table></td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</td></td></tr>
+
+
+
+
+
+
+<tr id=3D"m_-8517796485531143414_injuj" bgcolor=3D"#ffffff">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<td><span>
+</span><td>=C2=A0</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<td colspan=3D"12" align=3D"left" valign=3D"top" style=3D"vertical-align:to=
+p"><table style=3D"width:100%;padding:5px 25px 5px 0px" cellspacing=3D"2" c=
+ellpadding=3D"0">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<tr>
+
+
+
+
+
+
+
+
+
+
+
+
+<td style=3D"vertical-align:bottom;padding-bottom:0px" valign=3D"bottom" al=
+ign=3D"left" colspan=3D"2"><div class=3D"m_-8517796485531143414poHeaderLege=
+ndStyle" style=3D"padding-top:25px;margin-top:10px;padding-left:20px">
+<span>
+Expedir a<span class=3D"m_-8517796485531143414ANBodyText">
+
+</span>
+</span>
+<span class=3D"m_-8517796485531143414ANBodyText">
+
+</span>
+</div>
+</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</tr>
+
+
+
+
+
+
+
+
+
+<tr>
+
+
+
+
+
+
+
+
+<td colspan=3D"2" align=3D"left" valign=3D"top" style=3D"vertical-align:top=
+" width=3D"100%;"><table cellspacing=3D"2" cellpadding=3D"5">
+
+
+<tr>
+
+
+
+
+<td style=3D"vertical-align:top;vertical-align:top;font-weight:bold" colspa=
+n=3D"1" valign=3D"top" align=3D"left" width=3D"50%">
+
+
+ES06 Novartis Farmac=C3=A9utica S.A.
+
+
+
+
+
+
+
+
+
+</td>
+
+
+
+</tr>
+
+
+
+
+
+
+
+
+
+
+<tr>
+
+<td style=3D"vertical-align:top;vertical-align:top" colspan=3D"2" valign=3D=
+"top" align=3D"left">
+
+
+
+
+Gran Via de les CortsCatalanes 764<br>
+
+
+
+8013=20
+Barcelona
+<br>
+
+08
+<br>
+Espa=C3=B1a
+
+
+</td>
+
+
+</tr>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</table></td>
+
+
+
+
+
+
+
+
+
+</tr>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<tr>
+
+<td style=3D"vertical-align:bottom;padding-bottom:0px" valign=3D"bottom" al=
+ign=3D"left" colspan=3D"2"><div style=3D"padding-top:25px">
+<span>
+Contabilidad<span class=3D"m_-8517796485531143414ANBodyText">
+
+</span>
+</span>
+<span class=3D"m_-8517796485531143414ANBodyText">
+
+</span>
+</div>
+</td>
+
+
+</tr>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<tr><td colspan=3D"12" align=3D"left" valign=3D"top" style=3D"vertical-alig=
+n:top" class=3D"m_-8517796485531143414accountingSegment">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table cellspacing=3D"2" cellpadding=3D"0">
+
+
+
+
+
+<tr>
+
+
+
+
+
+
+
+
+
+
+
+<td style=3D"vertical-align:top;vertical-align:top;padding:5px 10px;border-=
+bottom:1px solid #e5e5e5;width:30%" valign=3D"top" align=3D"left" colspan=
+=3D"1">
+ Porcentual
+
+
+
+
+
+
+
+
+</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<td style=3D"vertical-align:top;vertical-align:top;padding:5px 10px;border-=
+bottom:1px solid #e5e5e5;width:30%" valign=3D"top" align=3D"left" colspan=
+=3D"1">
+Porcentual
+
+
+
+
+
+
+
+
+</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<td style=3D"vertical-align:top;vertical-align:top;padding:5px 10px;border-=
+bottom:1px solid #e5e5e5;width:40%" valign=3D"top" align=3D"left" colspan=
+=3D"1">
+100.00=20
+
+
+
+
+
+
+
+
+</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</tr>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table cellspacing=3D"2" cellpadding=3D"0"></table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</td></tr>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<tr>
+
+<td style=3D"vertical-align:bottom;padding-bottom:0px" valign=3D"bottom" al=
+ign=3D"left" colspan=3D"2"><div style=3D"padding-top:25px">
+<span>
+Contabilidad<span class=3D"m_-8517796485531143414ANBodyText">
+
+</span>
+</span>
+<span class=3D"m_-8517796485531143414ANBodyText">
+
+</span>
+</div>
+</td>
+
+
+</tr>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<tr><td colspan=3D"12" align=3D"left" valign=3D"top" style=3D"vertical-alig=
+n:top" class=3D"m_-8517796485531143414accountingSegment">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table cellspacing=3D"2" cellpadding=3D"0">
+
+
+
+
+
+<tr>
+
+
+
+
+
+
+
+
+
+
+
+<td style=3D"vertical-align:top;vertical-align:top;padding:5px 10px;border-=
+bottom:1px solid #e5e5e5;width:30%" valign=3D"top" align=3D"left" colspan=
+=3D"1">
+CC
+
+
+
+
+
+
+
+
+</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<td style=3D"vertical-align:top;vertical-align:top;padding:5px 10px;border-=
+bottom:1px solid #e5e5e5;width:40%" valign=3D"top" align=3D"left" colspan=
+=3D"1">
+P403581
+
+
+
+
+
+
+
+
+</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</tr>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table cellspacing=3D"2" cellpadding=3D"0"></table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</td></tr>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<tr><td colspan=3D"12" align=3D"left" valign=3D"top" style=3D"vertical-alig=
+n:top" width=3D"100%">
+
+
+
+<span style=3D"padding-bottom:0px"><div style=3D"padding-top:25px">
+<span>
+
+Otra informaci=C3=B3n
+</span>
+<span class=3D"m_-8517796485531143414ANBodyText">
+
+</span>
+</div>
+</span>
+
+
+
+
+
+
+
+
+
+
+
+
+<table cellspacing=3D"0" cellpadding=3D"0">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<tr>
+
+
+
+
+
+<td colspan=3D"1" valign=3D"top" align=3D"left" width=3D"160px">
+
+
+Dominio de la clasificaci=C3=B3n:
+
+</td>
+
+
+
+
+
+
+
+
+<td style=3D"vertical-align:top;vertical-align:top" valign=3D"top" align=3D=
+"left" colspan=3D"1">
+UNSPSC
+
+
+
+
+
+
+
+</td>
+
+
+
+</tr>
+
+
+
+
+
+
+<tr>
+
+
+
+
+
+<td colspan=3D"1" valign=3D"top" align=3D"left" width=3D"160px">
+
+
+C=C3=B3digo de clasificaci=C3=B3n:
+
+</td>
+
+
+
+
+
+
+
+
+<td style=3D"vertical-align:top;vertical-align:top" valign=3D"top" align=3D=
+"left" colspan=3D"1">
+3505010
+
+
+
+
+
+
+
+</td>
+
+
+
+</tr>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</table>
+
+
+
+
+</td></tr>
+
+
+
+</table></td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</td></tr>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<tr>
+
+
+<th class=3D"m_-8517796485531143414tableHead" align=3D"left">N=C3=BAmero de=
+ l=C3=ADnea=C2=A0</th>
+<th class=3D"m_-8517796485531143414tableHead" align=3D"left">N=C3=BAmero de=
+ repartos=C2=A0</th>
+<th class=3D"m_-8517796485531143414tableHead" align=3D"left">N=C2=BA de pie=
+za/Descripci=C3=B3n=C2=A0</th>
+<th class=3D"m_-8517796485531143414tableHead" align=3D"left">=C2=A0</th>
+<th class=3D"m_-8517796485531143414tableHead" align=3D"left">Tipo=C2=A0</th=
+>
+<th class=3D"m_-8517796485531143414tableHead" align=3D"left">Devoluci=C3=B3=
+n=C2=A0</th>
+<th class=3D"m_-8517796485531143414tableHead" align=3D"left">Cant. (Unidad)=
+=C2=A0</th>
+<th class=3D"m_-8517796485531143414tableHead" align=3D"left">Fecha para la =
+que se requiere=C2=A0</th>
+<th style=3D"text-align:right" class=3D"m_-8517796485531143414tableHead" al=
+ign=3D"left">Precio por unidad=C2=A0</th>
+<th style=3D"text-align:right" class=3D"m_-8517796485531143414tableHead" al=
+ign=3D"left">Subtotal=C2=A0</th>
+
+</tr>
+
+
+<tr id=3D"m_-8517796485531143414_8jua6d" bgcolor=3D"#ffffff">
+
+
+
+
+
+
+
+
+
+<td style=3D"vertical-align:top" width=3D"1%" valign=3D"top" align=3D"left"=
+ colspan=3D"1" class=3D"m_-8517796485531143414tableBodyClass"><span>
+<table class=3D"m_-8517796485531143414tableBodyClass" cellpadding=3D"0" cel=
+lspacing=3D"0">
+<tr>
+
+
+
+
+
+<td>
+
+3
+
+</td>
+
+
+
+</tr>
+</table>
+</span></td>
+
+
+
+
+
+
+
+
+
+<td style=3D"vertical-align:top" valign=3D"top" align=3D"left" colspan=3D"1=
+" class=3D"m_-8517796485531143414tableBodyClass">
+
+</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<td><span>
+</span><td class=3D"m_-8517796485531143414tableBodyClass">=C2=A0</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   =20
+
+
+
+<td style=3D"vertical-align:top" width=3D"1%" valign=3D"top" align=3D"left"=
+ colspan=3D"1" nowrap class=3D"m_-8517796485531143414tableBodyClass">
+
+=C2=A0
+
+</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<td style=3D"vertical-align:top" valign=3D"top" align=3D"left" colspan=3D"1=
+" class=3D"m_-8517796485531143414tableBodyClass">
+
+<div style=3D"float:left;display:inline-block">
+<div>
+
+Material
+
+</div>
+<div>
+
+</div>
+<div>
+
+</div>
+</div>
+
+</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<td style=3D"vertical-align:top;vertical-align:top" valign=3D"top" align=3D=
+"left" colspan=3D"1" class=3D"m_-8517796485531143414tableBodyClass">
+
+
+=C2=A0
+
+
+
+
+
+
+
+</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<td colspan=3D"1" align=3D"left" valign=3D"top" style=3D"vertical-align:top=
+" class=3D"m_-8517796485531143414tableBodyClass">
+
+
+
+
+
+
+
+
+<span style=3D"vertical-align:top">
+1,00
+
+
+
+
+
+</span>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<span>
+
+(EA)
+
+
+
+
+</span>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<td style=3D"vertical-align:top;vertical-align:top" valign=3D"top" align=3D=
+"left" colspan=3D"1" class=3D"m_-8517796485531143414tableBodyClass">
+
+
+15 feb 2021
+
+
+
+
+
+
+
+
+
+
+
+</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<td style=3D"vertical-align:top" valign=3D"top" align=3D"left" colspan=3D"1=
+" class=3D"m_-8517796485531143414tableBodyClass">
+<span>
+65,00 EUR</span>
+</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<td style=3D"vertical-align:top" valign=3D"top" align=3D"right" colspan=3D"=
+1" class=3D"m_-8517796485531143414tableBodyClass">
+
+
+65,00 EUR
+
+
+</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</td></tr>
+
+<tr id=3D"m_-8517796485531143414_bku0sb" bgcolor=3D"#ffffff">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<td><span>
+</span><td>=C2=A0</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<td><span>
+</span><td>=C2=A0</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<td colspan=3D"100" align=3D"left" valign=3D"top" style=3D"vertical-align:t=
+op"><table cellspacing=3D"2" cellpadding=3D"0">
+
+
+
+<tr>
+<td colspan=3D"12" align=3D"left" valign=3D"top" style=3D"vertical-align:to=
+p;width:100%;padding:0 5px 3px 3px">
+
+
+
+
+
+
+
+
+
+<table cellspacing=3D"2" cellpadding=3D"0">
+
+
+<tr>
+
+
+
+
+<td style=3D"vertical-align:top;vertical-align:top" colspan=3D"1" valign=3D=
+"top" align=3D"left">
+
+
+POST PRODUCCI=C3=93N
+
+
+
+
+
+
+
+
+</td>
+
+
+
+</tr>
+
+
+
+
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</td>
+</tr>
+
+
+
+</table></td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</td></td></tr>
+
+
+
+
+
+
+<tr id=3D"m_-8517796485531143414_chvkmd" bgcolor=3D"#ffffff">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<td><span>
+</span><td>=C2=A0</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<td colspan=3D"12" align=3D"left" valign=3D"top" style=3D"vertical-align:to=
+p"><table style=3D"width:100%;padding:5px 25px 5px 0px" cellspacing=3D"2" c=
+ellpadding=3D"0">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<tr>
+
+
+
+
+
+
+
+
+
+
+
+
+<td style=3D"vertical-align:bottom;padding-bottom:0px" valign=3D"bottom" al=
+ign=3D"left" colspan=3D"2"><div class=3D"m_-8517796485531143414poHeaderLege=
+ndStyle" style=3D"padding-top:25px;margin-top:10px;padding-left:20px">
+<span>
+Expedir a<span class=3D"m_-8517796485531143414ANBodyText">
+
+</span>
+</span>
+<span class=3D"m_-8517796485531143414ANBodyText">
+
+</span>
+</div>
+</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</tr>
+
+
+
+
+
+
+
+
+
+<tr>
+
+
+
+
+
+
+
+
+<td colspan=3D"2" align=3D"left" valign=3D"top" style=3D"vertical-align:top=
+" width=3D"100%;"><table cellspacing=3D"2" cellpadding=3D"5">
+
+
+<tr>
+
+
+
+
+<td style=3D"vertical-align:top;vertical-align:top;font-weight:bold" colspa=
+n=3D"1" valign=3D"top" align=3D"left" width=3D"50%">
+
+
+ES06 Novartis Farmac=C3=A9utica S.A.
+
+
+
+
+
+
+
+
+
+</td>
+
+
+
+</tr>
+
+
+
+
+
+
+
+
+
+
+<tr>
+
+<td style=3D"vertical-align:top;vertical-align:top" colspan=3D"2" valign=3D=
+"top" align=3D"left">
+
+
+
+
+Gran Via de les CortsCatalanes 764<br>
+
+
+
+8013=20
+Barcelona
+<br>
+
+08
+<br>
+Espa=C3=B1a
+
+
+</td>
+
+
+</tr>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</table></td>
+
+
+
+
+
+
+
+
+
+</tr>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<tr>
+
+<td style=3D"vertical-align:bottom;padding-bottom:0px" valign=3D"bottom" al=
+ign=3D"left" colspan=3D"2"><div style=3D"padding-top:25px">
+<span>
+Contabilidad<span class=3D"m_-8517796485531143414ANBodyText">
+
+</span>
+</span>
+<span class=3D"m_-8517796485531143414ANBodyText">
+
+</span>
+</div>
+</td>
+
+
+</tr>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<tr><td colspan=3D"12" align=3D"left" valign=3D"top" style=3D"vertical-alig=
+n:top" class=3D"m_-8517796485531143414accountingSegment">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table cellspacing=3D"2" cellpadding=3D"0">
+
+
+
+
+
+<tr>
+
+
+
+
+
+
+
+
+
+
+
+<td style=3D"vertical-align:top;vertical-align:top;padding:5px 10px;border-=
+bottom:1px solid #e5e5e5;width:30%" valign=3D"top" align=3D"left" colspan=
+=3D"1">
+ Porcentual
+
+
+
+
+
+
+
+
+</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<td style=3D"vertical-align:top;vertical-align:top;padding:5px 10px;border-=
+bottom:1px solid #e5e5e5;width:30%" valign=3D"top" align=3D"left" colspan=
+=3D"1">
+Porcentual
+
+
+
+
+
+
+
+
+</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<td style=3D"vertical-align:top;vertical-align:top;padding:5px 10px;border-=
+bottom:1px solid #e5e5e5;width:40%" valign=3D"top" align=3D"left" colspan=
+=3D"1">
+100.00=20
+
+
+
+
+
+
+
+
+</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</tr>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table cellspacing=3D"2" cellpadding=3D"0"></table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</td></tr>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<tr>
+
+<td style=3D"vertical-align:bottom;padding-bottom:0px" valign=3D"bottom" al=
+ign=3D"left" colspan=3D"2"><div style=3D"padding-top:25px">
+<span>
+Contabilidad<span class=3D"m_-8517796485531143414ANBodyText">
+
+</span>
+</span>
+<span class=3D"m_-8517796485531143414ANBodyText">
+
+</span>
+</div>
+</td>
+
+
+</tr>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<tr><td colspan=3D"12" align=3D"left" valign=3D"top" style=3D"vertical-alig=
+n:top" class=3D"m_-8517796485531143414accountingSegment">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table cellspacing=3D"2" cellpadding=3D"0">
+
+
+
+
+
+<tr>
+
+
+
+
+
+
+
+
+
+
+
+<td style=3D"vertical-align:top;vertical-align:top;padding:5px 10px;border-=
+bottom:1px solid #e5e5e5;width:30%" valign=3D"top" align=3D"left" colspan=
+=3D"1">
+CC
+
+
+
+
+
+
+
+
+</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<td style=3D"vertical-align:top;vertical-align:top;padding:5px 10px;border-=
+bottom:1px solid #e5e5e5;width:40%" valign=3D"top" align=3D"left" colspan=
+=3D"1">
+P403581
+
+
+
+
+
+
+
+
+</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</tr>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table cellspacing=3D"2" cellpadding=3D"0"></table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</td></tr>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<tr><td colspan=3D"12" align=3D"left" valign=3D"top" style=3D"vertical-alig=
+n:top" width=3D"100%">
+
+
+
+<span style=3D"padding-bottom:0px"><div style=3D"padding-top:25px">
+<span>
+
+Otra informaci=C3=B3n
+</span>
+<span class=3D"m_-8517796485531143414ANBodyText">
+
+</span>
+</div>
+</span>
+
+
+
+
+
+
+
+
+
+
+
+
+<table cellspacing=3D"0" cellpadding=3D"0">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<tr>
+
+
+
+
+
+<td colspan=3D"1" valign=3D"top" align=3D"left" width=3D"160px">
+
+
+Dominio de la clasificaci=C3=B3n:
+
+</td>
+
+
+
+
+
+
+
+
+<td style=3D"vertical-align:top;vertical-align:top" valign=3D"top" align=3D=
+"left" colspan=3D"1">
+UNSPSC
+
+
+
+
+
+
+
+</td>
+
+
+
+</tr>
+
+
+
+
+
+
+<tr>
+
+
+
+
+
+<td colspan=3D"1" valign=3D"top" align=3D"left" width=3D"160px">
+
+
+C=C3=B3digo de clasificaci=C3=B3n:
+
+</td>
+
+
+
+
+
+
+
+
+<td style=3D"vertical-align:top;vertical-align:top" valign=3D"top" align=3D=
+"left" colspan=3D"1">
+3505010
+
+
+
+
+
+
+
+</td>
+
+
+
+</tr>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</table>
+
+
+
+
+</td></tr>
+
+
+
+</table></td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</td></tr>
+
+
+
+
+
+
+
+
+
+
+
+</td></table>
+
+
+</td>
+
+
+</tr>
+
+
+
+
+
+
+
+
+
+
+
+
+</span>
+
+
+
+
+
+
+
+
+
+
+
+<tr>
+
+
+
+
+<td colspan=3D"2" align=3D"left" valign=3D"top" style=3D"vertical-align:top=
+"><table cellspacing=3D"2" cellpadding=3D"0">
+
+<tr>
+<td style=3D"padding:10px 0 20px 0" valign=3D"top" colspan=3D"4">
+<table cellspacing=3D"0" cellpadding=3D"0" border=3D"0">
+<tr>
+<td>
+Pedido enviado el:=C2=A0martes 2 feb 2021 20:42 GMT+01:00<br>
+Recibido por Ariba Network el:=C2=A0martes 2 feb 2021 20:42 GMT+01:00<br>
+Este pedido ha sido enviado por Novartis AN01003603018 y entregado por Arib=
+a Network.<br>
+
+
+</td>
+</tr>
+</table></td></tr>
+
+</table></td>
+
+
+
+
+
+
+
+
+<td colspan=3D"2" align=3D"right" valign=3D"top" style=3D"vertical-align:to=
+p"><table cellspacing=3D"2" cellpadding=3D"0">
+
+
+
+<tr>
+<td align=3D"right" colspan=3D"4">
+<table cellspacing=3D"0" cellpadding=3D"0" width=3D"100%">
+<tr>
+
+
+<td>
+
+<table cellspacing=3D"0" cellpadding=3D"0" align=3D"right" class=3D"m_-8517=
+796485531143414summaryTableBody">
+
+<tr>
+<td colspan=3D"4">
+=C2=A0
+</td>
+</tr>
+
+
+
+
+
+<tr>
+<td>
+<div align=3D"right">
+Subtotal:
+</div>
+</td>
+
+<td>
+<div align=3D"left">
+=C2=A0
+</div>
+</td>
+<td>
+<div align=3D"right">
+685,00
+</div>
+</td>
+<td>
+<div align=3D"right" style=3D"padding-right:10px">
+=C2=A0EUR
+</div>
+</td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</tr></table>
+
+</td>
+</tr>
+</table>
+</td>
+</tr>
+
+
+
+
+
+
+
+
+
+</table></td>
+
+
+
+
+</tr>
+
+
+
+
+
+
+
+
+
+</td></td></table>
+
+
+</div>
+
+</td>
+
+</tr>
+</table>
+<table cellpadding=3D"0" cellspacing=3D"0" style=3D"padding:20px 25px">
+
+<tr>
+<td style=3D"padding-bottom:10px" colspan=3D"100%">
+<div style=3D"border-bottom:1px solid #ececec;background-color:#fff"></div>
+</td>
+</tr>
+
+<tr>
+<td style=3D"text-align:left" width=3D"80%">
+
+<span style=3D"font-weight:bold;font-size:15px;color:#363636;font-family:Ar=
+ial;text-align:left">
+=C2=BFTiene preguntas o comentarios para su cliente?
+</span>
+
+</td>
+<td width=3D"10%">
+<table cellspacing=3D"0" cellpadding=3D"0">
+<tr>
+
+<td style=3D"padding-left:20px;border:1px solid #00679e;border-right:none" =
+bgcolor=3D"#fff"></td>
+<td align=3D"center" style=3D"border:1px solid #00679e;white-space:nowrap;b=
+order-left:none;border-right:none" bgcolor=3D"#fff">
+<a style=3D"font-size:15px;font-family:Arial,Helvetica,sans-serif;color:#00=
+679e;text-decoration:none;border-radius:0px;padding:10px;letter-spacing:0.1=
+px;border:1px solid #ffffff;white-space:nowrap;display:inline-block" class=
+=3D"m_-8517796485531143414collabPoEmailButtonsStyle" href=3D"https://servic=
+e.ariba.com/Supplier.aw/ad/collabPo?sc=3DZjNlOTAxNDAtYWVmMy00OTY4LTk1ZjctYm=
+QxZTQ0YTE0NWVhOjUwMDAwMDAwMDAwMDAwMDAwMDY3NTIwMzc1OjU%3D" target=3D"_blank"=
+ rel=3D"noreferrer">
+Enviar mensaje
+</a>
+</td>
+<td style=3D"padding-left:20px;border:1px solid #00679e;border-left:none" b=
+gcolor=3D"#fff"></td>
+<td style=3D"padding-right:10px">=C2=A0</td>
+
+<td style=3D"border:1px solid #00679e;padding-left:20px" bgcolor=3D"#00679e=
+"></td>
+<td align=3D"center" bgcolor=3D"#00679e" style=3D"border-radius:0px;white-s=
+pace:nowrap;border:1px solid #00679e" class=3D"m_-8517796485531143414button=
+Container">
+<a style=3D"font-size:15px;font-family:Arial,Helvetica,sans-serif;color:#ff=
+ffff!important;text-decoration:none;border-radius:0px;padding:10px;letter-s=
+pacing:0.1px;border:1px solid #00679e;display:inline-block" class=3D"m_-851=
+7796485531143414laPoEmailButtonsStyle" href=3D"https://service.ariba.com/Su=
+pplier.aw/ad/laDoc?sc=3DZjNlOTAxNDAtYWVmMy00OTY4LTk1ZjctYmQxZTQ0YTE0NWVhOjU=
+wMDAwMDAwMDAwMDAwMDAwMDY3NTIwMzc1OjU%3D&amp;accttype=3DTElHSFQ%3D" target=
+=3D"_blank" rel=3D"noreferrer">
+Procesar pedido
+</a>
+</td>
+<td style=3D"border:1px solid #00679e;padding-left:20px" bgcolor=3D"#00679e=
+"></td>
+
+<td style=3D"padding-right:10px">=C2=A0</td>
+<td style=3D"border:1px solid #00679e;padding-left:20px" bgcolor=3D"#00679e=
+"></td>
+<td align=3D"center" bgcolor=3D"#00679e" style=3D"border-radius:0px;white-s=
+pace:nowrap;border:1px solid #00679e" class=3D"m_-8517796485531143414button=
+Container">
+<a style=3D"font-size:15px;font-family:Arial,Helvetica,sans-serif;color:#ff=
+ffff!important;text-decoration:none;border-radius:0px;padding:10px;letter-s=
+pacing:0.1px;border:1px solid #00679e;display:inline-block" class=3D"m_-851=
+7796485531143414laPoEmailButtonsStyle" href=3D"mailto:pdfinvoice-prod@ansmt=
+p.ariba.com?subject=3DAN01003603018" target=3D"_blank" rel=3D"noreferrer">
+Enviar factura PDF
+</a>
+</td>
+<td style=3D"border:1px solid #00679e;padding-left:20px" bgcolor=3D"#00679e=
+"></td>
+
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+<tr>
+<td style=3D"padding-top:20px" bgcolor=3D"#ececec"></td>
+</tr>
+<tr>
+<td style=3D"border:1px solid #dddddd;background-color:#ffffff!important" c=
+lass=3D"m_-8517796485531143414tdStyle">
+<table cellspacing=3D"0" cellpadding=3D"0" style=3D"width:100%">
+<td style=3D"padding:25px 30px 0px 30px">
+<table cellspacing=3D"0" cellpadding=3D"0" style=3D"width:100%">
+<tr>
+<td style=3D"text-align:left" colspan=3D"2">
+<span style=3D"font-weight:bold;font-size:15px;color:#363636;font-family:Ar=
+ial;text-align:left">Acerca de este mensaje</span>
+</td>
+</tr>
+
+<tr>
+<td style=3D"padding-top:10px"></td>
+</tr>
+<tr>
+<td style=3D"font-family:Arial,Helvetica,sans-serif;font-size:15px;line-hei=
+ght:1.33;color:#363636;text-align:left" class=3D"m_-8517796485531143414foot=
+erStyle">
+Si tiene cualquier pregunta p=C3=B3ngase en contacto con <b>Novartis</b>. S=
+i usted no es la persona apropiada para recibir este mensaje, env=C3=ADelo =
+a la persona que corresponda dentro de su empresa.
+</td>
+</tr>
+
+<tr>
+<td style=3D"padding-top:10px"></td>
+</tr>
+<tr>
+<td style=3D"font-family:Arial,Helvetica,sans-serif;font-size:15px;line-hei=
+ght:1.33;color:#363636;text-align:left" class=3D"m_-8517796485531143414foot=
+erStyle">
+Nota: Todas las transacciones relacionadas con los pedidos de su cliente so=
+n =C3=BAnicamente entre usted y su cliente y est=C3=A1n sujetas a las condi=
+ciones de los acuerdos ya existentes entre usted y su cliente. Ariba no es =
+un agente de su cliente y no es responsable de ninguna parte del contenido =
+del pedido de compra que se haya enviado en representaci=C3=B3n de este.
+</td>
+</tr>
+<tr>
+<td style=3D"padding-bottom:20px"></td>
+</tr>
+
+<tr>
+<td style=3D"padding-bottom:20px" class=3D"m_-8517796485531143414paddingBot=
+tom20">
+<div style=3D"float:left;display:inline-block">
+<div>
+<a href=3D"https://itunes.apple.com/us/app/ariba-supplier-mobile/id10567496=
+81?ls=3D1&amp;mt=3D8" target=3D"_blank" rel=3D"noreferrer">
+<img alt=3D"" border=3D"0" height=3D"30" width=3D"80" src=3D"https://servic=
+e.ariba.com/an/p/Ariba/App-Store-90x31.png">
+</a>
+=C2=A0
+<a href=3D"https://play.google.com/store/apps/details?id=3Dcom.sap.ariba.mi=
+nt" target=3D"_blank" rel=3D"noreferrer">
+<img alt=3D"" border=3D"0" height=3D"30" width=3D"80" src=3D"https://servic=
+e.ariba.com/an/p/Ariba/Google-Play-90x31.png">
+</a>
+</div>
+</div>
+<div style=3D"padding-left:20px;font-size:15px;font-style:italic;font-famil=
+y:Arial-MT;padding-top:10px;display:inline-block;float:left">C=C3=A1mbiese =
+a m=C3=B3vil</div>
+</td>
+</tr>
+
+</table>
+</td>
+</table>
+</td>
+</tr>
+<tr>
+<td style=3D"padding-top:20px" bgcolor=3D"#ececec"></td>
+</tr>
+</table>
+<div>
+<table cellspacing=3D"0" cellpadding=3D"0" style=3D"width:100%">
+<tr>
+<td>
+<table cellpadding=3D"0" cellspacing=3D"0" border=3D"0" width=3D"100%">
+<tr>
+<td style=3D"font-size:11px;color:#363636;font-family:Arial-MT,ArialMT;text=
+-align:center!important">
+
+
+Ariba, Inc., 3420 Hillview Ave, Bldg3, Palo Alto, CA 94304, USA
+
+
+</td>
+</tr>
+<tr>
+<td style=3D"padding:10px 0px;font-size:11px;color:#0a538c;font-family:Aria=
+lMT;text-align:center!important;white-space:nowrap" class=3D"m_-85177964855=
+31143414nowrap">
+<a class=3D"m_-8517796485531143414poFooterFontStyle m_-8517796485531143414L=
+ink" style=3D"font-family:Arial,Helvetica,sans-serif;font-size:11px;color:#=
+0a538c!important" href=3D"https://www.ariba.com/legal/ariba_privacy_stateme=
+nt.cfm" target=3D"_blank" rel=3D"noreferrer">Declaraci=C3=B3n de privacidad=
+ de SAP Ariba</a>
+<span style=3D"padding:0px 5px">|</span>
+<a class=3D"m_-8517796485531143414poFooterFontStyle m_-8517796485531143414L=
+ink" style=3D"font-family:Arial,Helvetica,sans-serif;font-size:11px;color:#=
+0a538c!important" href=3D"https://www.ariba.com/legal/ariba_data_policy.cfm=
+" target=3D"_blank" rel=3D"noreferrer">Directrices sobre datos de Ariba</a>
+<span style=3D"padding:0px 5px">|</span>
+
+
+<a style=3D"font-family:Arial,Helvetica,sans-serif;font-size:11px;color:#0a=
+538c!important" class=3D"m_-8517796485531143414poFooterFontStyle" href=3D"h=
+ttps://uex.ariba.com/le/email-light-account-registered" target=3D"_blank" r=
+el=3D"noreferrer">Centro de ayuda</a>
+
+
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+
+</div>
+
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+   =20
+       <tr>
+           <td class=3D"m_-8517796485531143414email-section-hidden"></td>
+       </tr>
+   =20
+</table>
+
+</div>
+
+--0000000000000172aa05ba60fdf2--
+--0000000000000172ab05ba60fdf4
+Content-Type: text/html; charset="US-ASCII"; name="3004732904.htm"
+Content-Disposition: attachment; filename="3004732904.htm"
+Content-Transfer-Encoding: base64
+Content-ID: <177649aa14cd306f5bb1>
+X-Attachment-Id: 177649aa14cd306f5bb1
+
+CjwhRE9DVFlQRSBIVE1MIFBVQkxJQyAiLS8vVzNDLy9EVEQgSFRNTCA0LjAxIFRyYW5zaXRpb25h
+bC8vRU4iICJodHRwOi8vd3d3LnczLm9yZy9UUi9odG1sNC9sb29zZS5kdGQiPgoKPGh0bWwgZGly
+PUxUUj4KPGhlYWQ+CjxtZXRhIGh0dHAtZXF1aXY9ImltYWdldG9vbGJhciIgY29udGVudD0ibm8i
+Lz4KPEJhc2UgaHJlZj0iaHR0cHM6Ly9zZXJ2aWNlLmFyaWJhLmNvbSI+CjxtZXRhIGNvbnRlbnQ9
+InRleHQvaHRtbDsgY2hhcnNldD1VVEYtOCIgaHR0cC1lcXVpdj0iQ29udGVudC1UeXBlIj4KCgoK
+PGxpbmsgcmVsPXN0eWxlc2hlZXQgdHlwZT0idGV4dC9jc3MiIGhyZWY9Imh0dHBzOi8vc2Vydmlj
+ZS5hcmliYS5jb20vYW4vYXJpYmEvYnJhbmRpbmcvYXJpYmEuY3NzIj4KCjxsaW5rIHJlbD1zdHls
+ZXNoZWV0IHR5cGU9InRleHQvY3NzIiBocmVmPSJodHRwczovL3NlcnZpY2UuYXJpYmEuY29tL2Fu
+L2FyaWJhL2JyYW5kaW5nL3dpZGdldHMuY3NzIj4KCjxsaW5rIHJlbD1zdHlsZXNoZWV0IHR5cGU9
+InRleHQvY3NzIiBocmVmPSJodHRwczovL3NlcnZpY2UuYXJpYmEuY29tL2FuL2FyaWJhL2JyYW5k
+aW5nL2kxOG4uY3NzIj4KCjxsaW5rIHJlbD1zdHlsZXNoZWV0IHR5cGU9InRleHQvY3NzIiBocmVm
+PSJodHRwczovL3NlcnZpY2UuYXJpYmEuY29tL2FuL3AvQXJpYmEvU3R5bGVTaGVldC5jc3MiPgoK
+PGxpbmsgcmVsPXN0eWxlc2hlZXQgdHlwZT0idGV4dC9jc3MiIGhyZWY9Imh0dHBzOi8vc2Vydmlj
+ZS5hcmliYS5jb20vYW4vcC9BcmliYS9lcy9hc25pMThuLmNzcyI+CgoKCgoKPHRpdGxlPgpBcmli
+YSBOZXR3b3JrIAo8L3RpdGxlPgoKCjwvaGVhZD4KPGJvZHkgaGFzUmVmcmVzaFJlZ2lvbnM9ZmFs
+c2U+Cgo8dGFibGUgd2lkdGg9IjgwJSIgYWxpZ249ImNlbnRlciIgc3R5bGU9ImJvcmRlcjoxcHgg
+c29saWQgIzljOWNiODsgbWFyZ2luLXRvcDogMTVweDsiPgo8dHI+Cjx0ZD4KPHRhYmxlIHdpZHRo
+PSIxMDAlIiBhbGlnbj0iY2VudGVyIiBib3JkZXI9IjAiIGNlbGxwYWRkaW5nPSIyIiBjZWxsc3Bh
+Y2luZz0iMiI+Cjx0cj4KPHRkPjxzcGFuIHN0eWxlPSJjb2xvcjogIzU1NTU4MDtmb250OiBib2xk
+IDExcHgvMTVweCBWZXJkYW5hLCBBcmlhbCwgSGVsdmV0aWNhLCBzYW5zLXNlcmlmOyI+UGFyYSBh
+Y2NlZGVyIGFsIHBlZGlkbzo8L3NwYW4+PGEgaHJlZj0iaHR0cHM6Ly9zZXJ2aWNlLmFyaWJhLmNv
+bS9TdXBwbGllci5hdy9hZC9kb2N1bWVudERldGFpbD9kb2NQYXlsb2FkPTE2MTIyOTQ5NTIyNzFf
+NDQzNzM1NDM5JTQwMTQ3LjE2Ny41MC40MiZjb21tdW5pdHk9NSZhbnA9QXJpYmEiPkNvbnRpbnVh
+cjwvYT48L3RkPgo8L3RyPgo8L3RhYmxlPgo8L3RkPgo8L3RyPgo8L3RhYmxlPgoKPHRhYmxlIGFs
+aWduPWNlbnRlciBjZWxsc3BhY2luZz0wIGNlbGxwYWRkaW5nPTAgd2lkdGg9Ijk1JSI+CgoKCgoK
+CgoKCgoKCgoKCgoKPHRyPgoKPHRkIHN0eWxlPSJ2ZXJ0aWNhbC1hbGlnbjogdG9wOyAiIHdpZHRo
+PSIxMDAlIiB2YWxpZ249dG9wIGFsaWduPWxlZnQgY29sc3Bhbj00Pjxici8+PGk+RXN0ZSBwZWRp
+ZG8gZGUgY29tcHJhIGZ1ZSBlbnRyZWdhZG8gcG9yIEFyaWJhIE5ldHdvcmsuJm5ic3A7Jm5ic3A7
+ClBhcmEgb2J0ZW5lciBtw6FzIGluZm9ybWFjacOzbiBhY2VyY2EgZGUgQXJpYmEgeSBBcmliYSBO
+ZXR3b3JrLCB2aXNpdGUgaHR0cHM6Ly93d3cuYXJpYmEuY29tLjwvaT48YnIvPjxici8+PC90ZD4K
+Cgo8L3RyPgoKCgoKCgoKCgoKCgoKPHRyPgoKCjx0ZCBzdHlsZT0idmVydGljYWwtYWxpZ246IHRv
+cDsgdmVydGljYWwtYWxpZ246IHRvcDsgcGFkZGluZy1sZWZ0OjEwcHg7cGFkZGluZy1yaWdodDo1
+cHg7IiB2YWxpZ249dG9wIGFsaWduPWxlZnQgY29sc3Bhbj00Pgo8aW1nIHNyYz0iaHR0cHM6Ly9z
+ZXJ2aWNlLmFyaWJhLmNvbS8vYW4vbG9nb3MvQU4wMTAwMzYwMzAxOC5naWYiPgo8L3RkPgoKCgo8
+L3RyPgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCjx0cj4KCgoKCjx0ZCBjb2xzcGFuPTIgYWxpZ249
+bGVmdCB2YWxpZ249dG9wIHN0eWxlPSJ2ZXJ0aWNhbC1hbGlnbjogdG9wOyAiIGNsYXNzPXBvSGVh
+ZGVySUVBZGRyZXNzPgoKCgoKCgoKCgoKPHRhYmxlIGNlbGxzcGFjaW5nPTIgY2VsbHBhZGRpbmc9
+MD48dHI+CgoKCgo8dGQgY29sc3Bhbj0yIGFsaWduPWxlZnQgdmFsaWduPXRvcCBzdHlsZT0idmVy
+dGljYWwtYWxpZ246IHRvcDsgIj48dGFibGUgY2VsbHNwYWNpbmc9MiBjZWxscGFkZGluZz0wPgoK
+CgoKCgoKCjx0cj4KCgo8dGQgc3R5bGU9InZlcnRpY2FsLWFsaWduOiB0b3A7IHZlcnRpY2FsLWFs
+aWduOiB0b3A7IHBhZGRpbmctdG9wOjJweDsiIHZhbGlnbj10b3AgYWxpZ249bGVmdCBjb2xzcGFu
+PTI+PHNwYW4gY2xhc3M9Ym9keUJvbGQ+RGVzZGU6PC9zcGFuPjwvdGQ+CgoKCgo8L3RyPgoKCgoK
+CgoKCgoKCgoKCgoKCgoKCgoKCgo8c3BhbiBjbGFzcz0iZmRtbC1vdi1vaGQtcG9oLXBvaHAtYWFs
+LWJhLWJhZC1nZi1iaWxsLXRvIiBzdHlsZT0idmVydGljYWwtYWxpZ246IHRvcDsgIj4KCgoKCgoK
+CgoKPHRyPgo8dGQgY29sc3Bhbj0yIGFsaWduPWxlZnQgdmFsaWduPXRvcCBzdHlsZT0idmVydGlj
+YWwtYWxpZ246IHRvcDsgIj4KCgoKCgoKCgoKCgoKCgo8dGFibGUgY2VsbHNwYWNpbmc9MiBjZWxs
+cGFkZGluZz0wPjwvdGFibGU+CgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKPHNwYW4gY2xh
+c3M9ImZkbWwtb3YtYmlsbC10by1nZi1hZGRyLW5hbWUtdmFsIiBzdHlsZT0idmVydGljYWwtYWxp
+Z246IHRvcDsgZm9udC13ZWlnaHQ6Ym9sZDtwYWRkaW5nLXJpZ2h0OjVweDsiPgpOb3ZhcnRpcyBG
+YXJtYWPDqXV0aWNhIFMuQS4KCgoKCgoKCgo8L3NwYW4+CgoKCjxicj4KCgoKCgoKCgoKCgoKPHNw
+YW4gc3R5bGU9InZlcnRpY2FsLWFsaWduOiB0b3A7ICI+CgoKQXBhcnRhZG8gZGUgY29ycmVvcyAx
+NTU3PGJyPgoKCgowODA4MCAKQkFSQ0VMT05BCjxicj4KCjA4Cjxicj4KRXNwYcOxYQoKPC9zcGFu
+PgoKCjxicj4KCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCjxzcGFuPgpUZWzDqWZv
+bm86Jm5ic3A7PC9zcGFuPgoKCjxzcGFuPgorRVMgKCkgKzM0IDkzIDMwNjk5OTkgPC9zcGFuPgoK
+Cgo8YnI+CgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoK
+CgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgo8L3RkPgo8
+L3RyPgoKCgoKCgoKCgoKCgoKCgoKCgo8L3NwYW4+CgoKCgoKCgoKPC90YWJsZT48L3RkPgoKCgoK
+PC90cj48L3RhYmxlPgoKCgoKCgoKCgoKCjwvdGQ+CgoKCjx0ZCBjbGFzcz0icGFkZGluZ1RvcDUg
+cG9IZWFkZXJJRUFkZHJlc3MiIGNvbHNwYW49MSB2YWxpZ249dG9wIGFsaWduPWxlZnQ+Cjx0YWJs
+ZSBjZWxscGFkZGluZz0iMCIgY2VsbHNwYWNpbmc9IjAiIGNsYXNzPSJXcmFwVGFibGVPdmVyZmxv
+d0NvbnRlbnRzIj4KPHRyPgo8dGQgc3R5bGU9InBhZGRpbmctcmlnaHQ6MnB4OyIgdmFsaWduPXRv
+cCBjbGFzcz0icG8tSU5TU0FkZHItVG8tbGFiZWwiPgo8Yj5QYXJhOiZuYnNwOzwvYj4KPC90ZD4K
+PC90cj4KPHRyPgo8dGQgdmFsaWduPXRvcCBhbGlnbj1sZWZ0Pgo8dGFibGUgY2VsbHBhZGRpbmc9
+IjAiIGNlbGxzcGFjaW5nPSIwIj4KPHRyPgoKPHRkIHZhbGlnbj10b3AgYWxpZ249bGVmdCBjbGFz
+cz0icG8tSU5TU0FkZHItYWRkci1kZXRhaWxzIEFOWExhYmVsIj4KCgo8Yj5BRE4gQ29tdW5pY2Fj
+acOzLCBTTDwvYj4KCjwvdGQ+CgoKPC90cj4KPHRyPgoKPHRkIHZhbGlnbj10b3AgYWxpZ249bGVm
+dCBjbGFzcz0icG8tSU5TU0FkZHItYWRkci1kZXRhaWxzIEFOWExhYmVsIj4KCgoKCmNhcnJlciBJ
+bmR1c3RyaWEsIDEyNzxicj4KCgoKMDgwMjUgCkJhcmNlbG9uYQo8YnI+CgpCYXJjZWxvbmEKPGJy
+PgpFc3Bhw7FhCgoKPC90ZD4KCgo8L3RyPgo8dHI+Cgo8dGQgdmFsaWduPXRvcCBhbGlnbj1sZWZ0
+IGNsYXNzPSJwby1JTlNTQWRkci1hZGRyLWRldGFpbHMgQU5YTGFiZWwiPgoKClRlbMOpZm9ubzog
+CjwvdGQ+CgoKPC90cj4KPHRyPgoKPHRkIHZhbGlnbj10b3AgYWxpZ249bGVmdCBjbGFzcz0icG8t
+SU5TU0FkZHItYWRkci1kZXRhaWxzIEFOWExhYmVsIj4KCgpGYXg6IAo8L3RkPgoKCjwvdHI+Cjx0
+cj4KCjx0ZCB2YWxpZ249dG9wIGFsaWduPWxlZnQgY2xhc3M9InBvLUlOU1NBZGRyLWFkZHItZGV0
+YWlscyBBTlhMYWJlbCI+CgoKQ29ycmVvIGVsZWN0csOzbmljbzogZmlzY2FsQGFkbmNvbXVuaWNh
+Y2lvLmNvbQoKCgo8L3RkPgoKCjwvdHI+CjwvdGFibGU+CjwvdGQ+CjwvdHI+CjwvdGFibGU+Cjwv
+dGQ+Cgo8dGQgY29sc3Bhbj0xIHZhbGlnbj10b3AgY2xhc3M9cG9IZWFkZXJTZWN0aW9uVGl0bGVT
+dHlsZSBhbGlnbj1yaWdodD4KPHRhYmxlPgo8dHI+Cjx0ZCBjbGFzcz1wb0hlYWRlclNlY3Rpb25U
+aXRsZVN0eWxlIGFsaWduPXJpZ2h0PgpQZWRpZG8gZGUgY29tcHJhCgoKPC90ZD4KPC90cj4KPHRy
+Pgo8dGQgYWxpZ249cmlnaHQ+CgoKCjxkaXYgY2xhc3M9InBvSGVhZGVyU3RhdHVzU3R5bGUiPihO
+dWV2byk8L2Rpdj4KCgoKCgo8c3BhbiBzdHlsZT0idGV4dC1hbGlnbjpyaWdodDtsaW5lLWhlaWdo
+dDoxOHB4OyIgY2xhc3M9InBvLUlOU1BPTi1kb2MtbnVtIj4KCjMwMDQ3MzI5MDQKCjwvc3Bhbj4K
+CgoKCgo8ZGl2IGNsYXNzPSJwby1JTlNQT04tc3RkLW1vbmV5Ij4KPHRhYmxlIGJvcmRlcj0iMCIg
+Y2VsbHBhZGRpbmc9IjAiIGNlbGxzcGFjaW5nPSIwIj48dHI+Cjx0ZD4KPGRpdiBhbGlnbj1yaWdo
+dD4KSW1wb3J0ZToKPC9kaXY+CjwvdGQ+Cgo8dGQ+CjxkaXYgYWxpZ249bGVmdD4KJm5ic3A7Cjwv
+ZGl2Pgo8L3RkPgo8dGQ+CjxkaXYgYWxpZ249cmlnaHQ+CjY4NSwwMAo8L2Rpdj4KPC90ZD4KPHRk
+Pgo8ZGl2IGFsaWduPXJpZ2h0IHN0eWxlPSJwYWRkaW5nLXJpZ2h0OjBweCI+CiZuYnNwO0VVUgo8
+L2Rpdj4KPC90ZD4KCgo8L3RyPjwvdGFibGU+CjwvZGl2PgoKCgoKPGRpdiBjbGFzcz0iZm9udE5v
+cm1hbCI+CgoKPC9kaXY+CgoKPC90ZD4KPC90cj4KPC90YWJsZT4KPC90ZD4KCgo8L3RyPgoKCgoK
+CgoKCgoKCgoKCgoKPHNwYW4+Cjwvc3Bhbj48dHI+PHRkIGNvbHNwYW49IjQiIHN0eWxlPSJib3Jk
+ZXItYm90dG9tOjFweCBzb2xpZCAjRDlEOUQ5OyI+Jm5ic3A7PC90ZD48L3RyPgoKCgoKCgoKCgoK
+CgoKCgoKCgoKCgoKCjx0cj4KCgoKCjx0ZCBjb2xzcGFuPTMgYWxpZ249bGVmdCB2YWxpZ249dG9w
+IHN0eWxlPSJ2ZXJ0aWNhbC1hbGlnbjogdG9wOyAiIHdpZHRoPSI4MCUiPjx0YWJsZSBzdHlsZT0i
+cGFkZGluZy1ib3R0b206MjBweCIgd2lkdGg9IjEwMCUiIGNlbGxzcGFjaW5nPTIgY2VsbHBhZGRp
+bmc9MD4KCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCjx0
+cj4KCjx0ZCBzdHlsZT0idmVydGljYWwtYWxpZ246IGJvdHRvbTsgcGFkZGluZy1ib3R0b206MHB4
+OyIgdmFsaWduPWJvdHRvbSBhbGlnbj1sZWZ0IGNvbHNwYW49MT48ZGl2IHN0eWxlPSJwYWRkaW5n
+LXRvcDoyMHB4Ij4KPHNwYW4gY2xhc3M9ImJhc2Utc3ViLXNlY3QtbGFiZWwiPgpJbmZvcm1hY2nD
+s24gZGUgY29udGFjdG8KPC9zcGFuPgo8c3BhbiBjbGFzcz0iQU5Cb2R5VGV4dCI+Cgo8L3NwYW4+
+CjwvZGl2Pgo8L3RkPgoKCjwvdHI+CgoKCjx0cj4KCgoKCjx0ZCBzdHlsZT0idmVydGljYWwtYWxp
+Z246IHRvcDsgIiB2YWxpZ249dG9wIGFsaWduPWxlZnQgY29sc3Bhbj0xPgo8dGFibGUgY2VsbHNw
+YWNpbmc9MCBjZWxscGFkZGluZz0wPgoKCgoKCgoKCjx0cj48dGQgY29sc3Bhbj00IGFsaWduPWxl
+ZnQgdmFsaWduPXRvcCBzdHlsZT0idmVydGljYWwtYWxpZ246IHRvcDsgIiBjbGFzcz1XcmFwVGFi
+bGVPdmVyZmxvd0NvbnRlbnRzPgoKCgoKCjx0YWJsZSBjZWxsc3BhY2luZz0yIGNlbGxwYWRkaW5n
+PTA+CgoKCjx0cj4KPHRkIGNvbHNwYW49MiBhbGlnbj1sZWZ0IHZhbGlnbj10b3Agc3R5bGU9InZl
+cnRpY2FsLWFsaWduOiB0b3A7ICIgY2xhc3M9V3JhcFRhYmxlT3ZlcmZsb3dDb250ZW50cz4KCgoK
+CgoKCgo8c3BhbiBzdHlsZT0idmVydGljYWwtYWxpZ246IHRvcDsgZm9udC13ZWlnaHQ6Ym9sZCI+
+CkRpcmVjY2nDs24gZGVsIHByb3ZlZWRvcgoKCgoKCgoKCjwvc3Bhbj4KCgoKPGJyPgoKCgoKCgoK
+Cgo8c3BhbiBjbGFzcz0iZmRtbC1jeG1sdi1jb250YWN0LW5hbWUiIHN0eWxlPSJ2ZXJ0aWNhbC1h
+bGlnbjogdG9wOyAiPgpHZXJhcmQgQWxvbnNvIEJsYXNjbwoKCgoKCgoKCjwvc3Bhbj4KCgoKPGJy
+PgoKCgoKCgoKCgo8L3RkPgo8L3RyPgoKCgo8L3RhYmxlPgoKCgoKPC90ZD48L3RyPgoKCgoKCgoK
+CgoKCgoKCgoKCjwvdGFibGU+CjwvdGQ+CgoKCgoKPHRkIHN0eWxlPSJ2ZXJ0aWNhbC1hbGlnbjog
+dG9wOyAiIHZhbGlnbj10b3AgYWxpZ249bGVmdCBjb2xzcGFuPTE+Cjx0YWJsZSBjZWxsc3BhY2lu
+Zz0wIGNlbGxwYWRkaW5nPTA+CgoKCgoKPC90YWJsZT4KPC90ZD4KCgoKCjwvdHI+CgoKCgoKCgoK
+CgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCjx0cj4KPHRkIGNvbHNwYW49
+MiBhbGlnbj1sZWZ0IHZhbGlnbj10b3Agc3R5bGU9InZlcnRpY2FsLWFsaWduOiB0b3A7ICI+CgoK
+CgoKCgo8dGFibGUgY2VsbHNwYWNpbmc9MiBjZWxscGFkZGluZz0wPgoKCgoKCgo8L3RhYmxlPgoK
+CgoKCjwvdGQ+CjwvdHI+CgoKCgoKCgoKCgoKPHRyPgoKCgoKPHRkIGNvbHNwYW49MyBhbGlnbj1s
+ZWZ0IHZhbGlnbj10b3Agc3R5bGU9InZlcnRpY2FsLWFsaWduOiB0b3A7ICI+PHRhYmxlIGNsYXNz
+PSJwcmludC1icmVhay13b3JkcyIgd2lkdGg9IjEwMCUiIGNlbGxzcGFjaW5nPTIgY2VsbHBhZGRp
+bmc9MD4KCgoKCgoKCgo8dHI+Cgo8dGQgc3R5bGU9InZlcnRpY2FsLWFsaWduOiBib3R0b207IHBh
+ZGRpbmctYm90dG9tOjBweDsiIHZhbGlnbj1ib3R0b20gYWxpZ249bGVmdCBjb2xzcGFuPTI+PGRp
+diBzdHlsZT0icGFkZGluZy10b3A6MjBweCI+CjxzcGFuIGNsYXNzPSJiYXNlLXN1Yi1zZWN0LWxh
+YmVsIj4KT3RyYSBpbmZvcm1hY2nDs248c3BhbiBjbGFzcz0iQU5Cb2R5VGV4dCI+Cgo8L3NwYW4+
+Cjwvc3Bhbj4KPHNwYW4gY2xhc3M9IkFOQm9keVRleHQiPgoKPC9zcGFuPgo8L2Rpdj4KPC90ZD4K
+Cgo8L3RyPgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKPHRyPgoK
+CgoKCjx0ZCBjb2xzcGFuPTEgdmFsaWduPXRvcCBhbGlnbj1sZWZ0IHdpZHRoPTE2MHB4IGNsYXNz
+PSJiYXNlLW5jZC1sYWJlbC10b3AgQU5YTGFiZWwiPgoKClN5c3RlbUlEOgoKPC90ZD4KCgoKCgoK
+PHRkIHN0eWxlPSJ2ZXJ0aWNhbC1hbGlnbjogdG9wOyAiIHZhbGlnbj10b3AgYWxpZ249bGVmdCBj
+b2xzcGFuPTE+UDcwQ0xOVDA2MDwvdGQ+CgoKPC90cj4KCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoK
+CgoKCgoKCgoKPHRyPgoKCgoKCjx0ZCBjb2xzcGFuPTEgdmFsaWduPXRvcCBhbGlnbj1sZWZ0IHdp
+ZHRoPTE2MHB4IGNsYXNzPSJiYXNlLW5jZC1sYWJlbC10b3AgQU5YTGFiZWwiPgoKClRlcm1zIGFu
+ZCBDb25kaXRpb246Cgo8L3RkPgoKCgoKCgo8dGQgc3R5bGU9InZlcnRpY2FsLWFsaWduOiB0b3A7
+ICIgdmFsaWduPXRvcCBhbGlnbj1sZWZ0IGNvbHNwYW49MT5odHRwczovL3Byb2Qubm92YXJ0aXMu
+ZXMvdGVybWlub3MteS1jb25kaWNpb25lcy1kZS1jb21wcmE8L3RkPgoKCjwvdHI+CgoKCgoKCgoK
+CgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgo8L3RhYmxlPjwvdGQ+CgoKCgo8
+L3RyPgoKCgoKCgoKPC90YWJsZT48L3RkPgoKCgoKCgoKCjx0ZCBjb2xzcGFuPTEgYWxpZ249cmln
+aHQgdmFsaWduPXRvcCBzdHlsZT0idmVydGljYWwtYWxpZ246IHRvcDsgIiB3aWR0aD0iMjAlIj48
+dGFibGUgc3R5bGU9InBhZGRpbmctbGVmdDo1cHgiIGNlbGxzcGFjaW5nPTIgY2VsbHBhZGRpbmc9
+MD4KCgoKCgoKCgoKCgoKPC90YWJsZT48L3RkPgoKCgoKPC90cj4KCgoKCgoKCgoKCgoKCgoKCgoK
+CgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoK
+CgoKCgoKCgoKCgoKCgoKCjx0cj4KCgoKCjx0ZCBjb2xzcGFuPTQgYWxpZ249bGVmdCB2YWxpZ249
+dG9wIHN0eWxlPSJ2ZXJ0aWNhbC1hbGlnbjogdG9wOyAiPjx0YWJsZSBjbGFzcz1wb0hlYWRlcklF
+U3BlY2ZpYyBzdHlsZT0iaGVpZ2h0OjEwMCU7d2lkdGg6MTAwJTt0YWJsZS1sYXlvdXQ6Zml4ZWQ7
+bWFyZ2luLXRvcDoxMHB4OyIgY2VsbHNwYWNpbmc9MCBjZWxscGFkZGluZz0wPgoKCgo8dHI+CgoK
+Cgo8dGQgY29sc3Bhbj0xIGFsaWduPWxlZnQgdmFsaWduPXRvcCBzdHlsZT0idmVydGljYWwtYWxp
+Z246IHRvcDsgYm9yZGVyOjFweCBzb2xpZCAjRDlEOUQ5OyIgY2xhc3M9cG9IZWFkZXJBZGRyZXNz
+U3R5bGUxPjx0YWJsZSBjZWxsc3BhY2luZz0yIGNlbGxwYWRkaW5nPTA+CgoKCjx0cj4KCgoKCjx0
+ZCBjb2xzcGFuPTIgYWxpZ249bGVmdCB2YWxpZ249dG9wIHN0eWxlPSJ2ZXJ0aWNhbC1hbGlnbjog
+dG9wOyAiPjx0YWJsZSBjZWxsc3BhY2luZz0yIGNlbGxwYWRkaW5nPTA+CgoKCgoKCgoKCgoKCjx0
+cj4KCgoKCgoKCgoKCjx0ZCBzdHlsZT0idmVydGljYWwtYWxpZ246IGJvdHRvbTsgcGFkZGluZy1i
+b3R0b206MHB4OyIgdmFsaWduPWJvdHRvbSBhbGlnbj1sZWZ0IGNvbHNwYW49Mz48ZGl2IGNsYXNz
+PXBvSGVhZGVyTGVnZW5kU3R5bGUgc3R5bGU9InBhZGRpbmctdG9wOjBweDsiPgo8c3BhbiBjbGFz
+cz0iZmRtbC1vdi1zdC1nZi1zcy1sYWJlbCI+CkV4cGVkaXIgdG9kb3MgbG9zIGFydMOtY3Vsb3Mg
+YTxzcGFuIGNsYXNzPSJBTkJvZHlUZXh0Ij4KCjwvc3Bhbj4KPC9zcGFuPgo8c3BhbiBjbGFzcz0i
+QU5Cb2R5VGV4dCI+Cgo8L3NwYW4+CjwvZGl2Pgo8L3RkPgoKCgoKCgoKCgoKCgoKCgoKCgoKCgo8
+L3RyPgoKCgoKCgoKPHRyPgo8dGQgY29sc3Bhbj0yIGFsaWduPWxlZnQgdmFsaWduPXRvcCBzdHls
+ZT0idmVydGljYWwtYWxpZ246IHRvcDsgIj4KCgoKCgoKCgo8c3BhbiBzdHlsZT0idmVydGljYWwt
+YWxpZ246IHRvcDsgZm9udC13ZWlnaHQ6Ym9sZCI+Ck5vdmFydGlzIEZhcm1hY8OpdXRpY2EgUy5B
+LgoKCgoKCgoKCjwvc3Bhbj4KCgoKPGJyPgoKCgoKCgoKCgoKCgo8c3BhbiBzdHlsZT0idmVydGlj
+YWwtYWxpZ246IHRvcDsgIj4KCgo8YnI+CgpHcmFuIFZpYSBkZSBsZXMgQ29ydHNDYXRhbGFuZXMg
+NzY0PGJyPgoKMDgwMTMgCkJhcmNlbG9uYQo8YnI+CgowOAo8YnI+CkVzcGHDsWEKCjwvc3Bhbj4K
+Cgo8YnI+CgoKCgoKCgoKCgoKCgoKCgoKCgoKPHNwYW4+CkPDs2RpZ28gZGUgZXhwZWRpY2nDs246
+Jm5ic3A7PC9zcGFuPgoKCgo8c3BhbiBzdHlsZT0idmVydGljYWwtYWxpZ246IHRvcDsgIj4KRVMw
+NjgwMTM3NjQKCgoKCgoKCgo8L3NwYW4+CgoKCjxicj4KCgoKCgoKCgoKCgoKCgoKCgoKCgoKCjxz
+cGFuPgpUZWzDqWZvbm86Jm5ic3A7PC9zcGFuPgoKCjxzcGFuPgorICgpICszNDkzMzA2NDQ2NCA8
+L3NwYW4+CgoKCjxicj4KCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoK
+CgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCjxzcGFuPgpDb3JyZW8g
+ZWxlY3Ryw7NuaWNvOiZuYnNwOzwvc3Bhbj4KCgoKPHNwYW4gc3R5bGU9InZlcnRpY2FsLWFsaWdu
+OiB0b3A7ICI+amF2aWVyLm1hbHBlc2FAbm92YXJ0aXMuY29tCgoKCgoKCgo8L3NwYW4+CgoKCjxi
+cj4KCgoKCgoKCgoKCgoKCgoKCgoKCgoKPC90ZD4KPC90cj4KCgoKCgoKCgoKCgoKCgoKCgoKCgoK
+CgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoK
+CjwvdGFibGU+PC90ZD4KCgoKCjwvdHI+CgoKCgo8L3RhYmxlPjwvdGQ+CgoKCgoKCgoKCjxzcGFu
+Pgo8L3NwYW4+PHRkIHdpZHRoPSIxMHB4Ij4mbmJzcDs8L3RkPgoKCgoKCgoKCgoKCgoKCgoKCgoK
+PHRkIGNvbHNwYW49MSBhbGlnbj1sZWZ0IHZhbGlnbj10b3Agc3R5bGU9InZlcnRpY2FsLWFsaWdu
+OiB0b3A7IGJvcmRlcjoxcHggc29saWQgI0Q5RDlEOTsiIGNsYXNzPXBvSGVhZGVyQWRkcmVzc1N0
+eWxlMj48dGFibGUgY2VsbHNwYWNpbmc9MiBjZWxscGFkZGluZz0wPgoKCgo8dHI+CgoKCgo8dGQg
+Y29sc3Bhbj0yIGFsaWduPWxlZnQgdmFsaWduPXRvcCBzdHlsZT0idmVydGljYWwtYWxpZ246IHRv
+cDsgIj48dGFibGUgY2VsbHNwYWNpbmc9MiBjZWxscGFkZGluZz0wPgoKCgoKCgoKCjx0cj4KCjx0
+ZCBzdHlsZT0idmVydGljYWwtYWxpZ246IGJvdHRvbTsgcGFkZGluZy1ib3R0b206MHB4OyIgd2lk
+dGg9IjY1JSIgdmFsaWduPWJvdHRvbSBhbGlnbj1sZWZ0IGNvbHNwYW49Mj48ZGl2IGNsYXNzPXBv
+SGVhZGVyTGVnZW5kU3R5bGUgc3R5bGU9InBhZGRpbmctdG9wOjBweDsiPgo8c3BhbiBjbGFzcz0i
+ZmRtbC1vdi1vaGQtYnRuLWdmLXNzLWxhYmVsIj4KRmFjdHVyYXIgYTxzcGFuIGNsYXNzPSJBTkJv
+ZHlUZXh0Ij4KCjwvc3Bhbj4KPC9zcGFuPgo8c3BhbiBjbGFzcz0iQU5Cb2R5VGV4dCI+Cgo8L3Nw
+YW4+CjwvZGl2Pgo8L3RkPgoKCjwvdHI+CgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoK
+Cjx0cj4KPHRkIGNvbHNwYW49MiBhbGlnbj1sZWZ0IHZhbGlnbj10b3Agc3R5bGU9InZlcnRpY2Fs
+LWFsaWduOiB0b3A7ICI+CgoKCgoKCgoKCgoKCgoKPHRhYmxlIGNlbGxzcGFjaW5nPTIgY2VsbHBh
+ZGRpbmc9MD48L3RhYmxlPgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCjxzcGFuIGNsYXNz
+PSJmZG1sLW92LWJpbGwtdG8tZ2YtYWRkci1uYW1lLXZhbCIgc3R5bGU9InZlcnRpY2FsLWFsaWdu
+OiB0b3A7IGZvbnQtd2VpZ2h0OmJvbGQ7cGFkZGluZy1yaWdodDo1cHg7Ij4KTm92YXJ0aXMgRmFy
+bWFjw6l1dGljYSBTLkEuCgoKCgoKCgoKPC9zcGFuPgoKCgo8YnI+CgoKCgoKCgoKCgoKCjxzcGFu
+IHN0eWxlPSJ2ZXJ0aWNhbC1hbGlnbjogdG9wOyAiPgoKCkFwYXJ0YWRvIGRlIGNvcnJlb3MgMTU1
+Nzxicj4KCgoKMDgwODAgCkJBUkNFTE9OQQo8YnI+CgowOAo8YnI+CkVzcGHDsWEKCjwvc3Bhbj4K
+Cgo8YnI+CgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgo8c3Bhbj4KVGVsw6lmb25v
+OiZuYnNwOzwvc3Bhbj4KCgo8c3Bhbj4KK0VTICgpICszNCA5MyAzMDY5OTk5IDwvc3Bhbj4KCgoK
+PGJyPgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoK
+CgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKPC90ZD4KPC90
+cj4KCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoK
+CgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKPC90YWJsZT48L3RkPgoKCgoKPC90cj4KCgoK
+CjwvdGFibGU+PC90ZD4KCgoKCgoKCgoKPHNwYW4+Cjwvc3Bhbj48dGQgd2lkdGg9IjEwcHgiPiZu
+YnNwOzwvdGQ+CgoKCgoKCgoKCgoKCgoKCgoKCgo8dGQgY29sc3Bhbj0xIGFsaWduPWxlZnQgdmFs
+aWduPXRvcCBzdHlsZT0idmVydGljYWwtYWxpZ246IHRvcDsgYm9yZGVyOjFweCBzb2xpZCAjRDlE
+OUQ5OyIgY2xhc3M9cG9IZWFkZXJBZGRyZXNzU3R5bGUzPjx0YWJsZSBjZWxsc3BhY2luZz0yIGNl
+bGxwYWRkaW5nPTA+CgoKCjx0cj4KCgoKCjx0ZCBjb2xzcGFuPTIgYWxpZ249bGVmdCB2YWxpZ249
+dG9wIHN0eWxlPSJ2ZXJ0aWNhbC1hbGlnbjogdG9wOyAiPjx0YWJsZSBjZWxsc3BhY2luZz0yIGNl
+bGxwYWRkaW5nPTA+CgoKCgoKCgoKPHRyPgoKPHRkIHN0eWxlPSJ2ZXJ0aWNhbC1hbGlnbjogYm90
+dG9tOyBwYWRkaW5nLWJvdHRvbTowcHg7IiB2YWxpZ249Ym90dG9tIGFsaWduPWxlZnQgY29sc3Bh
+bj0xPjxkaXYgY2xhc3M9cG9IZWFkZXJMZWdlbmRTdHlsZSBzdHlsZT0icGFkZGluZy10b3A6MHB4
+OyI+CjxzcGFuIGNsYXNzPSJmZG1sLW92LW9oZC1kdC1nZi1zcy1sYWJlbCI+CkVudHJlZ2FyIGE8
+c3BhbiBjbGFzcz0iQU5Cb2R5VGV4dCI+Cgo8L3NwYW4+Cjwvc3Bhbj4KPHNwYW4gY2xhc3M9IkFO
+Qm9keVRleHQiPgoKPC9zcGFuPgo8L2Rpdj4KPC90ZD4KCgo8L3RyPgoKCgoKCgoKCgoKCgoKCgoK
+CgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKPHRyPgoKCgoKPHRkIHN0eWxlPSJ2ZXJ0aWNhbC1h
+bGlnbjogdG9wOyB2ZXJ0aWNhbC1hbGlnbjogdG9wOyAiIGNvbHNwYW49MSB2YWxpZ249dG9wIGFs
+aWduPWxlZnQgY2xhc3M9ImN1cy1uY2R2LWZvcm1wYWR2YWx1ZSBBTlhMYWJlbCI+CgoKR2VyYXJk
+IEFsb25zbyBCbGFzY28KCgoKCgoKCgo8L3RkPgoKCgo8L3RyPgoKCgoKCgoKCgoKCgoKCgoKCgoK
+CgoKPHRyPgoKCgoKPHRkIHN0eWxlPSJ2ZXJ0aWNhbC1hbGlnbjogdG9wOyB2ZXJ0aWNhbC1hbGln
+bjogdG9wOyAiIGNvbHNwYW49MSB2YWxpZ249dG9wIGFsaWduPWxlZnQgY2xhc3M9ImN1cy1uY2R2
+LWZvcm1wYWR2YWx1ZSBBTlhMYWJlbCI+CgoKLS8tLy0KCgoKCgoKCgo8L3RkPgoKCgo8L3RyPgoK
+CgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgo8L3RhYmxlPjwvdGQ+
+CgoKCgo8L3RyPgoKCgoKPC90YWJsZT48L3RkPgoKCgoKCgo8L3RyPgoKCgoKPC90YWJsZT48L3Rk
+PgoKCgoKPC90cj4KCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgo8c3Bh
+biBjbGFzcz0ic2Nyb2xsVGFibGVXcmFwcGVyIHRhYmxlLWdyb3VwLXNwYWNlciB3LXRibC13cmFw
+cGVyIGZkbWwtb3Ytb2QtaXRtLW91dCIgc3R5bGU9InZlcnRpY2FsLWFsaWduOiB0b3A7ICI+Cgo8
+dHI+Cgo8dGQgc3R5bGU9InZlcnRpY2FsLWFsaWduOiB0b3A7ICIgd2lkdGg9IjEwMCUiIHZhbGln
+bj10b3AgYWxpZ249bGVmdCBjb2xzcGFuPTQ+Cjx0YWJsZSB3aWR0aD0iMTAwJSIgY2VsbHNwYWNp
+bmc9MCBjbGFzcz0ic2Nyb2xsVGFibGVXcmFwcGVyIHRhYmxlLWdyb3VwLXNwYWNlciB3LXRibC13
+cmFwcGVyIGZkbWwtb3Ytb2QtaXRtLW91dCI+Cjx0cj4KPHRkIGNvbHNwYW49MTAwIGNsYXNzPXRh
+YmxlSGVhZGVyPgoKPGRpdiBjbGFzcz0iRGF0YVRhYmxlVGl0bGUiPgo8aDI+PGRpdiBjbGFzcz0i
+RGF0YVRhYmxlSGVhZGVyRm9udCI+QXJ0w61jdWxvcyBlbiBsw61uZWE8L2Rpdj48L2gyPgo8L2Rp
+dj4KCgo8ZGl2IGNsYXNzPSJmbG9hdFJpZ2h0Ij4KCjwvZGl2PgoKPGRpdiBjbGFzcz0iaGVhZGVy
+QmF0Y2hOYXZpZ2F0aW9uUGFkZGluZyI+CjwvZGl2PgoKCjwvdGQ+CjwvdHI+Cjx0cj4KCgoKCgoK
+PHRoIHN0eWxlPSIiIGNsYXNzPXRhYmxlSGVhZCBhbGlnbj1sZWZ0Pk7Dum1lcm8gZGUgbMOtbmVh
+PC90aD4KPHRoIHN0eWxlPSIiIGNsYXNzPXRhYmxlSGVhZCBhbGlnbj1sZWZ0Pk7Dum1lcm8gZGUg
+cmVwYXJ0b3M8L3RoPgo8dGggc3R5bGU9IiIgY2xhc3M9dGFibGVIZWFkIGFsaWduPWxlZnQ+TsK6
+IGRlIHBpZXphL0Rlc2NyaXBjacOzbjwvdGg+Cjx0aCBzdHlsZT0iIiBjbGFzcz10YWJsZUhlYWQg
+YWxpZ249bGVmdD48L3RoPgo8dGggc3R5bGU9IiIgY2xhc3M9dGFibGVIZWFkIGFsaWduPWxlZnQ+
+VGlwbzwvdGg+Cjx0aCBzdHlsZT0iIiBjbGFzcz10YWJsZUhlYWQgYWxpZ249bGVmdD5EZXZvbHVj
+acOzbjwvdGg+Cjx0aCBzdHlsZT0iIiBjbGFzcz10YWJsZUhlYWQgYWxpZ249bGVmdD5DYW50LiAo
+VW5pZGFkKTwvdGg+Cjx0aCBzdHlsZT0iIiBjbGFzcz10YWJsZUhlYWQgYWxpZ249bGVmdD5GZWNo
+YSBwYXJhIGxhIHF1ZSBzZSByZXF1aWVyZTwvdGg+Cjx0aCBzdHlsZT0idGV4dC1hbGlnbjogcmln
+aHQ7IiBjbGFzcz10YWJsZUhlYWQgYWxpZ249bGVmdD5QcmVjaW8gcG9yIHVuaWRhZDwvdGg+Cjx0
+aCBzdHlsZT0idGV4dC1hbGlnbjogcmlnaHQ7IiBjbGFzcz10YWJsZUhlYWQgYWxpZ249bGVmdD5T
+dWJ0b3RhbDwvdGg+CgoKPC90cj4KPGRpdi8+CgoKCgoKCgoKPHRyIGlkPV8zcmljcWIgYmdjb2xv
+cj0iI2ZmZmZmZiI+CgoKCgoKCgoKCjx0ZCBzdHlsZT0idmVydGljYWwtYWxpZ246IHRvcDsgIiB3
+aWR0aD0iMSUiIHZhbGlnbj10b3AgYWxpZ249bGVmdCBjb2xzcGFuPTEgY2xhc3M9InRhYmxlQm9k
+eUNsYXNzIGZkbWwtb3YtaXRlbU91dFRhYmxlIHZyLWZvcmNlVmVydGljYWxBbGlnblRvcCI+PHNw
+YW4gY2xhc3M9InR4bmItSU5TUExOLWRvY3VtZW50U3R5bGUiPgo8dGFibGUgY2xhc3M9InRhYmxl
+Qm9keUNsYXNzIGF1dG9XaWR0aCBib2R5VGV4dCIgY2VsbHBhZGRpbmc9IjAiIGNlbGxzcGFjaW5n
+PSIwIj4KPHRyPgoKCgoKCjx0ZCBjbGFzcz0icGFkZGluZ0xlZnQ1Qm9sZCB2ci1wYWRkaW5nTGVm
+dDIwIj4KCjEKCjwvdGQ+CgoKCjwvdHI+CjwvdGFibGU+Cjwvc3Bhbj48L3RkPgoKCgoKCgoKCgo8
+dGQgc3R5bGU9InZlcnRpY2FsLWFsaWduOiB0b3A7ICIgdmFsaWduPXRvcCBhbGlnbj1sZWZ0IGNv
+bHNwYW49MSBjbGFzcz0idGFibGVCb2R5Q2xhc3MgZmRtbC1vdi1pdGVtT3V0VGFibGUgdnItZm9y
+Y2VWZXJ0aWNhbEFsaWduVG9wIj4KCjwvdGQ+CgoKCgoKCgoKCgoKCgoKCgoKCgoKPHNwYW4+Cjwv
+c3Bhbj48dGQgY2xhc3M9InRhYmxlQm9keUNsYXNzIiA+Jm5ic3A7PC90ZD4KCgoKCgoKCgoKCgoK
+CgoKCgoKCgoKCgoKCgoKICAgIAoKCgo8dGQgc3R5bGU9InZlcnRpY2FsLWFsaWduOiB0b3A7ICIg
+d2lkdGg9IjElIiB2YWxpZ249dG9wIGFsaWduPWxlZnQgY29sc3Bhbj0xIG5vd3JhcD1mYWxzZSBj
+bGFzcz0idGFibGVCb2R5Q2xhc3MgZmRtbC1vdi1pdGVtT3V0VGFibGUgdnItZm9yY2VWZXJ0aWNh
+bEFsaWduVG9wIj4KCiZuYnNwOwoKPC90ZD4KCgoKCgoKCgoKCgoKCgoKPHRkIHN0eWxlPSJ2ZXJ0
+aWNhbC1hbGlnbjogdG9wOyAiIHZhbGlnbj10b3AgYWxpZ249bGVmdCBjb2xzcGFuPTEgY2xhc3M9
+InRhYmxlQm9keUNsYXNzIGZkbWwtb3YtaXRlbU91dFRhYmxlIHZyLWZvcmNlVmVydGljYWxBbGln
+blRvcCI+Cgo8ZGl2IHN0eWxlPSJmbG9hdDpsZWZ0OyBkaXNwbGF5OiBpbmxpbmUtYmxvY2s7Ij4K
+PGRpdj4KCk1hdGVyaWFsCgo8L2Rpdj4KPGRpdj4KCjwvZGl2Pgo8ZGl2PgoKPC9kaXY+CjwvZGl2
+PgoKPC90ZD4KCgoKCgoKCgoKCgoKCgoKCgo8dGQgc3R5bGU9InZlcnRpY2FsLWFsaWduOiB0b3A7
+IHZlcnRpY2FsLWFsaWduOiB0b3A7ICIgdmFsaWduPXRvcCBhbGlnbj1sZWZ0IGNvbHNwYW49MSBj
+bGFzcz0idGFibGVCb2R5Q2xhc3MgZmRtbC1vdi1pdGVtT3V0VGFibGUgdnItZm9yY2VWZXJ0aWNh
+bEFsaWduVG9wIj4KCgombmJzcDsKCgoKCgoKCjwvdGQ+CgoKCgoKCgoKCgoKCgoKCgoKPHRkIGNv
+bHNwYW49MSBhbGlnbj1sZWZ0IHZhbGlnbj10b3Agc3R5bGU9InZlcnRpY2FsLWFsaWduOiB0b3A7
+ICIgY2xhc3M9InRhYmxlQm9keUNsYXNzIGZkbWwtb3YtaXRlbU91dFRhYmxlIHZyLWZvcmNlVmVy
+dGljYWxBbGlnblRvcCI+CgoKCgoKCgoKPHNwYW4gc3R5bGU9InZlcnRpY2FsLWFsaWduOiB0b3A7
+ICI+CjEsMDAKCgoKCgo8L3NwYW4+CgoKCgoKCgoKCgoKCgoKCgoKCgo8c3Bhbj4KCihFQSkKCgoK
+Cjwvc3Bhbj4KCgoKCgoKCgoKCgoKCgo8L3RkPgoKCgoKCgoKCgoKCgoKCgoKCgoKCgo8dGQgc3R5
+bGU9InZlcnRpY2FsLWFsaWduOiB0b3A7IHZlcnRpY2FsLWFsaWduOiB0b3A7ICIgdmFsaWduPXRv
+cCBhbGlnbj1sZWZ0IGNvbHNwYW49MSBjbGFzcz0idGFibGVCb2R5Q2xhc3MgZmRtbC1vdi1pdGVt
+T3V0VGFibGUgdnItZm9yY2VWZXJ0aWNhbEFsaWduVG9wIj4KCgoxNSBmZWIgMjAyMQoKCgoKCgoK
+CgoKCjwvdGQ+CgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCjx0ZCBzdHlsZT0idmVydGljYWwt
+YWxpZ246IHRvcDsgIiB2YWxpZ249dG9wIGFsaWduPWxlZnQgY29sc3Bhbj0xIGNsYXNzPSJ0YWJs
+ZUJvZHlDbGFzcyBmZG1sLW92LWl0ZW1PdXRUYWJsZSB2ci1mb3JjZVZlcnRpY2FsQWxpZ25Ub3Ai
+Pgo8c3BhbiBjbGFzcz0idHh2Yi1JTlNCUE9VUFYtcHJpY2VTdHlsZSI+CjI2MCwwMCBFVVI8L3Nw
+YW4+CjwvdGQ+CgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgo8dGQgc3R5bGU9
+InZlcnRpY2FsLWFsaWduOiB0b3A7ICIgdmFsaWduPXRvcCBhbGlnbj1yaWdodCBjb2xzcGFuPTEg
+Y2xhc3M9InRhYmxlQm9keUNsYXNzIGZkbWwtb3YtaXRlbU91dFRhYmxlIHZyLWZvcmNlVmVydGlj
+YWxBbGlnblRvcCI+CgoKMjYwLDAwIEVVUgoKCjwvdGQ+CgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoK
+CgoKCgoKPC90cj4KCjx0ciBpZD1fa29rZ2YgYmdjb2xvcj0iI2ZmZmZmZiI+CgoKCgoKCgoKCgoK
+CgoKPHNwYW4+Cjwvc3Bhbj48dGQ+Jm5ic3A7PC90ZD4KCgoKCgoKCgoKCgoKCgoKCgoKCgoKCjxz
+cGFuPgo8L3NwYW4+PHRkPiZuYnNwOzwvdGQ+CgoKCgoKCgoKCgoKCgoKCgoKCgo8dGQgY29sc3Bh
+bj0xMDAgYWxpZ249bGVmdCB2YWxpZ249dG9wIHN0eWxlPSJ2ZXJ0aWNhbC1hbGlnbjogdG9wOyAi
+Pjx0YWJsZSBjZWxsc3BhY2luZz0yIGNlbGxwYWRkaW5nPTA+CgoKCjx0cj4KPHRkIGNvbHNwYW49
+MTIgYWxpZ249bGVmdCB2YWxpZ249dG9wIHN0eWxlPSJ2ZXJ0aWNhbC1hbGlnbjogdG9wOyB3aWR0
+aDoxMDAlO3BhZGRpbmc6MCA1cHggM3B4IDNweDsiIGNsYXNzPXRhYmxlVGV4dD4KCgoKCgoKCgoK
+PHRhYmxlIGNlbGxzcGFjaW5nPTIgY2VsbHBhZGRpbmc9MD4KCgo8dHI+CgoKCgo8dGQgc3R5bGU9
+InZlcnRpY2FsLWFsaWduOiB0b3A7IHZlcnRpY2FsLWFsaWduOiB0b3A7ICIgY29sc3Bhbj0xIHZh
+bGlnbj10b3AgYWxpZ249bGVmdCBjbGFzcz0iY3VzLW5jZHYtZm9ybXBhZHZhbHVlIEFOWExhYmVs
+Ij4KCgpDT05DRVBUICZhbXA7IFBST0pFQ1QgTUFOQUdFUgoKCgoKCgoKCjwvdGQ+CgoKCjwvdHI+
+CgoKCgo8L3RhYmxlPgoKCgoKCgoKCgoKCgoKCgoKCgoKCgo8L3RkPgo8L3RyPgoKCgo8L3RhYmxl
+PjwvdGQ+CgoKCgoKCgoKCgoKCgo8L3RyPgoKCgoKCgo8dHIgaWQ9X2hoeXppZCBiZ2NvbG9yPSIj
+ZmZmZmZmIj4KCgoKCgoKCgoKCgoKCgoKPHNwYW4+Cjwvc3Bhbj48dGQ+Jm5ic3A7PC90ZD4KCgoK
+CgoKCgoKCgoKCgoKCgoKCgoKPHRkIGNvbHNwYW49MTIgYWxpZ249bGVmdCB2YWxpZ249dG9wIHN0
+eWxlPSJ2ZXJ0aWNhbC1hbGlnbjogdG9wOyAiPjx0YWJsZSBzdHlsZT0id2lkdGg6MTAwJTtwYWRk
+aW5nOjVweCAyNXB4IDVweCAwcHg7IiBjZWxsc3BhY2luZz0yIGNlbGxwYWRkaW5nPTA+CgoKCgoK
+CgoKCgoKCgoKCgoKCgoKCgoKCgo8dHI+Cgo8dGQgc3R5bGU9InZlcnRpY2FsLWFsaWduOiBib3R0
+b207IHBhZGRpbmctYm90dG9tOjBweDsiIHZhbGlnbj1ib3R0b20gYWxpZ249bGVmdCBjb2xzcGFu
+PTIgY2xhc3M9bm9uZT48ZGl2IHN0eWxlPSJwYWRkaW5nLXRvcDoxNXB4OyI+CjxzcGFuIGNsYXNz
+PSJiYXNlLXN1Yi1zZWN0LWxhYmVsIj4KQ29tZW50YXJpb3M8c3BhbiBjbGFzcz0iQU5Cb2R5VGV4
+dCI+Cgo8L3NwYW4+Cjwvc3Bhbj4KPHNwYW4gY2xhc3M9IkFOQm9keVRleHQiPgoKPC9zcGFuPgo8
+L2Rpdj4KPC90ZD4KCgo8L3RyPgoKCgoKCgoKCgoKCgoKCgoKCgo8dHI+CgoKCgo8dGQgc3R5bGU9
+InZlcnRpY2FsLWFsaWduOiB0b3A7IHZlcnRpY2FsLWFsaWduOiB0b3A7ICIgY29sc3Bhbj0zIHZh
+bGlnbj10b3AgYWxpZ249bGVmdCB3aWR0aD0iMTAwJSIgY2xhc3M9ImN1cy1uY2R2LWZvcm1wYWR2
+YWx1ZSBBTlhMYWJlbCI+CgoKUFJFU1VQVUVTVE8gTsK6IEMyMDIxLTAwNDAKCgoKCgoKCgo8L3Rk
+PgoKCgo8L3RyPgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgo8dHI+CgoK
+CgoKCgoKCgoKCjx0ZCBzdHlsZT0idmVydGljYWwtYWxpZ246IGJvdHRvbTsgcGFkZGluZy1ib3R0
+b206MHB4OyIgdmFsaWduPWJvdHRvbSBhbGlnbj1sZWZ0IGNvbHNwYW49MiBjbGFzcz1ub25lPjxk
+aXYgY2xhc3M9cG9IZWFkZXJMZWdlbmRTdHlsZSBzdHlsZT0icGFkZGluZy10b3A6MjVweDttYXJn
+aW4tYm90dG9tOi0xcHg7bWFyZ2luLXRvcDoxMHB4O3BhZGRpbmctbGVmdDoyMHB4Ij4KPHNwYW4g
+Y2xhc3M9ImZkbWwtb3Ytb2hkLWJ0bi1nZi1zcy1sYWJlbCI+CkV4cGVkaXIgYTxzcGFuIGNsYXNz
+PSJBTkJvZHlUZXh0Ij4KCjwvc3Bhbj4KPC9zcGFuPgo8c3BhbiBjbGFzcz0iQU5Cb2R5VGV4dCI+
+Cgo8L3NwYW4+CjwvZGl2Pgo8L3RkPgoKCgoKCgoKCgoKCgoKCgoKCgoKCgo8L3RyPgoKCgoKCgoK
+Cgo8dHI+CgoKCgoKCgoKPHRkIGNvbHNwYW49MiBhbGlnbj1sZWZ0IHZhbGlnbj10b3Agc3R5bGU9
+InZlcnRpY2FsLWFsaWduOiB0b3A7ICIgd2lkdGg9IjEwMCU7IiBjbGFzcz0iZGVsaXZlci1zaGlw
+LXRvIj48dGFibGUgY2VsbHNwYWNpbmc9MiBjZWxscGFkZGluZz01PgoKCjx0cj4KCgoKCjx0ZCBz
+dHlsZT0idmVydGljYWwtYWxpZ246IHRvcDsgdmVydGljYWwtYWxpZ246IHRvcDsgZm9udC13ZWln
+aHQ6Ym9sZCIgY29sc3Bhbj0xIHZhbGlnbj10b3AgYWxpZ249bGVmdCB3aWR0aD0iNTAlIiBjbGFz
+cz0iY3VzLW5jZHYtZm9ybXBhZHZhbHVlIEFOWExhYmVsIj4KCgpFUzA2IE5vdmFydGlzIEZhcm1h
+Y8OpdXRpY2EgUy5BLgoKCgoKCgoKCgo8L3RkPgoKCgo8L3RyPgoKCgoKCgoKCgoKPHRyPgoKPHRk
+IHN0eWxlPSJ2ZXJ0aWNhbC1hbGlnbjogdG9wOyB2ZXJ0aWNhbC1hbGlnbjogdG9wOyAiIGNvbHNw
+YW49MiB2YWxpZ249dG9wIGFsaWduPWxlZnQgY2xhc3M9ImN1cy1uY2R2LWZvcm1wYWR2YWx1ZSBB
+TlhMYWJlbCI+CgoKCgpHcmFuIFZpYSBkZSBsZXMgQ29ydHNDYXRhbGFuZXMgNzY0PGJyPgoKCgo4
+MDEzIApCYXJjZWxvbmEKPGJyPgoKMDgKPGJyPgpFc3Bhw7FhCgoKPC90ZD4KCgo8L3RyPgoKCgoK
+CgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoK
+CgoKCgoKCgoKCgoKCgoKCgoKCgo8L3RhYmxlPjwvdGQ+CgoKCgoKCgoKCjwvdHI+CgoKCgoKCgoK
+CgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoK
+CgoKCgoKPHRyPgoKPHRkIHN0eWxlPSJ2ZXJ0aWNhbC1hbGlnbjogYm90dG9tOyBwYWRkaW5nLWJv
+dHRvbTowcHg7IiB2YWxpZ249Ym90dG9tIGFsaWduPWxlZnQgY29sc3Bhbj0yIGNsYXNzPW5vbmU+
+PGRpdiBzdHlsZT0icGFkZGluZy10b3A6MjVweDsiPgo8c3BhbiBjbGFzcz0iYmFzZS1zdWItc2Vj
+dC1sYWJlbCI+CkNvbnRhYmlsaWRhZDxzcGFuIGNsYXNzPSJBTkJvZHlUZXh0Ij4KCjwvc3Bhbj4K
+PC9zcGFuPgo8c3BhbiBjbGFzcz0iQU5Cb2R5VGV4dCI+Cgo8L3NwYW4+CjwvZGl2Pgo8L3RkPgoK
+CjwvdHI+CgoKCgoKCgoKCgoKCgoKCgoKCgoKCjx0cj48dGQgY29sc3Bhbj0xMiBhbGlnbj1sZWZ0
+IHZhbGlnbj10b3Agc3R5bGU9InZlcnRpY2FsLWFsaWduOiB0b3A7ICIgY2xhc3M9YWNjb3VudGlu
+Z1NlZ21lbnQ+CgoKCgoKCgoKCgoKCgoKPHRhYmxlIGNlbGxzcGFjaW5nPTIgY2VsbHBhZGRpbmc9
+MD4KCgoKCgo8dHI+CgoKCgoKCgoKCgoKPHRkIHN0eWxlPSJ2ZXJ0aWNhbC1hbGlnbjogdG9wOyB2
+ZXJ0aWNhbC1hbGlnbjogdG9wOyBwYWRkaW5nOjVweCAxMHB4O2JvcmRlci1ib3R0b206MXB4IHNv
+bGlkICNlNWU1ZTU7d2lkdGg6MzAlIiB2YWxpZ249dG9wIGFsaWduPWxlZnQgY29sc3Bhbj0xIGNs
+YXNzPW5vbmU+CiBQb3JjZW50dWFsCgoKCgoKCgoKPC90ZD4KCgoKCgoKCgoKCgoKCjx0ZCBzdHls
+ZT0idmVydGljYWwtYWxpZ246IHRvcDsgdmVydGljYWwtYWxpZ246IHRvcDsgcGFkZGluZzo1cHgg
+MTBweDtib3JkZXItYm90dG9tOjFweCBzb2xpZCAjZTVlNWU1O3dpZHRoOjMwJSIgdmFsaWduPXRv
+cCBhbGlnbj1sZWZ0IGNvbHNwYW49MSBjbGFzcz1ub25lPgpQb3JjZW50dWFsCgoKCgoKCgoKPC90
+ZD4KCgoKCgoKCgoKCgoKCjx0ZCBzdHlsZT0idmVydGljYWwtYWxpZ246IHRvcDsgdmVydGljYWwt
+YWxpZ246IHRvcDsgcGFkZGluZzo1cHggMTBweDtib3JkZXItYm90dG9tOjFweCBzb2xpZCAjZTVl
+NWU1O3dpZHRoOjQwJSIgdmFsaWduPXRvcCBhbGlnbj1sZWZ0IGNvbHNwYW49MSBjbGFzcz1ub25l
+PgoxMDAuMDAgCgoKCgoKCgoKPC90ZD4KCgoKCgoKCgoKCgoKCjwvdHI+CgoKCgoKCgoKCgoKCgoK
+CjwvdGFibGU+CgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKPHRhYmxlIGNlbGxz
+cGFjaW5nPTIgY2VsbHBhZGRpbmc9MD48L3RhYmxlPgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgo8
+L3RkPjwvdHI+CgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKPHRyPgoKPHRkIHN0
+eWxlPSJ2ZXJ0aWNhbC1hbGlnbjogYm90dG9tOyBwYWRkaW5nLWJvdHRvbTowcHg7IiB2YWxpZ249
+Ym90dG9tIGFsaWduPWxlZnQgY29sc3Bhbj0yIGNsYXNzPW5vbmU+PGRpdiBzdHlsZT0icGFkZGlu
+Zy10b3A6MjVweDsiPgo8c3BhbiBjbGFzcz0iYmFzZS1zdWItc2VjdC1sYWJlbCI+CkNvbnRhYmls
+aWRhZDxzcGFuIGNsYXNzPSJBTkJvZHlUZXh0Ij4KCjwvc3Bhbj4KPC9zcGFuPgo8c3BhbiBjbGFz
+cz0iQU5Cb2R5VGV4dCI+Cgo8L3NwYW4+CjwvZGl2Pgo8L3RkPgoKCjwvdHI+CgoKCgoKCgoKCgoK
+CgoKCgoKCgoKCjx0cj48dGQgY29sc3Bhbj0xMiBhbGlnbj1sZWZ0IHZhbGlnbj10b3Agc3R5bGU9
+InZlcnRpY2FsLWFsaWduOiB0b3A7ICIgY2xhc3M9YWNjb3VudGluZ1NlZ21lbnQ+CgoKCgoKCgoK
+CgoKCgoKPHRhYmxlIGNlbGxzcGFjaW5nPTIgY2VsbHBhZGRpbmc9MD4KCgoKCgo8dHI+CgoKCgoK
+CgoKCgoKPHRkIHN0eWxlPSJ2ZXJ0aWNhbC1hbGlnbjogdG9wOyB2ZXJ0aWNhbC1hbGlnbjogdG9w
+OyBwYWRkaW5nOjVweCAxMHB4O2JvcmRlci1ib3R0b206MXB4IHNvbGlkICNlNWU1ZTU7d2lkdGg6
+MzAlIiB2YWxpZ249dG9wIGFsaWduPWxlZnQgY29sc3Bhbj0xIGNsYXNzPW5vbmU+CkNDCgoKCgoK
+CgoKPC90ZD4KCgoKCgoKCgoKCgoKCgoKPHRkIHN0eWxlPSJ2ZXJ0aWNhbC1hbGlnbjogdG9wOyB2
+ZXJ0aWNhbC1hbGlnbjogdG9wOyBwYWRkaW5nOjVweCAxMHB4O2JvcmRlci1ib3R0b206MXB4IHNv
+bGlkICNlNWU1ZTU7d2lkdGg6NDAlIiB2YWxpZ249dG9wIGFsaWduPWxlZnQgY29sc3Bhbj0xIGNs
+YXNzPW5vbmU+ClA0MDM1ODEKCgoKCgoKCgo8L3RkPgoKCgoKCgoKCgoKCgoKPC90cj4KCgoKCgoK
+CgoKCgoKCgoKPC90YWJsZT4KCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgo8dGFi
+bGUgY2VsbHNwYWNpbmc9MiBjZWxscGFkZGluZz0wPjwvdGFibGU+CgoKCgoKCgoKCgoKCgoKCgoK
+CgoKCgoKCjwvdGQ+PC90cj4KCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoK
+CgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCjx0cj48dGQgY29sc3Bhbj0xMiBhbGlnbj1s
+ZWZ0IHZhbGlnbj10b3Agc3R5bGU9InZlcnRpY2FsLWFsaWduOiB0b3A7ICIgd2lkdGg9IjEwMCUi
+IGNsYXNzPW5vbmU+CgoKCjxzcGFuIHN0eWxlPSJwYWRkaW5nLWJvdHRvbTowcHg7Ij48ZGl2IHN0
+eWxlPSJwYWRkaW5nLXRvcDoyNXB4OyI+CjxzcGFuIGNsYXNzPSJiYXNlLXN1Yi1zZWN0LWxhYmVs
+Ij4KCk90cmEgaW5mb3JtYWNpw7NuCjwvc3Bhbj4KPHNwYW4gY2xhc3M9IkFOQm9keVRleHQiPgoK
+PC9zcGFuPgo8L2Rpdj4KPC9zcGFuPgoKCgoKCgoKCgoKCgo8dGFibGUgY2xhc3M9ImZkbWwtb3Yt
+bGlhaS1hZGQtaW5mbyBwcmludC1icmVhay13b3JkcyIgY2VsbHNwYWNpbmc9MCBjZWxscGFkZGlu
+Zz0wPgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoK
+CgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoK
+CgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgo8dHI+CgoKCgoK
+PHRkIGNvbHNwYW49MSB2YWxpZ249dG9wIGFsaWduPWxlZnQgd2lkdGg9MTYwcHggY2xhc3M9ImJh
+c2UtbmNkLWxhYmVsLXRvcCBBTlhMYWJlbCI+CgoKRG9taW5pbyBkZSBsYSBjbGFzaWZpY2FjacOz
+bjoKCjwvdGQ+CgoKCgoKCgoKPHRkIHN0eWxlPSJ2ZXJ0aWNhbC1hbGlnbjogdG9wOyB2ZXJ0aWNh
+bC1hbGlnbjogdG9wOyAiIHZhbGlnbj10b3AgYWxpZ249bGVmdCBjb2xzcGFuPTEgY2xhc3M9bm9u
+ZT4KVU5TUFNDCgoKCgoKCgo8L3RkPgoKCgo8L3RyPgoKCgoKCgo8dHI+CgoKCgoKPHRkIGNvbHNw
+YW49MSB2YWxpZ249dG9wIGFsaWduPWxlZnQgd2lkdGg9MTYwcHggY2xhc3M9ImJhc2UtbmNkLWxh
+YmVsLXRvcCBBTlhMYWJlbCI+CgoKQ8OzZGlnbyBkZSBjbGFzaWZpY2FjacOzbjoKCjwvdGQ+CgoK
+CgoKCgoKPHRkIHN0eWxlPSJ2ZXJ0aWNhbC1hbGlnbjogdG9wOyB2ZXJ0aWNhbC1hbGlnbjogdG9w
+OyAiIHZhbGlnbj10b3AgYWxpZ249bGVmdCBjb2xzcGFuPTEgY2xhc3M9bm9uZT4KMzUwNTAxMAoK
+CgoKCgoKPC90ZD4KCgoKPC90cj4KCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoK
+CgoKCgoKPC90YWJsZT4KCgoKCjwvdGQ+PC90cj4KCgoKPC90YWJsZT48L3RkPgoKCgoKCgoKCgoK
+CgoKCjwvdHI+CgoKCgoKCgoKCgoKCgo8dHI+CgoKPHRoIHN0eWxlPSIiIGNsYXNzPXRhYmxlSGVh
+ZCBhbGlnbj1sZWZ0Pk7Dum1lcm8gZGUgbMOtbmVhJm5ic3A7PC90aD4KPHRoIHN0eWxlPSIiIGNs
+YXNzPXRhYmxlSGVhZCBhbGlnbj1sZWZ0Pk7Dum1lcm8gZGUgcmVwYXJ0b3MmbmJzcDs8L3RoPgo8
+dGggc3R5bGU9IiIgY2xhc3M9dGFibGVIZWFkIGFsaWduPWxlZnQ+TsK6IGRlIHBpZXphL0Rlc2Ny
+aXBjacOzbiZuYnNwOzwvdGg+Cjx0aCBzdHlsZT0iIiBjbGFzcz10YWJsZUhlYWQgYWxpZ249bGVm
+dD4mbmJzcDs8L3RoPgo8dGggc3R5bGU9IiIgY2xhc3M9dGFibGVIZWFkIGFsaWduPWxlZnQ+VGlw
+byZuYnNwOzwvdGg+Cjx0aCBzdHlsZT0iIiBjbGFzcz10YWJsZUhlYWQgYWxpZ249bGVmdD5EZXZv
+bHVjacOzbiZuYnNwOzwvdGg+Cjx0aCBzdHlsZT0iIiBjbGFzcz10YWJsZUhlYWQgYWxpZ249bGVm
+dD5DYW50LiAoVW5pZGFkKSZuYnNwOzwvdGg+Cjx0aCBzdHlsZT0iIiBjbGFzcz10YWJsZUhlYWQg
+YWxpZ249bGVmdD5GZWNoYSBwYXJhIGxhIHF1ZSBzZSByZXF1aWVyZSZuYnNwOzwvdGg+Cjx0aCBz
+dHlsZT0idGV4dC1hbGlnbjogcmlnaHQ7IiBjbGFzcz10YWJsZUhlYWQgYWxpZ249bGVmdD5QcmVj
+aW8gcG9yIHVuaWRhZCZuYnNwOzwvdGg+Cjx0aCBzdHlsZT0idGV4dC1hbGlnbjogcmlnaHQ7IiBj
+bGFzcz10YWJsZUhlYWQgYWxpZ249bGVmdD5TdWJ0b3RhbCZuYnNwOzwvdGg+Cgo8L3RyPgoKCjx0
+ciBpZD1fenVzdmNiIGJnY29sb3I9IiNmZmZmZmYiPgoKCgoKCgoKCgo8dGQgc3R5bGU9InZlcnRp
+Y2FsLWFsaWduOiB0b3A7ICIgd2lkdGg9IjElIiB2YWxpZ249dG9wIGFsaWduPWxlZnQgY29sc3Bh
+bj0xIGNsYXNzPSJ0YWJsZUJvZHlDbGFzcyBmZG1sLW92LWl0ZW1PdXRUYWJsZSB2ci1mb3JjZVZl
+cnRpY2FsQWxpZ25Ub3AiPjxzcGFuIGNsYXNzPSJ0eG5iLUlOU1BMTi1kb2N1bWVudFN0eWxlIj4K
+PHRhYmxlIGNsYXNzPSJ0YWJsZUJvZHlDbGFzcyBhdXRvV2lkdGggYm9keVRleHQiIGNlbGxwYWRk
+aW5nPSIwIiBjZWxsc3BhY2luZz0iMCI+Cjx0cj4KCgoKCgo8dGQgY2xhc3M9InBhZGRpbmdMZWZ0
+NUJvbGQgdnItcGFkZGluZ0xlZnQyMCI+CgoyCgo8L3RkPgoKCgo8L3RyPgo8L3RhYmxlPgo8L3Nw
+YW4+PC90ZD4KCgoKCgoKCgoKPHRkIHN0eWxlPSJ2ZXJ0aWNhbC1hbGlnbjogdG9wOyAiIHZhbGln
+bj10b3AgYWxpZ249bGVmdCBjb2xzcGFuPTEgY2xhc3M9InRhYmxlQm9keUNsYXNzIGZkbWwtb3Yt
+aXRlbU91dFRhYmxlIHZyLWZvcmNlVmVydGljYWxBbGlnblRvcCI+Cgo8L3RkPgoKCgoKCgoKCgoK
+CgoKCgoKCgoKCjxzcGFuPgo8L3NwYW4+PHRkIGNsYXNzPSJ0YWJsZUJvZHlDbGFzcyIgPiZuYnNw
+OzwvdGQ+CgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCiAgICAKCgoKPHRkIHN0eWxlPSJ2ZXJ0
+aWNhbC1hbGlnbjogdG9wOyAiIHdpZHRoPSIxJSIgdmFsaWduPXRvcCBhbGlnbj1sZWZ0IGNvbHNw
+YW49MSBub3dyYXA9ZmFsc2UgY2xhc3M9InRhYmxlQm9keUNsYXNzIGZkbWwtb3YtaXRlbU91dFRh
+YmxlIHZyLWZvcmNlVmVydGljYWxBbGlnblRvcCI+CgombmJzcDsKCjwvdGQ+CgoKCgoKCgoKCgoK
+CgoKCjx0ZCBzdHlsZT0idmVydGljYWwtYWxpZ246IHRvcDsgIiB2YWxpZ249dG9wIGFsaWduPWxl
+ZnQgY29sc3Bhbj0xIGNsYXNzPSJ0YWJsZUJvZHlDbGFzcyBmZG1sLW92LWl0ZW1PdXRUYWJsZSB2
+ci1mb3JjZVZlcnRpY2FsQWxpZ25Ub3AiPgoKPGRpdiBzdHlsZT0iZmxvYXQ6bGVmdDsgZGlzcGxh
+eTogaW5saW5lLWJsb2NrOyI+CjxkaXY+CgpNYXRlcmlhbAoKPC9kaXY+CjxkaXY+Cgo8L2Rpdj4K
+PGRpdj4KCjwvZGl2Pgo8L2Rpdj4KCjwvdGQ+CgoKCgoKCgoKCgoKCgoKCgoKPHRkIHN0eWxlPSJ2
+ZXJ0aWNhbC1hbGlnbjogdG9wOyB2ZXJ0aWNhbC1hbGlnbjogdG9wOyAiIHZhbGlnbj10b3AgYWxp
+Z249bGVmdCBjb2xzcGFuPTEgY2xhc3M9InRhYmxlQm9keUNsYXNzIGZkbWwtb3YtaXRlbU91dFRh
+YmxlIHZyLWZvcmNlVmVydGljYWxBbGlnblRvcCI+CgoKJm5ic3A7CgoKCgoKCgo8L3RkPgoKCgoK
+CgoKCgoKCgoKCgoKCjx0ZCBjb2xzcGFuPTEgYWxpZ249bGVmdCB2YWxpZ249dG9wIHN0eWxlPSJ2
+ZXJ0aWNhbC1hbGlnbjogdG9wOyAiIGNsYXNzPSJ0YWJsZUJvZHlDbGFzcyBmZG1sLW92LWl0ZW1P
+dXRUYWJsZSB2ci1mb3JjZVZlcnRpY2FsQWxpZ25Ub3AiPgoKCgoKCgoKCjxzcGFuIHN0eWxlPSJ2
+ZXJ0aWNhbC1hbGlnbjogdG9wOyAiPgoxLDAwCgoKCgoKPC9zcGFuPgoKCgoKCgoKCgoKCgoKCgoK
+CgoKPHNwYW4+CgooRUEpCgoKCgo8L3NwYW4+CgoKCgoKCgoKCgoKCgoKPC90ZD4KCgoKCgoKCgoK
+CgoKCgoKCgoKCgoKPHRkIHN0eWxlPSJ2ZXJ0aWNhbC1hbGlnbjogdG9wOyB2ZXJ0aWNhbC1hbGln
+bjogdG9wOyAiIHZhbGlnbj10b3AgYWxpZ249bGVmdCBjb2xzcGFuPTEgY2xhc3M9InRhYmxlQm9k
+eUNsYXNzIGZkbWwtb3YtaXRlbU91dFRhYmxlIHZyLWZvcmNlVmVydGljYWxBbGlnblRvcCI+CgoK
+MTUgZmViIDIwMjEKCgoKCgoKCgoKCgo8L3RkPgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgo8
+dGQgc3R5bGU9InZlcnRpY2FsLWFsaWduOiB0b3A7ICIgdmFsaWduPXRvcCBhbGlnbj1sZWZ0IGNv
+bHNwYW49MSBjbGFzcz0idGFibGVCb2R5Q2xhc3MgZmRtbC1vdi1pdGVtT3V0VGFibGUgdnItZm9y
+Y2VWZXJ0aWNhbEFsaWduVG9wIj4KPHNwYW4gY2xhc3M9InR4dmItSU5TQlBPVVBWLXByaWNlU3R5
+bGUiPgozNjAsMDAgRVVSPC9zcGFuPgo8L3RkPgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoK
+CgoKCgoKCgoKPHRkIHN0eWxlPSJ2ZXJ0aWNhbC1hbGlnbjogdG9wOyAiIHZhbGlnbj10b3AgYWxp
+Z249cmlnaHQgY29sc3Bhbj0xIGNsYXNzPSJ0YWJsZUJvZHlDbGFzcyBmZG1sLW92LWl0ZW1PdXRU
+YWJsZSB2ci1mb3JjZVZlcnRpY2FsQWxpZ25Ub3AiPgoKCjM2MCwwMCBFVVIKCgo8L3RkPgoKCgoK
+CgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCjwvdHI+Cgo8dHIgaWQ9X2tlamp6YyBiZ2NvbG9yPSIj
+ZmZmZmZmIj4KCgoKCgoKCgoKCgoKCgo8c3Bhbj4KPC9zcGFuPjx0ZD4mbmJzcDs8L3RkPgoKCgoK
+CgoKCgoKCgoKCgoKCgoKCgoKPHNwYW4+Cjwvc3Bhbj48dGQ+Jm5ic3A7PC90ZD4KCgoKCgoKCgoK
+CgoKCgoKCgoKCjx0ZCBjb2xzcGFuPTEwMCBhbGlnbj1sZWZ0IHZhbGlnbj10b3Agc3R5bGU9InZl
+cnRpY2FsLWFsaWduOiB0b3A7ICI+PHRhYmxlIGNlbGxzcGFjaW5nPTIgY2VsbHBhZGRpbmc9MD4K
+CgoKPHRyPgo8dGQgY29sc3Bhbj0xMiBhbGlnbj1sZWZ0IHZhbGlnbj10b3Agc3R5bGU9InZlcnRp
+Y2FsLWFsaWduOiB0b3A7IHdpZHRoOjEwMCU7cGFkZGluZzowIDVweCAzcHggM3B4OyIgY2xhc3M9
+dGFibGVUZXh0PgoKCgoKCgoKCgo8dGFibGUgY2VsbHNwYWNpbmc9MiBjZWxscGFkZGluZz0wPgoK
+Cjx0cj4KCgoKCjx0ZCBzdHlsZT0idmVydGljYWwtYWxpZ246IHRvcDsgdmVydGljYWwtYWxpZ246
+IHRvcDsgIiBjb2xzcGFuPTEgdmFsaWduPXRvcCBhbGlnbj1sZWZ0IGNsYXNzPSJjdXMtbmNkdi1m
+b3JtcGFkdmFsdWUgQU5YTGFiZWwiPgoKCkRJU0XDkU8gWSBDUkVBVElWSURBRAoKCgoKCgoKCjwv
+dGQ+CgoKCjwvdHI+CgoKCgo8L3RhYmxlPgoKCgoKCgoKCgoKCgoKCgoKCgoKCgo8L3RkPgo8L3Ry
+PgoKCgo8L3RhYmxlPjwvdGQ+CgoKCgoKCgoKCgoKCgo8L3RyPgoKCgoKCgo8dHIgaWQ9X2luanVq
+IGJnY29sb3I9IiNmZmZmZmYiPgoKCgoKCgoKCgoKCgoKCgo8c3Bhbj4KPC9zcGFuPjx0ZD4mbmJz
+cDs8L3RkPgoKCgoKCgoKCgoKCgoKCgoKCgoKCgo8dGQgY29sc3Bhbj0xMiBhbGlnbj1sZWZ0IHZh
+bGlnbj10b3Agc3R5bGU9InZlcnRpY2FsLWFsaWduOiB0b3A7ICI+PHRhYmxlIHN0eWxlPSJ3aWR0
+aDoxMDAlO3BhZGRpbmc6NXB4IDI1cHggNXB4IDBweDsiIGNlbGxzcGFjaW5nPTIgY2VsbHBhZGRp
+bmc9MD4KCgoKCgoKCgoKCgoKCgoKCgoKPHRyPgoKCgoKCgoKCgoKCgo8dGQgc3R5bGU9InZlcnRp
+Y2FsLWFsaWduOiBib3R0b207IHBhZGRpbmctYm90dG9tOjBweDsiIHZhbGlnbj1ib3R0b20gYWxp
+Z249bGVmdCBjb2xzcGFuPTIgY2xhc3M9bm9uZT48ZGl2IGNsYXNzPXBvSGVhZGVyTGVnZW5kU3R5
+bGUgc3R5bGU9InBhZGRpbmctdG9wOjI1cHg7bWFyZ2luLWJvdHRvbTotMXB4O21hcmdpbi10b3A6
+MTBweDtwYWRkaW5nLWxlZnQ6MjBweCI+CjxzcGFuIGNsYXNzPSJmZG1sLW92LW9oZC1idG4tZ2Yt
+c3MtbGFiZWwiPgpFeHBlZGlyIGE8c3BhbiBjbGFzcz0iQU5Cb2R5VGV4dCI+Cgo8L3NwYW4+Cjwv
+c3Bhbj4KPHNwYW4gY2xhc3M9IkFOQm9keVRleHQiPgoKPC9zcGFuPgo8L2Rpdj4KPC90ZD4KCgoK
+CgoKCgoKCgoKCgoKCgoKCgoKPC90cj4KCgoKCgoKCgoKPHRyPgoKCgoKCgoKCjx0ZCBjb2xzcGFu
+PTIgYWxpZ249bGVmdCB2YWxpZ249dG9wIHN0eWxlPSJ2ZXJ0aWNhbC1hbGlnbjogdG9wOyAiIHdp
+ZHRoPSIxMDAlOyIgY2xhc3M9ImRlbGl2ZXItc2hpcC10byI+PHRhYmxlIGNlbGxzcGFjaW5nPTIg
+Y2VsbHBhZGRpbmc9NT4KCgo8dHI+CgoKCgo8dGQgc3R5bGU9InZlcnRpY2FsLWFsaWduOiB0b3A7
+IHZlcnRpY2FsLWFsaWduOiB0b3A7IGZvbnQtd2VpZ2h0OmJvbGQiIGNvbHNwYW49MSB2YWxpZ249
+dG9wIGFsaWduPWxlZnQgd2lkdGg9IjUwJSIgY2xhc3M9ImN1cy1uY2R2LWZvcm1wYWR2YWx1ZSBB
+TlhMYWJlbCI+CgoKRVMwNiBOb3ZhcnRpcyBGYXJtYWPDqXV0aWNhIFMuQS4KCgoKCgoKCgoKPC90
+ZD4KCgoKPC90cj4KCgoKCgoKCgoKCjx0cj4KCjx0ZCBzdHlsZT0idmVydGljYWwtYWxpZ246IHRv
+cDsgdmVydGljYWwtYWxpZ246IHRvcDsgIiBjb2xzcGFuPTIgdmFsaWduPXRvcCBhbGlnbj1sZWZ0
+IGNsYXNzPSJjdXMtbmNkdi1mb3JtcGFkdmFsdWUgQU5YTGFiZWwiPgoKCgoKR3JhbiBWaWEgZGUg
+bGVzIENvcnRzQ2F0YWxhbmVzIDc2NDxicj4KCgoKODAxMyAKQmFyY2Vsb25hCjxicj4KCjA4Cjxi
+cj4KRXNwYcOxYQoKCjwvdGQ+CgoKPC90cj4KCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoK
+CgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKPC90YWJs
+ZT48L3RkPgoKCgoKCgoKCgo8L3RyPgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoK
+CgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCjx0cj4KCjx0ZCBzdHlsZT0idmVy
+dGljYWwtYWxpZ246IGJvdHRvbTsgcGFkZGluZy1ib3R0b206MHB4OyIgdmFsaWduPWJvdHRvbSBh
+bGlnbj1sZWZ0IGNvbHNwYW49MiBjbGFzcz1ub25lPjxkaXYgc3R5bGU9InBhZGRpbmctdG9wOjI1
+cHg7Ij4KPHNwYW4gY2xhc3M9ImJhc2Utc3ViLXNlY3QtbGFiZWwiPgpDb250YWJpbGlkYWQ8c3Bh
+biBjbGFzcz0iQU5Cb2R5VGV4dCI+Cgo8L3NwYW4+Cjwvc3Bhbj4KPHNwYW4gY2xhc3M9IkFOQm9k
+eVRleHQiPgoKPC9zcGFuPgo8L2Rpdj4KPC90ZD4KCgo8L3RyPgoKCgoKCgoKCgoKCgoKCgoKCgoK
+Cgo8dHI+PHRkIGNvbHNwYW49MTIgYWxpZ249bGVmdCB2YWxpZ249dG9wIHN0eWxlPSJ2ZXJ0aWNh
+bC1hbGlnbjogdG9wOyAiIGNsYXNzPWFjY291bnRpbmdTZWdtZW50PgoKCgoKCgoKCgoKCgoKCjx0
+YWJsZSBjZWxsc3BhY2luZz0yIGNlbGxwYWRkaW5nPTA+CgoKCgoKPHRyPgoKCgoKCgoKCgoKCjx0
+ZCBzdHlsZT0idmVydGljYWwtYWxpZ246IHRvcDsgdmVydGljYWwtYWxpZ246IHRvcDsgcGFkZGlu
+Zzo1cHggMTBweDtib3JkZXItYm90dG9tOjFweCBzb2xpZCAjZTVlNWU1O3dpZHRoOjMwJSIgdmFs
+aWduPXRvcCBhbGlnbj1sZWZ0IGNvbHNwYW49MSBjbGFzcz1ub25lPgogUG9yY2VudHVhbAoKCgoK
+CgoKCjwvdGQ+CgoKCgoKCgoKCgoKCgo8dGQgc3R5bGU9InZlcnRpY2FsLWFsaWduOiB0b3A7IHZl
+cnRpY2FsLWFsaWduOiB0b3A7IHBhZGRpbmc6NXB4IDEwcHg7Ym9yZGVyLWJvdHRvbToxcHggc29s
+aWQgI2U1ZTVlNTt3aWR0aDozMCUiIHZhbGlnbj10b3AgYWxpZ249bGVmdCBjb2xzcGFuPTEgY2xh
+c3M9bm9uZT4KUG9yY2VudHVhbAoKCgoKCgoKCjwvdGQ+CgoKCgoKCgoKCgoKCgo8dGQgc3R5bGU9
+InZlcnRpY2FsLWFsaWduOiB0b3A7IHZlcnRpY2FsLWFsaWduOiB0b3A7IHBhZGRpbmc6NXB4IDEw
+cHg7Ym9yZGVyLWJvdHRvbToxcHggc29saWQgI2U1ZTVlNTt3aWR0aDo0MCUiIHZhbGlnbj10b3Ag
+YWxpZ249bGVmdCBjb2xzcGFuPTEgY2xhc3M9bm9uZT4KMTAwLjAwIAoKCgoKCgoKCjwvdGQ+CgoK
+CgoKCgoKCgoKCgo8L3RyPgoKCgoKCgoKCgoKCgoKCgo8L3RhYmxlPgoKCgoKCgoKCgoKCgoKCgoK
+CgoKCgoKCgoKCgoKCgoKCgoKCjx0YWJsZSBjZWxsc3BhY2luZz0yIGNlbGxwYWRkaW5nPTA+PC90
+YWJsZT4KCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKPC90ZD48L3RyPgoKCgoKCgoKCgoKCgoKCgoK
+CgoKCgoKCgoKCgoKCgoKCgoKCjx0cj4KCjx0ZCBzdHlsZT0idmVydGljYWwtYWxpZ246IGJvdHRv
+bTsgcGFkZGluZy1ib3R0b206MHB4OyIgdmFsaWduPWJvdHRvbSBhbGlnbj1sZWZ0IGNvbHNwYW49
+MiBjbGFzcz1ub25lPjxkaXYgc3R5bGU9InBhZGRpbmctdG9wOjI1cHg7Ij4KPHNwYW4gY2xhc3M9
+ImJhc2Utc3ViLXNlY3QtbGFiZWwiPgpDb250YWJpbGlkYWQ8c3BhbiBjbGFzcz0iQU5Cb2R5VGV4
+dCI+Cgo8L3NwYW4+Cjwvc3Bhbj4KPHNwYW4gY2xhc3M9IkFOQm9keVRleHQiPgoKPC9zcGFuPgo8
+L2Rpdj4KPC90ZD4KCgo8L3RyPgoKCgoKCgoKCgoKCgoKCgoKCgoKCgo8dHI+PHRkIGNvbHNwYW49
+MTIgYWxpZ249bGVmdCB2YWxpZ249dG9wIHN0eWxlPSJ2ZXJ0aWNhbC1hbGlnbjogdG9wOyAiIGNs
+YXNzPWFjY291bnRpbmdTZWdtZW50PgoKCgoKCgoKCgoKCgoKCjx0YWJsZSBjZWxsc3BhY2luZz0y
+IGNlbGxwYWRkaW5nPTA+CgoKCgoKPHRyPgoKCgoKCgoKCgoKCjx0ZCBzdHlsZT0idmVydGljYWwt
+YWxpZ246IHRvcDsgdmVydGljYWwtYWxpZ246IHRvcDsgcGFkZGluZzo1cHggMTBweDtib3JkZXIt
+Ym90dG9tOjFweCBzb2xpZCAjZTVlNWU1O3dpZHRoOjMwJSIgdmFsaWduPXRvcCBhbGlnbj1sZWZ0
+IGNvbHNwYW49MSBjbGFzcz1ub25lPgpDQwoKCgoKCgoKCjwvdGQ+CgoKCgoKCgoKCgoKCgoKCjx0
+ZCBzdHlsZT0idmVydGljYWwtYWxpZ246IHRvcDsgdmVydGljYWwtYWxpZ246IHRvcDsgcGFkZGlu
+Zzo1cHggMTBweDtib3JkZXItYm90dG9tOjFweCBzb2xpZCAjZTVlNWU1O3dpZHRoOjQwJSIgdmFs
+aWduPXRvcCBhbGlnbj1sZWZ0IGNvbHNwYW49MSBjbGFzcz1ub25lPgpQNDAzNTgxCgoKCgoKCgoK
+PC90ZD4KCgoKCgoKCgoKCgoKCjwvdHI+CgoKCgoKCgoKCgoKCgoKCjwvdGFibGU+CgoKCgoKCgoK
+CgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKPHRhYmxlIGNlbGxzcGFjaW5nPTIgY2VsbHBhZGRp
+bmc9MD48L3RhYmxlPgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgo8L3RkPjwvdHI+CgoKCgoKCgoK
+CgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoK
+CgoKCgo8dHI+PHRkIGNvbHNwYW49MTIgYWxpZ249bGVmdCB2YWxpZ249dG9wIHN0eWxlPSJ2ZXJ0
+aWNhbC1hbGlnbjogdG9wOyAiIHdpZHRoPSIxMDAlIiBjbGFzcz1ub25lPgoKCgo8c3BhbiBzdHls
+ZT0icGFkZGluZy1ib3R0b206MHB4OyI+PGRpdiBzdHlsZT0icGFkZGluZy10b3A6MjVweDsiPgo8
+c3BhbiBjbGFzcz0iYmFzZS1zdWItc2VjdC1sYWJlbCI+CgpPdHJhIGluZm9ybWFjacOzbgo8L3Nw
+YW4+CjxzcGFuIGNsYXNzPSJBTkJvZHlUZXh0Ij4KCjwvc3Bhbj4KPC9kaXY+Cjwvc3Bhbj4KCgoK
+CgoKCgoKCgoKPHRhYmxlIGNsYXNzPSJmZG1sLW92LWxpYWktYWRkLWluZm8gcHJpbnQtYnJlYWst
+d29yZHMiIGNlbGxzcGFjaW5nPTAgY2VsbHBhZGRpbmc9MD4KCgoKCgoKCgoKCgoKCgoKCgoKCgoK
+CgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoK
+CgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoK
+CgoKCgoKCgoKCgoKCgoKCgoKCgoKPHRyPgoKCgoKCjx0ZCBjb2xzcGFuPTEgdmFsaWduPXRvcCBh
+bGlnbj1sZWZ0IHdpZHRoPTE2MHB4IGNsYXNzPSJiYXNlLW5jZC1sYWJlbC10b3AgQU5YTGFiZWwi
+PgoKCkRvbWluaW8gZGUgbGEgY2xhc2lmaWNhY2nDs246Cgo8L3RkPgoKCgoKCgoKCjx0ZCBzdHls
+ZT0idmVydGljYWwtYWxpZ246IHRvcDsgdmVydGljYWwtYWxpZ246IHRvcDsgIiB2YWxpZ249dG9w
+IGFsaWduPWxlZnQgY29sc3Bhbj0xIGNsYXNzPW5vbmU+ClVOU1BTQwoKCgoKCgoKPC90ZD4KCgoK
+PC90cj4KCgoKCgoKPHRyPgoKCgoKCjx0ZCBjb2xzcGFuPTEgdmFsaWduPXRvcCBhbGlnbj1sZWZ0
+IHdpZHRoPTE2MHB4IGNsYXNzPSJiYXNlLW5jZC1sYWJlbC10b3AgQU5YTGFiZWwiPgoKCkPDs2Rp
+Z28gZGUgY2xhc2lmaWNhY2nDs246Cgo8L3RkPgoKCgoKCgoKCjx0ZCBzdHlsZT0idmVydGljYWwt
+YWxpZ246IHRvcDsgdmVydGljYWwtYWxpZ246IHRvcDsgIiB2YWxpZ249dG9wIGFsaWduPWxlZnQg
+Y29sc3Bhbj0xIGNsYXNzPW5vbmU+CjM1MDUwMTAKCgoKCgoKCjwvdGQ+CgoKCjwvdHI+CgoKCgoK
+CgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCjwvdGFibGU+CgoKCgo8L3RkPjwv
+dHI+CgoKCjwvdGFibGU+PC90ZD4KCgoKCgoKCgoKCgoKCgo8L3RyPgoKCgoKCgoKCgoKCgoKPHRy
+PgoKCjx0aCBzdHlsZT0iIiBjbGFzcz10YWJsZUhlYWQgYWxpZ249bGVmdD5Ow7ptZXJvIGRlIGzD
+rW5lYSZuYnNwOzwvdGg+Cjx0aCBzdHlsZT0iIiBjbGFzcz10YWJsZUhlYWQgYWxpZ249bGVmdD5O
+w7ptZXJvIGRlIHJlcGFydG9zJm5ic3A7PC90aD4KPHRoIHN0eWxlPSIiIGNsYXNzPXRhYmxlSGVh
+ZCBhbGlnbj1sZWZ0Pk7CuiBkZSBwaWV6YS9EZXNjcmlwY2nDs24mbmJzcDs8L3RoPgo8dGggc3R5
+bGU9IiIgY2xhc3M9dGFibGVIZWFkIGFsaWduPWxlZnQ+Jm5ic3A7PC90aD4KPHRoIHN0eWxlPSIi
+IGNsYXNzPXRhYmxlSGVhZCBhbGlnbj1sZWZ0PlRpcG8mbmJzcDs8L3RoPgo8dGggc3R5bGU9IiIg
+Y2xhc3M9dGFibGVIZWFkIGFsaWduPWxlZnQ+RGV2b2x1Y2nDs24mbmJzcDs8L3RoPgo8dGggc3R5
+bGU9IiIgY2xhc3M9dGFibGVIZWFkIGFsaWduPWxlZnQ+Q2FudC4gKFVuaWRhZCkmbmJzcDs8L3Ro
+Pgo8dGggc3R5bGU9IiIgY2xhc3M9dGFibGVIZWFkIGFsaWduPWxlZnQ+RmVjaGEgcGFyYSBsYSBx
+dWUgc2UgcmVxdWllcmUmbmJzcDs8L3RoPgo8dGggc3R5bGU9InRleHQtYWxpZ246IHJpZ2h0OyIg
+Y2xhc3M9dGFibGVIZWFkIGFsaWduPWxlZnQ+UHJlY2lvIHBvciB1bmlkYWQmbmJzcDs8L3RoPgo8
+dGggc3R5bGU9InRleHQtYWxpZ246IHJpZ2h0OyIgY2xhc3M9dGFibGVIZWFkIGFsaWduPWxlZnQ+
+U3VidG90YWwmbmJzcDs8L3RoPgoKPC90cj4KCgo8dHIgaWQ9XzhqdWE2ZCBiZ2NvbG9yPSIjZmZm
+ZmZmIj4KCgoKCgoKCgoKPHRkIHN0eWxlPSJ2ZXJ0aWNhbC1hbGlnbjogdG9wOyAiIHdpZHRoPSIx
+JSIgdmFsaWduPXRvcCBhbGlnbj1sZWZ0IGNvbHNwYW49MSBjbGFzcz0idGFibGVCb2R5Q2xhc3Mg
+ZmRtbC1vdi1pdGVtT3V0VGFibGUgdnItZm9yY2VWZXJ0aWNhbEFsaWduVG9wIj48c3BhbiBjbGFz
+cz0idHhuYi1JTlNQTE4tZG9jdW1lbnRTdHlsZSI+Cjx0YWJsZSBjbGFzcz0idGFibGVCb2R5Q2xh
+c3MgYXV0b1dpZHRoIGJvZHlUZXh0IiBjZWxscGFkZGluZz0iMCIgY2VsbHNwYWNpbmc9IjAiPgo8
+dHI+CgoKCgoKPHRkIGNsYXNzPSJwYWRkaW5nTGVmdDVCb2xkIHZyLXBhZGRpbmdMZWZ0MjAiPgoK
+MwoKPC90ZD4KCgoKPC90cj4KPC90YWJsZT4KPC9zcGFuPjwvdGQ+CgoKCgoKCgoKCjx0ZCBzdHls
+ZT0idmVydGljYWwtYWxpZ246IHRvcDsgIiB2YWxpZ249dG9wIGFsaWduPWxlZnQgY29sc3Bhbj0x
+IGNsYXNzPSJ0YWJsZUJvZHlDbGFzcyBmZG1sLW92LWl0ZW1PdXRUYWJsZSB2ci1mb3JjZVZlcnRp
+Y2FsQWxpZ25Ub3AiPgoKPC90ZD4KCgoKCgoKCgoKCgoKCgoKCgoKCgo8c3Bhbj4KPC9zcGFuPjx0
+ZCBjbGFzcz0idGFibGVCb2R5Q2xhc3MiID4mbmJzcDs8L3RkPgoKCgoKCgoKCgoKCgoKCgoKCgoK
+CgoKCgoKCgogICAgCgoKCjx0ZCBzdHlsZT0idmVydGljYWwtYWxpZ246IHRvcDsgIiB3aWR0aD0i
+MSUiIHZhbGlnbj10b3AgYWxpZ249bGVmdCBjb2xzcGFuPTEgbm93cmFwPWZhbHNlIGNsYXNzPSJ0
+YWJsZUJvZHlDbGFzcyBmZG1sLW92LWl0ZW1PdXRUYWJsZSB2ci1mb3JjZVZlcnRpY2FsQWxpZ25U
+b3AiPgoKJm5ic3A7Cgo8L3RkPgoKCgoKCgoKCgoKCgoKCgo8dGQgc3R5bGU9InZlcnRpY2FsLWFs
+aWduOiB0b3A7ICIgdmFsaWduPXRvcCBhbGlnbj1sZWZ0IGNvbHNwYW49MSBjbGFzcz0idGFibGVC
+b2R5Q2xhc3MgZmRtbC1vdi1pdGVtT3V0VGFibGUgdnItZm9yY2VWZXJ0aWNhbEFsaWduVG9wIj4K
+CjxkaXYgc3R5bGU9ImZsb2F0OmxlZnQ7IGRpc3BsYXk6IGlubGluZS1ibG9jazsiPgo8ZGl2PgoK
+TWF0ZXJpYWwKCjwvZGl2Pgo8ZGl2PgoKPC9kaXY+CjxkaXY+Cgo8L2Rpdj4KPC9kaXY+Cgo8L3Rk
+PgoKCgoKCgoKCgoKCgoKCgoKCjx0ZCBzdHlsZT0idmVydGljYWwtYWxpZ246IHRvcDsgdmVydGlj
+YWwtYWxpZ246IHRvcDsgIiB2YWxpZ249dG9wIGFsaWduPWxlZnQgY29sc3Bhbj0xIGNsYXNzPSJ0
+YWJsZUJvZHlDbGFzcyBmZG1sLW92LWl0ZW1PdXRUYWJsZSB2ci1mb3JjZVZlcnRpY2FsQWxpZ25U
+b3AiPgoKCiZuYnNwOwoKCgoKCgoKPC90ZD4KCgoKCgoKCgoKCgoKCgoKCgo8dGQgY29sc3Bhbj0x
+IGFsaWduPWxlZnQgdmFsaWduPXRvcCBzdHlsZT0idmVydGljYWwtYWxpZ246IHRvcDsgIiBjbGFz
+cz0idGFibGVCb2R5Q2xhc3MgZmRtbC1vdi1pdGVtT3V0VGFibGUgdnItZm9yY2VWZXJ0aWNhbEFs
+aWduVG9wIj4KCgoKCgoKCgo8c3BhbiBzdHlsZT0idmVydGljYWwtYWxpZ246IHRvcDsgIj4KMSww
+MAoKCgoKCjwvc3Bhbj4KCgoKCgoKCgoKCgoKCgoKCgoKCjxzcGFuPgoKKEVBKQoKCgoKPC9zcGFu
+PgoKCgoKCgoKCgoKCgoKCjwvdGQ+CgoKCgoKCgoKCgoKCgoKCgoKCgoKCjx0ZCBzdHlsZT0idmVy
+dGljYWwtYWxpZ246IHRvcDsgdmVydGljYWwtYWxpZ246IHRvcDsgIiB2YWxpZ249dG9wIGFsaWdu
+PWxlZnQgY29sc3Bhbj0xIGNsYXNzPSJ0YWJsZUJvZHlDbGFzcyBmZG1sLW92LWl0ZW1PdXRUYWJs
+ZSB2ci1mb3JjZVZlcnRpY2FsQWxpZ25Ub3AiPgoKCjE1IGZlYiAyMDIxCgoKCgoKCgoKCgoKPC90
+ZD4KCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKPHRkIHN0eWxlPSJ2ZXJ0aWNhbC1hbGlnbjog
+dG9wOyAiIHZhbGlnbj10b3AgYWxpZ249bGVmdCBjb2xzcGFuPTEgY2xhc3M9InRhYmxlQm9keUNs
+YXNzIGZkbWwtb3YtaXRlbU91dFRhYmxlIHZyLWZvcmNlVmVydGljYWxBbGlnblRvcCI+CjxzcGFu
+IGNsYXNzPSJ0eHZiLUlOU0JQT1VQVi1wcmljZVN0eWxlIj4KNjUsMDAgRVVSPC9zcGFuPgo8L3Rk
+PgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKPHRkIHN0eWxlPSJ2ZXJ0aWNh
+bC1hbGlnbjogdG9wOyAiIHZhbGlnbj10b3AgYWxpZ249cmlnaHQgY29sc3Bhbj0xIGNsYXNzPSJ0
+YWJsZUJvZHlDbGFzcyBmZG1sLW92LWl0ZW1PdXRUYWJsZSB2ci1mb3JjZVZlcnRpY2FsQWxpZ25U
+b3AiPgoKCjY1LDAwIEVVUgoKCjwvdGQ+CgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKPC90
+cj4KCjx0ciBpZD1fYmt1MHNiIGJnY29sb3I9IiNmZmZmZmYiPgoKCgoKCgoKCgoKCgoKCjxzcGFu
+Pgo8L3NwYW4+PHRkPiZuYnNwOzwvdGQ+CgoKCgoKCgoKCgoKCgoKCgoKCgoKCgo8c3Bhbj4KPC9z
+cGFuPjx0ZD4mbmJzcDs8L3RkPgoKCgoKCgoKCgoKCgoKCgoKCgoKPHRkIGNvbHNwYW49MTAwIGFs
+aWduPWxlZnQgdmFsaWduPXRvcCBzdHlsZT0idmVydGljYWwtYWxpZ246IHRvcDsgIj48dGFibGUg
+Y2VsbHNwYWNpbmc9MiBjZWxscGFkZGluZz0wPgoKCgo8dHI+Cjx0ZCBjb2xzcGFuPTEyIGFsaWdu
+PWxlZnQgdmFsaWduPXRvcCBzdHlsZT0idmVydGljYWwtYWxpZ246IHRvcDsgd2lkdGg6MTAwJTtw
+YWRkaW5nOjAgNXB4IDNweCAzcHg7IiBjbGFzcz10YWJsZVRleHQ+CgoKCgoKCgoKCjx0YWJsZSBj
+ZWxsc3BhY2luZz0yIGNlbGxwYWRkaW5nPTA+CgoKPHRyPgoKCgoKPHRkIHN0eWxlPSJ2ZXJ0aWNh
+bC1hbGlnbjogdG9wOyB2ZXJ0aWNhbC1hbGlnbjogdG9wOyAiIGNvbHNwYW49MSB2YWxpZ249dG9w
+IGFsaWduPWxlZnQgY2xhc3M9ImN1cy1uY2R2LWZvcm1wYWR2YWx1ZSBBTlhMYWJlbCI+CgoKUE9T
+VCBQUk9EVUNDScOTTgoKCgoKCgoKCjwvdGQ+CgoKCjwvdHI+CgoKCgo8L3RhYmxlPgoKCgoKCgoK
+CgoKCgoKCgoKCgoKCgo8L3RkPgo8L3RyPgoKCgo8L3RhYmxlPjwvdGQ+CgoKCgoKCgoKCgoKCgo8
+L3RyPgoKCgoKCgo8dHIgaWQ9X2NodmttZCBiZ2NvbG9yPSIjZmZmZmZmIj4KCgoKCgoKCgoKCgoK
+CgoKPHNwYW4+Cjwvc3Bhbj48dGQ+Jm5ic3A7PC90ZD4KCgoKCgoKCgoKCgoKCgoKCgoKCgoKPHRk
+IGNvbHNwYW49MTIgYWxpZ249bGVmdCB2YWxpZ249dG9wIHN0eWxlPSJ2ZXJ0aWNhbC1hbGlnbjog
+dG9wOyAiPjx0YWJsZSBzdHlsZT0id2lkdGg6MTAwJTtwYWRkaW5nOjVweCAyNXB4IDVweCAwcHg7
+IiBjZWxsc3BhY2luZz0yIGNlbGxwYWRkaW5nPTA+CgoKCgoKCgoKCgoKCgoKCgoKCjx0cj4KCgoK
+CgoKCgoKCgoKPHRkIHN0eWxlPSJ2ZXJ0aWNhbC1hbGlnbjogYm90dG9tOyBwYWRkaW5nLWJvdHRv
+bTowcHg7IiB2YWxpZ249Ym90dG9tIGFsaWduPWxlZnQgY29sc3Bhbj0yIGNsYXNzPW5vbmU+PGRp
+diBjbGFzcz1wb0hlYWRlckxlZ2VuZFN0eWxlIHN0eWxlPSJwYWRkaW5nLXRvcDoyNXB4O21hcmdp
+bi1ib3R0b206LTFweDttYXJnaW4tdG9wOjEwcHg7cGFkZGluZy1sZWZ0OjIwcHgiPgo8c3BhbiBj
+bGFzcz0iZmRtbC1vdi1vaGQtYnRuLWdmLXNzLWxhYmVsIj4KRXhwZWRpciBhPHNwYW4gY2xhc3M9
+IkFOQm9keVRleHQiPgoKPC9zcGFuPgo8L3NwYW4+CjxzcGFuIGNsYXNzPSJBTkJvZHlUZXh0Ij4K
+Cjwvc3Bhbj4KPC9kaXY+CjwvdGQ+CgoKCgoKCgoKCgoKCgoKCgoKCgoKCjwvdHI+CgoKCgoKCgoK
+Cjx0cj4KCgoKCgoKCgo8dGQgY29sc3Bhbj0yIGFsaWduPWxlZnQgdmFsaWduPXRvcCBzdHlsZT0i
+dmVydGljYWwtYWxpZ246IHRvcDsgIiB3aWR0aD0iMTAwJTsiIGNsYXNzPSJkZWxpdmVyLXNoaXAt
+dG8iPjx0YWJsZSBjZWxsc3BhY2luZz0yIGNlbGxwYWRkaW5nPTU+CgoKPHRyPgoKCgoKPHRkIHN0
+eWxlPSJ2ZXJ0aWNhbC1hbGlnbjogdG9wOyB2ZXJ0aWNhbC1hbGlnbjogdG9wOyBmb250LXdlaWdo
+dDpib2xkIiBjb2xzcGFuPTEgdmFsaWduPXRvcCBhbGlnbj1sZWZ0IHdpZHRoPSI1MCUiIGNsYXNz
+PSJjdXMtbmNkdi1mb3JtcGFkdmFsdWUgQU5YTGFiZWwiPgoKCkVTMDYgTm92YXJ0aXMgRmFybWFj
+w6l1dGljYSBTLkEuCgoKCgoKCgoKCjwvdGQ+CgoKCjwvdHI+CgoKCgoKCgoKCgo8dHI+Cgo8dGQg
+c3R5bGU9InZlcnRpY2FsLWFsaWduOiB0b3A7IHZlcnRpY2FsLWFsaWduOiB0b3A7ICIgY29sc3Bh
+bj0yIHZhbGlnbj10b3AgYWxpZ249bGVmdCBjbGFzcz0iY3VzLW5jZHYtZm9ybXBhZHZhbHVlIEFO
+WExhYmVsIj4KCgoKCkdyYW4gVmlhIGRlIGxlcyBDb3J0c0NhdGFsYW5lcyA3NjQ8YnI+CgoKCjgw
+MTMgCkJhcmNlbG9uYQo8YnI+CgowOAo8YnI+CkVzcGHDsWEKCgo8L3RkPgoKCjwvdHI+CgoKCgoK
+CgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoK
+CgoKCgoKCgoKCgoKCgoKCgoKCjwvdGFibGU+PC90ZD4KCgoKCgoKCgoKPC90cj4KCgoKCgoKCgoK
+CgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoK
+CgoKCgo8dHI+Cgo8dGQgc3R5bGU9InZlcnRpY2FsLWFsaWduOiBib3R0b207IHBhZGRpbmctYm90
+dG9tOjBweDsiIHZhbGlnbj1ib3R0b20gYWxpZ249bGVmdCBjb2xzcGFuPTIgY2xhc3M9bm9uZT48
+ZGl2IHN0eWxlPSJwYWRkaW5nLXRvcDoyNXB4OyI+CjxzcGFuIGNsYXNzPSJiYXNlLXN1Yi1zZWN0
+LWxhYmVsIj4KQ29udGFiaWxpZGFkPHNwYW4gY2xhc3M9IkFOQm9keVRleHQiPgoKPC9zcGFuPgo8
+L3NwYW4+CjxzcGFuIGNsYXNzPSJBTkJvZHlUZXh0Ij4KCjwvc3Bhbj4KPC9kaXY+CjwvdGQ+CgoK
+PC90cj4KCgoKCgoKCgoKCgoKCgoKCgoKCgoKPHRyPjx0ZCBjb2xzcGFuPTEyIGFsaWduPWxlZnQg
+dmFsaWduPXRvcCBzdHlsZT0idmVydGljYWwtYWxpZ246IHRvcDsgIiBjbGFzcz1hY2NvdW50aW5n
+U2VnbWVudD4KCgoKCgoKCgoKCgoKCgo8dGFibGUgY2VsbHNwYWNpbmc9MiBjZWxscGFkZGluZz0w
+PgoKCgoKCjx0cj4KCgoKCgoKCgoKCgo8dGQgc3R5bGU9InZlcnRpY2FsLWFsaWduOiB0b3A7IHZl
+cnRpY2FsLWFsaWduOiB0b3A7IHBhZGRpbmc6NXB4IDEwcHg7Ym9yZGVyLWJvdHRvbToxcHggc29s
+aWQgI2U1ZTVlNTt3aWR0aDozMCUiIHZhbGlnbj10b3AgYWxpZ249bGVmdCBjb2xzcGFuPTEgY2xh
+c3M9bm9uZT4KIFBvcmNlbnR1YWwKCgoKCgoKCgo8L3RkPgoKCgoKCgoKCgoKCgoKPHRkIHN0eWxl
+PSJ2ZXJ0aWNhbC1hbGlnbjogdG9wOyB2ZXJ0aWNhbC1hbGlnbjogdG9wOyBwYWRkaW5nOjVweCAx
+MHB4O2JvcmRlci1ib3R0b206MXB4IHNvbGlkICNlNWU1ZTU7d2lkdGg6MzAlIiB2YWxpZ249dG9w
+IGFsaWduPWxlZnQgY29sc3Bhbj0xIGNsYXNzPW5vbmU+ClBvcmNlbnR1YWwKCgoKCgoKCgo8L3Rk
+PgoKCgoKCgoKCgoKCgoKPHRkIHN0eWxlPSJ2ZXJ0aWNhbC1hbGlnbjogdG9wOyB2ZXJ0aWNhbC1h
+bGlnbjogdG9wOyBwYWRkaW5nOjVweCAxMHB4O2JvcmRlci1ib3R0b206MXB4IHNvbGlkICNlNWU1
+ZTU7d2lkdGg6NDAlIiB2YWxpZ249dG9wIGFsaWduPWxlZnQgY29sc3Bhbj0xIGNsYXNzPW5vbmU+
+CjEwMC4wMCAKCgoKCgoKCgo8L3RkPgoKCgoKCgoKCgoKCgoKPC90cj4KCgoKCgoKCgoKCgoKCgoK
+PC90YWJsZT4KCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgo8dGFibGUgY2VsbHNw
+YWNpbmc9MiBjZWxscGFkZGluZz0wPjwvdGFibGU+CgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCjwv
+dGQ+PC90cj4KCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgo8dHI+Cgo8dGQgc3R5
+bGU9InZlcnRpY2FsLWFsaWduOiBib3R0b207IHBhZGRpbmctYm90dG9tOjBweDsiIHZhbGlnbj1i
+b3R0b20gYWxpZ249bGVmdCBjb2xzcGFuPTIgY2xhc3M9bm9uZT48ZGl2IHN0eWxlPSJwYWRkaW5n
+LXRvcDoyNXB4OyI+CjxzcGFuIGNsYXNzPSJiYXNlLXN1Yi1zZWN0LWxhYmVsIj4KQ29udGFiaWxp
+ZGFkPHNwYW4gY2xhc3M9IkFOQm9keVRleHQiPgoKPC9zcGFuPgo8L3NwYW4+CjxzcGFuIGNsYXNz
+PSJBTkJvZHlUZXh0Ij4KCjwvc3Bhbj4KPC9kaXY+CjwvdGQ+CgoKPC90cj4KCgoKCgoKCgoKCgoK
+CgoKCgoKCgoKPHRyPjx0ZCBjb2xzcGFuPTEyIGFsaWduPWxlZnQgdmFsaWduPXRvcCBzdHlsZT0i
+dmVydGljYWwtYWxpZ246IHRvcDsgIiBjbGFzcz1hY2NvdW50aW5nU2VnbWVudD4KCgoKCgoKCgoK
+CgoKCgo8dGFibGUgY2VsbHNwYWNpbmc9MiBjZWxscGFkZGluZz0wPgoKCgoKCjx0cj4KCgoKCgoK
+CgoKCgo8dGQgc3R5bGU9InZlcnRpY2FsLWFsaWduOiB0b3A7IHZlcnRpY2FsLWFsaWduOiB0b3A7
+IHBhZGRpbmc6NXB4IDEwcHg7Ym9yZGVyLWJvdHRvbToxcHggc29saWQgI2U1ZTVlNTt3aWR0aDoz
+MCUiIHZhbGlnbj10b3AgYWxpZ249bGVmdCBjb2xzcGFuPTEgY2xhc3M9bm9uZT4KQ0MKCgoKCgoK
+Cgo8L3RkPgoKCgoKCgoKCgoKCgoKCgo8dGQgc3R5bGU9InZlcnRpY2FsLWFsaWduOiB0b3A7IHZl
+cnRpY2FsLWFsaWduOiB0b3A7IHBhZGRpbmc6NXB4IDEwcHg7Ym9yZGVyLWJvdHRvbToxcHggc29s
+aWQgI2U1ZTVlNTt3aWR0aDo0MCUiIHZhbGlnbj10b3AgYWxpZ249bGVmdCBjb2xzcGFuPTEgY2xh
+c3M9bm9uZT4KUDQwMzU4MQoKCgoKCgoKCjwvdGQ+CgoKCgoKCgoKCgoKCgo8L3RyPgoKCgoKCgoK
+CgoKCgoKCgo8L3RhYmxlPgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCjx0YWJs
+ZSBjZWxsc3BhY2luZz0yIGNlbGxwYWRkaW5nPTA+PC90YWJsZT4KCgoKCgoKCgoKCgoKCgoKCgoK
+CgoKCgoKPC90ZD48L3RyPgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoK
+CgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKPHRyPjx0ZCBjb2xzcGFuPTEyIGFsaWduPWxl
+ZnQgdmFsaWduPXRvcCBzdHlsZT0idmVydGljYWwtYWxpZ246IHRvcDsgIiB3aWR0aD0iMTAwJSIg
+Y2xhc3M9bm9uZT4KCgoKPHNwYW4gc3R5bGU9InBhZGRpbmctYm90dG9tOjBweDsiPjxkaXYgc3R5
+bGU9InBhZGRpbmctdG9wOjI1cHg7Ij4KPHNwYW4gY2xhc3M9ImJhc2Utc3ViLXNlY3QtbGFiZWwi
+PgoKT3RyYSBpbmZvcm1hY2nDs24KPC9zcGFuPgo8c3BhbiBjbGFzcz0iQU5Cb2R5VGV4dCI+Cgo8
+L3NwYW4+CjwvZGl2Pgo8L3NwYW4+CgoKCgoKCgoKCgoKCjx0YWJsZSBjbGFzcz0iZmRtbC1vdi1s
+aWFpLWFkZC1pbmZvIHByaW50LWJyZWFrLXdvcmRzIiBjZWxsc3BhY2luZz0wIGNlbGxwYWRkaW5n
+PTA+CgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoK
+CgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoK
+CgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCjx0cj4KCgoKCgo8
+dGQgY29sc3Bhbj0xIHZhbGlnbj10b3AgYWxpZ249bGVmdCB3aWR0aD0xNjBweCBjbGFzcz0iYmFz
+ZS1uY2QtbGFiZWwtdG9wIEFOWExhYmVsIj4KCgpEb21pbmlvIGRlIGxhIGNsYXNpZmljYWNpw7Nu
+OgoKPC90ZD4KCgoKCgoKCgo8dGQgc3R5bGU9InZlcnRpY2FsLWFsaWduOiB0b3A7IHZlcnRpY2Fs
+LWFsaWduOiB0b3A7ICIgdmFsaWduPXRvcCBhbGlnbj1sZWZ0IGNvbHNwYW49MSBjbGFzcz1ub25l
+PgpVTlNQU0MKCgoKCgoKCjwvdGQ+CgoKCjwvdHI+CgoKCgoKCjx0cj4KCgoKCgo8dGQgY29sc3Bh
+bj0xIHZhbGlnbj10b3AgYWxpZ249bGVmdCB3aWR0aD0xNjBweCBjbGFzcz0iYmFzZS1uY2QtbGFi
+ZWwtdG9wIEFOWExhYmVsIj4KCgpDw7NkaWdvIGRlIGNsYXNpZmljYWNpw7NuOgoKPC90ZD4KCgoK
+CgoKCgo8dGQgc3R5bGU9InZlcnRpY2FsLWFsaWduOiB0b3A7IHZlcnRpY2FsLWFsaWduOiB0b3A7
+ICIgdmFsaWduPXRvcCBhbGlnbj1sZWZ0IGNvbHNwYW49MSBjbGFzcz1ub25lPgozNTA1MDEwCgoK
+CgoKCgo8L3RkPgoKCgo8L3RyPgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoK
+CgoKCgo8L3RhYmxlPgoKCgoKPC90ZD48L3RyPgoKCgo8L3RhYmxlPjwvdGQ+CgoKCgoKCgoKCgoK
+CgoKPC90cj4KCgoKCgoKCgoKCgo8L3RhYmxlPgoKCjwvdGQ+CgoKPC90cj4KCgoKCgoKCgoKCgoK
+PC9zcGFuPgoKCgoKCgoKCgoKCjx0cj4KCgoKCjx0ZCBjb2xzcGFuPTIgYWxpZ249bGVmdCB2YWxp
+Z249dG9wIHN0eWxlPSJ2ZXJ0aWNhbC1hbGlnbjogdG9wOyAiPjx0YWJsZSBjZWxsc3BhY2luZz0y
+IGNlbGxwYWRkaW5nPTA+Cgo8dHI+Cjx0ZCBzdHlsZT0icGFkZGluZzoxMHB4IDAgMjBweCAwOyIg
+dmFsaWduPXRvcCBjb2xzcGFuPTQ+Cjx0YWJsZSBjZWxsc3BhY2luZz0iMCIgY2VsbHBhZGRpbmc9
+IjAiIGJvcmRlcj0iMCI+Cjx0ciBjbGFzcz0icG8tSU5TUE9ELXJlbC1wby1kYXRlIj4KPHRkPgpQ
+ZWRpZG8gZW52aWFkbyBlbDombmJzcDttYXJ0ZXMgMiBmZWIgMjAyMSAyMDo0MiBHTVQrMDE6MDA8
+YnIvPgpSZWNpYmlkbyBwb3IgQXJpYmEgTmV0d29yayBlbDombmJzcDttYXJ0ZXMgMiBmZWIgMjAy
+MSAyMDo0MiBHTVQrMDE6MDA8YnIvPgpFc3RlIHBlZGlkbyBoYSBzaWRvIGVudmlhZG8gcG9yIE5v
+dmFydGlzIEFOMDEwMDM2MDMwMTggeSBlbnRyZWdhZG8gcG9yIEFyaWJhIE5ldHdvcmsuPGJyLz4K
+Cgo8L3RkPgo8L3RyPgo8L3RhYmxlPjwvdGQ+PC90cj4KCjwvdGFibGU+PC90ZD4KCgoKCgoKCgo8
+dGQgY29sc3Bhbj0yIGFsaWduPXJpZ2h0IHZhbGlnbj10b3Agc3R5bGU9InZlcnRpY2FsLWFsaWdu
+OiB0b3A7ICI+PHRhYmxlIGNsYXNzPSJmZG1sLW92LW9kLWdwLXBvLWZvb3RlciIgY2VsbHNwYWNp
+bmc9MiBjZWxscGFkZGluZz0wPgoKCgo8dHI+Cjx0ZCBhbGlnbj1yaWdodCBjb2xzcGFuPTQ+Cjx0
+YWJsZSBjbGFzcz0icG8tSU5TUE9GLWZvb3Rlci10YWJsZSIgY2VsbHNwYWNpbmc9IjAiIGNlbGxw
+YWRkaW5nPSIwIiB3aWR0aD0iMTAwJSI+Cjx0cj4KCgo8dGQ+Cgo8dGFibGUgIGNlbGxzcGFjaW5n
+PSIwIiBjZWxscGFkZGluZz0iMCIgYWxpZ249InJpZ2h0IiBjbGFzcz0ic3VtbWFyeVRhYmxlQm9k
+eSI+Cgo8dHI+Cjx0ZCBjb2xzcGFuPTQ+CiZuYnNwOwo8L3RkPgo8L3RyPgoKCgoKCjx0cj4KPHRk
+Pgo8ZGl2IGFsaWduPXJpZ2h0PgpTdWJ0b3RhbDoKPC9kaXY+CjwvdGQ+Cgo8dGQ+CjxkaXYgYWxp
+Z249bGVmdD4KJm5ic3A7CjwvZGl2Pgo8L3RkPgo8dGQ+CjxkaXYgYWxpZ249cmlnaHQ+CjY4NSww
+MAo8L2Rpdj4KPC90ZD4KPHRkPgo8ZGl2IGFsaWduPXJpZ2h0IHN0eWxlPSJwYWRkaW5nLXJpZ2h0
+OjEwcHgiPgombmJzcDtFVVIKPC9kaXY+CjwvdGQ+CgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoK
+CgoKCgoKPC90YWJsZT4KCjwvdGQ+CjwvdHI+CjwvdGFibGU+CjwvdGQ+CjwvdHI+CgoKCgoKCgoK
+CjwvdGFibGU+PC90ZD4KCgoKCjwvdHI+CgoKCgoKCgoKCjwvdGFibGU+CgoKPC9ib2R5Pgo8L2h0
+bWw+Cg==
+--0000000000000172ab05ba60fdf4--

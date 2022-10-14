@@ -1,0 +1,62 @@
+{
+	"lang": "es",
+	"short_name": "ADN",
+	"name": "ADN - ERP",
+	"start_url": "https://adminl6.weareadn.com/admin",
+	"background_color": "#191e30",
+	"theme_color": "#191e30",
+	"display": "standalone",
+	"orientation": "portrait",
+	"icons": [
+        {
+            "src": "img/icons/android/icon-72x72.png",
+            "type": "image/png",
+            "sizes": "72x72"
+        },
+        {
+            "src": "img/icons/android/icon-76x76.png",
+            "type": "image/png",
+            "sizes": "76x76"
+        },
+        {
+            "src": "img/icons/android/icon-96x96.png",
+            "type": "image/png",
+            "sizes": "96x96"
+        },
+        {
+            "src": "img/icons/android/icon-120x120.png",
+            "type": "image/png",
+            "sizes": "120x120"
+        },
+        {
+            "src": "img/icons/android/icon-128x128.png",
+            "type": "image/png",
+            "sizes": "128x128"
+        },
+        {
+            "src": "img/icons/android/icon-144x144.png",
+            "type": "image/png",
+            "sizes": "144x144"
+        },
+        {
+            "src": "img/icons/android/icon-152x152.png",
+            "type": "image/png",
+            "sizes": "152x152"
+        },
+        {
+            "src": "img/icons/android/icon-180x180.png",
+            "type": "image/png",
+            "sizes": "180x180"
+        },
+        {
+            "src": "img/icons/android/icon-192x192.png",
+            "type": "image/png",
+            "sizes": "192x192"
+        },
+        {
+            "src": "img/icons/android/icon-384x384.png",
+            "type": "image/png",
+            "sizes": "384x384"
+        }
+	]
+}
