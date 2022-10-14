@@ -12,10 +12,12 @@
 		</a>
 
 		{{-- Copiar roles a otras empresas --}}
-		<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-copy">
-			<i class="fa fa-clone"></i>
-			{!! trans('textos.roles_copiar') !!}
-		</a>
+		@if($role->name != config('constants.SUPER_ADMIN_'))
+			<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-copy">
+				<i class="fa fa-clone"></i>
+				{!! trans('textos.roles_copiar') !!}
+			</a>
+		@endif
 	</div>
 </div>
 
