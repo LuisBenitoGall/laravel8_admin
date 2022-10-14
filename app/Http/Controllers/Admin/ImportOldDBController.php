@@ -2807,7 +2807,7 @@ class ImportOldDBController extends Controller{
                 $i->fiscal_date = $r->fiscal_date;
                 $i->expiration_date = $r->expiration_date;
                 $i->user_id = $r->user_id;
-                $i->observations = $r->comments;
+                $i->provider_observations = $r->comments;
                 $i->template_id = $r->template_id;
                 $i->template = $r->template;
                 $i->printed = $r->printed;
