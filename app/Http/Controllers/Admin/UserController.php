@@ -515,8 +515,8 @@ class UserController extends Controller{
         $user->isAdmin = $isAdmin;
         $user->save();  
 
-        //Guardamos rol:
-        $user->assignRole($role->name);
+        //Sincronizamos role, eliminando otros existentes.
+        $user->syncRoles($role->id);
 
         //Guardamos categorías del usuario:
         $user_categories = $request->categories? implode(',', $request->categories):false;

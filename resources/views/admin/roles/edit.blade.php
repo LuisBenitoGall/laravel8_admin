@@ -5,9 +5,16 @@
 <div class="row mb-3">
 	{{-- Acciones: --}}
 	<div class="col-sm-12">
+		{{-- Volver a roles --}}
 		<a href="{{ route('roles.index') }}" class="btn btn-info">
 			<i class="fa fa-angle-left"></i>
 			{!! trans('textos.volver_roles') !!}
+		</a>
+
+		{{-- Copiar roles a otras empresas --}}
+		<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-copy">
+			<i class="fa fa-clone"></i>
+			{!! trans('textos.roles_copiar') !!}
 		</a>
 	</div>
 </div>
@@ -26,5 +33,8 @@
 		</div>
 	</div>
 </div>
+
+{{-- Modals: --}}
+@include('admin.roles.partials.modal-copy')
 
 @endsection

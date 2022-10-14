@@ -30,6 +30,7 @@ class RoleController extends Controller{
      * 6. Eliminar role.
      * 7. Sincronizar permisos sobre los módulos.
      * 8. Actualizar estado administrador de usuarios según su rol.
+     * 9. Copiar role a otras empresas.
      */
     
     private $option = 'configuracion';
@@ -42,9 +43,18 @@ class RoleController extends Controller{
     //0. Validator:
     protected function validator(array $data){
         //Validación save:
-        return Validator::make($data, [
-            'name' => 'required|string|max:255'
-        ]);
+        if(isset($data['submit_update'])){
+            return Validator::make($data, [
+                'name' => 'required|string|max:255'
+            ]);
+
+        //Validación copiar:
+        }elseif(isset($data['submit_copy'])){
+            return Validator::make($data, [
+                'role_id' => 'required|integer',
+                'companies' => 'required'
+            ]);
+        }
     }
 
     /**
@@ -174,9 +184,14 @@ class RoleController extends Controller{
             array_push($role_permissions, $row->id);       
         }   
 
+        $companies = Company::join('user_companies', 'companies.id', '=', 'user_companies.company_id')
+        ->where('user_companies.user_id', session('currentCompany'))
+        ->pluck('companies.name', 'companies.id')
+        ->toArray();
+
         $action = 'edit';
 
-        return view('admin.roles.edit', compact('header', 'role', 'functionalities', 'permissions', 'role_permissions', 'action'));    
+        return view('admin.roles.edit', compact('header', 'role', 'functionalities', 'permissions', 'role_permissions', 'companies', 'action'));    
     }
 
     /**
@@ -256,5 +271,37 @@ class RoleController extends Controller{
         ->where('users.status', 1)
         ->where('model_has_roles.role_id', $role_id)
         ->update(['users.isAdmin' => 1]);
+    }
+
+    /**
+     * 9. Copiar role a otras empresas.
+     */
+    public function copy(Request $request){
+        $validator = $this->validator($request->all());
+        if($validator->fails()){
+            return redirect('admin/roles/'.$request->role_id.'/edit')
+                ->withErrors($validator)
+                ->withInput();
+        }  
+
+        $main_role = DB::table('roles')->where('id', $request->role_id)->first();
+
+        $permissions = DB::table('role_has_permissions')
+        ->where('role_id', $request->role_id)
+        ->pluck('permission_id')
+        ->toArray();
+
+        foreach($request->companies as $co){
+            //Creamos el rol:
+            $parts = explode('/', $main_role->name);
+            $role = Company::saveCompanyRole($parts[1], $co, $main_role->description); 
+
+            foreach($permissions as $p){
+                $role->givePermissionTo($p);            
+            }
+        }
+
+        $msg = trans('textos.roles_copiados');
+        return redirect()->route('roles.edit', $main_role->id)->with(compact('msg'));
     }
 }
