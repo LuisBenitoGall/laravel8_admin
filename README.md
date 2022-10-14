@@ -153,6 +153,14 @@ SET FOREIGN_KEY_CHECKS = 1;
 SELECT COUNT(*) from information_schema.tables where TABLE_TYPE = 'BASE TABLE' and table_schema = 'admin8_db';
 
 
+- Usuarios ADN:
+select u.id, u.name, u.surname, u.isAdmin, u.status from users u
+inner join user_companies uc
+on u.id = uc.user_id
+where uc.company_id in (3,4,8,202,227,275)
+group by u.id
+
+
 ## GUÍA RÁPIDA DE CONFIGURACIÓN INICIAL: se enumeran los pasos a seguir para una correcta configuración de la aplicación en su puesta en marcha.
 1. Acceder a la aplicación con las credenciales proporcionadas.
 2. Menú: Empresas / Empresas -> Editar empresa. Completar los datos de la empresa. Es necesario introducir un NIF válido.

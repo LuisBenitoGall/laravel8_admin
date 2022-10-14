@@ -19145,7 +19145,7 @@ ul.nav-second-level {
   align-items: inherit;
 }
 .navbar.navbar-static-top .btn-top-links {
-  display: none;
+  display: none !important;
   position: absolute;
   right: 20px;
   top: 0;
