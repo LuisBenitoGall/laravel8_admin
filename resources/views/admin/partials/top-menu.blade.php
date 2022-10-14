@@ -543,17 +543,16 @@
                 {{-- Administrador: --}}
                 <li class="dropdown">
                     @php
-                        $avatar= null;
-                        if (!Auth::user()->images->isEmpty()){
+                    $avatar= null;
+                    if(!Auth::user()->images->isEmpty()){
                         $avatar = Auth::user()->images()->first();
-                        }
-
+                    }
                     @endphp
 
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="false"
                        aria-expanded="false">
                         <img class="rounded-circle avatar"
-                             src=" {{ !is_null($avatar)  ? asset('img/users/'.$avatar->images) : asset('img/users/user.png') }}"
+                             src=" {{ !is_null($avatar)  ? asset('img/users/'.$avatar->image) : asset('img/users/user.png') }}"
                              alt="{{ Auth::user()->name }}"/>
                     </a>
 
