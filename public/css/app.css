@@ -19145,11 +19145,7 @@ ul.nav-second-level {
   align-items: inherit;
 }
 .navbar.navbar-static-top .btn-top-links {
-  display: none !important;
-  position: absolute;
-  right: 20px;
-  top: 0;
-  z-index: 1000;
+  display: none;
 }
 
 .navbar-static-top .dropdown-menu {
@@ -30652,6 +30648,13 @@ ul li.rev .fa {
 
   .navbar.navbar-static-top .btn-top-links {
     display: block;
+    position: absolute;
+    right: 20px;
+    top: 0;
+    z-index: 1000;
+  }
+  .navbar.navbar-static-top .dropdown-menu {
+    right: -40px;
   }
 
   .nav.navbar-top-links {
