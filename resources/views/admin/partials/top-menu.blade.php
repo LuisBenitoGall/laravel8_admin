@@ -46,7 +46,7 @@
             </div>
 
             {{-- Botón menú top responsive --}}
-            <a class="btn-top-links minimalize-styl-2 btn btn-warning no-spinner" href="#">
+            <a class="minimalize-styl-2 btn btn-warning no-spinner btn-top-links" href="#">
                 <i class="fa fa-bars"></i>
             </a>
 
