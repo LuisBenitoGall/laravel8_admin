@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Item extends Model{
     /**
      * 1. Calcular importe de item.
+     * 2. Ordenar items presupuestos de la migración desde Admin6.
      */
      
     use HasFactory;
@@ -52,4 +53,34 @@ class Item extends Model{
             return 0;
         }
     }
+
+    /**
+     * 2. Ordenar items presupuestos de la migración desde Admin6.
+     */
+    public static function orderBudgetItems(){
+        $data = Item::select('id', 'order_id', 'budget_form_block_id', 'budget_order')
+        ->orderBy('order_id', 'ASC')
+        ->orderBy('budget_form_block_id', 'ASC')
+        ->get();
+
+        $prev_order = false;
+        $prev_block = false;
+        $i = 1;
+
+        foreach($data as $r){
+            $prev_order = $prev_order && $prev_order == $r->order_id? $prev_order:$r->order_id;
+
+            if($prev_block && $prev_block == $r->budget_form_block_id){
+                $prev_block = $prev_block;  
+                $i++; 
+            }else{
+                $prev_block = $r->budget_form_block_id;
+                $i = 1;
+            }
+
+            $r->budget_order = $i;
+            $r->save();
+        }
+    }
+
 }
