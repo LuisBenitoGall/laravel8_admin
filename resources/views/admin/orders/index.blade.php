@@ -53,8 +53,8 @@
 @include('admin.orders.partials.form-filter')
 
 @if($customer_id || $provider_id)
-	<input type="hidden" id="myCustomer" value="@if($customer){{ $customer->id }}@endif">
-	<input type="hidden" id="myProvider" value="@if($provider){{ $provider->id }}@endif">
+	<input type="hidden" id="myCustomer" value="{{ $customer_id }}">
+	<input type="hidden" id="myProvider" value="{{ $provider_id }}">
 	<input type="hidden" id="myOwner" value="@if($owner){{ $owner }}@else{{ 0 }}@endif">
 	<input type="hidden" id="myYear" value="{{ $year }}">
 	<input type="hidden" id="myStatus" value="@if($status){{ $status }}@else{{ 0 }}@endif">

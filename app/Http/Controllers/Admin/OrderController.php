@@ -346,6 +346,9 @@ class OrderController extends Controller{
 
         $company_field = $provider == session('currentCompany') || $customer == 'all'? 'customer':'provider';
 
+
+        //dd($customer, $provider,$company_field);
+
         //Obtenemos pedidos simples, no agrupaciones:
         $data = Order::select('orders.id', 'orders.is_budget', 'orders.budget_num', 'orders.discount', 'orders.order_parent', 'orders.name', 'orders.order_num', 'orders.order_old_num', 'orders.estimated_delivery_date', 'orders.purchase_num', 'orders.purchase_old_num', 'orders.delivery_date', 'orders.order_status', 'orders.invoiced', 'orders.created_at', 'companies.name AS company', 'business_areas.name AS businessArea', 'cost_centers.name AS costCenter')
         ->join('companies', 'orders.'.$company_field.'_id', '=', 'companies.id')
