@@ -371,10 +371,25 @@ class OrderController extends Controller{
             }
         })
         ->orderBy('orders.created_at', 'DESC');
+        //->orderBy('orders.id', 'ASC')
+        //->get();
         //Filtro status:
         /*$query->when($status && $status != '', function($q) use($status){
             return $q->where('orders.status', $status);
         });*/
+
+        // $arrIds = [];
+        // foreach($data as $r){
+        //     array_push($arrIds, $r->id);
+        //     //$arrIds .= $r->id.',';
+        // }
+
+        // dd($arrIds);
+
+
+
+
+
 
         $estados = helpers::orderStatus();
 
