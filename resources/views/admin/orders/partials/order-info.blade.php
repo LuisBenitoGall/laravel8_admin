@@ -140,7 +140,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 		        	</a>
 	        	</div>
 	        @endif
-		</div>
+		</div>		
 	</div>
 
 	<div class="form-group row">
@@ -441,7 +441,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 						<x-select name="provider_manager_id" class="select2" label="manager_selec" :options="$provider_managers" value="{{ $order->provider_manager_id }}"/>
 					@else
 						@php
-						$provider_manager_id = $order->provider_manager_id? $provider_managers[$order->provider_manager_id]:'';
+						$provider_manager_id = $order->provider_manager_id && isset($provider_managers[$order->provider_manager_id])? $provider_managers[$order->provider_manager_id]:'';
 						@endphp
 						<x-input type="text" name="" value="{{ $provider_manager_id }}" autocomplete="off" maxlength="255" disabled/>	
 					@endif
@@ -495,7 +495,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 		</div>
 	</div>
 	<br>
-	
+
 	{{-- Opciones proveedor --}}
 	@if($order->provider_id == session('currentCompany'))
 		{{-- Mostrar observaciones del cliente al proveedor --}}
@@ -537,3 +537,4 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 
 	<x-btn-submit name="submit_update" label="{{ trans('textos.guardar') }}"/>
 </form>
+
