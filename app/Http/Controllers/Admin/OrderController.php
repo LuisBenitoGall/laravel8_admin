@@ -219,9 +219,6 @@ class OrderController extends Controller{
             return redirect()->route('orders.index');
         }
 
-        //Ordenación items de presupuestos. Ejecutar 1 vez y eliminar el código.
-        Item::orderBudgetItems();
-
         if($provider_id == session('currentCompany') || $customer_id == 'all'){
             $ordersType = 'ventas';
         }elseif($customer_id == session('currentCompany') || $provider_id == 'all'){
