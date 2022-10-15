@@ -59,6 +59,7 @@ class Item extends Model{
      */
     public static function orderBudgetItems(){
         $data = Item::select('id', 'order_id', 'budget_form_block_id', 'budget_order')
+        ->whereNull('budget_order')
         ->orderBy('order_id', 'ASC')
         ->orderBy('budget_form_block_id', 'ASC')
         ->get();
