@@ -205,7 +205,7 @@ $my_deposit_lines = [];
 		</tfoot>
 	</table>
 
-	@include('pdf.partials.budget-template')
+	@include('pdf.partials.conditions-template')
 
 	@include('pdf.partials.footer')
 </main>

@@ -1742,16 +1742,14 @@ class OrderController extends Controller{
         $provider = Company::find($order->provider_id);
         $customer = Company::find($order->customer_id);
 
-        $template = $order->template? unserialize($order->template):false;
+        $template = $order->order_template? unserialize($order->order_template):false;
 
         //Customizando CIF, ponemos espacio en blanco:
         //$company->nif = helpers::setCif($company->nif);
 
         $owner = User::select('name', 'surname')->find($order->provider_manager_id);
 
-        
-
-        $fechaLiteral = Helpers::fechaLiteral($order->created_at, session()->get('locale'));
+        $fechaLiteral = helpers::fechaLiteral($order->created_at, session()->get('locale'));
 
         $company_settings = session('companySettings');
 

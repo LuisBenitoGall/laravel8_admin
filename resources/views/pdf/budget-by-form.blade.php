@@ -223,7 +223,7 @@ $discount_in_lines = false;
 		</table>
 	@endif
 
-	@include('pdf.partials.budget-template')
+	@include('pdf.partials.conditions-template')
 
 	@include('pdf.partials.footer')
 </main>
