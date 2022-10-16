@@ -2723,5 +2723,6 @@ return [
 	'correspondencia_ref_prov_texto' => 'Permite fijar la referencia del proveedor con nuestra referencia interna.',
 	'correspondencia_ref_saved' => 'La correspondencia de referencia se ha guardado correctamente',
 	'correspondencia_ref_texto' => 'La referencia del proveedor corresponde a nuestro producto',
+	'ct' => 'CT',
 
 ];

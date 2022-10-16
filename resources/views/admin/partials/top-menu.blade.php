@@ -229,7 +229,7 @@
                                 </a>
 
                                 @if($timetable_items->count())
-                                    <ul class="dropdown-menu dropdown-alerts" @if(!$agent->isDesktop() && !in_array($ip, $setted_ips)) style="right: -100px;" @endif>
+                                    <ul class="dropdown-menu dropdown-alerts" @if(!$agent->isDesktop() && !in_array($ip, $setted_ips)) style="right: -150px;" @endif>
                                         <li class="dm-header">
                                             {!! ucfirst(trans('textos.conceptos_horarios')) !!}
                                         </li>

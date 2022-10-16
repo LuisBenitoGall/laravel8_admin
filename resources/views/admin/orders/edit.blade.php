@@ -482,7 +482,7 @@ if($order->provider_team){
 
 					{{-- Proveedor --}}
 					@include('admin.orders.partials.data-provider')
-					
+
 					{{-- Fecha alta --}}
 					<label class="mr-5">
 						{!! ucfirst(trans('textos.fecha_alta')) !!}: 
@@ -495,7 +495,7 @@ if($order->provider_team){
 					<label class="mr-5">
 						{!! ucfirst(trans('textos.ultima_edicion')) !!}: 
 						<b>
-							{{ $order->updated_at->format($languages[session()->get('locale')][4].' H:i:s') }}
+							@if($order->updated_at) {{ $order->updated_at->format($languages[session()->get('locale')][4].' H:i:s') }} @endif
 						</b>
 					</label>
 
@@ -655,10 +655,35 @@ if($order->provider_team){
 						</div>
 					@endif
 				</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 			</div>
 		</div>
 	</div>
-</div>
+</div>		
 
 {{-- HTML para clonar y añadir a previsions --}}
 <div class="clones" style="display: none;">
