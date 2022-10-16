@@ -36,51 +36,59 @@
 		<table class="tblHeader" id="subheader">
 			<tbody>
 				<tr>
-					<th class="tbl-header-left">
-						<h1>{{ $left_h1 }}</h1>	
+					{{-- Template facturas --}}
+					@if(isset($invoice))
+						@include('pdf.partials.invoice-info')
 
-						{{-- Fecha --}}
-						<p style="display: block; font-size: 11px; font-weight: normal; line-height: 110%; margin: 0 0 5px 0; width: 100%;">
-							<span class="item-left" style="display: inline-block; vertical-align: top; width: 35%;"><b>{{ strtoupper(trans('textos.fecha')) }}:</b></span> 
-							<span class="item-left" style="display: inline-block; vertical-align: top; width: 64%;">{{ $fechaLiteral }}</span>
-						</p>
+					@else
+						<th class="tbl-header-left">
+							<h1>{{ $left_h1 }}</h1>	
 
-						{{-- Título --}}
-						@if($left_title)
+							{{-- Fecha --}}
 							<p style="display: block; font-size: 11px; font-weight: normal; line-height: 110%; margin: 0 0 5px 0; width: 100%;">
-								<span class="item-left" style="display: inline-block; vertical-align: top; width: 35%;"><b>{{ strtoupper(trans('textos.titulo')) }}:</b></span> 
-								<span class="item-left" style="display: inline-block; vertical-align: top; width: 64%;">{{ $left_title }}</span>
-							</p>	
-						@endif
+								<span class="item-left" style="display: inline-block; vertical-align: top; width: 35%;"><b>{{ strtoupper(trans('textos.fecha')) }}:</b></span> 
+								<span class="item-left" style="display: inline-block; vertical-align: top; width: 64%;">{{ $fechaLiteral }}</span>
+							</p>
 
-						{{-- Responsable proveedor --}}
-						@if($left_manager)
-							<p style="display: block; font-size: 11px; font-weight: normal; line-height: 110%; margin: 0 0 5px 0; width: 100%;">
-								<span class="item-left" style="display: inline-block; vertical-align: top; width: 35%;"><b>{{ strtoupper(trans('textos.responsable')) }}:</b></span> 
-								<span class="item-left" style="display: inline-block; vertical-align: top; width: 64%;">{{ $left_manager }}</span>
-							</p>	
-						@endif
-					</th>
-
-					<th class="tbl-header-right">
-						<h1>{{ $right_h1 }}</h1>
-
-						<p style="display: block; font-size: 11px; font-weight: normal; line-height: 120%; margin: 0 0 5px 0;">
-							<strong>{{ $customer->name }}</strong>
-						</p>
-
-						<p style="display: block; font-size: 11px; font-weight: normal; line-height: 120%; margin: 0 0 5px 0;">
-							@if($customer_workplace)
-								{{ $customer_workplace->address }}<br>
-								{{ $customer_workplace->cp }} {{ $customer_workplace->Town }}<br>
+							{{-- Título --}}
+							@if($left_title)
+								<p style="display: block; font-size: 11px; font-weight: normal; line-height: 110%; margin: 0 0 5px 0; width: 100%;">
+									<span class="item-left" style="display: inline-block; vertical-align: top; width: 35%;"><b>{{ strtoupper(trans('textos.titulo')) }}:</b></span> 
+									<span class="item-left" style="display: inline-block; vertical-align: top; width: 64%;">{{ $left_title }}</span>
+								</p>	
 							@endif
 
-							{{ $customer->nif }}<br>
-							{{ $right_manager }}
-						</p>
-					</th>
+							{{-- Responsable proveedor --}}
+							@if($left_manager)
+								<p style="display: block; font-size: 11px; font-weight: normal; line-height: 110%; margin: 0 0 5px 0; width: 100%;">
+									<span class="item-left" style="display: inline-block; vertical-align: top; width: 35%;"><b>{{ strtoupper(trans('textos.responsable')) }}:</b></span> 
+									<span class="item-left" style="display: inline-block; vertical-align: top; width: 64%;">{{ $left_manager }}</span>
+								</p>	
+							@endif
+						</th>
+
+						<th class="tbl-header-right">
+							<h1>{{ $right_h1 }}</h1>
+
+							<p style="display: block; font-size: 11px; font-weight: normal; line-height: 120%; margin: 0 0 5px 0;">
+								<strong>{{ $customer->name }}</strong>
+							</p>
+
+							<p style="display: block; font-size: 11px; font-weight: normal; line-height: 120%; margin: 0 0 5px 0;">
+								@if($customer_workplace)
+									{{ $customer_workplace->address }}<br>
+									{{ $customer_workplace->cp }} {{ $customer_workplace->Town }}<br>
+								@endif
+
+								{{ $customer->nif }}<br>
+								{{ $right_manager }}
+							</p>
+						</th>
+					@endif
 				</tr>
 			</tbody>
 		</table>
 	@endif
+
+
 

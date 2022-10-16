@@ -204,6 +204,7 @@ var txtPedidoFacturado = "{!! ucfirst(trans("textos.pedido_facturado")) !!}";
 var txtPedidoGrupoConfirmEliminar = "{!! ucfirst(trans("textos.pedido_confirm_eliminar_grupo")) !!}";
 var txtPedidoItemConfirmEliminar = "{!! ucfirst(trans("textos.pedido_item_confirm_eliminar")) !!}";
 var txtPedidoOnOff = "{!! ucfirst(trans("textos.pedido_on_off")) !!}";
+var txtPedidoSelec = "{!! ucfirst(trans("textos.pedido_selec")) !!}";
 var txtPedidoSinFacturar = "{!! ucfirst(trans("textos.pedido_sin_facturar")) !!}";
 var txtPendiente = "{!! ucfirst(trans("textos.pendiente")) !!}";
 var txtPendienteValidar = "{!! ucfirst(trans("textos.pendiente_validar")) !!}";

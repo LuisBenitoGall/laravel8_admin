@@ -61,19 +61,19 @@
 						{{-- Importe neto --}}
 						<label for="amount" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.importe_neto')) !!}</label>
 						<div class="col-lg-2">
-							<x-input type="text" name="amount" class="text-right set-decimals" autocomplete="off" maxlength="15" group="right" groupvalue="{{ $currency->symbol }}"/>
+							<x-input type="text" name="amount" id="invoiceAmount" class="text-right set-decimals" autocomplete="off" maxlength="15" group="right" groupvalue="{{ $currency->symbol }}"/>
 						</div>
 
 						{{-- IVA --}}
 						<label for="iva" class="col-lg-2 col-form-label">IVA</label>
 						<div class="col-lg-2">
-							<x-input type="text" name="iva" class="text-right set-decimals" autocomplete="off" maxlength="15" group="right" groupvalue="%"/>
+							<x-input type="text" name="iva" id="invoiceIva" class="text-right set-decimals" autocomplete="off" maxlength="15" group="right" groupvalue="%" value="{{ config('constants.IVA_DEFAULT_') }}"/>
 						</div>
 
 						{{-- Importe total --}}
 						<label for="amount_with_iva" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.importe_total')) !!}</label>
 						<div class="col-lg-2">
-							<x-input type="text" name="amount_with_iva" class="text-right set-decimals" autocomplete="off" maxlength="15" group="right" groupvalue="{{ $currency->symbol }}"/>
+							<x-input type="text" name="amount_with_iva" id="invoiceTotalAmount" class="text-right set-decimals" autocomplete="off" maxlength="15" group="right" groupvalue="{{ $currency->symbol }}"/>
 						</div>
 					</div>
 
@@ -103,9 +103,9 @@
 
 					<div class="form-group row">
 						{{-- Observaciones --}}
-						<label for="observations" class="col-md-2 col-form-label">{!! ucfirst(trans('textos.observaciones')) !!}</label>
+						<label for="customer_observations" class="col-md-2 col-form-label">{!! ucfirst(trans('textos.observaciones')) !!}</label>
 						<div class="col-md-10">
-							<x-input-textarea name="observations" class="editor"/>
+							<x-input-textarea name="customer_observations" class="editor"/>
 						</div>
 					</div>					
 
@@ -128,21 +128,37 @@ $(function(){
         $('#town_id').html('');
         $('#expenseProvider option:selected').each(function (){
             var id = event.target.value;	
+            $("#orderId").empty();
 
             if (id == null || id == 0) {
-                $('#providerId').attr('disabled', 'disabled');
+                $('#orderId').attr('disabled', 'disabled');
             }else{
-                $('#providerId').removeAttr('disabled');
-	            $.get("admin/orders/" + id + "/about-providers", function (response, state) {
-	                $("#provider_id").append('<option value="">' + txtPedidoSelec + '</option>');
-	                for (i = 0; i < response.length; i++){
-                    	$("#providerId").append('<option value="' + response[i].id + '">' + response[i].name + '</option>');
-	                }
+                $('#orderId').removeAttr('disabled');
+	            $.get("/admin/orders/" + id + "/orders-about-providers", function (response, state){
+	            	if(response.length > 0){
+		                $("#orderId").append('<option value="">' + txtPedidoSelec + '</option>');
+		                for (i = 0; i < response.length; i++){
+		                	var option = response[i].purchase_num? response[i].purchase_num:(response[i].purchase_old_num? response[i].purchase_old_num:'');
+		                	option = option+' - '+response[i].name;
+	                    	$("#orderId").append('<option value="' + response[i].id + '">' + option + '</option>');
+		                }
+		            }else{
+		            	$('#orderId').attr('disabled', 'disabled');		
+		            }
 	            });
 	        }
         });
     });
 
+    //Cálculo total factura:
+    $('#invoiceAmount, #invoiceIva').on('change', function(){
+    	var amount = $('#invoiceAmount').val();
+    	var iva = $('#invoiceIva').val();
+
+    	percent = (amount * iva) / 100;
+    	var total = parseFloat(amount) + parseFloat(percent);
+    	$('#invoiceTotalAmount').val(total.toFixed(2));
+    });
 });
 </script>
 @endpush

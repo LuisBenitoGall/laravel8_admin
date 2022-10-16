@@ -1870,8 +1870,16 @@ class OrderController extends Controller{
      */
     public function aboutProviders(Request $request, $provider_id){
         if($request->ajax()){ 
-            //$data = Order::
+            $data = Order::select('id', 'purchase_num', 'purchase_old_num', 'name')
+            ->where('is_order', 1)
+            ->where('provider_id', $provider_id)
+            ->where('customer_id', session('currentCompany'))
+            ->where('invoiced', false)
+            ->orderBy('purchase_num')
+            ->orderBy('purchase_old_num')
+            ->get();
 
+            return response()->json($data);
         }     
     }
     
