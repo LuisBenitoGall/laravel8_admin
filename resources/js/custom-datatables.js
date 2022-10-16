@@ -3349,22 +3349,22 @@ $(document).ready(function(){
         var currency = $('#dtCurrency').val();
 
         //Filters:
-        // $('#tblOrdersControlPanelSales thead tr').clone(true).appendTo('#tblOrdersControlPanelSales thead');
-        // $('#tblOrdersControlPanelSales thead tr:eq(1) th').each(function(i){
-        //     var title = $(this).text(); 
+        $('#tblOrdersControlPanelSales thead tr').clone(true).appendTo('#tblOrdersControlPanelSales thead');
+        $('#tblOrdersControlPanelSales thead tr:eq(1) th').each(function(i){
+            var title = $(this).text(); 
 
-        //     //Filtros de texto, salvo para las columnas con filtro por select:
-        //     $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
+            //Filtros de texto, salvo para las columnas con filtro por select:
+            $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
      
-        //     $('input', this).on('keyup change', function(){
-        //         if(tableOrdersCPSales.column(i).search() !== this.value){
-        //             tableOrdersCPSales
-        //                 .column(i)
-        //                 .search(this.value)
-        //                 .draw();
-        //         }
-        //     });
-        // });
+            $('input', this).on('keyup change', function(){
+                if(tableOrdersCPSales.column(i).search() !== this.value){
+                    tableOrdersCPSales
+                        .column(i)
+                        .search(this.value)
+                        .draw();
+                }
+            });
+        });
         
         var tableOrdersCPSales = $('#tblOrdersControlPanelSales').DataTable({
             order: [[ 0, "desc" ]],

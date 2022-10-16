@@ -43,16 +43,17 @@ $discount_in_lines = false;
 				//Sólo items con $print == 1
 				if($its->print == 1){
 					//Buscando el bloque al que pertenece el item:
-					if($its->item_id == 1){
+					if($its->budget_form_item_id == 1){
 						//$p = explode('|', $its->free_field);
 						//$block_id = $p[0];	
-						$block_id = $its->block_id;
+						$block_id = $its->budget_form_block_id;
 					}else{
 						$block_id = $its->recid;
 					}
 
 					//Si el item pertenece al bloque:
 					if($block->id == $block_id){
+						//dd('entra en bloque');
 						$htmlItems .= '<tr>';	
 							//Item:
 							$concept = $its->concept? $its->concept:$its->name;
@@ -210,6 +211,16 @@ $discount_in_lines = false;
 
 		{!! $bloques !!}
 
+		{{-- Pie de tabla: --}}
+		<table class="tblBody" style="margin-top: 0;">
+			<tfoot>
+				<tr>
+					<td style="text-align: right; width: 390px;">{{ trans('textos.total') }}</td>
+					<td style="text-align: right; width: 67px">{{ $totalAmount }}{{ $currency->symbol }}</td>
+					<td style="">&nbsp;
+				</tr>
+			</tfoot>
+		</table>
 	@endif
 
 	@include('pdf.partials.budget-template')
