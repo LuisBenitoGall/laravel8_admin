@@ -31,6 +31,8 @@ use App\Models\InvoiceSettings;
 use App\Models\Item;
 use App\Models\Order;
 use App\Models\OrderPrevisions;
+use App\Models\Phone;
+use App\Models\User;
 use App\Models\Workplace;
 
 class InvoiceController extends Controller{
@@ -337,9 +339,10 @@ class InvoiceController extends Controller{
         $currency = $this->co_currency;        
 
         return DataTables::of($data) 
-        ->addColumn('invoice_num', function($row){
+        ->addColumn('invoice_num', function($row) use($environment){
+            $route = $environment == 'sales'? 'edit':'edit-purchase';
             $num = $row->invoice_num? $row->invoice_num:($row->invoice_old_num? $row->invoice_old_num:$row->id);
-            return '<a href="'.route('invoices.edit', $row).'">'.$num.'</a>'; 
+            return '<a href="'.route('invoices.'.$route, $row).'">'.$num.'</a>'; 
         })
         ->addColumn('company', function($row) use($environment){
             return $row->name;
@@ -754,6 +757,7 @@ class InvoiceController extends Controller{
 
         //Creamos factura:
         $inv = new Invoice();
+        $inv->invoice_old_num = $request->invoice_old_num;
         $inv->order_id = $order->id;
         $inv->amount = $request->amount;
         $inv->with_iva = $request->iva;
@@ -761,12 +765,13 @@ class InvoiceController extends Controller{
         $inv->fiscal_date = $fiscal_date;
         $inv->expiration_date = $expiration_date;
         $inv->user_id = Auth::user()->id;
-        $inv->provider_observations = $request->provider_observations;
-        $inv->status = $request->status;   
+        $inv->customer_observations = $request->customer_observations;
+        $inv->status = $request->status; 
+        $inv->blocked = 1;      //Por defecto bloqueamos las facturas así generadas.  
         $inv->save();
 
         $msg = trans('textos.factura_creada');
-        return redirect()->route('invoices.edit', [$inv->id, false])->with(compact('msg'));       
+        return redirect()->route('invoices.edit-purchase', [$inv->id, false])->with(compact('msg'));       
     }
 
     /**
@@ -1103,14 +1108,12 @@ class InvoiceController extends Controller{
         ->where('orders.id', $invoice->order_id)
         ->first();
 
-        //dd($invoice_order);
-
         $items = Item::where('order_id', $invoice_order->id)
         ->orderBy('concept', 'ASC')
         ->get();
 
-
         //Anticipos:
+        //16/10/2022: revisar el campo order_id de las facturas migradas, pues es posible que no esté coincidiendo correctamente.
         $advance_invoices = Invoice::select('id', 'invoice_num', 'amount', 'with_iva', 'amount_with_iva')
         ->where('order_id', $invoice_order->id)
         ->get();
@@ -1122,7 +1125,7 @@ class InvoiceController extends Controller{
         $provider->nif = helpers::setCif($provider->nif);
 
         //Cliente:
-        $customer = Company::find($invoice->customer_id);
+        $customer = Company::find($invoice_order->customer_id);
 
         $template = $invoice->template? unserialize($invoice->template):false;
 
@@ -1130,13 +1133,42 @@ class InvoiceController extends Controller{
 
         $company_settings = session('companySettings');
 
+        //Sede proveedor:
         $provider_workplace = false;
         $provider_phones = false;
+        if($invoice_order->provider_workplace_id){
+            $provider_workplace = Workplace::select('workplaces.*', 'towns.name AS Town')
+            ->join('towns', 'workplaces.town_id', '=', 'towns.id')
+            ->where('workplaces.id', $invoice_order->provider_workplace_id)
+            ->first();  
 
+            $provider_phones = Phone::select('phone_number')
+            ->where('workplace_id', $provider_workplace->id)
+            ->get();
+        }
 
-
+        //Sede cliente:
         $customer_workplace = false;
-        $customer_responsible = false;
+        if($invoice_order->customer_workplace_id){
+            $customer_workplace = Workplace::select('workplaces.*', 'towns.name AS Town')
+            ->join('towns', 'workplaces.town_id', '=', 'towns.id')
+            ->where('workplaces.id', $invoice_order->customer_workplace_id)
+            ->first();  
+        }
+
+        //Responsable cliente:
+        $customer_manager = false;
+        if($invoice_order->customer_team){
+            $responsibles = unserialize($invoice_order->customer_team);
+            
+            foreach($responsibles as $rsp){
+                if(substr($rsp, -1) == '|'){
+                    $x = trim($rsp, '|');
+                    $customer_manager = User::select('name', 'surname')->find($x);  
+                    break;
+                }
+            }
+        }
 
         //Moneda:
         $currency = $this->co_currency;
@@ -1156,7 +1188,7 @@ class InvoiceController extends Controller{
         //Template de factura. Se pasa por variable por si se incluyen más templates.
         $invoice_template = 'pdf/invoice';
 
-        $pdf = PDF::loadView($invoice_template, compact('invoice', 'invoice_order', 'items', 'advance_invoices', 'provider', 'customer', 'template', 'fechaLiteral', 'company_settings', 'provider_workplace', 'provider_phones', 'customer_workplace', 'customer_responsible', 'currency'));
+        $pdf = PDF::loadView($invoice_template, compact('invoice', 'invoice_order', 'items', 'advance_invoices', 'provider', 'customer', 'template', 'fechaLiteral', 'company_settings', 'provider_workplace', 'provider_phones', 'customer_workplace', 'customer_manager', 'currency'));
         return $pdf->download($invoice_name_pdf.'.pdf'); 
     }
 

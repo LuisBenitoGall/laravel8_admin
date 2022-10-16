@@ -179,12 +179,12 @@
 		bottom: 0px;
 		height: auto;
 		left: 0;
-		padding: 10px 0;
+		padding: 10px 25px;
 		position: absolute;
 		right: 0;
 	}
 		footer .tblFooter{
-			margin: 0 25px;
+			margin: 0;
 		}
 			footer .tblFooter thead th{
 				color: #111;
@@ -206,7 +206,7 @@
 		footer .tblFoot{
 			color: #FFF;
 			font-size: .7rem;
-			margin: 0 25px;
+			margin: 0;
 			padding: 20px;
 		}
 			footer .tblFoot tbody td{
