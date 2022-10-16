@@ -27,7 +27,12 @@ $order_num = $order->order_num? $order->order_num:$order->id;
 	<div class="col-12 mb-3">						
 		<h3>
 			{!! trans('textos.facturas_pedido') !!} <u class="mr-5">{{ $order_num }}</u>
-			{!! ucfirst(trans('textos.cliente')) !!}: <u>{{ $customer->name }}</u>
+
+			@if($provider->id == session('currentCompany'))
+				{!! ucfirst(trans('textos.cliente')) !!}: <u>{{ $customer->name }}</u>
+			@else
+				{!! ucfirst(trans('textos.proveedor')) !!}: <u>{{ $provider->name }}</u>
+			@endif
 		</h3>	
 	</div>
 
@@ -63,7 +68,10 @@ $order_num = $order->order_num? $order->order_num:$order->id;
 
 						<td class="text-right">
 							@can('invoices.edit')
-								<a target="_blank" href="{{ route('invoices.edit', $row) }}">{{ $invoice_num }}</a>
+								@php
+								$route = $provider->id == session('currentCompany')? 'edit':'edit-purchase';
+								@endphp
+								<a target="_blank" href="{{ route('invoices.'.$route, $row) }}">{{ $invoice_num }}</a>
 							@else
 								{{ $invoice_num }}
 							@endcan
@@ -106,7 +114,7 @@ $order_num = $order->order_num? $order->order_num:$order->id;
 
 							{{-- Editar --}}
 							@can('invoices.edit')
-								<a target="_blank" class="btn btn-info btn-xs" href="{{ route('invoices.edit', $row) }}" rel="tooltip" title="{!! ucfirst(trans('textos.factura_editar')) !!}">
+								<a target="_blank" class="btn btn-info btn-xs" href="{{ route('invoices.'.$route, $row) }}" rel="tooltip" title="{!! ucfirst(trans('textos.factura_editar')) !!}">
 									<i class="fa fa-edit"></i>
 								</a>
 							@endcan
@@ -123,18 +131,24 @@ $order_num = $order->order_num? $order->order_num:$order->id;
 	                        	@endif
 							@endcan
 
-							{{-- Bloquear factura --}}
-							@if(!$row->blocked)
-								@can('invoices.edit')
-									<a href="{{ route('invoices.block', [$row, 'by-order']) }}" class="btn btn-xs btn-warning close-animation btn-confirm" data-msg="{{ trans('textos.factura_bloquear_confirm') }}" rel="tooltip" title="{!! ucfirst(trans('textos.factura_bloquear')) !!}">
-										<i class="fa fa-unlock"></i>
-									</a>
-								@endcan
-							{{-- Factura bloquedada --}}
-							@else
-								<span class="btn btn-xs btn-danger" rel="tooltip" title="{!! ucfirst(trans('textos.factura_bloqueada')) !!}">
-									<i class="fa fa-lock"></i>
-								</span>		
+							{{-- Bloquear factura - condiciones: 
+								1. Sólo proveedor.
+								2. Factura no bloqueada.
+								3. Permisos de edición de factura.
+							--}}
+							@if($provider->id == session('currentCompany'))
+								@if(!$row->blocked)
+									@can('invoices.edit')
+										<a href="{{ route('invoices.block', [$row, 'by-order']) }}" class="btn btn-xs btn-warning close-animation btn-confirm" data-msg="{{ trans('textos.factura_bloquear_confirm') }}" rel="tooltip" title="{!! ucfirst(trans('textos.factura_bloquear')) !!}">
+											<i class="fa fa-unlock"></i>
+										</a>
+									@endcan
+								{{-- Factura bloquedada --}}
+								@else
+									<span class="btn btn-xs btn-danger" rel="tooltip" title="{!! ucfirst(trans('textos.factura_bloqueada')) !!}">
+										<i class="fa fa-lock"></i>
+									</span>		
+								@endif
 							@endif
 						</td>
 					</tr>
@@ -168,22 +182,26 @@ $order_num = $order->order_num? $order->order_num:$order->id;
 					</td>
 				</tr>
 
-				{{-- Pendiente de facturar --}}
-				@php
-				$pendent_amount = $order_amount - $invoice_amount;
-				$class = $pendent_amount > 0? 'text-danger':'text-success';
-				@endphp
-				<tr>
-					<td class="text-right" colspan="3">
-						<b>{!! ucfirst(trans('textos.pendiente_facturar')) !!}</b>
-					</td>
-					<td class="text-right">
-						<span class="{{ $class }}">{{ round($pendent_amount, 2) }}{{ $currency->symbol }}</span>
-					</td>
-					<td colspan="2">
+				{{-- Pendiente de facturar - condiciones: 
+					1. Sólo proveedor:
+				--}}
+				@if($provider->id == session('currentCompany'))
+					@php
+					$pendent_amount = $order_amount - $invoice_amount;
+					$class = $pendent_amount > 0? 'text-danger':'text-success';
+					@endphp
+					<tr>
+						<td class="text-right" colspan="3">
+							<b>{!! ucfirst(trans('textos.pendiente_facturar')) !!}</b>
+						</td>
+						<td class="text-right">
+							<span class="{{ $class }}">{{ round($pendent_amount, 2) }}{{ $currency->symbol }}</span>
+						</td>
+						<td colspan="2">
 
-					</td>
-				</tr>
+						</td>
+					</tr>
+				@endif
 			</tfoot>
 		</table>
 	</div>
