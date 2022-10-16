@@ -755,6 +755,9 @@ class InvoiceController extends Controller{
         $fiscal_date = $request->fiscal_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->fiscal_date):$request->fiscal_date:NULL;
         $expiration_date = $request->expiration_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->expiration_date):$request->expiration_date:NULL;
 
+        //Subir documento.
+        $doc = $this->loadFile($request, 'invoices');
+
         //Creamos factura:
         $inv = new Invoice();
         $inv->invoice_old_num = $request->invoice_old_num;
@@ -766,6 +769,7 @@ class InvoiceController extends Controller{
         $inv->expiration_date = $expiration_date;
         $inv->user_id = Auth::user()->id;
         $inv->customer_observations = $request->customer_observations;
+        $inv->doc = $doc;
         $inv->status = $request->status; 
         $inv->blocked = 1;      //Por defecto bloqueamos las facturas así generadas.  
         $inv->save();
@@ -1353,8 +1357,8 @@ class InvoiceController extends Controller{
             'slug' => 'invoices'
         ]; 
 
-        $customer = Company::select('name')->where('id', $order->customer_id)->first();
-        $provider = Company::select('name')->where('id', $order->provider_id)->first();
+        $customer = Company::select('id', 'name')->where('id', $order->customer_id)->first();
+        $provider = Company::select('id', 'name')->where('id', $order->provider_id)->first();
 
         //Importe del pedido:
         if($order->bag_amount){
