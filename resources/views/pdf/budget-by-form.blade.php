@@ -215,7 +215,7 @@ $discount_in_lines = false;
 			<tfoot>
 				<tr>
 					<td style="text-align: right; width: 390px;">{{ trans('textos.total') }}</td>
-					<td style="text-align: right; width: 67px">{{ $totalAmount }}{{ $currency->symbol }}</td>
+					<td style="text-align: right; width: 67px">{{ round($totalAmount, 2) }}{{ $currency->symbol }}</td>
 					<td style="">&nbsp;
 				</tr>
 			</tfoot>

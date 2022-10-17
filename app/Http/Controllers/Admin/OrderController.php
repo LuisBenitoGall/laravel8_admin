@@ -1184,13 +1184,13 @@ class OrderController extends Controller{
         ->addColumn('amount', function($item) use($currency, $order_amount){
             $amount = '';
             if($item->price > 0){
-                $amount = helpers::itemAmount($item); 
-                return $amount.$currency->symbol;
-
-            }elseif(!$item->price && $item->calculated_by_percent > 0){
-                $amount = helpers::itemAmountPercentage($item->calculated_by_percent, $order_amount['amount_with_discount']);
-                return $amount.$currency->symbol;
-
+                if($item->calculated_by_percent > 0){
+                    $amount = helpers::itemAmountPercentage($item->calculated_by_percent, $order_amount['amount_with_discount']);
+                    return $amount.$currency->symbol.'<br><small>('.trans('textos.precio_porcentual').')</small>';
+                }else{
+                    $amount = helpers::itemAmount($item); 
+                    return $amount.$currency->symbol;
+                }            
             }else{
                 return trans('textos.precio_sin_definir');
             }              
@@ -1204,7 +1204,7 @@ class OrderController extends Controller{
         ->addColumn('acciones', function($item) use($estados, $order, $environment){
             return view('admin.orders.partials.dt-item-actions', compact('item', 'estados', 'order', 'environment'));    
         })
-        ->rawColumns(['observations'])
+        ->rawColumns(['amount', 'observations'])
         ->make(true);
     }
 
