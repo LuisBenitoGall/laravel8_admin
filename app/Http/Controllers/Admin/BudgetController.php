@@ -366,17 +366,18 @@ class BudgetController extends Controller{
             }
 
             //Importe de los items con cálculo porcentual:
-            if(count($byPercentItems) > 0){
-                //Importe del presupuesto:
-                $budget_amount = $order->itemsBudgetOrderAmount(false);
+            //17/10/22: revisar este punto. NO FUNCIONA.
+            // if(count($byPercentItems) > 0){
+            //     //Importe del presupuesto:
+            //     $budget_amount = $order->itemsBudgetOrderAmount(false);
 
-                foreach($byPercentItems as $row){
-                    $price = helpers::percent($budget_amount, $row->calculated_by_percent);
+            //     foreach($byPercentItems as $row){
+            //         $price = helpers::percent($budget_amount, $row->calculated_by_percent);
 
-                    $row->price = $price;
-                    $row->save();
-                }
-            }            
+            //         $row->price = $price;
+            //         $row->save();
+            //     }
+            // }            
         }
     }
 
