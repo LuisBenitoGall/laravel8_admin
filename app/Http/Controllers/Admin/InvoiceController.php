@@ -206,6 +206,8 @@ class InvoiceController extends Controller{
      * 1.1. Listado de facturas para DataTable.
      */
     public function getInvoicesBy(Request $request){
+        $currentCompany = session('currentCompany');
+
         //Si viene declarado el número de factura redirigimos:
         if($request->invoice_id){
             $invoiceId = $request->invoice_id;
@@ -218,10 +220,10 @@ class InvoiceController extends Controller{
                 ->orWhere('invoice_num', $invoiceId)
                 ->orWhere('invoice_old_num', $invoiceId);
             })
-            ->where(function($query1) use ($currentCompany){
-                $query1->where('customer_id', $currentCompany)
-                ->orWhere('provider_id', $currentCompany);
-            })
+            // ->where(function($query1) use ($currentCompany){
+            //     $query1->where('customer_id', $currentCompany)
+            //     ->orWhere('provider_id', $currentCompany);
+            // })
             ->first();
 
             if(!$invoice){
