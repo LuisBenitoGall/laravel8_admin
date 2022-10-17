@@ -1271,7 +1271,7 @@ class OrderController extends Controller{
         ->leftJoin('workplaces', 'orders.provider_workplace_id', '=', 'workplaces.id')
         ->where('orders.provider_id', session('currentCompany'))
         ->where('orders.is_order', 1)
-        ->where('orders.invoiced', 0)
+        //->where('orders.invoiced', 0)
         ->whereNull('orders.order_parent')
         ->whereNull('order_previsions.invoice_id')
         ->whereNull('order_previsions.deleted_at')
