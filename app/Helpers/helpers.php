@@ -2049,7 +2049,7 @@ class Helpers{
 	 */
 	public static function itemAmountPercentage($percentage, $amount){
 		if(is_numeric($percentage) && is_numeric($amount)){
-			$num = ($percentage * $amount) / 100;
+			$num = ($percentage * $amount);
 			return round($num, 2);
 		}else{
 			return '';

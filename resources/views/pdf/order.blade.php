@@ -198,7 +198,7 @@ $my_deposit_lines = [];
 					@endif
 				</td>
 				<td class="text-center">
-					{{ $total }}{{ $currency->symbol }}
+					{{ round($total, 2) }}{{ $currency->symbol }}
 				</td>
 				<td></td>
 			</tr>	
