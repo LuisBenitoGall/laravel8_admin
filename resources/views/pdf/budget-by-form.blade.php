@@ -43,7 +43,7 @@ $discount_in_lines = false;
 				//Sólo items con $print == 1
 				if($its->print == 1){
 					//Buscando el bloque al que pertenece el item:
-					if($its->budget_form_item_id == 1){
+					if($its->budget_form_item_id == 1 || !$its->budget_form_item_id){
 						//$p = explode('|', $its->free_field);
 						//$block_id = $p[0];	
 						$block_id = $its->budget_form_block_id;
@@ -53,7 +53,6 @@ $discount_in_lines = false;
 
 					//Si el item pertenece al bloque:
 					if($block->id == $block_id){
-						//dd('entra en bloque');
 						$htmlItems .= '<tr>';	
 							//Item:
 							$concept = $its->concept? $its->concept:$its->name;
