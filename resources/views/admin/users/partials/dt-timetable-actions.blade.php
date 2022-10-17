@@ -1,9 +1,9 @@
-@can('employees-timetable.edit')
-	{{-- Revisión --}}
-	<label class="custom-chk-rdb" rel="tooltip" title="{{ ucfirst(trans('textos.solicitar_revision')) }}">
-        <input type="checkbox" name="revision" @if($row['revision'] == 1) checked @endif><span class="chk chkRev" data-id="{{ $row['id'] }}"></span>
-    </label>
+{{-- Revisión --}}
+<label class="custom-chk-rdb" rel="tooltip" title="{{ ucfirst(trans('textos.solicitar_revision')) }}">
+    <input type="checkbox" name="revision" @if($row['revision'] == 1) checked @endif><span class="chk chkRev" data-id="{{ $row['id'] }}"></span>
+</label>
 
+@can('employees-timetable.edit')
 	{{-- Editar --}}
     @if($row['edit_timetable'])
     	<a href="#" class="btn btn-xs btn-info btnRegistroHorario" rel="tooltip" title="{{ ucfirst(trans('textos.registro_horario_editar')) }}" data-toggle="modal" data-target="#modal-edit-timetable" data-id="{{ $row['id'] }}" data-concepto="{{ $row['name'] }}" data-icono="{{ $row['icon'] }}" data-flag="{{ $row['flag'] }}">
