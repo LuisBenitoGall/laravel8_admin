@@ -93,7 +93,7 @@ class Order extends Model{
         $total_amount = 0;
         foreach($items as $row){
             //Omitimos los items que se calculan porcentualmente:
-            if(!$row->calculated_by_percent && $row->price > 0){
+            if(!$row->calculated_by_percent && $row->price != 0){
                 //Cálculo de importe de la línea:
                 $amount = helpers::itemAmount($row, $with_iva = false);
                 $total_amount = $total_amount + $amount;
