@@ -175,7 +175,7 @@
 
 		{{-- Charts --}}
 		<div class="col-12 col-lg-4 text-center" style="height: 10vh;">
-			<div class="chart" style="position: relative; height: 6vh; width: 13vw">
+			<div class="chart chart-mini" style="position: relative; height: 6vh; width: 13vw">
 				<canvas id="chartProjectPercent"></canvas>
 			</div>
 		</div>

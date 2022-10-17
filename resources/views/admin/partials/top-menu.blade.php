@@ -54,8 +54,8 @@
                 {{-- Control horario --}}
                 @if($setTimetable)
                     @php
-                        //Obtenemos conceptos horarios de la empresa.
-                        $timetable_items = App\Models\TimetableItems::where('company_id', session('currentCompany'))->get();
+                    //Obtenemos conceptos horarios de la empresa.
+                    $timetable_items = App\Models\TimetableItems::where('company_id', session('currentCompany'))->get();
                     @endphp
 
                     {{-- Condiciones:

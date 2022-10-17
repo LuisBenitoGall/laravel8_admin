@@ -735,7 +735,7 @@ class InvoiceController extends Controller{
                 ->withInput();
         }
 
-        //Creamos pedido si no existe:
+        //Creamos pedido si no existe. Seteamos la variable $add_items para indicar si se deben introducir líneas del pedido o no.
         if(!$request->order_id){
             $order = new Order();
             $order->is_order = 1;
@@ -745,10 +745,14 @@ class InvoiceController extends Controller{
             $order->invoiced = 1;
             $order->save();
 
+            $from_customer = true;
+
         }else{
             $order = Order::select('id', 'invoiced')->find($request->order_id);
             $order->invoiced = 1;
             $order->save();
+
+            $from_customer = false;
         }
 
         //Formateando fechas:
