@@ -84,7 +84,7 @@ $order_num = $order->order_num? $order->order_num:$order->id;
 
 						{{-- Fecha vencimiento --}}
 						<td class="text-right">
-							{{ Carbon\Carbon::parse($row->expiration_date)->format($languages[session()->get('locale')][4]) }}
+							@if($row->expiration_date) {{ Carbon\Carbon::parse($row->expiration_date)->format($languages[session()->get('locale')][4]) }} @endif
 						</td>
 
 						{{-- Importe factura --}}
