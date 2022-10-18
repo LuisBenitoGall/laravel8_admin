@@ -107,7 +107,7 @@ class Order extends Model{
             foreach($items as $row){
                 if($row->calculated_by_percent){
                     // $amount = $row->calculated_by_percent * $total_amount_without_percentuals;
-                    $amount = helpers::itemAmountPercentage($row->calculated_by_percent, $total_amount_without_percentuals);
+                    $amount = helpers::itemAmountPercentage($row->price, $total_amount_without_percentuals);
                     $total_amount = $total_amount + $amount;
                 }
             }
