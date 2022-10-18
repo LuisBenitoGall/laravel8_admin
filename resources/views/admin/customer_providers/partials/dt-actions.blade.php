@@ -1,4 +1,5 @@
 @can($join.'.edit')
+{{ $row->id }}
 	{{-- Estado --}}
 	@php
 	$title = $join == 'customers'? 'cliente_on_off':'proveedor_on_off';
@@ -28,16 +29,16 @@
     	<a href="{{ route('orders.create', [$type, $row->id]) }}" class="btn btn-xs btn-info btn-module" rel="tooltip" title="{{ trans('textos.compra_nueva') }}"><i class="fa fa-cart-plus"></i></a>	
     @endif
 
-    {{--Condiciones: 
-		1. La empresa está tutelada por la empresa en session.
+    {{-- Editar - condiciones: 
+		2. La empresa está tutelada por la empresa en session.
     --}}
-    @if($row->guardian == session('currentCompany'))
+    {{-- @if($row->guardian == session('currentCompany')) --}}
     	{{-- Editar --}}
 		<a target="_blank" href="{{ route($join.'.edit', $row->id) }}" class="btn btn-xs btn-info" rel="tooltip" title="{{ ucfirst(trans('textos.editar')) }}"><i class="fa fa-edit"></i></a>
 
 		{{-- Add manager --}}
     	<a href="#" class="btn btn-xs btn-info btn-module btnAddManager" rel="tooltip" title="{{ trans('textos.responsable_add') }}" data-toggle="modal" data-target="#modal-add-manager" data-id="{{ $row->id }}" data-company="{{ $row->name }}"><i class="fa fa-user-plus"></i></a>
-	@endif
+	{{-- @endif --}}
 
 	{{-- Catálogo --}}
 	@php

@@ -982,9 +982,6 @@ class BudgetController extends Controller{
             $amountWithoutPercentItems = $order->itemsBudgetOrderAmount(false);
         }
 
-
-        //dd($arrRecid, $amountWithoutPercentItems);
-
         $fecha = false;
 
         $company_settings = session('companySettings');

@@ -87,7 +87,7 @@ $discount_in_lines = false;
 								$amount = $amountWithoutPercentItems * $its->price;	
 
 								if($its->discount && $its->discount > 0){
-									$percentage_ = App\Helpers\Helpers::percent($amount, $its->discount);	
+									$percentage_ = App\Helpers\helpers::percent($amount, $its->discount);	
 									$amount = $amount - $percentage_;
 								}
 								$amount = round($amount, 2);
