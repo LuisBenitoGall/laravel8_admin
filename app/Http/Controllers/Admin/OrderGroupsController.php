@@ -22,6 +22,7 @@ use App\Models\CustomerProviders;
 use App\Models\Invoice;
 use App\Models\Order;
 use App\Models\OrderPrevisions;
+use App\Models\Phone;
 use App\Models\User;
 use App\Models\Workplace;
 
