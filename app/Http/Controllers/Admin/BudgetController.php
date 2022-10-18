@@ -445,6 +445,9 @@ class BudgetController extends Controller{
         //CLIENTE:
         $customer = Company::select('id', 'name', 'tradename')->find($order->customer_id);
 
+        //CLIENTE FINAL:
+        $final_customer = $order->final_customer_id? Company::select('id', 'name', 'tradename')->find($order->final_customer_id):false;
+
         //Managers:
         $customer_managers_ = UserCompanies::getCompanyUsers($order->customer_id, 1); 
         $customer_managers = [];
@@ -552,7 +555,7 @@ class BudgetController extends Controller{
         $module_products = $this->settedModule('products');
         $module_projects = $this->settedModule('projects');
 
-        return view('admin.budgets.edit')->with(compact('header', 'order', 'tab', 'invoiced', 'invoices', 'patterns', 'versions', 'order_amount', 'order_amount_without_discount', 'provider', 'provider_managers', 'provider_settings', 'provider_workplaces', 'provider_cost_centers', 'provider_business_areas', 'customer', 'customer_managers', 'customer_workplaces', 'customer_cost_centers', 'customer_business_areas', 'final_customers', 'customers', 'customer_settings', 'forms', 'products', 'projects', 'project', 'blocks', 'currency', 'templates', 'budget_from', 'languages', 'permitted', 'module_orders', 'module_products', 'module_projects'));
+        return view('admin.budgets.edit')->with(compact('header', 'order', 'tab', 'invoiced', 'invoices', 'patterns', 'versions', 'order_amount', 'order_amount_without_discount', 'provider', 'provider_managers', 'provider_settings', 'provider_workplaces', 'provider_cost_centers', 'provider_business_areas', 'customer', 'final_customer', 'customer_managers', 'customer_workplaces', 'customer_cost_centers', 'customer_business_areas', 'final_customers', 'customers', 'customer_settings', 'forms', 'products', 'projects', 'project', 'blocks', 'currency', 'templates', 'budget_from', 'languages', 'permitted', 'module_orders', 'module_products', 'module_projects'));
     }
 
     /**
