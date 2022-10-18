@@ -233,7 +233,9 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 				$name = !$disabled? 'status':'';	//En pedidos facturados no se modifica el status.
 				@endphp
 
-				<x-select name="{{ $name }}" class="select2" label="indica_estado" :options="$estados" value="{{ $order->order_status }}" disabled="{{ $disabled }}"/>
+				{{-- disabled="{{ $disabled }}" --}}
+
+				<x-select name="{{ $name }}" class="select2" label="indica_estado" :options="$estados" value="{{ $order->order_status }}" />
 			</div>
 		@else
 			<input type="hidden" name="order_status" value="{{ $order->order_status }}">
