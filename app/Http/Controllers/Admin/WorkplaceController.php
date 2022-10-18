@@ -36,10 +36,10 @@ class WorkplaceController extends Controller{
     private $business_relationship = 'companies';
 
     public function __construct(){
-        $this->middleware('company_ajax', ['only' => ['getWorkplacesDT']]);
-        //18/10/22: revisar uso de este middleware para edición de clientes.
+        //18/10/22: revisar uso de estos middlewares para edición de clientes.
+        //$this->middleware('company_ajax', ['only' => ['getWorkplacesDT']]);
         //$this->middleware('company_get3', ['only' => ['index']]);
-        $this->middleware('workplace_get', ['only' => ['edit', 'update', 'destroy', 'byDefault', 'featured']]);
+        //$this->middleware('workplace_get', ['only' => ['edit', 'update', 'destroy', 'byDefault', 'featured']]);
     }
 
     //0. Validator:
