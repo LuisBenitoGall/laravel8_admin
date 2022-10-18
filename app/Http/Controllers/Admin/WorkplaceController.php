@@ -37,7 +37,8 @@ class WorkplaceController extends Controller{
 
     public function __construct(){
         $this->middleware('company_ajax', ['only' => ['getWorkplacesDT']]);
-        $this->middleware('company_get3', ['only' => ['index']]);
+        //18/10/22: revisar uso de este middleware para edición de clientes.
+        //$this->middleware('company_get3', ['only' => ['index']]);
         $this->middleware('workplace_get', ['only' => ['edit', 'update', 'destroy', 'byDefault', 'featured']]);
     }
 
