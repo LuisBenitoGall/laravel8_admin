@@ -233,6 +233,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 				$name = !$disabled? 'status':'';	//En pedidos facturados no se modifica el status.
 				@endphp
 
+				{{-- 18/10/22: resolver estado de pedido para que quede disabled cuando estén todas las previsiones de facturación facturadas --}}
 				{{-- disabled="{{ $disabled }}" --}}
 
 				<x-select name="{{ $name }}" class="select2" label="indica_estado" :options="$estados" value="{{ $order->order_status }}" />
