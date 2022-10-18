@@ -414,8 +414,6 @@ class CustomerProvidersController extends Controller{
         ->where('customer_providers.'.$condition, session('currentCompany'))
         ->get();
 
-        //dd($data);
-
         //Array de empresas asociadas al usuario en sesión:
         $companies = [];
         foreach(session('companies') as $co){
