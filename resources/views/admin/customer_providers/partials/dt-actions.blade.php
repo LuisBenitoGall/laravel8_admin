@@ -1,5 +1,4 @@
 @can($join.'.edit')
-{{ $row->id }}
 	{{-- Estado --}}
 	@php
 	$title = $join == 'customers'? 'cliente_on_off':'proveedor_on_off';
