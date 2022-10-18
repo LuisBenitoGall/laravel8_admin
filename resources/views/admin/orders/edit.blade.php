@@ -44,6 +44,11 @@
 				@endif
 			@endcan
 
+			{{-- Imprimir --}}
+			<a href="{{ route('order-groups.print', $order) }}" class="btn btn-info close-animation" rel="tooltip" title="{!! ucfirst(trans('textos.imprimir')) !!}">
+				<i class="fa fa-print"></i>
+			</a>
+
 			{{-- Facturar - condiciones: 
 				1. Disponer de permisos para generar facturas.
 				2. Estar activo el módulo de contabilidad.

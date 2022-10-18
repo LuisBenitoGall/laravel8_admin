@@ -526,6 +526,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::post('order-groups/add-order', 'OrderGroupsController@addOrder_')->name('order-groups.add-order')->middleware('permission:orders.edit');
     Route::delete('order-groups/{order}', 'OrderGroupsController@destroy')->name('order-groups.destroy')->middleware('permission:orders.edit');
     Route::get('order-groups/{order}/to-invoice', 'OrderGroupsController@toInvoice')->name('order-groups.to-invoice')->middleware('permission:invoices.create');
+    Route::get('order-groups/{order}/print', 'OrderGroupsController@print')->name('order-groups.print');
 
     // Order Patterns:
     Route::get('order-patterns', 'OrderPatternsController@index')->name('order-patterns.index')->middleware('permission:orders.edit');

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Helpers\Helpers;
+use App\Helpers\helpers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Yajra\DataTables\DataTables;
 use File;
+use PDF;
+use Carbon\Carbon;
 
 //Models:
 use App\Models\Company;
@@ -21,6 +23,7 @@ use App\Models\Invoice;
 use App\Models\Order;
 use App\Models\OrderPrevisions;
 use App\Models\User;
+use App\Models\Workplace;
 
 class OrderGroupsController extends Controller{
     /**
@@ -32,15 +35,20 @@ class OrderGroupsController extends Controller{
      * 3.1. Vincular pedido a agrupación.
      * 4. Eliminar pedido de agrupación.   
      * 5. Selección de pedidos para facturar.
+     * 6. Imprimir agrupación.
      */ 
     
     private $option = 'pedidos';
     private $module = 'orders';
     private $languages;  
+    private $co_currency;
 
     public function __construct(){
         //Idiomas:
         $this->languages = helpers::languages();
+
+        //Moneda:
+        $this->co_currency = CompanySettings::co_currency(0);
 
         $this->middleware('module_setted:orders');
         $this->middleware('order_groups_get', ['only' => ['edit']]);
@@ -329,5 +337,74 @@ class OrderGroupsController extends Controller{
         $currency = CompanySettings::co_currency(0);
 
         return view('admin.order_groups.invoices')->with(compact('header', 'order', 'ordersInGroup', 'currency'));
+    }
+
+    /**
+     * 6. Imprimir agrupación.
+     */
+    public function print(Order $order){
+        if(!$order){
+            return redirect('/');
+            exit;   
+        }
+
+        $provider = Company::find($order->provider_id);
+        $customer = Company::find($order->customer_id);
+
+        $template = $order->order_template? unserialize($order->order_template):false;
+
+        $owner = User::select('name', 'surname')->find($order->provider_manager_id);
+
+        $fechaLiteral = helpers::fechaLiteral($order->created_at, session()->get('locale'));
+
+        $company_settings = session('companySettings');
+
+        //Sede proveedor:
+        if($order->provider_workplace_id){
+            $provider_workplace = Workplace::select('workplaces.*', 'towns.name AS Town')
+            ->join('towns', 'workplaces.town_id', '=', 'towns.id')
+            ->where('workplaces.id', $order->provider_workplace_id)
+            ->first();  
+
+            $provider_phones = Phone::select('phone_number')
+            ->where('workplace_id', $provider_workplace->id)
+            ->get();
+        }else{
+            $provider_workplace = false;
+            $provider_phones = false;
+        }
+
+        //Sede cliente:
+        if($order->workplace_id){
+            $customer_workplace = Workplace::select('workplaces.*', 'towns.name AS Town')
+            ->join('towns', 'workplaces.town_id', '=', 'towns.id')
+            ->where('workplaces.id', $order->workplace_id)
+            ->first();  
+
+        }else{
+            $customer_workplace = false;
+        }
+
+        //Provider manager:
+        $provider_manager = false;
+        if($order->provider_manager_id){
+            $provider_manager = User::select('name', 'surname')->find($order->provider_manager_id);
+        }   
+
+        //Customer manager:
+        $customer_manager = false;
+        if($order->customer_manager_id){
+            $customer_manager = User::select('name', 'surname')->find($order->customer_manager_id);
+        }    
+
+        //Moneda:
+        $currency = $this->co_currency;
+
+
+        //Título .pdf:
+        $pdf_title = $order->order_num? helpers::slugFiles($order->order_num, '_', false):$order->id;
+
+        $pdf = PDF::loadView('pdf/order-group', compact('order', 'provider', 'customer', 'owner', 'template', 'fechaLiteral', 'company_settings', 'provider_workplace', 'provider_phones', 'customer_workplace', 'provider_manager', 'customer_manager', 'currency'));
+        return $pdf->download($pdf_title.'.pdf'); 
     }
 }
