@@ -1182,7 +1182,7 @@ class OrderController extends Controller{
             $amount = '';
             if($item->price > 0){
                 if($item->calculated_by_percent > 0){
-                    $amount = helpers::itemAmountPercentage($item->calculated_by_percent, $order_amount['amount_with_discount']);
+                    $amount = helpers::itemAmountPercentage($item->price, $order_amount['amount_with_discount']);
                     return $amount.$currency->symbol.'<br><small>('.trans('textos.precio_porcentual').')</small>';
                 }else{
                     $amount = helpers::itemAmount($item); 

@@ -405,7 +405,7 @@ $permitted = !$order || ($order && !$order->invoiced && !$order->parent)? true:f
                                     <div class="col-2 sinpadding-right">   
                                         @php
                                         //En función de si se calcula porcentualmente sobre el total o no:
-                                        $subtotal = $is->calculated_by_percent? App\Helpers\Helpers::itemAmountPercentage($is->calculated_by_percent, $amount_without_percentage_items):App\Helpers\Helpers::itemAmount($is);
+                                        $subtotal = $is->calculated_by_percent? App\Helpers\helpers::itemAmountPercentage($is->price, $amount_without_percentage_items):App\Helpers\helpers::itemAmount($is);
                                         @endphp
                                         <b>{{ ucfirst(trans('textos.subtotal')) }}:</b> <span class="mr-5">{{ $subtotal }}{{ $currency->symbol }}</span>
                                     </div>
