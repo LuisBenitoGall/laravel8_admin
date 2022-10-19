@@ -240,7 +240,7 @@ $(document).ready(function () {
     // 9. Menú opciones top responsive.
     $('.btn-top-links').on('click', function(e){
         e.preventDefault();
-        $(".navbar-top-links").toggle();
+        $(".navbar-top-links").toggleClass('d-none');
     });
 });
 

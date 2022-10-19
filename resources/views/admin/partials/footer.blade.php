@@ -59,7 +59,7 @@
     <script src="https://cdn.datatables.net/buttons/1.5.2/js/buttons.html5.min.js" defer></script>
     <script src="https://cdn.datatables.net/buttons/1.5.2/js/buttons.print.min.js " defer></script> 
     <script src="https://cdn.datatables.net/rowreorder/1.2.8/js/dataTables.rowReorder.min.js" defer></script>
-    <script src="{{ asset('js/custom-datatables.js') }}"></script>
+    <script src="{{ mix('js/custom-datatables.js') }}"></script>
 
     {{-- Select 2: --}}
 	<script src="{{ asset('js/plugins/select2/select2.full.min.js') }}"></script>
@@ -82,13 +82,13 @@
     <script src="{{ asset('js/plugins/ladda/spin.min.js') }}"></script>
     <script src="{{ asset('js/plugins/ladda/ladda.min.js') }}"></script>
     <script src="{{ asset('js/plugins/ladda/ladda.jquery.min.js') }}"></script>
-    <script src="{{ asset('js/app.js') }}"></script>
+    <script src="{{ mix('js/app.js') }}"></script>
 
     @livewireScripts
 
     @stack('scripts')
     
-	<script src="{{ asset('js/custom.js') }}"></script>
+	<script src="{{ mix('js/custom.js') }}"></script>
 
 	<script>
 	/* Spinner: */
