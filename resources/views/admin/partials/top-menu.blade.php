@@ -50,7 +50,7 @@
                 <i class="fa fa-bars"></i>
             </a>
 
-            <ul class="nav navbar-top-links navbar-right">
+            <ul class="nav navbar-top-links navbar-right d-none d-md-block justify-content-center">
                 {{-- Control horario --}}
                 @if($setTimetable)
                     @php
@@ -229,7 +229,7 @@
                                 </a>
 
                                 @if($timetable_items->count())
-                                    <ul class="dropdown-menu dropdown-alerts" @if(!$agent->isDesktop() && !in_array($ip, $setted_ips)) style="right: -150px;" @endif>
+                                    <ul class="dropdown-menu dropdown-alerts">
                                         <li class="dm-header">
                                             {!! ucfirst(trans('textos.conceptos_horarios')) !!}
                                         </li>

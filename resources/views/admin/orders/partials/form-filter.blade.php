@@ -29,6 +29,14 @@
 							<input class="form-control" type="text" name="order_id" maxlength="25">
 						</div>
 
+						{{-- Orden de compra --}}
+						<label for="order_buy" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.orden_compra')) !!} </label>
+						<div class="col-lg-2">
+							<input class="form-control" type="text" name="order_buy" maxlength="25">
+						</div>
+					</div>
+
+					<div class="form-group row">
 						{{-- Propietario --}}
 						@if(isset($owners))
 							<label for="owner" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.propietario')) !!} </label>

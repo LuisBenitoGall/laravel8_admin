@@ -3201,6 +3201,8 @@ $(document).ready(function(){
         var status = $('#myStatus').val() && $('#myStatus').val() != ''? $('#myStatus').val():false;
         var accounting_on = $('#myModuleAccounting').val() == 1? true:false;
 
+        var orderbuy = $('#myOrderBuy').val() && $('#myOrderBuy').val() != '' ? $('#myOrderBuy').val():false;
+
         //Filters:
         // $('#tblOrders thead tr').clone(true).appendTo('#tblOrders thead');
         // $('#tblOrders thead tr:eq(1) th').each(function(i){
@@ -3232,7 +3234,8 @@ $(document).ready(function(){
             // },
             ajax: {
                 "type": "GET",
-                "url": "/api/admin/orders/"+year+"/"+customer+"/"+provider+"/"+owner+"/"+status,
+                "url": `/api/admin/orders/${year}/${customer}/${provider}/${owner}/${orderbuy}/${status}`,
+                /* "url": "/api/admin/orders/"+year+"/"+customer+"/"+provider+"/"+owner+"/"+status, */
                 "error": function(reason){
                     console.log(reason);
                 }
