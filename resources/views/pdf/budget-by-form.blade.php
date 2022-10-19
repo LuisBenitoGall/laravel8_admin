@@ -40,15 +40,23 @@ $discount_in_lines = false;
 			$itemsWithQty = false;
 
 			foreach($itemsSelected as $its){
+				
 				//Sólo items con $print == 1
 				if($its->print == 1){
+					//19/10/22 código obsoleto. Se sustituye por el de abajo.
+					// if($its->budget_form_item_id == 1 || !$its->budget_form_item_id){
+					// 	//$p = explode('|', $its->free_field);
+					// 	//$block_id = $p[0];	
+					// 	$block_id = $its->budget_form_block_id;
+					// }else{
+					// 	$block_id = $its->recid;
+					// }
+
 					//Buscando el bloque al que pertenece el item:
-					if($its->budget_form_item_id == 1 || !$its->budget_form_item_id){
-						//$p = explode('|', $its->free_field);
-						//$block_id = $p[0];	
-						$block_id = $its->budget_form_block_id;
-					}else{
+					if($its->budget_form_item_id == 1){
 						$block_id = $its->recid;
+					}else{
+						$block_id = $its->budget_form_block_id;	
 					}
 
 					//Si el item pertenece al bloque:
@@ -127,6 +135,12 @@ $discount_in_lines = false;
 				}	
 			}
 
+
+			//if($block_name == 'SHOOTING'){
+				//dd($its, $block, $block_name, $block_id, $itemsWithQty);	
+			//}
+
+//echo $block_name.'<br>';
 			//Si el bloque tiene items con cantidad, se muestra:
 			if($itemsWithQty){
 				// Cada bloque genera una tabla: 
