@@ -668,8 +668,8 @@ $(window).on('load', function () {
         //Reemplazamos comas por puntos:
         var value = value.replace(/,/g, '.');
         //Patrón de formato correcto con 2 decimales:
-        var regexp = /^\d*(\.\d{1})?\d{0,1}$/;
-        if (!regexp.test(value)) {
+        var regexp = /^-?\d*(\.\d{1})?\d{0,1}$/;
+        if (!regexp.test(value) || value == '0') {
             swal.fire({
                 title: txtValorIncorrecto,
                 text: "",
