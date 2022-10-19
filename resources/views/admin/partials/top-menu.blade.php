@@ -50,7 +50,7 @@
                 <i class="fa fa-bars"></i>
             </a>
 
-            <ul class="nav navbar-top-links navbar-right d-none d-md-block justify-content-center">
+            <ul class="nav navbar-top-links navbar-right d-none d-md-block justify-content-start">
                 {{-- Control horario --}}
                 @if($setTimetable)
                     @php
@@ -229,7 +229,7 @@
                                 </a>
 
                                 @if($timetable_items->count())
-                                    <ul class="dropdown-menu dropdown-alerts">
+                                    <ul class="dropdown-menu dropdown-alerts" @if(!$agent->isDesktop() && !in_array($ip, $setted_ips)) style="right: -150px;" @endif>
                                         <li class="dm-header">
                                             {!! ucfirst(trans('textos.conceptos_horarios')) !!}
                                         </li>
@@ -352,9 +352,14 @@
                     <li class="dropdown">
                         <a class="dropdown-toggle" data-toggle="dropdown" href="javascript:void(0);" role="button"
                            rel="tooltip" title="{{ ucfirst(trans('textos.idiomas')) }}">
-                            <i class="fa fa-globe"></i>
-                            <span
-                                class="current-idm">{{ (session()->get('locale') != NULL)? session()->get('locale'):App::getLocale() }}</span>
+
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="fa fa-globe"></i>
+                                    <span class="current-idm">{{ (session()->get('locale') != NULL)? session()->get('locale'):App::getLocale() }}</span>
+                                </div>
+                                <span class="d-block d-md-none">{{ ucfirst(trans('textos.idiomas')) }}</span>
+                            </div>
                         </a>
 
                         <ul class="dropdown-menu dropdown-alerts">
@@ -390,7 +395,10 @@
                 <li class="dropdown position-relative">
                     <a class="dropdown-toggle count-info" data-toggle="dropdown" href="javascript:void(0);"
                        role="button" rel="tooltip" title="{{ ucfirst(trans('textos.notificaciones')) }}">
-                        <i class="fa fa-bell"></i>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <i class="fa fa-bell"></i>
+                            <span class="d-block d-md-none">{{ ucfirst(trans('textos.notificaciones')) }}</span>
+                        </div>
                         {{--   <span class="label label-danger" id="notificationsQty"
                                @if(Auth::user()->unreadNotifications()->count() == 0) style="display:none;" @endif>
                                {{ Auth::user()->unreadNotifications()->count() }}
@@ -458,7 +466,10 @@
                 <li>
                     <a href="{{ route('messages.create') }}" role="button" rel="tooltip"
                        title="{{ ucfirst(trans('textos.notificacion_nueva')) }}">
-                        <i class="fa fa-paper-plane"></i>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <i class="fa fa-paper-plane"></i> 
+                            <span class="d-block d-md-none">{{ ucfirst(trans('textos.notificacion_nueva')) }}</span>
+                        </div>
                     </a>
                 </li>
 
@@ -466,10 +477,13 @@
                 <li class="dropdown">
                     <a href="#" role="button" class="count-info" rel="tooltip"
                        title="{{ ucfirst(trans('textos.notas')) }}" data-toggle="modal" data-target="#modal-add-note">
-                        <i class="fa fa-sticky-note"></i>
-                        <span class="label label-warning" id="notesQty">
-                            {{ optional(Auth::user())->notes()  ?? 0}}
-                        </span>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <i class="fa fa-sticky-note"></i>
+                            <span class="d-block d-md-none">{{ ucfirst(trans('textos.notas')) }}</span>
+                            <span class="label label-warning" id="notesQty">
+                                {{ optional(Auth::user())->notes()  ?? 0}}
+                            </span>
+                        </div>
                     </a>
                 </li>
 
@@ -477,10 +491,12 @@
                 <li class="dropdown">
                     <a href="{{ route('chat.index') }}" role="button" class="count-info" rel="tooltip"
                        title="{{ ucfirst(trans('textos.chat')) }}">
-                        <i class="fa fa-comments"></i>
-                        <span class="label label-success" id="chat-messages-num">
-
-                        </span>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <i class="fa fa-comments"></i>
+                            <span class="d-block d-md-none">{{ ucfirst(trans('textos.chat')) }}</span>
+                            <span class="label label-success" id="chat-messages-num">
+                            </span>
+                        </div>
                     </a>
                 </li>
 
@@ -488,7 +504,11 @@
                 <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="false"
                        aria-expanded="false" rel="tooltip" title="{{ ucfirst(trans('textos.opciones_preferidas')) }}">
-                        <i class="fa fa-ellipsis-v"></i>
+                        
+                        <div class="d-flex justify-content-between align-items-center">
+                            <i class="fa fa-bookmark"></i>
+                            <span class="d-block d-md-none">{{ ucfirst(trans('textos.opciones_preferidas')) }}</span>
+                        </div>
                     </a>
 
                     <ul class="dropdown-menu dropdown-alerts">
