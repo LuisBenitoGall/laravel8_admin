@@ -207,7 +207,7 @@ class OrderController extends Controller{
     /**
      * 1. Pedidos por cliente o proveedor.
      */
-    public function index($year = false, $customer_id = false, $provider_id = false, $owner = false, $status = false){
+    public function index($year = false, $customer_id = false, $provider_id = false, $owner = false, $order_buy = false, $status = false){
         //Si se cambia la empresa en sesión se toman los pedidos relativos a ésta:
         if($customer_id 
             && $customer_id != session('currentCompany') 
@@ -276,7 +276,7 @@ class OrderController extends Controller{
         //Módulos activos:
         $module_accounting = $this->settedModule('accounting');
 
-        return view('admin.orders.index')->with(compact('header', 'year', 'owner', 'status', 'customer_id', 'provider_id', 'customer', 'provider', 'ordersType', 'customers', 'providers', 'owners', 'order_status', 'module_accounting'));
+        return view('admin.orders.index')->with(compact('header', 'year', 'owner', 'status', 'customer_id', 'provider_id', 'customer', 'provider', 'ordersType', 'customers', 'providers', 'owners', 'order_status', 'module_accounting', 'order_buy'));
     }
 
     /**
@@ -310,6 +310,16 @@ class OrderController extends Controller{
             }
         }
 
+        // Si viene el código de orden de compra, comprobamos si existe un pedido con este numero, si existe uno solo se redirige
+        if ($request->order_buy) {
+            $orders_of_order_buy = Order::select('id')->orWhere('orders.purchase_num', 'like', "%$request->order_buy%")
+            ->orWhere('orders.purchase_old_num', 'like', "%$request->order_buy%")->get();
+            if ($orders_of_order_buy->count() == 1) {
+                return redirect()->route('orders.edit', $orders_of_order_buy[0]->id);    
+                exit;   
+            }
+        }
+
         //Si no viene declarado ni cliente ni proveedor redirigimos al inicio:
         if(!$request->customer_id && !$request->provider_id){
             $alert = trans('textos.cliente_proveedor_obligatorios');
@@ -331,13 +341,13 @@ class OrderController extends Controller{
             }
         }
 
-        return redirect()->route('orders.index', [$request->year, $customer_id, $provider_id, $request->owner]);
+        return redirect()->route('orders.index', [$request->year, $customer_id, $provider_id, $request->owner, $request->order_buy]);
     }
 
     /**
      * 1.2. Listado de pedidos por cliente y proveedor para DataTable.
      */
-    public function getOrdersDT($year = false, $customer = false, $provider = false, $owner = false, $status = false){
+    public function getOrdersDT($year = false, $customer = false, $provider = false, $owner = false, $order_buy = false, $status = false){
         //La empresa en sesión debe ser cliente o proveedor del pedido.
         if($customer && $customer != session('currentCompany') && $provider && $provider != session('currentCompany')){
             return false;
@@ -345,6 +355,10 @@ class OrderController extends Controller{
         }
 
         $company_field = $provider == session('currentCompany') || $customer == 'all'? 'customer':'provider';
+
+        /* $order_buy = "%4700480218%"; */
+        // Se comrpueba que el campo no sea false
+        $order_buy = $order_buy == 'false' ? false : $order_buy;
 
         //Obtenemos pedidos simples, no agrupaciones:
         $data = Order::select('orders.id', 'orders.is_budget', 'orders.budget_num', 'orders.discount', 'orders.order_parent', 'orders.name', 'orders.order_num', 'orders.order_old_num', 'orders.estimated_delivery_date', 'orders.purchase_num', 'orders.purchase_old_num', 'orders.delivery_date', 'orders.order_status', 'orders.invoiced', 'orders.created_at', 'companies.name AS company', 'business_areas.name AS businessArea', 'cost_centers.name AS costCenter')
@@ -355,6 +369,14 @@ class OrderController extends Controller{
         ->where('orders.is_order', true)
         ->where('orders.is_group', false)
         ->whereYear('orders.created_at', $year)
+
+        // Consulta para comprobar el numero de orden de compra
+        ->when($order_buy, function($query) use($order_buy) {
+            return $query->where(function($query) use($order_buy) {
+                $query->orWhere('orders.purchase_num', 'like', "%$order_buy%")
+                ->orWhere('orders.purchase_old_num', 'like', "%$order_buy%");
+            });
+        })
         ->when($owner, function($q) use($owner){
             return $q->where('orders.provider_manager_id', $owner);
         })

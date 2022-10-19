@@ -59,6 +59,7 @@
 	<input type="hidden" id="myYear" value="{{ $year }}">
 	<input type="hidden" id="myStatus" value="@if($status){{ $status }}@else{{ 0 }}@endif">
 	<input type="hidden" id="myModuleAccounting" value="{{ $module_accounting }}">
+	<input type="hidden" id="myOrderBuy" value="{{ $order_buy }}">
 
 	{{-- Tabla --}}
 	<div class="row">
