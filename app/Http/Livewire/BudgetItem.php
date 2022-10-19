@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 
 //Models:
 use App\Models\BudgetFormItems;
+use App\Models\BudgetForms;
 use App\Models\CompanySettings;
 use App\Models\Item;
 use App\Models\Order;
@@ -36,6 +37,7 @@ class BudgetItem extends Component{
     public $co_iva;
     public $currency;
     public $days;
+    public $days_continue;
     public $discount;
     public $field_readonly;
     public $form_on;
@@ -86,7 +88,6 @@ class BudgetItem extends Component{
 
         //Importe total:
         $arr_amounts = $this->order->getAmount();
-        //dd($arr_amounts);
         $this->total_amount = $arr_amounts['amount_with_discount'];
 
         //Importe sin items porcentuales:
@@ -137,7 +138,46 @@ class BudgetItem extends Component{
                 $price = NULL;
             }
 
+            //Descuento por jornadas continuas. El valor de days_continue_discount depende de que days_continue == 1, y del valor que tengan asignado el campo labor_journeys de la tabla budget_forms:
+            $days_continue_discount = NULL;
+            if($this->days_continue){
+                $labor_journeys = BudgetForms::select('budget_forms.labor_journeys')
+                ->join('orders', 'budget_forms.id', '=', 'orders.form_id')
+                ->where('orders.id', $this->order->id)
+                ->first();
+
+                if($labor_journeys && $this->days > 1){
+                    $arr_labor_journeys = $labor_journeys->labor_journeys? unserialize($labor_journeys->labor_journeys):[];
+
+                    //Comprobamos si existe el índice que viene dado por el número de días ($days):
+                    if(array_key_exists($this->days, $arr_labor_journeys)){
+                        $days_continue_discount = $arr_labor_journeys[$this->days];
+
+                    //Si no existe comprobamos los operadores y buscamos el índice de labor_journeys más próximo al número de días indicado. Obtenemos primero los índices del objeto:
+                    }else{
+                        $indices = [];
+                        foreach($arr_labor_journeys as $idx => $value){
+                            array_push($indices, $idx);
+                        }
+
+                        end($indices);
+                        $last_indice = key($indices);
+                        foreach($indices as $indx){
+                            if( ($this->days - $indx) < $last_indice){
+                                $last_indice = $indx;
+                            }
+                        }
+                        $days_continue_discount = $arr_labor_journeys[$last_indice];
+                    } 
+                }
+                $days_continue_discount = $days_continue_discount != NULL && is_array($days_continue_discount)? $days_continue_discount['discount']:NULL;
+            }
+
+
             $item = false;
+
+            //Cantidad mínima en caso de no venir declarada.
+            $qty = $this->qty == 0 || $this->qty == ''? 1:$this->qty;
 
             //Update:
             if($this->action == 'update'){
@@ -145,11 +185,13 @@ class BudgetItem extends Component{
                 $item->budget_form_block_id = $this->block;
                 $item->concept = $this->concept;
                 $item->observations = $this->observations;
-                $item->qty = $this->qty;
+                $item->qty = $qty;
                 $item->price = $price;
                 $item->item_no_price = $no_price;
                 $item->discount = $this->discount;
                 $item->days = $this->days? $this->days:0;
+                $item->days_continue = $this->days_continue? true:false;
+                $item->days_continue_discount = $days_continue_discount;
                 $item->print = $this->print? true:false;
                 $item->save();
             
@@ -163,13 +205,15 @@ class BudgetItem extends Component{
                 $item->budget_order = isset($this->items_order[$this->block])? $this->items_order[$this->block] + 1:1;
                 $item->concept = $this->concept;
                 $item->observations = $this->observations;
-                $item->qty = $this->qty;
+                $item->qty = $qty;
                 $item->price = $price;
                 $item->item_no_price = $no_price;
                 $item->iva = $this->item? $this->item['iva']:$this->co_iva;
                 $item->discount = $this->discount;
                 $item->calculated_by_percent = $this->calculated_by_percent > 0? $this->calculated_by_percent:NULL;
                 $item->days = $this->days? $this->days:0;
+                $item->days_continue = $this->days_continue? true:false;
+                $item->days_continue_discount = $days_continue_discount;
                 $item->print = $this->print? true:false;
                 $item->user_id = Auth::user()->id;
                 $item->save();
@@ -222,7 +266,6 @@ class BudgetItem extends Component{
             $this->discount = $item['discount'];
         }
 
-
         $this->dispatchBrowserEvent('observations-value', ['observations' => '']);
 
         //Estado del formulario:
@@ -262,6 +305,7 @@ class BudgetItem extends Component{
 
             $this->calculated_by_percent = false;
             $this->days = $item['days'];
+            $this->days_continue = $item['days_continue'];
             $this->discount = $item['discount'];
             $this->price = $item['item_no_price']? $item['item_no_price']:$item['price'];
             $this->qty = $item['qty'];
@@ -280,7 +324,7 @@ class BudgetItem extends Component{
         $this->item = false;
         $this->action = 'save';
         $this->field_readonly = false;
-        $this->reset(['concept', 'block', 'discount', 'price', 'qty', 'observations']);
+        $this->reset(['concept', 'block', 'discount', 'price', 'qty', 'days', 'days_continue', 'observations']);
     }
 
     /**

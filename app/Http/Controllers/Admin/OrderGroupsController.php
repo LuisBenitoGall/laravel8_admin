@@ -401,7 +401,6 @@ class OrderGroupsController extends Controller{
         //Moneda:
         $currency = $this->co_currency;
 
-
         //Título .pdf:
         $pdf_title = $order->order_num? helpers::slugFiles($order->order_num, '_', false):$order->id;
 

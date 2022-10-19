@@ -1949,6 +1949,7 @@ return [
 	'opciones_usuario' => 'Opciones de usuario',
 	'pendiente_validar' => 'pendiente de validar',
 	'jornadas_confirmadas_texto' => 'Te confirmamos que han sido aprobadas las siguientes fechas solicitadas',
+	'jornadas_continuas' => 'Jornadas continuas',
 	'jornadas_solicitadas_confirmacion' => 'Confirmación de jornadas solicitadas',
 	'jornadas_validar' => 'Validar jornadas',
 	'jornadas_validar_cerrar' => 'Cerrar validación jornadas',
