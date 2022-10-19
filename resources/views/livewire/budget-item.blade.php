@@ -230,6 +230,15 @@ $permitted = !$order || ($order && !$order->invoiced && !$order->parent)? true:f
                         <input type="number" class="form-control text-center set-decimals itemDays" name="days" min="0" step="1" value="0" id="newItemDays" wire:model.defer="days" maxlength="2" @if($field_readonly) readonly @endif>
                     </div>
 
+                    {{-- Jornadas continuas --}}
+                    <label for="days_continue" class="col-4 col-sm-2 col-form-label sinpadding-right">{!! ucfirst(trans('textos.jornadas_continuas')) !!}</label>
+                    <div class="col-8 col-sm-1 col-xl-1 mb-3">
+                        <label class="custom-chk-rdb">
+                            <input type="checkbox" wire:model.defer="days_continue" @if($days_continue) checked @endif>
+                            <span class="chk" style="top: 5px;"></span>
+                        </label>  
+                    </div>
+
                     {{-- Imprimir --}}
                     <label for="print" class="col-4 col-sm-2 col-xl-1 col-form-label sinpadding-right">{!! ucfirst(trans('textos.imprimir')) !!}</label>
                     <div class="col-8 col-sm-1 col-xl-1 mb-3">
@@ -336,7 +345,7 @@ $permitted = !$order || ($order && !$order->invoiced && !$order->parent)? true:f
                                             {{-- Eliminar: --}}
                                             <form method="POST" action="{{ route('items.destroy', $is) }}" class="frm-inline mr-2" role="form" accept-charset="UTF-8">
                                                 <input name="_method" type="hidden" value="DELETE">
-                                                <input type="hidden" name="return" value="budgets">
+                                                <input type="hidden" name="environment" value="budgets">
                                                 {{ csrf_field() }}
                                                 <button type="submit" class="btn-empty text-danger frm-confirm" rel="tooltip" title="{{ ucfirst(trans('textos.linea_eliminar')) }}" data-msg="{{ ucfirst(trans('textos.presupuesto_linea_confirm_eliminar')) }}"><i class="fa fa-trash"></i></button>
                                             </form>
@@ -397,7 +406,12 @@ $permitted = !$order || ($order && !$order->invoiced && !$order->parent)? true:f
                                         @if($is->calculated_by_percent)
                                             <i class="fa fa-ban text-danger"></i>
                                         @else
-                                            <span class="mr-5">{{ $is->days }}</span>
+                                            <span class="mr-3">{{ $is->days }}</span>
+
+                                            {{-- Jornadas continuadas: --}}
+                                            @if($is->days_continue)
+                                                <small class="text-warning" rel="tooltip" title="{{ ucfirst(trans('textos.jornadas_continuas')) }}">J/C</small>
+                                            @endif
                                         @endif
                                     </div>
 
@@ -405,7 +419,7 @@ $permitted = !$order || ($order && !$order->invoiced && !$order->parent)? true:f
                                     <div class="col-2 sinpadding-right">   
                                         @php
                                         //En función de si se calcula porcentualmente sobre el total o no:
-                                        $subtotal = $is->calculated_by_percent? App\Helpers\helpers::itemAmountPercentage($is->price, $amount_without_percentage_items):App\Helpers\helpers::itemAmount($is);
+                                        $subtotal = $is->calculated_by_percent > 0? App\Helpers\helpers::itemAmountPercentage($is->price, $amount_without_percentage_items):App\Helpers\helpers::itemAmount($is);
                                         @endphp
                                         <b>{{ ucfirst(trans('textos.subtotal')) }}:</b> <span class="mr-5">{{ $subtotal }}{{ $currency->symbol }}</span>
                                     </div>
