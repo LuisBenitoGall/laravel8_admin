@@ -238,9 +238,7 @@ $setBlock = true;
 					@if($final_customer)
 						<label class="mr-5">
 						{!! ucfirst(trans('textos.cliente_final')) !!}: 
-						<b>
-							@if($final_customer->tradename) {{ $final_customer->tradename }} @else {{ $final_customer->name }} @endif
-						</b>
+						<b>{{ $final_customer->name }}</b>
 					</label>
 					@endif
 
