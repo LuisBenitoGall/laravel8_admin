@@ -1035,7 +1035,7 @@ h5 {
   margin-left: -59px;
 }
 .navbar-top-links .dropdown-alerts {
-  margin-left: -123px;
+  margin-left: 0;
 }
 .navbar-top-links .dropdown-user {
   right: 0;
@@ -1372,8 +1372,7 @@ ul.nav-second-level {
     }
 }
 .navbar-static-top .dropdown-menu {
-    right: 0;
-    left: auto;
+    right: 10px;
 }
 .count-info{ 
     .label{
@@ -1808,7 +1807,8 @@ button:focus {
     margin-bottom: 5px;
 
     &.btn-xs{
-        margin-bottom: 0;
+        margin-bottom: 5px;
+        margin-top: 5px;
     }
 
     a, .fa{
@@ -5258,6 +5258,11 @@ body.body-small .footer.fixed {
             padding-right: 8px;
         }  
     }  
+    tbody {
+      .btn {
+        min-width: 30px;
+      }
+    }
 }
 
 .modal-table{
@@ -11591,7 +11596,7 @@ ul{
             z-index: 1000;
         }
         .dropdown-menu{
-            right: -40px;
+            left: 0;
         }
     }
 
