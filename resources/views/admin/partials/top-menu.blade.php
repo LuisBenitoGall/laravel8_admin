@@ -532,7 +532,7 @@
 
                 {{-- Selector de empresa: desde algunas páginas no se puede cambiar de empresa --}}
                 @if(session('companies'))
-                    <li class="list-inline-item" style="min-width: 200px;">
+                    <li class="list-inline-item text-center" style="min-width: 200px;">
 
                         @if(count(session('companies')) > 1 && !isset($noSelectCompany))
                             <select class="form-control select-company select2">
@@ -569,7 +569,7 @@
                     }
                     @endphp
 
-                    <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="false"
+                    <a class="dropdown-toggle text-center" data-toggle="dropdown" href="#" role="button" aria-haspopup="false"
                        aria-expanded="false">
                         <img class="rounded-circle avatar"
                              src=" {{ !is_null($avatar)  ? asset('img/users/'.$avatar->image) : asset('img/users/user.png') }}"
