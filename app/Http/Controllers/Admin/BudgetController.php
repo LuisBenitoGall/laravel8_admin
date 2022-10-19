@@ -530,7 +530,7 @@ class BudgetController extends Controller{
         if($order->modality == config('constants.BUDGET_FORM_MODALITY_')){
             $blocks = BudgetFormItems::getBudgetBlocks($order->form_id, $order->id);
         }
-
+//dd($blocks);
         //Moneda:
         $currency = CompanySettings::co_currency(0);
 
