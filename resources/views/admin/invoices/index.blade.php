@@ -37,6 +37,8 @@
 					<div class="form-group row">
 						{{-- Año --}}
 						@include('admin.partials.selector-year', ['selected_year' => $year])
+						{{-- Mes --}}
+						@include('admin.partials.selector-month', ['selected_month' => $month])
 					</div>
 
 					<div class="form-group row">
@@ -67,6 +69,7 @@
 	<input type="hidden" id="myCustomer" value="{{ $customer_id }}">
 	<input type="hidden" id="myProvider" value="{{ $provider_id }}">
 	<input type="hidden" id="myYear" value="{{ $year }}">
+	<input type="hidden" id="myMonth" value="{{ $month }}">
 
 	@php
 	$totalInvoicesAmount = 0;
