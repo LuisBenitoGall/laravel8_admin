@@ -1,5 +1,17 @@
 <?php
 
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CompanyController;
+use App\Http\Controllers\Api\CompanyWorkplacesController;
+use App\Http\Controllers\Api\CountryController;
+use App\Http\Controllers\Api\CountryProvincesController;
+use App\Http\Controllers\Api\ProvinceController;
+use App\Http\Controllers\Api\ProvinceTownsController;
+use App\Http\Controllers\Api\TownController;
+use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\UserWorkplacesController;
+use App\Http\Controllers\Api\WorkplaceController;
+use App\Http\Controllers\Api\WorkplaceUsersController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -14,12 +26,10 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request){
-    return $request->user();
-});
+
 
 // ADMIN DATATABLES:
-Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('Admin')->group(function(){
+Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('Admin')->group(function () {
     //Accounts:
     Route::get('accounts', 'AccountController@getAccountsDT');
 
@@ -49,13 +59,13 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
 
     //BudgetSettings:
     Route::get('budget-settings', 'BudgetSettingsController@getTemplatesDT');
-    
+
     //BusinessAreas:
     Route::get('business-areas/{company}/{business_relationship}', 'BusinessAreasController@getBusinessAreasDT');
 
     //Categories:
     Route::get('categories/{module_id}', 'CategoryController@getCategoriesDT');
-    
+
     //Companies:
     Route::get('companies', 'CompanyController@getCompaniesDT');
 
@@ -64,7 +74,7 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
 
     //CompanySectors:
     Route::get('company-sectors/{company_id}', 'CompanySectorsController@getCompanySectorsDT');
-    
+
     //Contents:
     Route::get('contents', 'ContentController@getContentsDT');
 
@@ -121,10 +131,10 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
 
     //Invoice Settings:
     Route::get('invoice-settings', 'InvoiceSettingsController@getTemplatesDT');
-    
+
     //IpAccess:
     Route::get('ip-access', 'IpAccessController@getIpsDT');
-    
+
     //Modules:
     Route::get('modules', 'ModuleController@getModulesDT');
 
@@ -144,7 +154,7 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     //OrderSettings:
     Route::get('order-settings', 'OrderSettingsController@getTemplatesDT');
 
-    //OrderTeams:  
+    //OrderTeams:
     Route::get('order-teams/{order?}/{environment?}', 'OrderController@getTeamDT');
 
     //Orders:
@@ -299,7 +309,7 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
 });
 
 // API REST v1:
-Route::prefix('v1')->namespace('Api_v1')->group(function(){
+Route::prefix('v1')->namespace('Api')->group(function () {
     //Companies:
     Route::get('/companies', 'CompanyController@index');
 
@@ -307,3 +317,86 @@ Route::prefix('v1')->namespace('Api_v1')->group(function(){
     Route::get('/users', 'UserController@index');
 
 });
+
+
+Route::post('/login', [AuthController::class, 'login'])->name('api.login');
+
+Route::middleware('auth:api')
+    ->get('/user', function (Request $request) {
+        return $request->user();
+    })
+    ->name('api.user');
+
+Route::name('api.')
+    ->middleware('auth:api')
+    ->group(function () {
+        Route::apiResource('companies', CompanyController::class);
+
+        // Company Workplaces
+        Route::get('/companies/{company}/workplaces', [
+            CompanyWorkplacesController::class,
+            'index',
+        ])->name('companies.workplaces.index');
+        Route::post('/companies/{company}/workplaces', [
+            CompanyWorkplacesController::class,
+            'store',
+        ])->name('companies.workplaces.store');
+
+        Route::apiResource('countries', CountryController::class);
+
+        // Country Provinces
+        Route::get('/countries/{country}/provinces', [
+            CountryProvincesController::class,
+            'index',
+        ])->name('countries.provinces.index');
+        Route::post('/countries/{country}/provinces', [
+            CountryProvincesController::class,
+            'store',
+        ])->name('countries.provinces.store');
+
+        Route::apiResource('provinces', ProvinceController::class);
+
+        // Province Towns
+        Route::get('/provinces/{province}/towns', [
+            ProvinceTownsController::class,
+            'index',
+        ])->name('provinces.towns.index');
+        Route::post('/provinces/{province}/towns', [
+            ProvinceTownsController::class,
+            'store',
+        ])->name('provinces.towns.store');
+
+        Route::apiResource('towns', TownController::class);
+
+        Route::apiResource('users', UserController::class);
+
+        // User Workplaces
+        Route::get('/users/{user}/workplaces', [
+            UserWorkplacesController::class,
+            'index',
+        ])->name('users.workplaces.index');
+        Route::post('/users/{user}/workplaces/{workplace}', [
+            UserWorkplacesController::class,
+            'store',
+        ])->name('users.workplaces.store');
+        Route::delete('/users/{user}/workplaces/{workplace}', [
+            UserWorkplacesController::class,
+            'destroy',
+        ])->name('users.workplaces.destroy');
+
+        Route::apiResource('workplaces', WorkplaceController::class);
+
+        // Workplace Users
+        Route::get('/workplaces/{workplace}/users', [
+            WorkplaceUsersController::class,
+            'index',
+        ])->name('workplaces.users.index');
+        Route::post('/workplaces/{workplace}/users/{user}', [
+            WorkplaceUsersController::class,
+            'store',
+        ])->name('workplaces.users.store');
+        Route::delete('/workplaces/{workplace}/users/{user}', [
+            WorkplaceUsersController::class,
+            'destroy',
+        ])->name('workplaces.users.destroy');
+    });
