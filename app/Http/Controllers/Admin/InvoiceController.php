@@ -359,7 +359,8 @@ class InvoiceController extends Controller{
             return Carbon::parse($row->expiration_date)->format($this->languages[session()->get('locale')][4]);
         })
         ->addColumn('amount', function($row) use($currency){
-            return $row->amount;
+            $amount = $row->refund? $row->amount * -1:$row->amount;
+            return $amount;
         })
         ->addColumn('month', function($row){
             $datestamp = strtotime($row->fiscal_date); 
