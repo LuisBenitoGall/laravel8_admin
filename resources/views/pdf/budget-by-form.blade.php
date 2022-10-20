@@ -40,7 +40,6 @@ $discount_in_lines = false;
 			$itemsWithQty = false;
 
 			foreach($itemsSelected as $its){
-				
 				//Sólo items con $print == 1
 				if($its->print == 1){
 					//19/10/22 código obsoleto. Se sustituye por el de abajo.
@@ -53,11 +52,20 @@ $discount_in_lines = false;
 					// }
 
 					//Buscando el bloque al que pertenece el item:
-					if($its->budget_form_item_id == 1){
-						$block_id = $its->recid;
-					}else{
+					// if($its->budget_form_item_id == 1){
+					// 	$block_id = $its->recid;
+					// }else{
+					// 	$block_id = $its->budget_form_block_id;	
+					// }
+					// 
+					// 20/10/22 REVISAR A FONDO ESTA LÓGICA:
+					
+					if($its->budget_form_block_id){
 						$block_id = $its->budget_form_block_id;	
+					}else{
+						$block_id =	$its->recid;
 					}
+					
 
 					//Si el item pertenece al bloque:
 					if($block->id == $block_id){

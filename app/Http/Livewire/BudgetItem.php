@@ -70,6 +70,8 @@ class BudgetItem extends Component{
         $this->items_selected = [];
 
         $this->form_on = false;
+
+        $this->print = true;
     }
     
     /**
@@ -113,6 +115,8 @@ class BudgetItem extends Component{
                 $this->amount_by_blocks[$block->id] = $block_amount;
             }
         }
+
+
 
         return view('livewire.budget-item');
     }
@@ -324,6 +328,7 @@ class BudgetItem extends Component{
         $this->item = false;
         $this->action = 'save';
         $this->field_readonly = false;
+        $this->print = true;
         $this->reset(['concept', 'block', 'discount', 'price', 'qty', 'days', 'days_continue', 'observations']);
     }
 
