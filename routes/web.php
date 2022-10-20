@@ -443,7 +443,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::get('invoice-settings/{template}/featured', 'InvoiceSettingsController@featured')->name('invoice-settings.featured')->middleware('permission:invoices.edit');
 
     // Invoices:
-    Route::get('invoices/list/{year?}/{company?}', 'InvoiceController@index')->name('invoices.index')->middleware('permission:invoices.index');
+    Route::get('invoices/list/{year?}/{month?}/{company?}', 'InvoiceController@index')->name('invoices.index')->middleware('permission:invoices.index');
     Route::post('invoices', 'InvoiceController@getInvoicesBy')->name('invoices.list')->middleware('permission:invoices.index');
     Route::post('invoices/create-from-order', 'InvoiceController@createFromOrder')->name('invoices.create-from-order')->middleware('permission:invoices.create');
     Route::get('invoices/create-from-provider', 'InvoiceController@createFromProvider')->name('invoices.create-from-provider')->middleware('permission:invoices.create');
