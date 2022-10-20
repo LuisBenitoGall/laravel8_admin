@@ -1,8 +1,8 @@
 {
-    "/js/app.js": "/js/app.js?id=d07220c6c6886e30980723b3cb87bf45",
-    "/js/bootstrap.js": "/js/bootstrap.js?id=7663864f0417ad24490217f247d0dbb0",
-    "/js/custom.js": "/js/custom.js?id=0b88a743148f84930de38325d4c293f4",
-    "/js/custom-datatables.js": "/js/custom-datatables.js?id=4351ef26dad9dda6fc9e64ca7b89e5cb",
-    "/js/custom-fullcalendar.js": "/js/custom-fullcalendar.js?id=b88972f258c0a6b5d3e1b14120222431",
-    "/css/app.css": "/css/app.css?id=5643bc6aedf0f730491c7816304edbd2"
+    "/js/app.js": "/js/app.js?id=6c10bc400f3fe239aba8",
+    "/js/bootstrap.js": "/js/bootstrap.js?id=2e6f85c59a0169d68903",
+    "/js/custom.js": "/js/custom.js?id=cad6ff9ad3c6d745d27f",
+    "/js/custom-datatables.js": "/js/custom-datatables.js?id=0d35d4237f49aa98a32c",
+    "/js/custom-fullcalendar.js": "/js/custom-fullcalendar.js?id=7f35ba1fa587323a20ac",
+    "/css/app.css": "/css/app.css?id=d2e47749f314858d8cdd"
 }

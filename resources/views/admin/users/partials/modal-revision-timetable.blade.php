@@ -22,7 +22,7 @@
 						</div>
                     </div>
 
-                    <x-btn-submit name="submit_update" label="{{ trans('textos.enviar') }}"/>
+                    <x-btn-submit name="submit_save_comments" label="{{ trans('textos.enviar') }}"/>
                 </form> 
             </div>   
         </div>

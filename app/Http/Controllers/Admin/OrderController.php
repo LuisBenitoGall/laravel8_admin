@@ -100,6 +100,15 @@ class OrderController extends Controller{
     protected function validator(array $data){
         //Validación index:
         if(isset($data['submit_filter'])){
+
+            // Si viene el orden_buy realizar la validación de los campos necesarios
+            if($data['order_buy']){
+                return Validator::make($data, [
+                    'year' => 'required|integer',
+                    'order_buy' => 'required',
+                ]);
+            }
+
             //Si no viene declarado order_id
             if(!$data['order_id']){
                 return Validator::make($data, [
@@ -321,7 +330,7 @@ class OrderController extends Controller{
         }
 
         //Si no viene declarado ni cliente ni proveedor redirigimos al inicio:
-        if(!$request->customer_id && !$request->provider_id){
+        if(!$request->customer_id && !$request->provider_id && !$request->order_buy){
             $alert = trans('textos.cliente_proveedor_obligatorios');
             return redirect()->route('orders.index')->with(compact('alert'));   
             exit;
@@ -333,12 +342,20 @@ class OrderController extends Controller{
             $provider_id = session('currentCompany');   
             session(['orderCompanySelected' => ['customer', $request->customer_id]]);
         }
+
         if($request->provider_id && !$request->customer_id){
             $customer_id = session('currentCompany');
             $provider_id =  $request->provider_id;
             if(!$request->customer_id){
                 session(['orderCompanySelected' => ['provider', $request->provider_id]]);   
             }
+        }
+
+        // Si no cumple con ningun requisito, se asigna la empresa actual como proveedor
+        if (!$request->provider_id && !$request->customer_id) {
+            $customer_id = 'all';
+            $provider_id =  session('currentCompany');
+            session(['orderCompanySelected' => ['customer', $request->customer_id]]);
         }
 
         return redirect()->route('orders.index', [$request->year, $customer_id, $provider_id, $request->owner, $request->order_buy]);

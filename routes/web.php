@@ -485,7 +485,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::get('messages/{message}/show', 'MessageController@show')->name('messages.show');
 
     // Migrations Data:
-    Route::get('data', 'MigrationsDataController@index')->name('data.index')->middleware('permission:data.index');
+    //Route::get('data', 'MigrationsDataController@index')->name('data.index')->middleware('permission:data.index');
 
     // Modules:
     Route::get('modules', 'ModuleController@index')->name('modules.index')->middleware('permission:modules.index');
