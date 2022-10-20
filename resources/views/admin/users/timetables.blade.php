@@ -222,6 +222,7 @@ $(function(){
         var elem = $(this);
         var data = $(this).serialize();
         $('#modal-revision-timetable').modal('toggle');
+        console.log(data);
 
         $.ajax({
             url: "/admin/timetable/revision",

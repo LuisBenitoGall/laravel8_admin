@@ -140,7 +140,6 @@ $discount_in_lines = false;
 				//dd($its, $block, $block_name, $block_id, $itemsWithQty);	
 			//}
 
-//echo $block_name.'<br>';
 			//Si el bloque tiene items con cantidad, se muestra:
 			if($itemsWithQty){
 				// Cada bloque genera una tabla: 
