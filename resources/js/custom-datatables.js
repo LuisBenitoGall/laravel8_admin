@@ -2330,8 +2330,8 @@ $(document).ready(function(){
         
         $('#tblInvoices').DataTable({
             order: [[ 3, "desc" ]],
-            serverSide: true,
-            processing: true,
+            serverSide: false,
+            processing: false,
             autoWidth: false,
             // drawCallback: function(){
             //     $('.select2-dt').select2();
