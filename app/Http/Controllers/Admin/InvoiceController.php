@@ -145,7 +145,7 @@ class InvoiceController extends Controller{
     /**
      * 1. Facturas por cliente o proveedor.
      */
-    public function index($year = false, $company = false){
+    public function index($year = false, $month = false, $company = false){
         $customer_id = false;
         $provider_id = false;
         $invoicesType = 'facturas';
@@ -199,7 +199,7 @@ class InvoiceController extends Controller{
             $providers = CustomerProviders::getCompanyProviders(session('currentCompany'));
         }
 
-        return view('admin.invoices.index')->with(compact('header', 'invoicesType', 'year', 'customer_id', 'provider_id', 'customer', 'provider', 'customers', 'providers', 'currency'));
+        return view('admin.invoices.index')->with(compact('header', 'invoicesType', 'year', 'month', 'customer_id', 'provider_id', 'customer', 'provider', 'customers', 'providers', 'currency'));
     }
 
     /**
@@ -293,13 +293,16 @@ class InvoiceController extends Controller{
 
         $company = $request->customer_id? 'c-'.$request->customer_id:'p-'.$request->provider_id;
 
-        return redirect()->route('invoices.index', [$request->year, $company]);
+        // Se comprueba que se elija un mes valido
+        $month = $request->month && $request->month >= 0 && $request->month < 13 ? $request->month : 0;
+
+        return redirect()->route('invoices.index', [$request->year, $month, $company]);
     }
 
     /**
      * 1.2. Listado de facturas por cliente o proveedor para DataTable.
      */
-    public function getInvoicesDT($year = false, $customer = false, $provider = false){
+    public function getInvoicesDT($year = false, $customer = false, $provider = false, $month = false){
         //Ambito de las facturas:
         $environment = $provider == session('currentCompany') || $customer == 'all'? 'sales':'purchases';
 
@@ -324,6 +327,9 @@ class InvoiceController extends Controller{
             }elseif($provider == 'all'){
                 return $q->where('orders.customer_id', $customer);
             }
+        })
+        ->when($month, function($query) use ($month) {
+            return $query->whereMonth('invoices.fiscal_date', $month);
         })
         ->orderBy('invoices.created_at', 'DESC');
 

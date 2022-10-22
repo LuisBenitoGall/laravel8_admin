@@ -2295,6 +2295,7 @@ $(document).ready(function(){
         var customer = $('#myCustomer').val() != ''? $('#myCustomer').val():'0';
         var provider = $('#myProvider').val() != ''? $('#myProvider').val():'0'; 
         var year = $('#myYear').val();
+        var month = $('#myMonth').val();
         var orderId = $('#orderId').val();
         var poId = $('#poId').val();        //by purchase order.
 
@@ -2318,7 +2319,9 @@ $(document).ready(function(){
         //     });
         // });
 
-        var api_route = 'invoices/'+year+'/'+customer+'/'+provider;
+        // var api_route = 'invoices/'+year+'/'+customer+'/'+provider;
+        var api_route = `invoices/${year}/${customer}/${provider}/${month}`;
+
         if(orderId){
             api_route = 'invoices-by-order/'+orderId;
         }else if(poId){
