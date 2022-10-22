@@ -186,7 +186,7 @@
 	<div class="form-group row mt-5">
 		<label for="description" class="col-lg-2 col-form-label">{{ ucfirst(trans('textos.descripcion')) }}</label>
 		<div class="col-lg-10">
-			<x-input-textarea name="description" class="editor" value="{{ $project->briefing }}"/>
+			<x-input-textarea name="description" class="editor" value="{{ $project->description }}"/>
 		</div>
 	</div>
 

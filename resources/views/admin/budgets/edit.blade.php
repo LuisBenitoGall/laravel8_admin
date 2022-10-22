@@ -22,7 +22,7 @@ $setBlock = true;
 	<div class="col-12">
 		{{-- Listado de presupuestos --}}
 		@can('budgets.index')
-			<a href="{{ route('budgets.index') }}" class="btn btn-info">
+			<a href="{{ route('budgets.index') }}" class="btn btn-info" id="teeest">
 				<i class="fa fa-angle-left"></i>
 				{!! trans('textos.volver_presupuestos') !!}
 			</a>

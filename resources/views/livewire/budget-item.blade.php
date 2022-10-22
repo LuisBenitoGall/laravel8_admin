@@ -6,7 +6,7 @@ $statusBudgetLinesNoPrice = App\Helpers\helpers::statusBudgetLinesWithoutPrice()
 $setBlock = 1;
 
 //Bloqueo de modificación de items:
-$permitted = !$order || ($order && !$order->invoiced && !$order->parent)? true:false;
+$permitted = !$order || ($order && $add_items && !$order->parent)? true:false;
 @endphp
 
 <div class="row">
@@ -122,7 +122,7 @@ $permitted = !$order || ($order && !$order->invoiced && !$order->parent)? true:f
     <div class="col-md-12 col-lg-9 col-xl-10">
         {{-- Agregar item - condiciones:
             1. Pedido simple no vinculado a ninguna agrupación.
-            2. Que no esté facturado
+            2. Que la factura no está bloqueada
         --}}
         @if($permitted)
             <button class="btn btn-warning no-spinner btnAddBudgetItem @if($form_on) opened @endif" 
@@ -142,7 +142,7 @@ $permitted = !$order || ($order && !$order->invoiced && !$order->parent)? true:f
         @endif
 
         {{-- Formulario --}}
-        <div wire:ignore.self class="new-budget-item mt-3">
+        <div wire:ignore.self class="new-budget-item mt-3" id="itemForm">
             <form wire:submit.prevent="store" autocomplete="off" id="frm-save-item" accept-charset="utf-8" enctype="multipart/form-data" role="form">
                 {{ csrf_field() }}
                 <input type="hidden" name="item_id" id="newItemId" wire:model.defer="item_id">
@@ -483,7 +483,11 @@ $permitted = !$order || ($order && !$order->invoiced && !$order->parent)? true:f
         $('.addBudgetItem, .btnEditBudgetItem').on('click', function(){
             $('.new-budget-item').slideDown();   
             //Modo para esconder el formulario:
-            $('.btnAddBudgetItem').addClass('opened').html('<i class="fa fa-minus"></i> '+txtCancelar);   
+            $('.btnAddBudgetItem').addClass('opened').html('<i class="fa fa-minus"></i> '+txtCancelar); 
+            $("body").scrollTo('#teeest'); 
+            // $(document).animate({
+            //     scrollTop: $('#newBudgetItem').offset().top
+            // }, 1000);
         });
 
         // Select2:

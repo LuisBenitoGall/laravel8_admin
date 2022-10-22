@@ -103,7 +103,7 @@
 
 						{{-- Fecha entrega prevista --}}
 						@php
-						$estimated_delivery_date = Carbon\Carbon::parse($oig->estimated_delivery_date)->format($languages[session()->get('locale')][4]);
+						$estimated_delivery_date = $oig->estimated_delivery_date? Carbon\Carbon::parse($oig->estimated_delivery_date)->format($languages[session()->get('locale')][4]):'';
 						@endphp
 
 						<td class="text-right">

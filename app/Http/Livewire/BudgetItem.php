@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\BudgetFormItems;
 use App\Models\BudgetForms;
 use App\Models\CompanySettings;
+use App\Models\Invoice;
 use App\Models\Item;
 use App\Models\Order;
 
@@ -28,6 +29,7 @@ class BudgetItem extends Component{
     public $order;
 
     public $action;
+    public $add_items;
     public $amount_by_blocks;
     public $amount_without_percentage_items;
     public $block;
@@ -68,6 +70,19 @@ class BudgetItem extends Component{
         $this->item = false;
         $this->items_order = [];
         $this->items_selected = [];
+
+        //Bloqueo de factura. Se pueden agregar o eliminar items de un presupuesto si la factura o facturas no están todas bloqueadas.
+        $this->add_items = false;
+        $invoices = Invoice::select('blocked')->where('order_id', $order->id)->get();
+        if($invoices->count()){
+            foreach($invoices as $inv){
+                if($inv->blocked == '0'){
+                    $this->add_items = true;    
+                }
+            }
+        }else{
+            $this->add_items = true;    
+        }
 
         $this->form_on = false;
 
