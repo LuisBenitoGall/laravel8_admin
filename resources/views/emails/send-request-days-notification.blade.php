@@ -14,7 +14,7 @@
 
 		@foreach($day as $d)
 			@php
-			$fecha = Carbon\Carbon::parse($d)->format(config('locale.languages.'.config('app.locale'))[4])
+			$fecha = isset($d)? Carbon\Carbon::parse($d)->format($languages[session()->get('locale')][4]):'';
 			@endphp
 
 			{{ $fecha }}<br>	

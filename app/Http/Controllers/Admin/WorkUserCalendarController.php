@@ -152,6 +152,7 @@ class WorkUserCalendarController extends Controller{
         $company = Company::find(session('currentCompany'));
         $data['company'] = $company;
         $data['days'] = $arr; 
+        $data['languages'] = $this->languages;
 
         foreach($receivers as $rcv){
             $emailTo = $rcv;
