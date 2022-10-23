@@ -32,7 +32,7 @@
 							<div class="col-4 col-lg-2 col-xl-1">
 								<div class="card text-white bg-success mb-3">
 								  	<div class="card-body text-center">
-										<h6 class="text-center">{{ ucfirst(App\Helpers\helpers::yearMonths($row->month)) }} {{ $row->year }}</h6>	
+										<h6 class="text-center" style="line-height: 150%;">{{ ucfirst(App\Helpers\helpers::yearMonths($row->month)) }}<br>{{ $row->year }}</h6>	
 
 										{{-- Revisar --}}
 										@if($row->doc && file_exists('docs/timetables_signed/'.$row->doc))

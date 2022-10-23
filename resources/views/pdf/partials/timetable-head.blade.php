@@ -40,7 +40,8 @@
 			display: inline-block;
 			float: right;
 			font-size: .7rem !important;
-			line-height: 1.4rem;
+			line-height: 1.2rem;
+			margin-top: -10px;
 			vertical-align: top;
 			width: 500px;	
 		}
@@ -51,7 +52,7 @@
 			}
 				header .timetables .tm-bloque p{
 					border-bottom: 1px solid #FFF;
-					margin: 0 5px 2px 5px;
+					margin: 0 5px;
 				}
 
 	#subheader{

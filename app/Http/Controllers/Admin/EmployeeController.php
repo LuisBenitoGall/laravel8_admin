@@ -269,10 +269,10 @@ class EmployeeController extends Controller{
         }  
 
         //Formateando fechas de inicio y fin:
-        $start_date = Helpers::convertFecha($request->input('start_date'));
+        $start_date = helpers::convertFecha($request->input('start_date'));
 
         if($request->input('end_date')){
-            $end_date = Helpers::convertFecha($request->input('end_date'));
+            $end_date = helpers::convertFecha($request->input('end_date'));
         }else{
             $end_date = config('constants.UNDEFINED_DATE_');
         }

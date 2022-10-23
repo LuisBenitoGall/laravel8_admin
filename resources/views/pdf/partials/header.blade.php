@@ -2,31 +2,55 @@
 	<header style="background-color: {{ $bg_color }};">
 		<img class="logo" src="{{ asset('img/companies/'.$provider->logo) }}">
 
-		<div class="address">
-			{{ $provider->name }} · {{ $provider->nif }}<br>
-			@if($provider_workplace && $provider_workplace->address) {{ $provider_workplace->address }} @endif 
-			@if($provider_workplace && $provider_workplace->cp)· {{ $provider_workplace->cp}} @endif 
-			@if($provider_workplace && $provider_workplace->Town)· {{ $provider_workplace->Town }} @endif<br>
-			{{ trans('textos.telefono_abrev') }}: 
+		{{-- Plantilla para horarios de empleado: --}}
+		@if(isset($horarios))
+			<div class="timetables">
+				<div class="tm-bloque">
+					<p><b>{{ $company->name }}</b></p>
 
-			@if($provider_phones)
-				@php
-				$primero = true;
-				@endphp
-				@foreach($provider_phones as $phone)
-					@if(!$primero) · @endif
-					{{ $phone->phone_number }}
+					<p>{!! ucfirst(trans('textos.horarios')) !!}: {!! trans('textos.de') !!} {{ $desde }} {!! trans('textos.hasta') !!} {{ $hasta }}</p>	
+
+					<p>CIF: <b>{{ $company->nif }}</b></p>
+
+					<p>CCC: <b>{{ $company->ccc }}</b></p>
+				</div>
+
+				<div class="tm-bloque">
+					<p>{!! ucfirst(trans('textos.empleado')) !!}: <b>{{ $user->name }} {{ $user->surname }}</b></p>	
+
+					<p>NIF: <b>{{ $user->nif }}</b></p>
+
+					<p>NAF: <b>{{ $user->naf }}</b></p>	
+				</div>					
+			</div>
+
+		@else
+			<div class="address">
+				{{ $provider->name }} · {{ $provider->nif }}<br>
+				@if($provider_workplace && $provider_workplace->address) {{ $provider_workplace->address }} @endif 
+				@if($provider_workplace && $provider_workplace->cp)· {{ $provider_workplace->cp}} @endif 
+				@if($provider_workplace && $provider_workplace->Town)· {{ $provider_workplace->Town }} @endif<br>
+				{{ trans('textos.telefono_abrev') }}: 
+
+				@if($provider_phones)
 					@php
-					$primero = false;
+					$primero = true;
 					@endphp
-				@endforeach
-			@endif
+					@foreach($provider_phones as $phone)
+						@if(!$primero) · @endif
+						{{ $phone->phone_number }}
+						@php
+						$primero = false;
+						@endphp
+					@endforeach
+				@endif
 
-			@if($provider_workplace && $provider_workplace->website)
-				<br>
-				<a target="_blank" href="{{ $provider_workplace->website }}" style="color: #888; line-height: 90%;">{{ $provider_workplace->website }}</a>
-			@endif			
-		</div>
+				@if($provider_workplace && $provider_workplace->website)
+					<br>
+					<a target="_blank" href="{{ $provider_workplace->website }}" style="color: #888; line-height: 90%;">{{ $provider_workplace->website }}</a>
+				@endif			
+			</div>
+		@endif
 
 		<div class="clearfix"></div>
 	</header>

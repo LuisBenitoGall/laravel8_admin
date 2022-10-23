@@ -5,7 +5,16 @@ $provider_phones = false;
 
 @include('pdf.partials.timetable-head', ['header_title' => ucfirst(trans('textos.horario'))])
 
-@include('pdf.partials.header', ['company_settings' => $company_settings, 'bg_color' => $bg_color])
+@include('pdf.partials.header', [
+	'standard' => false,
+	'company_settings' => $company_settings, 
+	'bg_color' => $bg_color, 
+	'left_h1' => false,
+	'left_title' => false,
+	'left_manager' => false,
+	'right_h1' => false,
+	'right_manager' => ''
+])
 
 @include('pdf.partials.timetable-footer')
 
@@ -34,24 +43,24 @@ $provider_phones = false;
 
 				//Si el concepto tiene una duración fija, se suman los minutos de esa duración al tiempo trabajado:
 				if($row->flag == 1 && $row->fijo > 0){
-					$horasDia = App\Helpers\Helpers::sumaHoras($horasDia, App\Helpers\Helpers::getTimeFromMinutes($row->fijo));
+					$horasDia = App\Helpers\helpers::sumaHoras($horasDia, App\Helpers\Helpers::getTimeFromMinutes($row->fijo));
 
 				//Calculamos el tiempo trabajado sumando los intervalos de tiempo de Entrada y Salida:
 				}elseif($row->flag == 1){
 					//Tomamos la hora de salida:
 					if(isset($horarios[$idx])){
 						$acaba = $horarios[$idx]->hour;
-						$tiempo = App\Helpers\Helpers::getTimeBetweenHours($row->hour, $acaba);
+						$tiempo = App\Helpers\helpers::getTimeBetweenHours($row->hour, $acaba);
 
 					}else{
-						$tiempo = App\Helpers\Helpers::getTimeBetweenHours($row->hour, date('H:i:s'));
+						$tiempo = App\Helpers\helpers::getTimeBetweenHours($row->hour, date('H:i:s'));
 					}
 
-					$horasDia = App\Helpers\Helpers::sumaHoras($horasDia, $tiempo);
+					$horasDia = App\Helpers\helpers::sumaHoras($horasDia, $tiempo);
 
 				//Si el concepto tiene una duración máxima, se suman los minutos de esa duración al tiempo trabajado:
 				}elseif($row->max > 0){
-					$horasDia = App\Helpers\Helpers::sumaHoras($horasDia, App\Helpers\Helpers::getTimeFromMinutes($row->max));
+					$horasDia = App\Helpers\helpers::sumaHoras($horasDia, App\Helpers\Helpers::getTimeFromMinutes($row->max));
 				}
 
 				$k++;
@@ -59,7 +68,7 @@ $provider_phones = false;
 
 				<tr>
 					<td>{{ $i }}</td>
-					<td>{{ $row->created_at->format(config('locale.languages.'.config('app.locale'))[4]) }}</td>
+					<td>{{ $row->created_at->format($languages[session()->get('locale')][4]) }}</td>
 					<td>
 						@php
 						$p = explode(':', $row->hour);

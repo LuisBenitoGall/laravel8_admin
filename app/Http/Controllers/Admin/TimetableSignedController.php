@@ -183,8 +183,8 @@ class TimetableSignedController extends Controller{
             $from = $ts->year.'-'.$ts->month.'-01';
             $to = Carbon::parse($from)->endOfMonth()->toDateString();   //Obtenemos último día del mes.
 
-            $desde = (config('app.locale') != 'en')? Carbon::parse($from)->format(config('locale.languages.'.config('app.locale'))[4]):$from;
-            $hasta = (config('app.locale') != 'en')? Carbon::parse($to)->format(config('locale.languages.'.config('app.locale'))[4]):$to;
+            $desde = (session()->get('locale') != 'en')? Carbon::parse($from)->format($this->languages[session()->get('locale')][4]):$from;
+            $hasta = (session()->get('locale') != 'en')? Carbon::parse($to)->format($this->languages[session()->get('locale')][4]):$to;
 
             $fromH = $from.' 00:00:00';
             $toH = $to.' 23:59:59';
@@ -196,6 +196,8 @@ class TimetableSignedController extends Controller{
             //Empresa:
             $company = Company::find($company_settings->company_id);
 
+            $provider = $company;
+
             //Centro de trabajo principal de la empresa:
             $workplace = Workplace::select('workplaces.address', 'workplaces.cp', 'towns.name AS town')
             ->where('workplaces.company_id', $company->id)
@@ -206,7 +208,9 @@ class TimetableSignedController extends Controller{
             //Color corporativo:
             $bg_color = $company_settings->primary_color? $company_settings->primary_color:'#10172C';
 
-            $pdf = PDF::loadView('pdf/user-timetable', compact('ts', 'user', 'horarios', 'desde', 'hasta', 'company_settings', 'company', 'workplace', 'bg_color'));
+            $languages = $this->languages;
+
+            $pdf = PDF::loadView('pdf/user-timetable', compact('ts', 'user', 'horarios', 'desde', 'hasta', 'company_settings', 'provider', 'company', 'workplace', 'bg_color', 'languages'));
             $pdf->setPaper('L', 'portrait');
 
             //Guardar o imprimir .pdf:
