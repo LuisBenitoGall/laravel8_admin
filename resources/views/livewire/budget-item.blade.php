@@ -195,11 +195,11 @@ $permitted = !$order || ($order && $add_items && !$order->parent)? true:false;
                         {{-- Selector opciones de precio 0 --}}
                         <div class="optionsWithoutPrice">
                             <small class="text-warning">{{ trans('textos.precio_0_texto') }}</small>
-                            <select name="line_no_price" id="lineNoPrice" class="form-control">
+                            <select name="item_no_price" id="lineNoPrice" class="form-control">
                                 <option value="" selected disabled>{{ trans('textos.opcion_selec') }}</option>
                                 @foreach($statusBudgetLinesNoPrice as $idx => $bl)
                                     @php
-                                    $selected = isset($itemSelected) && isset($itemSelected->line_no_price)? 'selected':'';
+                                    $selected = isset($itemSelected) && isset($itemSelected->item_no_price)? 'selected':'';
                                     @endphp
                                     <option value="{{ $idx }}" {{ $selected }}>{{ $bl }}</option>
                                 @endforeach
@@ -257,7 +257,7 @@ $permitted = !$order || ($order && $add_items && !$order->parent)? true:false;
                     </div>
                 </div>
 
-                <x-btn-submit name="submit_update" label="{{ trans('textos.guardar') }}"/>
+                <x-btn-submit name="submit_update" id="closeForm" label="{{ trans('textos.guardar') }}"/>
             </form>
         </div>
 
@@ -375,7 +375,7 @@ $permitted = !$order || ($order && $add_items && !$order->parent)? true:false;
                                         <span class="mr-5">
                                             {{-- Sin precio --}}
                                             @if($is->item_no_price)
-                                                {{ $is->item_no_price }}
+                                                {{ $statusBudgetLinesNoPrice[$is->item_no_price] }}
 
                                             {{-- Con precio --}}
                                             @else
@@ -483,11 +483,15 @@ $permitted = !$order || ($order && $add_items && !$order->parent)? true:false;
         $('.addBudgetItem, .btnEditBudgetItem').on('click', function(){
             $('.new-budget-item').slideDown();   
             //Modo para esconder el formulario:
-            $('.btnAddBudgetItem').addClass('opened').html('<i class="fa fa-minus"></i> '+txtCancelar); 
-            $("body").scrollTo('#teeest'); 
-            // $(document).animate({
-            //     scrollTop: $('#newBudgetItem').offset().top
-            // }, 1000);
+            $('.btnAddBudgetItem').addClass('opened').html('<i class="fa fa-minus"></i> '+txtCancelar);
+            $("#newBudgetItem").scroll();
+        });
+
+        //Cerrar formulario tras store o update:
+        $('#closeForm').on('click', function(){
+            $('.new-budget-item').slideUp();
+            $('.btnAddBudgetItem').removeClass('opened').html('<i class="fa fa-plus"></i> '+txtLineaAdd);
+            @this.set('form_on', false);
         });
 
         // Select2:
@@ -530,6 +534,7 @@ $permitted = !$order || ($order && $add_items && !$order->parent)? true:false;
         $('#newItemObservations').on('tbwchange', function(e){
             @this.set('observations',e.target.value)
         });
+
     });
     </script>
 </div>

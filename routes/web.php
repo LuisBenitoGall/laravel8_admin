@@ -136,6 +136,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::get('budgets/create/{customer_id?}', 'BudgetController@create')->name('budgets.create')->middleware('permission:budgets.create');
     Route::post('budgets/store', 'BudgetController@store')->name('budgets.store')->middleware('permission:budgets.create');
     Route::get('budgets/{order}/edit/{tab?}', 'BudgetController@edit')->name('budgets.edit')->middleware('permission:budgets.edit');
+    Route::get('budgets/{order}/show', 'BudgetController@show')->name('budgets.show');
     Route::put('budgets/{order}/update', 'BudgetController@update')->name('budgets.update')->middleware('permission:budgets.edit');
     Route::delete('budgets/{order}', 'BudgetController@destroy')->name('budgets.destroy')->middleware('permission:budgets.destroy');
     Route::get('budgets/{order}/reset-num', 'BudgetController@resetNum')->name('budgets.reset-num')->middleware('permission:budgets.edit');
@@ -152,6 +153,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::post('budgets/set-modality', 'BudgetController@setModality')->name('budgets.set-modality');
     Route::post('budgets/copy', 'BudgetController@copy')->name('budgets.copy')->middleware('permission:budgets.create');
     Route::post('budgets/set-block', 'BudgetController@setBlock')->name('budgets.set-block')->middleware('permission:budgets.edit');
+    Route::get('budgets/{order_id}/customer-access/{status}', 'BudgetController@customerAccess')->name('budgets.customer-access');
 
     // Budgets From Providers:
     Route::get('budgets-from-providers', 'BudgetController@fromProviders')->name('budgets-from-providers.index');
@@ -578,8 +580,8 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::delete('orders/{order}/remove-member', 'OrderController@removeTeamMember')->name('orders.remove-member')->middleware('permission:orders.edit');
     Route::get('orders/{order}/remove-purchase-doc', 'OrderController@removePurchaseDoc')->name('orders.remove-purchase-doc')->middleware('permission:orders.edit');
     Route::get('orders/{provider_id}/orders-about-providers', 'OrderController@aboutProviders')->name('orders.orders-about-providers');
-    
-    
+        
+
     Route::get('control-panel', 'OrderController@index')->name('control-panel.index')->middleware('permission:orders.index');
     Route::post('orders/control-panel-sales-year', 'OrderController@controlPanelSalesPost')->name('orders.control-panel-sales-year')->middleware('permission:orders.index');
     Route::post('orders/control-panel-purchases-year', 'OrderController@controlPanelPurchasesPost')->name('orders.control-panel-purchases-year')->middleware('permission:orders.index');

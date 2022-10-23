@@ -66,6 +66,9 @@ class BudgetController extends Controller{
      * 18. Definir modalidad de presupuesto.
      * 19. Copiar presupuesto.
      * 20. Setear bloque para líneas de formulario.
+     * 21. Presupuestos proveedores.
+     * 22. Permitir acceso a cliente.
+     * 23. Ver presupuesto.
      */
     
     private $option = 'presupuestos';
@@ -182,6 +185,7 @@ class BudgetController extends Controller{
             ->join('companies', 'orders.provider_id', '=', 'companies.id')
             ->leftJoin('users', 'orders.customer_manager_id', '=', 'users.id')
             ->where('orders.is_budget', true)
+            ->where('orders.budget_shared', 1)
             ->where('orders.customer_id', session('currentCompany'));
         }
         $budgets = $query; 
@@ -530,7 +534,7 @@ class BudgetController extends Controller{
         if($order->modality == config('constants.BUDGET_FORM_MODALITY_')){
             $blocks = BudgetFormItems::getBudgetBlocks($order->form_id, $order->id);
         }
-//dd($blocks);
+
         //Moneda:
         $currency = CompanySettings::co_currency(0);
 
@@ -543,7 +547,7 @@ class BudgetController extends Controller{
             ->get();
         }
 
-        $budget_from = 'customers';
+        $budget_from = $order->provider_id == session('currentCompany')? 'customers':'providers';
 
         $languages = $this->languages;
 
@@ -631,10 +635,18 @@ class BudgetController extends Controller{
         /*if($customer_order_doc){
             $order->customer_order_doc = $customer_order_doc;
         }*/
-
-        $order->provider_manager_id = $request->provider_manager_id;
-        $order->provider_workplace_id = $request->provider_workplace_id;
-        $order->provider_business_area_id = $request->provider_business_area_id;
+        if($request->provider_manager_id){
+            $order->provider_manager_id = $request->provider_manager_id;
+        }
+        if($request->provider_workplace_id){
+            $order->provider_workplace_id = $request->provider_workplace_id;
+        }
+        if($request->provider_cost_center_id){
+            $order->provider_cost_center_id = $request->provider_cost_center_id;
+        }
+        if($request->provider_business_area_id){
+            $order->provider_business_area_id = $request->provider_business_area_id;
+        }
         $order->final_customer_id = $request->final_customer_id;
         if($request->status){
             $order->budget_status = $request->status;
@@ -1033,7 +1045,7 @@ class BudgetController extends Controller{
         $bg_color = $company_settings->primary_color? $company_settings->primary_color:'#FFF';
 
         //Título .pdf:
-        $pdf_title = $order->file_name? helpers::slugFiles($order->file_name, '_', false):$order->budget_num;
+        $pdf_title = $order->budget_file_name? helpers::slugFiles($order->budget_file_name, '_', false):$order->budget_num;
 
         //Locale:
         $locale = session()->get('locale')? session()->get('locale'):App::getLocale();
@@ -1332,6 +1344,46 @@ class BudgetController extends Controller{
 
         $msg = trans('textos.presupuesto_lineas_vinculadas');
         return redirect()->route('budgets.edit', $request->order_id)->with(compact('msg'));
+    }
+
+    /**
+     * 21. Presupuestos proveedores.
+     */
+    public function fromProviders(){
+        $header = [
+            'option' => $this->option, 
+            'suboption' => 'textos.presupuestos_proveedores',
+            'module' => $this->module,
+            'slug' => 'budgets'
+        ]; 
+
+        $budget_from = 'providers'; 
+
+        return view('admin.budgets.index')->with(compact('header', 'budget_from'));    
+    }
+
+    /**
+     * 22. Permitir acceso a cliente.
+     */
+    public function customerAccess(Request $request, $order_id, $status){
+        if($request->ajax()){
+            Order::where('id', $order_id)
+            ->update(['budget_shared' => $status]);
+        }    
+    }
+
+    /**
+     * 23. Ver presupuesto.
+     */
+    public function show(Order $order){
+        $header = [
+            'option' => $this->option, 
+            'suboption' => 'textos.presupuesto_ver',
+            'module' => $this->module,
+            'slug' => 'budgets'
+        ];  
+
+        return view('admin.budgets.show')->with(compact('header', 'order'));   
     }
 
 }

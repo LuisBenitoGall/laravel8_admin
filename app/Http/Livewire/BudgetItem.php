@@ -45,6 +45,7 @@ class BudgetItem extends Component{
     public $form_on;
     public $item;
     public $items_order;
+    public $items_no_price;
     public $items_selected;
     public $observations;
     public $price;
@@ -87,6 +88,8 @@ class BudgetItem extends Component{
         $this->form_on = false;
 
         $this->print = true;
+
+        $this->items_no_price = helpers::statusBudgetLinesWithoutPrice();
     }
     
     /**
@@ -149,7 +152,11 @@ class BudgetItem extends Component{
                 $no_price = NULL;
             }else{
                 $price = NULL;
-                $no_price = $this->price;
+
+                //Recuperamos el índice de la opción seleccionada:
+                $idx = array_search(trans('textos.'.$this->price), $this->items_no_price);
+
+                $no_price = $idx;
             }
 
             //Precio porcentual:
@@ -191,7 +198,6 @@ class BudgetItem extends Component{
                 }
                 $days_continue_discount = $days_continue_discount != NULL && is_array($days_continue_discount)? $days_continue_discount['discount']:NULL;
             }
-
 
             $item = false;
 
@@ -249,6 +255,9 @@ class BudgetItem extends Component{
             //Enviando importe al componente budget-amount:
             $this->emit('updateAmount', $arr_amounts['amount_with_discount'], $arr_amounts['amount_without_discount']);
             $this->emit('updateAmountMini', $arr_amounts['amount_with_discount']);
+
+            //Estado del formulario:
+            $this->form_on = false;
         }
     }
 
@@ -326,7 +335,7 @@ class BudgetItem extends Component{
             $this->days = $item['days'];
             $this->days_continue = $item['days_continue'];
             $this->discount = $item['discount'];
-            $this->price = $item['item_no_price']? $item['item_no_price']:$item['price'];
+            $this->price = $item['item_no_price']? $this->items_no_price[$item['item_no_price']]:$item['price'];
             $this->qty = $item['qty'];
         }        
 

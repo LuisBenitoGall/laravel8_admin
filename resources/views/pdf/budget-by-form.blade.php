@@ -111,9 +111,9 @@ $discount_in_lines = false;
 							}
 
 							//Texto alternativo para líneas a coste 0:
-							if($its->line_no_price){
-								$precio = $noPriceLinesTexts[$its->line_no_price];
-								$importe = $noPriceLinesTexts[$its->line_no_price];
+							if($its->item_no_price){
+								$precio = $noPriceLinesTexts[$its->item_no_price];
+								$importe = $noPriceLinesTexts[$its->item_no_price];
 								$amount = 0;
 							}else{
 								$precio = $its->price.$currency->symbol.$discount;

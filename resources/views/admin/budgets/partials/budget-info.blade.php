@@ -1,3 +1,7 @@
+@php
+$readonly = $order->customer_id == session('currentCompany')? true:false;
+@endphp
+
 <form method="post" autocomplete="off" action="{{ route('budgets.update', $order) }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
 	@method('PUT')
 	{{ csrf_field() }}
@@ -45,7 +49,7 @@
 		{{-- Presupuesto nº manual --}}
 		<label for="budget_old_num" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.presupuesto_num_manual')) !!}</label>
 		<div class="col-lg-2">
-			<x-input type="text" name="budget_old_num" value="{{ $order->budget_old_num }}" autocomplete="off" maxlength="150" info="budget-old-num"/>
+			<x-input type="text" name="budget_old_num" value="{{ $order->budget_old_num }}" autocomplete="off" maxlength="150" info="budget-old-num" readonly="{{ $readonly }}"/>
 		</div>
 
 		{{-- Pedido --}}
@@ -118,7 +122,7 @@
 		{{-- Presupuesto título --}}
 		<label for="name" class="col-lg-2 col-form-label">{{ ucfirst(trans('textos.presupuesto_titulo')) }}</label>
 		<div class="col-lg-4">
-			<x-input type="text" name="name" value="{{ $order->name }}" autocomplete="off" maxlength="255"/>
+			<x-input type="text" name="name" value="{{ $order->name }}" autocomplete="off" readonly="{{ $readonly }}" maxlength="255"/>
 		</div>
 
 		{{-- Estado - condiciones: 
@@ -128,7 +132,7 @@
 		<div class="col-lg-4">
 			@php
 			$estados = App\Helpers\helpers::budgetStatus();
-			$disabled = $order->invoiced? true:false;
+			$disabled = $order->invoiced || $order->customer_id == session('currentCompany')? true:false;
 			$name = !$disabled? 'status':'';	//En pedidos facturados no se modifica el status.
 			@endphp
 
@@ -177,11 +181,14 @@
 		{{-- Project Manager --}}
 		<label for="provider_manager_id" class="col-lg-2 col-form-label">Project Manager</label>
 		<div class="col-lg-4">	
-			<x-select name="provider_manager_id" class="select2" :options="$provider_managers" label="manager_selec" value="{{ $order->provider_manager_id }}"/>
+			@php
+			$disabled = $order->customer_id == session('currentCompany')? true:false;
+			@endphp
+			<x-select name="provider_manager_id" class="select2" :options="$provider_managers" label="manager_selec" value="{{ $order->provider_manager_id }}" disabled="{{ $disabled }}"/>
 		</div>
 
 		{{-- Manager del cliente --}}
-		<label for="provider_manager_id" class="col-lg-2 col-form-label">{{ ucfirst(trans('textos.responsable_cliente')) }}</label>
+		<label for="customer_manager_id" class="col-lg-2 col-form-label">{{ ucfirst(trans('textos.responsable_cliente')) }}</label>
 		<div class="col-lg-3">	
 			<x-select name="customer_manager_id" class="select2" :options="$customer_managers" label="manager_selec" value="{{ $order->customer_manager_id }}"/>
 		</div>
@@ -201,6 +208,7 @@
 			@if($provider_workplaces->count() > 1)
 				@php
 				$provider_workplaces_ = [];
+				$disabled = $order->customer_id == session('currentCompany')? true:false;
 				@endphp
 
 				@foreach($provider_workplaces as $pw)
@@ -209,7 +217,7 @@
 					@endphp	
 				@endforeach
 
-				<x-select name="provider_workplace_id" class="select2" :options="$provider_workplaces_" label="centro_trabajo_selec" value="{{ $order->provider_workplace_id }}"/>
+				<x-select name="provider_workplace_id" class="select2" :options="$provider_workplaces_" label="centro_trabajo_selec" value="{{ $order->provider_workplace_id }}" disabled="{{ $disabled }}"/>
 
 			@elseif($provider_workplaces->count() == 1)
 				<input type="hidden" name="provider_workplace_id" value="{{ $provider_workplaces[0]->id }}">
@@ -247,6 +255,7 @@
 			<div class="col-lg-4">
 				@php
 				$provider_cost_centers_ = [];
+				$disabled = $order->customer_id == session('currentCompany')? true:false;
 				@endphp
 
 				@foreach($provider_cost_centers as $pcc)
@@ -255,8 +264,10 @@
 					@endphp	
 				@endforeach
 
-				<x-select name="provider_cost_center_id" class="select2" :options="$provider_cost_centers_" label="centro_coste_selec" value="{{ $order->provider_cost_center_id }}"/>
+				<x-select name="provider_cost_center_id" class="select2" :options="$provider_cost_centers_" label="centro_coste_selec" value="{{ $order->provider_cost_center_id }}" disabled="{{ $disabled }}"/>
 			</div>
+		@else
+			<div class="col-lg-6"></div>	
 		@endif
 
 		{{-- Centro de coste del cliente --}}
@@ -285,6 +296,7 @@
 			<div class="col-lg-4">
 				@php
 				$provider_business_areas_ = [];
+				$disabled = $order->customer_id == session('currentCompany')? true:false;
 				@endphp
 
 				@foreach($provider_business_areas as $pba)
@@ -293,7 +305,7 @@
 					@endphp	
 				@endforeach
 
-				<x-select name="provider_business_area_id" class="select2" :options="$provider_business_areas_" label="area_negocio_selec" value="{{ $order->provider_business_area_id }}"/>
+				<x-select name="provider_business_area_id" class="select2" :options="$provider_business_areas_" label="area_negocio_selec" value="{{ $order->provider_business_area_id }}" disabled="{{ $disabled }}"/>
 			</div>
 		@endif
 
@@ -342,7 +354,7 @@
 	<div class="form-group row">
 		<label for="budget_file_name" class="col-lg-2 col-form-label">{{ ucfirst(trans('textos.nombre_archivo')) }}</label>
 		<div class="col-lg-4">
-			<x-input type="text" name="budget_file_name" value="{{ $order->budget_file_name }}" autocomplete="off" maxlength="255" info="budget-file-name"/>
+			<x-input type="text" name="budget_file_name" value="{{ $order->budget_file_name }}" autocomplete="off" maxlength="255" info="budget-file-name" readonly="{{ $readonly }}"/>
 		</div>
 	</div>
 

@@ -2427,6 +2427,7 @@ return [
 	'favorito' => 'Favorito',
 	'favoritos_add' => 'Añadir a favoritos',
 	'buscando' => 'buscando',
+	'acceso_cliente' => 'Acceso cliente',
 	'acceso_ip' => 'Acceso IP',
 	'ip_error_formato_aviso' => 'Introduce un formato válido de IP',
 	'ip_fin' => 'IP fin',

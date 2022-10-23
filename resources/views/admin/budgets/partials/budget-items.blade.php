@@ -1,15 +1,23 @@
-{{-- Líneas presupuesto básico --}}
-@if($order->modality == config('constants.BUDGET_BASIC_MODALITY_'))
-    @include('admin.budgets.partials.budget-items-basic')	
-@endif
+{{-- Vista proveedor --}}
+@if($order->provider_id == session('currentCompany'))
+	{{-- Líneas presupuesto básico --}}
+	@if($order->modality == config('constants.BUDGET_BASIC_MODALITY_'))
+	    @include('admin.budgets.partials.budget-items-basic')	
+	@endif
 
-{{-- Componente líneas de presupuesto por formulario --}}
-@if($order->modality == config('constants.BUDGET_FORM_MODALITY_'))
-	@livewire('budget-item', ['order' => $order])
-@endif
+	{{-- Componente líneas de presupuesto por formulario --}}
+	@if($order->modality == config('constants.BUDGET_FORM_MODALITY_'))
+		@livewire('budget-item', ['order' => $order])
+	@endif
 
-{{-- Líneas presupuesto por catálogo --}}
-@if($order->modality == config('constants.BUDGET_CATALOGUE_MODALITY_'))
-    @include('admin.budgets.partials.budget-items-by-catalogue')
+	{{-- Líneas presupuesto por catálogo --}}
+	@if($order->modality == config('constants.BUDGET_CATALOGUE_MODALITY_'))
+	    @include('admin.budgets.partials.budget-items-by-catalogue')
+	@endif
+
+{{-- Vista cliente --}}
+@else
+	<h2 class="text-warning text-center">En construcción</h2>
+
 @endif
 	

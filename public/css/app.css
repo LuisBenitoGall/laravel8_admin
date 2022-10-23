@@ -29717,8 +29717,6 @@ ul li.rev .fa {
 
 .budget-items {
   margin-top: 15px;
-  max-height: 800px;
-  overflow-y: auto;
 }
 .budget-items .block {
   margin-bottom: 10px;

@@ -35,6 +35,11 @@ $setBlock = true;
 					<i class="fa fa-plus"></i>
 					{!! ucfirst(trans('textos.presupuesto_nuevo')) !!}
 				</a>
+			@else
+				<a target="_blank" href="{{ route('orders.create', 'purchase') }}" class="btn btn-info">
+					<i class="fa fa-plus"></i>
+					{!! ucfirst(trans('textos.compra_nueva')) !!}
+				</a>
 			@endif
 		@endcan
 
@@ -65,44 +70,54 @@ $setBlock = true;
 			@endif
 		@endcan
 		
-		{{-- Versiones --}}
+		{{-- Versiones - condiciones: 
+			1. Permisos de edición.
+			2. Sólo proveedor.	
+		--}}
 		@can('budgets.edit')
-			{{-- Crear versión --}}
-			<a href="{{ route('budgets.modify', $order->id) }}" class="btn btn-info btn-confirm" data-msg="{!! trans('textos.version_crear_confirm') !!}">
-				<i class="fa fa-clone"></i>
-				{!! ucfirst(trans('textos.version_crear')) !!}
-			</a>
+			@if($order->provider_id == session('currentCompany'))
+				{{-- Crear versión --}}
+				<a href="{{ route('budgets.modify', $order->id) }}" class="btn btn-info btn-confirm" data-msg="{!! trans('textos.version_crear_confirm') !!}">
+					<i class="fa fa-clone"></i>
+					{!! ucfirst(trans('textos.version_crear')) !!}
+				</a>
 
-			{{-- Acceso a versiones: --}}
-			@if($versions->count())
-				@php
-				$origBudget = (!$order->recid)? $order->id:$order->recid;
-				@endphp
+				{{-- Acceso a versiones: --}}
+				@if($versions->count())
+					@php
+					$origBudget = (!$order->recid)? $order->id:$order->recid;
+					@endphp
 
-				<div class="budget-versions">
-					<select class="form-control select2">
-						<option value="">
-							{!! ucfirst(trans('textos.versiones')) !!}
-						</option>
+					<div class="budget-versions">
+						<select class="form-control select2">
+							<option value="">
+								{!! ucfirst(trans('textos.versiones')) !!}
+							</option>
 
-						<option value="{{ $origBudget }}" @if($origBudget == $order->id) selected @endif>
-							{!! ucfirst(trans('textos.presupuesto_original')) !!}
-						</option>
+							<option value="{{ $origBudget }}" @if($origBudget == $order->id) selected @endif>
+								{!! ucfirst(trans('textos.presupuesto_original')) !!}
+							</option>
 
-						@foreach($versions as $vs)
-							<option value="{{ $vs->id }}" @if($vs->id == $order->id) selected @endif>{{ $vs->name }} {{ $vs->bkey }}</option>
-						@endforeach		
-					</select>
-				</div>
+							@foreach($versions as $vs)
+								<option value="{{ $vs->id }}" @if($vs->id == $order->id) selected @endif>{{ $vs->name }} {{ $vs->bkey }}</option>
+							@endforeach		
+						</select>
+					</div>
+				@endif
 			@endif
 		@endcan
 
-		{{-- Copiar presupuesto --}}
+		{{-- Copiar presupuesto - condiciones: 
+			1. Permisos creación presupuestos.
+			2. Sólo proveedor.
+		--}}
 		@can('budgets.create')
-			<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-copy">
-				<i class="fa fa-clone"></i>
-				{!! ucfirst(trans('textos.copiar')) !!}
-			</a>
+			@if($order->provider_id == session('currentCompany'))
+				<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-copy">
+					<i class="fa fa-clone"></i>
+					{!! ucfirst(trans('textos.copiar')) !!}
+				</a>
+			@endif
 		@endcan
 
 		{{-- Imprimir --}}
@@ -115,10 +130,11 @@ $setBlock = true;
 			2. No existir pedido o no facturado ni vinculado a una agrupación.
 			3. Exclusivo del proveedor.
 			4. No debe existir ya el descuento.
+			5. Sólo proveedor.
 			...
 		--}}	
 		@can('budgets.edit')
-			@if( (!$order->is_order || ($order && !$order->invoiced && !$order->order_parent)) && $order->provider_id == session('currentCompany') && !$order->discount)
+			@if( (!$order->is_order || ($order && !$order->invoiced && !$order->order_parent)) && $order->provider_id == session('currentCompany') && !$order->discount && $order->provider_id == session('currentCompany'))
 				<a href="#" class="btn btn-warning" data-toggle="modal" data-target="#modal-budget-discount" rel="tooltip" title="{{ trans('textos.descuento_presupuesto') }}">
 	    			<i class="fa fa-percent"></i>
 	    		</a>
@@ -158,9 +174,10 @@ $setBlock = true;
 		{{-- Generar proyecto / link a proyecto - condiciones: 
 			1. Estar activo el módulo de Proyectos.
 			2. Disponer de permisos para generar proyectos.
+			3. Sólo proveedor.
 			...
 		--}}
-		@if($module_projects)
+		@if($module_projects && $order->provider_id == session('currentCompany'))
 			{{-- Acceso a proyecto --}}
 			@if($project)
 				@can('projects.edit')
@@ -184,9 +201,10 @@ $setBlock = true;
 		{{-- Eliminar presupuesto - condiciones: 
 			1. Disponer de permisos.
 			2. Pedido facturado.
+			3. Sólo proveedor.
 		--}}
 		@can('budgets.destroy')
-        	@if(!$invoiced)
+        	@if(!$invoiced && $order->provider_id == session('currentCompany'))
 	        	<form method="POST" action="{{ route('budgets.destroy', $order) }}" class="frm-inline" role="form" accept-charset="UTF-8">
 	                <input name="_method" type="hidden" value="DELETE">
 	                {{ csrf_field() }}
@@ -264,10 +282,12 @@ $setBlock = true;
 					</label>
 
 					{{-- Modalidad --}}
-					<label class="mr-5">
-						{{ ucfirst(trans('textos.modalidad')) }}:
-  					    <b>@if($order->modality) {!! App\Helpers\helpers::budgetModalities($order->modality) !!} @endif</b>
-					</label>
+					@if($order->provider_id == session('currentCompany'))
+						<label class="mr-5">
+							{{ ucfirst(trans('textos.modalidad')) }}:
+	  					    <b>@if($order->modality) {!! App\Helpers\helpers::budgetModalities($order->modality) !!} @endif</b>
+						</label>
+					@endif
 
 					{{-- Descuento aplicado --}}
 					@if(!$order || ($order && !$order->invoiced))
@@ -282,6 +302,21 @@ $setBlock = true;
 
 					{{-- Proyecto --}}
 					@include('admin.orders.partials.link-project')
+
+					{{-- Acceso cliente --}}
+					@if($order->provider_id == session('currentCompany'))
+						<label class="mr-5 position-relative">
+							{!! ucfirst(trans('textos.acceso_cliente')) !!}:
+							<label class="custom-chk-rdb" rel="tooltip">
+				                <input type="checkbox" name="budget_shared" @if($order->budget_shared == 1) checked @endif>
+				                <span class="chk chksmall btnSharedBudget mt-1 ml-2" data-order="{{ $order->id }}"></span>
+				            </label>
+
+				            <div class="position-absolute" style="right: -10px; top: -3px;">
+			            		{!! App\Helpers\helpers::info('budget-customer-access') !!}
+			            	</div>
+						</label>
+					@endif
 				</div>
 
 				{{-- Tabs: --}}
@@ -294,11 +329,11 @@ $setBlock = true;
 			  			<a class="nav-link @if($tab == 'items') active @endif" href="#tab-items" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.lineas')) !!}</a>	
 			  		</li>
 
-			  		<li class="nav-item @if($tab == 'comments') active @endif">
-			  			<a class="nav-link @if($tab == 'comments') active @endif" href="#tab-comments" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.notas')) !!}</a>	
-			  		</li>
-
 			  		@if($order->provider_id == session('currentCompany'))
+				  		<li class="nav-item @if($tab == 'comments') active @endif">
+				  			<a class="nav-link @if($tab == 'comments') active @endif" href="#tab-comments" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.notas')) !!}</a>	
+				  		</li>
+			  		
 				  		<li class="nav-item @if($tab == 'template') active @endif">
 				    		<a class="nav-link @if($tab == 'template') active @endif" href="#tab-budget-template" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.plantilla')) !!}</a>
 				  		</li>
@@ -316,13 +351,13 @@ $setBlock = true;
 						@include('admin.budgets.partials.budget-items')	
 					</div>
 
-					{{-- Notas: --}}
-					<div class="tab-pane fade @if($tab == 'comments') show active @endif" role="tabpanel" id="tab-comments">
-						@include('admin.budgets.partials.budget-comments')	
-					</div>
-
-					{{-- Plantilla del presupuesto: --}}
 					@if($order->provider_id == session('currentCompany'))
+						{{-- Notas: --}}
+						<div class="tab-pane fade @if($tab == 'comments') show active @endif" role="tabpanel" id="tab-comments">
+							@include('admin.budgets.partials.budget-comments')	
+						</div>
+
+						{{-- Plantilla del presupuesto: --}}
 						<div class="tab-pane fade @if($tab == 'template') show active @endif" role="tabpanel" id="tab-budget-template">
 							@include('admin.budgets.partials.budget-template')	
 						</div>
@@ -399,6 +434,20 @@ $(function(){
         }else{
         	return false;
         }
+    });
+
+    //Activar - desactivar acceso de cliente:
+    $('.btnSharedBudget').on('click', function(){
+        var status = '';
+        var elem = $(this);
+        var order = elem.data('order');
+        //Atención!!: detecta el estado previo a la acción, de modo que :checked es si queda deseleccionado:
+        if(elem.siblings('input').is(':checked')){
+            status = 0;
+        }else{
+            status = 1;
+        }  
+        $.get("/admin/budgets/"+order+"/customer-access/"+status, function(response, state){});
     });
 });
 </script>
