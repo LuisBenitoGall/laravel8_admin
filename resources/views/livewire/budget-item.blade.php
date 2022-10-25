@@ -287,10 +287,10 @@
 
                     {{-- Sub total--}}
                     <label for="print"
-                           class="col-4 col-sm-2 col-xl-1 col-form-label sinpadding-right">{!! ucfirst(trans('textos.subtotal')) !!}</label>
+                           class="col-4 col-sm-2 col-xl-1 col-form-label sinpadding-right font-weight-bold">{!! ucfirst(trans('textos.subtotal')) !!}</label>
                     <div class="col-8 col-sm-1 col-xl-1 mb-3">
-                        <label class="custom-chk-rdb" style="top: 5px">
-                            {!! $sub_total[$rowId['id'] ?? 0] ?? 0 !!}
+                        <label class="custom-chk-rdb" style="top: 6px">
+                            {!! $sub_total[$rowId['id'] ?? 0] ?? 0 !!}{{$currency->symbol}}
                         </label>
                     </div>
                 </div>
