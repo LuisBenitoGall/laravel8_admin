@@ -7,6 +7,7 @@ use App\Helpers\helpers;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
@@ -452,9 +453,17 @@ class TimetableController extends Controller{
     public function adjustTimetables(){
         $adn_companies = [3,4,8,202,227,275];
 
-        $users = Employee::select('user_id', 'workplace_id')
-        ->whereIn('user_id', $adn_companies)
-        ->groupBy('user_id');
+        $users = Employee::select('employees.user_id', 'employees.workplace_id',
+            DB::raw("SELECT "),
+
+        )
+        ->join('workplaces', 'employees.workplace_id', '=', 'workplaces.id')
+        ->whereIn('workplaces.company_id', $adn_companies)
+        ->groupBy('employees.user_id')
+        ->get();
+
+
+        dd($users);
         
     }
 }

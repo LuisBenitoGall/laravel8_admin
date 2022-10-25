@@ -77,7 +77,7 @@ class BudgetItem extends Component{
         $invoices = Invoice::select('blocked')->where('order_id', $order->id)->get();
         if($invoices->count()){
             foreach($invoices as $inv){
-                if($inv->blocked == '0'){
+                if($inv->blocked == 0){
                     $this->add_items = true;    
                 }
             }
