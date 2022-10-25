@@ -7,7 +7,6 @@ $setBlock = 1;
 
 //Bloqueo de modificación de items:
 $permitted = !$order || ($order && $add_items && !$order->parent)? true:false;
-if($order->id == 9513) $permitted = true;
 @endphp
 
 <div class="row">
