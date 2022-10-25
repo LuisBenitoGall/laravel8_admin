@@ -1,3 +1,13 @@
+## Production
+admin.weareadn.com
+server: 164.92.251.87
+db: larave8_admin
+
+## Preview
+preview-admin.weareadn.com
+server: 164.92.251.87
+db: preview_admin_laravel8
+
 ## INSTALACIÓN PROYECTO:
 - composer create-project laravel/laravel --prefer-dist laravel8_admin
 - cd laravel8_admin
