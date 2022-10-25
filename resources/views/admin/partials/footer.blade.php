@@ -84,11 +84,11 @@
     <script src="{{ asset('js/plugins/ladda/ladda.jquery.min.js') }}"></script>
     <script src="{{ mix('js/app.js') }}"></script>
 
+    <script src="{{ mix('js/custom.js') }}"></script>
+
     @livewireScripts
 
     @stack('scripts')
-    
-	<script src="{{ mix('js/custom.js') }}"></script>
 
 	<script>
 	/* Spinner: */

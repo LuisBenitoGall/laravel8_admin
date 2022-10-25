@@ -124,6 +124,35 @@ jQuery.fn.rotate = function (degrees) {
     return $(this);
 };
 
+// Abreviaturas días de la semana:
+function weekDays(day = false){
+    var days = {1: _lunes, 2: _martes, 3: _miercoles, 4: _jueves, 5: _viernes, 6: _sabado, 7: _domingo};
+
+    if(day){
+        return days[day];
+    }else{
+        return days;
+    }
+}
+
+// Bucle de opciones para tipo de jornada:
+function dayTypesOptions(data, num, elem, text){
+    var html = '<div class="day-types-options">';
+        html += '<select class="form-control select2" name="" id="comboDayTypes" data-num="'+num+'">';
+            html += '<option value="">'+text+'</option>';
+            for(i=0; i<data.length; i++){
+                html += '<option value="'+data[i].id+'">'+data[i].name+'</option>';    
+            }
+        html += '</select>';
+
+        html += '<a href="#" data-num="'+num+'">'
+            html += '<i class="fa fa-times"></i>';
+        html += '</a>';
+    html += '</div>';
+
+    elem.append(html);    
+}
+
 // ************************************ DOCUMENT READY: ************************************
 $(document).ready(function () {
     /* ***************** INDICE DE MÉTODOS: *****************

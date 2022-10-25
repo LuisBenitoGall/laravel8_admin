@@ -484,7 +484,8 @@ $permitted = !$order || ($order && $add_items && !$order->parent)? true:false;
             $('.new-budget-item').slideDown();   
             //Modo para esconder el formulario:
             $('.btnAddBudgetItem').addClass('opened').html('<i class="fa fa-minus"></i> '+txtCancelar);
-            $("#newBudgetItem").scroll();
+            $('html, body').animate({scrollTop : 0}, 1000);
+            //$("#newBudgetItem").scroll();
         });
 
         //Cerrar formulario tras store o update:

@@ -24,14 +24,12 @@ use App\Models\Project;
 use App\Models\Province;
 use App\Models\Town;
 use App\Models\Unit;
+use App\Models\User;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 class Controller extends BaseController{
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
-
-
-
 
     /**
      * 1. Países.

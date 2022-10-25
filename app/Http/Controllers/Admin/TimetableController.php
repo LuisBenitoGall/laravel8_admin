@@ -21,6 +21,7 @@ use App\Models\Employee;
 use App\Models\Timetable;
 use App\Models\TimetableItems;
 use App\Models\User;
+use App\Models\UserCompanies;
 use App\Models\Workplace;
 use App\Models\WorkUserCalendar;
 
@@ -443,5 +444,17 @@ class TimetableController extends Controller{
                 }); 
             }  
         }    
+    }
+
+    /**
+     * Ajuste horarios de empleados.
+     */
+    public function adjustTimetables(){
+        $adn_companies = [3,4,8,202,227,275];
+
+        $users = Employee::select('user_id', 'workplace_id')
+        ->whereIn('user_id', $adn_companies)
+        ->groupBy('user_id');
+        
     }
 }

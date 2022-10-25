@@ -821,7 +821,7 @@ $(document).ready(function(){
         var from = $('#dtFrom').val();
 
         //Filters:
-        //01/07/2022: se ocultan temporalmente hasta dar el modo de que funcionen junto con ServerSide.
+        // 01/07/2022: se ocultan temporalmente hasta dar el modo de que funcionen junto con ServerSide.
         // $('#tblBudgets thead tr').clone(true).appendTo('#tblBudgets thead');
         // $('#tblBudgets thead tr:eq(1) th').each(function(i){
         //     var title = $(this).text();

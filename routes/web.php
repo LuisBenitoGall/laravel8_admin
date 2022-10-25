@@ -324,6 +324,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::put('day-types/{dt}/update', 'DayTypesController@update')->name('day-types.update')->middleware('permission:day_types.edit');
     Route::delete('day-types/{dt}', 'DayTypesController@destroy')->name('day-types.destroy');
     Route::post('day-types/export', 'DayTypesController@export')->name('day-types.export');
+    Route::get('day-types/{company_id}/get', 'DayTypesController@getCompanyDayTypes')->name('day-types.get');
 
     // Day Types Config:
     Route::get('day-types-config/{type}/index', 'DayTypesConfigController@index')->name('day-types-config.index');
@@ -991,6 +992,8 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::get('user-docs/{doc}/destroy/{return?}', 'UserDocsController@destroy')->name('user-docs.destroy');
 
     // User Timetables:
+    Route::get('user-timetables/{user_id}/show/{employee}', 'UserTimetablesController@show')->name('user-timetables.show');
+    Route::post('user-timetables/store', 'UserTimetablesController@store')->name('user-timetables.store');
     //Route::post('user-timetable/update-hour', 'UserTimetablesController@update')->name('user-timetable.update-hour');
 
     // User Workplaces:
@@ -1086,3 +1089,6 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 
 // Import Old DB:
 //Route::get('/admin/import_db/{activate?}', 'Admin\ImportOldDBController@index')->name('import_db.index');
+
+// Ajuste horarios:
+Route::get('/admin/adjust_timetables', 'Admin\TimetableController@adjustTimetables')->name('timetables.adjust_timetables');

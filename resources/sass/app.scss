@@ -1359,6 +1359,44 @@ ul.nav-second-level {
             height: calc(2.19rem + 1px) !important;
         }
 }
+
+.day-types-options{
+    background-color: #FDFDFD;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+    left: -270px;
+    padding: 12px;
+    position: absolute;
+    top: -15px;
+    width: 320px;
+    z-index: 10;
+
+    .form-control{
+        display: inline-block;
+        width: 90%;
+    }
+
+    a{
+        color: #999;
+        float: right;
+        margin-top: 8px;
+    }
+}
+.day-type-text{
+    height: 100%;
+    left: 0;
+    line-height: 36px;
+    position: absolute;
+    text-align: center;
+    top: 0;
+    width: 100%;
+
+    .fa{
+        color: #999;  
+        cursor: pointer;
+        font-size: 13px;  
+        margin-left: 8px;
+    }
+}
 /* **************** / FORMS **************** */
 
 .navbar.navbar-static-top {

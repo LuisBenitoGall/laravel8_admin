@@ -95,12 +95,12 @@
 		{{-- Charts --}}
 		<div class="card mb-4">
 			<div class="card-body">
-				<div class="chart">
+				<div class="chart chart-mini" style="position: relative;">
 					<p><b>{{ ucfirst(trans('textos.tarea')) }}</b></p>
                 	<canvas id="chartTaskDevelopment"></canvas>
                 </div>
 
-                <div class="chart mt-4">
+                <div class="chart chart-mini mt-4" style="position: relative;">
 					<p><b>{{ ucfirst(trans('textos.proyecto')) }}</b></p>
 					<canvas id="chartProjectPercent"></canvas>
 				</div>

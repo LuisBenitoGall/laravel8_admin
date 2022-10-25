@@ -79,7 +79,7 @@
 	                        @if($row->status == 1)
 	                        	{{-- Horarios personalizados: --}}
 	                       		@can('employees.edit')
-		                       		<a href="#" class="btn btn-xs btn-info btnCustomTimetables" rel="tooltip" title="{!! ucfirst(trans('textos.horarios_personalizados')) !!}" data-toggle="modal" data-target="#modal-custom_timetables" data-id="{{ $row->id }}" data-companyid="{{ $row->companyId }}">
+		                       		<a href="#" class="btn btn-xs btn-info btnCustomTimetables" rel="tooltip" title="{!! ucfirst(trans('textos.horarios_personalizados')) !!}" data-toggle="modal" data-target="#modal-custom-timetables" data-id="{{ $row->id }}" data-companyid="{{ $row->companyId }}">
 		                                <i class="fa fa-clock"></i>
 		                            </a>
 	                        	@endcan	
@@ -113,43 +113,182 @@
 
 {{-- Modals: --}}
 {{-- Cancel employee: --}}
-<div class="modal fade opened-modal-save" id="modal-cancel-employee" tabindex="-1" role="dialog" aria-labelledby="cancelEmployee" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title" id="cancelEmployee">{!! ucfirst(trans('textos.contrato_cancelar')) !!}</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
+@include('admin.employees.partials.modal-cancel-employee')
 
-            <div class="modal-body">
-                <form method="post" autocomplete="off" action="{{ route('employees.cancel') }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
-                    {{ csrf_field() }}
-					<input type="hidden" name="user_id" value="{{ $user->id }}">
-					<input type="hidden" name="id" id="employeeIdCancel">
+{{-- Custom Timetable: --}}
+@include('admin.employees.partials.modal-custom-timetables')
 
-					{{-- Fecha cancelación --}}
-					<div class="form-group row">
-                        <label for="end" class="col-lg-12">{!! ucfirst(trans('textos.fecha')) !!}</label>
-                        <div class="col-lg-12">
-                        	<x-date-picker name="end" :format="$languages[config('app.locale')][4]" required/>
-                        </div>
-                    </div>
+@push('scripts')
+<script>
+$(function(){
+	// Abreviaturas días de la semana:
+	function weekDays_(day = false){
+	    var days = {1: _lunes, 2: _martes, 3: _miercoles, 4: _jueves, 5: _viernes, 6: _sabado, 7: _domingo};
 
-                    {{-- Observaciones --}}
-                    <div class="form-group row">
-                        <label for="observations" class="col-lg-12">{!! ucfirst(trans('textos.observaciones')) !!}</label>
-                        <div class="col-lg-12">
-                        	<x-input-textarea name="observations"/>
-                        </div>
-                    </div>
+	    if(day){
+	        return days[day];
+	    }else{
+	        return days;
+	    }
+	}
 
-                    <x-btn-submit name="submit_cancel_contract" label="{{ trans('textos.enviar') }}"/>
-                </form>    
-            </div>
-        </div>
-    </div>
-</div>
+	// Bucle de opciones para tipo de jornada:
+	function dayTypesOptions_(data, num, elem, text){
+	    var html = '<div class="day-types-options">';
+	        html += '<select class="form-control select2" name="" id="comboDayTypes" data-num="'+num+'">';
+	            html += '<option value="">'+text+'</option>';
+	            for(i=0; i<data.length; i++){
+	                html += '<option value="'+data[i].id+'">'+data[i].name+'</option>';    
+	            }
+	        html += '</select>';
+
+	        html += '<a href="#" data-num="'+num+'">'
+	            html += '<i class="fa fa-times"></i>';
+	        html += '</a>';
+	    html += '</div>';
+
+	    elem.append(html);    
+	}
+
+	// Modal customización horarios empleado.
+    $(document).on('click', '.btnCustomTimetables', function(){
+        var user_id = $('#userId').val();
+        var id = $(this).data('id');
+        var company_id = $(this).data('companyid');
+        $('#employeeId').val(id); 
+        $('#companyId').val(company_id);   
+        $('#tblCustomTimetables').hide();
+        options_data = false;
+
+        $.get("/admin/user-timetables/"+user_id+"/show/"+id, function(response, state){ 
+            //Info de user_timetables:
+            if(response[1].length == 0){
+                var from = response[0].from;
+                var to = response[0].to? response[0].to:'';
+
+            }else{
+                $('#tblCustomTimetables').fadeIn();
+                $('#tblCustomTimetables tbody').html('<tr><td colspan="4" class="text-center pb-3 pt-3"><i class="fas fa-spinner fa-spin"></i></td></tr>');
+
+                var html = '';
+                for(i=0; i<response[1].length; i++){
+                    html += '<tr>';
+                        html += '<td class="text-right">'+response[1][i].desde+'</td>';
+                        html += '<td class="text-right">'+response[1][i].hasta+'</td>';
+                        html += '<td>';
+                            var hours = '';
+                            var str_hours = '';
+                            var k = 1;
+                            for(const dh in response[1][i].daily_hours){
+                                if(response[1][i].daily_hours[dh]){
+                                    if(k > 1){
+                                        hours += ', ';
+                                    }
+
+                                    var day = weekDays_(dh);
+                                    var day_hours = response[1][i].daily_hours[dh].startsWith('_')? txtLaborableNo:response[1][i].daily_hours[dh];
+                                    hours += day+': '+day_hours;
+                                    k++;
+                                }
+
+                                if(dh > 1){
+                                    str_hours += '|';
+                                }
+                                str_hours += response[1][i].daily_hours[dh]? dh+'-'+response[1][i].daily_hours[dh]:dh+'-0';
+                            }
+                            html += hours;
+                        html += '</td>';
+                        html += '<td class="text-right">';
+                            //Editar: 
+                            html += '<a href="#" class="btn btn-sm btn-info btnEditCustomTimetable" rel="tooltip" title="'+txtEditar+'" data-utid="'+response[1][i].id+'" data-from="'+response[1][i].desde+'" data-to="'+response[1][i].hasta+'" data-hours="'+str_hours+'"><i class="fa fa-edit"></i></a> ';
+
+                            //Eliminar:
+                            html += '<a href="/admin/user-timetables/'+response[1][i].id+'/delete" class="btn btn-sm btn-danger btn-confirm" rel="tooltip" title="'+txtEliminar+'" data-msg="'+txtHorariosPersonalesConfirmEliminar+'"><i class="fa fa-trash"></i></a>';
+                        html += '</td>';
+                    html += '</tr>';
+                }
+
+                $('#tblCustomTimetables tbody').html(html);
+            }
+
+            $('#from').val(from);
+            $('#to').val(to);
+        });
+    });
+
+    // Editar horario customizado de empleado desde el modal.
+    $(document).on('click', '.btnEditCustomTimetable', function(e){
+        e.preventDefault();
+        var ut_id = $(this).data('utid');
+        var from = $(this).data('from');
+        var to = $(this).data('to');
+        var str_hours = $(this).data('hours');
+
+        $('#utId').val(ut_id);
+        $('#from').val(from);
+        $('#to').val(to);
+
+        var hours = str_hours.split('|');
+        for(const h in hours){
+            var p = hours[h].split('-');
+            if(p[1].startsWith('_')){
+                $('#jornada_'+p[0]).prop('readonly', true);
+                var day_type_id = p[1].substr(1);
+                $('#dayType_'+p[0]).val(day_type_id);
+            }else{
+                $('#jornada_'+p[0]).val(p[1]);
+            }
+        }
+    });
+
+	// Determinar tipo de jornada para días de calendario personalizado.
+	var options_data = false;
+    $('.btnDayType').on('click', function(e){
+        e.preventDefault();
+        $('.day-types-options').fadeOut().remove();
+        $('.jornada').prop('readonly', false);
+        var elem = $(this);
+        var num = $(this).data('num');
+        var company_id = $('#companyId').val();
+        $('#jornada_'+num).prop('readonly', true).val('');
+
+        if(options_data){
+            dayTypesOptions_(options_data, num, elem.parent(), txtOpcionSelect);
+
+        }else{
+            $.get("/admin/day-types/"+company_id+"/get", function(response, state){
+                if(response){
+                    options_data = response;
+                    dayTypesOptions_(response, num, elem.parent(), txtOpcionSelect);
+                }
+            });
+        }
+    });
+    // Cerrar selector de tipos de jornada.
+    $(document).on('click', '.day-types-options a', function(e){
+        e.preventDefault();   
+        var num = $(this).data('num'); 
+        $('.day-types-options').fadeOut().remove();
+        $('#jornada_'+num).prop('readonly', false);
+    });
+    // Pasar valor del tipo de jornada al formulario.
+    $(document).on('change', '#comboDayTypes', function(event){
+        var id = event.target.value;
+        var option = $("#comboDayTypes option:selected").text();
+        var num = $(this).data('num');
+        
+        var html = '<div class="day-type-text">'+option+' <i class="fa fa-times"></i></div>';
+
+        $('#jornada_'+num).prop('readonly', true).val('');
+        $('#jornada_'+num).parent().find('.day-type-text').remove();
+        $('#jornada_'+num).parent().append(html);
+        $('#dayType_'+num).val(id);
+    });
+    $(document).on('click', '.day-type-text .fa', function(){
+        $(this).parent().remove();
+    });
+});
+</script>
+@endpush
 
 @endsection

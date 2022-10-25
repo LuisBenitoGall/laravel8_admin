@@ -23,6 +23,7 @@ class DayTypesController extends Controller{
      * 5. Actualizar tipo de jornada.
      * 6. Eliminar tipo de jornada.
      * 7. Exportar valores a otras empresas vinculadas.
+     * 8. Obtener day types por empresa.
      */
     
     private $option = 'calendario';
@@ -226,5 +227,21 @@ class DayTypesController extends Controller{
         }
 
         return redirect()->route('day-types.index')->with(compact('alert'));
+    }
+
+    /**
+     * 8. Obtener day types por empresa.
+     */
+    public function getCompanyDayTypes(Request $request, $company_id){
+        if($request->ajax()){
+            $data = DayTypes::select('id', 'name')
+            ->where('company_id', $company_id)
+            ->get();
+
+            return response()->json($data);
+
+        }else{
+            return response()->json(false);
+        }
     }
 }
