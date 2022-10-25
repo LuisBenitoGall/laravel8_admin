@@ -18,7 +18,7 @@ class WorkplaceController extends Controller
      */
     public function index(Request $request)
     {
-        $this->authorize('view-any', Workplace::class);
+        // $this->authorize('view-any', Workplace::class);
 
         $search = $request->get('search', '');
 
@@ -35,7 +35,7 @@ class WorkplaceController extends Controller
      */
     public function store(WorkplaceStoreRequest $request)
     {
-        $this->authorize('create', Workplace::class);
+        // $this->authorize('create', Workplace::class);
 
         $validated = $request->validated();
 
@@ -51,7 +51,7 @@ class WorkplaceController extends Controller
      */
     public function show(Request $request, Workplace $workplace)
     {
-        $this->authorize('view', $workplace);
+        // $this->authorize('view', $workplace);
 
         return new WorkplaceResource($workplace);
     }
@@ -65,7 +65,7 @@ class WorkplaceController extends Controller
         WorkplaceUpdateRequest $request,
         Workplace $workplace
     ) {
-        $this->authorize('update', $workplace);
+        // $this->authorize('update', $workplace);
 
         $validated = $request->validated();
 
@@ -81,7 +81,7 @@ class WorkplaceController extends Controller
      */
     public function destroy(Request $request, Workplace $workplace)
     {
-        $this->authorize('delete', $workplace);
+        //$this->authorize('delete', $workplace);
 
         $workplace->delete();
 

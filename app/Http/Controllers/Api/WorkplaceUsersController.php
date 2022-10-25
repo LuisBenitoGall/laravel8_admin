@@ -16,13 +16,12 @@ class WorkplaceUsersController extends Controller
      */
     public function index(Request $request, Workplace $workplace)
     {
-        $this->authorize('view', $workplace);
+       // $this->authorize('view', $workplace);
 
-        $search = $request->get('search', '');
+        //$search = $request->get('search', '');
 
         $users = $workplace
             ->users()
-            ->search($search)
             ->latest()
             ->paginate();
 
@@ -37,7 +36,7 @@ class WorkplaceUsersController extends Controller
      */
     public function store(Request $request, Workplace $workplace, User $user)
     {
-        $this->authorize('update', $workplace);
+        //$this->authorize('update', $workplace);
 
         $workplace->users()->syncWithoutDetaching([$user->id]);
 
@@ -52,7 +51,7 @@ class WorkplaceUsersController extends Controller
      */
     public function destroy(Request $request, Workplace $workplace, User $user)
     {
-        $this->authorize('update', $workplace);
+       // $this->authorize('update', $workplace);
 
         $workplace->users()->detach($user);
 

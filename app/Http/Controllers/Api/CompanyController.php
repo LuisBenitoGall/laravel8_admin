@@ -18,7 +18,7 @@ class CompanyController extends Controller
      */
     public function index(Request $request)
     {
-
+        // $this->authorize('view-any', Company::class);
 
         $search = $request->get('search', '');
 
@@ -35,7 +35,7 @@ class CompanyController extends Controller
      */
     public function store(CompanyStoreRequest $request)
     {
-
+        // $this->authorize('create', Company::class);
 
         $validated = $request->validated();
 
@@ -51,7 +51,7 @@ class CompanyController extends Controller
      */
     public function show(Request $request, Company $company)
     {
-
+        // $this->authorize('view', $company);
 
         return new CompanyResource($company);
     }
@@ -63,7 +63,7 @@ class CompanyController extends Controller
      */
     public function update(CompanyUpdateRequest $request, Company $company)
     {
-
+        // $this->authorize('update', $company);
 
         $validated = $request->validated();
 
@@ -79,6 +79,7 @@ class CompanyController extends Controller
      */
     public function destroy(Request $request, Company $company)
     {
+        //$this->authorize('delete', $company);
 
         $company->delete();
 

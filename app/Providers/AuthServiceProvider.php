@@ -26,9 +26,9 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
-        if (!$this->app->routesAreCached()) {
-            Passport::routes();
-        }
+
+        Passport::routes();
+
         //Permisos Spatie de Super-Administrador:
         Gate::before(function ($user, $ability) {
             return $user->hasRole('Super Admin') ? true : null;

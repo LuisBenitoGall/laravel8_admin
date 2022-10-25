@@ -17,7 +17,7 @@ class ProvinceTownsController extends Controller
      */
     public function index(Request $request, Province $province)
     {
-        $this->authorize('view', $province);
+        // $this->authorize('view', $province);
 
         $search = $request->get('search', '');
 
@@ -37,7 +37,7 @@ class ProvinceTownsController extends Controller
      */
     public function store(Request $request, Province $province)
     {
-        $this->authorize('create', Town::class);
+        //$this->authorize('create', Town::class);
 
         $validated = $request->validate([
             'name' => ['required', 'max:255', 'string'],

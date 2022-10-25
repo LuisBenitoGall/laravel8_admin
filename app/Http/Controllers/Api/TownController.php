@@ -18,7 +18,7 @@ class TownController extends Controller
      */
     public function index(Request $request)
     {
-        $this->authorize('view-any', Town::class);
+        // $this->authorize('view-any', Town::class);
 
         $search = $request->get('search', '');
 
@@ -35,7 +35,7 @@ class TownController extends Controller
      */
     public function store(TownStoreRequest $request)
     {
-        $this->authorize('create', Town::class);
+        // $this->authorize('create', Town::class);
 
         $validated = $request->validated();
 
@@ -51,7 +51,7 @@ class TownController extends Controller
      */
     public function show(Request $request, Town $town)
     {
-        $this->authorize('view', $town);
+        // $this->authorize('view', $town);
 
         return new TownResource($town);
     }
@@ -63,7 +63,7 @@ class TownController extends Controller
      */
     public function update(TownUpdateRequest $request, Town $town)
     {
-        $this->authorize('update', $town);
+        // $this->authorize('update', $town);
 
         $validated = $request->validated();
 
@@ -79,7 +79,7 @@ class TownController extends Controller
      */
     public function destroy(Request $request, Town $town)
     {
-        $this->authorize('delete', $town);
+        //$this->authorize('delete', $town);
 
         $town->delete();
 

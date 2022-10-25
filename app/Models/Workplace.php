@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Scopes\Searchable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -10,7 +11,7 @@ use Illuminate\Support\Facades\Session;
 
 class Workplace extends Model{
     /**
-	 * 1. Empresa del centro de trabajo. 
+	 * 1. Empresa del centro de trabajo.
      * 2. Validación del centro de trabajo para middleware.
      * 3. Centros de trabajo por empresa.
      * 4. Centro de trabajo principal de empresa.
@@ -19,17 +20,18 @@ class Workplace extends Model{
 
     use HasFactory;
     use SoftDeletes;
+    use Searchable;
 
 	protected $table = 'workplaces';
 
-    protected $fillable = ['company_id', 'name', 'slug', 'featured', 'logo', 'address', 'cp', 'town_id', 'nif', 'website', 'description'];    
+    protected $fillable = ['company_id', 'name', 'slug', 'featured', 'logo', 'address', 'cp', 'town_id', 'nif', 'website', 'description'];
 
     /**
      * 1. Empresa del centro de trabajo.
      */
     public function company(){
     	return $this->belongsTo(Company::class);
-    }	
+    }
 
     /**
      * 2. Validación del centro de trabajo para middleware.
@@ -41,19 +43,19 @@ class Workplace extends Model{
 
         if(!$company){
             $resp = trans('textos.registro_inexistente');
-        } 
+        }
 
         //Si la empresa se encuentra entre las empresas gestionadas por el usuario:
         $belongs = false;
         foreach(\Session::get('companies') as $co){
-            if($co->id == $company->company_id){ 
-                $belongs = true; 
+            if($co->id == $company->company_id){
+                $belongs = true;
                 break;
             }
         }
         if(!$belongs){
-            $resp = trans('textos.no_permisos_accion'); 
-        }    
+            $resp = trans('textos.no_permisos_accion');
+        }
 
         //Comprobamos que la empresa mantiene relación de cliente o proveedor y es guardián:
         //06/10/22: se omite por ahora la condición && $business_relationship hasta entender qué hace realmente.
@@ -91,9 +93,9 @@ class Workplace extends Model{
         ->where('workplaces.company_id', $company_id)
         ->where('workplaces.status', 1)
         ->orderBy('workplaces.name', 'ASC')
-        ->get();   
+        ->get();
 
-        return $data; 
+        return $data;
     }
 
     /**
@@ -106,9 +108,9 @@ class Workplace extends Model{
         ->where('workplaces.company_id', $company_id)
         ->where('workplaces.featured', 1)
         ->where('workplaces.status', 1)
-        ->first();   
+        ->first();
 
-        return $data; 
+        return $data;
     }
 
     /**
@@ -121,8 +123,19 @@ class Workplace extends Model{
         ->where('workplaces.id', $id)
         ->where('workplaces.featured', 1)
         ->where('workplaces.status', 1)
-        ->first();   
+        ->first();
 
         return $data;
+    }
+
+
+    public function town()
+    {
+        return $this->belongsTo(Town::class);
+    }
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class,'user_workplaces');
     }
 }

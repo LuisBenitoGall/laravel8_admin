@@ -18,7 +18,7 @@ class CountryController extends Controller
      */
     public function index(Request $request)
     {
-        $this->authorize('view-any', Country::class);
+        // $this->authorize('view-any', Country::class);
 
         $search = $request->get('search', '');
 
@@ -35,7 +35,7 @@ class CountryController extends Controller
      */
     public function store(CountryStoreRequest $request)
     {
-        $this->authorize('create', Country::class);
+        // $this->authorize('create', Country::class);
 
         $validated = $request->validated();
 
@@ -51,7 +51,7 @@ class CountryController extends Controller
      */
     public function show(Request $request, Country $country)
     {
-        $this->authorize('view', $country);
+        // $this->authorize('view', $country);
 
         return new CountryResource($country);
     }
@@ -63,7 +63,7 @@ class CountryController extends Controller
      */
     public function update(CountryUpdateRequest $request, Country $country)
     {
-        $this->authorize('update', $country);
+        // $this->authorize('update', $country);
 
         $validated = $request->validated();
 
@@ -79,7 +79,7 @@ class CountryController extends Controller
      */
     public function destroy(Request $request, Country $country)
     {
-        $this->authorize('delete', $country);
+        //$this->authorize('delete', $country);
 
         $country->delete();
 

@@ -17,7 +17,7 @@ class CountryProvincesController extends Controller
      */
     public function index(Request $request, Country $country)
     {
-        $this->authorize('view', $country);
+        // $this->authorize('view', $country);
 
         $search = $request->get('search', '');
 
@@ -37,7 +37,7 @@ class CountryProvincesController extends Controller
      */
     public function store(Request $request, Country $country)
     {
-        $this->authorize('create', Province::class);
+        //$this->authorize('create', Province::class);
 
         $validated = $request->validate([
             'name' => ['required', 'max:255', 'string'],

@@ -18,7 +18,7 @@ class ProvinceController extends Controller
      */
     public function index(Request $request)
     {
-        $this->authorize('view-any', Province::class);
+        // $this->authorize('view-any', Province::class);
 
         $search = $request->get('search', '');
 
@@ -35,7 +35,7 @@ class ProvinceController extends Controller
      */
     public function store(ProvinceStoreRequest $request)
     {
-        $this->authorize('create', Province::class);
+        // $this->authorize('create', Province::class);
 
         $validated = $request->validated();
 
@@ -51,7 +51,7 @@ class ProvinceController extends Controller
      */
     public function show(Request $request, Province $province)
     {
-        $this->authorize('view', $province);
+        // $this->authorize('view', $province);
 
         return new ProvinceResource($province);
     }
@@ -63,7 +63,7 @@ class ProvinceController extends Controller
      */
     public function update(ProvinceUpdateRequest $request, Province $province)
     {
-        $this->authorize('update', $province);
+        // $this->authorize('update', $province);
 
         $validated = $request->validated();
 
@@ -79,7 +79,7 @@ class ProvinceController extends Controller
      */
     public function destroy(Request $request, Province $province)
     {
-        $this->authorize('delete', $province);
+        //$this->authorize('delete', $province);
 
         $province->delete();
 

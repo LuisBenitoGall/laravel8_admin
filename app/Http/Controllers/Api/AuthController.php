@@ -30,7 +30,7 @@ class AuthController extends Controller
         $token = $user->createToken('auth-token');
 
         return response()->json([
-            'token' => $token->token,
+            'token' => $token,
         ]);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Scopes\Searchable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -19,6 +20,7 @@ class Company extends Model{
 
     use HasFactory;
     use SoftDeletes;
+    use Searchable;
 
     protected $table = 'companies';
 
@@ -38,6 +40,14 @@ class Company extends Model{
      */
     public function day_types(){
         return $this->hasMany(DayTypes::class);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function workplaces()
+    {
+        return $this->hasMany(Workplace::class);
     }
 
     /**

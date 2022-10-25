@@ -17,7 +17,7 @@ class CompanyWorkplacesController extends Controller
      */
     public function index(Request $request, Company $company)
     {
-        $this->authorize('view', $company);
+        // $this->authorize('view', $company);
 
         $search = $request->get('search', '');
 
@@ -37,7 +37,7 @@ class CompanyWorkplacesController extends Controller
      */
     public function store(Request $request, Company $company)
     {
-        $this->authorize('create', Workplace::class);
+        //$this->authorize('create', Workplace::class);
 
         $validated = $request->validate([
             'name' => ['required', 'max:255', 'string'],
