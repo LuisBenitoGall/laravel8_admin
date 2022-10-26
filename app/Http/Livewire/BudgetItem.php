@@ -55,6 +55,7 @@ class BudgetItem extends Component
     public $total_amount;
     public $sub_total;
     public $rowId;
+    public $tempSubToralRow;
 
     protected $rules = [
         'block' => 'required|integer',
@@ -68,6 +69,7 @@ class BudgetItem extends Component
         $this->blocks = BudgetFormItems::getBudgetBlocks($order->form_id, $order->id);
 
         $this->amount_by_blocks = [];
+        $this->tempSubToralRow = 0;
         $this->rowId = 0;
         $this->sub_total = [];
         $this->co_iva = CompanySettings::co_iva();
@@ -436,5 +438,102 @@ class BudgetItem extends Component
                 $this->render();
             }
         }
+    }
+
+
+    /**
+     * get change Qty value for subtotal
+     * @param $qty
+     * @return void
+     */
+    public function changeQty($qty)
+    {
+        if (!$this->days) {
+            $subtotal = $qty * $this->price;
+        } else {
+            $subtotal = $qty * $this->price * $this->days;
+        }
+
+        if (!$this->discount) {
+            $this->tempSubToralRow = $subtotal;
+        } else {
+            $discount = $this->discount * $subtotal / 100;
+            $this->tempSubToralRow = $subtotal - $discount;
+        }
+    }
+
+
+    /**
+     * get change price value for subtotal
+     * @param $price
+     * @return void
+     */
+    public function changePrice($price)
+    {
+
+        if (!$this->days) {
+            $subtotal = $this->qty * $price;
+        } else {
+            $subtotal = $this->qty * $price * $this->days;
+        }
+        if (!$this->discount) {
+            $this->tempSubToralRow = $subtotal;
+        } else {
+            $discount = $this->discount * $subtotal / 100;
+            $this->tempSubToralRow = $subtotal - $discount;
+
+        }
+    }
+
+
+    /**
+     * get change price value for subtotal
+     * @param $discount
+     * @return void
+     */
+    public function changeDiscount($discount)
+    {
+
+
+        if (!$this->days) {
+            $subtotal = $this->qty * $this->price;
+        } else {
+            $subtotal = $this->qty * $this->price * $this->days;
+        }
+
+        if (is_numeric($discount)) {
+            $discount = $discount * $subtotal / 100;
+            $this->tempSubToralRow = $subtotal - $discount;
+        } else {
+            $this->tempSubToralRow = $subtotal;
+        }
+
+
+    }
+
+    /**
+     * get change Days value for subtotal
+     * @param $days
+     * @return void
+     */
+    public function changeDays($days)
+    {
+
+
+        if (!$days) {
+            $subtotal = $this->qty * $this->price;
+        } else {
+            $subtotal = $this->qty * $this->price * $days;
+        }
+
+        if (!$this->discount) {
+            $this->tempSubToralRow = $subtotal;
+        } else {
+            $discount = $this->discount * $subtotal / 100;
+            $this->tempSubToralRow = $subtotal - $this->discount;
+
+        }
+
+
     }
 }

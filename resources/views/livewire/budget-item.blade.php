@@ -191,7 +191,8 @@
                            class="col-4 col-sm-2 col-xl-1 col-form-label sinpadding-right">{!! ucfirst(trans('textos.cantidad')) !!}</label>
                     <div class="col-8 col-sm-4 col-lg-3 col-xl-2 mb-3">
                         <input type="number" class="form-control text-center" name="qty" min="0" step="0.01" value="1"
-                               id="newItemQty" wire:model.defer="qty" @if($field_readonly) readonly @endif>
+                               id="newItemQty" wire:model.defer="qty" wire:change="changeQty($event.target.value)"
+                               @if($field_readonly) readonly @endif>
                     </div>
 
                     {{-- Precio: en caso de ser 0, se incluye opción para indicar el motivo de dejarlo sin precio --}}
@@ -210,7 +211,7 @@
                             @endif
 
                             <input type="text" name="price" class="form-control text-right set-decimals"
-                                   id="newItemPrice" autocomplete="off" maxlength="8" wire:model.defer="price"
+                                   id="newItemPrice" autocomplete="off" maxlength="8" wire:model.defer="price" wire:keydown.debounce="changePrice($event.target.value)"
                                    @if($field_readonly) readonly @endif>
                             <div class="input-group-append">
                                 <span class="input-group-addon">@if($field_readonly)
@@ -247,7 +248,7 @@
                         <div class="col-8 col-sm-4 col-lg-3 col-xl-2 mb-3">
                             <div class="input-group">
                                 <input type="text" name="discount" class="form-control text-right set-decimals"
-                                       id="newItemDiscount" autocomplete="off" maxlength="5" wire:model.defer="discount"
+                                       id="newItemDiscount" autocomplete="off" maxlength="5" wire:model.defer="discount" wire:change.debounce="changeDiscount($event.target.value)"
                                        @if($field_readonly) readonly @endif>
                                 <div class="input-group-append">
                                     <span class="input-group-addon">%</span>
@@ -261,7 +262,7 @@
                            class="col-4 col-sm-2 col-xl-1 col-form-label sinpadding-right">{!! ucfirst(trans('textos.jornadas')) !!}</label>
                     <div class="col-8 col-sm-4 col-lg-3 col-xl-2 mb-3">
                         <input type="number" class="form-control text-center set-decimals itemDays" name="days" min="0"
-                               step="1" value="0" id="newItemDays" wire:model.defer="days" maxlength="2"
+                               step="1" value="0" id="newItemDays" wire:model.defer="days" wire:change.debounce="changeDays($event.target.value)" maxlength="2"
                                @if($field_readonly) readonly @endif>
                     </div>
 
@@ -291,7 +292,11 @@
                     <div class="col-8 col-sm-1 col-xl-1 mb-3">
                         <label class="custom-chk-rdb" style="top: 6px">
                             <span class="mr-5">
-                            {!! $sub_total[$rowId['id'] ?? 0] ?? 0 !!}{{$currency->symbol}}
+                                @if($tempSubToralRow > 0)
+                                    {{$tempSubToralRow}}{{$currency->symbol}}
+                                @else
+                                    {!! $sub_total[$rowId['id'] ?? 0] ?? 0 !!}{{$currency->symbol}}
+                                @endif
                             </span>
                         </label>
                     </div>
