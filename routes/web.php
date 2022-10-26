@@ -475,6 +475,8 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     // Item Status:
     Route::get('item-status/{id}', 'ItemStatusController@index')->name('item-status.index');
     Route::post('item-status/store', 'ItemStatusController@store')->name('item-status.store');
+    Route::get('item-status/{id}/delete', 'ItemStatusController@destroy')->name('item-status.delete');
+    Route::get('item-status/{item}/{status}/status', 'ItemStatusController@status')->name('item-status.status');
 
     // Items:
     Route::delete('items/{item}', 'ItemController@destroy')->name('items.destroy')->middleware('permission:orders.edit');

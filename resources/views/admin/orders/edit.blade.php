@@ -993,8 +993,10 @@ $(function(){
                 for(i=0; i<response.length; i++){
                     html += '<tr>';
                         html += '<td>'+response[i].created_at+'</td>';
-                        html += '<td>'+response[i].provider_observations+'</td>';
-                        html += '<td>'+response[i].customer_observations+'</td>';
+                        var pr_ob = response[i].provider_observations? response[i].provider_observations:'';
+                        html += '<td>'+pr_ob+'</td>';
+                        var cu_ob = response[i].customer_observations? response[i].customer_observations:'';
+                        html += '<td>'+cu_ob+'</td>';
                         html += '<td class="text-right">';
                             //Estado
                             var checked = response[i].status == 1? 'checked':'';
@@ -1005,7 +1007,7 @@ $(function(){
                             html += '</label>';
 
                             //Eliminar:
-                            html += '<a href="/admin/item-status/'+response[i].id+'/delete" class="btn btn-sm btn-danger btn-confirm" data-msg="'+txtRondaCambiosEliminarConfirm+'" rel="tooltip" title="'+txtEliminar+'"><i class="fa fa-trash"></i></a>';
+                            html += '<a href="/admin/item-status/'+response[i].id+'/delete" class="btn btn-xs btn-danger btn-confirm" data-msg="'+txtRondaCambiosEliminarConfirm+'" rel="tooltip" title="'+txtEliminar+'"><i class="fa fa-trash"></i></a>';
                         html += '</td>';
                     html += '</tr>';
                 }
