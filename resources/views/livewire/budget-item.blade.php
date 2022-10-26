@@ -285,14 +285,13 @@
                         </label>
                     </div>
 
-                    {{-- Sub total--}}
-                    <label for="print"
-                           class="col-4 col-sm-2 col-xl-1 col-form-label sinpadding-right font-weight-bold">{!! ucfirst(trans('textos.subtotal')) !!}</label>
+                    {{-- Subtotal--}}
+                    <label for="" class="col-4 col-sm-2 col-xl-1 col-form-label sinpadding-right">{!! ucfirst(trans('textos.subtotal')) !!}</label>
                     <div class="col-8 col-sm-1 col-xl-1 mb-3">
                         <label class="custom-chk-rdb" style="top: 6px">
-                            <span class="mr-5">
-                            {!! $sub_total[$rowId['id'] ?? 0] ?? 0 !!}{{$currency->symbol}}
-                            </span>
+                            <strong class="mr-5">
+                                {!! $sub_total[$rowId['id'] ?? 0] ?? 0 !!}{{$currency->symbol}}
+                            </strong>
                         </label>
                     </div>
                 </div>
