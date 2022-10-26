@@ -535,7 +535,7 @@ class BudgetItem extends Component
                 $this->tempSubToralRow = $subtotal;
             } else {
                 $discount = $this->discount * $subtotal / 100;
-                $this->tempSubToralRow = $subtotal - $this->discount;
+                $this->tempSubToralRow = $subtotal - $discount;
 
             }
         }
