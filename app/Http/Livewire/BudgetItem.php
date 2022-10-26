@@ -448,17 +448,19 @@ class BudgetItem extends Component
      */
     public function changeQty($qty)
     {
-        if (!$this->days) {
-            $subtotal = $qty * $this->price;
-        } else {
-            $subtotal = $qty * $this->price * $this->days;
-        }
+        if (is_numeric($qty)) {
+            if (!$this->days) {
+                $subtotal = $qty * $this->price;
+            } else {
+                $subtotal = $qty * $this->price * $this->days;
+            }
 
-        if (!$this->discount) {
-            $this->tempSubToralRow = $subtotal;
-        } else {
-            $discount = $this->discount * $subtotal / 100;
-            $this->tempSubToralRow = $subtotal - $discount;
+            if (!$this->discount) {
+                $this->tempSubToralRow = $subtotal;
+            } else {
+                $discount = $this->discount * $subtotal / 100;
+                $this->tempSubToralRow = $subtotal - $discount;
+            }
         }
     }
 
@@ -470,18 +472,21 @@ class BudgetItem extends Component
      */
     public function changePrice($price)
     {
+        if (is_numeric($price)) {
 
-        if (!$this->days) {
-            $subtotal = $this->qty * $price;
-        } else {
-            $subtotal = $this->qty * $price * $this->days;
-        }
-        if (!$this->discount) {
-            $this->tempSubToralRow = $subtotal;
-        } else {
-            $discount = $this->discount * $subtotal / 100;
-            $this->tempSubToralRow = $subtotal - $discount;
 
+            if (!$this->days) {
+                $subtotal = $this->qty * $price;
+            } else {
+                $subtotal = $this->qty * $price * $this->days;
+            }
+            if (!$this->discount) {
+                $this->tempSubToralRow = $subtotal;
+            } else {
+                $discount = $this->discount * $subtotal / 100;
+                $this->tempSubToralRow = $subtotal - $discount;
+
+            }
         }
     }
 
@@ -494,21 +499,21 @@ class BudgetItem extends Component
     public function changeDiscount($discount)
     {
 
-
-        if (!$this->days) {
-            $subtotal = $this->qty * $this->price;
-        } else {
-            $subtotal = $this->qty * $this->price * $this->days;
-        }
-
         if (is_numeric($discount)) {
-            $discount = $discount * $subtotal / 100;
-            $this->tempSubToralRow = $subtotal - $discount;
-        } else {
-            $this->tempSubToralRow = $subtotal;
+            if (!$this->days) {
+                $subtotal = $this->qty * $this->price;
+            } else {
+                $subtotal = $this->qty * $this->price * $this->days;
+            }
+
+            if (is_numeric($discount)) {
+                $discount = $discount * $subtotal / 100;
+                $this->tempSubToralRow = $subtotal - $discount;
+            } else {
+                $this->tempSubToralRow = $subtotal;
+            }
+
         }
-
-
     }
 
     /**
@@ -519,21 +524,21 @@ class BudgetItem extends Component
     public function changeDays($days)
     {
 
+        if (is_numeric($days)) {
+            if (!$days) {
+                $subtotal = $this->qty * $this->price;
+            } else {
+                $subtotal = $this->qty * $this->price * $days;
+            }
 
-        if (!$days) {
-            $subtotal = $this->qty * $this->price;
-        } else {
-            $subtotal = $this->qty * $this->price * $days;
+            if (!$this->discount) {
+                $this->tempSubToralRow = $subtotal;
+            } else {
+                $discount = $this->discount * $subtotal / 100;
+                $this->tempSubToralRow = $subtotal - $this->discount;
+
+            }
         }
-
-        if (!$this->discount) {
-            $this->tempSubToralRow = $subtotal;
-        } else {
-            $discount = $this->discount * $subtotal / 100;
-            $this->tempSubToralRow = $subtotal - $this->discount;
-
-        }
-
 
     }
 }
