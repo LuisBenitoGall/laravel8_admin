@@ -447,7 +447,7 @@ if($order->provider_team){
 				{{-- Componente importe pedido flotante: --}}
 				{{-- Pedido simple --}}
 				@if(!$order->is_group)
-					@livewire('budget-amount', ['budget_amount' => $order_amount, 'currency' => $currency->symbol, 'budget_amount_without_discount' => number_format($order_amount_without_discount, 2), 'environment' => 'orders'])
+					@livewire('budget-amount', ['budget_amount' => $order_amount, 'currency' => $currency->symbol, 'budget_amount_without_discount' => $order_amount_without_discount, 'environment' => 'orders'])
 
 				{{-- Agrupación --}}
 				@else
@@ -818,6 +818,9 @@ foreach($previsions as $prev_){
 	@endcan
 @endif
 
+{{-- Ronda de cambios --}}
+@include('admin.orders.partials.modal-changes-round')
+
 @push('scripts')
 <script>
 //Control del porcentaje de facturación:
@@ -974,6 +977,70 @@ $(function(){
     		$('#editEstimatedReceptionDate').prop('disabled', true);
     		$('#estimatedReceptionDateText').show();
     	}  	
+    });
+
+    //Modal ronda de cambios.
+    $(document).on('click', '.btnChangesRound', function(){
+        var id = $(this).data('id');
+        var line = $(this).data('line');
+
+        $('#ChangesRound b').text(line);
+        $('#itemId').val(id);
+
+        $.get("/admin/item-status/"+id, function(response, state){
+            if(response){
+                var html = '';
+                for(i=0; i<response.length; i++){
+                    html += '<tr>';
+                        html += '<td>'+response[i].created_at+'</td>';
+                        html += '<td>'+response[i].provider_observations+'</td>';
+                        html += '<td>'+response[i].customer_observations+'</td>';
+                        html += '<td class="text-right">';
+                            //Estado
+                            var checked = response[i].status == 1? 'checked':'';
+                            var title = response[i].status == 1? txtCambiosCompletados:txtCambiosEnCurso;
+                            html += '<label class="custom-chk-rdb" rel="tooltip" title="'+title+'" style="margin-top: 5px;">';
+                                html += '<input type="checkbox" value="'+response[i].id+'" '+checked+'>';
+                                html += '<span class="chk1 chkChangesRound"></span>';
+                            html += '</label>';
+
+                            //Eliminar:
+                            html += '<a href="/admin/item-status/'+response[i].id+'/delete" class="btn btn-sm btn-danger btn-confirm" data-msg="'+txtRondaCambiosEliminarConfirm+'" rel="tooltip" title="'+txtEliminar+'"><i class="fa fa-trash"></i></a>';
+                        html += '</td>';
+                    html += '</tr>';
+                }
+
+                $('#tblChangesRound tbody').html(html);    
+            }
+        });
+    });
+
+    //Actualizar estado de ronda de cambios.
+    $(document).on('click', '.chkChangesRound', function(){
+        var status = '';
+        var elem = $(this);
+        //Atención!!: detecta el estado previo a la acción, de modo que :checked es si queda deseleccionado:
+        if(elem.siblings('input').is(':checked')){
+            status = 0;
+        }else{
+            status = 1;
+        }  
+        var id = elem.siblings('input').val();
+        $.get("/admin/item-status/"+id+"/"+status+"/status", function(response, state){
+            if(response){
+                $('.check-ko').remove();
+                elem.parent('label').before('<i class="fa fa-check check-ok"></i>');
+                $('.check-ok').delay(1000).fadeOut();
+            }else{
+                elem.parent('label').before('<i class="fa fa-exclamation-triangle check-ko"></i>');
+            }
+        });   
+    });
+
+    //Mostrar formulario nueva ronda de cambios.
+    $('.btnAddChangeRound').on('click', function(e){
+        e.preventDefault();  
+        $('#addChangeRound').slideToggle('slow'); 
     });
 });
 </script>

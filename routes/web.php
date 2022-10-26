@@ -472,6 +472,10 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::post('ip-access/store', 'IpAccessController@store')->name('ip-access.store');
     Route::delete('ip-access/{range}', 'IpAccessController@destroy')->name('ip-access.destroy');
 
+    // Item Status:
+    Route::get('item-status/{id}', 'ItemStatusController@index')->name('item-status.index');
+    Route::post('item-status/store', 'ItemStatusController@store')->name('item-status.store');
+
     // Items:
     Route::delete('items/{item}', 'ItemController@destroy')->name('items.destroy')->middleware('permission:orders.edit');
     Route::get('items/{item}/copy', 'ItemController@copy')->name('items.copy')->middleware('permission:budgets.edit');

@@ -223,10 +223,6 @@ $setBlock = true;
 		<div class="card mb-3">
 			<div class="card-body">
 				{{-- Componente importe presupuesto flotante: --}}
-				@php
-				$order_amount_without_discount = $order->discount > 0? number_format($order_amount_without_discount, 2):false;
-				@endphp
-
 				@livewire('budget-amount', ['budget_amount' => $order_amount, 'currency' => $currency->symbol, 'budget_amount_without_discount' => $order_amount_without_discount, 'environment' => 'budgets'])
 
 				<h3 class="mb-3">

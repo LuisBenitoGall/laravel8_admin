@@ -449,21 +449,56 @@ class TimetableController extends Controller{
 
     /**
      * Ajuste horarios de empleados.
+     *
+     * Revisar los horarios de todos los empleados desde el 01/09/21 e incluir la hora de comida para todos aquellos que en jornadas laborales completas no lo tenga contemplado.
      */
     public function adjustTimetables(){
         $adn_companies = [3,4,8,202,227,275];
+        $from = '2021-09-01';
+        $to = '2022-08-31';
 
-        $users = Employee::select('employees.user_id', 'employees.workplace_id',
-            DB::raw("SELECT "),
+        $timetable_items = [
+            //3 => ['comida' => '', 'entrada' => ''],
+            4 => ['comida' => 5, 'entrada' => 1],
+            8 => ['comida' => 18, 'entrada' => 14],
+            202 => ['comida' => 31, 'entrada' => 27],
+            227 => ['comida' => 44, 'entrada' => 40],
+            275 => ['comida' => 57, 'entrada' => 53]
+        ];
 
-        )
+
+
+        // DB::raw("(SELECT id FROM timetable_items WHERE slug = 'comida' AND company_id = workplaces.company_id AND basic_item = 0) AS comida"),
+        // DB::raw("(SELECT id FROM timetable_items WHERE slug = 'entrada' AND company_id = workplaces.company_id AND basic_item = 0) AS entrada"),
+
+        $users = Employee::select('employees.user_id', 'employees.workplace_id', 'workplaces.company_id')
         ->join('workplaces', 'employees.workplace_id', '=', 'workplaces.id')
         ->whereIn('workplaces.company_id', $adn_companies)
         ->groupBy('employees.user_id')
         ->get();
 
 
-        dd($users);
-        
+        foreach($users as $u){
+            //Horarios del usuario:
+            $horarios = Timetable::select('id', 'date', 'hour', 'item_id')
+            ->where('user_id', $u->user_id)
+            ->orderBy('date', 'ASC')
+            ->get();
+
+            $current_date = false;
+            $arr_dates = [];
+
+            foreach($horarios as $h){
+                $arr_dates = empty($arr_dates)
+
+
+                $current_date = !$current_date || $h->date != $current_date? $h->date:$current_date;
+
+
+                $arr_dates = empty($arr_dates)
+            }
+            
+            dd($u);
+        }
     }
 }

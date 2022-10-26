@@ -13,6 +13,11 @@
 		<a href="#" class="btn btn-xs btn-info btnEditItem" data-id="{{ $item->id }}" data-toggle="modal" data-target="#modal-edit-line" rel="tooltip" title="{{ ucfirst(trans('textos.editar')) }}"><i class="fa fa-edit"></i></a>
 	@endif
 
+	{{-- Ronda de cambios --}}
+	<a href="#" class="btn btn-xs btn-info btnChangesRound" rel="tooltip" title="{!! ucfirst(trans('textos.ronda_cambios')) !!}" data-toggle="modal" data-target="#modal-changes-round" data-id="{{ $item->id }}" data-line="{{ $item->name }}">
+		<i class="fa fa-tasks"></i>
+	</a>
+
 	{{-- Eliminar - condiciones
 		1. Disponer de permisos.
         2. No debe ser pedido vinculado a agrupación ni estar facturado.
