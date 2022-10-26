@@ -40,13 +40,12 @@ class AdminController extends Controller{
             'module' => $this->module
         ];
 
-        // $preferences = Preference::select('preferences.id', 'preferences.name', 'preferences.url', 'modules.color', 'modules.icon')
-        // ->leftJoin('modules', 'preferences.module_id', '=', 'modules.id')
-        // ->where('preferences.user_id', Auth::user()->id)
-        // ->orderBy('modules.level', 'ASC')
-        // ->get();
+        $preferences = Preference::select('preferences.id', 'preferences.name', 'preferences.url', 'modules.color', 'modules.icon')
+        ->leftJoin('modules', 'preferences.module_id', '=', 'modules.id')
+        ->where('preferences.user_id', Auth::user()->id)
+        ->orderBy('modules.level', 'ASC')
+        ->get();
 
-    	//return view('admin.dashboard', compact('header', 'preferences'));
         
 
 
@@ -60,7 +59,7 @@ class AdminController extends Controller{
 
 
 
-        return view('admin.dashboard', compact('header'));
+        return view('admin.dashboard', compact('header', 'preferences'));
     }
 
     /**

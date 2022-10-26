@@ -30573,6 +30573,27 @@ ul li.rev .fa {
   width: 80px;
 }
 
+.preference {
+  position: relative;
+}
+.preference .preference-link h3 {
+  color: #FFF;
+}
+.preference .preference-delete {
+  color: #ed5565;
+  font-size: 16px;
+  height: 20px;
+  position: absolute;
+  right: 5px;
+  top: 1px;
+  width: 20px;
+  z-index: 2;
+}
+.preference .preference-delete i {
+  font-size: 16px;
+  margin-top: 0;
+}
+
 /**
  * RESPONSIVE MEDIA QUERIES
  */

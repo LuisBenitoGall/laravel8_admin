@@ -313,6 +313,7 @@ $(window).on('load', function () {
     26. Modal editar item.
     27. Aplicar descuento por defecto del cliente a líneas del pedido, tanto nueva como edición.
     28. Cálculo precio + precio con iva en gastos.
+    29. Guardar preferencia.
     */
 
     // 1. Eliminar preview imagen seleccionada:
@@ -1090,6 +1091,24 @@ $(window).on('load', function () {
             var amount = amount_with_iva / (parseFloat(iva / 100) + parseInt(1));
             $('#expenseAmount').val(amount.toFixed(2));
         }
+    });
+
+    // 29. Guardar preferencia.
+    $('#preferenceName').on('change', function(e){
+        e.preventDefault();
+        var data = $('#frm_preference').serialize();
+        $('#preferenceName').val('');
+
+        $.ajax({
+            url: "/admin/preferences/store",
+            type: "POST",
+            data: data, 
+            cache: false,
+            datatype: "JSON",
+            success: function(response){
+                //showSuccess(response);    
+            }
+        });
     });
 
 });

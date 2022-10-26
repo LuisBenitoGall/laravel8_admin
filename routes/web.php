@@ -611,6 +611,10 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::get('planning', 'PlanningController@index')->name('planning.index')->middleware('permission:planning.index');
     Route::get('planning/create', 'PlanningController@create')->name('planning.create')->middleware('permission:planning.create');
 
+    // Preferences:
+    Route::post('preferences/store', 'PreferenceController@store')->name('preferences.store');
+    Route::get('preferences/destroy/{preference}', 'PreferenceController@destroy')->name('preferences.destroy');
+
     // Procedure Patterns:
     Route::get('procedure-patterns', 'ProcedurePatternsController@index')->name('procedure-patterns.index')->middleware('permission:procedure-patterns.index');
     Route::get('procedure-patterns/create', 'ProcedurePatternsController@create')->name('procedure-patterns.create')->middleware('permission:procedure-patterns.create');
