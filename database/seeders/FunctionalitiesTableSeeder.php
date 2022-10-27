@@ -407,6 +407,11 @@ class FunctionalitiesTableSeeder extends Seeder{
             'label' => 'tipos_jornada',
             'module' => 'calendar'
             ],
+            ['name' => 'work user calendar',
+            'slug' => 'work-user-calendar',
+            'label' => 'calendario_empleados',
+            'module' => 'calendar'
+            ],
 
             ['name' => 'employees timetable',
             'slug' => 'employees-timetable',

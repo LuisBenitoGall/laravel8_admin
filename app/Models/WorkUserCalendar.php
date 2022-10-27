@@ -4,12 +4,18 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
+
+//Models:
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
 
 class WorkUserCalendar extends Model{
     /**
      * 1. Calendario por usuario.
      * 2. Informar si es festivo del empleado.
      * 3. Eliminar registros por fecha y usuario.
+     * 4. Inserción permisos sin funcionalidad.
      */
     
     use HasFactory;
@@ -58,5 +64,26 @@ class WorkUserCalendar extends Model{
         WorkUserCalendar::where('user_id', $user_id)
         ->where('date', $date)
         ->delete(); 
+    }
+
+    /**
+     * 4. Inserción permisos sin funcionalidad.
+     */
+    public static function setOtherPermissions(){
+        //Incluir en este array los permisos a generar.
+        $other_permissions = ['work-user-calendar'];
+        //Métodos para los permisos:
+        $methods = config('constants.METHODS_');
+
+        foreach($other_permissions as $op){
+            //Confirmamos que no esté creado previamente:
+            $exist = DB::table('permissions')->where('name', 'LIKE', $op.'.%')->first();
+
+            if(!$exist){
+                foreach($methods as $method){
+                    Permission::create(['name' => strtolower($op).'.'.$method[0]]);
+                }    
+            }
+        }    
     }
 }

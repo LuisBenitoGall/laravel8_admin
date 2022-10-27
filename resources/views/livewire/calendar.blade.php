@@ -140,7 +140,7 @@
                     $weekDay = 0;
 
                     //Indica si es día del mes o celda vacía.
-                    $isMonthDay = false;    
+                    $isMonthDay = false;  
                     @endphp
 
                     <tbody>
@@ -193,7 +193,7 @@
                                 {{-- Colocando el primer día de mes en la celda correcta --}}
                                 @if($isMonthDay)
                                     <span class="month-day">{{ $monthDay }}</span>
-                                @endif
+                                @endif      
 
                                 {{-- Horas de la jornada --}}
                                 @if(isset($selectedDates[$date]) && $selectedDates[$date]['hours'])
@@ -233,6 +233,17 @@
                                                 {{-- </span> --}}
                                             @endif
                                         @endif
+
+
+
+
+
+
+
+
+
+
+
                                     </span>
                                 @endif
                             </td>

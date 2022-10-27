@@ -17,7 +17,7 @@ class CreateFunctionalitiesTable extends Migration{
             $table->string('slug');
             $table->string('label')->nullable();
             //FK:
-            $table->unsignedBigInteger('module_id');
+            $table->unsignedBigInteger('module_id')->nullable();
             $table->foreign('module_id')->references('id')->on('modules');
             $table->softDeletes();
             $table->timestamps();

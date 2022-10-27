@@ -113,42 +113,51 @@ class Calendar extends Component{
 
                 //Creamos ...:
                 if(!$thisDate){
-                    $wuc = new WorkUserCalendar();
-                    $wuc->user_id = $this->user->id;
-                    $wuc->day_type_id = $this->day_type->id;
-                    $wuc->date = $this->date;
-                    $wuc->save();
+                    $thisDate = new WorkUserCalendar();
+                    $thisDate->user_id = $this->user->id;
+                    $thisDate->day_type_id = $this->day_type->id;
+                    $thisDate->date = $this->date;
+                    $thisDate->save();
 
                 // ... o actualizamos:
                 }else{
-                    //Actualizamos ...
-                    if($thisDate->day_type_id != $this->day_type->id){
-                        $thisDate->day_type_id = $this->day_type->id;
+                    //Si el tipo de jornada está declarado:
+                    if($thisDate->day_type_id){
+                        //Si estaba validada se elimina:
+                        if($thisDate->status){
+                            $save_in_array_user = false;
 
-                    //... o eliminamos si el tipo de jornada es el mismo que ya existía:
+                            //Eliminamos fecha del array de fechas del usuario:
+                            unset($this->userDates[$thisDate->date]);
+
+                            $thisDate->delete();
+                            $thisDate = false;
+
+                        //Si no está validado, se valida si el usuario dispone de los permisos:
+                        }else{
+                            if(Auth::user()->can('work-user-calendar.edit')){
+                                $thisDate->status = true;
+                                $thisDate->save();
+                            }   
+                        }
+
+                    //Sin tipo de jornada declarada:
                     }else{
-                        $thisDate->day_type_id = NULL;
-                        $save_in_array_user = false;
+                        $thisDate->day_type_id = $this->day_type->id;
+                        $thisDate->save();
                     }
-                    $thisDate->save();
                 }
-
-                $wuc_id = $thisDate? $thisDate->id:$wuc->id;
-                $wuc_date = $thisDate? $thisDate->date:$this->date;
 
                 //Guardamos en el array de fechas del usuario...
                 if($save_in_array_user){
-                    $this->userDates[$wuc_date] = [
-                        'id' => $wuc_id,
+                    $this->userDates[$thisDate->date] = [
+                        'id' => $thisDate->id,
                         'day_type' => $this->day_type->id,
                         'color' => $this->day_type->color,
                         'notified' => NULL,
                         'doc' => NULL,
-                        'status' => '0'
+                        'status' => $thisDate->status
                     ];
-                //... o eliminamos del array:
-                }else{
-                    unset($this->userDates[$wuc_date]);
                 }
 
             //Acción para empresa:
