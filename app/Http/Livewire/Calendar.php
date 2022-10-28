@@ -5,9 +5,11 @@ namespace App\Http\Livewire;
 use Livewire\Component;
 use App\Helpers\helpers;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
 
 //Models:
+use App\Models\Company;
 use App\Models\DayTypes;
 use App\Models\WorkCalendar;
 use App\Models\WorkUserCalendar;
@@ -19,10 +21,12 @@ class Calendar extends Component{
      * 3. Seleccionar tipo de jornada.
      */
 
+    public $company;
     public $date;
     public $day_type;
     public $dayTypes;
     public $dayTypesArr = [];
+    public $languages;
     public $selectedDates = [];
     public $user = false;
     public $userDates = [];
@@ -84,6 +88,12 @@ class Calendar extends Component{
                 ];
             }
         }
+
+        //Información de la empresa:
+        $this->company = Company::find(session('currentCompany'));
+
+        //Idiomas:
+        $this->languages = helpers::languages();
     }
 
     /**
@@ -121,6 +131,8 @@ class Calendar extends Component{
 
                 // ... o actualizamos:
                 }else{
+                    $emailFrom = config('constants.EMAIL_');
+
                     //Si el tipo de jornada está declarado:
                     if($thisDate->day_type_id){
                         //Si estaba validada se elimina:
@@ -138,6 +150,23 @@ class Calendar extends Component{
                             if(Auth::user()->can('work-user-calendar.edit')){
                                 $thisDate->status = true;
                                 $thisDate->save();
+
+                                $fecha = [];
+                                $fecha[$thisDate->day_type_id] = $thisDate->date;
+
+                                //Envío de email:
+                                $emailTo = $this->user->email;
+                                $data['usuario'] = $this->user->name.' '.$this->user->surname;
+                                $data['company'] = $this->company;
+                                $data['days'] = $fecha; 
+                                $data['languages'] = $this->languages;
+                                $co = $this->company;
+                                
+                                Mail::send('emails.send-days-confirmation', $data, function($message) use($emailFrom, $co, $emailTo){
+                                    $message->from($emailFrom, $co->name);
+                                    $message->to($emailTo);
+                                    $message->subject(trans('textos.jornadas_solicitadas_confirmacion')); 
+                                }); 
                             }   
                         }
 

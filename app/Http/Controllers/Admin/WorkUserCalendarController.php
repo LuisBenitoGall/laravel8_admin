@@ -196,7 +196,7 @@ class WorkUserCalendarController extends Controller{
                 foreach($fechas as $fecha){
                     //Si el tipo de día es compatible laborable o no:   
                     if(!$fecha->is_working){
-                        //Eliminamos los registros de esa fecha para las jornada no laborables:
+                        //Eliminamos los registros de esa fecha para las jornadas no laborables:
                         Timetable::deleteRowsByUserDate($request->user_id, $fecha->date);
 
                         $fecha->self_hours = NULL;

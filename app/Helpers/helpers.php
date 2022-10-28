@@ -2018,22 +2018,24 @@ class Helpers{
 	public static function itemAmount($item, $with_iva = false){
 		$amount = $item->price * $item->qty;
 
-		//Contabilizando jornadas:
-        if($item->days > 1){
-            $amount = $amount * $item->days;   
-            
-            //Aplicando descuento de días continuos:
-            if($item->days_continue > 0 && $item->days_continue_discount){
-                $jc_percentage = helpers::percent($amount, $item->days_continue_discount);
-                $amount = $amount - $jc_percentage;
-            }
-        }
+		if($item->price > 0){
+			//Contabilizando jornadas:
+	        if($item->days > 1){
+	            $amount = $amount * $item->days;   
+	            
+	            //Aplicando descuento de días continuos:
+	            if($item->days_continue > 0 && $item->days_continue_discount){
+	                $jc_percentage = helpers::percent($amount, $item->days_continue_discount);
+	                $amount = $amount - $jc_percentage;
+	            }
+	        }
 
-        //Descuento sobre la línea:
-        if($item->discount){
-            $discount = helpers::percent($amount, $item->discount);   
-            $amount = $amount - $discount;  
-        }
+	        //Descuento sobre la línea:
+	        if($item->discount){
+	            $discount = helpers::percent($amount, $item->discount);   
+	            $amount = $amount - $discount;  
+	        }
+	    }
 
         //IVA:	
         if($item->iva > 0 && $with_iva){

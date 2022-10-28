@@ -782,8 +782,8 @@ class OrderController extends Controller{
         ->toArray();
 
         //Importe del pedido:
-        if($order->free_amount){
-            $order_amount = $order->free_amount;
+        if($order->bag_amount){
+            $order_amount = $order->bag_amount;
             $order_amount_without_discount = false;
         }else{
             $items = $order->items();
@@ -1222,7 +1222,7 @@ class OrderController extends Controller{
         })
         ->addColumn('amount', function($item) use($currency, $order_amount){
             $amount = '';
-            if($item->price > 0){
+            if($item->price != 0){
                 if($item->calculated_by_percent > 0){
                     $amount = helpers::itemAmountPercentage($item->price, $order_amount['amount_with_discount']);
                     return $amount.$currency->symbol.'<br><small>('.trans('textos.precio_porcentual').')</small>';
