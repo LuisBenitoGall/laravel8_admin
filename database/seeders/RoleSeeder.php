@@ -7,6 +7,7 @@ use Illuminate\Database\Seeder;
 //Models:
 use App\Models\Functionality;
 use App\Models\Module;
+use App\Models\WorkUserCalendar;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 
@@ -45,5 +46,8 @@ class RoleSeeder extends Seeder{
                 Permission::create(['name' => strtolower($func->slug).'.'.$method[0]]);
             }
         }
+
+        //Otros permisos sin funcionalidad:
+        WorkUserCalendar::setOtherPermissions();
     }
 }

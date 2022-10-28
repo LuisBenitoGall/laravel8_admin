@@ -5,9 +5,11 @@ namespace App\Http\Livewire;
 use Livewire\Component;
 use App\Helpers\helpers;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
 
 //Models:
+use App\Models\Company;
 use App\Models\DayTypes;
 use App\Models\WorkCalendar;
 use App\Models\WorkUserCalendar;
@@ -19,10 +21,12 @@ class Calendar extends Component{
      * 3. Seleccionar tipo de jornada.
      */
 
+    public $company;
     public $date;
     public $day_type;
     public $dayTypes;
     public $dayTypesArr = [];
+    public $languages;
     public $selectedDates = [];
     public $user = false;
     public $userDates = [];
@@ -84,6 +88,12 @@ class Calendar extends Component{
                 ];
             }
         }
+
+        //Información de la empresa:
+        $this->company = Company::find(session('currentCompany'));
+
+        //Idiomas:
+        $this->languages = helpers::languages();
     }
 
     /**
@@ -113,42 +123,70 @@ class Calendar extends Component{
 
                 //Creamos ...:
                 if(!$thisDate){
-                    $wuc = new WorkUserCalendar();
-                    $wuc->user_id = $this->user->id;
-                    $wuc->day_type_id = $this->day_type->id;
-                    $wuc->date = $this->date;
-                    $wuc->save();
+                    $thisDate = new WorkUserCalendar();
+                    $thisDate->user_id = $this->user->id;
+                    $thisDate->day_type_id = $this->day_type->id;
+                    $thisDate->date = $this->date;
+                    $thisDate->save();
 
                 // ... o actualizamos:
                 }else{
-                    //Actualizamos ...
-                    if($thisDate->day_type_id != $this->day_type->id){
-                        $thisDate->day_type_id = $this->day_type->id;
+                    $emailFrom = config('constants.EMAIL_');
 
-                    //... o eliminamos si el tipo de jornada es el mismo que ya existía:
+                    //Si el tipo de jornada está declarado:
+                    if($thisDate->day_type_id){
+                        //Si estaba validada se elimina:
+                        if($thisDate->status){
+                            $save_in_array_user = false;
+
+                            //Eliminamos fecha del array de fechas del usuario:
+                            unset($this->userDates[$thisDate->date]);
+
+                            $thisDate->delete();
+                            $thisDate = false;
+
+                        //Si no está validado, se valida si el usuario dispone de los permisos:
+                        }else{
+                            if(Auth::user()->can('work-user-calendar.edit')){
+                                $thisDate->status = true;
+                                $thisDate->save();
+
+                                $fecha = [];
+                                $fecha[$thisDate->day_type_id] = $thisDate->date;
+
+                                //Envío de email:
+                                $emailTo = $this->user->email;
+                                $data['usuario'] = $this->user->name.' '.$this->user->surname;
+                                $data['company'] = $this->company;
+                                $data['days'] = $fecha; 
+                                $data['languages'] = $this->languages;
+                                $co = $this->company;
+                                
+                                Mail::send('emails.send-days-confirmation', $data, function($message) use($emailFrom, $co, $emailTo){
+                                    $message->from($emailFrom, $co->name);
+                                    $message->to($emailTo);
+                                    $message->subject(trans('textos.jornadas_solicitadas_confirmacion')); 
+                                }); 
+                            }   
+                        }
+
+                    //Sin tipo de jornada declarada:
                     }else{
-                        $thisDate->day_type_id = NULL;
-                        $save_in_array_user = false;
+                        $thisDate->day_type_id = $this->day_type->id;
+                        $thisDate->save();
                     }
-                    $thisDate->save();
                 }
-
-                $wuc_id = $thisDate? $thisDate->id:$wuc->id;
-                $wuc_date = $thisDate? $thisDate->date:$this->date;
 
                 //Guardamos en el array de fechas del usuario...
                 if($save_in_array_user){
-                    $this->userDates[$wuc_date] = [
-                        'id' => $wuc_id,
+                    $this->userDates[$thisDate->date] = [
+                        'id' => $thisDate->id,
                         'day_type' => $this->day_type->id,
                         'color' => $this->day_type->color,
                         'notified' => NULL,
                         'doc' => NULL,
-                        'status' => '0'
+                        'status' => $thisDate->status
                     ];
-                //... o eliminamos del array:
-                }else{
-                    unset($this->userDates[$wuc_date]);
                 }
 
             //Acción para empresa:

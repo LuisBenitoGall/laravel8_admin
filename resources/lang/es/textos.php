@@ -2727,5 +2727,6 @@ return [
 	'correspondencia_ref_saved' => 'La correspondencia de referencia se ha guardado correctamente',
 	'correspondencia_ref_texto' => 'La referencia del proveedor corresponde a nuestro producto',
 	'ct' => 'CT',
+	'calendario_empleados' => 'calendario empleados',
 
 ];

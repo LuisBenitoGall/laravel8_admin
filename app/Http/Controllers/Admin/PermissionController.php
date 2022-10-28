@@ -14,6 +14,7 @@ use Illuminate\Validation\Rule;
 //Models:
 use App\Models\Functionality;
 use App\Models\User;
+use App\Models\WorkUserCalendar;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
@@ -67,6 +68,9 @@ class PermissionController extends Controller{
         ];  
 
         $functionalities = Functionality::orderBy('label', 'ASC')->get();
+
+        //Generación permisos sin funcionalidad:
+        WorkUserCalendar::setOtherPermissions();
 
         return view('admin.permissions.index')->with(compact('header', 'functionalities'));
     }

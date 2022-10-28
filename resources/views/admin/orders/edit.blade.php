@@ -470,6 +470,10 @@ if($order->provider_team){
 						@else
 							{{ $order->id }}
 						@endif
+
+						@if($order->name)
+							- {{ $order->name }}
+						@endif
 					</u>
 
 					{{-- Pedido en agrupación --}}
@@ -888,7 +892,8 @@ $(function(){
     });
 
     //Validación previsiones de facturación:
-    $('#frmOrderInfo').on('submit', function(){
+    //26/10/2022: se omite -por ahora- la validación de las previsiones de facturación. Se considera que hay pedidos que deben quedar abiertos y sin mes concreto para su facturación pues distorsiona la previsión para ese mes. Se modifica selector: $('#frmOrderInfo') por $('#frmOrderInfo_')
+    $('#frmOrderInfo_').on('submit', function(){
     	var validate_previsions = true;		
     	$('.prevision-data').each(function(){
     		if($(this).val() == ''){
