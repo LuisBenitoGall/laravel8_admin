@@ -141,7 +141,7 @@ function dayTypesOptions(data, num, elem, text){
         html += '<select class="form-control select2" name="" id="comboDayTypes" data-num="'+num+'">';
             html += '<option value="">'+text+'</option>';
             for(i=0; i<data.length; i++){
-                html += '<option value="'+data[i].id+'">'+data[i].name+'</option>';    
+                html += '<option value="'+data[i].id+'">'+data[i].name+'</option>';
             }
         html += '</select>';
 
@@ -150,7 +150,7 @@ function dayTypesOptions(data, num, elem, text){
         html += '</a>';
     html += '</div>';
 
-    elem.append(html);    
+    elem.append(html);
 }
 
 // ************************************ DOCUMENT READY: ************************************
@@ -699,7 +699,7 @@ $(window).on('load', function () {
         var value = value.replace(/,/g, '.');
         //Patrón de formato correcto con 2 decimales:
         var regexp = /^-?\d*(\.\d{1})?\d{0,1}$/;
-        if (!regexp.test(value) || value == '0') {
+        if (!regexp.test(value) || value == '0' || value == '') {
             swal.fire({
                 title: txtValorIncorrecto,
                 text: "",
@@ -1102,11 +1102,11 @@ $(window).on('load', function () {
         $.ajax({
             url: "/admin/preferences/store",
             type: "POST",
-            data: data, 
+            data: data,
             cache: false,
             datatype: "JSON",
             success: function(response){
-                //showSuccess(response);    
+                //showSuccess(response);
             }
         });
     });
