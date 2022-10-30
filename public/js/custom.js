@@ -21,12 +21,12 @@ eval("/* ***************** FUNCTIONS: ***************** */\n// File input:\n$(fu
 
 /******/ 	});
 /************************************************************************/
-/******/ 	
+/******/
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module can't be inlined because the eval-source-map devtool is used.
 /******/ 	var __webpack_exports__ = {};
 /******/ 	__webpack_modules__["./resources/js/custom.js"]();
-/******/ 	
+/******/
 /******/ })()
 ;
