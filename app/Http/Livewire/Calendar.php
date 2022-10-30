@@ -145,29 +145,20 @@ class Calendar extends Component{
                             $thisDate->delete();
                             $thisDate = false;
 
-                        //Si no está validado, se valida si el usuario dispone de los permisos:
+                        //Si no está validado, se valida si el usuario dispone de los permisos, o se elimina si no dispone de ellos:
                         }else{
                             if(Auth::user()->can('work-user-calendar.edit')){
                                 $thisDate->status = true;
                                 $thisDate->save();
+                            }else{
+                                $save_in_array_user = false;
 
-                                $fecha = [];
-                                $fecha[$thisDate->day_type_id] = $thisDate->date;
+                                //Eliminamos fecha del array de fechas del usuario:
+                                unset($this->userDates[$thisDate->date]);
 
-                                //Envío de email:
-                                $emailTo = $this->user->email;
-                                $data['usuario'] = $this->user->name.' '.$this->user->surname;
-                                $data['company'] = $this->company;
-                                $data['days'] = $fecha; 
-                                $data['languages'] = $this->languages;
-                                $co = $this->company;
-                                
-                                Mail::send('emails.send-days-confirmation', $data, function($message) use($emailFrom, $co, $emailTo){
-                                    $message->from($emailFrom, $co->name);
-                                    $message->to($emailTo);
-                                    $message->subject(trans('textos.jornadas_solicitadas_confirmacion')); 
-                                }); 
-                            }   
+                                $thisDate->delete();
+                                $thisDate = false;    
+                            } 
                         }
 
                     //Sin tipo de jornada declarada:

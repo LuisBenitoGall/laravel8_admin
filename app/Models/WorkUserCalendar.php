@@ -71,7 +71,7 @@ class WorkUserCalendar extends Model{
      */
     public static function setOtherPermissions(){
         //Incluir en este array los permisos a generar.
-        $other_permissions = ['work-user-calendar'];
+        $other_permissions = config('constants.OTHER_PERMISSIONS_');
         //Métodos para los permisos:
         $methods = config('constants.METHODS_');
 
