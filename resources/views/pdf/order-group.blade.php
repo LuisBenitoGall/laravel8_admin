@@ -42,7 +42,12 @@ $my_deposit_lines = [];
 					@endif --}} &nbsp;
 				</th>	
 				<th style="background-color: {{ $bg_color }}; width: 20%;">{{ strtoupper(trans('textos.total')) }}</th>
-				<th style="background-color: {{ $bg_color }}; text-align: right; width: 20%;">{{ number_format($order->bag_amount, 2) }}{{ $currency->symbol }}</th>
+
+				@php
+				$amount = $order->bag_amount? $order->bag_amount:$orderGroupAmount;
+				@endphp
+
+				<th style="background-color: {{ $bg_color }}; text-align: right; width: 20%;">{{ number_format($amount, 2) }}{{ $currency->symbol }}</th>
 			</tr>
 		</thead>	
 	</table>

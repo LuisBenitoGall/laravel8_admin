@@ -564,9 +564,6 @@
                 //Modo para esconder el formulario:
                 $('.btnAddBudgetItem').addClass('opened').html('<i class="fa fa-minus"></i> ' + txtCancelar);
                 $('html, body').animate({scrollTop: 290}, 1000);
-
-
-                //$("#newBudgetItem").scroll();
             });
 
             //Cerrar formulario tras store o update:

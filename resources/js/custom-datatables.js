@@ -2795,67 +2795,6 @@ $(document).ready(function(){
                 {data: 'estado', name: 'estado'},
                 {data: 'acciones', name: 'acciones', className: 'text-right'}
             ]
-            // columnDefs: [
-            //     {"targets": 0,
-            //     "render": function(data, type, row){
-            //         var norder = '<a href="/admin/orders/'+row['id']+'/edit">'+row['id']+'</a>';
-            //         return norder;
-            //     }
-            //     },
-            //     {"targets": 1,
-            //     "render": function(data, type, row){
-            //         var old_num = row['old_order_group']? row['old_order_group']:'';
-            //         return old_num;    
-            //     }
-            //     },
-            //     {"targets": 4,
-            //     "render": function(data, type, row){
-            //         return row['group_amount']+row['currency'];
-            //     }
-            //     },
-            //     {"targets": 5,
-            //     "render": function(data, type, row){
-            //         if(row['bag_amount']){
-            //             return row['bag_amount']+row['currency'];
-            //         }else{
-            //             return '';
-            //         }
-            //     }
-            //     },
-            //     {"targets": -2,
-            //     "render": function(data, type, row){
-            //         return '<span class="xoption-'+row['id']+'">'+row['estado']+'</span>'; 
-            //     }
-            //     }, 
-            //     {"targets": -1,
-            //     "render": function(data, type, row){
-            //         //Estado múltiple:
-            //         var estado = multipleStatus(row['estados'], row['status'], row['id']);
-
-            //         //Facturar:
-            //         var facturar = '';
-            //         if(row['invoice']){
-            //             facturar = '<a href="/admin/invoices/'+row['id']+'/create-from-group" class="btn btn-xs btn-info btn-confirm" rel="tooltip" title="'+txtFacturar+'" data-msg="'+txtFacturarConfirm+'"><i class="fa fa-file-invoice-dollar"></i></a>';
-            //         }
-                    
-            //         //Editar:
-            //         var editar = '<a href="/admin/orders/'+row['id']+'/edit" class="btn btn-xs btn-info" rel="tooltip" title="'+txtEditar+'"><i class="fa fa-edit"></i></a>';
-
-            //         if(row['opened']){
-            //             //Eliminar:
-            //             var eliminar = '<form method="POST" action="/admin/orders/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
-            //                 eliminar += '<input name="_method" type="hidden" value="DELETE">';
-            //                 eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
-            //                 eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtAgrupacionEliminar+'" data-msg="'+txtAgrupacionEliminarConfirm+'"><i class="fa fa-trash"></i></button>';
-            //             eliminar += '</form>';
-            //         }else{
-            //             var eliminar = '';
-            //         }
-
-            //         return estado+' '+facturar+' '+editar+' '+eliminar;
-            //     }
-            //     }
-            // ]
         });
     }
 
@@ -2913,44 +2852,7 @@ $(document).ready(function(){
                         return row['days'];    
                     }                    
                 }
-                },
-                // {"targets": 6,
-                // "render": function(data, type, row){
-                //     var amount = setAmount(row['qty'], row['price'], row['discount'], row['days']);
-                //     if(amount){
-                //         return amount+row['currency'];
-                //     }else{
-                //         return '0'+row['currency'];
-                //     }
-                // }
-                // },
-                // {"targets": -1,
-                // "render": function(data, type, row){
-                //     //Editar - condiciones:
-                //     //1. Disponer de permisos.
-                //     //2. No debe ser pedido vinculado a agrupación ni estar facturado.
-                //     var editar = '';
-                //     if(row['editar'] && (!row['order'].parent && !row['order'].invoiced)){
-                //         //Editar:
-                //         editar = '<a href="#" class="btn btn-xs btn-info btnEditItem" rel="tooltip" title="'+txtEditar+'" data-toggle="modal" data-target="#modal-edit-line" data-id="'+row['id']+'"><i class="fa fa-edit"></i></a>';
-                //     }
-
-                //     //Eliminar - condiciones:
-                //     //1. Disponer de permisos.
-                //     //2. No debe ser pedido vinculado a agrupación ni estar facturado.
-                //     var eliminar = '';
-                //     if(row['editar'] && (!row['order'].parent && !row['order'].invoiced)){
-                //         eliminar = '<form method="POST" action="/admin/items/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
-                //             eliminar += '<input name="_method" type="hidden" value="DELETE">';
-                //             eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
-                //             eliminar += '<input type="hidden" name="environment" value="orders">';
-                //             eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtItemEliminar+'" data-msg="'+txtPedidoItemConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
-                //         eliminar += '</form>';
-                //     }
-
-                //     return editar+' '+eliminar;
-                // }
-                // }
+                }
             ],
             "footerCallback": function(row, data, start, end, display){
                 //console.log(data);
@@ -3008,6 +2910,129 @@ $(document).ready(function(){
         $('#tblOrderItems tbody').on('click', 'td .btnSeeItem', function () {
             var tr = $(this).closest('tr');
             var row = tableOrderItems.row(tr);
+     
+            if(row.child.isShown()){
+                // This row is already open - close it
+                row.child.hide();
+                tr.removeClass('shown');
+            }else{
+                // Open this row
+                row.child(format(row.data())).show();
+                tr.addClass('shown');
+            }
+        });
+    }
+
+    //Tabla Order Items Show:
+    if($('#tblOrderItemsShow').length > 0){
+        function format(d){
+            // `d` is the original data object for the row
+            var obvs = d.observations? d.observations:txtObservacionesSin;
+            return '<table cellpadding="0" cellspacing="0" border="0">'+
+                '<tr>'+
+                    '<td colspan="7" class="no-border">'+obvs+'</td>'+
+                '</tr>'+
+            '</table>';
+        }
+
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        var order = $('#myOrder').val();
+
+        var tableOrderItemsShow = $('#tblOrderItemsShow').DataTable({
+            serverSide: true,
+            processing: true,
+            // drawCallback: function() {
+            //     $('.select2-dt').select2();
+            // },
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/budget-items/"+order,
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'id', className: 'text-right'},
+                {data: 'concept', className: 'capitalize'},
+                {data: 'qty', className: 'text-right'},
+                {data: 'price', className: 'text-right'},
+                {data: 'days', className: 'text-right'},
+                {data: 'discount', className: 'text-right'},
+                {data: 'amount', className: 'text-right'},
+                {data: 'acciones', className: 'text-right'}
+            ],
+            columnDefs: [
+                {"targets": 0,
+                "render": function(data, type, row, meta){
+                    return meta.row + meta.settings._iDisplayStart + 1;
+                }
+                },
+                {"targets": 4,
+                "render": function(data, type, row){
+                    if(row['days'] < 2){
+                        return '';
+                    }else{
+                        return row['days'];    
+                    }                    
+                }
+                }
+            ],
+            "footerCallback": function(row, data, start, end, display){
+                //console.log(data);
+                var api = this.api(), data;
+
+                var currency = false;
+                api.rows().every(function(){
+                    var data = this.data();
+                    if(!currency){
+                        currency = data.currency;
+                    }
+                });
+
+                if(!currency) currency = '€';
+
+                //Separamos el importe de la moneda:
+                var intVal = function(i){
+                    return typeof i === 'string'? 
+                    i.replace(/[\'+currency+',]/g, '')*1 :
+                    typeof i === 'number' ?
+                        i : 0;
+                };
+
+                //Total por filtro aplicado:
+                amount = api
+                .column(6)
+                .data()
+                .reduce(function(a, b){
+                    return intVal(a) + intVal(b);
+                }, 0);
+
+                // $(api.column(6).footer()).html(
+                //     total_amount.toFixed(2)+currency    
+                // );
+                
+
+                // api.columns('.amount', {
+                //     page: 'current'
+                //   }).every(function() {
+                //     var amount = this
+                //       .data()
+                //       .reduce(function(a, b) {
+                //         var x = parseFloat(a) || 0;
+                //         var y = parseFloat(b) || 0;
+                //         return x + y;
+                //       }, 0);
+                //   });
+                //   
+                //console.log(amount)
+
+                $('#totalAmountIva').text(amount.toFixed(2)+currency);
+            }
+        });
+
+        $('#tblOrderItemsShow tbody').on('click', 'td .btnSeeItem', function () {
+            var tr = $(this).closest('tr');
+            var row = tableOrderItemsShow.row(tr);
      
             if(row.child.isShown()){
                 // This row is already open - close it

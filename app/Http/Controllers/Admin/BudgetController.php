@@ -32,6 +32,7 @@ use App\Models\CustomerProviders;
 use App\Models\Invoice;
 use App\Models\Item;
 use App\Models\Order;
+use App\Models\OrderSettings;
 use App\Models\Phone;
 use App\Models\Product;
 use App\Models\Project;
@@ -69,15 +70,23 @@ class BudgetController extends Controller{
      * 21. Presupuestos proveedores.
      * 22. Permitir acceso a cliente.
      * 23. Ver presupuesto.
+     * 23.1. Línea de presupuesto para DataTable.
+     * 24. Aceptar presupuesto por parte del cliente.
+     * 25. Cancelar presupuesto por parte del cliente.
+     * 26. Importar presupuesto de proveedor.
      */
     
     private $option = 'presupuestos';
     private $module = 'budgets';
     private $languages;
+    private $co_currency;
 
     public function __construct(){
         //Idiomas:
         $this->languages = helpers::languages();
+
+        //Moneda:
+        $this->co_currency = CompanySettings::co_currency(0);
 
         $this->middleware('module_setted:budgets');
         $this->middleware('order_get', ['only' => ['edit', 'update', 'destroy', 'resetNum', 'removeOcDoc', 'createOrder', 'removeTemplate', 'print', 'modify', 'updateTemplate']]);
@@ -147,6 +156,17 @@ class BudgetController extends Controller{
                 'order_id' => 'required|integer',
                 'block_id' => 'required|integer'
             ]); 
+
+        //Validación importar presupuesto:
+        }elseif(isset($data['submit_import'])){
+            return Validator::make($data, [
+                'id' => 'required|integer',
+                'modality' => 'required_without:budget_id',
+                'form_id' => 'required_if:modality,==,'.config('constants.BUDGET_FORM_MODALITY_')
+            ],[
+                'modality.required_without' => trans('textos.presupuesto_modalidad_aviso'),
+                'form_id.required_if' => trans('textos.formulario_presupuesto_obligatorio')
+            ]);   
         }
     }
 
@@ -172,7 +192,7 @@ class BudgetController extends Controller{
     public function getBudgetsDT($from = false){
         //Presupuestos para cliente:
         if($from == 'customers'){
-            $query = Order::select('orders.id', 'orders.is_order', 'orders.discount', 'orders.budget_num', 'orders.budget_old_num', 'orders.name', 'orders.budget_status', 'orders.modality', 'orders.created_at', 'companies.name AS company', 'orders.id AS orderId', 'orders.order_num','orders.invoiced', 'users.name As Nombre', 'users.surname', 'u_.name AS CustomerManagerName', 'u_.surname AS CustomerManagerSurname')
+            $query = Order::select('orders.id', 'orders.is_order', 'orders.discount', 'orders.customer_id', 'orders.provider_id', 'orders.budget_num', 'orders.budget_old_num', 'orders.name', 'orders.budget_status', 'orders.modality', 'orders.created_at', 'companies.name AS company', 'orders.id AS orderId', 'orders.order_num','orders.invoiced', 'users.name As Nombre', 'users.surname', 'u_.name AS CustomerManagerName', 'u_.surname AS CustomerManagerSurname')
             ->join('companies', 'orders.customer_id', '=', 'companies.id')
             ->leftJoin('users', 'orders.provider_manager_id', '=', 'users.id')
             ->leftJoin('users AS u_', 'orders.customer_manager_id', '=', 'u_.id')
@@ -392,9 +412,11 @@ class BudgetController extends Controller{
      * @return \Illuminate\Http\Response
      */
     public function edit(Order $order, $tab = false){
+        $suboption = $order->provider_id == session('currentCompany')? 'presupuesto_editar':'presupuesto_proveedor_editar';
+
         $header = [
             'option' => $this->option, 
-            'suboption' => 'textos.presupuesto_editar',
+            'suboption' => 'textos.'.$suboption,
             'module' => $this->module,
             'slug' => 'budgets'
         ]; 
@@ -496,6 +518,12 @@ class BudgetController extends Controller{
         ->where('provider_id', $order->provider_id)
         ->first();
 
+        //Acceso por defecto del cliente a presupuestos:
+        if($customer_settings && $customer_settings->budget_access){
+            $order->budget_shared = true;
+            $order->save();
+        }
+
         $forms = BudgetForms::select('id', 'name')
         ->where('company_id', session('currentCompany'))
         ->where('status', 1)
@@ -547,7 +575,36 @@ class BudgetController extends Controller{
             ->get();
         }
 
+        if($templates && count($templates) == 1 && !$order->budget_template_id){
+            $default_template = OrderSettings::select('conditions', 'payment_method', 'observations', 'footer_legend')
+            ->find($templates[0]->id);
+
+            $template = [
+                'conditions' => $default_template? $default_template->conditions:'', 
+                'payment_method' => $default_template? $default_template->payment_method:'',
+                'observations' => $default_template? $default_template->observations:'',
+                'footer_legend' => $default_template? $default_template->footer_legend:''
+            ];
+
+            $order->budget_template_id = $templates[0]->id;
+            $order->budget_template = serialize($template);
+            $order->save();
+        }
+
         $budget_from = $order->provider_id == session('currentCompany')? 'customers':'providers';
+
+        //Presupuestos de cliente para vincular a cliente final:
+        $customer_budgets = false;
+        if($order->final_customer_id && $order->customer_id == session('currentCompany')){
+            //Presupuestos con el cliente final, obtenemos aquellos que estén todavía abiertos para poder vincular las líneas en la importación y no estén vinculados a otros presupuestos:
+            $customer_budgets = Order::select(DB::raw("CONCAT(budget_num, ' - ', name) AS budget"), 'id')
+            ->where('is_budget', true)
+            ->where('provider_id', $order->customer_id)
+            ->where('customer_id', $order->final_customer_id)
+            ->where('budget_status', '<', config('constants.BUDGET_STATUS_CANCELLED_'))
+            ->pluck('budget', 'id')
+            ->toArray();
+        }
 
         $languages = $this->languages;
 
@@ -559,7 +616,7 @@ class BudgetController extends Controller{
         $module_products = $this->settedModule('products');
         $module_projects = $this->settedModule('projects');
 
-        return view('admin.budgets.edit')->with(compact('header', 'order', 'tab', 'invoiced', 'invoices', 'patterns', 'versions', 'order_amount', 'order_amount_without_discount', 'provider', 'provider_managers', 'provider_settings', 'provider_workplaces', 'provider_cost_centers', 'provider_business_areas', 'customer', 'final_customer', 'customer_managers', 'customer_workplaces', 'customer_cost_centers', 'customer_business_areas', 'final_customers', 'customers', 'customer_settings', 'forms', 'products', 'projects', 'project', 'blocks', 'currency', 'templates', 'budget_from', 'languages', 'permitted', 'module_orders', 'module_products', 'module_projects'));
+        return view('admin.budgets.edit')->with(compact('header', 'order', 'tab', 'invoiced', 'invoices', 'patterns', 'versions', 'order_amount', 'order_amount_without_discount', 'provider', 'provider_managers', 'provider_settings', 'provider_workplaces', 'provider_cost_centers', 'provider_business_areas', 'customer', 'final_customer', 'customer_managers', 'customer_workplaces', 'customer_cost_centers', 'customer_business_areas', 'final_customers', 'customers', 'customer_settings', 'forms', 'products', 'projects', 'project', 'blocks', 'currency', 'templates', 'budget_from', 'customer_budgets', 'languages', 'permitted', 'module_orders', 'module_products', 'module_projects'));
     }
 
     /**
@@ -1383,7 +1440,190 @@ class BudgetController extends Controller{
             'slug' => 'budgets'
         ];  
 
-        return view('admin.budgets.show')->with(compact('header', 'order'));   
+        //PROVEEDOR:
+        $provider = Company::select('id', 'name', 'tradename')->find($order->provider_id);
+
+        //CLIENTE:
+        $customer = Company::select('id', 'name', 'tradename')->find($order->customer_id);
+
+        //CLIENTE FINAL:
+        $final_customer = $order->final_customer_id? Company::select('id', 'name', 'tradename')->find($order->final_customer_id):false;
+
+        //Importe:
+        if($order->bag_amount){
+            $order_amount = $order->bag_amount;
+        }else{
+            $items = $order->items();
+            $arr_amounts = $order->getAmount();    
+
+            $order_amount = $arr_amounts['amount_with_discount'];
+            $order_amount_without_discount = $arr_amounts['amount_without_discount'];
+        } 
+
+        //Moneda:
+        $currency = $this->co_currency;
+
+        return view('admin.budgets.show')->with(compact('header', 'order', 'provider', 'customer', 'final_customer', 'order_amount', 'currency'));   
+    }
+
+    /**
+     * 23.1. Línea de presupuesto para DataTable.
+     */
+    public function getItemsDT(Order $order){
+        $items = Item::where('order_id', $order->id);
+
+        //Moneda:
+        $currency = $this->co_currency;
+
+        //Importe del pedido sin contar los items con precio porcentual:
+        $order_amount = $order->getAmount(true, false, false);
+
+        return DataTables::of($items)
+        ->addColumn('price', function($item) use($currency){
+            if($item->price > 0){
+                return $item->price.$currency->symbol;
+            }elseif(!$item->price && $item->calculated_by_percent > 0){
+                return trans('textos.por_porcentaje').' ('.$item->calculated_by_percent.'%)';
+            }
+        })
+        ->addColumn('discount', function($item){
+            if($item->discount > 0){
+                return $item->discount.'%';
+            }else{
+                return '';
+            }
+        })
+        ->addColumn('amount', function($item) use($currency, $order_amount){
+            $amount = '';
+            if($item->price != 0){
+                if($item->calculated_by_percent > 0){
+                    $amount = helpers::itemAmountPercentage($item->price, $order_amount['amount_with_discount']);
+                    return $amount.$currency->symbol.'<br><small>('.trans('textos.precio_porcentual').')</small>';
+                }else{
+                    $amount = helpers::itemAmount($item); 
+                    return $amount.$currency->symbol;
+                }            
+            }else{
+                return trans('textos.precio_sin_definir');
+            }              
+        })
+        ->addColumn('observations', function($item){
+            return $item->observations;
+        })
+        ->addColumn('acciones', function($item) use($order){
+            return '<a href="#" class="btn btn-xs btn-info btnSeeItem" rel="tooltip" title="'.ucfirst(trans('textos.ver')).'"><i class="fa fa-eye"></i></a>';    
+        })
+        ->rawColumns(['amount', 'observations', 'acciones'])
+        ->make(true);
+    }
+
+    /**
+     * 24. Aceptar presupuesto por parte del cliente.
+     */
+    public function accept(Order $order){
+        $order->accepted_date = date('Y-m-d');
+        $order->accepted_by = Auth::user()->id;
+        $order->budget_status = config('constants.BUDGET_STATUS_APPROVED_')[0];
+        $order->save();
+
+        $msg = trans('textos.presupuesto_aceptado');
+        return redirect()->route('budgets.edit', [$order->id])->with(compact('msg'));
+    }
+
+    /**
+     * 25. Cancelar presupuesto por parte del cliente.
+     */
+    public function cancel(Order $order){
+        $order->accepted_date = NULL;
+        $order->accepted_by = Auth::user()->id;
+        $order->budget_status = config('constants.BUDGET_STATUS_CANCELLED_');
+        $order->save();
+
+        $msg = trans('textos.presupuesto_cancelado');
+        return redirect()->route('budgets.edit', [$order->id])->with(compact('msg'));    
+    }
+
+    /**
+     * 26. Importar presupuesto de proveedor.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function import(Request $request){
+        $validator = $this->validator($request->all());
+        if($validator->fails()){
+            //Indicamos el origen de la acción realizada para manejar el modal:
+            $validator->getMessageBag()->add('accion', 'modal-import-budget');
+
+            return redirect('/admin/budgets/'.$request->id.'/show')
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        $original_budget = Order::find($request->id);
+
+        //Si en el presupuesto original, el cliente final disfruta de un descuento por defecto por parte del proveedor, tal descuento se arrastra como descuento del cliente hacia el cliente final.
+        $discount = NULL;
+        if($original_budget->final_customer_id){
+            $original_discount = CustomerProviders::select('discount')
+            ->where('customer_id', $original_budget->final_customer_id)    
+            ->where('provider_id', $original_budget->provider_id)
+            ->first();
+
+            if($original_discount) $discount = $original_discount->discount;
+        }
+
+        //Si no recibimos $budget_id, creamos nuevo presupuesto.
+        if($request->budget_id){
+            $budget = Order::find($request->budget_id);
+
+        }else{
+            $budget = new Order();
+            $budget->is_budget = true;
+            $budget->modality = $original_budget->modality;
+            $budget->provider_id = session('currentCompany');
+            $budget->customer_id = $original_budget->final_customer_id;
+            $budget->provider_manager_id = $original_budget->customer_manager_id;   //El manager de cliente del presupuesto original se convierte ahora en el manager del proveedor con respecto al cliente final.
+            if($request->form_id){
+                $budget->form_id = $request->form_id;
+            }
+            $budget->discount = $discount;
+            $budget->save();
+        }
+
+        //Añadimos el budget_id al que se vincula el nuevo presupuesto
+        $budget->first_provider_order = $request->id;
+        $budget->save();
+
+        //Exportamos los items del presupuesto original al nuevo presupuesto:
+        $items = Item::where('order_id', $request->id)
+        ->get();
+
+        if($items->count()){
+            $i = 1;
+
+            foreach($items as $item){
+                Item::create([
+                    'order_id' => $budget->id,
+                    'budget_order' => $i,
+                    'concept' => $item->concept,
+                    'qty' => $item->qty,
+                    'price' => $item->price,
+                    'discount' => $item->discount,
+                    'calculated_by_percent' => $item->calculated_by_percent,
+                    //'batch_id' => $item->batch_id,
+                    'observations' => $item->observations,
+                    'days' => $item->days,
+                    'days_continue' => $item->days_continue,
+                    'days_continue_discount' => $item->days_continue_discount,
+                    'user_id' => Auth::user()->id
+                ]);
+                $i++;
+            }
+        }
+
+        $msg = trans('textos.presupuesto_importado');
+        return redirect()->route('budgets.edit', $budget->id)->with(compact('msg'));
     }
 
 }

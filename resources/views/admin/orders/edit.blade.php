@@ -612,10 +612,9 @@ if($order->provider_team){
 			  		</li>
 
 			  		{{-- Template - condiciones: 
-						1. Para pedidos no grupales.
-						2. Exclusivo para proveedor.
+						1. Exclusivo para proveedor.
 			  		--}}
-			  		@if(!$order->is_group && $order->provider_id == session('currentCompany'))
+			  		@if($order->provider_id == session('currentCompany'))
 				  		<li class="nav-item @if($tab == 'template') active @endif">
 				  			<a class="nav-link @if($tab == 'template') active @endif" href="#tab-template" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.plantilla')) !!}</a>	
 				  		</li>
@@ -659,7 +658,7 @@ if($order->provider_team){
 					</div>
 
 					{{-- Plantilla --}}
-					@if(!$order->is_group)
+					@if($order->provider_id == session('currentCompany'))
 						<div class="tab-pane fade @if($tab == 'template') show active @endif" role="tabpanel" id="tab-template">
 							@include('admin.orders.partials.order-template')	
 						</div>
@@ -672,31 +671,6 @@ if($order->provider_team){
 						</div>
 					@endif
 				</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 			</div>
 		</div>
 	</div>
