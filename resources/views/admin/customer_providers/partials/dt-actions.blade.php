@@ -48,7 +48,7 @@
 
 	{{-- Configuración del cliente --}}
 	@if($join == 'customers')
-		<a href="#" class="btn btn-xs btn-info btn-module btnCustomerConfig" rel="tooltip" title="{!! trans("textos.cliente_configuraciones") !!}" data-toggle="modal" data-target="#modal-edit-config" data-customer="{{ $row->id }}" data-baid="{{ $row->ba_id }}" data-workplaceid="{{ $row->workplace_id }}" data-ccid="{{ $row->cc_id }}" data-discount="{{ $row->discount }}" data-credit="{{ $row->credit_risk }}"><i class="fa fa-cog"></i></a>
+		<a href="#" class="btn btn-xs btn-info btn-module btnCustomerConfig" rel="tooltip" title="{!! trans("textos.cliente_configuraciones") !!}" data-toggle="modal" data-target="#modal-edit-config" data-customer="{{ $row->id }}" data-baid="{{ $row->ba_id }}" data-workplaceid="{{ $row->workplace_id }}" data-ccid="{{ $row->cc_id }}" data-discount="{{ $row->discount }}" data-credit="{{ $row->credit_risk }}" data-budgetaccess="{{ $row->budget_access }}"><i class="fa fa-cog"></i></a>
 
 		{{-- Condiciones de pago --}}
 		<a href="{{ route('customers.pay-conditions', $row->id) }}" class="btn btn-xs btn-info" rel="tooltip" title="{!! trans("textos.condiciones_pago") !!}"><i class="fa fa-money-check-alt"></i></a>

@@ -30,7 +30,7 @@
 						</div>
 
 						{{-- Selector de cliente --}}
-						@include('admin.partials.selector-customer', ['all' => false, 'selected' => '', 'required' => true])
+						@include('admin.partials.selector-customer', ['all' => false, 'selected' => '', 'required' => false])
 
 						{{-- Agrupación --}}
 						<label for="og_id" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.agrupacion_num')) !!} </label>

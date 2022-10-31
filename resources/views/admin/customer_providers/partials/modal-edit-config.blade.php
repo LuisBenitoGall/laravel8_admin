@@ -43,12 +43,33 @@
                             </select>
                         </div>
                     </div>
-
-                    {{-- Descuento sobre pedidos --}}
+                    
                     <div class="form-group row">
-                        <label for="discount" class="col-lg-12">{!! ucfirst(trans('textos.descuento_pedidos')) !!}</label>
-                        <div class="col-lg-6">
-                            <x-input type="text" name="discount" class="text-right set-decimals" id="configDiscount" autocomplete="off" maxlength="5" group="right" groupvalue="%" info="customer-discount"/>
+                        {{-- Descuento sobre pedidos --}}
+                        <div class="col-md-6">
+                            <div class="row">
+                                <label for="discount" class="col-12">{!! ucfirst(trans('textos.descuento_pedidos')) !!}</label>
+                                <div class="col-12">
+                                    <x-input type="text" name="discount" class="text-right set-decimals" id="configDiscount" autocomplete="off" maxlength="5" group="right" groupvalue="%" info="customer-discount"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Acceso de cliente a presupuestos --}}
+                        <div class="col-md-6">
+                            <div class="row">
+                                <label for="budget_access" class="col-12">{!! ucfirst(trans('textos.presupuesto_acceso')) !!}</label>
+                                <div class="col-10 offset-1 pt-1">
+                                    <label class="custom-chk-rdb">
+                                        <input type="checkbox" name="budget_access" id="configBudgetAccess">
+                                        <span class="chk"></span>
+                                    </label>
+
+                                    <div class="position-absolute" style="left: 65px; top: 0;">
+                                        {!! App\Helpers\helpers::info('budget-customer-access') !!}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 

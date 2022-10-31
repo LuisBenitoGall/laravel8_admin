@@ -918,10 +918,26 @@ class OrderController extends Controller{
         //Templates:
         $templates = false;
         if($order->provider_id == session('currentCompany')){
-            $templates = OrderSettings::select('id', 'name', 'featured')
+            $templates = OrderSettings::select('id', 'name', 'featured', 'conditions', 'payment_method', 'observations', 'footer_legend')
             ->where('company_id', $order->provider_id)
             ->where('status', 1)
             ->get();
+        }
+
+        if($templates && count($templates) == 1 && !$order->order_template_id){
+            $default_template = OrderSettings::select('conditions', 'payment_method', 'observations', 'footer_legend')
+            ->find($templates[0]->id);
+
+            $template = [
+                'conditions' => $default_template? $default_template->conditions:'', 
+                'payment_method' => $default_template? $default_template->payment_method:'',
+                'observations' => $default_template? $default_template->observations:'',
+                'footer_legend' => $default_template? $default_template->footer_legend:''
+            ];
+
+            $order->order_template_id = $templates[0]->id;
+            $order->order_template = serialize($template);
+            $order->save();
         }
 
         $languages = $this->languages;
@@ -1074,6 +1090,11 @@ class OrderController extends Controller{
                         $op->month = $request->month[$i]? $request->month[$i]:NULL;
                         $op->percent = $request->percent[$i];
                         $op->save();
+                    }
+
+                    //Sincronizando previsión de facturación entre proveedor y cliente cuando existe cliente final:
+                    if($order->final_customer_id){
+
                     }
                 }
             }
@@ -1587,7 +1608,7 @@ class OrderController extends Controller{
                 ->withErrors($validator)
                 ->withInput();
         }
-//dd($request->all(), $order);
+
         //Si viene declarada la plantilla:
         if($request->template_id){
             //Plantilla original:

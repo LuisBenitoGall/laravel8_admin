@@ -8,7 +8,7 @@
 	<a href="{{ route('budgets.show', $budget) }}" class="btn btn-xs btn-info" rel="tooltip" title="{{ ucfirst(trans('textos.ver')) }}"><i class="fa fa-eye"></i></a>
 
     {{-- Editar. Los clientes pueden editar si han sido habilitados por el proveedor --}}
-    @if($budget->budget_shared)
+    @if($budget->budget_shared || $budget->provider_id == session('currentCompany'))
 		<a href="{{ route('budgets.edit', $budget) }}" class="btn btn-xs btn-info" rel="tooltip" title="{{ ucfirst(trans('textos.editar')) }}"><i class="fa fa-edit"></i></a>
 	@endif
 @endcan

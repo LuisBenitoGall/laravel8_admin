@@ -100,6 +100,7 @@ $(document).ready(function(){
         var workplace_id = $(this).data('workplaceid');
         var cc_id = $(this).data('ccid');
         var discount = $(this).data('discount');
+        var budget_access = $(this).data('budgetaccess');
         var credit = $(this).data('credit');
 
         if(id){
@@ -141,6 +142,9 @@ $(document).ready(function(){
                     var ccId = response.centers.length != 1? cc_id:response.centers[0].id;
                     $('#configCostCenter').val(ccId);
                     $('#configCostCenter').trigger('change');
+
+                    //Acceso a presupuestos:
+                    $('#configBudgetAccess').prop('checked', budget_access);
 
                     //Descuento:
                     $('#configDiscount').val(discount);
