@@ -283,7 +283,7 @@ if(!$initial_imports->value){
                                                         <a href="{{ route('timetable.store', $ti->id) }}"
                                                            class="one-click">
                                                             <i class="fa fa-{{ $ti->icon }}"></i>
-                                                            {{ $ti->name }}
+                                                            {{ ucfirst($ti->name) }}
                                                         </a>
                                                     </li>
 
