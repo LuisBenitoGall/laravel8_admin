@@ -71,7 +71,7 @@ class TimetableItemsController extends Controller{
         ->where('basic_item', 1)
         ->get();
         
-        if($basics->count() == 0){
+        if(!$basics->count()){
             //Entrada:
             $entry = new TimetableItems();
             $entry->company_id = session('currentCompany');
