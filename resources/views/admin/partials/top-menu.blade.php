@@ -1,30 +1,30 @@
 @php
-    // Detectar IP:
-    $ip = request()->ip();
+// Detectar IP:
+$ip = request()->ip();
 
-    // Agent:
-    use Jenssegers\Agent\Agent;
-    $agent = new Agent();
+// Agent:
+use Jenssegers\Agent\Agent;
+$agent = new Agent();
 
-    // Control horario:
-    $controller = new App\Http\Controllers\Controller;
-    $setTimetable = $controller->settedModule('timetables');
+// Control horario:
+$controller = new App\Http\Controllers\Controller;
+$setTimetable = $controller->settedModule('timetables');
 
-    // Idiomas:
-    $languages = App\Helpers\helpers::languages();
+// Idiomas:
+$languages = App\Helpers\helpers::languages();
 
-    //Configuraciones 1ª vez:
-    $initial_imports = App\Models\AppSettings::select('id', 'value')->where('field', 'initial_imports')->first();
-    $imports_done = false;
-    if(!$initial_imports->value){
-        $imports = new App\Http\Controllers\Controller;
-        $imports_done = $imports->initialImports();
+//Configuraciones 1ª vez:
+$initial_imports = App\Models\AppSettings::select('id', 'value')->where('field', 'initial_imports')->first();
+$imports_done = false;
+if(!$initial_imports->value){
+    $imports = new App\Http\Controllers\Controller;
+    $imports_done = $imports->initialImports();
 
-        if($imports_done){
-            $initial_imports->value = true;
-            $initial_imports->save();
-        }
+    if($imports_done){
+        $initial_imports->value = true;
+        $initial_imports->save();
     }
+}
 @endphp
 
 <div id="page-wrapper" class="gray-bg dashbard-1">
@@ -64,39 +64,39 @@
                     --}}
                     @if($timetable_items->count() && session('userEmployee'))
                         @php
-                            //Separamos los conceptos básicos de Entrada y Salida:
-                            $entradaId = false;
-                            $salidaId = false;
+                        //Separamos los conceptos básicos de Entrada y Salida:
+                        $entradaId = false;
+                        $salidaId = false;
 
-                            //Para mostrar los items adicionales:
-                            $aditional_items_in = false;
-                            $aditional_items_out = false;
+                        //Para mostrar los items adicionales:
+                        $aditional_items_in = false;
+                        $aditional_items_out = false;
 
-                            //Conceptos de control horario con limitación de veces:
-                            $nVeces = App\Models\Timetable::select('timetable_items.id', 'timetable_items.qty')
-                            ->join('timetable_items', 'timetables.item_id', '=', 'timetable_items.id')
-                            ->where('timetables.user_id', Auth::user()->id)
-                            ->where('timetable_items.qty', '>', 0)
-                            ->whereDate('timetables.date', Carbon\Carbon::today())
-                            ->get();
+                        //Conceptos de control horario con limitación de veces:
+                        $nVeces = App\Models\Timetable::select('timetable_items.id', 'timetable_items.qty')
+                        ->join('timetable_items', 'timetables.item_id', '=', 'timetable_items.id')
+                        ->where('timetables.user_id', Auth::user()->id)
+                        ->where('timetable_items.qty', '>', 0)
+                        ->whereDate('timetables.date', Carbon\Carbon::today())
+                        ->get();
 
-                            //Obtenemos último registro horario del usuario, si es Entrada o Salida
-                            $lastHour = App\Models\Timetable::select('hour', 'flag', 'item_id')
-                            ->where('user_id', Auth::user()->id)
-                            ->orderBy('date', 'DESC')
-                            ->orderBy('hour', 'DESC')
-                            ->orderBy('id', 'DESC')
-                            ->first();
+                        //Obtenemos último registro horario del usuario, si es Entrada o Salida
+                        $lastHour = App\Models\Timetable::select('hour', 'flag', 'item_id')
+                        ->where('user_id', Auth::user()->id)
+                        ->orderBy('date', 'DESC')
+                        ->orderBy('hour', 'DESC')
+                        ->orderBy('id', 'DESC')
+                        ->first();
 
-                            //Si el registro es de entrada comprobamos si tiene concepto de salida propio. En caso verdadero será esta la única opción de salida que se le muestre al usuario.
-                            $own_output = false;
-                            if($lastHour && $lastHour->flag == 1){
-                                $own_output = App\Models\TimetableItems::where('own_output', $lastHour->item_id)->first();
-                            }
+                        //Si el registro es de entrada comprobamos si tiene concepto de salida propio. En caso verdadero será esta la única opción de salida que se le muestre al usuario.
+                        $own_output = false;
+                        if($lastHour && $lastHour->flag == 1){
+                            $own_output = App\Models\TimetableItems::where('own_output', $lastHour->item_id)->first();
+                        }
 
-                            //Opciones de entrada bloqueadas para conceptos con un tiempo máximo o duración mínima:
-                            $blocked = false;
-                            $with_aditionals_items = false;
+                        //Opciones de entrada bloqueadas para conceptos con un tiempo máximo o duración mínima:
+                        $blocked = false;
+                        $with_aditionals_items = false;
                         @endphp
 
                         @if($timetable_items->count() && !$own_output)
@@ -104,46 +104,46 @@
                                 {{-- Entrada simple --}}
                                 @if($ti->basic_item && $ti->type == 1)
                                     @php
-                                        $entradaId = $ti->id;
+                                    $entradaId = $ti->id;
                                     @endphp
                                 @endif
 
                                 {{-- Salida simple --}}
                                 @if($ti->basic_item && $ti->type == 2)
                                     @php
-                                        $salidaId = $ti->id;
+                                    $salidaId = $ti->id;
                                     @endphp
                                 @endif
 
                                 {{-- Otros tipos de entrada --}}
                                 @if(!$ti->basic_item && $ti->type == 1)
                                     @php
-                                        $aditional_items_in = true;
+                                    $aditional_items_in = true;
                                     @endphp
                                 @endif
 
                                 {{-- Otros tipos de salida --}}
                                 @if(!$ti->basic_item && $ti->type == 2)
                                     @php
-                                        $aditional_items_out = true;
+                                    $aditional_items_out = true;
                                     @endphp
                                 @endif
 
                                 {{-- Bloqueo de conceptos 1 --}}
                                 @if($lastHour && $lastHour->item_id == $ti->id && $ti->max > 0)
                                     @php
-                                        //Convertimos la última hora a minutos y le sumamos el tiempo máximo.
-                                        $minutes = App\Helpers\helpers::getMinutes($lastHour->hour);
-                                        //16/07/21: se pone un fijo de 5 minutos para el tiempo máximo:
-                                        $max_time = 5;
-                                        $total_minutes = $minutes + $max_time; //$ti->max;
+                                    //Convertimos la última hora a minutos y le sumamos el tiempo máximo.
+                                    $minutes = App\Helpers\helpers::getMinutes($lastHour->hour);
+                                    //16/07/21: se pone un fijo de 5 minutos para el tiempo máximo:
+                                    $max_time = 5;
+                                    $total_minutes = $minutes + $max_time; //$ti->max;
 
-                                        //Hora de desbloqueo:
-                                        $unlock_hour = App\Helpers\helpers::getTimeFromMinutes($total_minutes);
+                                    //Hora de desbloqueo:
+                                    $unlock_hour = App\Helpers\helpers::getTimeFromMinutes($total_minutes);
 
-                                        if(date('Y-m-d').' '.$unlock_hour > date('Y-m-d H:i')){
-                                            $blocked = $unlock_hour;
-                                        }
+                                    if(date('Y-m-d').' '.$unlock_hour > date('Y-m-d H:i')){
+                                        $blocked = $unlock_hour;
+                                    }
                                     @endphp
                                 @endif
 
@@ -167,24 +167,28 @@
                                 $flag = 1;
                             @endphp
 
-                            {{-- Concepto de salida --}}
+                        {{-- Concepto de salida --}}
                         @else
                             @php
-                                $tipoCH = !$own_output? $salidaId:$own_output->id;
-                                $actionCH = 'salida';
-                                $flag = 2;
+                            $tipoCH = !$own_output? $salidaId:$own_output->id;
+                            $actionCH = 'salida';
+                            $flag = 2;
                             @endphp
                         @endif
 
                         {{-- IP´s de la empresa --}}
                         @php
-                            $setted_ips = session('companySettings') && session('companySettings')->ip? unserialize(session('companySettings')->ip):false;
+                        $setted_ips = session('companySettings') && session('companySettings')->ip? unserialize(session('companySettings')->ip):false;
                         @endphp
 
                         {{-- Comentar la línea siguiente para habilitar deteccíon de IP --}}
                         {{-- @if($agent->isDesktop()) --}}
 
                         {{-- Descomentar la línea siguiente para habilitar la detección de IP --}}
+                        {{-- 31/10/22. Se modifica control horario para:
+                            1. No se puede fichar desde móvil siempre que se esté conectado a la IP de empresa por los métodos básicos.
+                        --}}
+                        {{-- Entrada y salida básicas --}}
                         @if($agent->isDesktop() && is_array($setted_ips) && in_array($ip, $setted_ips))
                             <li class="HourlyControl basicHourlyControl list-inline-item notif display-none"
                                 id="HCdesktop">
@@ -235,89 +239,63 @@
                                         </li>
 
                                         @php
-                                            $seeConcept = '';
+                                        $seeConcept = '';
                                         @endphp
 
                                         @if(count($timetable_items))
                                             @foreach($timetable_items as $ti)
-                                                {{-- Omitimos los conceptos básicos de Entrada y Salida --}}
-                                                @if(!$ti->basic_item)
-                                                    @if($ti->type == $flag)
-                                                        {{-- Omitimos los conceptos que hayan alcanzado el número de veces diario: --}}
-                                                        @if(isset($ti->qty))
-                                                            @foreach($nVeces as $vez)
-                                                                @php
-                                                                    if($ti->id == $vez->id && $ti->qty >= $vez->qty){
-                                                                        $seeConcept = 'oculto';
-                                                                    }
-                                                                @endphp
-                                                            @endforeach
-                                                        @endif
-
-                                                        {{-- Omitimos los conceptos si hay bloqueo hasta determinada hora --}}
-                                                        @if($blocked && $flag == 1)
-                                                            @php
-                                                                $seeConcept = 'oculto';
-                                                            @endphp
-                                                        @endif
-
-                                                        {{-- Omitimos los conceptos de salida que son propias de un concepto de entrada --}}
-                                                        @if($ti->type == 2 && $ti->own_output > 0)
-                                                            @php
-                                                                $seeConcept = 'oculto';
-                                                            @endphp
-                                                        @endif
-
-                                                        <li class="{{ $seeConcept }}">
-                                                            <a href="{{ route('timetable.store', $ti->id) }}"
-                                                               class="one-click">
-                                                                <i class="fa fa-{{ $ti->icon }}"></i>
-                                                                {{ $ti->name }}
-                                                            </a>
-                                                        </li>
-
+                                                {{-- Sólo items pertenecientes al flag activo --}}
+                                                @if($ti->type == $flag)
+                                                    {{-- Omitimos los conceptos básicos para móvil si se han bloqueado por configuración --}}
+                                                    @if($agent->isMobile() && is_array($setted_ips) && in_array($ip, $setted_ips) && !env('BASIC_TIMETABLE_ITEMS'))
                                                         @php
-                                                            //Variable para controlar si mostrar las opciones adicionales:
-                                                            if($seeConcept == '') $with_aditionals_items = true;
-
-                                                            $seeConcept = '';
+                                                        $seeConcept = 'oculto';
                                                         @endphp
                                                     @endif
 
-                                                    {{-- Habilitamos los conceptos básicos de Entrada y Salida dentro de la red de ADN por móvil --}}
-
-                                                    {{-- Descomentar el siguiente código para habilitar los conceptos Entrada y Salida para Móvil --}}
-                                                @elseif($agent->isMobile() && is_array($setted_ips) && in_array($ip, $setted_ips))
-                                                    @if($ti->type == $flag)
-                                                        @if(isset($ti->qty))
-                                                            @foreach($nVeces as $vez)
-                                                                @php
-                                                                    if($ti->id == $vez->id && $ti->qty >= $vez->qty){
-                                                                        $seeConcept = 'oculto';
-                                                                    }
-                                                                @endphp
-                                                            @endforeach
-                                                        @endif
-
-                                                        {{-- Omitimos los conceptos si hay bloqueo hasta determinada hora --}}
-                                                        @if($blocked && $flag == 1)
+                                                    {{-- Omitimos los conceptos que hayan alcanzado el número de veces diario: --}}
+                                                    @if(isset($ti->qty))
+                                                        @foreach($nVeces as $vez)
                                                             @php
+                                                            if($ti->id == $vez->id && $ti->qty >= $vez->qty){
                                                                 $seeConcept = 'oculto';
+                                                            }
                                                             @endphp
-                                                        @endif
+                                                        @endforeach
+                                                    @endif
 
-                                                        <li class="{{ $seeConcept }}">
-                                                            <a href="{{ route('timetable.store', $ti->id) }}">
-                                                                <i class="fa fa-{{ $ti->icon }}"></i>
-                                                                {{ $ti->name }}
-                                                            </a>
-                                                        </li>
-
+                                                    {{-- Omitimos los conceptos si hay bloqueo hasta determinada hora --}}
+                                                    @if($blocked && $flag == 1)
                                                         @php
-                                                            $seeConcept = '';
+                                                        $seeConcept = 'oculto';
                                                         @endphp
                                                     @endif
+
+                                                    {{-- Omitimos los conceptos de salida que son propias de un concepto de entrada --}}
+                                                    @if($ti->type == 2 && $ti->own_output > 0)
+                                                        @php
+                                                        $seeConcept = 'oculto';
+                                                        @endphp
+                                                    @endif
+
+                                                    <li class="{{ $seeConcept }}">
+                                                        <a href="{{ route('timetable.store', $ti->id) }}"
+                                                           class="one-click">
+                                                            <i class="fa fa-{{ $ti->icon }}"></i>
+                                                            {{ $ti->name }}
+                                                        </a>
+                                                    </li>
+
+                                                    @php
+                                                    //Variable para controlar si mostrar las opciones adicionales:
+                                                    if($seeConcept == '') $with_aditionals_items = true;
+
+                                                    $seeConcept = '';
+                                                    @endphp
                                                 @endif
+
+
+                                                {{-- Aquí código anterior en caso de fallar el refactoring --}}
                                             @endforeach
                                         @else
                                             {{ trans('textos.horarios_conceptos_sin') }}
@@ -336,13 +314,13 @@
 
                         {{-- Control mediante timeout .js --}}
                         <script>
-                            var blocked_timetables = '{{ $blocked }}';
+                        var blocked_timetables = '{{ $blocked }}';
 
-                            //Mostrar selector de opciones adicionales:
-                            var with_aditionals_items = '{{ $with_aditionals_items }}';
-                            if (!with_aditionals_items) {
-                                $('.subItems_').hide();
-                            }
+                        //Mostrar selector de opciones adicionales:
+                        var with_aditionals_items = '{{ $with_aditionals_items }}';
+                        if (!with_aditionals_items) {
+                            $('.subItems_').hide();
+                        }
                         </script>
                     @endif
                 @endif
