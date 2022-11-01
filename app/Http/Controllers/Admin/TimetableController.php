@@ -460,6 +460,7 @@ class TimetableController extends Controller{
         $hour_out = '14:00:00';
         $hour_in = '15:00:00';
         $top_minutes = 470;     //Marca el límite por debajo de 8 horas, por debajo del cual no se marca hora de comida.
+        $summer_days = ['start' => '2022-07-11', 'end' => '2022-08-31'];    //Intervalo de fechas de jornada intensiva.
 
         $timetable_items = [
             //3 => ['comida' => '', 'entrada' => ''],
@@ -493,9 +494,12 @@ class TimetableController extends Controller{
                 $arrWorkingHours[$wh->workplace_id] = [];    
             }
 
-            $minutes = helpers::getMinutes($wh->hours);
-            if(!array_key_exists($wh->date, $arrWorkingHours[$wh->workplace_id]) && $minutes > $top_minutes){
-                array_push($arrWorkingHours[$wh->workplace_id], $wh->date);    
+            //Descontamos las fechas de jornadas intensivas estivales:
+            if($wh->date < $summer_days['start'] || $wh->date > $summer_days['end']){
+                $minutes = helpers::getMinutes($wh->hours);
+                if(!array_key_exists($wh->date, $arrWorkingHours[$wh->workplace_id]) && $minutes > $top_minutes){
+                    array_push($arrWorkingHours[$wh->workplace_id], $wh->date);    
+                }
             }
         }
 

@@ -130,12 +130,13 @@ if(!$initial_imports->value){
                                 @endif
 
                                 {{-- Bloqueo de conceptos 1 --}}
-                                @if($lastHour && $lastHour->item_id == $ti->id && $ti->max > 0)
+                                @if($lastHour && $lastHour->item_id == $ti->id && ($ti->max > 0 || $ti->min > 0) )
                                     @php
-                                    //Convertimos la última hora a minutos y le sumamos el tiempo máximo.
+                                    //Convertimos la última hora a minutos y le sumamos el tiempo máximo o mínimo - 1 minuto.
                                     $minutes = App\Helpers\helpers::getMinutes($lastHour->hour);
-                                    //16/07/21: se pone un fijo de 5 minutos para el tiempo máximo:
-                                    $max_time = 5;
+                                    //16/07/21: se pone un fijo de 5 minutos para el tiempo máximo.
+                                    //01/11/22: se toma como tiempo el máximo o mínimo del item - 1 minuto.
+                                    $max_time = $ti->max > 0? $ti->max-1:$ti->min-1;
                                     $total_minutes = $minutes + $max_time; //$ti->max;
 
                                     //Hora de desbloqueo:

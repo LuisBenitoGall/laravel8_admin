@@ -49,7 +49,33 @@
                 <input type="checkbox" name="is_working">
                 <span class="chk" style="margin-top: 6px;"></span>
 
-                {!! App\Helpers\Helpers::info('day-type-is-working', true) !!}
+                {!! App\Helpers\helpers::info('day-type-is-working', true) !!}
+            </label>
+        @endif
+    </div>
+
+    {{-- Trabajo presencial en oficina --}}
+    <label for="in_office" class="col-lg-2 col-form-label">{{ ucfirst(trans('textos.trabajo_presencial')) }}</label>
+    <div class="col-lg-1 sinpadding">
+        {{-- Este dato no se puede editar --}}
+        @if($day_type)
+            <span class="d-inline-block align-top ml-2">
+                @if($day_type->in_office)
+                    <i class="fa fa-check text-success" style="margin-top: 11px;"></i>   
+                @else
+                    <i class="fa fa-times text-danger" style="margin-top: 12px;"></i>
+                @endif  
+            </span>
+
+            <span class="position-relative d-inline-block align-top ml-3">
+                {!! App\Helpers\helpers::info('day-type-in-office-no-modifiable') !!}     
+            </span>
+        @else
+            <label class="custom-chk-rdb">
+                <input type="checkbox" name="in_office">
+                <span class="chk" style="margin-top: 6px;"></span>
+
+                {!! App\Helpers\helpers::info('day-type-in-office', true) !!}
             </label>
         @endif
     </div>
@@ -68,7 +94,7 @@
             </span>
 
             <span class="position-relative d-inline-block align-top ml-3">
-                {!! App\Helpers\Helpers::info('day-type-user-enabled-no-modifiable') !!}     
+                {!! App\Helpers\helpers::info('day-type-user-enabled-no-modifiable') !!}     
             </span>
 
         @else
