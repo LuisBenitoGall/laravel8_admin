@@ -247,7 +247,8 @@ if(!$initial_imports->value){
                                                 {{-- Sólo items pertenecientes al flag activo --}}
                                                 @if($ti->type == $flag)
                                                     {{-- Omitimos los conceptos básicos para móvil si se han bloqueado por configuración --}}
-                                                    @if($agent->isMobile() && is_array($setted_ips) && in_array($ip, $setted_ips) && !env('BASIC_TIMETABLE_ITEMS'))
+                                                    {{-- && is_array($setted_ips) && in_array($ip, $setted_ips) --}}
+                                                    @if($agent->isMobile()  && !config('constants.BASIC_TIMETABLE_ITEMS_'))
                                                         @php
                                                         $seeConcept = 'oculto';
                                                         @endphp
