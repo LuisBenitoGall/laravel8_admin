@@ -3,7 +3,7 @@
 namespace Database\Factories;
 
 use Illuminate\Support\Str;
-use App\Models\OrderSetting;
+use App\Models\OrderSettings as OrderSetting;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class OrderSettingFactory extends Factory

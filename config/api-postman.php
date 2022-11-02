@@ -35,8 +35,8 @@ return [
     |
     */
 
-    'structured' => false,
-    'crud_folders' => true,
+    'structured' => true,
+    'crud_folders' => false,
 
     /*
     |--------------------------------------------------------------------------
@@ -93,7 +93,7 @@ return [
     |
     */
 
-    'enable_formdata' => false,
+    'enable_formdata' => true,
 
     /*
     |--------------------------------------------------------------------------
@@ -118,8 +118,8 @@ return [
     */
 
     'formdata' => [
-        // 'email' => 'john@example.com',
-        // 'password' => 'changeme',
+        'email' => 'john@example.com',
+        'password' => 'changeme',
     ],
 
     /*

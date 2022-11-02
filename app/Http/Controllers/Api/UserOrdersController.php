@@ -19,11 +19,8 @@ class UserOrdersController extends Controller
     {
         // $this->authorize('view', $user);
 
-        $search = $request->get('search', '');
-
         $orders = $user
-            ->orders6()
-            ->search($search)
+            ->createdBy()
             ->latest()
             ->paginate();
 
@@ -99,7 +96,6 @@ class UserOrdersController extends Controller
             'confirm_code_date' => ['nullable', 'date'],
             'provider_id' => ['nullable', 'exists:companies,id'],
             'provider_workplace_id' => ['nullable', 'exists:workplaces,id'],
-            'provider_cost_center_id' => ['nullable', 'exists:cost_centers,id'],
             'provider_business_area_id' => [
                 'nullable',
                 'exists:business_areas,id',
@@ -113,9 +109,10 @@ class UserOrdersController extends Controller
             'prepare_delivery' => ['required', 'numeric'],
             'old_budget_id' => ['nullable', 'max:255'],
             'old_order_id' => ['nullable', 'max:255'],
+            'provider_cost_center_id' => ['required', 'exists:cost_centers,id'],
         ]);
 
-        $order = $user->orders6()->create($validated);
+        $order = $user->createdBy()->create($validated);
 
         return new OrderResource($order);
     }

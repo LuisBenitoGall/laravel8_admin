@@ -4,7 +4,7 @@ namespace Tests\Feature\Api;
 
 use App\Models\User;
 use App\Models\Order;
-use App\Models\BudgetSetting;
+use App\Models\BudgetSettings as BudgetSetting;
 
 use Tests\TestCase;
 use Laravel\Sanctum\Sanctum;

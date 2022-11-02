@@ -19,11 +19,8 @@ class WorkplaceOrdersController extends Controller
     {
         // $this->authorize('view', $workplace);
 
-        $search = $request->get('search', '');
-
         $orders = $workplace
-            ->orders2()
-            ->search($search)
+            ->providerWorkplace()
             ->latest()
             ->paginate();
 
@@ -101,7 +98,6 @@ class WorkplaceOrdersController extends Controller
             'confirm_code_date' => ['nullable', 'date'],
             'provider_id' => ['nullable', 'exists:companies,id'],
             'provider_manager_id' => ['nullable', 'exists:users,id'],
-            'provider_cost_center_id' => ['nullable', 'exists:cost_centers,id'],
             'provider_business_area_id' => [
                 'nullable',
                 'exists:business_areas,id',
@@ -117,9 +113,10 @@ class WorkplaceOrdersController extends Controller
             'prepare_delivery' => ['required', 'numeric'],
             'old_budget_id' => ['nullable', 'max:255'],
             'old_order_id' => ['nullable', 'max:255'],
+            'provider_cost_center_id' => ['required', 'exists:cost_centers,id'],
         ]);
 
-        $order = $workplace->orders2()->create($validated);
+        $order = $workplace->providerWorkplace()->create($validated);
 
         return new OrderResource($order);
     }

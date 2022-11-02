@@ -19,11 +19,8 @@ class CompanyOrdersController extends Controller
     {
         // $this->authorize('view', $company);
 
-        $search = $request->get('search', '');
-
         $orders = $company
-            ->orders3()
-            ->search($search)
+            ->finalCustomer()
             ->latest()
             ->paginate();
 
@@ -101,7 +98,6 @@ class CompanyOrdersController extends Controller
             'confirm_code_date' => ['nullable', 'date'],
             'provider_manager_id' => ['nullable', 'exists:users,id'],
             'provider_workplace_id' => ['nullable', 'exists:workplaces,id'],
-            'provider_cost_center_id' => ['nullable', 'exists:cost_centers,id'],
             'provider_business_area_id' => [
                 'nullable',
                 'exists:business_areas,id',
@@ -116,9 +112,10 @@ class CompanyOrdersController extends Controller
             'prepare_delivery' => ['required', 'numeric'],
             'old_budget_id' => ['nullable', 'max:255'],
             'old_order_id' => ['nullable', 'max:255'],
+            'provider_cost_center_id' => ['required', 'exists:cost_centers,id'],
         ]);
 
-        $order = $company->orders3()->create($validated);
+        $order = $company->finalCustomer()->create($validated);
 
         return new OrderResource($order);
     }

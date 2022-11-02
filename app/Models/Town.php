@@ -16,4 +16,14 @@ class Town extends Model
     protected $table = 'towns';
 
     protected $fillable = ['name', 'slug', 'province_id', 'status'];
+
+    public function workplace()
+    {
+        return $this->hasOne(Workplace::class);
+    }
+
+    public function province()
+    {
+        return $this->belongsTo(Province::class);
+    }
 }

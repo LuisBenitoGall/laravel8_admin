@@ -19,11 +19,8 @@ class CompanyOrderPatternsController extends Controller
     {
         // $this->authorize('view', $company);
 
-        $search = $request->get('search', '');
-
         $orderPatterns = $company
             ->orderPatterns()
-            ->search($search)
             ->latest()
             ->paginate();
 

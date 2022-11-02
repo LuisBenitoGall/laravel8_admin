@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\OrderSetting;
+use App\Models\OrderSettings as OrderSetting;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\OrderResource;
@@ -12,18 +12,15 @@ class OrderSettingOrdersController extends Controller
 {
     /**
      * @param \Illuminate\Http\Request $request
-     * @param \App\Models\OrderSetting $orderSetting
-     * @return \Illuminate\Http\Response
+     * @param \App\Models\OrderSettings $orderSetting
+     * @return \App\Http\Resources\OrderCollection
      */
     public function index(Request $request, OrderSetting $orderSetting)
     {
         // $this->authorize('view', $orderSetting);
 
-        $search = $request->get('search', '');
-
         $orders = $orderSetting
             ->orders()
-            ->search($search)
             ->latest()
             ->paginate();
 
@@ -32,8 +29,8 @@ class OrderSettingOrdersController extends Controller
 
     /**
      * @param \Illuminate\Http\Request $request
-     * @param \App\Models\OrderSetting $orderSetting
-     * @return \Illuminate\Http\Response
+     * @param \App\Models\OrderSettings $orderSetting
+     * @return \App\Http\Resources\OrderResource
      */
     public function store(Request $request, OrderSetting $orderSetting)
     {
@@ -102,7 +99,6 @@ class OrderSettingOrdersController extends Controller
             'provider_id' => ['nullable', 'exists:companies,id'],
             'provider_manager_id' => ['nullable', 'exists:users,id'],
             'provider_workplace_id' => ['nullable', 'exists:workplaces,id'],
-            'provider_cost_center_id' => ['nullable', 'exists:cost_centers,id'],
             'provider_business_area_id' => [
                 'nullable',
                 'exists:business_areas,id',
@@ -118,6 +114,7 @@ class OrderSettingOrdersController extends Controller
             'prepare_delivery' => ['required', 'numeric'],
             'old_budget_id' => ['nullable', 'max:255'],
             'old_order_id' => ['nullable', 'max:255'],
+            'provider_cost_center_id' => ['required', 'exists:cost_centers,id'],
         ]);
 
         $order = $orderSetting->orders()->create($validated);

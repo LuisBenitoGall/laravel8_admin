@@ -19,11 +19,8 @@ class CountryProvincesController extends Controller
     {
         // $this->authorize('view', $country);
 
-        $search = $request->get('search', '');
-
         $provinces = $country
             ->provinces()
-            ->search($search)
             ->latest()
             ->paginate();
 

@@ -19,11 +19,8 @@ class CompanyPurchasePatternsController extends Controller
     {
         // $this->authorize('view', $company);
 
-        $search = $request->get('search', '');
-
         $purchasePatterns = $company
             ->purchasePatterns()
-            ->search($search)
             ->latest()
             ->paginate();
 

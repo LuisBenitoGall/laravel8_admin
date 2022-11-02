@@ -4,7 +4,7 @@ namespace Tests\Feature\Api;
 
 use App\Models\User;
 use App\Models\Order;
-use App\Models\OrderSetting;
+use App\Models\OrderSettings as OrderSetting;
 
 use Tests\TestCase;
 use Laravel\Sanctum\Sanctum;

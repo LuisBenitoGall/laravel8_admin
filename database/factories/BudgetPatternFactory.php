@@ -3,7 +3,7 @@
 namespace Database\Factories;
 
 use Illuminate\Support\Str;
-use App\Models\BudgetPattern;
+use App\Models\BudgetPatterns as BudgetPattern;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class BudgetPatternFactory extends Factory

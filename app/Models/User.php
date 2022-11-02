@@ -68,10 +68,12 @@ class User extends Authenticatable
      *
      * @var array
      */
+
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'birthday' => 'date',
+        'isAdmin' => 'boolean',
     ];
-
     /**
      * The accessors to append to the model's array form.
      *
@@ -285,6 +287,62 @@ class User extends Authenticatable
 
     public function workplaces()
     {
-        return $this->belongsToMany(Workplace::class,'user_workplaces');
+        return $this->hasMany(Workplace::class);
     }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class, 'customer_id');
+    }
+
+    public function orderSettings()
+    {
+        return $this->hasMany(OrderSettings::class);
+    }
+
+    public function budgetSettings()
+    {
+        return $this->hasMany(BudgetSettings::class);
+    }
+
+    public function budgetPatterns()
+    {
+        return $this->hasMany(BudgetPatterns::class);
+    }
+
+    public function businessAreas()
+    {
+        return $this->hasMany(BusinessAreas::class);
+    }
+
+    public function orderPatterns()
+    {
+        return $this->hasMany(OrderPatterns::class);
+    }
+
+    public function purchasePatterns()
+    {
+        return $this->hasMany(PurchasePatterns::class);
+    }
+
+    public function provider()
+    {
+        return $this->hasMany(Order::class, 'provider_id');
+    }
+
+    public function finalCustomer()
+    {
+        return $this->hasMany(Order::class, 'final_customer_id');
+    }
+
+    public function invoicePatterns()
+    {
+        return $this->hasMany(InvoicePatterns::class);
+    }
+
+    public function invoiceSettings()
+    {
+        return $this->hasMany(InvoiceSettings::class);
+    }
+
 }

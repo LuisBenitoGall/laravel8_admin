@@ -20,11 +20,9 @@ class WorkplaceController extends Controller
     {
         // $this->authorize('view-any', Workplace::class);
 
-        $search = $request->get('search', '');
+        //$search = $request->get('search', '');
 
-        $workplaces = Workplace::search($search)
-            ->latest()
-            ->paginate();
+        $workplaces = Workplace::latest()->paginate();
 
         return new WorkplaceCollection($workplaces);
     }

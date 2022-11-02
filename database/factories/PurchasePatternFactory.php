@@ -3,7 +3,7 @@
 namespace Database\Factories;
 
 use Illuminate\Support\Str;
-use App\Models\PurchasePattern;
+use App\Models\PurchasePatterns as PurchasePattern;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class PurchasePatternFactory extends Factory

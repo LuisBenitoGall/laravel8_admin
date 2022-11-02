@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\OrderSetting;
+use App\Models\OrderSettings as OrderSetting;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\OrderSettingResource;
@@ -20,11 +20,9 @@ class OrderSettingController extends Controller
     {
         // $this->authorize('view-any', OrderSetting::class);
 
-        $search = $request->get('search', '');
+        //$search = $request->get('search', '');
 
-        $orderSettings = OrderSetting::search($search)
-            ->latest()
-            ->paginate();
+        $orderSettings = OrderSetting::latest()->paginate();
 
         return new OrderSettingCollection($orderSettings);
     }

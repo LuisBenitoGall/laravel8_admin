@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\BusinessArea;
+use App\Models\BusinessAreas as BusinessArea;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\OrderResource;
@@ -19,11 +19,8 @@ class BusinessAreaOrdersController extends Controller
     {
         // $this->authorize('view', $businessArea);
 
-        $search = $request->get('search', '');
-
         $orders = $businessArea
-            ->orders2()
-            ->search($search)
+            ->providerBusinessArea()
             ->latest()
             ->paginate();
 
@@ -99,7 +96,6 @@ class BusinessAreaOrdersController extends Controller
             'provider_id' => ['nullable', 'exists:companies,id'],
             'provider_manager_id' => ['nullable', 'exists:users,id'],
             'provider_workplace_id' => ['nullable', 'exists:workplaces,id'],
-            'provider_cost_center_id' => ['nullable', 'exists:cost_centers,id'],
             'provider_team' => ['nullable', 'max:255', 'string'],
             'final_customer_id' => ['nullable', 'exists:companies,id'],
             'final_customer_manager_id' => ['nullable', 'exists:users,id'],
@@ -111,9 +107,10 @@ class BusinessAreaOrdersController extends Controller
             'prepare_delivery' => ['required', 'numeric'],
             'old_budget_id' => ['nullable', 'max:255'],
             'old_order_id' => ['nullable', 'max:255'],
+            'provider_cost_center_id' => ['required', 'exists:cost_centers,id'],
         ]);
 
-        $order = $businessArea->orders2()->create($validated);
+        $order = $businessArea->providerBusinessArea()->create($validated);
 
         return new OrderResource($order);
     }

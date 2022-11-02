@@ -2,7 +2,7 @@
 
 namespace Database\Factories;
 
-use App\Models\CostCenter;
+use App\Models\CostCenters as CostCenter;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Factories\Factory;
 

@@ -26,8 +26,25 @@ class Order extends Model
     use SoftDeletes;
 
     protected $table = 'orders';
+    protected $guarded = [];
 
     protected $dates = ['deleted_at'];
+
+
+    protected $casts = [
+        'is_budget' => 'boolean',
+        'is_order' => 'boolean',
+        'from_customer' => 'boolean',
+        'accepted_date' => 'date',
+        'is_group' => 'boolean',
+        'estimated_delivery_date' => 'date',
+        'delivery_date' => 'date',
+        'pay_order_received' => 'datetime',
+        'customer_confirmation' => 'datetime',
+        'confirm_code_date' => 'datetime',
+        'invoiced' => 'boolean',
+    ];
+
 
     // Relaciones:
     public function customer()
@@ -204,4 +221,116 @@ class Order extends Model
             }
         }
     }
+
+    public function budgetPattern()
+    {
+        return $this->belongsTo(BudgetPatterns::class);
+    }
+
+    public function budgetForm()
+    {
+        return $this->belongsTo(BudgetForms::class, 'form_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'accepted_by');
+    }
+
+    public function budgetSetting()
+    {
+        return $this->belongsTo(BudgetSettings::class, 'budget_template_id');
+    }
+
+    public function orderPattern()
+    {
+        return $this->belongsTo(OrderPatterns::class);
+    }
+
+    public function orderSetting()
+    {
+        return $this->belongsTo(OrderSettings::class, 'order_template_id');
+    }
+
+    public function purchasePattern()
+    {
+        return $this->belongsTo(PurchasePatterns::class);
+    }
+
+    public function company()
+    {
+        return $this->belongsTo(Company::class, 'customer_id');
+    }
+
+    public function workplace()
+    {
+        return $this->belongsTo(Workplace::class, 'customer_workplace_id');
+    }
+
+    public function costCenter()
+    {
+        return $this->belongsTo(CostCenters::class, 'customer_cost_center_id');
+    }
+
+    public function businessArea()
+    {
+        return $this->belongsTo(
+            BusinessAreas::class,
+            'customer_business_area_id'
+        );
+    }
+
+    public function confimedBy()
+    {
+        return $this->belongsTo(User::class, 'confirmed_by');
+    }
+
+    public function provider()
+    {
+        return $this->belongsTo(Company::class, 'provider_id');
+    }
+
+    public function providerManager()
+    {
+        return $this->belongsTo(User::class, 'provider_manager_id');
+    }
+
+    public function providerBusinessArea()
+    {
+        return $this->belongsTo(
+            BusinessAreas::class,
+            'provider_business_area_id'
+        );
+    }
+
+    public function finalCustomer()
+    {
+        return $this->belongsTo(Company::class, 'final_customer_id');
+    }
+
+    public function finalCustomerManager()
+    {
+        return $this->belongsTo(User::class, 'final_customer_manager_id');
+    }
+
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function providerWorkplace()
+    {
+        return $this->belongsTo(Workplace::class, 'provider_workplace_id');
+    }
+
+    public function customerManager()
+    {
+        return $this->belongsTo(User::class, 'customer_manager_id');
+    }
+
+    public function providerCostCenterId()
+    {
+        return $this->belongsTo(CostCenters::class, 'provider_cost_center_id');
+    }
+
 }

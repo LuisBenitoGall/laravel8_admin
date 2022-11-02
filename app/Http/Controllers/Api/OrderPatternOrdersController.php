@@ -19,11 +19,8 @@ class OrderPatternOrdersController extends Controller
     {
         // $this->authorize('view', $orderPattern);
 
-        $search = $request->get('search', '');
-
         $orders = $orderPattern
             ->orders()
-            ->search($search)
             ->latest()
             ->paginate();
 
@@ -102,7 +99,6 @@ class OrderPatternOrdersController extends Controller
             'provider_id' => ['nullable', 'exists:companies,id'],
             'provider_manager_id' => ['nullable', 'exists:users,id'],
             'provider_workplace_id' => ['nullable', 'exists:workplaces,id'],
-            'provider_cost_center_id' => ['nullable', 'exists:cost_centers,id'],
             'provider_business_area_id' => [
                 'nullable',
                 'exists:business_areas,id',
@@ -118,6 +114,7 @@ class OrderPatternOrdersController extends Controller
             'prepare_delivery' => ['required', 'numeric'],
             'old_budget_id' => ['nullable', 'max:255'],
             'old_order_id' => ['nullable', 'max:255'],
+            'provider_cost_center_id' => ['required', 'exists:cost_centers,id'],
         ]);
 
         $order = $orderPattern->orders()->create($validated);

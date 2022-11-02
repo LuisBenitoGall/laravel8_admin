@@ -3,7 +3,7 @@
 namespace Tests\Feature\Api;
 
 use App\Models\User;
-use App\Models\OrderPattern;
+use App\Models\OrderPatterns as OrderPattern;
 
 use App\Models\Company;
 

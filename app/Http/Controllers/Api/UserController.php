@@ -21,11 +21,9 @@ class UserController extends Controller
     {
         // $this->authorize('view-any', User::class);
 
-        $search = $request->get('search', '');
+        //$search = $request->get('search', '');
 
-        $users = User::search($search)
-            ->latest()
-            ->paginate();
+        $users = User::latest()->paginate();
 
         return new UserCollection($users);
     }

@@ -20,11 +20,9 @@ class TownController extends Controller
     {
         // $this->authorize('view-any', Town::class);
 
-        $search = $request->get('search', '');
+        //$search = $request->get('search', '');
 
-        $towns = Town::search($search)
-            ->latest()
-            ->paginate();
+        $towns = Town::latest()->paginate();
 
         return new TownCollection($towns);
     }

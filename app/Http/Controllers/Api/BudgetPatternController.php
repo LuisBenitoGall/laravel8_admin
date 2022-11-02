@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
-use App\Models\BudgetPattern;
+use App\Models\BudgetPatterns as BudgetPattern;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\BudgetPatternResource;
 use App\Http\Resources\BudgetPatternCollection;
@@ -20,11 +20,9 @@ class BudgetPatternController extends Controller
     {
         // $this->authorize('view-any', BudgetPattern::class);
 
-        $search = $request->get('search', '');
+        //$search = $request->get('search', '');
 
-        $budgetPatterns = BudgetPattern::search($search)
-            ->latest()
-            ->paginate();
+        $budgetPatterns = BudgetPattern::latest()->paginate();
 
         return new BudgetPatternCollection($budgetPatterns);
     }

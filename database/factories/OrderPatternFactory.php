@@ -3,7 +3,7 @@
 namespace Database\Factories;
 
 use Illuminate\Support\Str;
-use App\Models\OrderPattern;
+use App\Models\OrderPatterns as OrderPattern;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class OrderPatternFactory extends Factory

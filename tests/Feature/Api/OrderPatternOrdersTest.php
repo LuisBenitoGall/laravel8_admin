@@ -4,7 +4,7 @@ namespace Tests\Feature\Api;
 
 use App\Models\User;
 use App\Models\Order;
-use App\Models\OrderPattern;
+use App\Models\OrderPatterns as OrderPattern;
 
 use Tests\TestCase;
 use Laravel\Sanctum\Sanctum;

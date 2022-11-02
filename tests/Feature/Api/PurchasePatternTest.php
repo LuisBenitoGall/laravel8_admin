@@ -3,7 +3,7 @@
 namespace Tests\Feature\Api;
 
 use App\Models\User;
-use App\Models\PurchasePattern;
+use App\Models\PurchasePatterns as PurchasePattern;
 
 use App\Models\Company;
 

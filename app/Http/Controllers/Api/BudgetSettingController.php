@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
-use App\Models\BudgetSetting;
+use App\Models\BudgetSettings as BudgetSetting;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\BudgetSettingResource;
 use App\Http\Resources\BudgetSettingCollection;
@@ -20,11 +20,9 @@ class BudgetSettingController extends Controller
     {
         // $this->authorize('view-any', BudgetSetting::class);
 
-        $search = $request->get('search', '');
+        //$search = $request->get('search', '');
 
-        $budgetSettings = BudgetSetting::search($search)
-            ->latest()
-            ->paginate();
+        $budgetSettings = BudgetSetting::latest()->paginate();
 
         return new BudgetSettingCollection($budgetSettings);
     }

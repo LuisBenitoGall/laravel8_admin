@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\BusinessArea;
+use App\Models\BusinessAreas as BusinessArea;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\BusinessAreaResource;
@@ -13,25 +13,22 @@ use App\Http\Requests\BusinessAreaUpdateRequest;
 class BusinessAreaController extends Controller
 {
     /**
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
+     * @return \App\Http\Resources\BusinessAreaCollection
      */
-    public function index(Request $request)
+    public function index()
     {
         // $this->authorize('view-any', BusinessArea::class);
 
-        $search = $request->get('search', '');
+        //$search = $request->get('search', '');
 
-        $businessAreas = BusinessArea::search($search)
-            ->latest()
-            ->paginate();
+        $businessAreas = BusinessArea::latest()->paginate();
 
         return new BusinessAreaCollection($businessAreas);
     }
 
     /**
      * @param \App\Http\Requests\BusinessAreaStoreRequest $request
-     * @return \Illuminate\Http\Response
+     * @return \App\Http\Resources\BusinessAreaResource
      */
     public function store(BusinessAreaStoreRequest $request)
     {
@@ -45,11 +42,10 @@ class BusinessAreaController extends Controller
     }
 
     /**
-     * @param \Illuminate\Http\Request $request
-     * @param \App\Models\BusinessArea $businessArea
-     * @return \Illuminate\Http\Response
+     * @param \App\Models\BusinessAreas $businessArea
+     * @return \App\Http\Resources\BusinessAreaResource
      */
-    public function show(Request $request, BusinessArea $businessArea)
+    public function show(BusinessArea $businessArea)
     {
         // $this->authorize('view', $businessArea);
 
@@ -58,8 +54,8 @@ class BusinessAreaController extends Controller
 
     /**
      * @param \App\Http\Requests\BusinessAreaUpdateRequest $request
-     * @param \App\Models\BusinessArea $businessArea
-     * @return \Illuminate\Http\Response
+     * @param \App\Models\BusinessAreas $businessArea
+     * @return \App\Http\Resources\BusinessAreaResource
      */
     public function update(
         BusinessAreaUpdateRequest $request,
@@ -75,11 +71,10 @@ class BusinessAreaController extends Controller
     }
 
     /**
-     * @param \Illuminate\Http\Request $request
-     * @param \App\Models\BusinessArea $businessArea
+     * @param \App\Models\BusinessAreas $businessArea
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request, BusinessArea $businessArea)
+    public function destroy(BusinessArea $businessArea)
     {
         //$this->authorize('delete', $businessArea);
 

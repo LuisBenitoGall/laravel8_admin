@@ -3,7 +3,7 @@
 namespace Tests\Feature\Api;
 
 use App\Models\User;
-use App\Models\BudgetSetting;
+use App\Models\BudgetSettings as BudgetSetting;
 
 use App\Models\Company;
 

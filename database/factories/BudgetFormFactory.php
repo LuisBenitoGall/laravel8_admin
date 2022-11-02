@@ -2,7 +2,7 @@
 
 namespace Database\Factories;
 
-use App\Models\BudgetForm;
+use App\Models\BudgetForms as BudgetForm;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Factories\Factory;
 

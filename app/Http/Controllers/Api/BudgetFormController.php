@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\BudgetForm;
+use App\Models\BudgetForms as BudgetForm;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\BudgetFormResource;
@@ -20,11 +20,9 @@ class BudgetFormController extends Controller
     {
         // $this->authorize('view-any', BudgetForm::class);
 
-        $search = $request->get('search', '');
+        //$search = $request->get('search', '');
 
-        $budgetForms = BudgetForm::search($search)
-            ->latest()
-            ->paginate();
+        $budgetForms = BudgetForm::latest()->paginate();
 
         return new BudgetFormCollection($budgetForms);
     }

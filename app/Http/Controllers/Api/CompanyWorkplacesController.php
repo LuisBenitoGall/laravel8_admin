@@ -19,11 +19,8 @@ class CompanyWorkplacesController extends Controller
     {
         // $this->authorize('view', $company);
 
-        $search = $request->get('search', '');
-
         $workplaces = $company
             ->workplaces()
-            ->search($search)
             ->latest()
             ->paginate();
 

@@ -11,7 +11,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 
-class Company extends Model{
+class Company extends Model
+{
     /**
      * 1. Almacenes de la empresa.
      * 2. Tipos de jornada de la empresa.
@@ -31,14 +32,16 @@ class Company extends Model{
     /**
      * 1. Almacenes de la empresa.
      */
-    public function stores(){
+    public function stores()
+    {
         return $this->hasMany(Store::class);
     }
 
     /**
      * 2. Tipos de jornada de la empresa.
      */
-    public function day_types(){
+    public function day_types()
+    {
         return $this->hasMany(DayTypes::class);
     }
 
@@ -53,15 +56,16 @@ class Company extends Model{
     /**
      * 3. Roles básicos por empresa.
      */
-    public function setCompanyRoles($set_permissions = true, $arr = false){
+    public function setCompanyRoles($set_permissions = true, $arr = false)
+    {
         $basic_roles = ['manager', 'basic'];
 
-        foreach($basic_roles as $br){
+        foreach ($basic_roles as $br) {
             $role = Company::saveCompanyRole($br, $this->id);
 
             //Exclusivo para manager:
-            if($br == 'manager' && $set_permissions){
-                if(!$arr){
+            if ($br == 'manager' && $set_permissions) {
+                if (!$arr) {
                     //Permisos exclusivos del Super Admin, por lo que no pueden vincularse a ningún otro role:
                     $exceptions = config('constants.PERMISSIONS_OFF_');
 
@@ -69,9 +73,9 @@ class Company extends Model{
 
                     //Pasamos a un array todos los permisos válidos para el manager:
                     $arr = [];
-                    foreach($permissions as $p){
+                    foreach ($permissions as $p) {
                         $segments = explode('.', $p->name);
-                        if(!in_array($segments[0], $exceptions)){
+                        if (!in_array($segments[0], $exceptions)) {
                             array_push($arr, $p->id);
                         }
                     }
@@ -85,12 +89,13 @@ class Company extends Model{
     /**
      * 4. Guardar role por empresa.
      */
-    public static function saveCompanyRole($name, $company_id, $description = NULL){
+    public static function saveCompanyRole($name, $company_id, $description = NULL)
+    {
         //Comprobamos que no exista el role:
-        $role_name = $company_id.'/'.$name;
+        $role_name = $company_id . '/' . $name;
         $exists = Role::where('name', $role_name)->first();
 
-        if(!$exists){
+        if (!$exists) {
             $role = new Role();
             $role->name = $role_name;
             $role->guard_name = 'web';
@@ -99,8 +104,54 @@ class Company extends Model{
             $role->save();
 
             return $role;
-        }else{
+        } else {
             return false;
         }
+    }
+
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class, 'customer_id');
+    }
+
+    public function orderSettings()
+    {
+        return $this->hasMany(OrderSettings::class);
+    }
+
+    public function budgetSettings()
+    {
+        return $this->hasMany(BudgetSettings::class);
+    }
+
+    public function budgetPatterns()
+    {
+        return $this->hasMany(BudgetPatterns::class);
+    }
+
+    public function businessAreas()
+    {
+        return $this->hasMany(BusinessAreas::class);
+    }
+
+    public function orderPatterns()
+    {
+        return $this->hasMany(OrderPatterns::class);
+    }
+
+    public function purchasePatterns()
+    {
+        return $this->hasMany(PurchasePatterns::class);
+    }
+
+    public function provider()
+    {
+        return $this->hasMany(Order::class, 'provider_id');
+    }
+
+    public function finalCustomer()
+    {
+        return $this->hasMany(Order::class, 'final_customer_id');
     }
 }

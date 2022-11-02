@@ -20,11 +20,9 @@ class OrderPatternController extends Controller
     {
         // $this->authorize('view-any', OrderPattern::class);
 
-        $search = $request->get('search', '');
+        //$search = $request->get('search', '');
 
-        $orderPatterns = OrderPattern::search($search)
-            ->latest()
-            ->paginate();
+        $orderPatterns = OrderPattern::latest()->paginate();
 
         return new OrderPatternCollection($orderPatterns);
     }

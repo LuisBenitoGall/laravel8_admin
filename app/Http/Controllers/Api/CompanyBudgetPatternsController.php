@@ -19,11 +19,8 @@ class CompanyBudgetPatternsController extends Controller
     {
         // $this->authorize('view', $company);
 
-        $search = $request->get('search', '');
-
         $budgetPatterns = $company
             ->budgetPatterns()
-            ->search($search)
             ->latest()
             ->paginate();
 

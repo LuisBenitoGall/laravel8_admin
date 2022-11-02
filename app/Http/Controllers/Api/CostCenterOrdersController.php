@@ -19,11 +19,8 @@ class CostCenterOrdersController extends Controller
     {
         // $this->authorize('view', $costCenter);
 
-        $search = $request->get('search', '');
-
         $orders = $costCenter
-            ->orders2()
-            ->search($search)
+            ->providerCostCenter()
             ->latest()
             ->paginate();
 
@@ -119,7 +116,7 @@ class CostCenterOrdersController extends Controller
             'old_order_id' => ['nullable', 'max:255'],
         ]);
 
-        $order = $costCenter->orders2()->create($validated);
+        $order = $costCenter->providerCostCenter()->create($validated);
 
         return new OrderResource($order);
     }

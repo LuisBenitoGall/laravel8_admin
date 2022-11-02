@@ -19,11 +19,8 @@ class CompanyBusinessAreasController extends Controller
     {
         // $this->authorize('view', $company);
 
-        $search = $request->get('search', '');
-
         $businessAreas = $company
             ->businessAreas()
-            ->search($search)
             ->latest()
             ->paginate();
 

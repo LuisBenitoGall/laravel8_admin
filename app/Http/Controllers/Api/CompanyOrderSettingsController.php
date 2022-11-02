@@ -19,11 +19,8 @@ class CompanyOrderSettingsController extends Controller
     {
         // $this->authorize('view', $company);
 
-        $search = $request->get('search', '');
-
         $orderSettings = $company
             ->orderSettings()
-            ->search($search)
             ->latest()
             ->paginate();
 

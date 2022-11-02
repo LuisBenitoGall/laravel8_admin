@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
-use App\Models\PurchasePattern;
+use App\Models\PurchasePatterns as PurchasePattern;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PurchasePatternResource;
 use App\Http\Resources\PurchasePatternCollection;
@@ -20,11 +20,9 @@ class PurchasePatternController extends Controller
     {
         // $this->authorize('view-any', PurchasePattern::class);
 
-        $search = $request->get('search', '');
+        //$search = $request->get('search', '');
 
-        $purchasePatterns = PurchasePattern::search($search)
-            ->latest()
-            ->paginate();
+        $purchasePatterns = PurchasePattern::latest()->paginate();
 
         return new PurchasePatternCollection($purchasePatterns);
     }

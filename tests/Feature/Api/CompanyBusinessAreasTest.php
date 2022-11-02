@@ -4,7 +4,7 @@ namespace Tests\Feature\Api;
 
 use App\Models\User;
 use App\Models\Company;
-use App\Models\BusinessArea;
+use App\Models\BusinessAreas as BusinessArea;
 
 use Tests\TestCase;
 use Laravel\Sanctum\Sanctum;

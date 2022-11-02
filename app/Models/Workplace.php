@@ -9,74 +9,77 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 
-class Workplace extends Model{
+class Workplace extends Model
+{
     /**
-	 * 1. Empresa del centro de trabajo.
+     * 1. Empresa del centro de trabajo.
      * 2. Validación del centro de trabajo para middleware.
      * 3. Centros de trabajo por empresa.
      * 4. Centro de trabajo principal de empresa.
      * 5. Centro de trabajo por id.
-	 */
+     */
 
     use HasFactory;
     use SoftDeletes;
     use Searchable;
 
-	protected $table = 'workplaces';
+    protected $table = 'workplaces';
 
     protected $fillable = ['company_id', 'name', 'slug', 'featured', 'logo', 'address', 'cp', 'town_id', 'nif', 'website', 'description'];
 
     /**
      * 1. Empresa del centro de trabajo.
      */
-    public function company(){
-    	return $this->belongsTo(Company::class);
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
     }
 
     /**
      * 2. Validación del centro de trabajo para middleware.
      */
-    static public function workplaceMiddleware($workplace_id, $business_relationship = false){
+    static public function workplaceMiddleware($workplace_id, $business_relationship = false)
+    {
         $company = Workplace::select('company_id')->find($workplace_id);
 
         $resp = false;
 
-        if(!$company){
+        if (!$company) {
             $resp = trans('textos.registro_inexistente');
         }
 
         //Si la empresa se encuentra entre las empresas gestionadas por el usuario:
         $belongs = false;
-        foreach(\Session::get('companies') as $co){
-            if($co->id == $company->company_id){
+        foreach (\Session::get('companies') as $co) {
+            if ($co->id == $company->company_id) {
                 $belongs = true;
                 break;
             }
         }
-        if(!$belongs){
+        if (!$belongs) {
             $resp = trans('textos.no_permisos_accion');
         }
 
         //Comprobamos que la empresa mantiene relación de cliente o proveedor y es guardián:
         //06/10/22: se omite por ahora la condición && $business_relationship hasta entender qué hace realmente.
-        if(!$belongs){
+        if (!$belongs) {
             $exist = false;
 
             //Si la empresa en session es guardián de la empresa editada:
             $guardian = CompanyAccounts::getGuardian($company->company_id);
-            if($guardian) $exist = true;
+            if ($guardian) $exist = true;
 
             //Verificar cliente:
-            if(!$exist && $business_relationship == 'customers'){
+            if (!$exist && $business_relationship == 'customers') {
                 $exist = CustomerProviders::customerProvider($company->company_id, session('currentCompany'));
 
-            }elseif(!$exist && $business_relationship == 'providers'){
+            } elseif (!$exist && $business_relationship == 'providers') {
                 $exist = CustomerProviders::customerProvider(session('currentCompany'), $company->company_id);
             }
 
-            if(!$exist){
+            if (!$exist) {
                 $resp = trans('textos.no_permisos_accion');
-            }else{
+            } else {
                 $resp = false;
             }
         }
@@ -87,13 +90,14 @@ class Workplace extends Model{
     /**
      * 3. Centros de trabajo por empresa.
      */
-    public static function companyWorkplaces($company_id){
+    public static function companyWorkplaces($company_id)
+    {
         $data = Workplace::select('workplaces.id', 'workplaces.name', 'workplaces.address', 'workplaces.cp', 'towns.name AS Town')
-        ->leftJoin('towns', 'workplaces.town_id', '=', 'towns.id')
-        ->where('workplaces.company_id', $company_id)
-        ->where('workplaces.status', 1)
-        ->orderBy('workplaces.name', 'ASC')
-        ->get();
+            ->leftJoin('towns', 'workplaces.town_id', '=', 'towns.id')
+            ->where('workplaces.company_id', $company_id)
+            ->where('workplaces.status', 1)
+            ->orderBy('workplaces.name', 'ASC')
+            ->get();
 
         return $data;
     }
@@ -101,29 +105,31 @@ class Workplace extends Model{
     /**
      * 4. Centro de trabajo principal de empresa.
      */
-    public static function companyFeaturedWorkplace($company_id){
+    public static function companyFeaturedWorkplace($company_id)
+    {
         $data = Workplace::select('workplaces.id', 'workplaces.name', 'workplaces.address', 'workplaces.cp', 'towns.name AS Town', 'phones.phone_number')
-        ->leftJoin('towns', 'workplaces.town_id', '=', 'towns.id')
-        ->leftJoin('phones', 'workplaces.id', '=', 'phones.workplace_id')
-        ->where('workplaces.company_id', $company_id)
-        ->where('workplaces.featured', 1)
-        ->where('workplaces.status', 1)
-        ->first();
+            ->leftJoin('towns', 'workplaces.town_id', '=', 'towns.id')
+            ->leftJoin('phones', 'workplaces.id', '=', 'phones.workplace_id')
+            ->where('workplaces.company_id', $company_id)
+            ->where('workplaces.featured', 1)
+            ->where('workplaces.status', 1)
+            ->first();
 
         return $data;
     }
 
     /**
-     * 5. Centro de trabajo por id.
+     * 5. Centro de trabajo por ID.
      */
-    public static function getWorkplace($id){
+    public static function getWorkplace($id)
+    {
         $data = Workplace::select('workplaces.id', 'workplaces.name', 'workplaces.address', 'workplaces.cp', 'towns.name AS Town', 'phones.phone_number')
-        ->leftJoin('towns', 'workplaces.town_id', '=', 'towns.id')
-        ->leftJoin('phones', 'workplaces.id', '=', 'phones.workplace_id')
-        ->where('workplaces.id', $id)
-        ->where('workplaces.featured', 1)
-        ->where('workplaces.status', 1)
-        ->first();
+            ->leftJoin('towns', 'workplaces.town_id', '=', 'towns.id')
+            ->leftJoin('phones', 'workplaces.id', '=', 'phones.workplace_id')
+            ->where('workplaces.id', $id)
+            ->where('workplaces.featured', 1)
+            ->where('workplaces.status', 1)
+            ->first();
 
         return $data;
     }
@@ -136,6 +142,17 @@ class Workplace extends Model{
 
     public function users()
     {
-        return $this->belongsToMany(User::class,'user_workplaces');
+        return $this->belongsToMany(User::class, 'user_workplaces');
     }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class, 'customer_workplace_id');
+    }
+
+    public function providerWorkplace()
+    {
+        return $this->hasMany(Order::class, 'provider_workplace_id');
+    }
+
 }

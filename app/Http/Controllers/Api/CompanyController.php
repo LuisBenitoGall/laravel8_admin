@@ -20,11 +20,9 @@ class CompanyController extends Controller
     {
         // $this->authorize('view-any', Company::class);
 
-        $search = $request->get('search', '');
+        //$search = $request->get('search', '');
 
-        $companies = Company::search($search)
-            ->latest()
-            ->paginate();
+        $companies = Company::latest()->paginate();
 
         return new CompanyCollection($companies);
     }

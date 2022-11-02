@@ -19,11 +19,8 @@ class ProvinceTownsController extends Controller
     {
         // $this->authorize('view', $province);
 
-        $search = $request->get('search', '');
-
         $towns = $province
             ->towns()
-            ->search($search)
             ->latest()
             ->paginate();
 

@@ -4,7 +4,7 @@ namespace Tests\Feature\Api;
 
 use App\Models\User;
 use App\Models\Order;
-use App\Models\CostCenter;
+use App\Models\CostCenters as CostCenter;
 
 use Tests\TestCase;
 use Laravel\Sanctum\Sanctum;

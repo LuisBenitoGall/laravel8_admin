@@ -20,11 +20,9 @@ class CountryController extends Controller
     {
         // $this->authorize('view-any', Country::class);
 
-        $search = $request->get('search', '');
+        //$search = $request->get('search', '');
 
-        $countries = Country::search($search)
-            ->latest()
-            ->paginate();
+        $countries = Country::latest()->paginate();
 
         return new CountryCollection($countries);
     }

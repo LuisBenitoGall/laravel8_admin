@@ -3,7 +3,7 @@
 namespace Database\Factories;
 
 use Illuminate\Support\Str;
-use App\Models\BusinessArea;
+use App\Models\BusinessAreas as BusinessArea;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class BusinessAreaFactory extends Factory

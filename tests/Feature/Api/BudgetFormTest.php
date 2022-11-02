@@ -3,7 +3,7 @@
 namespace Tests\Feature\Api;
 
 use App\Models\User;
-use App\Models\BudgetForm;
+use App\Models\BudgetForms as BudgetForm;
 
 use Tests\TestCase;
 use Laravel\Sanctum\Sanctum;

@@ -3,7 +3,7 @@
 namespace Tests\Feature\Api;
 
 use App\Models\User;
-use App\Models\BusinessArea;
+use App\Models\BusinessAreas as BusinessArea;
 
 use App\Models\Company;
 

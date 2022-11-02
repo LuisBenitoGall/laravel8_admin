@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\BudgetForm;
+use App\Models\BudgetForms as BudgetForm;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\OrderResource;
@@ -12,18 +12,15 @@ class BudgetFormOrdersController extends Controller
 {
     /**
      * @param \Illuminate\Http\Request $request
-     * @param \App\Models\BudgetForm $budgetForm
+     * @param \App\Models\BudgetForms $budgetForm
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request, BudgetForm $budgetForm)
     {
         // $this->authorize('view', $budgetForm);
 
-        $search = $request->get('search', '');
-
         $orders = $budgetForm
             ->orders()
-            ->search($search)
             ->latest()
             ->paginate();
 
@@ -103,7 +100,6 @@ class BudgetFormOrdersController extends Controller
             'provider_id' => ['nullable', 'exists:companies,id'],
             'provider_manager_id' => ['nullable', 'exists:users,id'],
             'provider_workplace_id' => ['nullable', 'exists:workplaces,id'],
-            'provider_cost_center_id' => ['nullable', 'exists:cost_centers,id'],
             'provider_business_area_id' => [
                 'nullable',
                 'exists:business_areas,id',
@@ -119,6 +115,7 @@ class BudgetFormOrdersController extends Controller
             'prepare_delivery' => ['required', 'numeric'],
             'old_budget_id' => ['nullable', 'max:255'],
             'old_order_id' => ['nullable', 'max:255'],
+            'provider_cost_center_id' => ['required', 'exists:cost_centers,id'],
         ]);
 
         $order = $budgetForm->orders()->create($validated);

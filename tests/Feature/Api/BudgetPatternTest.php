@@ -3,7 +3,7 @@
 namespace Tests\Feature\Api;
 
 use App\Models\User;
-use App\Models\BudgetPattern;
+use App\Models\BudgetPatterns as BudgetPattern;
 
 use App\Models\Company;
 

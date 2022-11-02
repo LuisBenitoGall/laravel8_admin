@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
-use App\Models\PurchasePattern;
+use App\Models\PurchasePatterns as PurchasePattern;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\OrderResource;
 use App\Http\Resources\OrderCollection;
@@ -19,11 +19,8 @@ class PurchasePatternOrdersController extends Controller
     {
         // $this->authorize('view', $purchasePattern);
 
-        $search = $request->get('search', '');
-
         $orders = $purchasePattern
             ->orders()
-            ->search($search)
             ->latest()
             ->paginate();
 
@@ -99,7 +96,6 @@ class PurchasePatternOrdersController extends Controller
             'provider_id' => ['nullable', 'exists:companies,id'],
             'provider_manager_id' => ['nullable', 'exists:users,id'],
             'provider_workplace_id' => ['nullable', 'exists:workplaces,id'],
-            'provider_cost_center_id' => ['nullable', 'exists:cost_centers,id'],
             'provider_business_area_id' => [
                 'nullable',
                 'exists:business_areas,id',
@@ -115,6 +111,7 @@ class PurchasePatternOrdersController extends Controller
             'prepare_delivery' => ['required', 'numeric'],
             'old_budget_id' => ['nullable', 'max:255'],
             'old_order_id' => ['nullable', 'max:255'],
+            'provider_cost_center_id' => ['required', 'exists:cost_centers,id'],
         ]);
 
         $order = $purchasePattern->orders()->create($validated);

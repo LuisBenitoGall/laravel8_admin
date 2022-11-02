@@ -20,11 +20,9 @@ class ProvinceController extends Controller
     {
         // $this->authorize('view-any', Province::class);
 
-        $search = $request->get('search', '');
+        //$search = $request->get('search', '');
 
-        $provinces = Province::search($search)
-            ->latest()
-            ->paginate();
+        $provinces = Province::latest()->paginate();
 
         return new ProvinceCollection($provinces);
     }

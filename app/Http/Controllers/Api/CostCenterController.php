@@ -20,11 +20,9 @@ class CostCenterController extends Controller
     {
         // $this->authorize('view-any', CostCenter::class);
 
-        $search = $request->get('search', '');
+        //$search = $request->get('search', '');
 
-        $costCenters = CostCenter::search($search)
-            ->latest()
-            ->paginate();
+        $costCenters = CostCenter::latest()->paginate();
 
         return new CostCenterCollection($costCenters);
     }
