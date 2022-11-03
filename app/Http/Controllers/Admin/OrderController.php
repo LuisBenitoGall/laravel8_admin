@@ -301,12 +301,16 @@ class OrderController extends Controller{
 
         //Si viene declarado el número de pedido redirigimos:
         if($request->order_id){
+            $orderNum = $request->order_id;
+
             //Comprobamos si el valor recibido corresponde a id, order_num o old_order:
             $order = Order::select('id')
-            ->where('id', $request->order_id)
-            ->orWhere('order_num', $request->order_id)
-            ->orWhere('order_old_num', $request->order_id)
-            ->orWhere('purchase_num', $request->order_id)
+            ->where('provider_id', session('currentCompany'))
+            ->where(function($query) use ($orderNum){
+                $query->where('id', $orderNum)
+                ->orWhere('order_num', $orderNum)
+                ->orWhere('order_old_num', $orderNum);
+            })
             ->first();
 
             if(!$order){
@@ -320,9 +324,17 @@ class OrderController extends Controller{
         }
 
         // Si viene el código de orden de compra, comprobamos si existe un pedido con este numero, si existe uno solo se redirige
-        if ($request->order_buy) {
-            $orders_of_order_buy = Order::select('id')->orWhere('orders.purchase_num', 'like', "%$request->order_buy%")
-            ->orWhere('orders.purchase_old_num', 'like', "%$request->order_buy%")->get();
+        if($request->order_buy){
+            $orderBuy = $request->order_buy;
+
+            $orders_of_order_buy = Order::select('id')
+            ->where('customer_id', session('currentCompany'))
+            ->where(function($query) use ($orderBuy){
+                $query->where('id', $orderBuy)
+                ->orWhere('purchase_num', 'like', "%$orderBuy%")
+                ->orWhere('purchase_old_num', 'like', "%$orderBuy%");
+            })
+            ->get();
             if ($orders_of_order_buy->count() == 1) {
                 return redirect()->route('orders.edit', $orders_of_order_buy[0]->id);    
                 exit;   
@@ -962,7 +974,9 @@ class OrderController extends Controller{
             return redirect('admin/orders/'.$order->id.'/edit')
                 ->withErrors($validator)
                 ->withInput();
-        }   
+        }  
+
+        dd($request->all()); 
         
         //Número de pedido:
         $order_num = NULL;
