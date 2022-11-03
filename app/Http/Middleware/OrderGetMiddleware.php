@@ -32,7 +32,7 @@ class OrderGetMiddleware{
             $alert = trans('textos.no_permisos_accion');   
             return redirect()->route('orders.index')->with(compact('alert'));
             exit; 
-        }      
+        }  
 
         return $next($request);
     }
