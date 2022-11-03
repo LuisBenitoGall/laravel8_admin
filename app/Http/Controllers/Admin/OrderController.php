@@ -805,6 +805,8 @@ class OrderController extends Controller{
             $order_amount_without_discount = $arr_amounts['amount_without_discount'];
         } 
 
+        //dd($order_amount);
+
         //Agrupaciones de pedidos:
         $order_groups = Order::select('orders.id', 'orders.order_num', 'orders.name')
         ->where('orders.provider_id', session('currentCompany'))
@@ -1257,7 +1259,7 @@ class OrderController extends Controller{
             $amount = '';
             if($item->price != 0){
                 if($item->calculated_by_percent > 0){
-                    $amount = helpers::itemAmountPercentage($item->price, $order_amount['amount_with_discount']);
+                    $amount = helpers::itemAmountPercentage($item->price, $order_amount['amount_without_discount']);
                     return $amount.$currency->symbol.'<br><small>('.trans('textos.precio_porcentual').')</small>';
                 }else{
                     $amount = helpers::itemAmount($item); 
