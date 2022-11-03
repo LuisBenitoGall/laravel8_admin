@@ -975,8 +975,6 @@ class OrderController extends Controller{
                 ->withErrors($validator)
                 ->withInput();
         }  
-
-        dd($request->all()); 
         
         //Número de pedido:
         $order_num = NULL;
