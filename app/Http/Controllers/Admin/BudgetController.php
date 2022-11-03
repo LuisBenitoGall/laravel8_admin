@@ -494,12 +494,18 @@ class BudgetController extends Controller{
         ->get();
 
         //Clientes finales. Sólo clientes del cliente primero:
-        $final_customers = Company::select('companies.id', 'companies.name')
-        ->join('customer_providers', 'companies.id', '=', 'customer_providers.customer_id')
+        //03/11/22: Se modifica la consulta para obtener todas las empresas, no sólo los clientes directos.
+        // $final_customers = Company::select('companies.id', 'companies.name')
+        // ->join('customer_providers', 'companies.id', '=', 'customer_providers.customer_id')
+        // ->where('companies.status', 1)
+        // ->where('companies.id', '!=', $order->provider_id)
+        // ->where('companies.id', '!=', $order->customer_id)
+        // ->where('customer_providers.provider_id', $order->provider_id)
+        // ->orderBy('companies.name', 'ASC')
+        // ->get();
+
+        $final_customers = Company::select('id', 'name')
         ->where('companies.status', 1)
-        ->where('companies.id', '!=', $order->provider_id)
-        ->where('companies.id', '!=', $order->customer_id)
-        ->where('customer_providers.provider_id', $order->provider_id)
         ->orderBy('companies.name', 'ASC')
         ->get();
 
