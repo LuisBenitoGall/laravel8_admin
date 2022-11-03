@@ -224,7 +224,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 			2. Pedido no facturado
 		--}}
 		@if($order->provider_id == session('currentCompany'))
-			<label for="status" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.estado')) !!}</label>
+			<label for="order_status" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.estado')) !!}</label>
 			<div class="col-lg-2">
 				@php
 				//Los estados se obtienen en función de si el pedido es simple o agrupación:

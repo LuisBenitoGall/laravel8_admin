@@ -71,7 +71,7 @@ class TimetableItemsController extends Controller{
         ->where('basic_item', 1)
         ->get();
         
-        if($basics->count() == 0){
+        if(!$basics->count()){
             //Entrada:
             $entry = new TimetableItems();
             $entry->company_id = session('currentCompany');
@@ -162,6 +162,7 @@ class TimetableItemsController extends Controller{
         $item->min_hour = $request->min_hour;
         $item->color = $request->color;
         $item->reviewable = $reviewable;
+        $item->required = $request->required;
         $item->save();
 
         //Indicamos si el movimiento -de entrada- tiene movimiento exclusivo de salida:
@@ -226,6 +227,7 @@ class TimetableItemsController extends Controller{
         $item->min_hour = $request->min_hour;
         $item->color = $request->color;
         $item->reviewable = $reviewable;
+        $item->required = $request->required;
         $item->save();
 
         $msg = trans('textos.concepto_updated');

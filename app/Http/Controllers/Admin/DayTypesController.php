@@ -112,6 +112,7 @@ class DayTypesController extends Controller{
         }
 
         $is_working = $request->input('is_working')? 1:0;
+        $in_office = $request->input('in_office')? 1:0;
         $user_enabled = $request->input('user_enabled')? 1:0;
         $cumulative = $request->input('cumulative')? 1:0;
         $rank = $request->input('rank')? 1:0;
@@ -122,6 +123,7 @@ class DayTypesController extends Controller{
         $daytype->name = ucfirst($request->input('name'));
         $daytype->color = $request->input('color');
         $daytype->is_working = $is_working;
+        $daytype->in_office = $in_office;
         $daytype->user_enabled = $user_enabled;
         $daytype->cumulative = $cumulative;
         $daytype->rank = $rank;

@@ -408,7 +408,7 @@ class CustomerProvidersController extends Controller{
      * 8. Obtener info de empresas por criterio.
      */
     private function getCompaniesData($join, $condition){
-        $data = CustomerProviders::select('customer_providers.id AS cp_id', 'customer_providers.ba_id', 'customer_providers.workplace_id', 'customer_providers.cc_id', 'customer_providers.discount', 'customer_providers.credit_risk', 'customer_providers.status AS cp_status', 'companies.id', 'companies.name', 'companies.tradename', 'companies.logo', 'companies.nif', 'company_accounts.guardian', 'company_accounts.status')
+        $data = CustomerProviders::select('customer_providers.id AS cp_id', 'customer_providers.ba_id', 'customer_providers.workplace_id', 'customer_providers.cc_id', 'customer_providers.discount', 'customer_providers.credit_risk', 'customer_providers.budget_access', 'customer_providers.status AS cp_status', 'companies.id', 'companies.name', 'companies.tradename', 'companies.logo', 'companies.nif', 'company_accounts.guardian', 'company_accounts.status')
         ->join('companies', 'customer_providers.'.$join, '=', 'companies.id')
         ->leftJoin('company_accounts', 'companies.id', '=', 'company_accounts.company_id')
         ->where('customer_providers.'.$condition, session('currentCompany'))
@@ -795,6 +795,7 @@ class CustomerProvidersController extends Controller{
         $cp->cc_id = $request->cc_id;
         $cp->discount = $request->discount;
         $cp->credit_risk = $request->credit_risk;
+        $cp->budget_access = $request->budget_access? true:false;
         $cp->save();
 
         $msg = trans('textos.cliente_updated');
@@ -845,10 +846,12 @@ class CustomerProvidersController extends Controller{
     /**
      * 18. Obtener formulario de presupuesto por defecto de cliente.
      */
-    public function ownBudgetForm(Request $request, $customer_id){
+    public function ownBudgetForm(Request $request, $customer_id, $provider_id = false){
         if($request->ajax()){ 
+            $prov_id = $provider_id? $provider_id:session('currentCompany');
+
             $data = CustomerProviders::select('budget_form_id')
-            ->where('provider_id', session('currentCompany'))
+            ->where('provider_id', $prov_id)
             ->where('customer_id', $customer_id)
             ->first();
 

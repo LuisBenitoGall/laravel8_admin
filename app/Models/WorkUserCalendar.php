@@ -48,7 +48,7 @@ class WorkUserCalendar extends Model{
      * @param  $date 
      */
     static function noWorkDay($id, $date){
-        $data = WorkUserCalendar::select('work_user_calendars.id', 'work_user_calendars.date', 'work_user_calendars.self_hours', 'day_types.is_working', 'day_types.working_day')
+        $data = WorkUserCalendar::select('work_user_calendars.id', 'work_user_calendars.date', 'work_user_calendars.self_hours', 'day_types.is_working', 'day_types.working_day', 'day_types.in_office')
         ->leftJoin('day_types', 'work_user_calendars.day_type_id', '=', 'day_types.id')
         ->where('work_user_calendars.user_id', $id)
         ->whereDate('work_user_calendars.date', $date)

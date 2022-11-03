@@ -10,7 +10,7 @@
 		3. El pedido no está facturado.
 		...
 	--}}
-	@if((!$order && $order->provider_id == session('currentCompany') ) || ( !$invoices->count() && $order->provider_id == session('currentCompany')) && !$order->invoiced)
+	@if( (!$order && $order->provider_id == session('currentCompany') ) || ( !$invoices->count() && $order->provider_id == session('currentCompany')) && !$order->invoiced)
 		<a href="#" class="ml-2" rel="tooltip" title="{{ ucfirst(trans('textos.cliente_modificar')) }}" data-toggle="modal" data-target="#modal-set-customer">
 			<i class="fa fa-edit"></i>
 		</a>

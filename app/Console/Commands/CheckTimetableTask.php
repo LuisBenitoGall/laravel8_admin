@@ -84,7 +84,7 @@ class CheckTimetableTask extends Command{
                 ->where('basic_item', 1)
                 ->first();
 
-                //Comprobamos que cada usuario tenga su horario laboral cerrado si no tenía festivo
+                //Comprobamos que cada usuario tenga su horario laboral cerrado si no tenía festivo:
                 foreach($users as $user){
                     $noWork = WorkUserCalendar::noWorkDay($user->id, Carbon::today());
 

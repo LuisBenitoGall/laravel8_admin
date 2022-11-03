@@ -17,7 +17,6 @@
 
 {{-- Vista cliente --}}
 @else
-	<h2 class="text-warning text-center">En construcción</h2>
-
+	@include('admin.budgets.partials.budget-items-customer')
 @endif
 	

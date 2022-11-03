@@ -43,6 +43,35 @@ $setBlock = true;
 			@endif
 		@endcan
 
+		{{-- Aceptación presupuesto - condiciones:
+			1. Exclusivo cliente.
+			2. Sin fecha de aceptación.
+		--}}
+		@if($order->customer_id == session('currentCompany'))
+			@if(!$order->accepted_date && $order->customer_id == session('currentCompany'))
+				<a href="{{ route('budgets.accept', $order->id) }}" class="btn btn-warning btn-confirm" data-msg="{!! ucfirst(trans('textos.aceptar_presupuesto_confirm')) !!}">
+					<i class="fa fa-check"></i>
+					{!! trans('textos.aceptar_presupuesto') !!}
+				</a>
+			@else
+				<a href="{{ route('budgets.cancel', $order->id) }}" class="btn btn-danger btn-confirm" data-msg="{!! ucfirst(trans('textos.rechazar_presupuesto_confirm')) !!}">
+					<i class="fa fa-ban"></i>
+					{!! trans('textos.rechazar_presupuesto') !!}
+				</a>	
+			@endif
+		@endif
+
+		{{-- Importar presupuesto - condiciones: 
+			1. Exclusivo cliente.
+			2. Para pedidos con cliente final.	
+		--}}
+		@if($order->customer_id == session('currentCompany') && $order->final_customer_id)
+			<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-import-budget">
+				<i class="fa fa-file-import"></i>
+				{!! trans('textos.presupuesto_importar') !!}
+			</a>
+		@endif
+
 		{{-- Cambio proveedor - condiciones: 
 			1. Con permisos de edición de pedidos.
 			2. provider_id = empresa en sesión.
@@ -299,12 +328,14 @@ $setBlock = true;
 					{{-- Proyecto --}}
 					@include('admin.orders.partials.link-project')
 
-					{{-- Acceso cliente --}}
+					{{-- Acceso cliente - condiciones: 
+						1. Exclusivo proveedor.
+					--}}
 					@if($order->provider_id == session('currentCompany'))
 						<label class="mr-5 position-relative">
 							{!! ucfirst(trans('textos.acceso_cliente')) !!}:
 							<label class="custom-chk-rdb" rel="tooltip">
-				                <input type="checkbox" name="budget_shared" @if($order->budget_shared == 1) checked @endif>
+				                <input type="checkbox" name="budget_shared" @if($order->budget_shared) checked @endif>
 				                <span class="chk chksmall btnSharedBudget mt-1 ml-2" data-order="{{ $order->id }}"></span>
 				            </label>
 
@@ -411,6 +442,11 @@ $setBlock = true;
 	@include('admin.budgets.partials.modal-set-block')
 @endif
 
+{{-- Import budget --}}
+@if($customer_budgets)
+	@include('admin.budgets.partials.modal-import-budget')
+@endif
+
 @push('scripts')
 <script>
 $(function(){
@@ -445,6 +481,42 @@ $(function(){
         }  
         $.get("/admin/budgets/"+order+"/customer-access/"+status, function(response, state){});
     });
+
+    //Selector condicional de modalidad de presupuesto:
+    $('#selectBudgetModality').on('change', function(event){
+        var option = event.target.value;
+
+        if(option == 10){
+        	//Comprobamos que el cliente no tenga una formulario vinculado por defecto:
+            var customer_id = {!! $order->final_customer_id !!};
+            var provider_id = {!! $order->customer_id !!};
+
+            if(customer_id != '' && provider_id != ''){
+                $.get("/admin/customers/own-budget-form/"+customer_id+"/"+provider_id, function(response, state){
+                    if(response.budget_form_id){
+                    	console.log(response);
+                        //Marcamos formulario por defecto:
+                        var arr = [response.budget_form_id];
+
+                        //Atención al modo de marcar como selected las opciones en un Select2:
+                        $('#budgetForm').val(arr);
+                        $('#budgetForm').trigger('change');
+                    } 
+
+                    var numforms = $('#numForms').val();
+                    if(numforms > 0){
+                        $('#budgetForms').slideDown(500);
+                            
+                    }else{
+                        $('#sbtNewBudget').prop('disabled', true);
+                        $('#noBudgetForms').fadeIn();    
+                    }
+                }); 
+            }
+
+        	$('#budgetForms').slideDown();
+        }
+    });    
 });
 </script>
 @endpush

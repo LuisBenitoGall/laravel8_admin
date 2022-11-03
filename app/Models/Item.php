@@ -21,7 +21,7 @@ class Item extends Model{
     protected $dates = ['deleted_at']; 
 
     protected $fillable = [
-        'product_id', 'budget_order_id', 'budget_form_block_id', 'budget_form_item_id', 'concept', 'qty', 'price', 'item_no_price', 'iva', 'discount', 'calculated_by_percent', 'deposit_used', 'active', 'status', 'print', 'user_id'
+        'product_id', 'order_id', 'budget_form_block_id', 'budget_form_item_id', 'budget_order', 'concept', 'qty', 'price', 'item_no_price', 'iva', 'discount', 'calculated_by_percent', 'deposit_used', 'observations', 'days', 'days_continue', 'days_continue_discount', 'active', 'status', 'print', 'user_id'
     ];
 
     /**

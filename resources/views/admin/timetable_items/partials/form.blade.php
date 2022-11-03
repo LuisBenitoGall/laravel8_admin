@@ -100,8 +100,8 @@ $icons = json_decode(file_get_contents($pathIcons), true);
 
 	{{-- Color --}}
 	<label for="color" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.color')) !!}</label>	
-	<div class="col-lg-3">
-		<div class="input-group m-b">
+	<div class="col-lg-2">
+		<div class="input-group ">
             <div class="input-group-prepend">
                 <span class="input-group-addon" @if($item && $item->color) style="background-color: {{ $item->color }};" @endif>&nbsp;</span>
             </div>
@@ -123,6 +123,18 @@ $icons = json_decode(file_get_contents($pathIcons), true);
 
         	{!! App\Helpers\Helpers::info('timetable-reviewable', true) !!}
         </label>
+	</div>
+</div>
+
+<div class="form-group row">
+	{{-- Obligatorio --}}
+	<label for="required" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.obligatorio_diario')) !!}</label>	
+	<div class="col-lg-2">
+		@php
+        $required = $item && $item->required? $item->required:'';
+        @endphp
+
+		<x-input type="text" name="required" value="{{ $required }}" class="text-right" autocomplete="off" maxlength="3" info="timetable-item-required"/>
 	</div>
 </div>
 

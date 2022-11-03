@@ -23,6 +23,7 @@ use App\Models\Timetable;
 use App\Models\TimetableItems;
 use App\Models\User;
 use App\Models\UserCompanies;
+use App\Models\WorkCalendar;
 use App\Models\Workplace;
 use App\Models\WorkUserCalendar;
 
@@ -456,6 +457,10 @@ class TimetableController extends Controller{
         $adn_companies = [3,4,8,202,227,275];
         $from = '2021-09-01';
         $to = '2022-08-31';
+        $hour_out = '14:00:00';
+        $hour_in = '15:00:00';
+        $top_minutes = 470;     //Marca el límite por debajo de 8 horas, por debajo del cual no se marca hora de comida.
+        $summer_days = ['start' => '2022-07-11', 'end' => '2022-08-31'];    //Intervalo de fechas de jornada intensiva.
 
         $timetable_items = [
             //3 => ['comida' => '', 'entrada' => ''],
@@ -466,10 +471,37 @@ class TimetableController extends Controller{
             275 => ['comida' => 57, 'entrada' => 53]
         ];
 
+        $teletrabajo = [
+            4 => [ 9, 10],
+            8 => [ 22, 23],
+            202 => [ 35, 36],
+            227 => [ 48, 49],
+            275 => [ 61, 62]    
+        ];
 
+        //Nº de horas a trabajar en cada jornada del intervalo por cada centro de trabajo:
+        $working_hours = WorkCalendar::select('id', 'workplace_id', 'date', 'hours')
+        ->whereNotNull('hours')
+        ->where('date', '>=', $from)
+        ->where('date', '<=', $to)
+        ->orderBy('date', 'ASC')
+        ->get();
 
-        // DB::raw("(SELECT id FROM timetable_items WHERE slug = 'comida' AND company_id = workplaces.company_id AND basic_item = 0) AS comida"),
-        // DB::raw("(SELECT id FROM timetable_items WHERE slug = 'entrada' AND company_id = workplaces.company_id AND basic_item = 0) AS entrada"),
+        //Creamos array tomando workplace_id y date como índice:
+        $arrWorkingHours = [];
+        foreach($working_hours as $wh){
+            if(!isset($arrWorkingHours[$wh->workplace_id])){
+                $arrWorkingHours[$wh->workplace_id] = [];    
+            }
+
+            //Descontamos las fechas de jornadas intensivas estivales:
+            if($wh->date < $summer_days['start'] || $wh->date > $summer_days['end']){
+                $minutes = helpers::getMinutes($wh->hours);
+                if(!array_key_exists($wh->date, $arrWorkingHours[$wh->workplace_id]) && $minutes > $top_minutes){
+                    array_push($arrWorkingHours[$wh->workplace_id], $wh->date);    
+                }
+            }
+        }
 
         $users = Employee::select('employees.user_id', 'employees.workplace_id', 'workplaces.company_id')
         ->join('workplaces', 'employees.workplace_id', '=', 'workplaces.id')
@@ -477,28 +509,51 @@ class TimetableController extends Controller{
         ->groupBy('employees.user_id')
         ->get();
 
-
         foreach($users as $u){
-            //Horarios del usuario:
-            $horarios = Timetable::select('id', 'date', 'hour', 'item_id')
-            ->where('user_id', $u->user_id)
-            ->orderBy('date', 'ASC')
-            ->get();
+            //Buscamos los items horarios registrados por cada jornada:
+            foreach($arrWorkingHours[$u->workplace_id] as $f){
+                //Descartes por teletrabajo:
+                $arrTeletrabajo = $teletrabajo[$u->company_id];
 
-            $current_date = false;
-            $arr_dates = [];
+                //Horarios del usuario:
+                $horarios = Timetable::select('date', 'hour', 'item_id')
+                ->where('user_id', $u->user_id)
+                ->where('date', $f)
+                ->whereNotIn('item_id', $arrTeletrabajo)
+                ->get();  
 
-            foreach($horarios as $h){
-                // $arr_dates = empty($arr_dates)
+                //Comprobamos que exista algún registro por hora de comida
+                if($horarios->count()){
+                    $dinner = false; 
+                    foreach($horarios as $h){
+                        if($timetable_items[$u->company_id]['comida'] == $h->item_id){
+                            $dinner = true;
+                            break;
+                        }
+                    } 
 
+                    //Si no se ha encontrado, se generan los registros:
+                    if(!$dinner){
+                        //Salida a comer:
+                        $t = new Timetable();
+                        $t->date = $f;
+                        $t->hour = $hour_out;
+                        $t->user_id = $u->user_id;
+                        $t->item_id = $timetable_items[$u->company_id]['comida'];
+                        $t->flag = 2;
+                        $t->save();
 
-                // $current_date = !$current_date || $h->date != $current_date? $h->date:$current_date;
-
-
-                // $arr_dates = empty($arr_dates)
+                        //Entrada:
+                        $t_ = new Timetable();
+                        $t_->date = $f;
+                        $t_->hour = $hour_in;
+                        $t_->user_id = $u->user_id;
+                        $t_->item_id = $timetable_items[$u->company_id]['entrada'];
+                        $t_->flag = 1;
+                        $t_->save();
+                    } 
+                } 
             }
-            
-            //dd($u);
         }
     }
 }

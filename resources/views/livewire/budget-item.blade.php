@@ -491,8 +491,8 @@
                                     {{-- Subtotal: --}}
                                     <div class="col-2 sinpadding-right">
                                         @php
-                                            //En función de si se calcula porcentualmente sobre el total o no:
-                                            $subtotal = $is->calculated_by_percent > 0? App\Helpers\helpers::itemAmountPercentage($is->price, $amount_without_percentage_items):App\Helpers\helpers::itemAmount($is);
+                                        //En función de si se calcula porcentualmente sobre el total o no:
+                                        $subtotal = $is->calculated_by_percent > 0? App\Helpers\helpers::itemAmountPercentage($is->price, $amount_without_percentage_items):App\Helpers\helpers::itemAmount($is);
                                         @endphp
                                         <b>{{ ucfirst(trans('textos.subtotal')) }}:</b> <span
                                             class="mr-5">{{ $subtotal }}{{ $currency->symbol }}</span>
@@ -564,9 +564,6 @@
                 //Modo para esconder el formulario:
                 $('.btnAddBudgetItem').addClass('opened').html('<i class="fa fa-minus"></i> ' + txtCancelar);
                 $('html, body').animate({scrollTop: 290}, 1000);
-
-
-                //$("#newBudgetItem").scroll();
             });
 
             //Cerrar formulario tras store o update:

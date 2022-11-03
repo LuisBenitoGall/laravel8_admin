@@ -154,6 +154,9 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::post('budgets/copy', 'BudgetController@copy')->name('budgets.copy')->middleware('permission:budgets.create');
     Route::post('budgets/set-block', 'BudgetController@setBlock')->name('budgets.set-block')->middleware('permission:budgets.edit');
     Route::get('budgets/{order_id}/customer-access/{status}', 'BudgetController@customerAccess')->name('budgets.customer-access');
+    Route::get('budgets/{order}/accept', 'BudgetController@accept')->name('budgets.accept');
+    Route::get('budgets/{order}/cancel', 'BudgetController@cancel')->name('budgets.cancel');
+    Route::post('budgets/import', 'BudgetController@import')->name('budgets.import')->middleware('permission:budgets.create');
 
     // Budgets From Providers:
     Route::get('budgets-from-providers', 'BudgetController@fromProviders')->name('budgets-from-providers.index');
@@ -307,7 +310,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::get('customers/{company}/customer-config', 'CustomerProvidersController@editCustomerConfig')->name('customers.customer-config');
     Route::get('customers/{customer}/pay-conditions', 'CustomerProvidersController@payConditions')->name('customers.pay-conditions')->middleware('permission:customers.edit');
     Route::put('customers/{cp}/update-conditions', 'CustomerProvidersController@updateConditions')->name('customers.update-conditions')->middleware('permission:customers.edit');
-    Route::get('customers/own-budget-form/{customer_id}', 'CustomerProvidersController@ownBudgetForm')->name('customers.own-budget-form');
+    Route::get('customers/own-budget-form/{customer_id}/{provider_id?}', 'CustomerProvidersController@ownBudgetForm')->name('customers.own-budget-form');
 
     Route::post('customers/config', 'CustomerProvidersController@updateCustomerConfig')->name('customers.config')->middleware('permission:customers.edit');
     Route::post('customers/add-responsable', 'CustomerProvidersController@addManager')->name('customers.add-responsable');

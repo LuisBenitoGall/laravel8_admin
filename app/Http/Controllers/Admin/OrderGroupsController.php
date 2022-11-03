@@ -62,7 +62,9 @@ class OrderGroupsController extends Controller{
         //Validación index:
         if(isset($data['submit_filter'])){
             return Validator::make($data, [
-                'customer_id' => 'required|integer'
+                'customer_id' => 'required_without:og_id|integer'
+            ],[
+                'customer_id.required_without' => trans('textos.required_cliente_agrupacion')
             ]);
 
         //Validación guardar:
@@ -132,7 +134,7 @@ class OrderGroupsController extends Controller{
     public function getGroupsBy(Request $request){
         $validator = $this->validator($request->all());
         if($validator->fails()){
-            return redirect('/admin/order-groups')
+            return redirect('/admin/order-groups/list')
                 ->withErrors($validator)
                 ->withInput();
         }
@@ -349,6 +351,12 @@ class OrderGroupsController extends Controller{
             exit;   
         }
 
+        //Importe de la agrupación:
+        $orderGroupAmount = false;
+        if($order->is_group){
+            $orderGroupAmount = $order->getGroupAmount();    
+        }
+
         $provider = Company::find($order->provider_id);
         $customer = Company::find($order->customer_id);
 
@@ -404,7 +412,7 @@ class OrderGroupsController extends Controller{
         //Título .pdf:
         $pdf_title = $order->order_num? helpers::slugFiles($order->order_num, '_', false):$order->id;
 
-        $pdf = PDF::loadView('pdf/order-group', compact('order', 'provider', 'customer', 'owner', 'template', 'fechaLiteral', 'company_settings', 'provider_workplace', 'provider_phones', 'customer_workplace', 'provider_manager', 'customer_manager', 'currency'));
+        $pdf = PDF::loadView('pdf/order-group', compact('order', 'orderGroupAmount', 'provider', 'customer', 'owner', 'template', 'fechaLiteral', 'company_settings', 'provider_workplace', 'provider_phones', 'customer_workplace', 'provider_manager', 'customer_manager', 'currency'));
         return $pdf->download($pdf_title.'.pdf'); 
     }
 }

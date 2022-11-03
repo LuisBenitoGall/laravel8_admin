@@ -41,6 +41,9 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     //BudgetForms:
     Route::get('budget-forms', 'BudgetFormsController@getBudgetFormsDT');
 
+    //BudgetItems
+    Route::get('budget-items/{order}', 'BudgetController@getItemsDT');
+
     //BudgetPatterns:
     Route::get('budget-patterns', 'BudgetPatternsController@getPatternsDT');
 
