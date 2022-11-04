@@ -131,6 +131,8 @@ class WorkUserCalendarController extends Controller{
         //1. Emails corporativos:
         $receivers = session('companySettings')->emails? unserialize(session('companySettings')->emails):[];
 
+        //dd($receivers);
+
         //2. Emails responsables de grupo:
         $groups = GroupMembers::where('user_id', $user->id)
         ->pluck('group_id')

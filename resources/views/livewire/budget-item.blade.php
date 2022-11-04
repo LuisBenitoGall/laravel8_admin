@@ -95,7 +95,6 @@
                                                             <i class="fa fa-plus"></i>
                                                         </button> --}}
 
-
                                                         <button
                                                             class="btn btn-warning btn-circle btn-circle-mini addBudgetItem float-right"
                                                             rel="tooltip"
