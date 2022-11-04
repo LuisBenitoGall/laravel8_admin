@@ -14,11 +14,15 @@ class ProjectsStatistics extends Component{
      * 1. Render componente.
      * 2. Proyectos por estado.
      */
-    
+
+
     public $project_status;
     public $projects_by_status;
     public $list = [];
-    
+
+    /**
+     * @return void
+     */
     public function mount(){
         $this->project_status = Helpers::projectStatus();
         $this->projects_by_status = $this->projectsByStatus();
@@ -29,7 +33,6 @@ class ProjectsStatistics extends Component{
             array_push($this->list, $n);
         }
     }
-
     /**
      * 1. Render componente.
      */
@@ -45,8 +48,8 @@ class ProjectsStatistics extends Component{
         ->groupBy('status')
         ->selectRaw('count(id) as n, status')
         ->orderBy('status', 'ASC')
-        ->pluck('n', 'status');  
+        ->pluck('n', 'status');
 
-        return $data; 
+        return $data;
     }
 }

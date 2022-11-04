@@ -1,6 +1,5 @@
 /deprecated
 /node_modules
-/public/docs
 /public/hot
 /public/storage
 /storage/*.key
@@ -20,11 +19,4 @@ yarn-error.log
 /storage/json/secondary-menu.json
 /dbdata
 /laravel8_admin.rar
-
-# Ignoramos archivos de producción
-/public/img/orders/*
-/public/img/calendar-docs/*
-/public/img/purchase-orders/*
-/public/img/signatures/*
-/public/img/stock-docs/*
-/public/img/tasks/*
+/rutas.txt
