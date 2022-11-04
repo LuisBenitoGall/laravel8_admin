@@ -251,6 +251,17 @@ class BudgetController extends Controller{
         ->addColumn('alta', function($budget){
             return $budget->created_at->format($this->languages[session()->get('locale')][4]);    
         })
+        ->addColumn('company', function($budget){
+            $company = $budget->company;
+            if($budget->CustomerManagerName){
+                $company .= ' ('.$budget->CustomerManagerName;
+                if($budget->CustomerManagerSurname){
+                    $company .= ' '.$budget->CustomerManagerSurname;
+                }
+                $company .= ')';
+            }
+            return $company;
+        })
         ->addColumn('estado', function($budget) use($estados){
             return view('admin.budgets.partials.dt-status', compact('budget', 'estados'));    
         })
@@ -944,6 +955,7 @@ class BudgetController extends Controller{
             $itemsSelected = Item::select('items.*', 'budget_form_items.recid')
             ->leftJoin('budget_form_items', 'items.budget_form_item_id', '=', 'budget_form_items.id')
             ->where('items.order_id', $order->id)
+            ->orderBy('items.budget_order', 'ASC')
             ->get();
 
             //Array del id recurrente:
