@@ -467,7 +467,7 @@
                     <a href="{{ route('messages.create') }}" role="button" rel="tooltip"
                        title="{{ ucfirst(trans('textos.notificacion_nueva')) }}">
                         <div class="d-flex justify-content-between align-items-center">
-                            <i class="fa fa-paper-plane"></i> 
+                            <i class="fa fa-paper-plane"></i>
                             <span class="d-block d-md-none">{{ ucfirst(trans('textos.notificacion_nueva')) }}</span>
                         </div>
                     </a>
@@ -504,7 +504,7 @@
                 <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="false"
                        aria-expanded="false" rel="tooltip" title="{{ ucfirst(trans('textos.opciones_preferidas')) }}">
-                        
+
                         <div class="d-flex justify-content-between align-items-center">
                             <i class="fa fa-bookmark"></i>
                             <span class="d-block d-md-none">{{ ucfirst(trans('textos.opciones_preferidas')) }}</span>

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 
+use App\Http\Controllers\Api\BankCompaniesController;
 use App\Http\Controllers\Api\BudgetFormOrdersController;
 
 use App\Http\Controllers\Api\BudgetPatternOrdersController;
@@ -9,6 +10,9 @@ use App\Http\Controllers\Api\BudgetPatternOrdersController;
 use App\Http\Controllers\Api\BudgetSettingOrdersController;
 
 use App\Http\Controllers\Api\BusinessAreaOrdersController;
+use App\Http\Controllers\Api\CompanyAttributesController;
+use App\Http\Controllers\Api\CompanyBanksController;
+use App\Http\Controllers\Api\CompanyBatchPatternsController;
 use App\Http\Controllers\Api\CompanyBudgetPatternsController;
 use App\Http\Controllers\Api\CompanyBudgetSettingsController;
 use App\Http\Controllers\Api\CompanyBusinessAreasController;
@@ -18,7 +22,13 @@ use App\Http\Controllers\Api\CompanyInvoiceSettingsController;
 use App\Http\Controllers\Api\CompanyOrderPatternsController;
 use App\Http\Controllers\Api\CompanyOrdersController;
 use App\Http\Controllers\Api\CompanyOrderSettingsController;
+use App\Http\Controllers\Api\CompanyProductPatternsController;
+use App\Http\Controllers\Api\CompanyProductsController;
 use App\Http\Controllers\Api\CompanyPurchasePatternsController;
+use App\Http\Controllers\Api\CompanyQuestionsController;
+use App\Http\Controllers\Api\CompanyWorkOrderPatternsController;
+
+use App\Http\Controllers\Api\CompanyWorkOrdersController;
 use App\Http\Controllers\Api\CompanyWorkplacesController;
 
 use App\Http\Controllers\Api\CostCenterOrdersController;
@@ -35,10 +45,15 @@ use App\Http\Controllers\Api\OrderSettingOrdersController;
 use App\Http\Controllers\Api\ProvinceTownsController;
 use App\Http\Controllers\Api\PurchasePatternOrdersController;
 
+use App\Http\Controllers\Api\QuestionAnswersController;
 use App\Http\Controllers\Api\UserInvoicesController;
 use App\Http\Controllers\Api\UserOrdersController;
+use App\Http\Controllers\Api\UserProductsController;
+use App\Http\Controllers\Api\UserWorkOrdersController;
 use App\Http\Controllers\Api\UserWorkplacesController;
 
+use App\Http\Controllers\Api\WorkOrderBatchesController;
+use App\Http\Controllers\Api\WorkOrderPatternWorkOrdersController;
 use App\Http\Controllers\Api\WorkplaceOrdersController;
 use App\Http\Controllers\Api\WorkplaceUsersController;
 use Illuminate\Http\Request;
@@ -339,7 +354,15 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->namespace('Api')->group(function () {
 
+
     Route::post('/login', [AuthController::class, 'login'])->name('api.login');
+
+    Route::middleware('auth:api')
+        ->get('/user', function (Request $request) {
+            return $request->user();
+        })
+        ->name('api.user');
+
     Route::name('api.')
         ->middleware('auth:api')
         ->group(function () {
@@ -522,6 +545,90 @@ Route::prefix('v1')->namespace('Api')->group(function () {
                 CompanyInvoiceSettingsController::class,
                 'store',
             ])->name('companies.invoice-settings.store');
+
+            // Company Questions
+            Route::get('/companies/{company}/questions', [
+                CompanyQuestionsController::class,
+                'index',
+            ])->name('companies.questions.index');
+            Route::post('/companies/{company}/questions', [
+                CompanyQuestionsController::class,
+                'store',
+            ])->name('companies.questions.store');
+
+            // Company Attributes
+            Route::get('/companies/{company}/attributes', [
+                CompanyAttributesController::class,
+                'index',
+            ])->name('companies.attributes.index');
+            Route::post('/companies/{company}/attributes', [
+                CompanyAttributesController::class,
+                'store',
+            ])->name('companies.attributes.store');
+
+            // Company Products
+            Route::get('/companies/{company}/products', [
+                CompanyProductsController::class,
+                'index',
+            ])->name('companies.products.index');
+            Route::post('/companies/{company}/products', [
+                CompanyProductsController::class,
+                'store',
+            ])->name('companies.products.store');
+
+            // Company Product Patterns
+            Route::get('/companies/{company}/product-patterns', [
+                CompanyProductPatternsController::class,
+                'index',
+            ])->name('companies.product-patterns.index');
+            Route::post('/companies/{company}/product-patterns', [
+                CompanyProductPatternsController::class,
+                'store',
+            ])->name('companies.product-patterns.store');
+
+            // Company Work Order Patterns
+            Route::get('/companies/{company}/work-order-patterns', [
+                CompanyWorkOrderPatternsController::class,
+                'index',
+            ])->name('companies.work-order-patterns.index');
+            Route::post('/companies/{company}/work-order-patterns', [
+                CompanyWorkOrderPatternsController::class,
+                'store',
+            ])->name('companies.work-order-patterns.store');
+
+            // Company Work Orders
+            Route::get('/companies/{company}/work-orders', [
+                CompanyWorkOrdersController::class,
+                'index',
+            ])->name('companies.work-orders.index');
+            Route::post('/companies/{company}/work-orders', [
+                CompanyWorkOrdersController::class,
+                'store',
+            ])->name('companies.work-orders.store');
+
+            // Company Batch Patterns
+            Route::get('/companies/{company}/batch-patterns', [
+                CompanyBatchPatternsController::class,
+                'index',
+            ])->name('companies.batch-patterns.index');
+            Route::post('/companies/{company}/batch-patterns', [
+                CompanyBatchPatternsController::class,
+                'store',
+            ])->name('companies.batch-patterns.store');
+
+            // Company Banks
+            Route::get('/companies/{company}/banks', [
+                CompanyBanksController::class,
+                'index',
+            ])->name('companies.banks.index');
+            Route::post('/companies/{company}/banks/{bank}', [
+                CompanyBanksController::class,
+                'store',
+            ])->name('companies.banks.store');
+            Route::delete('/companies/{company}/banks/{bank}', [
+                CompanyBanksController::class,
+                'destroy',
+            ])->name('companies.banks.destroy');
 
             Route::apiResource('cost-centers', CostCenterController::class);
 
@@ -720,6 +827,36 @@ Route::prefix('v1')->namespace('Api')->group(function () {
                 'store',
             ])->name('users.invoices.store');
 
+            // User Products
+            Route::get('/users/{user}/products', [
+                UserProductsController::class,
+                'index',
+            ])->name('users.products.index');
+            Route::post('/users/{user}/products', [
+                UserProductsController::class,
+                'store',
+            ])->name('users.products.store');
+
+            // User Work Orders
+            Route::get('/users/{user}/work-orders', [
+                UserWorkOrdersController::class,
+                'index',
+            ])->name('users.work-orders.index');
+            Route::post('/users/{user}/work-orders', [
+                UserWorkOrdersController::class,
+                'store',
+            ])->name('users.work-orders.store');
+
+            // User Work Orders2
+            Route::get('/users/{user}/work-orders', [
+                UserWorkOrdersController::class,
+                'index',
+            ])->name('users.work-orders.index');
+            Route::post('/users/{user}/work-orders', [
+                UserWorkOrdersController::class,
+                'store',
+            ])->name('users.work-orders.store');
+
             // User Workplaces
             Route::get('/users/{user}/workplaces', [
                 UserWorkplacesController::class,
@@ -769,8 +906,72 @@ Route::prefix('v1')->namespace('Api')->group(function () {
                 WorkplaceUsersController::class,
                 'destroy',
             ])->name('workplaces.users.destroy');
+
+            Route::apiResource('answers', AnswerController::class);
+
+            Route::apiResource('questions', QuestionController::class);
+
+            // Question Answers
+            Route::get('/questions/{question}/answers', [
+                QuestionAnswersController::class,
+                'index',
+            ])->name('questions.answers.index');
+            Route::post('/questions/{question}/answers', [
+                QuestionAnswersController::class,
+                'store',
+            ])->name('questions.answers.store');
+
+            Route::apiResource('banks', BankController::class);
+
+            // Bank Companies
+            Route::get('/banks/{bank}/companies', [
+                BankCompaniesController::class,
+                'index',
+            ])->name('banks.companies.index');
+            Route::post('/banks/{bank}/companies/{company}', [
+                BankCompaniesController::class,
+                'store',
+            ])->name('banks.companies.store');
+            Route::delete('/banks/{bank}/companies/{company}', [
+                BankCompaniesController::class,
+                'destroy',
+            ])->name('banks.companies.destroy');
+
+            Route::apiResource('attributes', AttributeController::class);
+
+            Route::apiResource('batches', BatchController::class);
+
+            Route::apiResource('batch-patterns', BatchPatternController::class);
+
+            Route::apiResource(
+                'work-order-patterns',
+                WorkOrderPatternController::class
+            );
+
+            // WorkOrderPattern Work Orders
+            Route::get('/work-order-patterns/{workOrderPattern}/work-orders', [
+                WorkOrderPatternWorkOrdersController::class,
+                'index',
+            ])->name('work-order-patterns.work-orders.index');
+            Route::post('/work-order-patterns/{workOrderPattern}/work-orders', [
+                WorkOrderPatternWorkOrdersController::class,
+                'store',
+            ])->name('work-order-patterns.work-orders.store');
+
+            Route::apiResource('work-orders', WorkOrderController::class);
+
+            // WorkOrder Batches
+            Route::get('/work-orders/{workOrder}/batches', [
+                WorkOrderBatchesController::class,
+                'index',
+            ])->name('work-orders.batches.index');
+            Route::post('/work-orders/{workOrder}/batches', [
+                WorkOrderBatchesController::class,
+                'store',
+            ])->name('work-orders.batches.store');
         });
 
 
 });
 
+https://laravel8_admin.app/auth/callback

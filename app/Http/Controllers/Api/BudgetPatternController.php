@@ -14,7 +14,7 @@ class BudgetPatternController extends Controller
 {
     /**
      * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
+     * @return \App\Http\Resources\BudgetPatternCollection
      */
     public function index(Request $request)
     {
