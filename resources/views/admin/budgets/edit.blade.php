@@ -356,6 +356,10 @@ $setBlock = true;
 			  			<a class="nav-link @if($tab == 'items') active @endif" href="#tab-items" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.lineas')) !!}</a>	
 			  		</li>
 
+			  		<li class="nav-item @if($tab == 'docs') active @endif">
+			  			<a class="nav-link @if($tab == 'docs') active @endif" href="#tab-docs" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.documentos')) !!}</a>	
+			  		</li>
+
 			  		@if($order->provider_id == session('currentCompany'))
 				  		<li class="nav-item @if($tab == 'comments') active @endif">
 				  			<a class="nav-link @if($tab == 'comments') active @endif" href="#tab-comments" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.notas')) !!}</a>	
@@ -376,6 +380,11 @@ $setBlock = true;
 					{{-- Items: --}}
 					<div class="tab-pane fade @if($tab == 'items') show active @endif" role="tabpanel" id="tab-items">
 						@include('admin.budgets.partials.budget-items')	
+					</div>
+
+					{{-- Documentos --}}
+					<div class="tab-pane fade @if($tab == 'docs') show active @endif" role="tabpanel" id="tab-docs">
+						@include('admin.orders.partials.order-docs')	
 					</div>
 
 					@if($order->provider_id == session('currentCompany'))
@@ -488,7 +497,8 @@ $(function(){
 
         if(option == 10){
         	//Comprobamos que el cliente no tenga una formulario vinculado por defecto:
-            var customer_id = {!! $order->final_customer_id !!};
+            var customer_id = '{!! $order->final_customer_id !!}';
+            if(customer_id == '') customer_id = false;
             var provider_id = {!! $order->customer_id !!};
 
             if(customer_id != '' && provider_id != ''){

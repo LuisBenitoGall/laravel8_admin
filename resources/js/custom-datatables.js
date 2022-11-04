@@ -822,24 +822,24 @@ $(document).ready(function(){
 
         //Filters:
         // 01/07/2022: se ocultan temporalmente hasta dar el modo de que funcionen junto con ServerSide.
-        // $('#tblBudgets thead tr').clone(true).appendTo('#tblBudgets thead');
-        // $('#tblBudgets thead tr:eq(1) th').each(function(i){
-        //     var title = $(this).text();
-        //     if(i == 10){
-        //         $(this).html('');
-        //     }else{
-        //         $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
-        //     }
+        $('#tblBudgets thead tr').clone(true).appendTo('#tblBudgets thead');
+        $('#tblBudgets thead tr:eq(1) th').each(function(i){
+            var title = $(this).text();
+            if(i == 4 || i == 5 || i == 10){
+                $(this).html('');
+            }else{
+                $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
+            }
      
-        //     $('input', this).on('keyup change', function(){
-        //         if(tableBudgets.column(i).search() !== this.value){
-        //             tableBudgets
-        //                 .column(i)
-        //                 .search(this.value)
-        //                 .draw();
-        //         }
-        //     });
-        // });
+            $('input', this).on('keyup change', function(){
+                if(tableBudgets.column(i).search() !== this.value){
+                    tableBudgets
+                        .column(i)
+                        .search(this.value)
+                        .draw();
+                }
+            });
+        });
 
         var tableBudgets = $('#tblBudgets').DataTable({
             order: [[ 0, "desc" ]],
@@ -860,7 +860,7 @@ $(document).ready(function(){
                 {data: 'amount', name: 'amount', className: 'text-right'},
                 {data: 'modalidad', name: 'modalidad'},
                 {data: 'manager', name: 'manager'},
-                {data: 'alta', name: 'alta', className: 'text-right'},
+                {data: 'alta', name: 'orders.created_at', className: 'text-right'},
                 {data: 'company', name: 'companies.name', "defaultContent": ""},
                 {data: 'estado', name: 'orders.budget_status'},
                 {data: 'acciones', name: 'acciones', orderable: false, searchable: false, className: 'text-right'}
