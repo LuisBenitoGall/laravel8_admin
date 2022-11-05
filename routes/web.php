@@ -157,6 +157,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::get('budgets/{order}/accept', 'BudgetController@accept')->name('budgets.accept');
     Route::get('budgets/{order}/cancel', 'BudgetController@cancel')->name('budgets.cancel');
     Route::post('budgets/import', 'BudgetController@import')->name('budgets.import')->middleware('permission:budgets.create');
+    Route::post('budgets/link-provider-budget', 'BudgetController@linkProviderBudget')->name('budgets.link-provider-budget')->middleware('permission:budgets.edit');
 
     // Budgets From Providers:
     Route::get('budgets-from-providers', 'BudgetController@fromProviders')->name('budgets-from-providers.index');

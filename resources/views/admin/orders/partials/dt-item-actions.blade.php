@@ -7,11 +7,11 @@
 
     {{-- Editar - condiciones 
 		1. Disponer de permisos.
-		2. No facturado.
     --}}
-    @if(!$order->invoiced)
+    {{-- 4/11/22: se omite la condición de pedido facturado. Se pueden añadir líneas incluso facturado el pedido. --}}
+    {{-- @if(!$order->invoiced) --}}
 		<a href="#" class="btn btn-xs btn-info btnEditItem" data-id="{{ $item->id }}" data-toggle="modal" data-target="#modal-edit-line" rel="tooltip" title="{{ ucfirst(trans('textos.editar')) }}"><i class="fa fa-edit"></i></a>
-	@endif
+	{{-- @endif --}}
 
 	{{-- Ronda de cambios --}}
 	<a href="#" class="btn btn-xs btn-info btnChangesRound" rel="tooltip" title="{!! ucfirst(trans('textos.ronda_cambios')) !!}" data-toggle="modal" data-target="#modal-changes-round" data-id="{{ $item->id }}" data-line="{{ $item->name }}">

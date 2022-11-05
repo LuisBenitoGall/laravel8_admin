@@ -59,7 +59,7 @@
                         <div class="col-md-6">
                             <div class="row">
                                 <label for="budget_access" class="col-12">{!! ucfirst(trans('textos.presupuesto_acceso')) !!}</label>
-                                <div class="col-10 offset-1 pt-1">
+                                <div class="col-9 offset-2 pt-1">
                                     <label class="custom-chk-rdb">
                                         <input type="checkbox" name="budget_access" id="configBudgetAccess">
                                         <span class="chk"></span>
@@ -73,11 +73,32 @@
                         </div>
                     </div>
 
-                    {{-- Riesgo crediticio --}}
                     <div class="form-group row">
-                        <label for="credit_risk" class="col-lg-12">{!! ucfirst(trans('textos.riesgo_crediticio')) !!}</label>
-                        <div class="col-lg-6">
-                            <x-input type="text" name="credit_risk" class="text-right set-decimals" id="configCreditRisk" autocomplete="off" maxlength="5" group="right" groupvalue="{{ $currency->symbol }}" info="customer-credit-risk"/>
+                        {{-- Riesgo crediticio --}}
+                        <div class="col-md-6">
+                            <div class="row">
+                                <label for="credit_risk" class="col-12">{!! ucfirst(trans('textos.riesgo_crediticio')) !!}</label>
+                                <div class="col-12">
+                                    <x-input type="text" name="credit_risk" class="text-right set-decimals" id="configCreditRisk" autocomplete="off" maxlength="5" group="right" groupvalue="{{ $currency->symbol }}" info="customer-credit-risk"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Sincronización previsiones de facturación entre proveedor y cliente --}}
+                        <div class="col-md-6">
+                            <div class="row">
+                                <label for="syncro_invoice" class="col-12">{!! ucfirst(trans('textos.facturacion_sincronizar')) !!}</label>
+                                <div class="col-9 offset-2 pt-1">
+                                    <label class="custom-chk-rdb">
+                                        <input type="checkbox" name="syncro_invoice" id="configSyncroInvoice">
+                                        <span class="chk"></span>
+                                    </label>
+
+                                    <div class="position-absolute" style="left: 65px; top: 0;">
+                                        {!! App\Helpers\helpers::info('budget-syncro-invoice') !!}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 

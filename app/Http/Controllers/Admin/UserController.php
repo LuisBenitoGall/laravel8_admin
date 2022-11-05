@@ -744,11 +744,10 @@ class UserController extends Controller{
 
         $user = User::find($userId);
 
-        //La fecha 'desde' se manipula si viene de un registro creado manualmente por el administrador:
-        $fromRegistered = $add_register? $add_register:Date('Y-m-d');
-
-        $from = $request->from != ''? (session()->get('locale') != 'en')? Helpers::convertFecha($request->from):$request->from:Date('Y-m-d');
-        $to = $request->to != ''? (session()->get('locale') != 'en')? Helpers::convertFecha($request->to):$request->to:Date('Y-m-d');
+        $from = $request->from != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->from):$request->from:Date('Y-m-d');
+        //La fecha 'desde' se manipula si viene de un registro creado manualmente o editado por el administrador:
+        $from = $add_register? $add_register:$from;
+        $to = $request->to != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->to):$request->to:Date('Y-m-d');
         //La fecha fin no puede ser posterior a la fecha actual:
         $to = $to > date('Y-m-d')? date('Y-m-d'):$to;
 

@@ -95,8 +95,7 @@
 			@endcan
 
 			{{-- Factura - condiciones: 
-				1. Pedido facturado.
-				2. Facturas declaradas.
+				1. Permisos de edición de pedidos.
 			--}}
 			{{-- @if($order->invoiced && $invoices->count())
 				@if($invoices->count() == 1)
@@ -121,7 +120,8 @@
 			@endif --}}
 
 			@can('orders.edit')
-				@if(!$order->invoiced)
+				{{-- 4/11/22: se omite la condición de pedido facturado. Se pueden añadir líneas incluso facturado el pedido. --}}
+				{{-- @if(!$order->invoiced) --}}
 					{{-- Nueva línea --}}
 					<a href="#" class="btn btn-info btnAddItem" data-toggle="modal" data-target="#modal-new-line">
 						<i class="fa fa-plus"></i> {!! ucfirst(trans('textos.linea_nueva')) !!}
@@ -132,7 +132,7 @@
 		    			<i class="fa fa-file-import"></i>
 		    			{!! ucfirst(trans('textos.lineas_importar')) !!}
 		    		</a>
-		    	@endif
+		    	{{-- @endif --}}
 			@endcan
 
 			{{-- Imprimir --}}

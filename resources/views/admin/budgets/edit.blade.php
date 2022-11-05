@@ -63,7 +63,8 @@ $setBlock = true;
 
 		{{-- Importar presupuesto - condiciones: 
 			1. Exclusivo cliente.
-			2. Para pedidos con cliente final.	
+			2. Para presupuestos con cliente final.	
+			...
 		--}}
 		@if($order->customer_id == session('currentCompany') && $order->final_customer_id)
 			<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-import-budget">
@@ -71,6 +72,22 @@ $setBlock = true;
 				{!! trans('textos.presupuesto_importar') !!}
 			</a>
 		@endif
+
+		{{-- Vincular presupuesto de proveedor primero - condiciones: 
+			1. Permisos de edición de presupuestos.
+			2. Exclusivo proveedor.
+			3. Que no exista un presupuesto vinculado previamente.
+			4. Que existan pedidos vinculables.
+			...
+		--}}
+		@can('budgets.edit')
+			@if($order->provider_id == session('currentCompany') && !$order->first_provider_order && count($linkable_budgets))
+				<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-first-provider">
+					<i class="fa fa-link"></i>
+					{!! trans('textos.presupuesto_proveedor_vincular') !!}
+				</a>
+			@endif
+		@endcan
 
 		{{-- Cambio proveedor - condiciones: 
 			1. Con permisos de edición de pedidos.
@@ -270,19 +287,45 @@ $setBlock = true;
 				</h3>	
 
 				{{-- Info --}}
-				<div class="mb-3">
+				<div class="mb-3" style="max-width: 95%;">
 					{{-- Cliente --}}
 					@include('admin.orders.partials.data-customer')
 
 					{{-- Proveedor --}}
 					@include('admin.orders.partials.data-provider')
 
+					{{-- Proveedor primero - condiciones: 
+						1. Exclusivo proveedor.
+						2. Debe existir.
+					--}}
+					@if($order->provider_id == session('currentCompany') && $first_provider)
+						<label class="mr-5">
+							{!! ucfirst(trans('textos.proveedor_primero')) !!}: 
+							<b>
+								{{ ucfirst($first_provider->name) }}
+							</b>
+							<a target="_blank" href="{{ route('budgets.edit', $first_provider->id) }}" class="ml-1" rel="tooltip" title="{{ trans('textos.presupuesto_editar') }}">
+								<i class="fa fa-edit"></i>
+							</a>
+						</label>
+					@endif
+
 					{{-- Cliente Final --}}
 					@if($final_customer)
 						<label class="mr-5">
-						{!! ucfirst(trans('textos.cliente_final')) !!}: 
-						<b>{{ $final_customer->name }}</b>
-					</label>
+							{!! ucfirst(trans('textos.cliente_final')) !!}: 
+							<b>{{ $final_customer->name }}</b>
+						</label>
+					@endif
+
+					{{-- Presupuesto vinculado --}}
+					@if($my_linked_budget)
+						<label class="mr-5">
+							{!! ucfirst(trans('textos.presupuesto_vinculado_mi')) !!}:
+							<b><a target="_blank" href="{{ route('budgets.edit', $my_linked_budget->id) }}" class="text-warning">
+								@if($my_linked_budget->budget_num) {{ $my_linked_budget->budget_num }} @else {{ $my_linked_budget->id }} @endif
+							</a></b>
+						</label>	
 					@endif
 
 					{{-- Fecha alta --}}
@@ -454,6 +497,11 @@ $setBlock = true;
 {{-- Import budget --}}
 @if($customer_budgets)
 	@include('admin.budgets.partials.modal-import-budget')
+@endif
+
+{{-- Link first provider --}}
+@if(count($linkable_budgets))
+	@include('admin.budgets.partials.modal-first-provider')
 @endif
 
 @push('scripts')

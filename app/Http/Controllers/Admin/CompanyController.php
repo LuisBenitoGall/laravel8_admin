@@ -272,13 +272,15 @@ class CompanyController extends Controller{
             $ute_start_at = $request->input('ute_start_at') != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->input('ute_start_at')):$request->input('ute_start_at'):NULL;
             $ute_finish_at = $request->input('ute_finish_at') != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->input('ute_finish_at')):$request->input('ute_finish_at'):NULL;
         }
+
+        $nif = $request->nif? helpers::cleanNif($request->nif):NULL;
         
         $company = Company::create([
             'name' => $request->name,
             'slug' => $slug,
             'tradename' => $request->tradename,
             'logo' => $fileName,
-            'nif' => $request->nif, 
+            'nif' => $nif, 
             'is_ute' => $request->is_ute? true:false,
             'ute_start_at' => $ute_start_at,
             'ute_finish_at' => $ute_finish_at
@@ -469,6 +471,8 @@ class CompanyController extends Controller{
         //Subir logo:
         $fileName = $this->loadLogo($request, 'companies');
 
+        $nif = $request->input('nif')? helpers::cleanNif($request->input('nif')):NULL;
+
         $company->name = $request->input('name');
         $company->slug = Str::slug($request->input('name'));
         $company->tradename = $request->input('tradename');
@@ -476,7 +480,7 @@ class CompanyController extends Controller{
         if($fileName){
             $company->logo = $fileName;
         }
-        $company->nif = $request->input('nif');
+        $company->nif = $nif;
         $company->ccc = $request->input('ccc');
 
         //UTE:

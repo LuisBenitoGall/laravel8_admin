@@ -59,6 +59,7 @@ class Helpers{
 	 * 	4.1. Truncar texto.
 	 * 	4.2. Slug string para archivos.
 	 *  4.3. Customizar CIF.
+	 *  4.3.1. Setear NIF.
 	 *  4.4. Formato numérico para decimales.
 	 *
 	 * 5. Archivos:
@@ -1119,6 +1120,17 @@ class Helpers{
 		$first_char = substr($cif, 0, 1);
     	$end_char = substr($cif, 1);
     	return $first_char.' '.$end_char;
+	}
+
+	/**
+	 * 4.3.1. Setear NIF.
+	 */
+	public static function cleanNif($nif){
+		$nif = str_replace("-","",$nif);
+		$nif = str_replace(" ","",$nif);
+		$nif = strtoupper($nif);
+
+		return $nif;
 	}
 
 	/**
