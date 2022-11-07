@@ -45,7 +45,7 @@ class CompanyController extends Controller{
      * 4. Editar empresa.
      * 5. Actualizar empresa.
      * 6. Eliminar empresa.
-     * 7. Actualizar estado.     
+     * 7. Actualizar estado.
      * 8. Subir logo.
      * 9. Eliminar logo.
      * 10. Seleccionar empresa para la sesión.
@@ -59,7 +59,7 @@ class CompanyController extends Controller{
      * 17. Directorio por sectores.
      * 18. Roles por empresa.
      */
-    
+
     private $option = 'empresas';
     private $module = 'companies';
     private $business_relationship = 'companies';
@@ -89,10 +89,10 @@ class CompanyController extends Controller{
         //Validación save_from_expense:
         }elseif(isset($data['submit_save_from_expense'])){
             return Validator::make($data, [
-                'name' => 'required|max:255', 
+                'name' => 'required|max:255',
                 'tradename' => 'nullable|max:255',
                 'nif' => 'required|validateNif|max:15|'
-            ]);   
+            ]);
 
         //Validación update:
         }elseif(isset($data['submit_update'])){
@@ -105,7 +105,7 @@ class CompanyController extends Controller{
                 'nif.unique' => trans('textos.nif_existe')
             ]);
         }
-    } 
+    }
 
     /**
      * 1. Listado de empresas.
@@ -114,14 +114,14 @@ class CompanyController extends Controller{
      */
     public function index(){
         $header = [
-            'option' => $this->option, 
+            'option' => $this->option,
             'suboption' => 'textos.empresas_mis',
             'module' => $this->module,
             'slug' => 'companies'
         ];
 
         return view('admin.companies.index')->with(compact('header'));
-    }  
+    }
 
     /**
      * 1.1. Listado de empresas para DataTable.
@@ -151,11 +151,11 @@ class CompanyController extends Controller{
             }
         })
         ->addColumn('acciones', function($row){
-            return view('admin.companies.partials.dt-actions', compact('row')); 
-        }) 
+            return view('admin.companies.partials.dt-actions', compact('row'));
+        })
         ->rawColumns(['ute', 'logo'])
         ->make(true);
-    } 
+    }
 
     /**
      * 2. Formulario nueva empresa.
@@ -168,7 +168,7 @@ class CompanyController extends Controller{
         //En función del estado del usuario se redirige a frontend o backend:
         if(Auth::user()->status == 1){
             $header = [
-                'option' => $this->option, 
+                'option' => $this->option,
                 'suboption' => 'textos.empresa_nueva',
                 'module' => $this->module,
                 'slug' => 'companies-create'
@@ -179,7 +179,7 @@ class CompanyController extends Controller{
             return view('admin.companies.create')->with(compact('header', 'accounts', 'guardian', 'business_relationship', 'languages'));
 
         }else{
-            return view('web.company-register')->with(compact('accounts', 'guardian', 'business_relationship'));    
+            return view('web.company-register')->with(compact('accounts', 'guardian', 'business_relationship'));
         }
     }
 
@@ -191,7 +191,7 @@ class CompanyController extends Controller{
         if($validator->fails()){
             return redirect('admin/'.$request->business_relationship.'/create')
             ->withErrors($validator)
-            ->withInput();    
+            ->withInput();
         }
 
         //Si se ha seleccionado una empresa ya existente:
@@ -216,17 +216,17 @@ class CompanyController extends Controller{
                     return redirect()->route('customers.index')->with(compact('alert'));
                 }else{
                     return redirect()->route('providers.index')->with(compact('alert'));
-                }   
-            }          
+                }
+            }
 
             $cp = new CustomerProviders();
             $cp->customer_id = $customer_id;
             $cp->provider_id = $provider_id;
-            $cp->save();   
+            $cp->save();
 
         //Nueva empresa:
         }else{
-            $this->saveCompany($request);   
+            $this->saveCompany($request);
         }
 
         //Rehacemos session de empresas vinculadas al usuario.
@@ -243,14 +243,14 @@ class CompanyController extends Controller{
         //         }else{
         //             $msg = trans('textos.proveedor_creado_ok');
         //             return redirect()->route('providers.index')->with(compact('msg'));
-        //         }   
+        //         }
 
         //     }else{
         //         return redirect()->route('companies.edit', $company->id)->with(compact('msg'));
         //     }
         // }else{
         //     return redirect()->route('companies.index')->with(compact('msg'));
-        // }     
+        // }
 
         return redirect()->route($request->business_relationship.'.index')->with(compact('msg'));
     }
@@ -272,17 +272,18 @@ class CompanyController extends Controller{
             $ute_start_at = $request->input('ute_start_at') != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->input('ute_start_at')):$request->input('ute_start_at'):NULL;
             $ute_finish_at = $request->input('ute_finish_at') != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->input('ute_finish_at')):$request->input('ute_finish_at'):NULL;
         }
-        
+$nif = $request->nif? helpers::cleanNif($request->nif):NULL;
+
         $company = Company::create([
             'name' => $request->name,
             'slug' => $slug,
             'tradename' => $request->tradename,
             'logo' => $fileName,
-            'nif' => $request->nif, 
+            'nif' => $nif,
             'is_ute' => $request->is_ute? true:false,
             'ute_start_at' => $ute_start_at,
             'ute_finish_at' => $ute_finish_at
-        ]);   
+        ]);
 
         //Indicador de empresa matriz. Usualmente es el mismo id, salvo para aquellas empresas dependientes de una empresa matriz:
         $company->mother_co = $company->id;
@@ -328,11 +329,11 @@ class CompanyController extends Controller{
 
             //Empresa actual:
             if(!session('currentCompany')){
-                session(['currentCompany' => $company->id]);        
+                session(['currentCompany' => $company->id]);
             }
 
         //Vinculamos como cliente o proveedor de la empresa con sesión, y no se vincula usuario:
-        }else{            
+        }else{
             if($request->business_relationship == 'customers'){
                 $customer_id = $company->id;
                 $provider_id = session('currentCompany');
@@ -344,7 +345,7 @@ class CompanyController extends Controller{
             $cp = new CustomerProviders();
             $cp->customer_id = $customer_id;
             $cp->provider_id = $provider_id;
-            $cp->save();    
+            $cp->save();
         }
 
         //Info de la cuenta suscrita:
@@ -366,7 +367,7 @@ class CompanyController extends Controller{
             $ca->end_date = $end_date;
             $ca->price = $account->rate;
             $ca->save();
-        } 
+        }
 
         return $company;
     }
@@ -382,7 +383,7 @@ class CompanyController extends Controller{
 
             //     return redirect('admin/expenses/create')
             //     ->withErrors($validator)
-            //     ->withInput();    
+            //     ->withInput();
             // }
 
             //Comprobamos por NIF si la empresa ya existe:
@@ -401,11 +402,11 @@ class CompanyController extends Controller{
                     $cp->customer_id = session('currentCompany');
                     $cp->provider_id = $company->id;
                     $cp->save();
-                }  
-            
+                }
+
             //Si no existe, la creamos:
             }else{
-                $company = $this->saveCompany($request);     
+                $company = $this->saveCompany($request);
             }
 
             return response()->json($company);
@@ -417,7 +418,7 @@ class CompanyController extends Controller{
      */
     public function edit(Company $company, $tab = false){
         $header = [
-            'option' => $this->option, 
+            'option' => $this->option,
             'suboption' => 'textos.empresa_editar',
             'module' => $this->module,
             'slug' => 'companies'
@@ -427,8 +428,8 @@ class CompanyController extends Controller{
         $noSelectCompany = true;
 
         //Pasamos a session la empresa editada:
-        //session(['currentCompany' => $company->id]); 
-        
+        //session(['currentCompany' => $company->id]);
+
         $business_relationship = $this->business_relationship;
 
         //Empresa matriz:
@@ -448,7 +449,7 @@ class CompanyController extends Controller{
 
         $languages = $this->languages;
 
-        return view('admin.companies.edit', compact('header', 'company', 'tab', 'noSelectCompany', 'business_relationship', 'mother', 'mother_companies', 'languages'));   
+        return view('admin.companies.edit', compact('header', 'company', 'tab', 'noSelectCompany', 'business_relationship', 'mother', 'mother_companies', 'languages'));
     }
 
     /**
@@ -469,6 +470,8 @@ class CompanyController extends Controller{
         //Subir logo:
         $fileName = $this->loadLogo($request, 'companies');
 
+        $nif = $request->input('nif')? helpers::cleanNif($request->input('nif')):NULL;
+
         $company->name = $request->input('name');
         $company->slug = Str::slug($request->input('name'));
         $company->tradename = $request->input('tradename');
@@ -476,7 +479,7 @@ class CompanyController extends Controller{
         if($fileName){
             $company->logo = $fileName;
         }
-        $company->nif = $request->input('nif');
+        $company->nif = $nif;
         $company->ccc = $request->input('ccc');
 
         //UTE:
@@ -488,7 +491,7 @@ class CompanyController extends Controller{
             $company->ute_finish_at = $ute_finish_at;
         }
 
-        $company->save(); 
+        $company->save();
 
         //Modificamos datos en la sesión de empresas:
         if($request->business_relationship == 'companies'){
@@ -513,8 +516,8 @@ class CompanyController extends Controller{
     public function destroy(Company $company){
         $company_id = $company->id;
         File::delete(public_path().'/img/companies/'.$company->logo);
-        
-        $company->delete();  
+
+        $company->delete();
 
         //Eliminamos empresa de la sesión:
         $companies = session('companies');
@@ -525,10 +528,10 @@ class CompanyController extends Controller{
             if($c->id != $company->id){
                 \Session::push('companies', $c);
             }
-        }        
+        }
 
         $msg = trans('textos.empresa_deleted');
-        return redirect()->route('companies.index')->with(compact('msg'));   
+        return redirect()->route('companies.index')->with(compact('msg'));
     }
 
     /**
@@ -538,7 +541,7 @@ class CompanyController extends Controller{
      * @return \Illuminate\Http\Response
      */
     public function status(Request $request, $id, $status){
-        if($request->ajax()){ 
+        if($request->ajax()){
             $company = Company::find($id);
             $company->status = $status;
             $company->save();
@@ -569,7 +572,7 @@ class CompanyController extends Controller{
     //         }else{
     //             return false;
     //         }
-    //     }    
+    //     }
     // }
 
     /**
@@ -584,7 +587,7 @@ class CompanyController extends Controller{
 
             if(!$company){
                 return redirect('/');
-                exit;    
+                exit;
             }
 
             File::delete(public_path().'/img/companies/'.$logo);
@@ -595,21 +598,21 @@ class CompanyController extends Controller{
             $business_relationship = $business_relationship? $business_relationship:'companies';
 
             $msg = trans('textos.imagen_deleted');
-            return redirect()->route($business_relationship.'.edit', $company->id)->with(compact('msg'));  
-        
+            return redirect()->route($business_relationship.'.edit', $company->id)->with(compact('msg'));
+
         }else{
             return redirect('/');
-        } 
+        }
     }
 
     /**
      * 10. Seleccionar empresa para la sesión.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response 
+     * @param \App\Models\Company $company
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
     public function selectCompany(Company $company){
-        session(['currentCompany' => $company->id]); 
+        session(['currentCompany' => $company->id]);
 
         $prev_url = URL::previous();
 
@@ -663,7 +666,7 @@ class CompanyController extends Controller{
         Excel::import(new CompaniesImport, $request->file('companies'));
 
         $msg = trans('textos.importacion_ok');
-        return redirect()->route($request->business_relationship.'.import')->with(compact('msg'));  
+        return redirect()->route($request->business_relationship.'.import')->with(compact('msg'));
     }
 
     /**
@@ -671,7 +674,7 @@ class CompanyController extends Controller{
      */
     public function show(Company $company){
         $header = [
-            'option' => $this->option, 
+            'option' => $this->option,
             'suboption' => 'textos.empresa',
             'module' => $this->module,
             'slug' => 'companies'
@@ -683,7 +686,7 @@ class CompanyController extends Controller{
 
         $workplaces = Workplace::where('company_id', $company->id)->get();
 
-        return view('admin.companies.show', compact('header', 'company', 'origin', 'public_info', 'employees', 'workplaces'));       
+        return view('admin.companies.show', compact('header', 'company', 'origin', 'public_info', 'employees', 'workplaces'));
     }
 
     /**
@@ -713,7 +716,7 @@ class CompanyController extends Controller{
      */
     public function sectors(){
         $header = [
-            'option' => $this->option, 
+            'option' => $this->option,
             'suboption' => 'textos.directorio_sectores',
             'module' => $this->module,
             'slug' => 'sectors'
@@ -725,8 +728,8 @@ class CompanyController extends Controller{
         ->where('modules.slug', 'companies')
         ->with('sub_category')
         ->orderBy('name', 'ASC')
-        ->get();  
-        
+        ->get();
+
         return view('admin.company_sectors.index')->with(compact('header', 'sectors'));
     }
 
@@ -734,7 +737,7 @@ class CompanyController extends Controller{
      * 18. Roles por empresa.
      */
     public function getCompanyRoles(Request $request, $company_id){
-        if($request->ajax()){    
+        if($request->ajax()){
             $data = $this->companyRoles($company_id);
 
             foreach($data as $r){

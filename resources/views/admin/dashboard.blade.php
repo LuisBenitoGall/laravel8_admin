@@ -11,7 +11,7 @@
         </div>
         
         @foreach($preferences as $row)
-            <div class="col-6 col-sm-4 col-md-3 col-lg-2 mb-3 preference">
+            <div class="col-6 col-sm-4 col-md-3 col-lg-2 col-xl-1 mb-3 preference">
                 <div class="widget p-lg text-center" @if($row->color) style="background-color: {{ $row->color }} !important" @endif>
                     <div class="m-b-md">
                         <a href="{{ $row->url }}" class="preference-link">

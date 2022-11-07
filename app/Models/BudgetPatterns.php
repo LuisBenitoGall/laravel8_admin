@@ -8,9 +8,23 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class BudgetPatterns extends Model{
     use HasFactory;
-    use SoftDeletes; 
+    use SoftDeletes;
 
-    protected $dates = ['deleted_at'];  
+    protected $dates = ['deleted_at'];
 
     protected $table = 'budget_patterns';
+
+    protected $casts = [
+        'yearly_reset' => 'boolean',
+    ];
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class,'budget_pattern_id');
+    }
+
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
+    }
 }

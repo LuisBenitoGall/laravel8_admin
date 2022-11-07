@@ -101,6 +101,7 @@ $(document).ready(function(){
         var cc_id = $(this).data('ccid');
         var discount = $(this).data('discount');
         var budget_access = $(this).data('budgetaccess');
+        var syncro = $(this).data('syncro');
         var credit = $(this).data('credit');
 
         if(id){
@@ -151,6 +152,9 @@ $(document).ready(function(){
 
                     //Riesgo crediticio:
                     $('#configCreditRisk').val(credit);
+
+                    //Sincronización previsiones de facturación:
+                    $('#configSyncroInvoice').prop('checked', syncro);
                 }  
             });
         } 

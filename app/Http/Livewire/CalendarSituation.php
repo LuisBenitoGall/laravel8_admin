@@ -23,6 +23,7 @@ class CalendarSituation extends Component{
     public $dayRegisters = [];
     public $dayTypes;
     public $fecha;
+    public $for_companies;
     public $languages;
     public $mes_;
     public $mes_num;
@@ -33,7 +34,7 @@ class CalendarSituation extends Component{
     public $workUserCalendar;
     public $year;
 
-    public function mount($year, $workplace){
+    public function mount($year, $workplace, $for_companies){
         $this->dayTypes = DayTypes::where('company_id', session('currentCompany'))->get();
         //Array de colores de los tipos de jornada:
         $arrDayTypesColor = [];
@@ -43,6 +44,7 @@ class CalendarSituation extends Component{
         $this->weekDays = helpers::weekDays();
         $this->workplace = $workplace;
         $this->year = $year;
+        $this->for_companies = $for_companies;
 
         //Obtener las fechas ya marcadas:
         $dates_data = WorkCalendar::select('id', 'day_type_id', 'date', 'hours')
@@ -61,13 +63,19 @@ class CalendarSituation extends Component{
         }
 
         //Calendario de los usuarios:
-        $this->workUserCalendar = WorkUserCalendar::join('user_workplaces', 'work_user_calendars.user_id', '=', 'user_workplaces.user_id')
-        ->where('user_workplaces.workplace_id', $workplace->id)
-        ->whereYear('work_user_calendars.date', $year)
-        ->whereNull('work_user_calendars.self_hours')
-        ->distinct()
-        ->orderBy('work_user_calendars.date')
-        ->pluck('work_user_calendars.date')->toArray();
+        if($for_companies){
+            //$this->workUserCalendar = WorkUserCalendar::
+            
+        }else{
+            $this->workUserCalendar = WorkUserCalendar::join('user_workplaces', 'work_user_calendars.user_id', '=', 'user_workplaces.user_id')
+            ->where('user_workplaces.workplace_id', $workplace->id)
+            ->whereYear('work_user_calendars.date', $year)
+            ->whereNull('work_user_calendars.self_hours')
+            ->distinct()
+            ->orderBy('work_user_calendars.date')
+            ->pluck('work_user_calendars.date')
+            ->toArray();
+        }
 
         //Idiomas:
         $this->languages = helpers::languages();

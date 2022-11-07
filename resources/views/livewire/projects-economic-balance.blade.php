@@ -8,7 +8,7 @@
     <script src="{{ asset('js/plugins/chartJs/Chart.min.js') }}"></script>
     <script>
     var values = {{ json_encode($list) }};
-    console.log(values);
+    //console.log(values);
     var barData = {
         labels: ["{{ ucfirst(trans('textos.ingresos')) }}", "{{ ucfirst(trans('textos.pagos')) }}"],
         datasets: [
@@ -52,6 +52,25 @@
         type: 'bar', 
         data: barData, 
         options:barOptions
+    });
+
+    $(function(){
+        //Banner aviso balance económico:
+        var ingresos = isNaN(values[0]) || values[0] === null? parseInt(0):values[0];
+        var compras = isNaN(values[1]) || values[1] === null? parseInt(0):values[1];
+        var gastos = isNaN(values[2]) || values[2] === null? parseInt(0):values[2];
+        var gastos_ = parseFloat(compras) + parseFloat(gastos);
+
+        //Margen de beneficio:
+        var margin = (gastos_ * 100) / ingresos;
+
+        //Aviso para beneficios inferiores al 10%:
+        if(margin > 100){
+            $('#economicBalanceWarning').addClass('alert-danger').text('{{ trans('textos.gastos_superan_ingresos_aviso') }}').fadeIn();
+
+        }else if(margin > 90){
+            $('#economicBalanceWarning').addClass('alert-warning').text('{{ trans('textos.beneficio_estrecho_aviso') }}').fadeIn();
+        }
     });
     </script>
 </div>
