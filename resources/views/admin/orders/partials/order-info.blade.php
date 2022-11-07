@@ -189,10 +189,10 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 			<x-input type="text" name="name" value="{{ $order->name }}" autocomplete="off" maxlength="255" readonly="{{ $read_only_provider }}"/>
 		</div>
 	</div>
-
+	{{--
 	<div class="form-group row">
 		{{-- Fecha entrega prevista --}}
-		<label for="estimated_delivery_date" class="col-md-2 col-lg-2 col-form-label">{!! ucfirst(trans('textos.fecha_entrega_prevista')) !!}</label>
+			{{--<label for="estimated_delivery_date" class="col-md-2 col-lg-2 col-form-label">{!! ucfirst(trans('textos.fecha_entrega_prevista')) !!}</label>
 		<div class="col-md-4 col-lg-2">
 			@php
 			$estimatedDeliveryDate = $order->estimated_delivery_date != ''? \Carbon\Carbon::parse($order->estimated_delivery_date)->format($languages[session()->get('locale')][4]):'';
@@ -206,8 +206,8 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 		</div>
 
 		{{-- Fecha entrega --}}
-		<label for="delivery_date" class="col-md-2 col-lg-2 col-form-label">{!! ucfirst(trans('textos.fecha_entrega')) !!}</label>
-	{{--	<div class="col-md-4 col-lg-2">
+		{{--	<label for="delivery_date" class="col-md-2 col-lg-2 col-form-label">{!! ucfirst(trans('textos.fecha_entrega')) !!}</label>
+	<div class="col-md-4 col-lg-2">
 			@php
 			$deliveryDate = $order->delivery_date != ''? \Carbon\Carbon::parse($order->delivery_date)->format($languages[session()->get('locale')][4]):'';
 			@endphp
@@ -217,7 +217,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 			@else
 				<x-input type="text" name="delivery_date" value="{{ $deliveryDate }}" autocomplete="off" maxlength="255" readonly/>	
 			@endif
-		</div>--}}
+		</div>
 
 		{{-- Estado pedido - condiciones:
 			1. Exclusivo proveedor
