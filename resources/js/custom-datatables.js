@@ -825,7 +825,7 @@ $(document).ready(function(){
         $('#tblBudgets thead tr').clone(true).appendTo('#tblBudgets thead');
         $('#tblBudgets thead tr:eq(1) th').each(function(i){
             var title = $(this).text();
-            if(i == 4 || i == 5 || i == 10){
+            if(i == 4 || i == 10){
                 $(this).html('');
             }else{
                 $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
@@ -845,6 +845,7 @@ $(document).ready(function(){
             order: [[ 0, "desc" ]],
             serverSide: true,
             processing: true,
+            stateSave: true,
             ajax: {
                 "type": "GET",
                 "url": "/api/admin/budgets/"+from,
@@ -858,10 +859,11 @@ $(document).ready(function(){
                 {data: 'name', name: 'orders.name'},
                 {data: 'order_num', name: 'orders.order_num'},
                 {data: 'amount', name: 'amount', className: 'text-right'},
-                {data: 'modalidad', name: 'modalidad'},
-                {data: 'manager', name: 'manager'},
+                // {data: 'modalidad', name: 'modalidad'},
+                {data: 'manager', name: 'users.name'},
                 {data: 'alta', name: 'orders.created_at', className: 'text-right'},
                 {data: 'company', name: 'companies.name', "defaultContent": ""},
+                {data: 'final_customer', name: 'c_.name', "defaultContent": ""},
                 {data: 'estado', name: 'orders.budget_status'},
                 {data: 'acciones', name: 'acciones', orderable: false, searchable: false, className: 'text-right'}
             ]
@@ -980,6 +982,7 @@ $(document).ready(function(){
         var tableCompanies = $('#tblCompanies').DataTable({
             serverSide: true,
             processing: true,
+            stateSave: true,
             "language": {
                 processing: '<i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span>'
             },
@@ -1490,6 +1493,7 @@ $(document).ready(function(){
             order: [[ 0, "desc" ]],
             serverSide: true,
             processing: true,
+            stateSave: true,
             ajax: {
                 "type": "GET",
                 "url": "/api/admin/customers",
@@ -2301,24 +2305,24 @@ $(document).ready(function(){
         var poId = $('#poId').val();        //by purchase order.
 
         //Filters:
-        // $('#tblInvoices thead tr').clone(true).appendTo('#tblInvoices thead');
-        // $('#tblInvoices thead tr:eq(1) th').each(function(i){
-        //     var title = $(this).text();
-        //     if(i == 8){
-        //         $(this).html('');
-        //     }else{
-        //         $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
-        //     }
+        $('#tblInvoices thead tr').clone(true).appendTo('#tblInvoices thead');
+        $('#tblInvoices thead tr:eq(1) th').each(function(i){
+            var title = $(this).text();
+            if(i == 9){
+                $(this).html('');
+            }else{
+                $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
+            }
      
-        //     $('input', this).on('keyup change', function(){
-        //         if(tableInvoices.column(i).search() !== this.value){
-        //             tableInvoices
-        //                 .column(i)
-        //                 .search(this.value)
-        //                 .draw();
-        //         }
-        //     });
-        // });
+            $('input', this).on('keyup change', function(){
+                if(tableInvoices.column(i).search() !== this.value){
+                    tableInvoices
+                        .column(i)
+                        .search(this.value)
+                        .draw();
+                }
+            });
+        });
 
         // var api_route = 'invoices/'+year+'/'+customer+'/'+provider;
         var api_route = `invoices/${year}/${customer}/${provider}/${month}`;
@@ -2329,10 +2333,11 @@ $(document).ready(function(){
             api_route = 'invoices-by-purchase/'+poId;
         }
         
-        $('#tblInvoices').DataTable({
-            order: [[ 3, "desc" ]],
+        var tableInvoices = $('#tblInvoices').DataTable({
+            order: [[ 4, "desc" ]],
             serverSide: false,
             processing: false,
+            stateSave: true,
             autoWidth: false,
             // drawCallback: function(){
             //     $('.select2-dt').select2();
@@ -2347,6 +2352,7 @@ $(document).ready(function(){
             columns: [
                 {data: 'invoice_num', name: 'invoices.invoice_num', className: 'text-right'},
                 {data: 'company', name: 'companies.name'},
+                {data: 'order', name: 'orders.order_num', className: 'text-right'},
                 {data: 'manager', name: 'users.name'},
                 {data: 'fiscal_date', className: 'text-right'},
                 {data: 'expiration_date', className: 'text-right'},
@@ -2380,13 +2386,13 @@ $(document).ready(function(){
 
                     //Total:
                     total = api
-                    .column(5, { search: 'applied' })
+                    .column(6, { search: 'applied' })
                     .data()
                     .reduce(function(a, b){
                         return intVal(a) + intVal(b);
                     }, 0);
 
-                    $(api.column(5).footer()).html(
+                    $(api.column(6).footer()).html(
                         total.toFixed(2)+currency   
                     );
      
@@ -2412,7 +2418,7 @@ $(document).ready(function(){
         
         $('#tblIpAccess').DataTable({
             serverSide: true,
-            /*processing: true,*/
+            processing: true,
             ajax: {
                 "type": "GET",
                 "url": "/api/admin/ip-access",
@@ -3258,6 +3264,7 @@ $(document).ready(function(){
             order: [[ 0, "desc" ]],
             serverSide: true,
             processing: true,
+            stateSave: true,
             // drawCallback: function(){
             //     $('.select2-dt').select2();
             // },
@@ -4376,6 +4383,7 @@ $(document).ready(function(){
         var tableProviders = $('#tblProviders').DataTable({
             serverSide: true,
             processing: true,
+            stateSave: true,
             ajax: {
                 "type": "GET",
                 "url": "/api/admin/providers",
@@ -5678,6 +5686,7 @@ $(document).ready(function(){
         var tableUsers = $('#tblUsers').DataTable({
             serverSide: true,
             processing: true,
+            stateSave: true,
             "language": {
                 processing: '<i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span>'
             },

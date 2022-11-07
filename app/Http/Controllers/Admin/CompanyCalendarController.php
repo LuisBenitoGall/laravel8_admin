@@ -13,6 +13,7 @@ use Carbon\Carbon;
 
 //Models:
 use App\Models\Company;
+use App\Models\UserCompanies;
 use App\Models\WorkCalendar;
 use App\Models\Workplace;
 use App\Models\WorkUserCalendar;
@@ -34,13 +35,15 @@ class CompanyCalendarController extends Controller{
     /**
      * 1. Calendario por año y centro de trabajo.
      */
-    public function index($workplace_id = false, $year = false){
+    public function index($workplace_id = false, $year = false, $for_companies = false){
         $header = [
             'option' => $this->option, 
             'suboption' => trans('textos.calendario_empresa'), 
             'module' => $this->module,
             'slug' => 'company-calendar'
         ];
+
+        $arrCompanies = $for_companies? explode('-', $for_companies):false;
 
         //Centros de trabajo:
         $workplaces = Workplace::companyWorkplaces(session('currentCompany'));
@@ -57,14 +60,24 @@ class CompanyCalendarController extends Controller{
 
         $company = Company::select('name')->find(session('currentCompany'));
 
-        return view('admin.company_calendar.index')->with(compact('header', 'workplaces', 'year', 'workplace', 'company'));
+        //Empresas vinculadas al usuario:
+        $companies = UserCompanies::join('companies', 'user_companies.company_id', '=', 'companies.id')
+        ->where('user_companies.user_id', Auth::user()->id)
+        ->pluck('companies.name', 'companies.id')
+        ->toArray();
+
+        return view('admin.company_calendar.index')->with(compact('header', 'workplaces', 'year', 'workplace', 'company', 'companies', 'arrCompanies'));
     }
 
     /**
      * 2. Calendario por filtro.
      */
     public function calendarBy(Request $request){
-        if($request->workplace_id){
+        if($request->companies){
+            $for_companies = implode('-', $request->companies);
+            return redirect()->route('company-calendar.index', ['$request->workplace_id', $request->year, $for_companies]);
+
+        }elseif($request->workplace_id){
             return redirect()->route('company-calendar.index', [$request->workplace_id, $request->year]);  
         }else{
             return redirect()->route('company-calendar.index');

@@ -24,6 +24,8 @@ class BudgetFormItemsController extends Controller{
      * 4. Eliminar item.
      * 5. Establecer item fijo en los presupuestos.
      * 6. Añadir bloque a presupuesto.
+     * 7. Actualizar nombre de bloque.
+     * 8. Ordenar bloques en presupuesto.
      */  
     
     private $option = 'presupuestos';
@@ -37,7 +39,7 @@ class BudgetFormItemsController extends Controller{
         $this->middleware('module_setted:budgets');
         $this->middleware('budget_form_post', ['only' => ['store', 'update']]);
         $this->middleware('budget_form_item_get', ['only' => ['destroy']]);
-        $this->middleware('order_post', ['only' => ['addBlock']]);
+        $this->middleware('order_post', ['only' => ['addBlock', 'updateBlock', 'sortBlocks']]);
     }
 
     //0. Validator:
@@ -61,6 +63,20 @@ class BudgetFormItemsController extends Controller{
             return Validator::make($data, [ 
                 'order_id' => 'required|integer', 
                 'name' => 'required|string|max:255' 
+            ]); 
+
+        //Validación actualizar bloque:
+        }elseif(isset($data['submit_update_block'])){
+            return Validator::make($data, [ 
+                'order_id' => 'required|integer', 
+                'bfi_id' => 'required|integer',
+                'name' => 'required|string|max:255' 
+            ]); 
+
+        //Validación ordenar bloques:
+        }elseif(isset($data['submit_sort_blocks'])){
+            return Validator::make($data, [ 
+                'order_id' => 'required|integer'
             ]); 
         }
     }
@@ -237,5 +253,52 @@ class BudgetFormItemsController extends Controller{
         }else{
              return redirect()->route('home');    
         }
+    }
+
+    /**
+     * 7. Actualizar nombre de bloque.
+     */
+    public function updateBlock(Request $request){
+        $validator = $this->validator($request->all());
+        if($validator->fails()){
+            //Indicamos el origen de la acción realizada para manejar el modal:
+            $validator->getMessageBag()->add('accion', 'modal-edit-block');
+
+            return redirect('admin/budgets/'.$request->order_id.'/edit')
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        BudgetFormItems::where('id', $request->bfi_id)
+        ->update(['name' => $request->name]); 
+
+        $msg = trans('textos.bloque_updated');
+        return redirect()->route('budgets.edit', [$request->order_id, 'items'])->with(compact('msg'));
+    }
+
+    /**
+     * 8. Ordenar bloques en presupuesto.
+     */
+    public function sortBlocks(Request $request){
+        $validator = $this->validator($request->all());
+        if($validator->fails()){
+            //Indicamos el origen de la acción realizada para manejar el modal:
+            $validator->getMessageBag()->add('accion', 'modal-sort-blocks');
+
+            return redirect('admin/budgets/'.$request->order_id.'/edit')
+                ->withErrors($validator)
+                ->withInput();
+        }   
+
+        $i = 1;
+        foreach($request->id as $id){
+            BudgetFormItems::where('id', $id)
+            ->update(['sort_block' => $i]); 
+
+            $i++;    
+        }
+
+        $msg = trans('textos.bloques_ordenados');
+        return redirect()->route('budgets.edit', [$request->order_id, 'items'])->with(compact('msg'));
     }
 }

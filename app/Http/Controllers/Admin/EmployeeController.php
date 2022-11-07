@@ -34,6 +34,8 @@ class EmployeeController extends Controller{
      * 5. Mostrar info del empleo.
      * 6. Editar empleo.
      * 7. Eliminar empleo.
+     * 7.1. Actualizar status del empleo.
+     * 8. Cancelar contrato de empleado.
      */
     
     private $option = 'empleados';
@@ -364,18 +366,6 @@ class EmployeeController extends Controller{
         return redirect()->route('employees.user', $employee->user_id)->with(compact('msg'));         
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
     /**
      * 7.1. Actualizar status del empleo.
      */
@@ -387,4 +377,25 @@ class EmployeeController extends Controller{
 
         return $employee;
     }
+
+    /**
+     * 8. Cancelar contrato de empleado.
+     */
+    public function cancel(Request $request){
+        $end = $request->input('end')? helpers::convertFecha($request->input('end')):date('Y-m-d');
+
+        $status = $end < date('Y-m-d')? 0:1;
+
+        $employee = Employee::find($request->input('id'));
+        $employee->end_date = $end;
+        $employee->status = $status;
+        $employee->observations = $request->input('observations');
+        $employee->save();
+
+        //Actualizamos la fecha de finalización de los horarios personalizados:
+        UserTimetables::updateToTimetables($employee->id, $end);
+
+        $msg = trans('textos.contrato_cancelled');
+        return redirect()->route('employees.user', $request->input('user_id'))->with(compact('msg'));  
+    }    
 }
