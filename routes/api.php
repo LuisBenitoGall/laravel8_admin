@@ -72,7 +72,7 @@ use Illuminate\Support\Facades\Route;
 
 
 // ADMIN DATATABLES:
-/*Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('Admin')->group(function () {
+Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('Admin')->group(function () {
     //Accounts:
     Route::get('accounts', 'AccountController@getAccountsDT');
 
@@ -352,7 +352,7 @@ use Illuminate\Support\Facades\Route;
 
     //Workplaces:
     Route::get('workplaces/{company}/{business_relationship}', 'WorkplaceController@getWorkplacesDT');
-});*/
+});
 
 
 Route::prefix('v1')->namespace('Api')->group(function () {
