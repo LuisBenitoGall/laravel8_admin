@@ -37,7 +37,7 @@ class DevicePushController extends Controller
         // $this->authorize('create', DevicePush::class);
         if (isset($request->token)) {
             $devicePush = DevicePush::updateOrCreate(
-                ['user_id' => $request->user()->id],
+                ['user_id' => $request->user_id],
                 ['token' => $request->token]
             );
 
