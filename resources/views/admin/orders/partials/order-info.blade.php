@@ -207,7 +207,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 
 		{{-- Fecha entrega --}}
 		<label for="delivery_date" class="col-md-2 col-lg-2 col-form-label">{!! ucfirst(trans('textos.fecha_entrega')) !!}</label>
-		<div class="col-md-4 col-lg-2">
+	{{--	<div class="col-md-4 col-lg-2">
 			@php
 			$deliveryDate = $order->delivery_date != ''? \Carbon\Carbon::parse($order->delivery_date)->format($languages[session()->get('locale')][4]):'';
 			@endphp
@@ -217,7 +217,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 			@else
 				<x-input type="text" name="delivery_date" value="{{ $deliveryDate }}" autocomplete="off" maxlength="255" readonly/>	
 			@endif
-		</div>
+		</div>--}}
 
 		{{-- Estado pedido - condiciones:
 			1. Exclusivo proveedor
