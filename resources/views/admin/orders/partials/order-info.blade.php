@@ -189,10 +189,10 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 			<x-input type="text" name="name" value="{{ $order->name }}" autocomplete="off" maxlength="255" readonly="{{ $read_only_provider }}"/>
 		</div>
 	</div>
-	{{--
+
 	<div class="form-group row">
 		{{-- Fecha entrega prevista --}}
-			{{--<label for="estimated_delivery_date" class="col-md-2 col-lg-2 col-form-label">{!! ucfirst(trans('textos.fecha_entrega_prevista')) !!}</label>
+		<label for="estimated_delivery_date" class="col-md-2 col-lg-2 col-form-label">{!! ucfirst(trans('textos.fecha_entrega_prevista')) !!}</label>
 		<div class="col-md-4 col-lg-2">
 			@php
 			$estimatedDeliveryDate = $order->estimated_delivery_date != ''? \Carbon\Carbon::parse($order->estimated_delivery_date)->format($languages[session()->get('locale')][4]):'';
@@ -206,8 +206,8 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 		</div>
 
 		{{-- Fecha entrega --}}
-		{{--	<label for="delivery_date" class="col-md-2 col-lg-2 col-form-label">{!! ucfirst(trans('textos.fecha_entrega')) !!}</label>
-	<div class="col-md-4 col-lg-2">
+		<label for="delivery_date" class="col-md-2 col-lg-2 col-form-label">{!! ucfirst(trans('textos.fecha_entrega')) !!}</label>
+		<div class="col-md-4 col-lg-2">
 			@php
 			$deliveryDate = $order->delivery_date != ''? \Carbon\Carbon::parse($order->delivery_date)->format($languages[session()->get('locale')][4]):'';
 			@endphp
@@ -223,7 +223,24 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 			1. Exclusivo proveedor
 			2. Pedido no facturado
 		--}}
-		<input type="hidden" name="order_status" value="{{ $order->order_status }}">
+		@if($order->provider_id == session('currentCompany'))
+			<label for="order_status" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.estado')) !!}</label>
+			<div class="col-lg-2">
+				@php
+				//Los estados se obtienen en función de si el pedido es simple o agrupación:
+				$estados = $order->is_group? App\Helpers\helpers::orderGroupStatus():App\Helpers\helpers::orderStatus();
+				$disabled = $order->invoiced? true:false;
+				$name = !$disabled? 'status':'';	//En pedidos facturados no se modifica el status.
+				@endphp
+
+				{{-- 18/10/22: resolver estado de pedido para que quede disabled cuando estén todas las previsiones de facturación facturadas --}}
+				{{-- disabled="{{ $disabled }}" --}}
+
+				<x-select name="{{ $name }}" class="select2" label="indica_estado" :options="$estados" value="{{ $order->order_status }}" />
+			</div>
+		@else
+			<input type="hidden" name="order_status" value="{{ $order->order_status }}">
+		@endif
 	</div>
 	<br><hr><br>
 
