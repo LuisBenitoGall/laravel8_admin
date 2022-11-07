@@ -16,10 +16,10 @@ class CostCenters extends Model{
     use HasFactory;
     use SoftDeletes;
 
-    protected $table = 'cost_centers';    
+    protected $table = 'cost_centers';
 
     protected $fillable = ['name', 'slug'];
-    
+
     /**
      * 1. Validación de centro de coste para middleware.
      */
@@ -30,19 +30,19 @@ class CostCenters extends Model{
 
         //Si no existe:
         if(!$company){
-            $resp = trans('textos.registro_inexistente');    
+            $resp = trans('textos.registro_inexistente');
         }
 
         //Si la empresa se encuentra entre las empresas gestionadas por el usuario:
         $belongs = false;
         foreach(\Session::get('companies') as $co){
-            if($co->id == $company->company_id){ 
-                $belongs = true; 
+            if($co->id == $company->company_id){
+                $belongs = true;
                 break;
             }
         }
         if(!$belongs){
-            $resp = trans('textos.no_permisos_accion');     
+            $resp = trans('textos.no_permisos_accion');
         }
 
         //Comprobamos que la empresa mantiene relación de cliente o proveedor:
@@ -58,10 +58,22 @@ class CostCenters extends Model{
             }
 
             if(!$exist){
-                $resp = trans('textos.no_permisos_accion');     
+                $resp = trans('textos.no_permisos_accion');
             }
         }
 
         return $resp;
     }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class, 'customer_cost_center_id');
+    }
+
+    public function providerCostCenter()
+    {
+        return $this->hasMany(Order::class, 'provider_cost_center_id');
+    }
+
+
 }
