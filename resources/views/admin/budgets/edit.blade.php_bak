@@ -1,0 +1,407 @@
+@extends('admin.partials.layout')
+
+@section('content')
+
+@php
+//Comprobamos que las líneas de presupuesto tipo formulario pertenezcan a algún bloque:
+$setBlock = true;
+// if($order->modality == config('constants.BUDGET_FORM_MODALITY_') && $itemsSelected->count() > 0){
+// 	foreach($itemsSelected as $is_){
+// 		if(!$is_->block_id){
+// 			$setBlock = false;
+// 			break;
+// 		}
+// 	}
+// }
+@endphp
+
+<input type="hidden" id="myOrder" value="{{ $order->id }}">
+
+<div class="row mb-3">
+	{{-- Acciones: --}}
+	<div class="col-12">
+		{{-- Listado de presupuestos --}}
+		@can('budgets.index')
+			<a href="{{ route('budgets.index') }}" class="btn btn-info">
+				<i class="fa fa-angle-left"></i>
+				{!! trans('textos.volver_presupuestos') !!}
+			</a>
+		@endcan
+
+		{{-- Nuevo presupuesto --}}
+		@can('budgets.create')
+			@if($budget_from == 'customers')
+				<a href="{{ route('budgets.create') }}" class="btn btn-info">
+					<i class="fa fa-plus"></i>
+					{!! ucfirst(trans('textos.presupuesto_nuevo')) !!}
+				</a>
+			@endif
+		@endcan
+
+		{{-- Cambio proveedor - condiciones: 
+			1. Con permisos de edición de pedidos.
+			2. provider_id = empresa en sesión.
+			3. El usuario está vinculado a varias empresas.
+			4. El presupuesto no tiene pedido generado.
+		--}}
+		@can('budgets.edit')
+			@if($order->provider_id == session('currentCompany') && count(session('companies')) > 1 && !$order->is_order)
+				<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-set-provider">
+					<i class="fa fa-exchange-alt"></i> {!! ucfirst(trans('textos.proveedor_cambio')) !!}
+				</a>	
+			@endif
+		@endcan
+
+		{{-- Nueva línea - condiciones:
+			1. Permisos de edición.
+			2. Según modalidad de formulario.
+			...
+		--}}
+		@can('budgets.edit')
+			@if($order->modality == config('constants.BUDGET_CATALOGUE_MODALITY_') || $order->modality == config('constants.BUDGET_BASIC_MODALITY_'))
+				<a href="#" class="btn btn-info btnAddItem" data-toggle="modal" data-target="#modal-new-line">
+					<i class="fa fa-plus"></i> {!! ucfirst(trans('textos.linea_nueva')) !!}
+				</a>
+			@endif
+		@endcan
+		
+		{{-- Versiones --}}
+		@can('budgets.edit')
+			{{-- Crear versión --}}
+			<a href="{{ route('budgets.modify', $order->id) }}" class="btn btn-info btn-confirm" data-msg="{!! trans('textos.version_crear_confirm') !!}">
+				<i class="fa fa-clone"></i>
+				{!! ucfirst(trans('textos.version_crear')) !!}
+			</a>
+
+			{{-- Acceso a versiones: --}}
+			@if($versions->count())
+				@php
+				$origBudget = (!$order->recid)? $order->id:$order->recid;
+				@endphp
+
+				<div class="budget-versions">
+					<select class="form-control select2">
+						<option value="">
+							{!! ucfirst(trans('textos.versiones')) !!}
+						</option>
+
+						<option value="{{ $origBudget }}" @if($origBudget == $order->id) selected @endif>
+							{!! ucfirst(trans('textos.presupuesto_original')) !!}
+						</option>
+
+						@foreach($versions as $vs)
+							<option value="{{ $vs->id }}" @if($vs->id == $order->id) selected @endif>{{ $vs->name }} {{ $vs->bkey }}</option>
+						@endforeach		
+					</select>
+				</div>
+			@endif
+		@endcan
+
+		{{-- Copiar presupuesto --}}
+		@can('budgets.create')
+			<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-copy">
+				<i class="fa fa-clone"></i>
+				{!! ucfirst(trans('textos.copiar')) !!}
+			</a>
+		@endcan
+
+		{{-- Imprimir --}}
+		<a href="{{ route('budgets.print', $order->id) }}" class="btn btn-info close-animation" rel="tooltip" title="{!! ucfirst(trans('textos.imprimir')) !!}">
+			<i class="fa fa-print"></i>
+		</a>
+
+		{{-- Descuento - condiciones: 
+			1. Disponer de permisos de edición de presupuestos.
+			2. No existir pedido o no facturado ni vinculado a una agrupación.
+			3. Exclusivo del proveedor.
+			4. No debe existir ya el descuento.
+			...
+		--}}	
+		@can('budgets.edit')
+			@if( (!$order->is_order || ($order && !$order->invoiced && !$order->order_parent)) && $order->provider_id == session('currentCompany') && !$order->discount)
+				<a href="#" class="btn btn-warning" data-toggle="modal" data-target="#modal-budget-discount" rel="tooltip" title="{{ trans('textos.descuento_presupuesto') }}">
+	    			<i class="fa fa-percent"></i>
+	    		</a>
+	    	@endif
+	    @endcan
+
+		{{-- Generar pedido - condiciones: 
+			1. Estar activo el módulo de Pedidos.
+			2. Disponer de permisos para generar pedidos.
+			3. El presupuesto debe encontrarse en algún estado apto para generar pedidos.
+			4. No debe existir un pedido previo.
+			...
+		--}}
+		@if($module_orders)
+			@can('orders.create')
+				@if(in_array($order->budget_status, config('constants.BUDGET_STATUS_APPROVED_')) && !$order->is_order)
+					<a href="{{ route('orders.order-from-budget', $order) }}" class="btn btn-warning btn-confirm" data-msg="{!! trans('textos.pedido_confirm_generar') !!}">
+						<i class="fa fa-shopping-cart"></i>
+						{!! ucfirst(trans('textos.pedido_generar')) !!}
+					</a>
+				@endif
+			@endcan
+		@endif
+
+		{{-- Acceso a pedido --}}
+		@if($module_orders)
+			@can('orders.edit')
+				@if($order->is_order)
+					<a target="_blank" href="{{ route('orders.edit', $order) }}" class="btn btn-info">
+						<i class="fa fa-shopping-cart"></i>
+						{!! ucfirst(trans('textos.pedido')) !!}
+					</a>
+				@endif
+			@endcan
+		@endif
+
+		{{-- Generar proyecto / link a proyecto - condiciones: 
+			1. Estar activo el módulo de Proyectos.
+			2. Disponer de permisos para generar proyectos.
+			...
+		--}}
+		@if($module_projects)
+			{{-- Acceso a proyecto --}}
+			@if($project)
+				@can('projects.edit')
+					<a target="_blank" href="{{ route('projects.edit', $project->id) }}" class="btn btn-info">
+						<i class="fa fa-rocket"></i>
+						{!! ucfirst(trans('textos.proyecto')) !!}
+					</a>
+				@endcan
+
+			{{-- Vincular proyecto --}}
+			@else
+				@can('projects.create')
+					<a href="#" class="btn btn-warning" data-toggle="modal" data-target="#modal-add-project">
+						<i class="fa fa-rocket"></i>
+						{!! ucfirst(trans('textos.proyecto_vincular')) !!}
+					</a>
+				@endcan
+			@endif
+		@endif
+
+		{{-- Eliminar presupuesto - condiciones: 
+			1. Disponer de permisos.
+			2. Pedido facturado.
+		--}}
+		@can('budgets.destroy')
+        	@if(!$invoiced)
+	        	<form method="POST" action="{{ route('budgets.destroy', $order) }}" class="frm-inline" role="form" accept-charset="UTF-8">
+	                <input name="_method" type="hidden" value="DELETE">
+	                {{ csrf_field() }}
+	                <button type="submit" class="btn btn-danger frm-confirm" rel="tooltip" title="{{ ucfirst(trans('textos.presupuesto_eliminar')) }}" data-msg="{{ ucfirst(trans('textos.presupuesto_confirm_eliminar')) }}"><i class="fa fa-trash"></i></button>
+	            </form>
+	        @endif
+        @endcan
+	</div>
+</div>
+
+<input type="hidden" id="dtController" value="items">
+<input type="hidden" id="myEnvironment" value="budgets">
+
+<div class="row">
+	<div class="col-12">						
+		<div class="card mb-3">
+			<div class="card-body">
+				{{-- Componente importe presupuesto flotante: --}}
+				@php
+				$order_amount_without_discount = $order->discount > 0? number_format($order_amount_without_discount, 2):false;
+				@endphp
+
+				@livewire('budget-amount', ['budget_amount' => $order_amount, 'currency' => $currency->symbol, 'budget_amount_without_discount' => $order_amount_without_discount, 'environment' => 'budgets'])
+
+				<h3 class="mb-3">
+					{!! ucfirst(trans('textos.presupuesto')) !!} 
+					<u>
+						@if($order->budget_num)
+							{{ $order->budget_num }}
+						@else
+							{{ $order->id }}
+						@endif
+
+						@if($order->name)
+							- {{ $order->name }}
+						@endif
+					</u>
+				</h3>	
+
+				{{-- Info --}}
+				<div class="mb-3">
+					{{-- Cliente --}}
+					@include('admin.orders.partials.data-customer')
+
+					{{-- Proveedor --}}
+					@include('admin.orders.partials.data-provider')
+
+					{{-- Cliente Final --}}
+					@if($final_customer)
+						<label class="mr-5">
+						{!! ucfirst(trans('textos.cliente_final')) !!}: 
+						<b>{{ $final_customer->name }}</b>
+					</label>
+					@endif
+
+					{{-- Fecha alta --}}
+					<label class="mr-5">
+						{!! ucfirst(trans('textos.fecha_alta')) !!}: 
+						<b>
+							{{ $order->created_at->format($languages[session()->get('locale')][4].' H:i:s') }}
+						</b>
+					</label>
+
+					{{-- Fecha última actualización --}}
+					<label class="mr-5">
+						{!! ucfirst(trans('textos.ultima_edicion')) !!}: 
+						<b>
+							{{ $order->updated_at->format($languages[session()->get('locale')][4].' H:i:s') }}
+						</b>
+					</label>
+
+					{{-- Importe --}}
+					<label class="mr-5">
+						@livewire('budget-amount-mini', ['budget_amount' => $order_amount, 'currency' => $currency->symbol])
+					</label>
+
+					{{-- Modalidad --}}
+					<label class="mr-5">
+						{{ ucfirst(trans('textos.modalidad')) }}:
+  					    <b>@if($order->modality) {!! App\Helpers\helpers::budgetModalities($order->modality) !!} @endif</b>
+					</label>
+
+					{{-- Descuento aplicado --}}
+					@if(!$order || ($order && !$order->invoiced))
+						@php
+						$remove_discount = !$invoiced? true:false;
+						@endphp
+						@include('admin.orders.partials.data-discount-applied', ['return' => 'budgets', 'remove_discount' => $remove_discount])
+					@endif
+
+					{{-- Pedido --}}
+					@include('admin.orders.partials.link-order')
+
+					{{-- Proyecto --}}
+					@include('admin.orders.partials.link-project')
+				</div>
+
+				{{-- Tabs: --}}
+				<ul class="nav nav-tabs" role="tablist">
+					<li class="nav-item @if(!$tab) active @endif">
+			    		<a class="nav-link @if(!$tab) active @endif" href="#tab-info" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.presupuesto_cabecera')) !!}</a>
+			  		</li>
+
+			  		<li class="nav-item @if($tab == 'items') active @endif">
+			  			<a class="nav-link @if($tab == 'items') active @endif" href="#tab-items" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.lineas')) !!}</a>	
+			  		</li>
+
+			  		<li class="nav-item @if($tab == 'comments') active @endif">
+			  			<a class="nav-link @if($tab == 'comments') active @endif" href="#tab-comments" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.notas')) !!}</a>	
+			  		</li>
+
+			  		@if($order->provider_id == session('currentCompany'))
+				  		<li class="nav-item @if($tab == 'template') active @endif">
+				    		<a class="nav-link @if($tab == 'template') active @endif" href="#tab-budget-template" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.plantilla')) !!}</a>
+				  		</li>
+				  	@endif
+				</ul>
+
+				<div class="tab-content pt-4">
+					{{-- Cabecera: --}}
+					<div class="tab-pane fade @if(!$tab) show active @endif" role="tabpanel" id="tab-info">
+						@include('admin.budgets.partials.budget-info')	
+					</div>
+
+					{{-- Items: --}}
+					<div class="tab-pane fade @if($tab == 'items') show active @endif" role="tabpanel" id="tab-items">
+						@include('admin.budgets.partials.budget-items')	
+					</div>
+
+					{{-- Notas: --}}
+					<div class="tab-pane fade @if($tab == 'comments') show active @endif" role="tabpanel" id="tab-comments">
+						@include('admin.budgets.partials.budget-comments')	
+					</div>
+
+					{{-- Plantilla del presupuesto: --}}
+					@if($order->provider_id == session('currentCompany'))
+						<div class="tab-pane fade @if($tab == 'template') show active @endif" role="tabpanel" id="tab-budget-template">
+							@include('admin.budgets.partials.budget-template')	
+						</div>
+					@endif
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+{{-- Modals: --}}
+{{-- New manager: --}}
+@include('admin.budgets.partials.modal-new-customer-manager', ['return_view' => 'edit'])
+
+{{-- New items block --}}
+@include('admin.budgets.partials.modal-add-block')
+
+{{-- Discount --}}
+@include('admin.orders.partials.modal-discount', ['return' => 'budgets'])
+
+{{-- Add Project --}}
+@can('projects.create')
+	@include('admin.projects.partials.modal-add-project')
+@endcan
+
+{{-- Copy budget --}}
+@can('budgets.create')
+	@include('admin.budgets.partials.modal-copy')
+@endcan
+
+{{-- Modify customer --}}
+@if(!$order || $order->percentage_invoiced == 0)
+	@include('admin.orders.partials.modal-set-customer', ['environment_' => 'budgets'])	
+@endif
+
+{{-- Modify provider --}}
+@include('admin.budgets.partials.modal-change-provider')
+
+{{-- Add item --}}
+@include('admin.orders.partials.modal-add-item', ['environment_' => 'budgets', 'modality' => $order->modality])
+
+{{-- Edit item --}}
+@include('admin.orders.partials.modal-edit-item', ['environment_' => 'budgets'])
+
+{{-- See catalogue --}}
+@include('admin.orders.partials.modal-see-catalogue')
+
+{{-- Budget modality --}}
+@if(!$order->modality)
+	@include('admin.budgets.partials.modal-modality')	
+@endif
+
+{{-- Set items without form block --}}
+@if($blocks)
+	@include('admin.budgets.partials.modal-set-block')
+@endif
+
+@push('scripts')
+<script>
+$(function(){
+	//Condición sobre aplicación de descuento.
+	$('.discount-amount').on('change', function(){
+		$('.discount-percent').val('');	
+	});
+	$('.discount-percent').on('change', function(){
+		$('.discount-amount').val('');	
+	});
+
+	//Selector de versión de presupuesto.
+    $('.budget-versions select').on('change', function(event){
+        var id = event.target.value;
+        if(id != ''){
+        	window.location.href = '/admin/budgets/'+id+'/edit';
+        }else{
+        	return false;
+        }
+    });
+});
+</script>
+@endpush
+
+@endsection
