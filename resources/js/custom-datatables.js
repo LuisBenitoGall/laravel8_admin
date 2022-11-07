@@ -1487,6 +1487,7 @@ $(document).ready(function(){
         });
         
         var tableCustomers = $('#tblCustomers').DataTable({
+            order: [[ 0, "desc" ]],
             serverSide: true,
             processing: true,
             ajax: {

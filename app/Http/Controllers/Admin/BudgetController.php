@@ -39,6 +39,7 @@ use App\Models\Project;
 use App\Models\ProjectOrders;
 use App\Models\User;
 use App\Models\UserCompanies;
+use App\Models\UserWorkplaces;
 use App\Models\Workplace;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -74,6 +75,7 @@ class BudgetController extends Controller{
      * 24. Aceptar presupuesto por parte del cliente.
      * 25. Cancelar presupuesto por parte del cliente.
      * 26. Importar presupuesto de proveedor.
+     * 27. Vincular presupuesto de proveedor primero.
      */
     
     private $option = 'presupuestos';
@@ -90,7 +92,7 @@ class BudgetController extends Controller{
 
         $this->middleware('module_setted:budgets');
         $this->middleware('order_get', ['only' => ['edit', 'update', 'destroy', 'resetNum', 'removeOcDoc', 'createOrder', 'removeTemplate', 'print', 'modify', 'updateTemplate']]);
-        $this->middleware('order_post', ['only' => ['addManager', 'updateComments', 'setProvider', 'setModality', 'copy', 'setBlock']]);
+        $this->middleware('order_post', ['only' => ['addManager', 'updateComments', 'setProvider', 'setModality', 'copy', 'setBlock', 'linkProviderBudget']]);
     }
 
     //0. Validator:
@@ -166,7 +168,14 @@ class BudgetController extends Controller{
             ],[
                 'modality.required_without' => trans('textos.presupuesto_modalidad_aviso'),
                 'form_id.required_if' => trans('textos.formulario_presupuesto_obligatorio')
-            ]);   
+            ]);  
+
+        //Validación vincular presupuesto proveedor primero:
+        }elseif(isset($data['submit_link'])){
+            return Validator::make($data, [
+                'order_id' => 'required|integer',
+                'budget_id' => 'required|integer'
+            ]);
         }
     }
 
@@ -380,7 +389,7 @@ class BudgetController extends Controller{
                         'budget_form_item_id' => $item->id, 
                         'concept' => $item->Product, 
                         'qty' => $item->qty_min, 
-                        'price' => $item->price, 
+                        'price' => $item->calculated_by_percent? $item->calculated_by_percent:$item->price, 
                         'item_no_price' => NULL, 
                         'iva' => $item->iva, 
                         'discount' => $item->discount, 
@@ -470,6 +479,15 @@ class BudgetController extends Controller{
         //Sedes del proveedor, para facturación:
         $provider_workplaces = Workplace::where('company_id', $order->provider_id)
         ->get();
+
+        //Sede del provider_manager:
+        $provider_workplace = false;
+        if(!$order->provider_workplace_id){
+            $provider_workplace = UserWorkplaces::select('workplace_id')
+            ->where('user_id', $order->provider_manager_id)
+            ->orderBy('id', 'DESC')
+            ->first();
+        }
 
         //Centros de coste del proveedor:
         $provider_cost_centers = CostCenters::where('company_id', $order->provider_id)
@@ -623,9 +641,35 @@ class BudgetController extends Controller{
             ->toArray();
         }
 
+        //Info del proveedor primero:
+        $first_provider = $order->first_provider_order? Order::select('orders.id', 'companies.name')
+        ->join('companies', 'orders.provider_id', '=', 'companies.id')
+        ->where('orders.id', $order->first_provider_order)
+        ->first():false;
+
+        //Presupuesto vinculado del cliente:
+        $my_linked_budget = false;
+        if($order->customer_id == session('currentCompany')){
+            $my_linked_budget = Order::select('id', 'budget_num')
+            ->where('first_provider_order', $order->id)
+            ->first();
+        }
+
+        //Presupuestos vinculables. Obtenemos los presupuestos que el proveedor ha recibido de un proveedor primero con destino como cliente final el cliente presente.
+        $linkable_budgets = [];
+        if($order->provider_id == session('currentCompany')){
+            $linkable_budgets = Order::select(DB::raw("CONCAT(budget_num, ' - ', name) AS budget"), 'id')
+            ->where('is_budget', true)
+            ->where('customer_id', $order->provider_id)
+            ->where('final_customer_id', $order->customer_id)
+            ->whereNull('first_provider_order')
+            ->pluck('budget', 'id')
+            ->toArray();
+        }
+
         $languages = $this->languages;
 
-        //Cambios bloqueados: establecer en función de parámetros por definir que opciones quedan bloqueadas.
+        //Cambios bloqueados: establecer en función de parámetros por definir qué opciones quedan bloqueadas.
         $permitted = true;
 
         //Módulos activos:
@@ -633,7 +677,7 @@ class BudgetController extends Controller{
         $module_products = $this->settedModule('products');
         $module_projects = $this->settedModule('projects');
 
-        return view('admin.budgets.edit')->with(compact('header', 'order', 'tab', 'invoiced', 'invoices', 'patterns', 'versions', 'order_amount', 'order_amount_without_discount', 'provider', 'provider_managers', 'provider_settings', 'provider_workplaces', 'provider_cost_centers', 'provider_business_areas', 'customer', 'final_customer', 'customer_managers', 'customer_workplaces', 'customer_cost_centers', 'customer_business_areas', 'final_customers', 'customers', 'customer_settings', 'forms', 'products', 'projects', 'project', 'blocks', 'currency', 'templates', 'budget_from', 'customer_budgets', 'languages', 'permitted', 'module_orders', 'module_products', 'module_projects'));
+        return view('admin.budgets.edit')->with(compact('header', 'order', 'tab', 'invoiced', 'invoices', 'patterns', 'versions', 'order_amount', 'order_amount_without_discount', 'provider', 'provider_managers', 'provider_settings', 'provider_workplaces', 'provider_workplace', 'provider_cost_centers', 'provider_business_areas', 'customer', 'final_customer', 'customer_managers', 'customer_workplaces', 'customer_cost_centers', 'customer_business_areas', 'final_customers', 'customers', 'customer_settings', 'forms', 'products', 'projects', 'project', 'blocks', 'currency', 'templates', 'budget_from', 'customer_budgets', 'first_provider', 'my_linked_budget', 'linkable_budgets', 'languages', 'permitted', 'module_orders', 'module_products', 'module_projects'));
     }
 
     /**
@@ -1557,6 +1601,27 @@ class BudgetController extends Controller{
 
         $msg = trans('textos.presupuesto_importado');
         return redirect()->route('budgets.edit', $budget->id)->with(compact('msg'));
+    }
+
+    /**
+     * 27. Vincular presupuesto de proveedor primero.
+     */
+    public function linkProviderBudget(Request $request){
+        $validator = $this->validator($request->all());
+        if($validator->fails()){
+            //Indicamos el origen de la acción realizada para manejar el modal:
+            $validator->getMessageBag()->add('accion', 'modal-first-provider');
+
+            return redirect('/admin/budgets/'.$request->order_id.'/edit')
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        Order::where('id', $request->order_id)
+        ->update(['first_provider_order' => $request->budget_id]);
+
+        $msg = trans('textos.presupuesto_proveedor_vinculado');
+        return redirect()->route('budgets.edit', $request->order_id)->with(compact('msg'));
     }
 
 }

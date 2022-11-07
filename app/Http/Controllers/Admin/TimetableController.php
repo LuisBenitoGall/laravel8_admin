@@ -363,7 +363,7 @@ class TimetableController extends Controller{
         $timetable->save();
 
         $msg = trans('textos.registro_horario_updated');
-        return redirect()->route('users.timetables', $timetable->user_id)->with(compact('msg'));
+        return redirect()->route('users.timetables', [$timetable->user_id, $timetable->date])->with(compact('msg'));
     }
 
     /**

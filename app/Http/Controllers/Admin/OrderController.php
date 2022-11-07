@@ -805,8 +805,6 @@ class OrderController extends Controller{
             $order_amount_without_discount = $arr_amounts['amount_without_discount'];
         } 
 
-        //dd($order_amount);
-
         //Agrupaciones de pedidos:
         $order_groups = Order::select('orders.id', 'orders.order_num', 'orders.name')
         ->where('orders.provider_id', session('currentCompany'))
@@ -1105,11 +1103,45 @@ class OrderController extends Controller{
                         $op->percent = $request->percent[$i];
                         $op->save();
                     }
+                }
+            }
 
-                    //Sincronizando previsión de facturación entre proveedor y cliente cuando existe cliente final:
-                    if($order->final_customer_id){
+            //Sincronizando previsión de facturación entre proveedor y cliente si el pedido está vinculado a otro pedido de proveedor y entre ambas empresas hay sincronización de facturaciones:
+            if($order->first_provider_order){
+                //Pedido del proveedor primero.
+                $first_provider_order = Order::select('id', 'is_order', 'provider_id', 'customer_id', 'final_customer_id')
+                ->find($order->first_provider_order);
 
-                    }
+                if($first_provider_order && $first_provider_order->is_order){
+                    //Comprobamos que cliente y proveedor tenga habilitada la sincronización de previsiones de facturación.
+                    $customer_settings = CustomerProviders::select('syncro_invoice')
+                    ->where('customer_id', $first_provider_order->customer_id)
+                    ->where('provider_id', $first_provider_order->provider_id)
+                    ->first();
+
+                    if($customer_settings && $customer_settings->syncro_invoice){
+                        //Previsiones del cliente aún no facturadas:
+                        $customer_previsions = OrderPrevisions::where('order_id', $order->id)
+                        ->whereNull('invoice_id')
+                        ->get();
+
+                        if($customer_previsions->count()){
+                            //Eliminamos las previsiones no facturadas del proveedor primero:
+                            OrderPrevisions::where('order_id', $first_provider_order->id)
+                            ->whereNull('invoice_id')
+                            ->delete();
+
+                            //Guardamos las nuevas previsiones:
+                            foreach($customer_previsions as $cp){
+                                $op_ = new OrderPrevisions();
+                                $op_->order_id = $first_provider_order->id;
+                                $op_->year = $cp->year;
+                                $op_->month = $cp->month;
+                                $op_->percent = $cp->percent;
+                                $op_->save();
+                            }
+                        }
+                    }                            
                 }
             }
         }

@@ -83,7 +83,7 @@ class BudgetItem extends Component
         //Bloqueo de factura. Se pueden agregar o eliminar items de un presupuesto si la factura o facturas no están todas bloqueadas.
         $this->add_items = false;
         $invoices = Invoice::select('blocked')->where('order_id', $order->id)->get();
-        if ($invoices->count()) {
+        if($invoices->count()){
             foreach ($invoices as $inv) {
                 if ($inv->blocked == 0) {
                     $this->add_items = true;
@@ -103,8 +103,7 @@ class BudgetItem extends Component
     /**
      * 1. Render componente.
      */
-    public function render()
-    {
+    public function render(){
         //Moneda:
         $this->currency = CompanySettings::co_currency(0);
 
@@ -155,8 +154,7 @@ class BudgetItem extends Component
     /**
      * 2. Guardar registro.
      */
-    public function store()
-    {
+    public function store(){
         $this->validate();
 
         if ($this->concept) {
@@ -175,7 +173,7 @@ class BudgetItem extends Component
 
             //Precio porcentual:
             if ($this->calculated_by_percent) {
-                $price = NULL;
+                $price = $this->calculated_by_percent;
             }
 
             //Descuento por jornadas continuas. El valor de days_continue_discount depende de que days_continue == 1, y del valor que tengan asignado el campo labor_journeys de la tabla budget_forms:
@@ -283,8 +281,7 @@ class BudgetItem extends Component
     /**
      * 3. Añadir item desde bloque.
      */
-    public function addItem($item)
-    {
+    public function addItem($item){
         $this->resetForm();
 
         //Acción del formulario:
@@ -324,16 +321,14 @@ class BudgetItem extends Component
     /**
      * 4. Select 2.
      */
-    public function hydrate()
-    {
+    public function hydrate(){
         $this->emit('select2_lw');
     }
 
     /**
      * 5. Editar item.
      */
-    public function editItem($item)
-    {
+    public function editItem($item){
         //Acción del formulario:
         $this->action = 'update';
         $this->rowId = $item;
