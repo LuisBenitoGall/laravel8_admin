@@ -972,6 +972,9 @@ Route::prefix('v1')->namespace('Api')->group(function () {
                 WorkOrderBatchesController::class,
                 'store',
             ])->name('work-orders.batches.store');
+
+            // Device Push
+            Route::apiResource('device-pushes', DevicePushController::class);
         });
 
     /**
@@ -982,4 +985,3 @@ Route::prefix('v1')->namespace('Api')->group(function () {
 
 });
 
-https://laravel8_admin.app/auth/callback
