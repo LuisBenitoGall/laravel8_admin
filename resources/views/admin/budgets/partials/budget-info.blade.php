@@ -209,6 +209,7 @@ $readonly = $order->customer_id == session('currentCompany')? true:false;
 				@php
 				$provider_workplaces_ = [];
 				$disabled = $order->customer_id == session('currentCompany')? true:false;
+				$workplace_selected = $order->provider_workplace_id? $order->provider_workplace_id:($provider_workplace? $provider_workplace->workplace_id:'');
 				@endphp
 
 				@foreach($provider_workplaces as $pw)
@@ -217,7 +218,7 @@ $readonly = $order->customer_id == session('currentCompany')? true:false;
 					@endphp	
 				@endforeach
 
-				<x-select name="provider_workplace_id" class="select2" :options="$provider_workplaces_" label="centro_trabajo_selec" value="{{ $order->provider_workplace_id }}" disabled="{{ $disabled }}"/>
+				<x-select name="provider_workplace_id" class="select2" :options="$provider_workplaces_" label="centro_trabajo_selec" value="{{ $workplace_selected }}" disabled="{{ $disabled }}"/>
 
 			@elseif($provider_workplaces->count() == 1)
 				<input type="hidden" name="provider_workplace_id" value="{{ $provider_workplaces[0]->id }}">

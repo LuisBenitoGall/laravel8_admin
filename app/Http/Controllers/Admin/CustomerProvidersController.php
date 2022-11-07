@@ -156,15 +156,15 @@ class CustomerProvidersController extends Controller{
         $join = 'customers';
 
         return DataTables::of($data)
-        // ->addColumn('name', function($row){
-        //     return $row->name; 
-        // })
-        // ->addColumn('tradename', function($row){
-        //     return $row->tradename; 
-        // })
-        // ->addColumn('nif', function($row){
-        //     return $row->nif; 
-        // })
+        ->addColumn('name', function($row){
+            return $row->name; 
+        })
+        ->addColumn('tradename', function($row){
+            return $row->tradename; 
+        })
+        ->addColumn('nif', function($row){
+            return $row->nif; 
+        })
         ->addColumn('acciones', function($row) use($join){
             return view('admin.customer_providers.partials.dt-actions', compact('row', 'join'));    
         })
@@ -408,11 +408,11 @@ class CustomerProvidersController extends Controller{
      * 8. Obtener info de empresas por criterio.
      */
     private function getCompaniesData($join, $condition){
-        $data = CustomerProviders::select('customer_providers.id AS cp_id', 'customer_providers.ba_id', 'customer_providers.workplace_id', 'customer_providers.cc_id', 'customer_providers.discount', 'customer_providers.credit_risk', 'customer_providers.budget_access', 'customer_providers.status AS cp_status', 'companies.id', 'companies.name', 'companies.tradename', 'companies.logo', 'companies.nif', 'company_accounts.guardian', 'company_accounts.status')
+        $data = CustomerProviders::select('customer_providers.id AS cp_id', 'customer_providers.ba_id', 'customer_providers.workplace_id', 'customer_providers.cc_id', 'customer_providers.discount', 'customer_providers.credit_risk', 'customer_providers.budget_access', 'customer_providers.syncro_invoice', 'customer_providers.status AS cp_status', 'companies.id', 'companies.name', 'companies.tradename', 'companies.logo', 'companies.nif', 'company_accounts.guardian', 'company_accounts.status')
         ->join('companies', 'customer_providers.'.$join, '=', 'companies.id')
         ->leftJoin('company_accounts', 'companies.id', '=', 'company_accounts.company_id')
-        ->where('customer_providers.'.$condition, session('currentCompany'))
-        ->get();
+        ->where('companies.id', '!=', session('currentCompany'))
+        ->where('customer_providers.'.$condition, session('currentCompany'));
 
         //Array de empresas asociadas al usuario en sesión:
         $companies = [];
@@ -796,6 +796,7 @@ class CustomerProvidersController extends Controller{
         $cp->discount = $request->discount;
         $cp->credit_risk = $request->credit_risk;
         $cp->budget_access = $request->budget_access? true:false;
+        $cp->syncro_invoice = $request->syncro_invoice? true:false;
         $cp->save();
 
         $msg = trans('textos.cliente_updated');

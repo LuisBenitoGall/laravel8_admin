@@ -1,18 +1,24 @@
 @php
-    //Estados de líneas de presupuesto sin importe
-    $statusBudgetLinesNoPrice = App\Helpers\helpers::statusBudgetLinesWithoutPrice();
+//Estados de líneas de presupuesto sin importe
+$statusBudgetLinesNoPrice = App\Helpers\helpers::statusBudgetLinesWithoutPrice();
 
-    //Comprobamos que las líneas de presupuesto tipo formulario pertenezcan a algún bloque:
-    $setBlock = 1;
+//Comprobamos que las líneas de presupuesto tipo formulario pertenezcan a algún bloque:
+$setBlock = 1;
 
-    //Bloqueo de modificación de items:
-    $permitted = !$order || ($order && $add_items && !$order->parent)? true:false;
+//Bloqueo de modificación de items:
+$permitted = !$order || ($order && $add_items && !$order->parent)? true:false;
 @endphp
 
 <div class="row">
     {{-- Bloques --}}
     @if($blocks)
         <div class="col-md-12 col-lg-3 col-xl-2 mb-4">
+            {{-- Ordenar bloques --}}
+            <a href="#" class="btn btn-info no-spinner" data-toggle="modal"
+               data-target="#modal-sort-blocks" rel="tooltip" title="{{ trans('textos.bloques_ordenar') }}">
+                <i class="fa fa-sort-alpha-down"></i>
+            </a>
+
             {{-- Agregar nuevo bloque: sólo si el pedido no está facturado 100% --}}
             {{-- @if(!$order || $order->percentage_invoiced < 100) --}}
             <a href="#" class="btn btn-warning ml-5 float-right no-spinner" data-toggle="modal"
@@ -26,13 +32,13 @@
             @if($blocks->count())
                 <div id="accordion" class="mt-3" role="tablist">
                     @php
-                        $i = 1;
-                        $totalAmount = 0;
+                    $i = 1;
+                    $totalAmount = 0;
                     @endphp
 
                     @foreach($blocks as $block)
                         @php
-                            $blockAmount = 0;
+                        $blockAmount = 0;
                         @endphp
 
                         <div class="card">
@@ -46,6 +52,13 @@
                                                 {{ ucfirst($block->name) }}
                                             </a>
                                         </h4>
+
+                                        {{-- Los bloques introducidos manualmente pueden modificar el nombre --}}
+                                        @if(!$block->form_id)
+                                            <a href="#" class="editBlockName" rel="tooltip" title="{{ ucfirst(trans('textos.editar')) }}" data-toggle="modal" data-target="#modal-edit-block" data-id="{{ $block->id }}" data-name="{{ $block->name }}">
+                                                <i class="fa fa-edit"></i>
+                                            </a>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -118,7 +131,7 @@
                         <input type="hidden" class="blockSubtotal" data-bst="{{ $i }}" value="{{ $blockAmount }}">
 
                         @php
-                            $i++;
+                        $i++;
                         @endphp
                     @endforeach
                 </div>
@@ -321,34 +334,34 @@
                 @foreach($blocks as $block)
                     {{-- Componemos previamente el html --}}
                     @php
-                        $block_title = 0;
-                        $first_item = true;
-                        $k = 1;     //Contador para la ordenación de items;
+                    $block_title = 0;
+                    $first_item = true;
+                    $k = 1;     //Contador para la ordenación de items;
 
-                        //Calculamos el importe total a partir de las líneas con precio fijo, sin considerar las líneas con importe porcentual
-                        $amountWithoutPercentItems = 0;
-                        $totalAmountWithoutDiscounts = 0;   //Importe sin considerar los descuentos aplicados en los items.
+                    //Calculamos el importe total a partir de las líneas con precio fijo, sin considerar las líneas con importe porcentual
+                    $amountWithoutPercentItems = 0;
+                    $totalAmountWithoutDiscounts = 0;   //Importe sin considerar los descuentos aplicados en los items.
                     @endphp
 
                     @foreach($items_selected as $is)
                         {{-- Seteamos $setBlock si la línea NO pertenece a ningún bloque de formulario --}}
                         @if(!$is->budget_form_block_id)
                             @php
-                                $setBlock = '0';
+                            $setBlock = '0';
                             @endphp
                         @endif
 
                         {{-- Indicamos orden si no viene declarado --}}
                         @if(!$is->budget_order)
                             @php
-                                !$is->budget_order = $k;
+                            !$is->budget_order = $k;
                             @endphp
                         @endif
 
                         {{-- Líneas de template de presupuesto --}}
                         @if($block->id == $is->budget_form_block_id)
                             @php
-                                $block_title++;
+                            $block_title++;
                             @endphp
 
                             {{-- Mostrando título e importe del bloque --}}
@@ -359,6 +372,11 @@
                                         <span
                                             class="block-amount ml-4 text-warning">{{ $amount_by_blocks[$block->id] }}{{ $currency->symbol }}</span>
                                     </h3>
+
+                                    {{-- Duplicar bloque --}}
+                                    <a href="{{ route('items.copy-block', [$order->id, $block->id]) }}" class="text-warning btn-confirm btnCopyBlock" data-msg="{{ trans('textos.bloque_duplicar_confirm') }}" rel="tooltip" title="{{ ucfirst(trans('textos.bloque_duplicar')) }}">
+                                        <i class="fa fa-copy"></i>
+                                    </a>
                                 </div>
                             @endif
 
@@ -521,102 +539,111 @@
         @endif
     </div>
 
+    {{-- Modals --}}
+    {{-- Sort blocks --}}
+    @include('admin.budgets.partials.modal-sort-blocks')
+
     <script>
-        //Sentencia para poder utilizar JQuery con Livewire:
-        document.addEventListener('DOMContentLoaded', function () {
-            // Modal por si existen líneas que no pertenecen a ningún bloque de formulario:
-            var set_block = '{!! $setBlock !!}';
-            if (set_block == '0') {
-                $('#modal-set-block').modal({
-                    backdrop: 'static',
-                    keyboard: false,
-                    toggle: true
-                });
-            }
-
-            // Nuevo item manual:
-            $('.btnAddBudgetItem').on('click', function () {
-                //Cancelar:
-                if ($('.btnAddBudgetItem').hasClass('opened')) {
-                    $('.new-budget-item').slideUp();
-                    $('.btnAddBudgetItem').removeClass('opened').html('<i class="fa fa-plus"></i> ' + txtLineaAdd);
-                    $('#newItemObservations').trumbowyg("html", '');
-                    @this.
-                    set('form_on', false);
-
-                    //Abrir:
-                } else {
-                    $('.new-budget-item').slideDown();
-                    //Modo para esconder el formulario:
-                    $('.btnAddBudgetItem').addClass('opened').html('<i class="fa fa-minus"></i> ' + txtCancelar);
-                    @this.
-                    set('form_on', true);
-                }
+    //Sentencia para poder utilizar JQuery con Livewire:
+    document.addEventListener('DOMContentLoaded', function () {
+        // Modal por si existen líneas que no pertenecen a ningún bloque de formulario:
+        var set_block = '{!! $setBlock !!}';
+        if (set_block == '0') {
+            $('#modal-set-block').modal({
+                backdrop: 'static',
+                keyboard: false,
+                toggle: true
             });
+        }
 
-            //Acción del formulario al editar o agregar línea desde bloque:
-            $(document).on('click', '.addBudgetItem, .btnEditBudgetItem', function () {
-                $('.new-budget-item').slideDown();
-                $("#itemForm").css({
-                    'display': 'block'
-                });
-                //Modo para esconder el formulario:
-                $('.btnAddBudgetItem').addClass('opened').html('<i class="fa fa-minus"></i> ' + txtCancelar);
-                $('html, body').animate({scrollTop: 290}, 1000);
-            });
-
-            //Cerrar formulario tras store o update:
-            $('#closeForm').on('click', function () {
+        // Nuevo item manual:
+        $('.btnAddBudgetItem').on('click', function () {
+            //Cancelar:
+            if ($('.btnAddBudgetItem').hasClass('opened')) {
                 $('.new-budget-item').slideUp();
                 $('.btnAddBudgetItem').removeClass('opened').html('<i class="fa fa-plus"></i> ' + txtLineaAdd);
+                $('#newItemObservations').trumbowyg("html", '');
                 @this.
                 set('form_on', false);
-            });
 
-            // Select2:
-            $('.select2_lw').select2();
-            $('.select2_lw').on('change', function (e) {
-                var block = $(this).select2('val');
+                //Abrir:
+            } else {
+                $('.new-budget-item').slideDown();
+                //Modo para esconder el formulario:
+                $('.btnAddBudgetItem').addClass('opened').html('<i class="fa fa-minus"></i> ' + txtCancelar);
                 @this.
-                set('block', block);
-            });
-
-            //Modificar valor dinámicamente en Select2:
-            window.initSelect2 = () => {
-                jQuery("#newItemBlock").select2({
-                    minimumResultsForSearch: 2,
-                    allowClear: false,
-                    width: '100%'
-                });
+                set('form_on', true);
             }
-            initSelect2();
-            window.livewire.on('select2_lw', () => {
-                initSelect2();
-            });
-
-            //Selector opciones item sin precio:
-            $('.btnOptionsWithoutPrice').on('click', function () {
-                $('.optionsWithoutPrice').fadeIn();
-            });
-            $('.close-line-status').on('click', function () {
-                $('.optionsWithoutPrice').fadeOut();
-            });
-            $('#lineNoPrice').on('change', function () {
-                var text = $('#lineNoPrice option:selected').text();
-                @this.
-                set('price', text);
-            });
-
-            //Actualizar el modelo con el editor trumbowyg
-            window.addEventListener('observations-value', (event) => {
-                $('#newItemObservations').trumbowyg("html", event.detail.observations);
-            });
-            //Pasando valor al controller:
-            $('#newItemObservations').on('tbwchange', function (e) {
-                @this.
-                set('observations', e.target.value)
-            });
-
         });
+
+        //Acción del formulario al editar o agregar línea desde bloque:
+        $(document).on('click', '.addBudgetItem, .btnEditBudgetItem', function () {
+            $('.new-budget-item').slideDown();
+            $("#itemForm").css({
+                'display': 'block'
+            });
+            //Modo para esconder el formulario:
+            $('.btnAddBudgetItem').addClass('opened').html('<i class="fa fa-minus"></i> ' + txtCancelar);
+            $('html, body').animate({scrollTop: 290}, 1000);
+        });
+
+        //Cerrar formulario tras store o update:
+        $('#closeForm').on('click', function () {
+            $('.new-budget-item').slideUp();
+            $('.btnAddBudgetItem').removeClass('opened').html('<i class="fa fa-plus"></i> ' + txtLineaAdd);
+            @this.
+            set('form_on', false);
+        });
+
+        // Select2:
+        $('.select2_lw').select2();
+        $('.select2_lw').on('change', function (e) {
+            var block = $(this).select2('val');
+            @this.
+            set('block', block);
+        });
+
+        //Modificar valor dinámicamente en Select2:
+        window.initSelect2 = () => {
+            jQuery("#newItemBlock").select2({
+                minimumResultsForSearch: 2,
+                allowClear: false,
+                width: '100%'
+            });
+        }
+        initSelect2();
+        window.livewire.on('select2_lw', () => {
+            initSelect2();
+        });
+
+        //Selector opciones item sin precio:
+        $('.btnOptionsWithoutPrice').on('click', function () {
+            $('.optionsWithoutPrice').fadeIn();
+        });
+        $('.close-line-status').on('click', function () {
+            $('.optionsWithoutPrice').fadeOut();
+        });
+        $('#lineNoPrice').on('change', function () {
+            var text = $('#lineNoPrice option:selected').text();
+            @this.
+            set('price', text);
+        });
+
+        //Actualizar el modelo con el editor trumbowyg
+        window.addEventListener('observations-value', (event) => {
+            $('#newItemObservations').trumbowyg("html", event.detail.observations);
+        });
+        //Pasando valor al controller:
+        $('#newItemObservations').on('tbwchange', function (e) {
+            @this.
+            set('observations', e.target.value)
+        });
+
+        //Ordenación de bloques:
+        $('#sort-blocks').sortable({
+            axis: "y"
+        });
+
+    });
     </script>
 </div>

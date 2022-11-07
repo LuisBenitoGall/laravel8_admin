@@ -15,6 +15,7 @@ use File;
 
 //Models:
 use App\Models\Attribute;
+use App\Models\BudgetFormItems;
 use App\Models\Category;
 use App\Models\Company;
 use App\Models\CompanySettings;
@@ -406,6 +407,10 @@ class ProductController extends Controller{
         $product->on_sale = $request->input('on_sale')? true:false;
         $product->status = $status;
         $product->save();
+
+        //Se actualiza el nombre del producto en los formularios de presupuestos que incluyan este producto:
+        BudgetFormItems::where('product_id', $product->id) 
+        ->update(['name' => $product->name]);
 
         $msg = trans('textos.producto_updated');
         return redirect()->route('products.edit', $product->id)->with(compact('msg'));

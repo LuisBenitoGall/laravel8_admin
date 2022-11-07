@@ -20,15 +20,24 @@ class OrderPrevisions extends Model{
 
     protected $table = 'order_previsions'; 
 
+    protected $fillable = ['order_id', 'year', 'month', 'percent'];
+
     /**
      * 1. Guardar previsión de facturación.
      */
     public static function store($order_id, $year = false, $percent = 100){
-        $op = new OrderPrevisions();
-        $op->order_id = $order_id;
-        $op->year = $year? $year:date('Y');
-        $op->percent = $percent;
-        $op->save();  
+        // $op = new OrderPrevisions();
+        // $op->order_id = $order_id;
+        // $op->year = $year? $year:date('Y');
+        // $op->percent = $percent;
+        // $op->save();  
+
+        if(!$year) $year = date('Y');
+
+        $op = OrderPrevisions::firstOrCreate(
+            ['order_id'=> $order_id],
+            ['order_id' => $order_id, 'year' => $year, 'percent' => $percent]
+        );
         
         return $op;  
     } 

@@ -29672,6 +29672,7 @@ ul li.rev .fa {
 .typeColor,
 .productForm,
 #addChangeRound,
+#economicBalanceWarning,
 #isUte,
 #setValues,
 #budgetForms,
@@ -29729,9 +29730,19 @@ ul li.rev .fa {
   background-color: rgba(0, 0, 0, 0.03);
   border-bottom: 1px solid rgba(111, 111, 111, 0.13);
 }
+.card-header h4 {
+  display: inline-block;
+  vertical-align: top;
+}
 .card-header h4 a {
   color: #33597E;
   display: block;
+}
+.card-header .editBlockName {
+  display: inline-block;
+  float: right;
+  padding-top: 1px;
+  vertical-align: top;
 }
 
 .card-body .budget-item {
@@ -29756,6 +29767,7 @@ ul li.rev .fa {
   margin-top: 15px;
 }
 .budget-items .block {
+  position: relative;
   margin-bottom: 10px;
 }
 .budget-items .block h3 {
@@ -29765,6 +29777,11 @@ ul li.rev .fa {
   font-weight: 600;
   margin-bottom: 5px;
   padding: 5px;
+}
+.budget-items .block .btnCopyBlock {
+  position: absolute;
+  right: 15px;
+  top: 5px;
 }
 .budget-items .block-item h5 {
   font-size: 0.9rem;
@@ -30592,6 +30609,23 @@ ul li.rev .fa {
 .preference .preference-delete i {
   font-size: 16px;
   margin-top: 0;
+}
+
+.custom-list {
+  margin: 0;
+  padding: 0;
+}
+.custom-list li {
+  border-radius: calc(0.25rem - 1px) calc(0.25rem - 1px) 0 0;
+  background-color: rgba(0, 0, 0, 0.03);
+  border-bottom: 1px solid rgba(111, 111, 111, 0.13);
+  color: #6b6b6b;
+  display: block;
+  padding: 8px 15px;
+}
+
+#sort-blocks li {
+  cursor: pointer;
 }
 
 /**

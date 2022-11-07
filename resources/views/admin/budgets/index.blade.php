@@ -30,7 +30,7 @@
 					<th class="wdt150">{!! ucfirst(trans('textos.presupuesto')) !!}</th>
 					<th class="wdt100">{!! ucfirst(trans('textos.pedido')) !!}</th>
 					<th class="text-center wdt100">{!! ucfirst(trans('textos.importe')) !!}</th>
-					<th class="wdt100">{!! ucfirst(trans('textos.modalidad')) !!}</th>
+					{{-- <th class="wdt100">{!! ucfirst(trans('textos.modalidad')) !!}</th> --}}
 					<th class="wdt200">
 						@if($budget_from == 'customers')
 							{!! ucfirst(trans('textos.responsable')) !!}
@@ -46,6 +46,9 @@
 							{!! ucfirst(trans('textos.proveedor')) !!}
 						@endif
 					</th>
+					@if($budget_from == 'customers')
+						<th class="wdt200">{!! ucfirst(trans('textos.cliente_final')) !!}</th>
+					@endif
 					<th class="wdt100">{!! ucfirst(trans('textos.estado')) !!}</th>
 					<th class="text-center wdt100">{!! ucfirst(trans('textos.acciones')) !!}</th>
 				</tr>
