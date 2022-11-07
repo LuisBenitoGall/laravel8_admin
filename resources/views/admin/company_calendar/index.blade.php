@@ -43,17 +43,22 @@
 
                             <x-select name="year" class="select2" id="calendarYear" label="selecciona_any" :options="$years" value="{{ $year }}"/>
 						</div>
+
+						<x-btn-submit name="submit_save" label="{{ trans('textos.buscar') }}" inline="false"/>
 					</div>
 
 					<div class="form-group row">
 						{{-- Por empresas --}}
-						<label for="companies" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.empresas')) !!} </label>
+						{{-- <label for="companies" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.empresas')) !!} </label>
 						<div class="col-lg-4">
 							<x-select name="companies[]" class="select2" :options="$companies" multiple/>
-						</div>
+						</div> --}}
 
-						<x-btn-submit name="submit_save" label="{{ trans('textos.buscar') }}" inline="true"/>
+						{{--  --}}
+						
 					</div>
+
+					
 				</form>
 			</div>
 		</div>

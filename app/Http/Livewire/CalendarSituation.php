@@ -64,7 +64,7 @@ class CalendarSituation extends Component{
 
         //Calendario de los usuarios:
         if($for_companies){
-            $this->workUserCalendar = WorkUserCalendar::
+            //$this->workUserCalendar = WorkUserCalendar::
             
         }else{
             $this->workUserCalendar = WorkUserCalendar::join('user_workplaces', 'work_user_calendars.user_id', '=', 'user_workplaces.user_id')
