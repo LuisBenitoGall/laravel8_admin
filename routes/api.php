@@ -72,7 +72,7 @@ use Illuminate\Support\Facades\Route;
 
 
 // ADMIN DATATABLES:
-/*Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('Admin')->group(function () {
+Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('Admin')->group(function () {
     //Accounts:
     Route::get('accounts', 'AccountController@getAccountsDT');
 
@@ -349,7 +349,7 @@ use Illuminate\Support\Facades\Route;
 
     //Workplaces:
     Route::get('workplaces/{company}/{business_relationship}', 'WorkplaceController@getWorkplacesDT');
-});*/
+});
 
 
 Route::prefix('v1')->namespace('Api')->group(function () {
@@ -969,9 +969,11 @@ Route::prefix('v1')->namespace('Api')->group(function () {
                 WorkOrderBatchesController::class,
                 'store',
             ])->name('work-orders.batches.store');
+
+            // Device Push
+            Route::apiResource('device-pushes', DevicePushController::class);
         });
 
 
 });
 
-https://laravel8_admin.app/auth/callback
