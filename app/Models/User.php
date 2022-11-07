@@ -345,4 +345,10 @@ class User extends Authenticatable
         return $this->hasMany(InvoiceSettings::class);
     }
 
+    public function devicePush()
+    {
+        return $this->hasOne(DevicePush::class);
+    }
+
+
 }

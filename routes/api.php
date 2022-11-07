@@ -974,6 +974,11 @@ Route::prefix('v1')->namespace('Api')->group(function () {
             ])->name('work-orders.batches.store');
         });
 
+    /**
+     * device push
+     */
+    Route::apiResource('device-pushes', DevicePushController::class);
+
 
 });
 
