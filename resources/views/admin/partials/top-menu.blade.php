@@ -234,6 +234,7 @@ if(!$initial_imports->value){
                                     </span>
                                 </a>
 
+                                {{-- Conceptos horarios --}}
                                 @if($timetable_items->count())
                                     <ul class="dropdown-menu dropdown-alerts" @if(!$agent->isDesktop() && !in_array($ip, $setted_ips)) style="right: -150px;" @endif>
                                         <li class="dm-header">
@@ -250,7 +251,7 @@ if(!$initial_imports->value){
                                                 @if($ti->type == $flag)
                                                     {{-- Omitimos los conceptos básicos para móvil si se han bloqueado por configuración --}}
                                                     {{-- && is_array($setted_ips) && in_array($ip, $setted_ips) --}}
-                                                    @if($ti->basic_item == 1 && $agent->isMobile() && !config('constants.BASIC_TIMETABLE_ITEMS_'))
+                                                    @if($ti->basic_item == 1 && !$agent->isDesktop() && !config('constants.BASIC_TIMETABLE_ITEMS_'))
                                                         @php
                                                         $seeConcept = 'oculto';
                                                         @endphp
@@ -296,9 +297,6 @@ if(!$initial_imports->value){
                                                     $seeConcept = '';
                                                     @endphp
                                                 @endif
-
-
-                                                {{-- Aquí código anterior en caso de fallar el refactoring --}}
                                             @endforeach
                                         @else
                                             {{ trans('textos.horarios_conceptos_sin') }}
