@@ -17,7 +17,13 @@ npm-debug.log
 yarn-error.log
 /.idea
 /.vscode
+/storage/json/contents.json
+/storage/json/content-images.json
+/storage/json/project-docs.json
 /storage/json/secondary-menu.json
+/storage/json/task-status.json
+/storage/json/tasks.json
+/storage/json/units.json
 /dbdata
 /laravel8_admin.rar
 
