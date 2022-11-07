@@ -44,6 +44,8 @@ class UserWorkplaces extends Model{
         ->where('employees.end_date', '>=', $to)
         ->first();
 
+        //var_dump($data);
+
         return $data;
     }
 }
