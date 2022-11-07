@@ -454,6 +454,9 @@ $setBlock = true;
 {{-- New items block --}}
 @include('admin.budgets.partials.modal-add-block')
 
+{{-- Edit items block --}}
+@include('admin.budgets.partials.modal-edit-block')
+
 {{-- Discount --}}
 @include('admin.orders.partials.modal-discount', ['return' => 'budgets'])
 
@@ -574,7 +577,16 @@ $(function(){
 
         	$('#budgetForms').slideDown();
         }
-    });    
+    });   
+
+    //Modal edición nombre de bloque:
+    $('.editBlockName').on('click', function(){
+    	var id = $(this).data('id');
+    	var name = $(this).data('name');
+
+    	$('#bfiId').val(id);
+    	$('#bfiName').val(name);
+    }); 
 });
 </script>
 @endpush

@@ -91,7 +91,8 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::post('budget-form-items/update', 'BudgetFormItemsController@update')->name('budget-form-items.update')->middleware('permission:budgets.edit');
     Route::delete('budget-form-items/{item}', 'BudgetFormItemsController@destroy')->name('budget-form-items.destroy')->middleware('permission:budgets.edit');
     Route::post('budget-form-items/add-block', 'BudgetFormItemsController@addBlock')->name('budget-form-items.add-block')->middleware('permission:budgets.edit');
-
+    Route::post('budget-form-items/update-block', 'BudgetFormItemsController@updateBlock')->name('budget-form-items.update-block')->middleware('permission:budgets.edit');
+    Route::post('budget-form-items/sort-blocks', 'BudgetFormItemsController@sortBlocks')->name('budget-form-items.sort-blocks')->middleware('permission:budgets.edit');
 
 
     Route::get('budget-form-items/fixed/{id}/{status}', 'BudgetFormItemsController@setFixed')->name('budget-form-items.fixed');
@@ -218,7 +219,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::delete('company-accounts/{account}', 'CompanyAccountsController@destroy')->name('company-accounts.destroy')->middleware('permission:companies.destroy');
 
     // Company Calendar:
-    Route::get('company-calendar/{workplace_id?}/{year?}', 'CompanyCalendarController@index')->name('company-calendar.index');
+    Route::get('company-calendar/{workplace_id?}/{year?}/{for_companies?}', 'CompanyCalendarController@index')->name('company-calendar.index');
     Route::post('company-calendar', 'CompanyCalendarController@calendarBy')->name('company-calendar.calendar-by');
 
     // Company Modules:
@@ -485,6 +486,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     // Items:
     Route::delete('items/{item}', 'ItemController@destroy')->name('items.destroy')->middleware('permission:orders.edit');
     Route::get('items/{item}/copy', 'ItemController@copy')->name('items.copy')->middleware('permission:budgets.edit');
+    Route::get('items/{order_id}/copy-block/{block_id}', 'ItemController@copyBlock')->name('items.copy-block')->middleware('permission:budgets.edit');
     Route::post('items/store', 'ItemController@store')->name('items.store');
     Route::get('items/{item}/edit', 'ItemController@edit')->name('items.edit');
     Route::post('items/update', 'ItemController@update')->name('items.update');

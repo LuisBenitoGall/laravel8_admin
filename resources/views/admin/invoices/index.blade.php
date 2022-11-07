@@ -107,6 +107,7 @@
 								{!! ucfirst(trans('textos.cliente')) !!}
 							@endif
 						</th>
+						<th class="text-center wdt50">{!! ucfirst(trans('textos.pedido')) !!}</th>
 						<th class="text-center wdt100">{!! ucfirst(trans('textos.responsable')) !!}</th>
 						<th class="text-center wdt50">{!! ucfirst(trans('textos.fecha')) !!}</th>
 						<th class="text-center wdt100">{!! ucfirst(trans('textos.fecha_vencimiento')) !!}</th>
@@ -119,6 +120,7 @@
 
 				<tfoot>
 					<tr>
+						<td></td>
 						<td></td>
 						<td></td>
 						<td></td>

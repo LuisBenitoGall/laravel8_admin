@@ -14,8 +14,7 @@ use App\Models\Invoice;
 use App\Models\Item;
 use App\Models\Order;
 
-class BudgetItem extends Component
-{
+class BudgetItem extends Component{
     /**
      * 1. Render componente.
      * 2. Guardar registro.
@@ -64,8 +63,7 @@ class BudgetItem extends Component
         'qty' => 'required'
     ];
 
-    public function mount($order)
-    {
+    public function mount($order){
         $this->blocks = BudgetFormItems::getBudgetBlocks($order->form_id, $order->id);
 
         $this->amount_by_blocks = [];

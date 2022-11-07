@@ -27,6 +27,7 @@ class ItemController extends Controller{
     /**
      * 1. Eliminar item.
      * 2. Duplicar item.
+     * 2.1. Duplicar bloque con sus items.
      * 3. Guardar item.
      * 4. Obtener item por ajax.
      * 5. Actualizar item.
@@ -43,6 +44,7 @@ class ItemController extends Controller{
         $this->middleware('module_setted:budgets');
         $this->middleware('item_get', ['only' => ['destroy', 'copy']]);
         $this->middleware('order_post', ['only' => ['store']]);
+        $this->middleware('order_get', ['only' => ['copyBlock']]);
     }
 
     //0. Validator:
@@ -127,6 +129,60 @@ class ItemController extends Controller{
 
         $msg = trans('textos.linea_duplicada_ok');
         return redirect()->route('budgets.edit', [$item->order_id, 'items'])->with(compact('msg'));
+    }
+
+    /**
+     * 2.1. Duplicar bloque con sus items.
+     */
+    public function copyBlock($order_id, $block_id){
+        $block = BudgetFormItems::find($block_id);
+
+        $items = Item::where('order_id', $order_id)
+        ->where('budget_form_block_id', $block_id)
+        ->get();
+
+        //Creamos nuevo bloque y sus líneas:
+        if($block){
+            $bfi = new BudgetFormItems();
+            $bfi->recid = 0;        
+            $bfi->order_id = $order_id;
+            $bfi->name = $block->name.' '.time();
+            $bfi->save();
+
+            if($items->count()){
+                foreach($items as $item){
+                    $i = new Item();
+                    $i->product_id = $item->product_id;
+                    $i->order_id = $order_id;
+                    $i->budget_form_block_id = $bfi->id;
+                    $i->budget_form_item_id = $item->budget_form_item_id;
+                    $i->concept = $item->concept;
+                    $i->observations = $item->observations;
+                    $i->qty = $item->qty;
+                    $i->price = $item->price;
+                    $i->item_no_price = $item->item_no_price;
+                    $i->iva = $item->iva;
+                    $i->discount = $item->discount;
+                    $i->calculated_by_percent = $item->calculated_by_percent;
+                    $i->deposit_used = $item->deposit_used;
+                    $i->days = $item->days;
+                    $i->days_continue = $item->days_continue;
+                    $i->days_continue_discount = $item->days_continue_discount;
+                    $i->active = $item->active;
+                    $i->status = $item->status;
+                    $i->print = $item->print;
+                    $i->user_id = Auth::user()->id;
+                    $i->save();
+                }
+            }
+
+            $msg = trans('textos.bloque_duplicado');
+            return redirect()->route('budgets.edit', [$order_id, 'items'])->with(compact('msg'));
+
+        }else{
+            $alert = trans('textos.bloque_duplicado_error');
+            return redirect()->route('budgets.edit', [$order_id, 'items'])->with(compact('alert'));
+        }
     }
 
     /**

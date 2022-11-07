@@ -2,6 +2,11 @@
 
 @section('content')
 
+{{-- Avisos --}}
+<div class="alert alert-warning" role="alert" id="economicBalanceWarning">
+
+</div>
+
 <input type="hidden" id="dtController" value="projects">
 <input type="hidden" id="myProject" value="{{ $project->id }}">
 

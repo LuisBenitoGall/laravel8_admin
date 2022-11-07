@@ -201,8 +201,9 @@ class BudgetController extends Controller{
     public function getBudgetsDT($from = false){
         //Presupuestos para cliente:
         if($from == 'customers'){
-            $query = Order::select('orders.id', 'orders.is_order', 'orders.discount', 'orders.customer_id', 'orders.provider_id', 'orders.budget_num', 'orders.budget_old_num', 'orders.name', 'orders.budget_status', 'orders.modality', 'orders.created_at', 'companies.name AS company', 'orders.id AS orderId', 'orders.order_num','orders.invoiced', 'users.name As Nombre', 'users.surname', 'u_.name AS CustomerManagerName', 'u_.surname AS CustomerManagerSurname')
+            $query = Order::select('orders.id', 'orders.is_order', 'orders.discount', 'orders.customer_id', 'orders.provider_id', 'orders.budget_num', 'orders.budget_old_num', 'orders.name', 'orders.budget_status', 'orders.modality', 'orders.created_at', 'companies.name AS company', 'orders.id AS orderId', 'orders.order_num','orders.invoiced', 'users.name As Nombre', 'users.surname', 'u_.name AS CustomerManagerName', 'u_.surname AS CustomerManagerSurname', 'c_.name AS finalCustomer')
             ->join('companies', 'orders.customer_id', '=', 'companies.id')
+            ->leftJoin('companies AS c_', 'orders.final_customer_id', '=', 'c_.id')
             ->leftJoin('users', 'orders.provider_manager_id', '=', 'users.id')
             ->leftJoin('users AS u_', 'orders.customer_manager_id', '=', 'u_.id')
             ->where('orders.is_budget', true)
@@ -247,9 +248,9 @@ class BudgetController extends Controller{
             $amount = $budget->getAmount();    
             return $amount['amount_with_discount'].$currency->symbol;
         })
-        ->addColumn('modalidad', function($budget) use($abrev){
-            return ucfirst($abrev[$budget->modality]);
-        })
+        // ->addColumn('modalidad', function($budget) use($abrev){
+        //     return ucfirst($abrev[$budget->modality]);
+        // })
         ->addColumn('manager', function($budget){
             return $budget->Nombre.' '.$budget->surname;
         })
@@ -270,6 +271,14 @@ class BudgetController extends Controller{
                 $company .= ')';
             }
             return $company;
+        })
+        ->addColumn('final_customer', function($budget){
+            if($budget->finalCustomer){
+                return $budget->finalCustomer;
+            }else{
+                return '';
+            }
+
         })
         ->addColumn('estado', function($budget) use($estados){
             return view('admin.budgets.partials.dt-status', compact('budget', 'estados'));    
