@@ -35,14 +35,18 @@ class DevicePushController extends Controller
     public function store(Request $request)
     {
         // $this->authorize('create', DevicePush::class);
+        if (isset($request->token)) {
+            $devicePush = DevicePush::updateOrCreate(
+                ['user_id' => $request->user()->id],
+                ['token' => $request->token]
+            );
+
+            return new DevicePushResource($devicePush);
+        }
+
+        return response()->noContent();
 
 
-        $devicePush = DevicePush::updateOrCreate(
-            ['user_id' => $request->user()->id],
-            ['token' => $request->token]
-        );
-
-        return new DevicePushResource($devicePush);
     }
 
     /**
