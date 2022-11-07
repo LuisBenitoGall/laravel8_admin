@@ -64,7 +64,7 @@ class UserController extends Controller{
      * 14. Eliminar usuario.
      * 15. Incorporar candidato como usuario.
      */
-    
+
     private $option = 'usuarios';
     private $module = 'users';
     private $languages;
@@ -105,13 +105,13 @@ class UserController extends Controller{
                 //11/05/21: se elimina indefinidamente la validación de nif |validateNif
             ],[
                 'email.unique' => trans('textos.email_existe'),
-                'nif.unique' => trans('textos.nif_existe')  
-            ]);   
+                'nif.unique' => trans('textos.nif_existe')
+            ]);
 
         //Validación update password:
-        }elseif(isset($data['update_pwd'])){ 
-            return Validator::make($data, [  
-                'password' => 'required|string|confirmed|min:6|max:12'  
+        }elseif(isset($data['update_pwd'])){
+            return Validator::make($data, [
+                'password' => 'required|string|confirmed|min:6|max:12'
             ],[
                 'password.min' => trans('textos.password_aviso_num_caracteres'),
                 'password.max' => trans('textos.password_aviso_num_caracteres')
@@ -121,7 +121,7 @@ class UserController extends Controller{
         }elseif(isset($data['submit_image'])){
             return Validator::make($data, [
                 'file' => 'required|image|mimes:jpeg,jpg,png,gif|max:500'
-            ]);    
+            ]);
         }
     }
 
@@ -132,8 +132,8 @@ class UserController extends Controller{
      */
     public function index(){
         $header = [
-            'option' => $this->option, 
-            'suboption' => trans('textos.usuarios_empresa'), 
+            'option' => $this->option,
+            'suboption' => trans('textos.usuarios_empresa'),
             'module' => $this->module,
             'slug' => 'users'
         ];
@@ -143,15 +143,15 @@ class UserController extends Controller{
         $all = false;
 
         return view('admin.users.index')->with(compact('header', 'view', 'all'));
-    }	
+    }
 
     /**
      * 1.1. Listado de todos los usuarios.
      */
     public function usersAll(){
         $header = [
-            'option' => $this->option, 
-            'suboption' => trans('textos.usuarios_todos'), 
+            'option' => $this->option,
+            'suboption' => trans('textos.usuarios_todos'),
             'module' => $this->module,
             'slug' => 'users-all'
         ];
@@ -162,7 +162,7 @@ class UserController extends Controller{
 
         $all = true;
 
-        return view('admin.users.index')->with(compact('header', 'users', 'view', 'all'));    
+        return view('admin.users.index')->with(compact('header', 'users', 'view', 'all'));
     }
 
     /**
@@ -170,7 +170,7 @@ class UserController extends Controller{
      */
     public function getUsersDT($all = false){
         $query = User::with('phones')->select('users.*', 'user_companies.categories',
-            DB::raw('(SELECT image FROM user_images WHERE user_id = users.id AND featured = 1) AS Image')    
+            DB::raw('(SELECT image FROM user_images WHERE user_id = users.id AND featured = 1) AS Image')
             )
         ->join('user_companies', 'users.id', '=', 'user_companies.user_id');
         if(!$all){
@@ -185,7 +185,7 @@ class UserController extends Controller{
             return $row->name.' '.$row->surname;
         })
         ->addColumn('alta', function($row){
-            return $row->created_at->format($this->languages[session()->get('locale')][4]);    
+            return $row->created_at->format($this->languages[session()->get('locale')][4]);
         })
         ->addColumn('email', function($row){
              return '<a target="_blank" href="mailto:'.$row->email.'">'.$row->email.'</a>';
@@ -219,11 +219,11 @@ class UserController extends Controller{
             return $categories;
         })
         ->addColumn('acciones', function($row){
-            return view('admin.users.partials.dt-actions', compact('row'));    
+            return view('admin.users.partials.dt-actions', compact('row'));
         })
         ->addColumn('image', function($row){
             if($row->Image){
-                return '<img src="'.asset('img/users/'.$row->Image).'" class="img-circle" width="36">';    
+                return '<img src="'.asset('img/users/'.$row->Image).'" class="img-circle" width="36">';
             }else{
                 return helpers::setAvatar($row->name, $row->surname);
             }
@@ -239,8 +239,8 @@ class UserController extends Controller{
      */
     public function create(){
         $header = [
-            'option' => $this->option, 
-            'suboption' => trans('textos.usuario_nuevo'), 
+            'option' => $this->option,
+            'suboption' => trans('textos.usuario_nuevo'),
             'module' => $this->module,
             'slug' => 'users-create'
         ];
@@ -250,7 +250,7 @@ class UserController extends Controller{
         ->orderBy('id', 'ASC')
         ->get();
 
-        return view('admin.users.create')->with(compact('header', 'roles'));    
+        return view('admin.users.create')->with(compact('header', 'roles'));
     }
 
     /**
@@ -272,8 +272,8 @@ class UserController extends Controller{
 
         if(!$role){
             $alert = trans('textos.role_no_existe');
-            return redirect()->route('users.create')->with(compact('alert'));  
-            exit;  
+            return redirect()->route('users.create')->with(compact('alert'));
+            exit;
         }
 
         $permissions = $role->permissions;
@@ -317,21 +317,21 @@ class UserController extends Controller{
             Mail::send('emails.send-user-password', $data, function($message) use($emailFrom, $company, $emailTo){
                 $message->from($emailFrom, $company->name);
                 $message->to($emailTo);
-                $message->subject(trans('textos.contrasena_envio')); 
-            }); 
+                $message->subject(trans('textos.contrasena_envio'));
+            });
         }
 
         $msg = trans('textos.usuario_creado_ok');
         return redirect()->route('users.edit', $user->id)->with(compact('msg'));
     }
-    
+
     /**
      * 4. Mostrar usuario.
      */
     public function show(Request $request, User $user){
         $header = [
-            'option' => $this->option, 
-            'suboption' => trans('textos.usuario_ver'), 
+            'option' => $this->option,
+            'suboption' => trans('textos.usuario_ver'),
             'module' => $this->module,
             'slug' => 'users-show'
         ];
@@ -351,9 +351,9 @@ class UserController extends Controller{
             $return = 'users';
         }
 
-        return view('admin.users.show')->with(compact('header', 'user', 'images', 'phones', 'return')); 
+        return view('admin.users.show')->with(compact('header', 'user', 'images', 'phones', 'return'));
     }
-    
+
     /**
      * 5. Editar usuario.
      *
@@ -362,8 +362,8 @@ class UserController extends Controller{
      */
     public function edit(User $user, $tab = false, $from = false, $to = false){
         $header = [
-            'option' => $this->option, 
-            'suboption' => trans('textos.usuario_editar'), 
+            'option' => $this->option,
+            'suboption' => trans('textos.usuario_editar'),
             'module' => $this->module
         ];
 
@@ -454,7 +454,7 @@ class UserController extends Controller{
         //$employees = Employee::companyEmployees(session('currentCompany'), 1);
 
         //Módulos activos:
-        $module_timetables = $this->settedModule('timetables'); 
+        $module_timetables = $this->settedModule('timetables');
         $module_calendar = $this->settedModule('calendar');
         $module_rrhh = $this->settedModule('rrhh');
 
@@ -462,8 +462,8 @@ class UserController extends Controller{
         //$stocks = Stock::stockByUser($user->id);
 
         //return view('admin.users.edit')->with(compact('header', 'user', 'tab', 'roles', 'user_roles', 'countries', 'images', 'business_areas', 'user_business_areas', 'cost_centers', 'user_cost_centers', 'workplaces', 'user_workplaces', 'categories', 'user_categories', 'phones', 'employees', 'timetables', 'calendar', 'stocks'));
-        return view('admin.users.edit')->with(compact('header', 'user', 'tab', 'roles', 'user_roles', 'countries', 'images', 'languages', 'employee', 'business_areas', 'user_business_areas', 'cost_centers', 'user_cost_centers', 
-            'workplaces', 'user_workplaces', 'categories', 'user_categories', 'phones', 'module_timetables', 'module_calendar', 'module_rrhh'));    
+        return view('admin.users.edit')->with(compact('header', 'user', 'tab', 'roles', 'user_roles', 'countries', 'images', 'languages', 'employee', 'business_areas', 'user_business_areas', 'cost_centers', 'user_cost_centers',
+            'workplaces', 'user_workplaces', 'categories', 'user_categories', 'phones', 'module_timetables', 'module_calendar', 'module_rrhh'));
     }
 
     /**
@@ -489,8 +489,8 @@ class UserController extends Controller{
         $role = Role::find($request->input('roles'));
         if(!$role){
             $alert = trans('textos.role_no_existe');
-            return redirect()->route('users.edit', $user)->with(compact('alert'));  
-            exit;  
+            return redirect()->route('users.edit', $user)->with(compact('alert'));
+            exit;
         }
 
         $permissions = $role->permissions;
@@ -513,7 +513,7 @@ class UserController extends Controller{
             $user->signature = $signature;
         }
         $user->isAdmin = $isAdmin;
-        $user->save();  
+        $user->save();
 
         //Sincronizamos role, eliminando otros existentes.
         $user->syncRoles($role->id);
@@ -540,17 +540,17 @@ class UserController extends Controller{
 
             $data = User::find($user->id);
             $data->signature = NULL;
-            $data->save(); 
+            $data->save();
 
             File::delete(public_path().'/img/signatures/'.$signature);
 
             $msg = trans('textos.imagen_deleted');
-            return redirect()->route('users.edit', $user->id)->with(compact('msg'));  
-        
+            return redirect()->route('users.edit', $user->id)->with(compact('msg'));
+
         }else{
             return redirect('/');
-        } 
-    }   
+        }
+    }
 
     /**
      * 8. Actualizar contraseña.
@@ -570,7 +570,7 @@ class UserController extends Controller{
         $user->save();
 
         $msg = trans('textos.password_updated');
-        return redirect()->route('users.edit', $user->id)->with(compact('msg'));   
+        return redirect()->route('users.edit', $user->id)->with(compact('msg'));
     }
 
     /**
@@ -611,8 +611,8 @@ class UserController extends Controller{
             }
 
             $msg = trans('textos.imagen_guardada');
-            return redirect()->route('users.edit', [$user->id, 'images'])->with(compact('msg'));  
-        }    
+            return redirect()->route('users.edit', [$user->id, 'images'])->with(compact('msg'));
+        }
     }
 
     /**
@@ -633,15 +633,15 @@ class UserController extends Controller{
 
             if($return){
                 $p = explode('|', $return);
-                return redirect()->route($p[0], $p[1])->with(compact('msg'));    
+                return redirect()->route($p[0], $p[1])->with(compact('msg'));
             }else{
-                return redirect()->route('users.edit', [$userImage->user_id, 'images'])->with(compact('msg'));  
+                return redirect()->route('users.edit', [$userImage->user_id, 'images'])->with(compact('msg'));
             }
-        
+
         }else{
             return redirect('/');
-        } 
-    }  
+        }
+    }
 
     /**
      * 11. Destacar imagen.
@@ -650,9 +650,9 @@ class UserController extends Controller{
      * @return \Illuminate\Http\Response
      */
     public function setFeatured(Request $request, $image){
-        if($request->ajax()){ 
+        if($request->ajax()){
             $userImage = UserImage::where('image', $image)->first();
-            
+
             UserImage::where('user_id', $userImage->user_id)
             ->update(['featured' => 0]);
 
@@ -674,9 +674,9 @@ class UserController extends Controller{
      * @return \Illuminate\Http\Response
      */
     public function setPublic(Request $request, $image){
-        if($request->ajax()){ 
+        if($request->ajax()){
             $userImage = UserImage::select('id', 'public')->where('image', $image)->first();
-           
+
             $public = $userImage->public? false:true;
 
             //Publicamos imagen:
@@ -697,7 +697,7 @@ class UserController extends Controller{
      * @return \Illuminate\Http\Response
      */
     public function status(Request $request, $id, $status){
-        if($request->ajax()){ 
+        if($request->ajax()){
             $user = User::find($id);
             $user->status = $status;
             $user->save();
@@ -713,16 +713,16 @@ class UserController extends Controller{
     public function userTimetables(Request $request, $user_id = false, $add_register = false){
         //Módulos activos:
         $set_timetables = $this->settedModule('timetables');
-        
+
         if(!$set_timetables){
             $alert = trans('textos.no_permisos_accion');
             return redirect()->route('users.index')->with(compact('alert'));
             exit;
-        }   
+        }
 
         $header = [
-            'option' => $this->option, 
-            'suboption' => trans('textos.horarios_empleado'), 
+            'option' => $this->option,
+            'suboption' => trans('textos.horarios_empleado'),
             'module' => $this->module,
             'slug' => 'calendar'
         ];
@@ -736,7 +736,7 @@ class UserController extends Controller{
         ->where('workplaces.company_id', session('currentCompany'))
         ->where('employees.status', 1)
         ->first();
-        
+
         if(!$contract){
             $alert = trans('textos.centro_trabajo_usuario_alerta');
             return redirect()->route('users.edit', [$userId, 'company'])->with(compact('alert'));
@@ -771,7 +771,7 @@ class UserController extends Controller{
             //var_dump($workplace, $from, $to, $user_id);
 
             $data = Timetable::listUserTimetables($from, $to, $user_id, $workplace->id);
-            dd($data);
+          //  dd($data);
 
             return DataTables::of($data)
             ->addColumn('fecha', function($row){
@@ -786,7 +786,7 @@ class UserController extends Controller{
             ->addColumn('accumulated', function($row){
                 $accumulated = $row['accumulated'];
                 if($row['accumulated'] != '' && $row['hoursOfWork']){
-                    $accumulated .= ' / '.$row['hoursOfWork'];   
+                    $accumulated .= ' / '.$row['hoursOfWork'];
                 }
                 if($row['diferencia']){
                     $clase = $row['sign'] == '-'? 'text-danger':'text-success';
@@ -802,10 +802,10 @@ class UserController extends Controller{
             })
             ->rawColumns(['fecha', 'accumulated'])
             ->make(true);
-        
+
         }else{
             return false;
-        }      
+        }
     }
 
     /**
@@ -818,7 +818,7 @@ class UserController extends Controller{
         $user->delete();
 
         $msg = trans('textos.usuario_deleted');
-        return redirect()->route('users.index')->with(compact('msg'));    
+        return redirect()->route('users.index')->with(compact('msg'));
     }
 
     /**
@@ -862,7 +862,7 @@ class UserController extends Controller{
      */
     public function getUsersAllDT(){
         $users = User::select('users.*', 'user_companies.categories',
-            DB::raw('(SELECT image FROM user_images WHERE user_id = users.id AND featured = 1) AS Image')    
+            DB::raw('(SELECT image FROM user_images WHERE user_id = users.id AND featured = 1) AS Image')
         )
         ->join('user_companies', 'users.id', '=', 'user_companies.user_id')
         ->groupBy('users.id')
@@ -888,10 +888,10 @@ class UserController extends Controller{
                 if($arr){
                     $row->categories = '';
                     foreach($arr as $cat){
-                        $category = Category::select('name')->find($cat);   
+                        $category = Category::select('name')->find($cat);
                         if($row->categories != ''){
                             $row->categories .= ', ';
-                        } 
+                        }
                         $row->categories .= $category->name;
                     }
 
@@ -912,6 +912,6 @@ class UserController extends Controller{
             }
         }
 
-        return datatables($users)->toJson(); 
+        return datatables($users)->toJson();
     }
 }
