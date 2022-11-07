@@ -169,11 +169,14 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 			<x-input type="text" name="pay_order" value="{{ $order->pay_order }}" autocomplete="off" maxlength="100" readonly="{{ $readonly }}" info="order-group-pay-order"/>
 		</div>
 
-		{{-- Fecha orden de pago --}}
+		{{--
+		Fecha orden de pago
+		$order->pay_order_received && $order->pay_order_received > 0? \Carbon\Carbon::parse($order->pay_order_received)->format($languages[session()->get('locale')][4]):'';
 
+		--}}
 		@if($order->pay_order_received)
 			@php
-			$pay_order_received = optional($order->pay_order_received)->format($languages[session()->get('locale')][4]) ?? '';
+			 $pay_order_received = optional($order->pay_order_received)->format($languages[session()->get('locale')][4]) ?? '';
 			@endphp
 
 			<label class="col-lg-2 col-form-label">{{ trans('textos.recibida') }}</label>
