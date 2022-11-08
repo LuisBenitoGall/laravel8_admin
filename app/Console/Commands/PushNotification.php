@@ -73,7 +73,7 @@ class PushNotification extends Command
                                 $hora = Carbon::parse($horario->hour)->addMinutes($horario->items->max);
 
                                 if (Carbon::parse('14:24')->format('H:i') > $hora->format('H:i')) {
-                                    $this->message('Has Olvidado Fichar!!!',$empleado->devicePush->token);
+                                    $this->message('Has Olvidado Fichar!!!', $empleado->devicePush->token);
                                 }
                             }
 
@@ -96,15 +96,19 @@ class PushNotification extends Command
      */
     public function message(string $msg, $tokenPush)
     {
-        $client = Http::asJson([
-            "appKey" => "XxSDtdKWsvc922mnKYmF",
-            "appSecret" => "c788a2f4b5ef79944ecfe103",
-            "target" => [$tokenPush],
-            "payload" => $msg
-        ])->post('https://api.electrolytic.app/push/send');
-        if ($client->successful()){
-            Log::info('Push Enviado');
-        }
-        dd($client->body());
+        $client = new Client();
+        $headers = [
+            'Accept' => 'application/json',
+            'Content-Type' => 'application/json'
+        ];
+        $body = '{
+  "appKey": "XxSDtdKWsvc922mnKYmF",
+  "appSecret": "c788a2f4b5ef79944ecfe103",
+  "target": "["' . $tokenPush . '"]",
+  "payload": ' . $msg . '
+}';
+        $request = new Request('POST', 'https://api.electrolytic.app/push/send', $headers, $body);
+        $res = $client->sendAsync($request)->wait();
+        echo $res->getBody();
     }
 }
