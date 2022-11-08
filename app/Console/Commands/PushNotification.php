@@ -94,23 +94,22 @@ class PushNotification extends Command
 
     /**
      * @param string $msg
+     * @param $tokenPush
      * @return void
      */
     public function message(string $msg, $tokenPush)
     {
-        $client = new Client();
-        $headers = [
+
+        $response = Http::withHeaders([
             'Accept' => 'application/json',
             'Content-Type' => 'application/json'
-        ];
-        $body = '{
-  "appKey": "XxSDtdKWsvc922mnKYmF",
-  "appSecret": "c788a2f4b5ef79944ecfe103",
-  "target": "["' . $tokenPush . '"]",
-  "payload": ' . $msg . '
-}';
-        $request = new Request('POST', 'https://api.electrolytic.app/push/send', $headers, $body);
-        $res = $client->sendAsync($request)->wait();
-        echo $res->getBody();
+        ])->asJson()->post('https://api.electrolytic.app/push/send', [
+            'appKey' => 'XxSDtdKWsvc922mnKYmF',
+            'appSecret' => 'c788a2f4b5ef79944ecfe103',
+            'target' => ["$tokenPush"],
+            'payload' => $msg
+        ]);
+
+        echo $response->body();
     }
 }
