@@ -57,17 +57,18 @@ class CheckTimetableTask extends Command{
         ->where('modules.slug', $slug)
         ->where('companies.status', 1)
         ->get();
-        
+
         foreach($companies as $co){
+
             //Emails de la empresa:
             $company_emails = CompanySettings::select('emails')
             ->where('company_id', $co->id)
             ->first();
-            
+
            if($company_emails){
                 $emailsTo = $company_emails->emails? unserialize($company_emails->emails):false;
 
-                //Empleados por cada empresa:     
+                //Empleados por cada empresa:
                 $users = Employee::select('users.id', 'users.name', 'users.surname', 'users.email')
                 ->join('users', 'employees.user_id', '=', 'users.id')
                 ->join('user_companies', 'users.id', '=', 'user_companies.user_id')

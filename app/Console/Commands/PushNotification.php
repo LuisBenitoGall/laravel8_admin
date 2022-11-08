@@ -1,0 +1,88 @@
+<?php
+
+namespace App\Console\Commands;
+
+use App\Models\Company;
+use App\Models\Timetable;
+use App\Models\WorkUserCalendar;
+use Carbon\Carbon;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Mail;
+
+class PushNotification extends Command
+{
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'push:send';
+
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Enviamos notificaciones push a usuarios por compañias';
+
+    /**
+     * Create a new command instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
+    public function handle()
+    {
+        $slug = 'timetables';
+        $companies = Company::where('status', 1)->whereHas('module', function ($q) use ($slug) {
+            $q->where('slug', $slug);
+        })->get();
+        foreach ($companies as $company) {
+            // Emails of company
+            // $emailsTo = unserialize($company->settings->emails);
+
+            $empleados = $company->users->where('status', 1);
+
+            $exit = $company->timeTableItems
+                ->where('slug', 'salida')
+                ->where('basic_item', 1)
+                ->first();
+
+            foreach ($empleados as $empleado) {
+
+                if (isset($empleado->employee->time_control)) {
+                    $noWork = WorkUserCalendar::noWorkDay($empleado->employee->user_id, Carbon::today());
+
+                    //Si no ha tomado festivo o es jornada laborable tipo 'teletrabajo':
+                    if (!$noWork || ($noWork->is_working && $noWork->working_day)) {
+                        $horario = Timetable::select('id', 'hour', 'item_id', 'flag', 'date')
+                            ->where('user_id', $empleado->employee->user_id)
+                            ->orderBy('date', 'DESC')
+                            ->orderBy('id', 'DESC')
+                            ->first();
+
+                        //Si el horario no está cerrado:
+                        if ($horario && $horario->flag == 2) {
+                            if (isset($horario->items->max) || isset($horario->items->min)) {
+                                $hora = Carbon::parse($horario->hour)->addMinutes($horario->items->max);
+
+                                if($hora->format('H:i') > Carbon::now()->format('H:i')){
+                                    dd('push');
+                                }
+                            }
+
+                        }
+                    }
+                }
+
+
+            }
+
+
+        }
+    }
+}

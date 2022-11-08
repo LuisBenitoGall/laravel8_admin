@@ -154,4 +154,24 @@ class Company extends Model
     {
         return $this->hasMany(Order::class, 'final_customer_id');
     }
+
+    public function timeTableItems()
+    {
+        return $this->hasMany(TimetableItems::class, 'company_id');
+    }
+
+    public function module()
+    {
+        return $this->belongsToMany(Module::class, 'company_modules');
+    }
+
+    public function settings()
+    {
+        return $this->hasOne(CompanySettings::class);
+    }
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class,'user_companies');
+    }
 }

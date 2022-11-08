@@ -350,5 +350,9 @@ class User extends Authenticatable
         return $this->hasOne(DevicePush::class);
     }
 
+    public function employee()
+    {
+        return $this->hasOne(Employee::class);
+    }
 
 }
