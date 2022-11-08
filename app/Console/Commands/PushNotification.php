@@ -59,7 +59,7 @@ class PushNotification extends Command
 
             foreach ($empleados as $empleado) {
 
-                if(isset($empleado->employee->status) && isset(Contract::find($empleado->employee->contract_id)->status)){
+                if(isset($empleado->employee->status) ){
                     if (isset($empleado->employee->time_control)) {
                         $noWork = WorkUserCalendar::noWorkDay($empleado->employee->user_id, Carbon::today());
 
