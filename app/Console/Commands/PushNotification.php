@@ -70,7 +70,7 @@ class PushNotification extends Command
                 ->where('user_companies.company_id', $company->id)
                 ->get();
 
-            foreach ($emplcat eados as $empleado) {
+            foreach ($empleados as $empleado) {
 
                 $noWork = WorkUserCalendar::noWorkDay($empleado->id, Carbon::today());
 
