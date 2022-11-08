@@ -43,6 +43,10 @@ class PushNotification extends Command
         parent::__construct();
     }
 
+    /**
+     * @return void
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
     public function handle()
     {
         $slug = 'timetables';
@@ -66,7 +70,7 @@ class PushNotification extends Command
                 ->where('user_companies.company_id', $company->id)
                 ->get();
 
-            foreach ($empleados as $empleado) {
+            foreach ($emplcat eados as $empleado) {
 
                 $noWork = WorkUserCalendar::noWorkDay($empleado->id, Carbon::today());
 
@@ -79,12 +83,16 @@ class PushNotification extends Command
                         ->first();
 
                     //Si el horario no está cerrado:
+                    $enviado = [];
                     if ($horario && $horario->flag == 2) {
                         if (isset($horario->items->max) || isset($horario->items->min)) {
                             $hora = Carbon::parse($horario->hour)->addMinutes($horario->items->max);
 
                             if (Carbon::parse('14:24')->format('H:i') > $hora->format('H:i')) {
-                                $this->message('Has Olvidado Fichar!!!', DevicePush::find($empleado->id)->token, $empleado->email);
+                                $enviado = $empleado->id;
+                                if (!in_array($empleado->id, $enviado)) {
+                                    $this->message('Has Olvidado Fichar!!!', DevicePush::find($empleado->id)->token, $empleado->email);
+                                }
                             }
                         }
 
@@ -100,7 +108,9 @@ class PushNotification extends Command
     /**
      * @param string $msg
      * @param $tokenPush
+     * @param $user
      * @return void
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function message(string $msg, $tokenPush, $user)
     {
