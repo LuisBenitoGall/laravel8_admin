@@ -4,6 +4,8 @@ namespace App\Console\Commands;
 
 use App\Models\Company;
 use App\Models\Contract;
+use App\Models\DevicePush;
+use App\Models\Employee;
 use App\Models\Timetable;
 use App\Models\WorkUserCalendar;
 use Carbon\Carbon;
@@ -46,11 +48,19 @@ class PushNotification extends Command
         $companies = Company::where('status', 1)->whereHas('module', function ($q) use ($slug) {
             $q->where('slug', $slug);
         })->get();
+
         foreach ($companies as $company) {
             // Emails of company
             // $emailsTo = unserialize($company->settings->emails);
 
-            $empleados = $company->users->where('status', 1);
+            $empleados = Employee::select('users.id', 'users.name', 'users.surname', 'users.email')
+                ->join('users', 'employees.user_id', '=', 'users.id')
+                ->join('user_companies', 'users.id', '=', 'user_companies.user_id')
+                ->where('users.status', 1)
+                ->where('employees.status', 1)
+                ->where('employees.time_control', 1)
+                ->where('user_companies.company_id', $company->id)
+                ->get();
 
             $exit = $company->timeTableItems
                 ->where('slug', 'salida')
@@ -58,52 +68,42 @@ class PushNotification extends Command
                 ->first();
 
             foreach ($empleados as $empleado) {
-                dd($empleado[0]->employee);
-                $contract  = optional($empleado->employee)->status ?? false;
-                $time_control = optional($empleado->employee)->time_control ?? false;
-                if($contract){
-                    if ($time_control) {
-                        $noWork = WorkUserCalendar::noWorkDay($empleado->employee->user_id, Carbon::today());
 
-                        //Si no ha tomado festivo o es jornada laborable tipo 'teletrabajo':
-                        if (!$noWork || ($noWork->is_working && $noWork->working_day)) {
-                            $horario = Timetable::select('id', 'hour', 'item_id', 'flag', 'date')
-                                ->where('user_id', $empleado->employee->user_id)
-                                ->orderBy('date', 'DESC')
-                                ->orderBy('id', 'DESC')
-                                ->first();
+                $noWork = WorkUserCalendar::noWorkDay($empleado->id, Carbon::today());
 
-                            //Si el horario no está cerrado:
-                            if ($horario && $horario->flag == 2) {
-                                if (isset($horario->items->max) || isset($horario->items->min)) {
-                                    $hora = Carbon::parse($horario->hour)->addMinutes($horario->items->max);
+                //Si no ha tomado festivo o es jornada laborable tipo 'teletrabajo':
+                if (!$noWork || ($noWork->is_working && $noWork->working_day)) {
+                    $horario = Timetable::select('id', 'hour', 'item_id', 'flag', 'date')
+                        ->where('user_id', $empleado->id)
+                        ->orderBy('date', 'DESC')
+                        ->orderBy('id', 'DESC')
+                        ->first();
 
-                                    if (Carbon::parse('14:24')->format('H:i') > $hora->format('H:i')) {
-                                        $this->message('Has Olvidado Fichar!!!', $empleado->devicePush->token,$empleado->email);
-                                    }
-                                }
+                    //Si el horario no está cerrado:
+                    if ($horario && $horario->flag == 2) {
+                        if (isset($horario->items->max) || isset($horario->items->min)) {
+                            $hora = Carbon::parse($horario->hour)->addMinutes($horario->items->max);
 
+                            if (Carbon::parse('14:24')->format('H:i') > $hora->format('H:i')) {
+                                $this->message('Has Olvidado Fichar!!!', DevicePush::find($empleado->id)->token, $empleado->email);
                             }
                         }
+
                     }
                 }
-
-
-
             }
-
-
         }
 
 
     }
+
 
     /**
      * @param string $msg
      * @param $tokenPush
      * @return void
      */
-    public function message(string $msg, $tokenPush,$user)
+    public function message(string $msg, $tokenPush, $user)
     {
 
         $client = new Client();
