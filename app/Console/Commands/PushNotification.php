@@ -58,7 +58,7 @@ class PushNotification extends Command
                 ->first();
 
             foreach ($empleados as $empleado) {
-                dd($empleado->count());
+                dd($empleado[0]->employee);
                 $contract  = optional($empleado->employee)->status ?? false;
                 $time_control = optional($empleado->employee)->time_control ?? false;
                 if($contract){
