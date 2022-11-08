@@ -109,6 +109,6 @@ class PushNotification extends Command
         ]]);
 
 
-        Log::info($response->getBody());
+        echo $response->getBody();
     }
 }
