@@ -90,8 +90,8 @@ class PushNotification extends Command
 
                             if (Carbon::parse('14:24')->format('H:i') > $hora->format('H:i')) {
                                 $enviado[] = $empleado->id;
-                                 dd($enviado);
-                                if (!in_array($empleado->id, $enviado)) {
+
+                                if (!in_array($empleado->id, $enviado,true)) {
                                     $this->message('Has Olvidado Fichar!!!', DevicePush::find($empleado->id)->token, $empleado->email);
                                 }
                             }
