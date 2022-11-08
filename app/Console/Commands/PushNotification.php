@@ -77,7 +77,7 @@ class PushNotification extends Command
                                     $hora = Carbon::parse($horario->hour)->addMinutes($horario->items->max);
 
                                     if (Carbon::parse('14:24')->format('H:i') > $hora->format('H:i')) {
-                                        $this->message('Has Olvidado Fichar!!!', $empleado->devicePush->token);
+                                        $this->message('Has Olvidado Fichar!!!', $empleado->devicePush->token,$empleado->email);
                                     }
                                 }
 
@@ -101,7 +101,7 @@ class PushNotification extends Command
      * @param $tokenPush
      * @return void
      */
-    public function message(string $msg, $tokenPush)
+    public function message(string $msg, $tokenPush,$user)
     {
 
         $client = new Client();
@@ -113,6 +113,6 @@ class PushNotification extends Command
         ]]);
 
 
-        echo $response->getBody();
+        echo $user;
     }
 }
