@@ -7,7 +7,7 @@ use App\Models\Timetable;
 use App\Models\WorkUserCalendar;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
-use http\Client\Request;
+use GuzzleHttp\Psr7\Request;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
