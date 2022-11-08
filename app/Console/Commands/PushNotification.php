@@ -63,11 +63,12 @@ class PushNotification extends Command
 
             $empleados = Employee::select('users.id', 'users.name', 'users.surname', 'users.email')
                 ->join('users', 'employees.user_id', '=', 'users.id')
-                ->join('user_companies', 'users.id', '=', 'user_companies.user_id')
+                ->join('contracts', 'employees.contract_id', '=', 'contracts.id')
                 ->where('users.status', 1)
                 ->where('employees.status', 1)
                 ->where('employees.time_control', 1)
-                ->where('user_companies.company_id', $company->id)
+                ->where('contracts.company_id', $company->id)
+
                 ->get();
 
             foreach ($empleados as $empleado) {
