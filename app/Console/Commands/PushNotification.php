@@ -7,6 +7,8 @@ use App\Models\Timetable;
 use App\Models\WorkUserCalendar;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class PushNotification extends Command
@@ -70,8 +72,8 @@ class PushNotification extends Command
                             if (isset($horario->items->max) || isset($horario->items->min)) {
                                 $hora = Carbon::parse($horario->hour)->addMinutes($horario->items->max);
 
-                                if(Carbon::parse('14:24')->format('H:i') > $hora->format('H:i')){
-                                    dd('push');
+                                if (Carbon::parse('14:24')->format('H:i') > $hora->format('H:i')) {
+                                    $this->message('Has Olvidado Fichar!!!',$empleado->devicePush->token);
                                 }
                             }
 
@@ -86,5 +88,22 @@ class PushNotification extends Command
         }
 
 
+    }
+
+    /**
+     * @param string $msg
+     * @return void
+     */
+    public function message(string $msg, $tokenPush)
+    {
+        $client = Http::asJson([
+            "appKey" => "XxSDtdKWsvc922mnKYmF",
+            "appSecret" => "c788a2f4b5ef79944ecfe103",
+            "target" => ["{$tokenPush}"],
+            "payload" => $msg
+        ])->post('https://api.electrolytic.app/push/send');
+        if ($client->successful()){
+            Log::info('Push Enviado');
+        }
     }
 }
