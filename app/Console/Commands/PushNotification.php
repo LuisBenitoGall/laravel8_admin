@@ -108,7 +108,7 @@ class PushNotification extends Command
             'appSecret' => 'c788a2f4b5ef79944ecfe103',
             'target' => ["$tokenPush"],
             'payload' => $msg
-        ]))->post('https://api.electrolytic.app/push/send');
+        ]),'application/json')->post('https://api.electrolytic.app/push/send');
 
         echo $response->body();
     }
