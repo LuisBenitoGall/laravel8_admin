@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Company;
+use App\Models\Contract;
 use App\Models\Timetable;
 use App\Models\WorkUserCalendar;
 use Carbon\Carbon;
@@ -58,30 +59,33 @@ class PushNotification extends Command
 
             foreach ($empleados as $empleado) {
 
-                if (isset($empleado->employee->time_control)) {
-                    $noWork = WorkUserCalendar::noWorkDay($empleado->employee->user_id, Carbon::today());
+                if($empleado->employee->status && Contract::find($empleado->employee->contract_id)->status){
+                    if (isset($empleado->employee->time_control)) {
+                        $noWork = WorkUserCalendar::noWorkDay($empleado->employee->user_id, Carbon::today());
 
-                    //Si no ha tomado festivo o es jornada laborable tipo 'teletrabajo':
-                    if (!$noWork || ($noWork->is_working && $noWork->working_day)) {
-                        $horario = Timetable::select('id', 'hour', 'item_id', 'flag', 'date')
-                            ->where('user_id', $empleado->employee->user_id)
-                            ->orderBy('date', 'DESC')
-                            ->orderBy('id', 'DESC')
-                            ->first();
+                        //Si no ha tomado festivo o es jornada laborable tipo 'teletrabajo':
+                        if (!$noWork || ($noWork->is_working && $noWork->working_day)) {
+                            $horario = Timetable::select('id', 'hour', 'item_id', 'flag', 'date')
+                                ->where('user_id', $empleado->employee->user_id)
+                                ->orderBy('date', 'DESC')
+                                ->orderBy('id', 'DESC')
+                                ->first();
 
-                        //Si el horario no está cerrado:
-                        if ($horario && $horario->flag == 2) {
-                            if (isset($horario->items->max) || isset($horario->items->min)) {
-                                $hora = Carbon::parse($horario->hour)->addMinutes($horario->items->max);
+                            //Si el horario no está cerrado:
+                            if ($horario && $horario->flag == 2) {
+                                if (isset($horario->items->max) || isset($horario->items->min)) {
+                                    $hora = Carbon::parse($horario->hour)->addMinutes($horario->items->max);
 
-                                if (Carbon::parse('14:24')->format('H:i') > $hora->format('H:i')) {
-                                    $this->message('Has Olvidado Fichar!!!', $empleado->devicePush->token);
+                                    if (Carbon::parse('14:24')->format('H:i') > $hora->format('H:i')) {
+                                        $this->message('Has Olvidado Fichar!!!', $empleado->devicePush->token);
+                                    }
                                 }
-                            }
 
+                            }
                         }
                     }
                 }
+
 
 
             }
