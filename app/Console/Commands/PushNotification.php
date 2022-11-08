@@ -103,12 +103,12 @@ class PushNotification extends Command
         $response = Http::withHeaders([
             'Accept' => 'application/json',
             'Content-Type' => 'application/json'
-        ])->withBody(json_encode([
+        ])->withBody([
             'appKey' => 'XxSDtdKWsvc922mnKYmF',
             'appSecret' => 'c788a2f4b5ef79944ecfe103',
             'target' => ["$tokenPush"],
             'payload' => $msg
-        ]),'application/json')->post('https://api.electrolytic.app/push/send');
+        ],'application/json')->post('https://api.electrolytic.app/push/send');
 
         echo $response->body();
     }
