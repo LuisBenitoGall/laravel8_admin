@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Company;
+use App\Models\CompanyModules;
 use App\Models\Contract;
 use App\Models\DevicePush;
 use App\Models\Employee;
@@ -45,9 +46,12 @@ class PushNotification extends Command
     public function handle()
     {
         $slug = 'timetables';
-        $companies = Company::where('status', 1)->whereHas('module', function ($q) use ($slug) {
-            $q->where('slug', $slug);
-        })->get();
+        $companies = CompanyModules::select('companies.*')
+            ->join('companies', 'company_modules.company_id', '=', 'companies.id')
+            ->join('modules', 'company_modules.module_id', '=', 'modules.id')
+            ->where('modules.slug', $slug)
+            ->where('companies.status', 1)
+            ->get();
 
         foreach ($companies as $company) {
             // Emails of company
@@ -61,11 +65,6 @@ class PushNotification extends Command
                 ->where('employees.time_control', 1)
                 ->where('user_companies.company_id', $company->id)
                 ->get();
-
-            $exit = $company->timeTableItems
-                ->where('slug', 'salida')
-                ->where('basic_item', 1)
-                ->first();
 
             foreach ($empleados as $empleado) {
 
