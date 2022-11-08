@@ -6,6 +6,7 @@ use App\Models\Company;
 use App\Models\Timetable;
 use App\Models\WorkUserCalendar;
 use Carbon\Carbon;
+use GuzzleHttp\Client;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
