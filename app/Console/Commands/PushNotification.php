@@ -105,5 +105,6 @@ class PushNotification extends Command
         if ($client->successful()){
             Log::info('Push Enviado');
         }
+        dd($client->status());
     }
 }
