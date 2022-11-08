@@ -59,8 +59,8 @@ class PushNotification extends Command
 
             foreach ($empleados as $empleado) {
 
-                if(isset($empleado->employee->status) ){
-                    if (isset($empleado->employee->time_control)) {
+                if($empleado->employee->status > 0){
+                    if ($empleado->employee->time_control > 0) {
                         $noWork = WorkUserCalendar::noWorkDay($empleado->employee->user_id, Carbon::today());
 
                         //Si no ha tomado festivo o es jornada laborable tipo 'teletrabajo':
