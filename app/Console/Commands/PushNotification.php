@@ -138,6 +138,6 @@ class PushNotification extends Command
         ]]);
 
 
-        echo $user;
+        Log::info('push enviado');
     }
 }
