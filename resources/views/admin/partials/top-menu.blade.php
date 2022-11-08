@@ -136,8 +136,8 @@ if(!$initial_imports->value){
                                     $minutes = App\Helpers\helpers::getMinutes($lastHour->hour);
                                     //16/07/21: se pone un fijo de 5 minutos para el tiempo máximo.
                                     //01/11/22: se toma como tiempo el máximo o mínimo del item - 1 minuto.
-                                    //$max_time = $ti->max > 0? $ti->max-1:$ti->min-1;
-                                    $max_time = 5;
+                                    $max_time = $ti->max > 0? $ti->max-1:$ti->min-1;
+                                    //$max_time = 5;
                                     $total_minutes = $minutes + $max_time; //$ti->max;
 
                                     //Hora de desbloqueo:
@@ -164,9 +164,9 @@ if(!$initial_imports->value){
                         {{-- Concepto de entrada --}}
                         @if(!$lastHour || $lastHour->flag == 2)
                             @php
-                                $tipoCH = $entradaId;
-                                $actionCH = 'entrada';
-                                $flag = 1;
+                            $tipoCH = $entradaId;
+                            $actionCH = 'entrada';
+                            $flag = 1;
                             @endphp
 
                         {{-- Concepto de salida --}}
@@ -234,6 +234,7 @@ if(!$initial_imports->value){
                                     </span>
                                 </a>
 
+                                {{-- Conceptos horarios --}}
                                 @if($timetable_items->count())
                                     <ul class="dropdown-menu dropdown-alerts" @if(!$agent->isDesktop() && !in_array($ip, $setted_ips)) style="right: -150px;" @endif>
                                         <li class="dm-header">
@@ -250,7 +251,7 @@ if(!$initial_imports->value){
                                                 @if($ti->type == $flag)
                                                     {{-- Omitimos los conceptos básicos para móvil si se han bloqueado por configuración --}}
                                                     {{-- && is_array($setted_ips) && in_array($ip, $setted_ips) --}}
-                                                    @if($ti->basic_item == 1 && $agent->isMobile() && !config('constants.BASIC_TIMETABLE_ITEMS_'))
+                                                    @if($ti->basic_item == 1 && !$agent->isDesktop() && !config('constants.BASIC_TIMETABLE_ITEMS_'))
                                                         @php
                                                         $seeConcept = 'oculto';
                                                         @endphp
@@ -296,9 +297,6 @@ if(!$initial_imports->value){
                                                     $seeConcept = '';
                                                     @endphp
                                                 @endif
-
-
-                                                {{-- Aquí código anterior en caso de fallar el refactoring --}}
                                             @endforeach
                                         @else
                                             {{ trans('textos.horarios_conceptos_sin') }}
