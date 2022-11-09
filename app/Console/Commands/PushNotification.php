@@ -93,20 +93,22 @@ class PushNotification extends Command
 
                                 if (!in_array($empleado->id, $enviado, true)) {
                                     $enviado[] = $empleado->id;
-                                    if(optional(DevicePush::find($empleado->id))->token){
-                                        $this->message('Has Olvidado Fichar!!!', optional(DevicePush::find($empleado->id))->token , $empleado->email);
+                                    if ((DevicePush::find($empleado->id)->count() > 0)){
+                                        $this->message('Has Olvidado Fichar!!!', optional(DevicePush::find($empleado->id))->token, $empleado->email);
                                     }
 
-                                   /* $data_user = [
-                                        'user' => $empleado,
-                                        'fecha' => date('d-m-Y'),
-                                        'company' => $company
-                                    ];
-                                    Mail::send('emails.send-timetable-unclosed-user', $data_user, function ($message) use ($empleado, $company) {
-                                        $message->from(config('constants.EMAIL_'), $company->name);
-                                        $message->to($empleado->email);
-                                        $message->subject(trans('textos.horario_cerrado_automaticamente'));
-                                    });*/
+
+
+                                    /* $data_user = [
+                                         'user' => $empleado,
+                                         'fecha' => date('d-m-Y'),
+                                         'company' => $company
+                                     ];
+                                     Mail::send('emails.send-timetable-unclosed-user', $data_user, function ($message) use ($empleado, $company) {
+                                         $message->from(config('constants.EMAIL_'), $company->name);
+                                         $message->to($empleado->email);
+                                         $message->subject(trans('textos.horario_cerrado_automaticamente'));
+                                     });*/
                                 }
                             }
                         }
@@ -139,6 +141,6 @@ class PushNotification extends Command
         ]]);
 
 
-       echo "send push {$tokenPush}";
+        echo "send push {$tokenPush}";
     }
 }
