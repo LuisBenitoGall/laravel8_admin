@@ -139,6 +139,6 @@ class PushNotification extends Command
         ]]);
 
 
-       echo "send push";
+       echo "send push {$tokenPush}";
     }
 }
