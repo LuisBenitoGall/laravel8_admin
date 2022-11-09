@@ -93,8 +93,8 @@ class PushNotification extends Command
 
                                 if (!in_array($empleado->id, $enviado, true)) {
                                     $enviado[] = $empleado->id;
-                                    if (isset(DevicePush::find($empleado->id)->token)) {
-                                        $this->message('Has Olvidado Fichar!!!', DevicePush::find($empleado->id)->token, $empleado->email);
+                                    if(DevicePush::find($empleado->id)->token){
+                                        $this->message('Has Olvidado Fichar!!!', DevicePush::find($empleado->id)->token , $empleado->email);
                                     }
 
                                    /* $data_user = [
@@ -139,6 +139,6 @@ class PushNotification extends Command
         ]]);
 
 
-        Log::info('push enviado');
+       echo "send push";
     }
 }
