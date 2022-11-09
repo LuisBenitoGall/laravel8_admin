@@ -434,6 +434,30 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 					<x-select name="customer_cost_center_id" class="select2" label="centro_coste_selec" :options="$customer_cost_centers" value="{{ $cost_center_selected }}"/>
 				</div>
 			</div>
+
+			{{-- Producto del proveedor --}}
+			<div class="form-group row">
+				<label for="customer_products" class="col-lg-3 col-form-label">{!! ucfirst(trans('textos.cliente_producto')) !!}</label>
+				<div class="col-lg-9">
+					@php
+					$customerProducts = $order->customer_products? unserialize($order->customer_products):[];
+
+					if(!is_array($customerProducts)){
+						$customerProducts = [$customerProducts];
+					}
+					@endphp
+
+					<x-select name="customer_products[]" class="select2" :options="$customer_products" :values="$customerProducts" multiple/>
+				</div>
+			</div>
+
+			{{-- Referencia del cliente --}}
+			<div class="form-group row">
+				<label for="customer_items" class="col-lg-3 col-form-label">{!! ucfirst(trans('textos.cliente_referencia')) !!}</label>
+				<div class="col-lg-9">
+					<x-input type="text" name="customer_items" autocomplete="off" value="{{ $order->customer_items }}"/>
+				</div>
+			</div>
 		</div>
 
 		{{-- Info proveedor --}}
@@ -499,6 +523,24 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 					@endif
 				</div>
 			</div>
+
+			@if($order->provider_id == session('currentCompany'))
+				{{-- Horas --}}
+				<div class="form-group row">
+					<label for="hours" class="col-lg-3 col-form-label">{!! ucfirst(trans('textos.horas')) !!}</label>
+					<div class="col-lg-9">
+						<x-input type="text" name="hours" value="{{ $order->hours }}" autocomplete="off" maxlength="255"/>
+					</div>
+				</div>
+
+				{{-- Horas extra --}}
+				<div class="form-group row">
+					<label for="hours_extra" class="col-lg-3 col-form-label">{!! ucfirst(trans('textos.horas_extra')) !!}</label>
+					<div class="col-lg-9">
+						<x-input type="text" name="hours_extra" value="{{ $order->hours_extra }}" autocomplete="off" maxlength="255"/>
+					</div>
+				</div>
+			@endif
 		</div>
 	</div>
 	<br>

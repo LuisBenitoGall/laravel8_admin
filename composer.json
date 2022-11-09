@@ -9,7 +9,7 @@
         "andreaselia/laravel-api-to-postman": "^1.13",
         "barryvdh/laravel-dompdf": "^0.9.0",
         "fruitcake/laravel-cors": "^3.0",
-        "guzzlehttp/guzzle": "^7.0.1",
+        "guzzlehttp/guzzle": "^7.5",
         "jenssegers/agent": "^2.6",
         "laravel/framework": "^8.54",
         "laravel/passport": "^10.4",
