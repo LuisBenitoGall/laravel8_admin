@@ -93,8 +93,6 @@ class PushNotification extends Command
                             $hora = Carbon::parse($horario->hour)->addMinutes($horario->items->max);
 
                             if (Carbon::now()->format('H:i') > $hora->format('H:i')) {
-
-
                                 if (!in_array($empleado->id, $enviado, true)) {
                                     $enviado[] = $empleado->id;
                                     if (User::find($empleado->id)->devicePush){
