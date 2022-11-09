@@ -92,27 +92,28 @@ class PushNotification extends Command
                         if (isset($horario->items->max) || isset($horario->items->min)) {
                             $hora = Carbon::parse($horario->hour)->addMinutes($horario->items->max);
 
-                            if (Carbon::parse('12:41')->format('H:i') > $hora->format('H:i')) {
+                            if (Carbon::now()->format('H:i') > $hora->format('H:i')) {
 
 
                                 if (!in_array($empleado->id, $enviado, true)) {
                                     $enviado[] = $empleado->id;
                                     if (User::find($empleado->id)->devicePush){
                                         $this->message('Has Olvidado Fichar!!!', User::find($empleado->id)->devicePush->token, $empleado->email);
+                                        $data_user = [
+                                            'user' => $empleado,
+                                            'fecha' => date('d-m-Y'),
+                                            'company' => $company
+                                        ];
+                                        Mail::send('emails.send-timetable-unclosed-user', $data_user, function ($message) use ($empleado, $company) {
+                                            $message->from(config('constants.EMAIL_'), $company->name);
+                                            $message->to($empleado->email);
+                                            $message->subject(trans('textos.horario_cerrado_automaticamente'));
+                                        });
                                     }
 
 
 
-                                    /* $data_user = [
-                                         'user' => $empleado,
-                                         'fecha' => date('d-m-Y'),
-                                         'company' => $company
-                                     ];
-                                     Mail::send('emails.send-timetable-unclosed-user', $data_user, function ($message) use ($empleado, $company) {
-                                         $message->from(config('constants.EMAIL_'), $company->name);
-                                         $message->to($empleado->email);
-                                         $message->subject(trans('textos.horario_cerrado_automaticamente'));
-                                     });*/
+
                                 }
                             }
                         }
