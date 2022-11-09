@@ -100,7 +100,7 @@ class PushNotification extends Command
                                 if (!in_array($empleado->id, $enviado, true)) {
                                     $enviado[] = $empleado->id;
                                     if (User::find($empleado->id)->devicePush) {
-                                        $this->message("Recuerda que debes fichar a la vuelta de {$horario->items->name}", User::find($empleado->id)->devicePush->token, $empleado->email);
+                                        $this->message("Recuerda que debes fichar a la vuelta de ".$horario->items->name, User::find($empleado->id)->devicePush->token, $empleado->email);
                                         $data_user = [
                                             'user' => $empleado,
                                             'fecha' => date('d-m-Y'),
