@@ -8,6 +8,7 @@ use App\Models\Contract;
 use App\Models\DevicePush;
 use App\Models\Employee;
 use App\Models\Timetable;
+use App\Models\TimetableItems;
 use App\Models\User;
 use App\Models\WorkUserCalendar;
 use Carbon\Carbon;
@@ -72,7 +73,6 @@ class PushNotification extends Command
                 ->get();
 
 
-
             foreach ($empleados as $empleado) {
 
 
@@ -86,6 +86,8 @@ class PushNotification extends Command
                         ->orderBy('id', 'DESC')
                         ->first();
 
+                    $itemTable = TimetableItems::find($horario->item_id)->name;
+
                     //Si el horario no está cerrado:
                     $enviado = [];
                     if ($horario && $horario->flag == 2) {
@@ -95,21 +97,19 @@ class PushNotification extends Command
                             if (Carbon::now()->format('H:i') > $hora->format('H:i')) {
                                 if (!in_array($empleado->id, $enviado, true)) {
                                     $enviado[] = $empleado->id;
-                                    if (User::find($empleado->id)->devicePush){
-                                        $this->message('Has Olvidado Fichar!!!', User::find($empleado->id)->devicePush->token, $empleado->email);
+                                    if (User::find($empleado->id)->devicePush) {
+                                        $this->message("Recuerda que debes fichar a la vuelta de {$itemTable}", User::find($empleado->id)->devicePush->token, $empleado->email);
                                         $data_user = [
                                             'user' => $empleado,
                                             'fecha' => date('d-m-Y'),
                                             'company' => $company
                                         ];
-                                        Mail::send('emails.send-timetable-unclosed-user', $data_user, function ($message) use ($empleado, $company) {
+                                        Mail::send('emails.send-timetable-unclosed-user', $data_user, function ($message) use ($itemTable, $empleado, $company) {
                                             $message->from(config('constants.EMAIL_'), $company->name);
                                             $message->to($empleado->email);
-                                            $message->subject(trans('textos.horario_cerrado_automaticamente'));
+                                            $message->subject("Recuerda que debes fichar a la vuelta de {$itemTable}");
                                         });
                                     }
-
-
 
 
                                 }
