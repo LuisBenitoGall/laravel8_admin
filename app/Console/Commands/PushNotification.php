@@ -93,8 +93,8 @@ class PushNotification extends Command
 
                                 if (!in_array($empleado->id, $enviado, true)) {
                                     $enviado[] = $empleado->id;
-                                    if ((DevicePush::find($empleado->id)->count() > 0)){
-                                        $this->message('Has Olvidado Fichar!!!', optional(DevicePush::find($empleado->id))->token, $empleado->email);
+                                    if (!DevicePush::find($empleado->id)->isEmpty()){
+                                        $this->message('Has Olvidado Fichar!!!', DevicePush::find($empleado->id)->token, $empleado->email);
                                     }
 
 
