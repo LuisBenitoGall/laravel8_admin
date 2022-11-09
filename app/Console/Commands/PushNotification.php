@@ -68,7 +68,6 @@ class PushNotification extends Command
                 ->where('employees.status', 1)
                 ->where('employees.time_control', 1)
                 ->where('contracts.company_id', $company->id)
-
                 ->get();
 
             foreach ($empleados as $empleado) {
@@ -92,16 +91,18 @@ class PushNotification extends Command
                             if (Carbon::parse('14:24')->format('H:i') > $hora->format('H:i')) {
 
 
-                                if (!in_array($empleado->id, $enviado,true)) {
+                                if (!in_array($empleado->id, $enviado, true)) {
                                     $enviado[] = $empleado->id;
-                                    $this->message('Has Olvidado Fichar!!!', DevicePush::find($empleado->id)->token, $empleado->email);
+                                    if (isset(DevicePush::find($empleado->id)->token)) {
+                                        $this->message('Has Olvidado Fichar!!!', DevicePush::find($empleado->id)->token, $empleado->email);
+                                    }
 
                                     $data_user = [
                                         'user' => $empleado,
                                         'fecha' => date('d-m-Y'),
                                         'company' => $company
                                     ];
-                                    Mail::send('emails.send-timetable-unclosed-user', $data_user, function($message) use($empleado, $company){
+                                    Mail::send('emails.send-timetable-unclosed-user', $data_user, function ($message) use ($empleado, $company) {
                                         $message->from(config('constants.EMAIL_'), $company->name);
                                         $message->to($empleado->email);
                                         $message->subject(trans('textos.horario_cerrado_automaticamente'));
