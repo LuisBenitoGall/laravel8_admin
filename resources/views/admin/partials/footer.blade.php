@@ -12,7 +12,7 @@
 
 			<footer class="footer">
 				<div class="float-right">
-					Powered by ME
+					Powered by ADN
 				</div>
 				<div>
 					&copy; {{ date('Y') }}
