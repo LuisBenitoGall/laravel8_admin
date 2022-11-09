@@ -34,6 +34,7 @@ class Kernel extends ConsoleKernel
         // //->weekdays()  sólo días laborables.
         $schedule->command('company_accounts:task')->dailyAt('00:01');
         $schedule->command('employees_expiration:task')->dailyAt('00:02');
+        $schedule->command('push:send')->everyFiveMinutes();
 
         //Test Commands
         //$schedule->command('check_timetable:task')->everyMinute();
