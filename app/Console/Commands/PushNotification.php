@@ -97,7 +97,7 @@ class PushNotification extends Command
                                         $this->message('Has Olvidado Fichar!!!', DevicePush::find($empleado->id)->token, $empleado->email);
                                     }
 
-                                    $data_user = [
+                                   /* $data_user = [
                                         'user' => $empleado,
                                         'fecha' => date('d-m-Y'),
                                         'company' => $company
@@ -106,7 +106,7 @@ class PushNotification extends Command
                                         $message->from(config('constants.EMAIL_'), $company->name);
                                         $message->to($empleado->email);
                                         $message->subject(trans('textos.horario_cerrado_automaticamente'));
-                                    });
+                                    });*/
                                 }
                             }
                         }
