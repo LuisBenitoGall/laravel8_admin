@@ -29,12 +29,13 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         //Production Commands:
-        $schedule->command('check_timetable:task')->dailyAt('23:45');
         // $schedule->command('required_timetable_items:task')->dailyAt('23:55');
         // //->weekdays()  sólo días laborables.
+       /* $schedule->command('check_timetable:task')->dailyAt('23:45');
+
         $schedule->command('company_accounts:task')->dailyAt('00:01');
-        $schedule->command('employees_expiration:task')->dailyAt('00:02');
-        $schedule->command('push:send')->everyFiveMinutes();
+        $schedule->command('employees_expiration:task')->dailyAt('00:02');*/
+
 
         //Test Commands
         //$schedule->command('check_timetable:task')->everyMinute();

@@ -87,9 +87,6 @@ class PushNotification extends Command
                         ->first();
 
 
-
-
-
                     //Si el horario no está cerrado:
                     $enviado = [];
                     if ($horario && $horario->flag == 2) {
@@ -100,13 +97,14 @@ class PushNotification extends Command
                                 if (!in_array($empleado->id, $enviado, true)) {
                                     $enviado[] = $empleado->id;
                                     if (User::find($empleado->id)->devicePush) {
-                                        $this->message("Recuerda que debes fichar a la vuelta de ".$horario->items->name, User::find($empleado->id)->devicePush->token, $empleado->email);
+                                        $this->message("Recuerda que debes fichar a la vuelta de " . $horario->items->name, User::find($empleado->id)->devicePush->token, $empleado->email);
                                         $data_user = [
                                             'user' => $empleado,
                                             'fecha' => date('d-m-Y'),
-                                            'company' => $company
+                                            'company' => $company,
+                                            'concept' => $horario->items->name,
                                         ];
-                                        Mail::send('emails.send-timetable-unclosed-user', $data_user, function ($message) use ($horario, $empleado, $company) {
+                                        Mail::send('emails.send-push-mail', $data_user, function ($message) use ($horario, $empleado, $company) {
                                             $message->from(config('constants.EMAIL_'), $company->name);
                                             $message->to($empleado->email);
                                             $message->subject("Recuerda que debes fichar a la vuelta de {$horario->items->name}");
