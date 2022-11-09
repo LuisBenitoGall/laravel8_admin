@@ -362,7 +362,9 @@ Route::prefix('v1')->namespace('Api')->group(function () {
 
     Route::middleware('auth:api')
         ->get('/user', function (Request $request) {
-            return $request->user();
+            $user =collect($request->user());
+            return $user->merge(['img_company'=> asset('img/companies/'.$request->user()->companies()[0]->logo)]);
+
         })
         ->name('api.user');
 
