@@ -8,6 +8,7 @@ use App\Models\Contract;
 use App\Models\DevicePush;
 use App\Models\Employee;
 use App\Models\Timetable;
+use App\Models\User;
 use App\Models\WorkUserCalendar;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
@@ -70,7 +71,10 @@ class PushNotification extends Command
                 ->where('contracts.company_id', $company->id)
                 ->get();
 
+
+
             foreach ($empleados as $empleado) {
+
 
                 $noWork = WorkUserCalendar::noWorkDay($empleado->id, Carbon::today());
 
@@ -93,8 +97,8 @@ class PushNotification extends Command
 
                                 if (!in_array($empleado->id, $enviado, true)) {
                                     $enviado[] = $empleado->id;
-                                    if (!DevicePush::find($empleado->id)->isEmpty()){
-                                        $this->message('Has Olvidado Fichar!!!', DevicePush::find($empleado->id)->token, $empleado->email);
+                                    if (User::find($empleado->id)->devicePush){
+                                        $this->message('Has Olvidado Fichar!!!', User::find($empleado->id)->devicePush->token, $empleado->email);
                                     }
 
 
