@@ -40,9 +40,15 @@ class UserWorkplaces extends Model{
         $data = Employee::select('workplaces.id', 'workplaces.name')
         ->join('workplaces', 'employees.workplace_id', '=', 'workplaces.id')
         ->where('employees.user_id', $user_id)
-        ->where('employees.start_date', '<=', $from)
-        ->where('employees.end_date', '>=', $to)
+        ->where(function($query) use ($from, $to){
+            $query->where('employees.start_date', '<=', $from)
+            ->orWhere('employees.end_date', '>=', $to);
+        })
         ->first();
+
+        // ->where('employees.start_date', '<=', $from)
+        // ->where('employees.end_date', '>=', $to)
+        
 
         //var_dump($data);
 

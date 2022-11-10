@@ -768,10 +768,9 @@ class UserController extends Controller{
             //Centro de trabajo del usuario en el intervalo señalado:
             $workplace = UserWorkplaces::getEmployeeWorkplace($user_id, $from, $to);
 
-            //var_dump($workplace, $from, $to, $user_id);
+            //dd($workplace, $from, $to, $user_id);
 
             $data = Timetable::listUserTimetables($from, $to, $user_id, $workplace->id);
-          //  dd($data);
 
             return DataTables::of($data)
             ->addColumn('fecha', function($row){

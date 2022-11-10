@@ -173,6 +173,7 @@ class Timetable extends Model
                             //Si teniendo horario personalizado, para el día no hay horas, se considera jornada no trabajada.
                             if (!$custom_hours[$week_day]) {
                                 $isWorkedDay = false;
+                                $hoursOfWork = '0';
                             }
 
                             if ($custom_hours) {
