@@ -163,12 +163,13 @@ class Timetable extends Model{
                 if($custom_timetables->count()){
                     foreach($custom_timetables as $ct){
                         //Si la fecha se encuentra en alguno de los intervalos de horarios customizados, se asignan a número de horas a trabajar, el número de horas correspondiente al día de la semana que toque:
-                        if($date >= $ct->from && $date <= $ct->to){    
+                        if($date >= $ct->from && $date <= $ct->to){   
                             $custom_hours = $ct->daily_hours? unserialize($ct->daily_hours):false;
 
                             //Si teniendo horario personalizado, para el día no hay horas, se considera jornada no trabajada.
                             if(!$custom_hours[$week_day]){
                                 $isWorkedDay = false;
+                                $hoursOfWork = '0';
                             }
 
                             if($custom_hours){

@@ -75,15 +75,19 @@
 	                                <i class="fa fa-edit"></i>
 	                            </a>
 	                        @endcan	
-	                        
-	                        @if($row->status == 1)
-	                        	{{-- Horarios personalizados: --}}
-	                       		@can('employees.edit')
-		                       		<a href="#" class="btn btn-xs btn-info btnCustomTimetables" rel="tooltip" title="{!! ucfirst(trans('textos.horarios_personalizados')) !!}" data-toggle="modal" data-target="#modal-custom-timetables" data-id="{{ $row->id }}" data-companyid="{{ $row->companyId }}">
-		                                <i class="fa fa-clock"></i>
-		                            </a>
-	                        	@endcan	
+	                       
+                        	{{-- Horarios personalizados: --}}
+                       		@can('employees.edit')
+                       			@php
+                       			$add_custom_timetables = $row->status == 1? true:false;
+                       			@endphp
 
+	                       		<a href="#" class="btn btn-xs btn-info btnCustomTimetables" rel="tooltip" title="{!! ucfirst(trans('textos.horarios_personalizados')) !!}" data-toggle="modal" data-target="#modal-custom-timetables" data-id="{{ $row->id }}" data-companyid="{{ $row->companyId }}" data-add="{{ $add_custom_timetables }}">
+	                                <i class="fa fa-clock"></i>
+	                            </a>
+                        	@endcan	
+
+	                        @if($row->status == 1)
 	                        	{{-- Cancelar contrato: --}}
 								@can('employees.edit')
 									<a href="#" class="btn btn-xs btn-warning btnCancelEmployee" rel="tooltip" title="{!! ucfirst(trans('textos.contrato_cancelar')) !!}" data-toggle="modal" data-target="#modal-cancel-employee" data-id="{{ $row->id }}">
