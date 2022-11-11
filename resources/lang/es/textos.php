@@ -2150,6 +2150,7 @@ return [
 	'horario_cerrado_automaticamente_aviso' => 'Tu horario laboral se ha cerrado automáticamente en fecha',
 	'horario_cerrado_automaticamente_texto' => 'Tu horario laboral de esta jornada se ha cerrado automáticamente. Contacta por favor con RRHH para confirmar tu hora de salida, gracias.',
 	'horario_texto_push' => 'recuerda que debes fichar a tu vuelta de',
+	'horario_texto_push_warning' => 'recuerda que debes fichar para',
 	'horarios_cerrados_automaticamente_lista' => 'Lista de horarios cerrados automáticamente',
 	'factura_generar' => 'Generar factura',
 	'factura_integra' => 'Factura íntegra',
