@@ -87,7 +87,7 @@ class RequiredWarningPush extends Command
                         ->get();
                     foreach ($timeTableItems as $item) {
                         if ($item->id !== $horario->item_id) {
-                            if (Carbon::now()->format('H:m') > $item->required_warning->format('H:i')) {
+                            if (Carbon::now()->format('H:i') > $item->required_warning) {
                                 if (User::find($empleado->id)->devicePush) {
                                     $this->message("Recuerda que debes fichar a la vuelta de " . $item->name, User::find($empleado->id)->devicePush->token, $empleado->email);
                                     $data_user = [
