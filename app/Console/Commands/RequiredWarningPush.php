@@ -89,17 +89,17 @@ class RequiredWarningPush extends Command
                         if ($item->id !== $horario->item_id) {
                             if (Carbon::now()->format('H:i') > $item->required_warning) {
                                 if (User::find($empleado->id)->devicePush) {
-                                    $this->message("Recuerda que debes fichar a la vuelta de " . $item->name, User::find($empleado->id)->devicePush->token, $empleado->email);
+                                    $this->message("Recuerda que debes fichar para " . $item->name, User::find($empleado->id)->devicePush->token, $empleado->email);
                                     $data_user = [
                                         'user' => $empleado,
                                         'fecha' => date('d-m-Y'),
                                         'company' => $company,
-                                        'concept' => $horario->items->name,
+                                        'concept' => $item->name,
                                     ];
-                                    Mail::send('emails.send-push-mail', $data_user, function ($message) use ($item, $horario, $empleado, $company) {
+                                    Mail::send('emails.send-push-mail-warning', $data_user, function ($message) use ($item, $horario, $empleado, $company) {
                                         $message->from(config('constants.EMAIL_'), $company->name);
                                         $message->to($empleado->email);
-                                        $message->subject("Recuerda que debes fichar  de {$item->name}");
+                                        $message->subject("Recuerda que debes fichar  para {$item->name}");
                                     });
                                 }
                             }
