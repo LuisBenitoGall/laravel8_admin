@@ -10,6 +10,7 @@ use App\Models\TimetableItems;
 use App\Models\User;
 use App\Models\WorkUserCalendar;
 use Carbon\Carbon;
+use GuzzleHttp\Client;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
 
@@ -40,9 +41,8 @@ class RequiredWarningPush extends Command
     }
 
     /**
-     * Execute the console command.
-     *
-     * @return int
+     * @return void
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function handle()
     {
@@ -111,5 +111,27 @@ class RequiredWarningPush extends Command
 
             }
         }
+    }
+
+    /**
+     * @param string $msg
+     * @param $tokenPush
+     * @param $user
+     * @return void
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function message(string $msg, $tokenPush, $user)
+    {
+
+        $client = new Client();
+        $response = $client->request('POST', 'https://api.electrolytic.app/push/send', ['json' => [
+            'appKey' => 'XxSDtdKWsvc922mnKYmF',
+            'appSecret' => 'c788a2f4b5ef79944ecfe103',
+            'target' => ["$tokenPush"],
+            'payload' => $msg
+        ]]);
+
+
+        echo "send push {$tokenPush}";
     }
 }
