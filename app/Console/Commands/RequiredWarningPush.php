@@ -94,7 +94,7 @@ class RequiredWarningPush extends Command
                                         'user' => $empleado,
                                         'fecha' => date('d-m-Y'),
                                         'company' => $company,
-                                        'concept' => $horario->items->name,
+                                        'concept' => $item->name,
                                     ];
                                     Mail::send('emails.send-push-mail-warning', $data_user, function ($message) use ($item, $horario, $empleado, $company) {
                                         $message->from(config('constants.EMAIL_'), $company->name);
