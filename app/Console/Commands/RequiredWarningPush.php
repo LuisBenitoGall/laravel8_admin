@@ -2,9 +2,11 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Company;
 use App\Models\CompanyModules;
 use App\Models\Employee;
 use App\Models\Timetable;
+use App\Models\TimetableItems;
 use App\Models\User;
 use App\Models\WorkUserCalendar;
 use Carbon\Carbon;
@@ -67,30 +69,47 @@ class RequiredWarningPush extends Command
 
             foreach ($empleados as $empleado) {
                 $noWork = WorkUserCalendar::noWorkDay($empleado->id, Carbon::today());
+
                 $horario = Timetable::select('id', 'hour', 'item_id', 'flag', 'date')
                     ->where('user_id', $empleado->id)
+                    ->whereDate('created_at', Carbon::now())
                     ->orderBy('date', 'DESC')
                     ->orderBy('id', 'DESC')
                     ->first();
-                if ($horario && $horario->flag == 1 && $horario->items->required !== null) {
-                    if(Carbon::now()->format('H:i') > $horario->items->required_warning->format('H:i')){
-                        if (User::find($empleado->id)->devicePush) {
-                            $this->message("Recuerda que debes fichar para " . $horario->items->name, User::find($empleado->id)->devicePush->token, $empleado->email);
-                            $data_user = [
-                                'user' => $empleado,
-                                'fecha' => date('d-m-Y'),
-                                'company' => $company,
-                                'concept' => $horario->items->name,
-                            ];
-                            Mail::send('emails.send-push-mail', $data_user, function ($message) use ($horario, $empleado, $company) {
-                                $message->from(config('constants.EMAIL_'), $company->name);
-                                $message->to($empleado->email);
-                                $message->subject("Recuerda que debes fichar para {$horario->items->name}");
-                            });
-                    }
-                }
-            }
 
+                $timeTableItems = TimetableItems::where('company_id', $company->id)
+                    ->whereNotNull('required')
+                    ->get();
+
+                if ($horario) {
+                    $timeTableItems = TimetableItems::where('company_id', $company->id)
+                        ->whereNotNull('required')
+                        ->get();
+                    foreach ($timeTableItems as $item) {
+                        if ($item->id !== $horario->item_id) {
+                            if (Carbon::now()->format('H:m') > $item->required_warning->format('H:i')) {
+                                if (User::find($empleado->id)->devicePush) {
+                                    $this->message("Recuerda que debes fichar a la vuelta de " . $item->name, User::find($empleado->id)->devicePush->token, $empleado->email);
+                                    $data_user = [
+                                        'user' => $empleado,
+                                        'fecha' => date('d-m-Y'),
+                                        'company' => $company,
+                                        'concept' => $horario->items->name,
+                                    ];
+                                    Mail::send('emails.send-push-mail', $data_user, function ($message) use ($item, $horario, $empleado, $company) {
+                                        $message->from(config('constants.EMAIL_'), $company->name);
+                                        $message->to($empleado->email);
+                                        $message->subject("Recuerda que debes fichar  de {$item->name}");
+                                    });
+                                }
+                            }
+                        }
+                    }
+
+                }
+
+
+            }
         }
     }
 }

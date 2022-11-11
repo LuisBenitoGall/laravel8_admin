@@ -7,20 +7,25 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class TimetableItems extends Model{
+class TimetableItems extends Model
+{
     use HasFactory;
     use SoftDeletes;
 
     protected $table = 'timetable_items';
 
     protected $dates = ['deleted_at'];
+    protected $casts = [
+        'required_warning' => 'datetime',
+    ];
 
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
     }
 
-   public function timeTable(){
+    public function timeTable()
+    {
         return $this->hasOne(Timetable::class);
-   }
+    }
 }
