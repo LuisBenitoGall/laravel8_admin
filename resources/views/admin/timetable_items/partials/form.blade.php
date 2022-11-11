@@ -143,10 +143,11 @@
     @endphp
     <label for="required" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.obligatorio_diario')) !!}</label>
     <div class="col-lg-2">
-        <label class="custom-chk-rdb" rel="tooltip">
-            <input type="checkbox" name="required" {{$required ? 'checked': ''}} value="1">
-            <span class="chk" style="top: 5px;"></span>
-        </label>
+        @php
+            $required = $item && $item->required? $item->required:'';
+        @endphp
+
+        <x-input type="text" name="required" value="{{ $required }}" class="text-right" autocomplete="off" maxlength="3" info="timetable-item-required"/>
     </div>
 
 
