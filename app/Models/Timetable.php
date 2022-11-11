@@ -51,6 +51,23 @@ class Timetable extends Model
      */
     public static function listUserTimetables($from, $to, $user_id, $workplace_id)
     {
+        //Todos los contratos desde la fecha de inicio, obteniendo los contratos cuya fecha de finalización sea posterior a la fecha de inicio del intervalo.
+        // $employees = Employee::select('start_date', 'end_date')
+        // ->where('user_id', $user_id)
+        // ->where('end_date', '>=', $from)
+        // ->get();
+
+        // //Array de fechas trabajadas en los contratos comprendidas entre el intervalo recibido:
+        // $arrEmployeeWorkingDays = [];
+        // foreach($employees as $e){
+        //     $inicio = $e->start_date < $from? $from:$e->start_date;
+        //     $fin = $e->end_date > $to? $to:$e->end_date;
+        //     $arr = Timetable::setRankDatesArr($inicio, $fin);
+        //     //Merge con el array $arrEmployeeWorkingDays:
+        // }
+
+
+
         //Obtenemos fecha de inicio del contrato más antiguo del empleado, pues la fecha $from no puede ser anterior al inicio de la actividad del empleado en la empresa:
         $employee = Employee::select('start_date')
             ->where('user_id', $user_id)
@@ -61,6 +78,8 @@ class Timetable extends Model
 
         //Array del intervalo de fechas:
         $arrFromTo = Timetable::setRankDatesArr($from, $to);
+
+        //dd($employees, $arrFromTo);
 
         //Horarios del usuario:
         $timetables = Timetable::getUserTimetable($user_id, $from, $to);
