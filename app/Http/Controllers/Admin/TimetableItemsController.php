@@ -28,7 +28,7 @@ class TimetableItemsController extends Controller{
      * 6. Eliminar item.
      * 7. Exportar valores a otras empresas vinculadas.
      */
-    
+
     private $option = 'horarios';
     private $module = 'timetables';
     private $languages;
@@ -52,25 +52,25 @@ class TimetableItemsController extends Controller{
                 'name' => 'required|string|max:191'
             ]);
         }
-    } 
+    }
 
     /**
      * 1. Listado de items de la empresa.
      */
     public function index(){
         $header = [
-            'option' => $this->option, 
+            'option' => $this->option,
             'suboption' => 'textos.horarios_conceptos_',
             'module' => $this->module,
             'slug' => 'timetable-items'
-        ]; 
+        ];
 
         //Comprobamos si existen los movimientos básicos de entrada y salida, y se crean en caso de no existir:
         $basics = TimetableItems::select('id')
         ->where('company_id', session('currentCompany'))
         ->where('basic_item', 1)
         ->get();
-        
+
         if(!$basics->count()){
             //Entrada:
             $entry = new TimetableItems();
@@ -80,7 +80,7 @@ class TimetableItemsController extends Controller{
             $entry->basic_item = true;
             $entry->type = 1;
             $entry->icon = 'sign-in-alt';
-            $entry->save();    
+            $entry->save();
 
             //Salida:
             $exit = new TimetableItems();
@@ -123,13 +123,13 @@ class TimetableItemsController extends Controller{
      */
     public function create(){
         $header = [
-            'option' => $this->option, 
+            'option' => $this->option,
             'suboption' => 'textos.concepto_nuevo',
             'module' => $this->module,
             'slug' => 'timetable-items'
-        ]; 
+        ];
 
-        return view('admin.timetable_items.create')->with(compact('header'));    
+        return view('admin.timetable_items.create')->with(compact('header'));
     }
 
     /**
@@ -163,6 +163,7 @@ class TimetableItemsController extends Controller{
         $item->color = $request->color;
         $item->reviewable = $reviewable;
         $item->required = $request->required;
+        $item->required_warning = $request->required_warning;
         $item->save();
 
         //Indicamos si el movimiento -de entrada- tiene movimiento exclusivo de salida:
@@ -172,7 +173,7 @@ class TimetableItemsController extends Controller{
             $slug_out = Str::slug($name_out);
 
             $item_out = new TimetableItems();
-            $item_out->company_id = session('currentCompany'); 
+            $item_out->company_id = session('currentCompany');
             $item_out->name = $name_out;
             $item_out->slug = $slug_out;
             $item_out->type = 2;
@@ -190,17 +191,17 @@ class TimetableItemsController extends Controller{
      */
     public function edit(TimetableItems $item){
         $header = [
-            'option' => $this->option, 
+            'option' => $this->option,
             'suboption' => 'textos.concepto_editar',
             'module' => $this->module,
             'slug' => 'timetable-items'
-        ]; 
+        ];
 
         $day_types = DayTypes::select('id', 'name')
         ->where('company_id', session('currentCompany'))
         ->get();
 
-        return view('admin.timetable_items.edit', compact('header', 'item', 'day_types'));  
+        return view('admin.timetable_items.edit', compact('header', 'item', 'day_types'));
     }
 
     /**
@@ -228,6 +229,7 @@ class TimetableItemsController extends Controller{
         $item->color = $request->color;
         $item->reviewable = $reviewable;
         $item->required = $request->required;
+        $item->required_warning = $request->required_warning;
         $item->save();
 
         $msg = trans('textos.concepto_updated');
@@ -280,9 +282,9 @@ class TimetableItemsController extends Controller{
                             $item->min_hour = $row->min_hour;
                             $item->color = $row->color;
                             $item->reviewable = $row->reviewable;
-                            $item->save(); 
+                            $item->save();
                         }
-                        
+
                     }
                 }
 
