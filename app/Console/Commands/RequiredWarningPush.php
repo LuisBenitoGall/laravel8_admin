@@ -77,16 +77,17 @@ class RequiredWarningPush extends Command
                     ->orderBy('id', 'DESC')
                     ->first();
 
-                $timeTableItems = TimetableItems::where('company_id', $company->id)
-                    ->whereNotNull('required')
-                    ->get();
+
 
                 if ($horario) {
+
                     $timeTableItems = TimetableItems::where('company_id', $company->id)
                         ->whereNotNull('required')
                         ->get();
+
                     foreach ($timeTableItems as $item) {
-                        if ($item->id !== $horario->item_id) {
+                        $verify = Timetable::where('item_id',$item->id)->count();
+                        if ($verify) {
                             if (Carbon::now()->format('H:i') > $item->required_warning) {
                                 if (User::find($empleado->id)->devicePush) {
                                     $this->message("Recuerda que debes fichar para " . $item->name, User::find($empleado->id)->devicePush->token, $empleado->email);
