@@ -16,7 +16,7 @@ class TimetableItems extends Model
 
     protected $dates = ['deleted_at'];
     protected $casts = [
-        'required_warning' => 'datetime',
+        'required_warning' => 'time:H:i',
     ];
 
     public function company(): BelongsTo
