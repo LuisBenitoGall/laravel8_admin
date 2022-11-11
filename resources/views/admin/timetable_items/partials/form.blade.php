@@ -151,7 +151,7 @@
 
 
     {{-- required_warning --}}
-    <label for="min_hour" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.hora_min')) !!} </label>
+    <label for="min_hour" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.hora_required')) !!} </label>
     <div class="col-lg-2">
         @php
             $required_warning = $item && $item->required_warning? substr($item->required_warning,0,-3):'';

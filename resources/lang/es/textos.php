@@ -1853,6 +1853,7 @@ return [
 	'cliente_dudas' => 'Cliente resolución dudas',
 	'preparacion_aaff' => 'Preparación Artes Finales',
 	'hora_min' => 'hora mínima',
+	'hora_required' => 'hora límite ',
 	'exportar_valores' => 'Exportar valores',
 	'exportar_valores_aviso' => 'Exportarás los valores configurados de este módulo a las empresas seleccionadas.',
 	'exportacion_ok' => 'La exportación de datos se ha efectuado correctamente',
