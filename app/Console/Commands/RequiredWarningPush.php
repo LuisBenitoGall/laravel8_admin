@@ -86,7 +86,7 @@ class RequiredWarningPush extends Command
                         ->get();
 
                     foreach ($timeTableItems as $item) {
-                        $verify = Timetable::where('item_id',$item->id)->exists();
+                        $verify = Timetable::where('item_id',$item->id)->whereDate('created_at',Carbon::now())->exists();
                         if (!$verify) {
                             if (Carbon::now()->format('H:i') > $item->required_warning) {
                                 if (User::find($empleado->id)->devicePush) {
