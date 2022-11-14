@@ -23,7 +23,6 @@
         "pusher/pusher-php-server": "^7.0",
         "silviolleite/laravelpwa": "^2.0",
         "spatie/laravel-permission": "^4.3",
-        "studio/laravel-totem": "^8.4",
         "yajra/laravel-datatables-oracle": "~9.0"
     },
     "require-dev": {
