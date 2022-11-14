@@ -279,6 +279,7 @@ $permitted = !$order || ($order && $add_items && !$order->parent)? true:false;
                     </div>
 
                     {{-- Jornadas continuas --}}
+
                     <label for="days_continue"
                            class="col-4 col-sm-2 col-form-label sinpadding-right">{!! ucfirst(trans('textos.jornadas_continuas')) !!}</label>
                     <div class="col-8 col-sm-1 col-xl-1 mb-3">
@@ -589,10 +590,18 @@ $permitted = !$order || ($order && $add_items && !$order->parent)? true:false;
 
         //Cerrar formulario tras store o update:
         $('#closeForm').on('click', function () {
-            $('.new-budget-item').slideUp();
-            $('.btnAddBudgetItem').removeClass('opened').html('<i class="fa fa-plus"></i> ' + txtLineaAdd);
-            @this.
-            set('form_on', false);
+            
+            // Determinamos los campos a comprobar su contenido
+            let n_concept = document.getElementById('newItemConcept').value;
+            let n_qty = document.getElementById('newItemQty').value;
+            let n_block = $('.select2_lw').select2('val');
+
+            if (n_concept && n_block && n_qty >= 0) {
+                $('.new-budget-item').slideUp();
+                $('.btnAddBudgetItem').removeClass('opened').html('<i class="fa fa-plus"></i> ' + txtLineaAdd);
+                @this.set('form_on', false);
+            }
+
         });
 
         // Select2:
