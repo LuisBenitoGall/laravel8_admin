@@ -82,7 +82,6 @@ class RequiredWarningPush extends Command
                 if ($horario) {
 
                     $timeTableItems = TimetableItems::where('company_id', $company->id)
-                        ->whereDate('created_at',Carbon::now())
                         ->whereNotNull('required')
                         ->get();
 
