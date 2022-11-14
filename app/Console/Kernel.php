@@ -17,6 +17,7 @@ class Kernel extends ConsoleKernel
         Commands\CompanyAccountsTask::class,
         Commands\EmployeesExpirationTask::class,
         Commands\RequiredTimetableItemsTask::class,
+        Commands\RequiredWarningPush::class,
         Commands\PushNotification::class
     ];
 
@@ -36,7 +37,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('company_accounts:task')->dailyAt('00:01');
         $schedule->command('employees_expiration:task')->dailyAt('00:02');*/
 
-
+        $schedule->command('warning:push')->everyFiveMinutes();
+        $schedule->command('push:send')->everyFiveMinutes();
         //Test Commands
         //$schedule->command('check_timetable:task')->everyMinute();
         //$schedule->command('required_timetable_items:task')->everyMinute();
