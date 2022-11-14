@@ -456,11 +456,11 @@ class TimetableController extends Controller{
     public function adjustTimetables(){
         $adn_companies = [3,4,8,202,227,275];
         $from = '2021-09-01';
-        $to = '2022-08-31';
+        $to = '2022-10-31';
         $hour_out = '14:00:00';
         $hour_in = '15:00:00';
         $top_minutes = 470;     //Marca el límite por debajo de 8 horas, por debajo del cual no se marca hora de comida.
-        $summer_days = ['start' => '2022-07-11', 'end' => '2022-08-31'];    //Intervalo de fechas de jornada intensiva.
+        $summer_days = ['start' => '2022-07-01', 'end' => '2022-08-31'];    //Intervalo de fechas de jornada intensiva.
 
         $timetable_items = [
             //3 => ['comida' => '', 'entrada' => ''],
