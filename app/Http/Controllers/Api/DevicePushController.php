@@ -15,6 +15,7 @@ class DevicePushController extends Controller
     /**
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
+     * @return \App\Http\Resources\DevicePushCollection
      */
     public function index(Request $request)
     {
@@ -29,17 +30,23 @@ class DevicePushController extends Controller
 
     /**
      * @param \App\Http\Requests\DevicePushStoreRequest $request
-     * @return \Illuminate\Http\Response
+     * @return \App\Http\Resources\DevicePushResource
      */
-    public function store(DevicePushStoreRequest $request)
+    public function store(Request $request)
     {
         // $this->authorize('create', DevicePush::class);
+        if (isset($request->token)) {
+            $devicePush = DevicePush::updateOrCreate(
+                ['user_id' => $request->user_id],
+                ['token' => $request->token]
+            );
 
-        $validated = $request->validated();
+            return new DevicePushResource($devicePush);
+        }
 
-        $devicePush = DevicePush::create($validated);
+        return response()->noContent();
 
-        return new DevicePushResource($devicePush);
+
     }
 
     /**
@@ -57,12 +64,13 @@ class DevicePushController extends Controller
     /**
      * @param \App\Http\Requests\DevicePushUpdateRequest $request
      * @param \App\Models\DevicePush $devicePush
-     * @return \Illuminate\Http\Response
+     * @return \App\Http\Resources\DevicePushResource
      */
     public function update(
         DevicePushUpdateRequest $request,
-        DevicePush $devicePush
-    ) {
+        DevicePush              $devicePush
+    )
+    {
         // $this->authorize('update', $devicePush);
 
         $validated = $request->validated();

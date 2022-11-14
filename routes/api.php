@@ -362,7 +362,9 @@ Route::prefix('v1')->namespace('Api')->group(function () {
 
     Route::middleware('auth:api')
         ->get('/user', function (Request $request) {
-            return $request->user();
+            $user =collect($request->user());
+            return $user->merge(['img_company'=> asset('img/companies/'.$request->user()->companies()[0]->logo)]);
+
         })
         ->name('api.user');
 
@@ -972,6 +974,9 @@ Route::prefix('v1')->namespace('Api')->group(function () {
                 WorkOrderBatchesController::class,
                 'store',
             ])->name('work-orders.batches.store');
+
+            // Device Push
+            Route::apiResource('device-pushes', DevicePushController::class);
         });
 
     /**
@@ -982,4 +987,3 @@ Route::prefix('v1')->namespace('Api')->group(function () {
 
 });
 
-https://laravel8_admin.app/auth/callback

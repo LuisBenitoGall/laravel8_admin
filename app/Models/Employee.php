@@ -13,16 +13,16 @@ class Employee extends Model{
      * 1. Empleados por empresa.
      * 2. Empleados por empresa en array.
      */
-    
+
     use HasFactory;
     use Notifiable;
     use SoftDeletes;
 
-    protected $dates = ['deleted_at']; 
+    protected $dates = ['deleted_at'];
 
     protected $table = 'employees';
 
-    protected $fillable = ['user_id', 'company_id', 'job_title', 'start_date', 'end_date', 'weekly_hours', 'time_control', 'state'. 'observations']; 
+    protected $fillable = ['user_id', 'company_id', 'job_title', 'start_date', 'end_date', 'weekly_hours', 'time_control', 'state'. 'observations'];
 
     /**
      * 1. Empleados por empresa.
@@ -34,7 +34,7 @@ class Employee extends Model{
             ->join('contracts', 'employees.contract_id', '=', 'contracts.id')
             ->where('contracts.company_id', $company_id)
             ->when($status, function($q) use($status){
-                return $q->where('employees.status', $status); 
+                return $q->where('employees.status', $status);
             })
             ->groupBy('users.id')
             ->get();
@@ -42,7 +42,7 @@ class Employee extends Model{
         }else{
             return false;
         }
-    }   
+    }
 
     /**
      * 2. Empleados por empresa en array.
@@ -55,7 +55,7 @@ class Employee extends Model{
             ->join('contracts', 'employees.contract_id', '=', 'contracts.id')
             ->where('contracts.company_id', $company_id)
             ->when($status, function($q) use($status){
-                return $q->where('employees.status', $status); 
+                return $q->where('employees.status', $status);
             })
             ->groupBy('users.id')
             ->orderBy('users.name')
@@ -65,5 +65,9 @@ class Employee extends Model{
         }else{
             return false;
         }
-    }   
+    }
+
+    public function users(){
+        return $this->belongsTo(User::class);
+    }
 }
