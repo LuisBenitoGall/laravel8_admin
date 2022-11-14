@@ -25,6 +25,7 @@ class UserController extends Controller
 
         $users = User::latest()->paginate();
 
+
         return new UserCollection($users);
     }
 

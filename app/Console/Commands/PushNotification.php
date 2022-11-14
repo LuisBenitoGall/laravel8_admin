@@ -8,6 +8,8 @@ use App\Models\Contract;
 use App\Models\DevicePush;
 use App\Models\Employee;
 use App\Models\Timetable;
+use App\Models\TimetableItems;
+use App\Models\User;
 use App\Models\WorkUserCalendar;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
@@ -68,10 +70,11 @@ class PushNotification extends Command
                 ->where('employees.status', 1)
                 ->where('employees.time_control', 1)
                 ->where('contracts.company_id', $company->id)
-
                 ->get();
 
+
             foreach ($empleados as $empleado) {
+
 
                 $noWork = WorkUserCalendar::noWorkDay($empleado->id, Carbon::today());
 
@@ -83,29 +86,32 @@ class PushNotification extends Command
                         ->orderBy('id', 'DESC')
                         ->first();
 
+
                     //Si el horario no está cerrado:
                     $enviado = [];
                     if ($horario && $horario->flag == 2) {
                         if (isset($horario->items->max) || isset($horario->items->min)) {
                             $hora = Carbon::parse($horario->hour)->addMinutes($horario->items->max);
 
-                            if (Carbon::parse('14:24')->format('H:i') > $hora->format('H:i')) {
-
-
-                                if (!in_array($empleado->id, $enviado,true)) {
+                            if (Carbon::now()->format('H:i') > $hora->format('H:i')) {
+                                if (!in_array($empleado->id, $enviado, true)) {
                                     $enviado[] = $empleado->id;
-                                    $this->message('Has Olvidado Fichar!!!', DevicePush::find($empleado->id)->token, $empleado->email);
+                                    if (User::find($empleado->id)->devicePush) {
+                                        $this->message("Recuerda que debes fichar a la vuelta de " . $horario->items->name, User::find($empleado->id)->devicePush->token, $empleado->email);
+                                        $data_user = [
+                                            'user' => $empleado,
+                                            'fecha' => date('d-m-Y'),
+                                            'company' => $company,
+                                            'concept' => $horario->items->name,
+                                        ];
+                                        Mail::send('emails.send-push-mail', $data_user, function ($message) use ($horario, $empleado, $company) {
+                                            $message->from(config('constants.EMAIL_'), $company->name);
+                                            $message->to($empleado->email);
+                                            $message->subject("Recuerda que debes fichar a la vuelta de {$horario->items->name}");
+                                        });
+                                    }
 
-                                    $data_user = [
-                                        'user' => $empleado,
-                                        'fecha' => date('d-m-Y'),
-                                        'company' => $company
-                                    ];
-                                    Mail::send('emails.send-timetable-unclosed-user', $data_user, function($message) use($empleado, $company){
-                                        $message->from(config('constants.EMAIL_'), $company->name);
-                                        $message->to($empleado->email);
-                                        $message->subject(trans('textos.horario_cerrado_automaticamente'));
-                                    });
+
                                 }
                             }
                         }
@@ -138,6 +144,6 @@ class PushNotification extends Command
         ]]);
 
 
-        Log::info('push enviado');
+        echo "send push {$tokenPush}";
     }
 }

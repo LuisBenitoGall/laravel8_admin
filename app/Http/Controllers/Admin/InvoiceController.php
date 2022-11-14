@@ -727,6 +727,7 @@ class InvoiceController extends Controller{
         $providers = Company::join('customer_providers', 'companies.id', '=', 'customer_providers.provider_id')
         ->where('customer_providers.customer_id', session('currentCompany'))
         ->where('customer_providers.status', 1)
+        ->where('companies.id', '!=', session('currentCompany'))
         ->pluck('companies.name', 'companies.id')
         ->toArray();
 

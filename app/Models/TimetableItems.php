@@ -7,7 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class TimetableItems extends Model{
+class TimetableItems extends Model
+{
     use HasFactory;
     use SoftDeletes;
 
@@ -20,7 +21,8 @@ class TimetableItems extends Model{
         return $this->belongsTo(Company::class);
     }
 
-   public function timeTable(){
+    public function timeTable()
+    {
         return $this->hasOne(Timetable::class);
-   }
+    }
 }
