@@ -54,6 +54,8 @@ class RequiredWarningPush extends Command
             ->where('companies.status', 1)
             ->get();
 
+
+
         foreach ($companies as $company) {
             // Emails of company
 
@@ -78,17 +80,21 @@ class RequiredWarningPush extends Command
                     ->first();
 
 
-
-                if ($horario) {
+                if (isset($horario)) {
 
                     $timeTableItems = TimetableItems::where('company_id', $company->id)
                         ->whereNotNull('required')
                         ->get();
 
+
                     foreach ($timeTableItems as $item) {
-                        $verify = Timetable::where('item_id',$item->id)->whereDate('created_at',Carbon::now())->exists();
+
+                        $verify = Timetable::where('item_id', $item->id)
+                            ->where('user_id',$empleado->id)
+                            ->whereDate('created_at', Carbon::now())->exists();
+
                         if (!$verify) {
-                            if (Carbon::now()->format('H:i') > $item->required_warning) {
+                            if (Carbon::now()->format('H:i:s') > $item->required_warning) {
                                 if (User::find($empleado->id)->devicePush) {
                                     $this->message("Recuerda que debes fichar para " . $item->name, User::find($empleado->id)->devicePush->token, $empleado->email);
                                     $data_user = [
