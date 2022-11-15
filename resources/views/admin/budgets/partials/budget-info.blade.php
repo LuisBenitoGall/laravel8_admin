@@ -122,7 +122,7 @@ $readonly = $order->customer_id == session('currentCompany')? true:false;
 		{{-- Presupuesto título --}}
 		<label for="name" class="col-lg-2 col-form-label">{{ ucfirst(trans('textos.presupuesto_titulo')) }}</label>
 		<div class="col-lg-4">
-			<x-input type="text" name="name" value="{{ $order->name }}" autocomplete="off" readonly="{{ $readonly }}" maxlength="255"/>
+			<x-input type="text" name="name" value="{!! $order->name !!}" autocomplete="off" readonly="{{ $readonly }}" maxlength="255"/>
 		</div>
 
 		{{-- Estado - condiciones: 
