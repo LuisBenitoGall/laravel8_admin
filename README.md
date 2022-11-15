@@ -170,6 +170,10 @@ on u.id = uc.user_id
 where uc.company_id in (3,4,8,202,227,275)
 group by u.id
 
+### Instalación de Sentry
+
+- Puedes Consultar la configuración. [Ir A sentry](https://docs.sentry.io/platforms/php/guides/laravel/)
+
 
 ## GUÍA RÁPIDA DE CONFIGURACIÓN INICIAL: se enumeran los pasos a seguir para una correcta configuración de la aplicación en su puesta en marcha.
 1. Acceder a la aplicación con las credenciales proporcionadas.
