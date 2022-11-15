@@ -459,8 +459,12 @@ class TimetableController extends Controller{
         $to = '2022-10-31';
         $hour_out = '14:00:00';
         $hour_in = '15:00:00';
+        //Casos especiales:
+        $special_users = [2,221,218,1231,449,503,230];
+
+        
         $top_minutes = 470;     //Marca el límite por debajo de 8 horas, por debajo del cual no se marca hora de comida.
-        $summer_days = ['start' => '2022-07-01', 'end' => '2022-08-31'];    //Intervalo de fechas de jornada intensiva.
+        $summer_days = ['start' => '2022-07-11', 'end' => '2022-09-02'];    //Intervalo de fechas de jornada intensiva.
 
         $timetable_items = [
             //3 => ['comida' => '', 'entrada' => ''],
@@ -510,6 +514,9 @@ class TimetableController extends Controller{
         ->get();
 
         foreach($users as $u){
+            //Modificando hora de regreso según usuario:
+            if(in_array($u->user_id, $special_users)) $hour_in = '15:20:00';
+
             //Buscamos los items horarios registrados por cada jornada:
             foreach($arrWorkingHours[$u->workplace_id] as $f){
                 //Descartes por teletrabajo:

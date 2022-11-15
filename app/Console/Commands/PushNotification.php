@@ -82,6 +82,7 @@ class PushNotification extends Command
                 if (!$noWork || ($noWork->is_working && $noWork->working_day)) {
                     $horario = Timetable::select('id', 'hour', 'item_id', 'flag', 'date')
                         ->where('user_id', $empleado->id)
+                        ->whereDate('created_at', Carbon::now())
                         ->orderBy('date', 'DESC')
                         ->orderBy('id', 'DESC')
                         ->first();
