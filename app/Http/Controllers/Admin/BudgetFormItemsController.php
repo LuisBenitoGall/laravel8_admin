@@ -301,4 +301,17 @@ class BudgetFormItemsController extends Controller{
         $msg = trans('textos.bloques_ordenados');
         return redirect()->route('budgets.edit', [$request->order_id, 'items'])->with(compact('msg'));
     }
+
+    /**
+     * 9. Eliminar Bloque.
+     */
+    public function deleteBlock(BudgetFormItems $bfi){
+        
+        $order_id = $bfi->order_id;
+
+        $t = $bfi->delete();
+
+        $msg = trans('textos.bloque_deleted');
+        return redirect()->route('budgets.edit', [$order_id, 'items'])->with(compact('msg'));
+    }
 }
