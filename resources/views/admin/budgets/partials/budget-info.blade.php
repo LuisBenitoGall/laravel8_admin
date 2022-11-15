@@ -355,7 +355,7 @@ $readonly = $order->customer_id == session('currentCompany')? true:false;
 	<div class="form-group row">
 		<label for="budget_file_name" class="col-lg-2 col-form-label">{{ ucfirst(trans('textos.nombre_archivo')) }}</label>
 		<div class="col-lg-4">
-			<x-input type="text" name="budget_file_name" value="{{ $order->budget_file_name }}" autocomplete="off" maxlength="255" info="budget-file-name" readonly="{{ $readonly }}"/>
+			<x-input type="text" name="budget_file_name" value="{!! $order->budget_file_name !!}" autocomplete="off" maxlength="255" info="budget-file-name" readonly="{{ $readonly }}"/>
 		</div>
 	</div>
 
