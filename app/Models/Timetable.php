@@ -120,7 +120,7 @@ class Timetable extends Model{
         //Los datos se entregan en un array:
         $data = [];
 
-        if ($timetables->count()) {
+        if($timetables->count()){
             $languages = helpers::languages();
 
             //Último contrato del empleado:
@@ -218,6 +218,9 @@ class Timetable extends Model{
                     }
                 }
 
+                $fixedTime = false;
+
+
                 //Si es fecha trabajada y carece de tratamiento especial como fecha personalizada:
 
                 //if(in_array($date, $arrWorkedDays)){
@@ -256,22 +259,28 @@ class Timetable extends Model{
                                 if (isset($timetables[$idx]) && in_array($timetables[$idx]->date, $arrWorkedDays)) {
                                     //Si tiene un período fijo de tiempo, y el usuario no tiene horarios personalizados, se lo sumamos a la hora de salida:
                                     if ($row->fixed > 0 && !$customTimetableDay) {
-                                        $hasta = helpers::sumaHoras($hora, Helpers::getTimeFromMinutes($row->fixed));
+                                        $hasta = helpers::sumaHoras($hora, helpers::getTimeFromMinutes($row->fixed));
+                                        $fixedTime = true;
 
-                                        //Si el usuario tiene horarios personalizados, se sustituye el valor de hora fija que tenga la empresa por el valor del horario personalizado, esto es, la prevalencia la marca el horario personalizado sobre el horario fijo.
-                                    } elseif ($row->fixed > 0 && $customTimetableDay) {
-                                        $hasta = Helpers::sumaHoras($hora, $hoursOfWork);
+                                    //Si el usuario tiene horarios personalizados, se sustituye el valor de hora fija que tenga la empresa por el valor del horario personalizado, esto es, la prevalencia la marca el horario personalizado sobre el horario fijo:
+                                    }elseif($row->fixed > 0 && $customTimetableDay){
+                                        $hasta = helpers::sumaHoras($hora, $hoursOfWork);
+                                        $fixedTime = true;
 
                                     } else {
                                         $hasta = $timetables[$idx]->hour;
+                                        $fixedTime = false;
+
                                     }
-                                    if ($hasta) $tiempo = Helpers::getTimeBetweenHours($hora, $hasta);
+                                    if ($hasta) $tiempo = helpers::getTimeBetweenHours($hora, $hasta);
 
                                 } else {
-                                    $tiempo = Helpers::getTimeBetweenHours($hora, date('H:i:s'));
+                                    $tiempo = helpers::getTimeBetweenHours($hora, date('H:i:s'));
+                                    $fixedTime = false;
+
                                 }
-                                $totalTime = Helpers::sumaHoras($totalTime, $tiempo);
-                                $acumuladoDia = Helpers::sumaHoras($acumuladoDia, $tiempo);
+                                $totalTime = helpers::sumaHoras($totalTime, $tiempo);
+                                $acumuladoDia = helpers::sumaHoras($acumuladoDia, $tiempo);
                                 $arr['accumulated'] = '';
                                 $setCustomTimetables = false;
                             }
@@ -286,9 +295,12 @@ class Timetable extends Model{
                             }
 
                             //El acumulado se muestra sólo en el último registro del día:
-                            if ($row->flag == 2 && ((isset($timetables[$idx]) && $timetables[$idx]->date != $date) || !isset($timetables[$idx]))) {
-                                $arr['accumulated'] = $acumuladoDia;
-                                $arr['diferencia'] = helpers::getTimeBetweenHours($acumuladoDia, $hoursOfWork);
+                            if ($row->flag == 2 && ((isset($timetables[$idx]) && $timetables[$idx]->date != $date) || !isset($timetables[$idx]))){
+                                //Si el horario fijo es inferior al personalizado, se toma el horario fijo:
+                                $real_hours = $fixedTime && $hoursOfWork < $acumuladoDia? $hoursOfWork:$acumuladoDia;
+
+                                $arr['accumulated'] = $real_hours;
+                                $arr['diferencia'] = helpers::getTimeBetweenHours($real_hours, $hoursOfWork);
                                 $arr['sign'] = $acumuladoDia >= $hoursOfWork ? '+' : '-';
                                 $arr['hoursOfWork'] = $hoursOfWork;
                             }
@@ -359,8 +371,7 @@ class Timetable extends Model{
     /**
      * 3. Eliminar registros por fecha y usuario.
      */
-    public static function deleteRowsByUserDate($user_id, $date)
-    {
+    public static function deleteRowsByUserDate($user_id, $date){
         Timetable::where('user_id', $user_id)
             ->where('date', $date)
             ->delete();
@@ -369,8 +380,7 @@ class Timetable extends Model{
     /**
      * 4. Array con intervalo de fechas.
      */
-    public static function setRankDatesArr($from, $to)
-    {
+    public static function setRankDatesArr($from, $to){
         $arr = [$from];
         $from1 = $from;
         while ($from1 < $to) {
@@ -381,8 +391,7 @@ class Timetable extends Model{
         return $arr;
     }
 
-    public function items()
-    {
+    public function items(){
         return $this->belongsTo(TimetableItems::class, 'item_id');
     }
 

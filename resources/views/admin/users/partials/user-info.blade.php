@@ -138,8 +138,9 @@
 			</div>
 
 		@else
-			@if(Auth::user()->id == $user->id)
-				<label for="signature" class="col-lg-2 col-form-label">{{ trans('textos.firma') }}
+			{{--  @if(Auth::user()->id == $user->id) --}}
+			@can('users.edit')
+				<label for="signature" class="col-lg-2 col-form-label">{{ trans('textos.firma') }} 
 					<br>
 					<small class="text-warning">
 						· {{ trans('textos.formato') }}: .jpg, .png, .gif <br>
@@ -159,7 +160,8 @@
 	                    </span>
 	                @endif
 				</div>
-			@endif	
+			{{--   @endif --}}	
+			@endcan
 		@endif
 	</div>
 
