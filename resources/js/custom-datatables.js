@@ -821,6 +821,10 @@ $(document).ready(function(){
         var from = $('#dtFrom').val();
 
         //Filters:
+
+        // Load data from localstorage
+        var jsonData = JSON.parse(localStorage.getItem('DataTables_tblBudgets_'+window.location.pathname));
+
         // 01/07/2022: se ocultan temporalmente hasta dar el modo de que funcionen junto con ServerSide.
         $('#tblBudgets thead tr').clone(true).appendTo('#tblBudgets thead');
         $('#tblBudgets thead tr:eq(1) th').each(function(i){
@@ -828,7 +832,12 @@ $(document).ready(function(){
             if(i == 4 || i == 10){
                 $(this).html('');
             }else{
-                $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
+                // Check field on json of localstorage
+                let value = jsonData && jsonData.columns[i].search.search ? jsonData.columns[i].search.search : '';
+                let htmlRaw = `<input type="text" class="DTsearch" placeholder="${txtBuscar+' '+title}" value="${value}" />`
+                $(this).html(htmlRaw);
+
+                // $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
             }
      
             $('input', this).on('keyup change', function(){
@@ -960,13 +969,22 @@ $(document).ready(function(){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
         
         //Filters:
+
+        // Load data from localstorage
+        var jsonData = JSON.parse(localStorage.getItem('DataTables_tblCompanies_'+window.location.pathname));
+
         $('#tblCompanies thead tr').clone(true).appendTo('#tblCompanies thead');
         $('#tblCompanies thead tr:eq(1) th').each(function(i){
             var title = $(this).text();
             if(i == 5 || i == 6){
                 $(this).html('');
             }else{
-                $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
+                // Check field on json of localstorage
+                let value = jsonData && jsonData.columns[i].search.search ? jsonData.columns[i].search.search : '';
+                let htmlRaw = `<input type="text" class="DTsearch" placeholder="${txtBuscar+' '+title}" value="${value}" />`
+                $(this).html(htmlRaw);
+
+                // $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
             }
      
             $('input', this).on('keyup change', function(){
@@ -1466,17 +1484,26 @@ $(document).ready(function(){
     }
 
     //Tabla Customers:
-    if($('#tblCustomers').length > 0){
+    if($('#tblCustomers').length > 0){ 
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
 
         //Filters:
+
+        // Load data from localstorage
+        var jsonData = JSON.parse(localStorage.getItem('DataTables_tblCustomers_'+window.location.pathname));
+        
         $('#tblCustomers thead tr').clone(true).appendTo('#tblCustomers thead');
         $('#tblCustomers thead tr:eq(1) th').each(function(i){
             var title = $(this).text();
             if(i == 3){
                 $(this).html('');
             }else{
-                $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');        
+                // Check field on json of localstorage
+                let value = jsonData && jsonData.columns[i].search.search ? jsonData.columns[i].search.search : '';
+                let htmlRaw = `<input type="text" class="DTsearch" placeholder="${txtBuscar+' '+title}" value="${value}" />`
+                $(this).html(htmlRaw);
+
+                //$(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'" '+htmlvalue+'/>');        
             }
      
             $('input', this).on('keyup change', function(){
@@ -1488,7 +1515,6 @@ $(document).ready(function(){
                 }
             });
         });
-        
         var tableCustomers = $('#tblCustomers').DataTable({
             order: [[ 0, "desc" ]],
             serverSide: true,
@@ -2305,13 +2331,22 @@ $(document).ready(function(){
         var poId = $('#poId').val();        //by purchase order.
 
         //Filters:
+
+        // Load data from localstorage
+        var jsonData = JSON.parse(localStorage.getItem('DataTables_tblInvoices_'+window.location.pathname));
+
         $('#tblInvoices thead tr').clone(true).appendTo('#tblInvoices thead');
         $('#tblInvoices thead tr:eq(1) th').each(function(i){
             var title = $(this).text();
             if(i == 9){
                 $(this).html('');
             }else{
-                $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
+                // Check field on json of localstorage
+                let value = jsonData && jsonData.columns[i].search.search ? jsonData.columns[i].search.search : '';
+                let htmlRaw = `<input type="text" class="DTsearch" placeholder="${txtBuscar+' '+title}" value="${value}" />`
+                $(this).html(htmlRaw);
+
+                // $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
             }
      
             $('input', this).on('keyup change', function(){
@@ -3238,27 +3273,34 @@ $(document).ready(function(){
 
         var orderbuy = $('#myOrderBuy').val() && $('#myOrderBuy').val() != '' ? $('#myOrderBuy').val():false;
 
-        //Filters:
-        // $('#tblOrders thead tr').clone(true).appendTo('#tblOrders thead');
-        // $('#tblOrders thead tr:eq(1) th').each(function(i){
-        //     var title = $(this).text(); 
-        //     if(i == 10){
-        //         $(this).html('');
-        //     }else{
-        //         $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
-        //         // aquí el código retirado
-                
-        //     }
+        // Filters:
 
-        //     $('input', this).on('keyup change', function(){
-        //         if(tableOrders.column(i).search() !== this.value){
-        //             tableOrders
-        //                 .column(i)
-        //                 .search(this.value)
-        //                 .draw();
-        //         }
-        //     });
-        // });
+        // Load data from localstorage
+        var jsonData = JSON.parse(localStorage.getItem('DataTables_tblOrders_'+window.location.pathname));
+
+        $('#tblOrders thead tr').clone(true).appendTo('#tblOrders thead');
+        $('#tblOrders thead tr:eq(1) th').each(function(i){
+            var title = $(this).text(); 
+            if(i == 10){
+                $(this).html('');
+            }else{
+                // Check field on json of localstorage
+                let value = jsonData && jsonData.columns[i].search.search ? jsonData.columns[i].search.search : '';
+                let htmlRaw = `<input type="text" class="DTsearch" placeholder="${txtBuscar+' '+title}" value="${value}" />`
+                $(this).html(htmlRaw);
+
+                // $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
+                // aquí el código retirado
+            }
+            $('input', this).on('keyup change', function(){
+                if(tableOrders.column(i).search() !== this.value){
+                    tableOrders
+                        .column(i)
+                        .search(this.value)
+                        .draw();
+                }
+            });
+        });
         
         var tableOrders = $('#tblOrders').DataTable({
             order: [[ 0, "desc" ]],
@@ -4361,13 +4403,23 @@ $(document).ready(function(){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
 
         //Filters:
+        
+        // Load data from localstorage
+        var jsonData = JSON.parse(localStorage.getItem('DataTables_tblProviders_'+window.location.pathname));
+
         $('#tblProviders thead tr').clone(true).appendTo('#tblProviders thead');
         $('#tblProviders thead tr:eq(1) th').each(function(i){
             var title = $(this).text();
             if(i == 3){
                 $(this).html('');
             }else{
-                $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
+
+                // Check field on json of localstorage
+                let value = jsonData && jsonData.columns[i].search.search ? jsonData.columns[i].search.search : '';
+                let htmlRaw = `<input type="text" class="DTsearch" placeholder="${txtBuscar+' '+title}" value="${value}" />`
+                $(this).html(htmlRaw);
+
+                // $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
             }
      
             $('input', this).on('keyup change', function(){
@@ -5664,24 +5716,32 @@ $(document).ready(function(){
         var method = all? '/all':'';
 
         //Filters:
-        // $('#tblUsers thead tr').clone(true).appendTo('#tblUsers thead');
-        // $('#tblUsers thead tr:eq(1) th').each(function(i){
-        //     var title = $(this).text();
-        //     if(i == 6){
-        //         $(this).html('');
-        //     }else{
-        //         $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
-        //     }
-     
-        //     $('input', this).on('keyup change', function(){
-        //         if(tableUsers.column(i).search() !== this.value){
-        //             tableUsers
-        //                 .column(i)
-        //                 .search(this.value)
-        //                 .draw();
-        //         }
-        //     });
-        // });
+
+        // Load data from localstorage
+        var jsonData = JSON.parse(localStorage.getItem('DataTables_tblUsers_'+window.location.pathname));
+
+        $('#tblUsers thead tr').clone(true).appendTo('#tblUsers thead');
+        $('#tblUsers thead tr:eq(1) th').each(function(i){
+            var title = $(this).text();
+            if(i == 6){
+                $(this).html('');
+            }else{
+                // Check field on json of localstorage
+                let value = jsonData && jsonData.columns[i].search.search ? jsonData.columns[i].search.search : '';
+                let htmlRaw = `<input type="text" class="DTsearch" placeholder="${txtBuscar+' '+title}" value="${value}" />`
+                $(this).html(htmlRaw);
+
+                // $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
+            }
+            $('input', this).on('keyup change', function(){
+                if(tableUsers.column(i).search() !== this.value){
+                    tableUsers
+                        .column(i)
+                        .search(this.value)
+                        .draw();
+                }
+            });
+        });
         
         var tableUsers = $('#tblUsers').DataTable({
             serverSide: true,
