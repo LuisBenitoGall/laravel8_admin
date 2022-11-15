@@ -139,6 +139,6 @@ class RequiredWarningPush extends Command
         ]]);
 
 
-        echo "send push {$tokenPush}";
+        echo "send push {$tokenPush} {$user->email}\n";
     }
 }
