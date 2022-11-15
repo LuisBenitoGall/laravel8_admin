@@ -89,7 +89,7 @@
 
 			{{-- Nuevo pedido --}}
 			@can('orders.create')
-				<a href="{{ route('orders.create', $order_type) }}" class="btn btn-info">
+				<a href="{{ route('orders.create', $order_type) }}" class="btn btn-info btn-confirm"  data-msg="{!! trans('textos.pedido_venta_nuevo_confirm') !!}">
 					<i class="fa fa-plus"></i>
 					@if($order_type == 'sale') {!! ucfirst(trans('textos.venta_nueva')) !!} @else {!! ucfirst(trans('textos.compra_nueva')) !!} @endif
 				</a>
