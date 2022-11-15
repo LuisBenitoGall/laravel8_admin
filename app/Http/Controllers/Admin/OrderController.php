@@ -608,6 +608,11 @@ class OrderController extends Controller{
         //Descuento por defecto:
         $order->setDefaultDiscount();
 
+        //Generación de proyecto:
+        if($request->set_project){
+            Project::setProject($order);
+        }
+
         //Si se trata de un pedido de compra, se envía notificación al proveedor:
         if($order->customer_id == session('currentCompany')){
             $buyer = '';
