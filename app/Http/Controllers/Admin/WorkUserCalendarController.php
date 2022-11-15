@@ -92,6 +92,7 @@ class WorkUserCalendarController extends Controller{
         $workplace = Workplace::select('workplaces.*')
         ->join('user_workplaces', 'workplaces.id', '=', 'user_workplaces.workplace_id')
         ->where('user_workplaces.user_id', $user->id)
+        ->whereNull('user_workplaces.deleted_at')
         ->first();
 
         //Tipos de jornada para usuario:
