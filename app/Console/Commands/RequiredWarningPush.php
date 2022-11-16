@@ -128,32 +128,30 @@ class RequiredWarningPush extends Command
                 }
 
             }
-
-
         }
     }
-}
-
-/**
- * @param string $msg
- * @param $tokenPush
- * @param $user
- * @return void
- * @throws \GuzzleHttp\Exception\GuzzleException
- */
-public
-function message(string $msg, $tokenPush, $user)
-{
-
-    $client = new Client();
-    $response = $client->request('POST', 'https://api.electrolytic.app/push/send', ['json' => [
-        'appKey' => 'XxSDtdKWsvc922mnKYmF',
-        'appSecret' => 'c788a2f4b5ef79944ecfe103',
-        'target' => ["$tokenPush"],
-        'payload' => $msg
-    ]]);
 
 
-    echo "send push {$tokenPush}\n";
-}
+    /**
+     * @param string $msg
+     * @param $tokenPush
+     * @param $user
+     * @return void
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public
+    function message(string $msg, $tokenPush, $user)
+    {
+
+        $client = new Client();
+        $response = $client->request('POST', 'https://api.electrolytic.app/push/send', ['json' => [
+            'appKey' => 'XxSDtdKWsvc922mnKYmF',
+            'appSecret' => 'c788a2f4b5ef79944ecfe103',
+            'target' => ["$tokenPush"],
+            'payload' => $msg
+        ]]);
+
+
+        echo "send push {$tokenPush}\n";
+    }
 }
