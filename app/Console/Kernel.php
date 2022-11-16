@@ -32,13 +32,14 @@ class Kernel extends ConsoleKernel
         //Production Commands:
         // $schedule->command('required_timetable_items:task')->dailyAt('23:55');
         // //->weekdays()  sólo días laborables.
-       /* $schedule->command('check_timetable:task')->dailyAt('23:45');
-
+        $schedule->command('check_timetable:task')->dailyAt('23:45');
         $schedule->command('company_accounts:task')->dailyAt('00:01');
-        $schedule->command('employees_expiration:task')->dailyAt('00:02');*/
+        $schedule->command('employees_expiration:task')->dailyAt('00:02');
 
-        $schedule->command('warning:push')->everyFiveMinutes();
-        $schedule->command('push:send')->everyFiveMinutes();
+        // Tareas para los push.
+        $schedule->command('warning:push')->everyFifteenMinutes()->between('9:00','17:00');
+        $schedule->command('push:send')->everyFifteenMinutes()->between('9:00','17:00');
+
         //Test Commands
         //$schedule->command('check_timetable:task')->everyMinute();
         //$schedule->command('required_timetable_items:task')->everyMinute();

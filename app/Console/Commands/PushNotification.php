@@ -82,6 +82,7 @@ class PushNotification extends Command
                 if (!$noWork || ($noWork->is_working && $noWork->working_day)) {
                     $horario = Timetable::select('id', 'hour', 'item_id', 'flag', 'date')
                         ->where('user_id', $empleado->id)
+                        ->whereDate('created_at', Carbon::now())
                         ->orderBy('date', 'DESC')
                         ->orderBy('id', 'DESC')
                         ->first();
@@ -97,7 +98,26 @@ class PushNotification extends Command
                                 if (!in_array($empleado->id, $enviado, true)) {
                                     $enviado[] = $empleado->id;
                                     if (User::find($empleado->id)->devicePush) {
-                                        $this->message("Recuerda que debes fichar a la vuelta de " . $horario->items->name, User::find($empleado->id)->devicePush->token, $empleado->email);
+
+                                        if ($horario->items->name == 'Comida') {
+                                            if (Carbon::now()->dayName !== 'Friday') {
+                                                $this->message("Recuerda fichar la " . $horario->items->name, User::find($empleado->id)->devicePush->token, $empleado->email);
+                                                $data_user = [
+                                                    'user' => $empleado,
+                                                    'fecha' => date('d-m-Y'),
+                                                    'company' => $company,
+                                                    'concept' => $horario->items->name,
+                                                ];
+                                                Mail::send('emails.send-push-mail', $data_user, function ($message) use ($horario, $empleado, $company) {
+                                                    $message->from(config('constants.EMAIL_'), $company->name);
+                                                    $message->to($empleado->email);
+                                                    $message->subject("Recuerda fichar la {$horario->items->name}");
+                                                });
+                                            }
+                                        }
+
+
+                                        $this->message("Recuerda fichar el " . $horario->items->name, User::find($empleado->id)->devicePush->token, $empleado->email);
                                         $data_user = [
                                             'user' => $empleado,
                                             'fecha' => date('d-m-Y'),
@@ -107,7 +127,7 @@ class PushNotification extends Command
                                         Mail::send('emails.send-push-mail', $data_user, function ($message) use ($horario, $empleado, $company) {
                                             $message->from(config('constants.EMAIL_'), $company->name);
                                             $message->to($empleado->email);
-                                            $message->subject("Recuerda que debes fichar a la vuelta de {$horario->items->name}");
+                                            $message->subject("Recuerda fichar el {$horario->items->name}");
                                         });
                                     }
 

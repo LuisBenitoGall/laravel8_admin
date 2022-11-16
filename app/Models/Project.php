@@ -14,6 +14,7 @@ class Project extends Model{
      * 3. Proyectos por empresa.
      * 4. Actualizar horas de trabajo.
      * 5. Importación proyectos desde .json.
+     * 6. Generar proyecto vinculado a pedido.
      */
     
     use HasFactory;
@@ -176,5 +177,28 @@ class Project extends Model{
             //Realizamos toda la importación sin considerar las Foreign Key para evitar errores.
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
         }  
+    }
+
+    /**
+     * 6. Generar proyecto vinculado a pedido.
+     */
+    public static function setProject($order){
+        $p = new Project();
+        $p->name = trans('textos.pedido').'-'.$order->id;
+        $p->slug = trans('textos.pedido').'-'.$order->id;
+        $p->company_id = $order->provider_id;
+        $p->user_id = $order->provider_manager_id;
+        $p->owner = $order->provider_manager_id;
+        $p->customer_id = $order->customer_id;
+        $p->status = 1;
+        $p->save();
+
+        //Vinculando pedido a proyecto:
+        $po = new ProjectOrders();
+        $po->project_id = $p->id;
+        $po->order_id = $order->id;
+        $po->save();
+
+        return $p;
     }
 }
