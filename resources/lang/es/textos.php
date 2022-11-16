@@ -1229,6 +1229,7 @@ return [
 	'pedido_nuevo' => 'Nuevo pedido',
 	'pedido_tipo_error' => 'No se ha indicado correctamente el tipo de pedido',
 	'pedido_updated' => 'El pedido se ha actualizado correctamente',
+	'pedido_venta_nuevo_confirm' => 'Confirma que deseas generar un nuevo pedido de venta',
 	'pedido_no_existe' => 'El pedido no existe',
 	'precio_unidad' => 'Precio/unidad',
 	'empresas_sectores' => 'Sectores empresariales',

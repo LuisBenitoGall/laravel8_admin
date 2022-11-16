@@ -72,10 +72,10 @@
 						{{ csrf_field() }}
 						<input type="hidden" name="type" value="{{ $type }}">
 							
-						{{-- Selecciona cliente o proveedor --}}
 						<div class="form-group row">
+							{{-- Selecciona cliente o proveedor --}}
 							<label for="company_id" class="col-lg-2 col-form-label">@if($type == 'sale') {!! ucfirst(trans('textos.cliente')) !!} @else {!! ucfirst(trans('textos.proveedor')) !!} @endif *</label>
-							<div class="col-lg-8">
+							<div class="col-lg-5">
 								@php
 								$companies_ = [];
 								@endphp
@@ -99,6 +99,21 @@
 							        </span>
 							    @enderror
 							</div>
+
+							{{-- Generar proyecto --}}
+							@if($type == 'sale')
+								<label for="set_project" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.proyecto_generar')) !!}</label>
+								<div class="col-lg-1 pt-1">
+							        <label class="custom-chk-rdb">
+							        	<input type="checkbox" name="set_project" checked>
+							        	<span class="chk"></span>
+							    	</label>
+
+							    	<div class="position-absolute" style="left: 65px; top: 0;">
+					            		{!! App\Helpers\helpers::info('order-set-project') !!}
+					            	</div>
+							    </div>	
+							@endif
 						</div>
 
 						{{-- Selecciona usuarios del proveedor para compras --}}
