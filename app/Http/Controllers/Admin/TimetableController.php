@@ -610,6 +610,10 @@ class TimetableController extends Controller{
      * Eliminar sábados y domingos.
      */
     public function deleteWeekends(){
+        $before_data = Timetable::whereRaw('WEEKDAY(date) = 5')
+        ->orWhereRaw('WEEKDAY(date) = 6')
+        ->get();
+
         Timetable::whereRaw('WEEKDAY(date) = 5')
         ->orWhereRaw('WEEKDAY(date) = 6')
         ->delete();
@@ -618,6 +622,6 @@ class TimetableController extends Controller{
         ->orWhereRaw('WEEKDAY(date) = 6')
         ->get();
 
-        dd($data);  
+        dd($before_data, $data);  
     }
 }
