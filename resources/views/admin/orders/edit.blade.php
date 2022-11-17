@@ -439,6 +439,9 @@ $provider_team = $order->provider_manager_id? [$order->provider_manager_id]:[];
 if($order->provider_team){
 	$provider_team = array_merge($provider_team, unserialize($order->provider_team));
 }
+
+//Importe sin descuento, ya sea sobre el total del pedido, o sobre algunas líneas del pedido:
+$order_amount_without_discount = $order_amount_without_discount_in_lines > $order_amount? $order_amount_without_discount_in_lines:$order_amount_without_discount;
 @endphp
 
 <div class="row">
