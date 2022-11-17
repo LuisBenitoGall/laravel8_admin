@@ -110,20 +110,21 @@ class RequiredWarningPush extends Command
                                                         $message->subject("Recuerda fichar la {$item->name}");
                                                     });
                                                 }
-                                            }
+                                            } else {
 
-                                            $this->message("Recuerda fichar el " . $item->name, User::find($empleado->id)->devicePush->token, $empleado->email);
-                                            $data_user = [
-                                                'user' => $empleado,
-                                                'fecha' => date('d-m-Y'),
-                                                'company' => $company,
-                                                'concept' => $item->name,
-                                            ];
-                                            Mail::send('emails.send-push-mail-warning', $data_user, function ($message) use ($item, $horario, $empleado, $company) {
-                                                $message->from(config('constants.EMAIL_'), $company->name);
-                                                $message->to($empleado->email);
-                                                $message->subject("Recuerda fichar el {$item->name}");
-                                            });
+                                                $this->message("Recuerda fichar el " . $item->name, User::find($empleado->id)->devicePush->token, $empleado->email);
+                                                $data_user = [
+                                                    'user' => $empleado,
+                                                    'fecha' => date('d-m-Y'),
+                                                    'company' => $company,
+                                                    'concept' => $item->name,
+                                                ];
+                                                Mail::send('emails.send-push-mail-warning', $data_user, function ($message) use ($item, $horario, $empleado, $company) {
+                                                    $message->from(config('constants.EMAIL_'), $company->name);
+                                                    $message->to($empleado->email);
+                                                    $message->subject("Recuerda fichar el {$item->name}");
+                                                });
+                                            }
                                         }
                                     }
                                 }
