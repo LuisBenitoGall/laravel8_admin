@@ -563,4 +563,46 @@ class TimetableController extends Controller{
             }
         }
     }
+
+    /**
+     * Ajuste horarios sobre algunos empleados.
+     *
+     * Restar minutos de trabajo según empleado.
+     */
+    public function adjustTimetablesWorkers(){
+        //Array con id de usuario y los minutos a descontar:
+        $users = [
+            2 => 22,
+            218 => 4,
+            221 => 15,
+            //230 => 12,
+            503 => 4
+        ];
+
+        // $users = [
+        //     218 => 10
+        // ];
+
+        $from = '2021-09-01';
+        $to = '2022-10-31';
+        $min_hour = '18:00:00';
+
+        foreach($users as $i => $m){
+            $horarios = Timetable::where('user_id', $i)
+            ->where('date', '>=', $from)
+            ->where('date', '<=', $to)
+            ->where('hour', '>=', $min_hour)
+            ->where('flag', 2)
+            ->get();
+
+            foreach($horarios as $h){
+                //Restamos los minutos indicados;
+                $hour = strtotime('-'.$m.' minutes', strtotime($h->hour)); 
+                $hour_ = date ('H:i:s', $hour); 
+
+                $h->hour = $hour_;
+                $h->save();
+            }
+        }
+    }
 }

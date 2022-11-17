@@ -47,7 +47,7 @@ $my_deposit_lines = [];
 			}
 		}
 
-		$percentage = App\Helpers\Helpers::percent($subt, $l->discount);	
+		$percentage = App\Helpers\helpers::percent($subt, $l->discount);	
 		$subt = $subt - $percentage;
 		$amountWithoutPercentItems = $amountWithoutPercentItems + $subt;
 		@endphp

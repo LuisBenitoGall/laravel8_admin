@@ -32,6 +32,7 @@
                 </b>
             @endif
 
+            {{-- Importe sin descuento --}}
             @if($budget_amount_without_discount && $budget_amount_without_discount > $budget_amount)
                 {!! trans('textos.importe_sin_descuento') !!}
                 <br>

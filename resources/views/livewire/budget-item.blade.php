@@ -510,7 +510,12 @@ $permitted = !$order || ($order && $add_items && !$order->parent)? true:false;
                                     <div class="col-2 sinpadding-right">
                                         @php
                                         //En función de si se calcula porcentualmente sobre el total o no:
-                                        $subtotal = $is->calculated_by_percent > 0? App\Helpers\helpers::itemAmountPercentage($is->price, $amount_without_percentage_items):App\Helpers\helpers::itemAmount($is);
+                                        $arr_subtotal = App\Helpers\helpers::itemAmount($is);
+                                        $subtotal = $arr_subtotal['amount'];
+
+                                        if($is->calculated_by_percent > 0){
+                                            $subtotal = App\Helpers\helpers::itemAmountPercentage($is->price, $amount_without_percentage_items);
+                                        }
                                         @endphp
                                         <b>{{ ucfirst(trans('textos.subtotal')) }}:</b> <span
                                             class="mr-5">{{ $subtotal }}{{ $currency->symbol }}</span>
