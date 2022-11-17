@@ -572,11 +572,11 @@ class TimetableController extends Controller{
     public function adjustTimetablesWorkers(){
         //Array con id de usuario y los minutos a descontar:
         $users = [
-            // 2 => 22,
-            // 218 => 4,
-            // 221 => 15,
+            2 => 22,
+            218 => 4,
+            221 => 15,
             230 => 12,
-            //503 => 4
+            503 => 4
         ];
 
         // $users = [
@@ -604,5 +604,24 @@ class TimetableController extends Controller{
                 $h->save();
             }
         }
+    }
+
+    /**
+     * Eliminar sábados y domingos.
+     */
+    public function deleteWeekends(){
+        $before_data = Timetable::whereRaw('WEEKDAY(date) = 5')
+        ->orWhereRaw('WEEKDAY(date) = 6')
+        ->get();
+
+        Timetable::whereRaw('WEEKDAY(date) = 5')
+        ->orWhereRaw('WEEKDAY(date) = 6')
+        ->delete();
+
+        $data = Timetable::whereRaw('WEEKDAY(date) = 5')
+        ->orWhereRaw('WEEKDAY(date) = 6')
+        ->get();
+
+        dd($before_data, $data);  
     }
 }
