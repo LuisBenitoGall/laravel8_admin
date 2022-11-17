@@ -132,7 +132,11 @@ class BudgetItem extends Component{
                         //Items en el bloque:
                         $this->items_order[$block->id] = $this->items_order[$block->id] + 1;
 
-                        $subtotal = $is->calculated_by_percent ? helpers::itemAmountPercentage($is->calculated_by_percent, $this->amount_without_percentage_items) : helpers::itemAmount($is);
+                        $arr_subtotal = helpers::itemAmount($is);
+                        $subtotal = $arr_subtotal['amount'];
+                        if($is->calculated_by_percent){
+                            $subtotal = helpers::itemAmountPercentage($is->calculated_by_percent, $this->amount_without_percentage_items);   
+                        }
 
                         $block_amount = $block_amount + $subtotal;
                         if (isset($this->item)) {

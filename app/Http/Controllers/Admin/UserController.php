@@ -781,7 +781,8 @@ class UserController extends Controller{
                 return ucfirst($row['name']);
             })
             ->addColumn('accumulated', function($row){
-                $accumulated = $row['accumulated'];
+                $accumulated = isset($row['accumulated'])? $row['accumulated']:'';
+                //$accumulated = $row['accumulated'];
                 if($row['accumulated'] != '' && $row['hoursOfWork']){
                     $accumulated .= ' / '.$row['hoursOfWork'];
                 }

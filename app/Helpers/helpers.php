@@ -2030,6 +2030,9 @@ class Helpers{
 	public static function itemAmount($item, $with_iva = false){
 		$amount = $item->price * $item->qty;
 
+		//Guardamos el precio original antes de descuento:
+		$amount_without_discount = $item->price * $item->qty;
+
 		if($item->price > 0){
 			//Contabilizando jornadas:
 	        if($item->days > 1){
@@ -2055,7 +2058,10 @@ class Helpers{
         	$amount = $amount + $percent;
         }
 
-        return $amount;
+        $arr = ['amount' => $amount, 'amount_without_discount' => $amount_without_discount];
+
+        //return $amount;
+        return $arr;
 	}
 
 	/**
