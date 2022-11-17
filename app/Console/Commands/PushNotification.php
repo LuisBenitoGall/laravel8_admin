@@ -101,7 +101,7 @@ class PushNotification extends Command
 
                                         if ($horario->items->name == 'Comida') {
                                             if (Carbon::now()->dayName !== 'Friday') {
-                                                $this->message("Recuerda fichar la " . $horario->items->name, User::find($empleado->id)->devicePush->token, $empleado->email);
+                                                $this->message("Recuerda fichar a la vuelta de la " . $horario->items->name, User::find($empleado->id)->devicePush->token, $empleado->email);
                                                 $data_user = [
                                                     'user' => $empleado,
                                                     'fecha' => date('d-m-Y'),
@@ -117,7 +117,7 @@ class PushNotification extends Command
                                         }
 
 
-                                        $this->message("Recuerda fichar el " . $horario->items->name, User::find($empleado->id)->devicePush->token, $empleado->email);
+                                        $this->message("Recuerda fichar a la vuelta del " . $horario->items->name, User::find($empleado->id)->devicePush->token, $empleado->email);
                                         $data_user = [
                                             'user' => $empleado,
                                             'fecha' => date('d-m-Y'),
