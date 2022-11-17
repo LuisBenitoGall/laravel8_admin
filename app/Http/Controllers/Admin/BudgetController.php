@@ -1486,7 +1486,8 @@ class BudgetController extends Controller{
                     $amount = helpers::itemAmountPercentage($item->price, $order_amount['amount_with_discount']);
                     return $amount.$currency->symbol.'<br><small>('.trans('textos.precio_porcentual').')</small>';
                 }else{
-                    $amount = helpers::itemAmount($item); 
+                    $arr_amount = helpers::itemAmount($item);
+                    $amount = $arr_amount['amount'];
                     return $amount.$currency->symbol;
                 }            
             }else{
