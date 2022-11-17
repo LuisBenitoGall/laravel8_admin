@@ -8,8 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 use App\Helpers\helpers;
 
-class Order extends Model
-{
+class Order extends Model{
     /**
      * 1. Documentos del pedido.
      * 2. Items por pedido.
@@ -126,12 +125,17 @@ class Order extends Model
         //Cálculo de los items por porcentaje:
         if($percentage_items){
             $total_amount_without_percentuals = $total_amount;
+            $total_amount_without_percentuals_without_discounts = $total_amount_without_discounts;
 
             foreach($items as $row){
                 if ($row->calculated_by_percent){
                     // $amount = $row->calculated_by_percent * $total_amount_without_percentuals;
                     $amount = helpers::itemAmountPercentage($row->price, $total_amount_without_percentuals);
                     $total_amount = $total_amount + $amount;
+
+                    //Sumando porcentaje al importe sin descuentos:
+                    $amount_wd = helpers::itemAmountPercentage($row->price, $total_amount_without_percentuals_without_discounts);
+                    $total_amount_without_discounts = $total_amount_without_discounts + $amount_wd;
                 }
             }
         }
@@ -175,6 +179,7 @@ class Order extends Model
 
         $data['amount_without_discount'] = $amount;
         $data['amount_with_discount'] = $amount_discount;
+        $data['amount_without_discount_in_lines'] = $arr_amount['total_amount_without_discounts'];  //Total sin considerar el descuento aplicado en líneas.
 
         return $data;
     }
