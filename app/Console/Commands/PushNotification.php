@@ -101,7 +101,7 @@ class PushNotification extends Command
 
                                         if ($horario->items->name == 'Comida') {
                                             if (Carbon::now()->dayName !== 'Friday') {
-                                                $this->message("Recuerda fichar la " . $horario->items->name, User::find($empleado->id)->devicePush->token, $empleado->email);
+                                                $this->message("Recuerda fichar a la vuelta de la " . $horario->items->name, User::find($empleado->id)->devicePush->token, $empleado->email);
                                                 $data_user = [
                                                     'user' => $empleado,
                                                     'fecha' => date('d-m-Y'),
@@ -114,21 +114,22 @@ class PushNotification extends Command
                                                     $message->subject("Recuerda fichar la {$horario->items->name}");
                                                 });
                                             }
+                                        } else {
+                                            $this->message("Recuerda fichar a la vuelta del " . $horario->items->name, User::find($empleado->id)->devicePush->token, $empleado->email);
+                                            $data_user = [
+                                                'user' => $empleado,
+                                                'fecha' => date('d-m-Y'),
+                                                'company' => $company,
+                                                'concept' => $horario->items->name,
+                                            ];
+                                            Mail::send('emails.send-push-mail', $data_user, function ($message) use ($horario, $empleado, $company) {
+                                                $message->from(config('constants.EMAIL_'), $company->name);
+                                                $message->to($empleado->email);
+                                                $message->subject("Recuerda fichar el {$horario->items->name}");
+                                            });
                                         }
 
 
-                                        $this->message("Recuerda fichar el " . $horario->items->name, User::find($empleado->id)->devicePush->token, $empleado->email);
-                                        $data_user = [
-                                            'user' => $empleado,
-                                            'fecha' => date('d-m-Y'),
-                                            'company' => $company,
-                                            'concept' => $horario->items->name,
-                                        ];
-                                        Mail::send('emails.send-push-mail', $data_user, function ($message) use ($horario, $empleado, $company) {
-                                            $message->from(config('constants.EMAIL_'), $company->name);
-                                            $message->to($empleado->email);
-                                            $message->subject("Recuerda fichar el {$horario->items->name}");
-                                        });
                                     }
 
 

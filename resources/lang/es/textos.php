@@ -1,6 +1,6 @@
 <?php
 
-return [
+return array(
 	'hola' => 'Hola',
 	'saludos' => 'Saludos',
 	'si' => 'si',
@@ -2151,9 +2151,11 @@ return [
 	'horario_cerrado_automaticamente' => 'Horario cerrado automáticamente',
 	'horario_cerrado_automaticamente_aviso' => 'Tu horario laboral se ha cerrado automáticamente en fecha',
 	'horario_cerrado_automaticamente_texto' => 'Tu horario laboral de esta jornada se ha cerrado automáticamente. Contacta por favor con RRHH para confirmar tu hora de salida, gracias.',
-	'horario_texto_comida' => 'recuerda que debes fichar la comida',
-	'horario_texto_desayuno' => 'recuerda que debes fichar el desayuno',
-	'horario_texto_push_warning' => 'recuerda que debes fichar para',
+	'horario_texto_comida_retorno' => 'Recuerda que debes fichar a la vuelta de la comida',
+	'horario_texto_comida' => 'Recuerda que debes fichar la comida',
+	'horario_texto_desayuno_retorno' => 'Recuerda que debes fichar a la vuelta de el desayuno',
+	'horario_texto_desayuno' => 'Recuerda que debes fichar el desayuno',
+	'horario_texto_push_warning' => 'Recuerda que debes fichar para',
 	'horarios_cerrados_automaticamente_lista' => 'Lista de horarios cerrados automáticamente',
 	'factura_generar' => 'Generar factura',
 	'factura_integra' => 'Factura íntegra',
@@ -2756,4 +2758,4 @@ return [
 	'beneficio_estrecho_aviso' => 'Los beneficios son inferiores al 10%.',
 	'gastos_superan_ingresos_aviso' => 'Los gastos superan los ingresos de este proyecto.',
 
-];
+);
