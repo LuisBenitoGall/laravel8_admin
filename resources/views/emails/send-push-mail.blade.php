@@ -4,6 +4,6 @@
 @php
     $concept = strtolower($concept);
 @endphp
-<p>{!! trans("textos.horario_texto_{$concept}") !!}  {!! $concept !!}</p>
+<p>{!! trans("textos.horario_texto_{$concept}_retorno") !!} </p>
 
 @include('emails.partials.footer')
