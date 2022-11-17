@@ -398,7 +398,6 @@ class OrderController extends Controller{
         ->where('orders.is_order', true)
         ->where('orders.is_group', false)
         ->whereYear('orders.created_at', $year)
-
         // Consulta para comprobar el numero de orden de compra
         ->when($order_buy, function($query) use($order_buy) {
             return $query->where(function($query) use($order_buy) {
@@ -438,10 +437,6 @@ class OrderController extends Controller{
         // dd($arrIds);
 
 
-
-
-
-
         $estados = helpers::orderStatus();
 
         //Moneda:
@@ -472,7 +467,7 @@ class OrderController extends Controller{
             return $row->name;
         })
         ->addColumn('amount', function($row) use($currency){
-            $amount = $row->getAmount();    
+            $amount = $row->getAmount();  
             return $amount['amount_with_discount'].$currency->symbol;
         })
         ->addColumn('fechaEntregaPrevista', function($row){
@@ -1313,7 +1308,8 @@ class OrderController extends Controller{
                     $amount = helpers::itemAmountPercentage($item->price, $order_amount['amount_without_discount']);
                     return $amount.$currency->symbol.'<br><small>('.trans('textos.precio_porcentual').')</small>';
                 }else{
-                    $amount = helpers::itemAmount($item); 
+                    $arr_amount = helpers::itemAmount($item);
+                    $amount = $arr_amount['amount']; 
                     return $amount.$currency->symbol;
                 }            
             }else{
@@ -1894,10 +1890,10 @@ class OrderController extends Controller{
         }
 
         //Sede cliente:
-        if($order->workplace_id){
+        if($order->customer_workplace_id){
             $customer_workplace = Workplace::select('workplaces.*', 'towns.name AS Town')
             ->join('towns', 'workplaces.town_id', '=', 'towns.id')
-            ->where('workplaces.id', $order->workplace_id)
+            ->where('workplaces.id', $order->customer_workplace_id)
             ->first();  
 
         }else{
