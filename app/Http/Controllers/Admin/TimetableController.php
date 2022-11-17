@@ -572,11 +572,11 @@ class TimetableController extends Controller{
     public function adjustTimetablesWorkers(){
         //Array con id de usuario y los minutos a descontar:
         $users = [
-            2 => 22,
-            218 => 4,
-            221 => 15,
-            //230 => 12,
-            503 => 4
+            // 2 => 22,
+            // 218 => 4,
+            // 221 => 15,
+            230 => 12,
+            //503 => 4
         ];
 
         // $users = [
