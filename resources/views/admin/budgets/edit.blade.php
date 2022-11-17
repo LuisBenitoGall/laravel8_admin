@@ -13,6 +13,9 @@ $setBlock = true;
 // 		}
 // 	}
 // }
+
+//Importe sin descuento, ya sea sobre el total del pedido, o sobre algunas líneas del pedido:
+$order_amount_without_discount = $order_amount_without_discount_in_lines > $order_amount? $order_amount_without_discount_in_lines:$order_amount_without_discount;
 @endphp
 
 <input type="hidden" id="myOrder" value="{{ $order->id }}">

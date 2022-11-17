@@ -2036,12 +2036,15 @@ class Helpers{
 		if($item->price > 0){
 			//Contabilizando jornadas:
 	        if($item->days > 1){
-	            $amount = $amount * $item->days;   
+	            $amount = $amount * $item->days;  
+	            $amount_without_discount = $amount_without_discount * $item->days;  
 	            
 	            //Aplicando descuento de días continuos:
 	            if($item->days_continue > 0 && $item->days_continue_discount){
 	                $jc_percentage = helpers::percent($amount, $item->days_continue_discount);
 	                $amount = $amount - $jc_percentage;
+
+	                //Sobre la línea sin descuento no se aplica ningún descuento.
 	            }
 	        }
 

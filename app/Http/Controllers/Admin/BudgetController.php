@@ -576,12 +576,16 @@ class BudgetController extends Controller{
         //Importe:
         if($order->bag_amount){
             $order_amount = $order->bag_amount;
+            $order_amount_without_discount = false;
+            $order_amount_without_discount_in_lines = false;
+
         }else{
             $items = $order->items();
             $arr_amounts = $order->getAmount();    
 
             $order_amount = $arr_amounts['amount_with_discount'];
             $order_amount_without_discount = $arr_amounts['amount_without_discount'];
+            $order_amount_without_discount_in_lines = $arr_amounts['amount_without_discount_in_lines'];
         } 
 
         //Productos. Activos y aptos para venta:
@@ -686,7 +690,7 @@ class BudgetController extends Controller{
         $module_products = $this->settedModule('products');
         $module_projects = $this->settedModule('projects');
 
-        return view('admin.budgets.edit')->with(compact('header', 'order', 'tab', 'invoiced', 'invoices', 'patterns', 'versions', 'order_amount', 'order_amount_without_discount', 'provider', 'provider_managers', 'provider_settings', 'provider_workplaces', 'provider_workplace', 'provider_cost_centers', 'provider_business_areas', 'customer', 'final_customer', 'customer_managers', 'customer_workplaces', 'customer_cost_centers', 'customer_business_areas', 'final_customers', 'customers', 'customer_settings', 'forms', 'products', 'projects', 'project', 'blocks', 'currency', 'templates', 'budget_from', 'customer_budgets', 'first_provider', 'my_linked_budget', 'linkable_budgets', 'languages', 'permitted', 'module_orders', 'module_products', 'module_projects'));
+        return view('admin.budgets.edit')->with(compact('header', 'order', 'tab', 'invoiced', 'invoices', 'patterns', 'versions', 'order_amount', 'order_amount_without_discount', 'order_amount_without_discount_in_lines', 'provider', 'provider_managers', 'provider_settings', 'provider_workplaces', 'provider_workplace', 'provider_cost_centers', 'provider_business_areas', 'customer', 'final_customer', 'customer_managers', 'customer_workplaces', 'customer_cost_centers', 'customer_business_areas', 'final_customers', 'customers', 'customer_settings', 'forms', 'products', 'projects', 'project', 'blocks', 'currency', 'templates', 'budget_from', 'customer_budgets', 'first_provider', 'my_linked_budget', 'linkable_budgets', 'languages', 'permitted', 'module_orders', 'module_products', 'module_projects'));
     }
 
     /**
