@@ -1,6 +1,6 @@
 <?php
 
-return [
+return array(
 	'hola' => 'Hola',
 	'saludos' => 'Saludos',
 	'si' => 'si',
@@ -2758,4 +2758,4 @@ return [
 	'beneficio_estrecho_aviso' => 'Los beneficios son inferiores al 10%.',
 	'gastos_superan_ingresos_aviso' => 'Los gastos superan los ingresos de este proyecto.',
 
-];
+);
