@@ -1776,6 +1776,7 @@ return [
 	'facturacion_prevision_pendiente' => 'Pendiente de previsión de facturación',
 	'facturacion_previsiones_aviso' => 'Debes completar los datos relativos a las previsiones de facturación antes de proseguir',
 	'facturacion_prevista' => 'Facturación prevista',
+	'facturacion_prevista_aviso' => 'Los pedidos pertenecientes a una agrupación carecen de previsiones de facturación. Éstas se establecen en el pedido de agrupación.',
 	'facturacion_sincronizar' => 'Sincronizar facturación',
 	'pedido_facturado' => 'Pedido facturado',
 	'pedido_facturado_aviso' => 'No es posible realizar esta acción. El pedido ya ha sido facturado',

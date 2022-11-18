@@ -378,13 +378,18 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 						Pasamos como condición adicional que el porcentaje sea mayor a 0.02, para evitar decimales residuales.
 					--}}
 					@if($totalPercent < 100 && (100 - $totalPercent) > 0.02)
-						<p class="text-warning">{!! trans('textos.facturacion_prevision_pendiente') !!}: <b>{{ round(100 - $totalPercent, 2) }} %</b></p>
+						<p class="text-warning">{!! trans('textos.facturacion_prevision_pendiente') !!}: <b>{{ round(100 - $totalPercent, 2) }}%</b></p>
 					@endif
 				</div>
 			</div>
 		</div>
-		<hr><br>
+
+	@elseif($order->provider_id == session('currentCompany') && $order->order_parent)
+		<div class="form-group row">
+			<label class="col-12 text-center text-warning">{!! ucfirst(trans('textos.facturacion_prevista_aviso')) !!}</label>	
+		</div>	
 	@endif
+	<hr><br>
 
 	<div class="row">
 		{{-- Info cliente --}}

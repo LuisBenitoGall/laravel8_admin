@@ -783,6 +783,7 @@ class InvoiceController extends Controller{
         $inv->amount = $request->amount;
         $inv->with_iva = $request->iva;
         $inv->amount_with_iva = $request->amount_with_iva;
+        $inv->irpf = $request->irpf;
         $inv->fiscal_date = $fiscal_date;
         $inv->expiration_date = $expiration_date;
         $inv->user_id = Auth::user()->id;
