@@ -3598,7 +3598,7 @@ $(document).ready(function(){
         
         $('#tblProcedurePatterns').DataTable({
             serverSide: true,
-            /*processing: true,*/
+            processing: true,
             ajax: {
                 "type": "GET",
                 "url": "/api/admin/procedure-patterns",
@@ -4459,7 +4459,7 @@ $(document).ready(function(){
         
         $('#tblProvinces').DataTable({
             serverSide: true,
-            /*processing: true,*/
+            processing: true,
             ajax: {
                 "type": "GET",
                 "url": "/api/admin/provinces/"+country_id,
@@ -4517,7 +4517,7 @@ $(document).ready(function(){
         
         $('#tblPurchasePatterns').DataTable({
             serverSide: true,
-            /*processing: true,*/
+            processing: true,
             ajax: {
                 "type": "GET",
                 "url": "/api/admin/purchase-patterns",
@@ -4761,9 +4761,10 @@ $(document).ready(function(){
     if($('#tblQuizzes').length > 0){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
         
-        $('#tblQuizzes').DataTable({
+        var tableQuizzes = $('#tblQuizzes').DataTable({
             serverSide: true,
             processing: true,
+            stateSave: true,
             ajax: {
                 "type": "GET",
                 "url": "/api/admin/quizzes",
@@ -4772,12 +4773,13 @@ $(document).ready(function(){
                 }
             },
             columns: [
-                {data: 'name'},
+                {data: 'name', name: 'quizzes.name'},
                 {data: 'alta', className: 'text-right'},
-                {data: 'description'},
-                {data: 'id', className: 'text-right'}
-            ],
-            columnDefs: [
+                {data: 'description', name: 'quizzes.description'},
+                {data: 'owner'},
+                {data: 'acciones', className: 'text-right'}
+            ]
+            /*columnDefs: [
                 {"targets": 2,
                 "render": function(data, type, row){
                     return row['description'];
@@ -4811,7 +4813,7 @@ $(document).ready(function(){
                     return estado+' '+editar+' '+eliminar;
                 }
                 }
-            ]
+            ] */
         });
     }
 

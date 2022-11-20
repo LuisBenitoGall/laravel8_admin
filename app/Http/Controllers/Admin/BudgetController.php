@@ -1012,7 +1012,7 @@ class BudgetController extends Controller{
             $itemsSelected = Item::select('items.*', 'budget_form_items.recid')
             ->leftJoin('budget_form_items', 'items.budget_form_item_id', '=', 'budget_form_items.id')
             ->where('items.order_id', $order->id)
-            ->orderBy('items.budget_order', 'ASC')
+            ->orderBy('items.budget_sort', 'ASC')
             ->get();
 
             //Array del id recurrente:
@@ -1342,7 +1342,7 @@ class BudgetController extends Controller{
             $it->budget_form_block_id = $i->budget_form_block_id;
             $it->budget_form_item_id = $i->budget_form_item_id;
             $it->budget_form_block_id = $i->budget_form_block_id;
-            $it->budget_order = $i->budget_order;
+            $it->budget_sort = $i->budget_sort;
             $it->concept = $i->concept;
             $it->observations = $i->observations;
             $it->qty = $i->qty;
@@ -1596,7 +1596,7 @@ class BudgetController extends Controller{
             foreach($items as $item){
                 Item::create([
                     'order_id' => $budget->id,
-                    'budget_order' => $i,
+                    'budget_sort' => $i,
                     'concept' => $item->concept,
                     'qty' => $item->qty,
                     'price' => $item->price,

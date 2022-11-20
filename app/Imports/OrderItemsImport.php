@@ -34,7 +34,7 @@ class OrderItemsImport implements ToModel, WithHeadingRow{
 
         if($shared_id){
             return new TempImportOrderItems([
-                'budget_order_id' => $shared_id,
+                'order_id' => $shared_id,
                 'ref' => $ref,
                 'concept' => $concept,
                 'qty' => $qty,

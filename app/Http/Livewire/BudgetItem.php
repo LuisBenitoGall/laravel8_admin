@@ -108,9 +108,9 @@ class BudgetItem extends Component{
         //Items del presupuesto:
         $this->items_selected = Item::where('order_id', $this->order->id)
             ->orderBy('budget_form_block_id', 'ASC')
-            ->orderByRaw('ISNULL(budget_order), budget_order ASC')
+            ->orderByRaw('ISNULL(budget_sort), budget_sort ASC')
             ->get();
-        //->orderBy('budget_order', 'ASC')
+        //->orderBy('budget_sort', 'ASC')
 
         //Importe total:
         $arr_amounts = $this->order->getAmount();
@@ -241,7 +241,7 @@ class BudgetItem extends Component{
                 $item->order_id = $this->order->id;
                 $item->budget_form_block_id = $this->block;
                 $item->budget_form_item_id = $this->item ? $this->item['id'] : NULL;
-                $item->budget_order = isset($this->items_order[$this->block]) ? $this->items_order[$this->block] + 1 : 1;
+                $item->budget_sort = isset($this->items_order[$this->block]) ? $this->items_order[$this->block] + 1 : 1;
                 $item->concept = $this->concept;
                 $item->observations = $this->observations;
                 $item->qty = $qty;
@@ -382,25 +382,24 @@ class BudgetItem extends Component{
     /**
      * 7. Ordenar item hacia arriba.
      */
-    public function itemUp($item)
-    {
+    public function itemUp($item){
         if ($item) {
-            $new_order = $item['budget_order'];
+            $new_order = $item['budget_sort'];
 
             //Orden del elemento anterior:
-            $prev = Item::select('id', 'budget_order')
+            $prev = Item::select('id', 'budget_sort')
                 ->where('order_id', $item['order_id'])
                 ->where('budget_form_block_id', $item['budget_form_block_id'])
-                ->where('budget_order', '<', $item['budget_order'])
-                ->orderBy('budget_order', 'DESC')
+                ->where('budget_sort', '<', $item['budget_sort'])
+                ->orderBy('budget_sort', 'DESC')
                 ->first();
 
             if ($prev) {
                 //Orden del elemento seleccionado:
                 Item::where('id', $item['id'])
-                    ->update(['budget_order' => $prev->budget_order]);
+                    ->update(['budget_sort' => $prev->budget_sort]);
 
-                $prev->budget_order = $new_order;
+                $prev->budget_sort = $new_order;
                 $prev->save();
 
                 $this->render();
@@ -411,25 +410,24 @@ class BudgetItem extends Component{
     /**
      * 7.1. Ordenar item hacia abajo.
      */
-    public function itemDown($item)
-    {
+    public function itemDown($item){
         if ($item) {
-            $new_order = $item['budget_order'];
+            $new_order = $item['budget_sort'];
 
             //Orden del elemento siguiente:
-            $next = Item::select('id', 'budget_order')
+            $next = Item::select('id', 'budget_sort')
                 ->where('order_id', $item['order_id'])
                 ->where('budget_form_block_id', $item['budget_form_block_id'])
-                ->where('budget_order', '>', $item['budget_order'])
-                ->orderBy('budget_order', 'ASC')
+                ->where('budget_sort', '>', $item['budget_sort'])
+                ->orderBy('budget_sort', 'ASC')
                 ->first();
 
             //Orden del elemento seleccionado:
             if ($next) {
                 Item::where('id', $item['id'])
-                    ->update(['budget_order' => $next->budget_order]);
+                    ->update(['budget_sort' => $next->budget_sort]);
 
-                $next->budget_order = $new_order;
+                $next->budget_sort = $new_order;
                 $next->save();
 
                 $this->render();

@@ -2024,6 +2024,7 @@ return array(
 	'factura_editar_lineas' => 'Editar líneas de facturación',
 	'factura_eliminar' => 'Eliminar factura',
 	'factura_linea' => 'Línea de factura',
+	'pedido_linea' => 'Línea de pedido',
 	'pedido_lineas' => 'Líneas del pedido',
 	'pedido_lineas_modificar_texto' => 'Modifica manualmente el importe a facturar por cada línea y guarda los cambios.',
 	'pedido_lineas_modificar_aviso' => 'Algunas líneas de esta factura tienen un IVA distinto entre ellas por lo que no es posible hacer una facturación parcial.',

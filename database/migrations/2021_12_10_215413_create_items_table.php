@@ -26,7 +26,7 @@ class CreateItemsTable extends Migration{
             $table->unsignedBigInteger('budget_form_item_id')->nullable();
             $table->foreign('budget_form_item_id')->references('id')->on('budget_form_items');
 
-            $table->integer('budget_order')->nullable();
+            $table->integer('budget_sort')->nullable();
             $table->text('concept')->nullable();
             $table->text('observations')->nullable();
             $table->float('qty',10,2)->default(0);
