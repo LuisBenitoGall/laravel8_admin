@@ -148,7 +148,7 @@ class QuizEditionsController extends Controller{
 
         $languages = $this->languages;
 
-        return view('admin.quiz-editions.edit')->with(compact('header', 'edition', 'quiz', 'tab', 'teams', 'languages'));
+        return view('admin.quiz_editions.edit')->with(compact('header', 'edition', 'quiz', 'tab', 'teams', 'languages'));
     }
 
     /**
@@ -157,7 +157,7 @@ class QuizEditionsController extends Controller{
     public function update(Request $request, QuizEditions $edition){
         $validator = $this->validator($request->all());
         if($validator->fails()){
-            return redirect('admin/quiz-editions/'.$edition->id.'/edit')
+            return redirect('admin/quiz_editions/'.$edition->id.'/edit')
             ->withErrors($validator)
             ->withInput();    
         }

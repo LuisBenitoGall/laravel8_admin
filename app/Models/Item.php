@@ -21,7 +21,7 @@ class Item extends Model{
     protected $dates = ['deleted_at']; 
 
     protected $fillable = [
-        'product_id', 'order_id', 'budget_form_block_id', 'budget_form_item_id', 'budget_order', 'concept', 'qty', 'price', 'item_no_price', 'iva', 'discount', 'calculated_by_percent', 'deposit_used', 'observations', 'days', 'days_continue', 'days_continue_discount', 'active', 'status', 'print', 'user_id'
+        'product_id', 'order_id', 'budget_form_block_id', 'budget_form_item_id', 'budget_sort', 'concept', 'qty', 'price', 'item_no_price', 'iva', 'discount', 'calculated_by_percent', 'deposit_used', 'observations', 'days', 'days_continue', 'days_continue_discount', 'active', 'status', 'print', 'user_id'
     ];
 
     /**
@@ -58,8 +58,8 @@ class Item extends Model{
      * 2. Ordenar items presupuestos de la migración desde Admin6.
      */
     public static function orderBudgetItems(){
-        $data = Item::select('id', 'order_id', 'budget_form_block_id', 'budget_order')
-        ->whereNull('budget_order')
+        $data = Item::select('id', 'order_id', 'budget_form_block_id', 'budget_sort')
+        ->whereNull('budget_sort')
         ->orderBy('order_id', 'ASC')
         ->orderBy('budget_form_block_id', 'ASC')
         ->get();
@@ -79,7 +79,7 @@ class Item extends Model{
                 $i = 1;
             }
 
-            $r->budget_order = $i;
+            $r->budget_sort = $i;
             $r->save();
         }
     }

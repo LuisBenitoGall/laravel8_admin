@@ -214,7 +214,7 @@ class ItemController extends Controller{
         $budget_form_block_id = NULL;
 
         //Orden en el bloque:
-        $budget_order = NULL;
+        $budget_sort = NULL;
 
         //Presupuesto por formulario:
         if($order && $order->modality == config('constants.BUDGET_FORM_MODALITY_')){
@@ -235,21 +235,21 @@ class ItemController extends Controller{
             $budget_form_block_id = $block->id; 
 
             //Orden en el bloque:
-            $last_order = Item::select('budget_order')
+            $last_order = Item::select('budget_sort')
             ->where('order_id', $order->id)
             ->where('budget_form_block_id', $budget_form_block_id)
-            ->whereNotNull('budget_order')
-            ->orderBy('budget_order', 'DESC')
+            ->whereNotNull('budget_sort')
+            ->orderBy('budget_sort', 'DESC')
             ->first();
 
-            $budget_order = $last_order? $last_order->budget_order+1:1;
+            $budget_sort = $last_order? $last_order->budget_sort+1:1;
         }
 
         $item = new Item();
         $item->product_id = $request->product_id? $request->product_id:NULL;
         $item->order_id = $order->id;
         $item->budget_form_block_id = $budget_form_block_id;
-        $item->budget_order = $budget_order;
+        $item->budget_sort = $budget_sort;
         $item->concept = $product? $product->name:$request->concept;
         $item->observations = $request->observations;
         $item->qty = $request->calculated_by_percent? 1:$request->qty;      //La cantidad siempre es 1 para precios calculados por porcentaje.
