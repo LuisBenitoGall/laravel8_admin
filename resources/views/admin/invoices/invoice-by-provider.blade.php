@@ -160,6 +160,11 @@ $(function(){
     $('#invoiceAmount, #invoiceIva').on('change', function(){
     	var amount = $('#invoiceAmount').val();
     	var iva = $('#invoiceIva').val();
+    	var irpf = $('#invoiceIrpf').val();
+
+    	amount = amount.replace(',', '.');
+    	iva = iva.replace(',', '.');
+    	irpf = irpf.replace(',', '.');
 
     	percent = (amount * iva) / 100;
     	var total = parseFloat(amount) + parseFloat(percent);

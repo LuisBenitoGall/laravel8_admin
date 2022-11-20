@@ -19,7 +19,7 @@ class Question extends Model{
     protected $dates = ['deleted_at'];
 
     protected $fillable = [
-        'company_id', 'name', 'slug', 'type', 'answer_type', 'status'
+        'company_id', 'quiz_id', 'name', 'slug', 'type', 'answer_type', 'status'
     ];
 
     /**

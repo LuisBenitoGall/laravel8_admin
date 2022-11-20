@@ -23,6 +23,7 @@
 					<th>{!! ucfirst(trans('textos.concurso')) !!}</th>
 					<th class="text-center">{!! ucfirst(trans('textos.fecha_alta')) !!}</th>
 					<th>{!! ucfirst(trans('textos.descripcion')) !!}</th>
+					<th>{!! ucfirst(trans('textos.propietario')) !!}</th>
 					<th class="text-center">{!! ucfirst(trans('textos.acciones')) !!}</th>
 				</tr>
 			</thead>

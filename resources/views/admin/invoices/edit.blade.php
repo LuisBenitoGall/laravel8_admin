@@ -294,9 +294,6 @@ $readonly = $invoice->blocked && !$is_sale? true:false;
 </div>
 
 {{-- Modals: --}}
-{{-- Edit item --}}
-{{-- @include('admin.budget_order_shared_fields.partials.modal-edit-item', ['environment_' => 'invoices']) --}}
-
 {{-- Add payment --}}
 @include('admin.invoice_payments.partials.modal-add-payment')
 

@@ -9,10 +9,12 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Yajra\DataTables\DataTables;
 
 //Models:
 use App\Models\Quiz;
 use App\Models\QuizEditions;
+use App\Models\User;
 
 class QuizController extends Controller{
     /**
@@ -32,7 +34,7 @@ class QuizController extends Controller{
 
     public function __construct(){
         //Idiomas:
-        $this->languages = Helpers::languages();
+        $this->languages = helpers::languages();
 
         $this->middleware('module_setted:quizzes');
         $this->middleware('quiz_get', ['only' => ['edit', 'update', 'destroy']]);
@@ -73,23 +75,33 @@ class QuizController extends Controller{
      * 1.1. Listado de quizzes para DataTable.
      */
     public function getQuizzesDT(){
-        $quizzes = Quiz::where('company_id', session('currentCompany'))->get();
+        $data = Quiz::select('quizzes.id', 'quizzes.name', 'quizzes.description', 'quizzes.owner', 'quizzes.status', 'quizzes.created_at', 'users.name AS nombre', 'users.surname')
+        ->where('company_id', session('currentCompany'))
+        ->leftJoin('users', 'quizzes.owner', '=', 'users.id')
+        ->orderBy('quizzes.name', 'ASC');
 
-        //Permisos del usuario:
-        $editar = Auth::user()->can('quizzes.edit');
-        $eliminar = Auth::user()->can('quizzes.destroy');
-
-        //Ampliación de información de los objetos:
-        foreach($quizzes as $row){
-            //Enviamos las fechas ya formateadas:
-            $row->alta = $row->created_at->format($this->languages[session()->get('locale')][4]);
-
-            //Permisos para las acciones:
-            $row->editar = $editar;
-            $row->eliminar = $eliminar; 
-        }
-
-        return datatables($quizzes)->toJson();
+        return DataTables::of($data)
+        ->addColumn('name', function($row){
+            return $row->name; 
+        })
+        ->addColumn('alta', function($row){
+            return $row->created_at->format($this->languages[session()->get('locale')][4]);
+        })
+        ->addColumn('description', function($row){
+            return $row->description; 
+        })
+        ->addColumn('owner', function($row){
+            if($row->nombre){
+                return $row->nombre.' '.$row->surname;
+            }else{
+                return '';    
+            }             
+        })
+        ->addColumn('acciones', function($row){
+            return view('admin.quizzes.partials.dt-actions', compact('row'));    
+        })
+        ->rawColumns(['description'])
+        ->make(true);
     }
 
     /**
@@ -127,6 +139,7 @@ class QuizController extends Controller{
         $quiz->name = $request->name;
         $quiz->slug = $slug;
         $quiz->description = $request->description;
+        $quiz->owner = Auth::user()->id;
         $quiz->status = $status;
         $quiz->save();
 
@@ -150,9 +163,11 @@ class QuizController extends Controller{
         ->orderBy('name', 'ASC')
         ->get();
 
+        $owner = User::select('id', 'name', 'surname')->find($quiz->owner);
+
         $languages = $this->languages;
 
-        return view('admin.quizzes.edit')->with(compact('header', 'quiz', 'tab', 'editions', 'languages')); 
+        return view('admin.quizzes.edit')->with(compact('header', 'quiz', 'tab', 'editions', 'owner', 'languages')); 
     }
 
     /**
