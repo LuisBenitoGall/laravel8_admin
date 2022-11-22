@@ -119,8 +119,8 @@
     });
 
     OneSignal.push(["init", {
-        appId: "889778fc-5e73-4523-bee7-557449c68e10",
-        safari_web_id: "web.onesignal.auto.2c2f7f93-c22c-4405-a44b-05589b796f38",
+        appId: "55e7e4db-87fd-4f97-b0f3-c62922107e03",
+        safari_web_id: "web.onesignal.auto.3f550615-46c0-4fa5-9ee8-42953ece3d19",
         autoRegister: false,
         promptOptions: {
             /* My prompt options */
