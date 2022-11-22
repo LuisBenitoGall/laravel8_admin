@@ -769,7 +769,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
 
     // Questions:
     Route::get('questions', 'QuestionController@index')->name('questions.index')->middleware('permission:questions.index');
-    Route::get('questions/create/{edition?}', 'QuestionController@create')->name('questions.create')->middleware('permission:questions.create');
+    Route::get('questions/create/{quiz?}', 'QuestionController@create')->name('questions.create')->middleware('permission:questions.create');
     Route::post('questions/store', 'QuestionController@store')->name('questions.store')->middleware('permission:questions.edit');
     Route::get('questions/{question}/edit/{tab?}', 'QuestionController@edit')->name('questions.edit')->middleware('permission:questions.edit');
     Route::put('questions/{question}', 'QuestionController@update')->name('questions.update')->middleware('permission:questions.edit');

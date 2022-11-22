@@ -2891,7 +2891,7 @@ class ImportDb extends Command
                     $i->order_id = $order_id;
                     $i->budget_form_block_id = $r->block_id;
                     $i->budget_form_item_id = $r->item_id;
-                    //$i->budget_order = NULL;      //Campo nuevo
+                    //$i->budget_sort = NULL;      //Campo nuevo
                     $i->concept = $r->concept;
                     $i->observations = $r->observations;
                     $i->qty = $r->qty;

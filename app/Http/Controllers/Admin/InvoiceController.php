@@ -59,7 +59,6 @@ class InvoiceController extends Controller{
      * 12. Activar - desactivar IVA en factura.
      * 13. Generar factura de abono.
      * 14. Eliminar pedido de factura de agrupación.
-     * 15. Introducir factura de proveedor.
      */
     
     private $option = 'contabilidad';
@@ -761,6 +760,19 @@ class InvoiceController extends Controller{
 
             $from_customer = true;
 
+            //Generamos una línea de pedido por el importe de la factura:
+            $item = new Item();
+            $item->order_id = $order->id;
+            $item->budget_sort = 1;
+            $item->concept = trans('textos.pedido_linea');
+            $item->qty = 1;
+            $item->price = $request->amount;
+            $item->iva = $request->iva;
+            $item->invoiced = NOW();
+            $item->active = 1;
+            $item->user_id = Auth::user()->id;
+            $item->save();
+
         }else{
             $order = Order::select('id', 'invoiced')->find($request->order_id);
             $order->invoiced = 1;
@@ -776,6 +788,8 @@ class InvoiceController extends Controller{
         //Subir documento.
         $doc = $this->loadFile($request, 'invoices');
 
+        //dd($doc);
+
         //Creamos factura:
         $inv = new Invoice();
         $inv->invoice_old_num = $request->invoice_old_num;
@@ -789,7 +803,7 @@ class InvoiceController extends Controller{
         $inv->user_id = Auth::user()->id;
         $inv->customer_observations = $request->customer_observations;
         $inv->doc = $doc;
-        $inv->status = $request->status; 
+        $inv->status = $request->status? $request->status:config('constants.INVOICE_OPEN_'); 
         $inv->blocked = 1;      //Por defecto bloqueamos las facturas así generadas.  
         $inv->save();
 

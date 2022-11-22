@@ -61,17 +61,17 @@
 			  	<div class="tab-content pt-5">
 			  		{{-- Info de la edición --}}
 			  		<div class="tab-pane fade @if(!$tab) show active @endif" role="tabpanel" id="tab-edition-info">
-						@include('admin.quiz-editions.partials.edition-info')
+						@include('admin.quiz_editions.partials.edition-info')
 					</div>	
 
 					{{-- Equipos participantes --}}
 					<div class="tab-pane fade @if($tab == 'teams') show active @endif" role="tabpanel" id="tab-edition-teams">
-						@include('admin.quiz-editions.partials.edition-teams')
+						@include('admin.quiz_editions.partials.edition-teams')
 					</div>
 
 					{{-- Cuestiones --}}
 					<div class="tab-pane fade @if($tab == 'questions') show active @endif" role="tabpanel" id="tab-edition-questions">
-						@include('admin.quiz-editions.partials.edition-questions')
+						@include('admin.quiz_editions.partials.edition-questions')
 					</div>
 			  	</div>
 			</div>
