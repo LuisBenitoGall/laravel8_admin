@@ -20,7 +20,15 @@
     <link href="{{ mix('css/app.css') }}" rel="stylesheet">
     @laravelPWA
     @livewireStyles
-    <script charset="UTF-8" src="//web.webpushs.com/js/push/1057d846503d494b3ca1551f6b9c91cf_1.js" async></script>
+    <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>
+    <script>
+        window.OneSignal = window.OneSignal || [];
+        OneSignal.push(function() {
+            OneSignal.init({
+                appId: "692f6061-b175-46b2-b92e-ff5ba97c42cd",
+            });
+        });
+    </script>
 </head>
 
 <body>
