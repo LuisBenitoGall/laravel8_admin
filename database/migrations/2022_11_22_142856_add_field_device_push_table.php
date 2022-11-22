@@ -26,7 +26,7 @@ class AddFieldDevicePushTable extends Migration
     public function down()
     {
         Schema::table('device_pushes', function (Blueprint $table) {
-            $table->dropColumn('signal');
+            $table->dropColumn('onesignal');
         });
     }
 }
