@@ -93,7 +93,7 @@ class RequiredWarningPush extends Command
                                     ->whereDate('created_at', Carbon::now())->exists();
 
                                 if (!$verify) {
-                                    if (Carbon::now()->format('H:i:s') > $item->required_warning) {
+                                    if (Carbon::now()->format('H:i:s') > Carbon::parse($item->required_warning)->format('H:i')) {
                                         if (User::find($empleado->id)->devicePush) {
                                             if ($item->name == 'Comida') {
                                                 if (Carbon::now()->dayName !== 'Friday') {
