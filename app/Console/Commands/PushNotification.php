@@ -128,11 +128,7 @@ class PushNotification extends Command
                                                 $message->subject("Recuerda fichar el {$horario->items->name}");
                                             });
                                         }
-
-
                                     }
-
-
                                 }
                             }
                         }
