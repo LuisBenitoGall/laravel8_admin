@@ -11,7 +11,7 @@ class DevicePush extends Model
     use HasFactory;
     use Searchable;
 
-    protected $fillable = ['user_id', 'token'];
+    protected $fillable = ['user_id', 'token','signal'];
 
     protected $searchableFields = ['*'];
 

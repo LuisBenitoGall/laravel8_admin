@@ -20,19 +20,7 @@
     <link href="{{ mix('css/app.css') }}" rel="stylesheet">
     @laravelPWA
     @livewireStyles
-    <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>
-    <script>
-        window.OneSignal = window.OneSignal || [];
-        OneSignal.push(function() {
-            OneSignal.init({
-                appId: "55e7e4db-87fd-4f97-b0f3-c62922107e03",
-                safari_web_id: "web.onesignal.auto.3f550615-46c0-4fa5-9ee8-42953ece3d19",
-                notifyButton: {
-                    enable: true,
-                },
-            });
-        });
-    </script>
+
 </head>
 
 <body>
@@ -111,5 +99,49 @@
 @livewireScripts
 
 @stack('scripts')
+
+<script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>
+<script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"></script>
+<script>
+    window.OneSignal = window.OneSignal || [];
+
+
+    OneSignal.push(function () {
+        OneSignal.on('subscriptionChange', function (isSubscribed) {
+            console.log("The user's subscription state is now:", isSubscribed);
+            OneSignal.push(function () {
+                OneSignal.getUserId(function (userId) {
+                    console.log('ok noe',userId);
+                    Cookies.set('tokenDevice', userId);
+                });
+            });
+        });
+    });
+
+    OneSignal.push(["init", {
+        appId: "55e7e4db-87fd-4f97-b0f3-c62922107e03",
+        safari_web_id: "web.onesignal.auto.3f550615-46c0-4fa5-9ee8-42953ece3d19",
+        autoRegister: false,
+        promptOptions: {
+            /* My prompt options */
+        },
+        welcomeNotification: {
+            //my options
+        },
+        notifyButton: {
+            enable: true,
+            showCredit: false,
+            prenotify: true,
+            position: 'bottom-left',
+            text: {
+                /*My text options */
+            },
+            colors: { // My custom colors
+            }
+        }
+    }]);
+
+
+</script>
 </body>
 </html>
