@@ -14,7 +14,7 @@ class AddFieldDevicePushTable extends Migration
     public function up()
     {
         Schema::table('device_pushes', function (Blueprint $table) {
-            $table->boolean('signal')->default(false);
+            $table->boolean('onesignal')->default(false);
         });
     }
 
