@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Ladumor\OneSignal\OneSignal;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,11 +18,19 @@ Route::get('/', function () {
     return view('home');
 });
 
+Route::get('test/push', function () {
+
+    $fields['include_player_ids'] = ['6af5566b-266c-4811-b863-02a149227dae'];
+    $notificationMsg = 'Prueba API SDK NOE ADN!';
+    $msg = OneSignal::sendPush($fields, $notificationMsg);
+    dd($msg);
+});
+
 Auth::routes();
 
 // LANGUAGES:
-Route::get('/lang/{locale}', function($locale){
-    Session::put('locale',$locale);
+Route::get('/lang/{locale}', function ($locale) {
+    Session::put('locale', $locale);
     return redirect()->back();
 })->name('locale');
 Route::get('string_translation/{id}/{schema}', 'LanguageController@stringTranslation');
@@ -36,9 +45,10 @@ Route::get('company-register', 'Admin\CompanyController@create')->name('company-
 Route::post('company/store', 'Admin\CompanyController@store')->name('company.store')->middleware('auth');
 
 // ADMIN:   'company_session',
-Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('admin')->namespace('Admin')->group(function(){
+Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('admin')->namespace('Admin')->group(function () {
     // Accounting:
     Route::get('accounting', 'AccountingController@index')->name('accounting.index');
+    Route::post('get/device/id', [\App\Http\Controllers\Admin\DevicePushController::class,'store'])->name('save.push');
 
     // Accounts:
     Route::resource('accounts', 'AccountController')->middleware('permission:accounts.edit');
@@ -500,7 +510,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::get('messages/{message}/show', 'MessageController@show')->name('messages.show');
 
     // Migrations Data:
-  //  Route::get('data', 'MigrationsDataController@index')->name('data.index')->middleware('permission:data.index');
+    //  Route::get('data', 'MigrationsDataController@index')->name('data.index')->middleware('permission:data.index');
 
     // Modules:
     Route::get('modules', 'ModuleController@index')->name('modules.index')->middleware('permission:modules.index');
@@ -517,10 +527,10 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
 
     // Notifications:
     Route::get('notifications/{tab?}', 'NotificationController@index')->name('notifications.index');
-    Route::get('notifications-reload', function(){
+    Route::get('notifications-reload', function () {
         return redirect()->back();
     })->name('notifications-reload');
-    Route::get('notifications-read', function(){
+    Route::get('notifications-read', function () {
         auth()->user()->unreadNotifications->markAsRead();
         return redirect()->back();
     })->name('notifications-read');
@@ -741,7 +751,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::get('providers', 'CustomerProvidersController@providers')->name('providers.index');
     Route::get('providers/create', 'CustomerProvidersController@createProvider')->name('providers.create')->middleware('permission:providers.create');
     Route::get('providers/{company}/edit', 'CustomerProvidersController@editProvider')->name('providers.edit')->middleware('permission:providers.edit');
-     Route::get('providers/{cp}/show', 'CustomerProvidersController@show')->name('providers.show');
+    Route::get('providers/{cp}/show', 'CustomerProvidersController@show')->name('providers.show');
     Route::get('providers/import', 'CustomerProvidersController@importForm')->name('providers.import')->middleware('permission:providers.edit');
     Route::post('providers/export', 'CustomerProvidersController@exportProviders')->name('providers.export')->middleware('permission:providers.edit');
 
