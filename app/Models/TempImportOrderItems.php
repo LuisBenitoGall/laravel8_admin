@@ -11,6 +11,6 @@ class TempImportOrderItems extends Model{
     protected $table = 'temp_import_order_items'; 
 
     protected $fillable = [
-        'budget_order_id', 'ref', 'concept', 'qty', 'price', 'iva', 'discount', 'observations'
+        'order_id', 'ref', 'concept', 'qty', 'price', 'iva', 'discount', 'observations'
     ];
 }

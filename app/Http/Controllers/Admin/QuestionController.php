@@ -51,7 +51,7 @@ class QuestionController extends Controller{
                 'name' => 'required|max:255',
                 'type' => 'required|integer',
                 'answer_type' => 'required_if:type,==,'.config('constants.QUESTION_TEST_'),
-                'edition_id' => 'nullable|integer'
+                'quiz_id' => 'required|integer'
             ]);
 
         //Validación update:
@@ -115,7 +115,7 @@ class QuestionController extends Controller{
     /**
      * 2. Formulario nueva cuestión.
      */
-    public function create($edition = false){
+    public function create($quiz = false){
         $header = [
             'option' => $this->option, 
             'suboption' => 'textos.cuestion_nueva',
@@ -123,7 +123,7 @@ class QuestionController extends Controller{
             'slug' => 'questions'
         ];   
 
-        return view('admin.questions.create')->with(compact('header', 'edition'));      
+        return view('admin.questions.create')->with(compact('header', 'quiz'));      
     }
 
     /**
@@ -144,6 +144,7 @@ class QuestionController extends Controller{
 
         $question = Question::create([
             'company_id' => session('currentCompany'),
+            'quiz_id' => $request->quiz_id,
             'name' => $request->name,
             'slug' => $slug,
             'type' => $request->type,
@@ -151,24 +152,8 @@ class QuestionController extends Controller{
             'status' => $status
         ]);
 
-        //Si viene declarado edition_id, vinculamos la cuestión con la edición.
-        if($request->edition_id){
-            //Valor del campo order:
-            $num = QuizEditionQuestions::where('quiz_edition_id', $request->edition_id)->count();
-
-            $qeq = new QuizEditionQuestions();
-            $qeq->quiz_edition_id = $request->edition_id;
-            $qeq->question_id = $question->id;
-            $qeq->order = $num+1;
-            $qeq->save();
-        }
-
         $msg = trans('textos.cuestion_creada_ok');
-        if($request->edition_id){
-            return redirect()->route('quiz-editions.edit', [$request->edition_id, 'questions'])->with(compact('msg'));
-        }else{
-            return redirect()->route('questions.edit', $question)->with(compact('msg'));
-        }
+        return redirect()->route('questions.edit', $question)->with(compact('msg'));
     }
 
     /**
@@ -209,13 +194,16 @@ class QuestionController extends Controller{
 
         $arrQuestion = [];
         $arrOptions = [];
+        $strOptions = NULL;
+        
         foreach($this->languages as $lang){
-            $question = 
             $options = 'options_'.$lang[0];
-            $arrOptions[$lang[0]] = $request->input($options);
-        }
+            if($request->input($options)){
+                $arrOptions[$lang[0]] = $request->input($options);
 
-        $strOptions = serialize($arrOptions);
+                $strOptions = serialize($arrOptions);
+            }
+        }
 
         $keywords = isset($request->keywords)? $request->keywords:NULL;
 
@@ -228,6 +216,7 @@ class QuestionController extends Controller{
         $question->options = $strOptions;
         $question->right_option = $request->right_option;
         $question->videos = $request->videos;
+        $question->url = $request->url;
         $question->keywords = $keywords;
         $question->keywords_min = $request->keywords_min;
         $question->time = $time;
