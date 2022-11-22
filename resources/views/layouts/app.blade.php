@@ -20,6 +20,7 @@
     <link href="{{ mix('css/app.css') }}" rel="stylesheet">
     @laravelPWA
     @livewireStyles
+    <script charset="UTF-8" src="//web.webpushs.com/js/push/1057d846503d494b3ca1551f6b9c91cf_1.js" async></script>
 </head>
 
 <body>
