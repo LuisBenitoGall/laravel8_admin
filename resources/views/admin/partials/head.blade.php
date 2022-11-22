@@ -112,7 +112,7 @@
 
 
     <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"></script>
-    @if(!auth()->user()->devicePush->signal)
+    @if(!auth()->user()->devicePush->onesignal)
         <script>
             let token = '{{csrf_token()}}';
             let user_id = '{{auth()->id()}}';
