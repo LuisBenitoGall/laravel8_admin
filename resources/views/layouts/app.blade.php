@@ -20,7 +20,7 @@
     <link href="{{ mix('css/app.css') }}" rel="stylesheet">
     @laravelPWA
     @livewireStyles
-    <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>
+{{--    <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>
     <script>
         window.OneSignal = window.OneSignal || [];
         OneSignal.push(function() {
@@ -32,7 +32,7 @@
                 },
             });
         });
-    </script>
+    </script>--}}
 </head>
 
 <body>
