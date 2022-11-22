@@ -14,7 +14,7 @@ class DevicePushController extends Controller
         if (isset($request->token)) {
             $devicePush = DevicePush::updateOrCreate(
                 ['user_id' => $request->user_id],
-                ['token' => $request->token,'signal'=>true],
+                ['token' => $request->token,'onesignal'=>true],
             );
 
             return new DevicePushResource($devicePush);
