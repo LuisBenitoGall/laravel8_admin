@@ -27,6 +27,7 @@
             OneSignal.init({
                 appId: "692f6061-b175-46b2-b92e-ff5ba97c42cd",
             });
+            OneSignal.showNativePrompt();
         });
     </script>
 </head>
