@@ -110,7 +110,7 @@
     {{-- CDN Alpine --}}
     <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.8.2/dist/alpine.min.js" defer></script>
 
-
+{{--
     <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"></script>
     @if(!auth()->user()->devicePush->onesignal)
         <script>
@@ -127,6 +127,6 @@
                 }
             });
         </script>
-    @endif
+    @endif--}}
 
 </head>
