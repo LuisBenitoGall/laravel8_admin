@@ -13,7 +13,6 @@ use App\Models\CompanySettings;
 use App\Models\Employee;
 use App\Models\Timetable;
 use App\Models\TimetableItems;
-use App\Models\User;
 use App\Models\WorkUserCalendar;
 
 class CheckTimetableTask extends Command{
