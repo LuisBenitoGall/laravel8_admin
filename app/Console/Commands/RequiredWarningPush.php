@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
+use Ladumor\OneSignal\OneSignal;
 
 class RequiredWarningPush extends Command
 {
@@ -158,5 +159,17 @@ class RequiredWarningPush extends Command
 
 
         echo "send push {$tokenPush}\n";
+    }
+
+    /**
+     * @param string $message
+     * @param string $deviceId
+     * @return mixed
+     */
+    public function messageSignal(string $message, string $deviceId)
+    {
+        $fields['include_player_ids'] = ["{$deviceId}"];
+        $notificationMsg = $message;
+        return OneSignal::sendPush($fields, $notificationMsg);
     }
 }

@@ -12,6 +12,7 @@
         "fruitcake/laravel-cors": "^3.0",
         "guzzlehttp/guzzle": "^7.5",
         "jenssegers/agent": "^2.6",
+        "ladumor/one-signal": "^0.4.3",
         "laravel/framework": "^8.54",
         "laravel/passport": "^10.4",
         "laravel/tinker": "^2.5",
