@@ -98,7 +98,8 @@ class RequiredWarningPush extends Command
                                         if (User::find($empleado->id)->devicePush) {
                                             if ($item->name == 'Comida') {
                                                 if (Carbon::now()->dayName !== 'Friday') {
-                                                    $this->message("Recuerda fichar la " . $item->name, User::find($empleado->id)->devicePush->token, $empleado->email);
+                                                   // $this->message("Recuerda fichar la " . $item->name, User::find($empleado->id)->devicePush->token, $empleado->email);
+                                                    $this->messageSignal("Recuerda fichar la " . $item->name, User::find($empleado->id)->devicePush->token);
                                                     $data_user = [
                                                         'user' => $empleado,
                                                         'fecha' => date('d-m-Y'),
@@ -113,7 +114,8 @@ class RequiredWarningPush extends Command
                                                 }
                                             } else {
 
-                                                $this->message("Recuerda fichar el " . $item->name, User::find($empleado->id)->devicePush->token, $empleado->email);
+                                                //$this->message("Recuerda fichar el " . $item->name, User::find($empleado->id)->devicePush->token, $empleado->email);
+                                                $this->messageSignal("Recuerda fichar el " . $item->name, User::find($empleado->id)->devicePush->token);
                                                 $data_user = [
                                                     'user' => $empleado,
                                                     'fecha' => date('d-m-Y'),

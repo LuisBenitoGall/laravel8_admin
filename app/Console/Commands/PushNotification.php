@@ -18,6 +18,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Ladumor\OneSignal\OneSignal;
 
 class PushNotification extends Command
 {
@@ -101,7 +102,8 @@ class PushNotification extends Command
 
                                         if ($horario->items->name == 'Comida') {
                                             if (Carbon::now()->dayName !== 'Friday') {
-                                                $this->message("Recuerda fichar a la vuelta de la " . $horario->items->name, User::find($empleado->id)->devicePush->token, $empleado->email);
+                                               // $this->message("Recuerda fichar a la vuelta de la " . $horario->items->name, User::find($empleado->id)->devicePush->token, $empleado->email);
+                                                $this->messageSignal("Recuerda fichar a la vuelta de la " . $horario->items->name, User::find($empleado->id)->devicePush->token);
                                                 $data_user = [
                                                     'user' => $empleado,
                                                     'fecha' => date('d-m-Y'),
@@ -115,7 +117,8 @@ class PushNotification extends Command
                                                 });
                                             }
                                         } else {
-                                            $this->message("Recuerda fichar a la vuelta del " . $horario->items->name, User::find($empleado->id)->devicePush->token, $empleado->email);
+                                            //$this->message("Recuerda fichar a la vuelta del " . $horario->items->name, User::find($empleado->id)->devicePush->token, $empleado->email);
+                                            $this->messageSignal("Recuerda fichar a la vuelta del " . $horario->items->name, User::find($empleado->id)->devicePush->token);
                                             $data_user = [
                                                 'user' => $empleado,
                                                 'fecha' => date('d-m-Y'),
@@ -162,5 +165,17 @@ class PushNotification extends Command
 
 
         echo "send push {$tokenPush}";
+    }
+
+    /**
+     * @param string $message
+     * @param string $deviceId
+     * @return mixed
+     */
+    public function messageSignal(string $message, string $deviceId)
+    {
+        $fields['include_player_ids'] = ["{$deviceId}"];
+        $notificationMsg = $message;
+        return OneSignal::sendPush($fields, $notificationMsg);
     }
 }
