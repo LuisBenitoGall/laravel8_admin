@@ -1116,7 +1116,7 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 //Route::get('/admin/import_db/{activate?}', 'Admin\ImportOldDBController@index')->name('import_db.index');
 
 // Ajuste horarios:
-//Route::get('/admin/adjust_timetables', 'Admin\TimetableController@adjustTimetables')->name('timetables.adjust_timetables');
+Route::get('/admin/adjust_timetables', 'Admin\TimetableController@adjustTimetables')->name('timetables.adjust_timetables');
 
 //Route::get('/admin/adjust_timetables_workers', 'Admin\TimetableController@adjustTimetablesWorkers')->name('timetables.adjust_timetables_workers');
 

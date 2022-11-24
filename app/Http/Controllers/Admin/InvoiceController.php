@@ -743,7 +743,7 @@ class InvoiceController extends Controller{
     public function storeFromProvider(Request $request){
         $validator = $this->validator($request->all());
         if($validator->fails()){
-            return redirect('/admin/invoices/create-fom-provider')
+            return redirect('/admin/invoices/create-from-provider')
                 ->withErrors($validator)
                 ->withInput();
         }
@@ -787,8 +787,6 @@ class InvoiceController extends Controller{
 
         //Subir documento.
         $doc = $this->loadFile($request, 'invoices');
-
-        //dd($doc);
 
         //Creamos factura:
         $inv = new Invoice();
