@@ -517,7 +517,7 @@ class TimetableController extends Controller{
 
         foreach($users as $u){
             //Modificando hora de regreso según usuario:
-            if(in_array($u->user_id, $special_users)) $hour_in = '15:20:00';
+            //if(in_array($u->user_id, $special_users)) $hour_in = '15:20:00';
 
             //Buscamos los items horarios registrados por cada jornada:
             foreach($arrWorkingHours[$u->workplace_id] as $f){
