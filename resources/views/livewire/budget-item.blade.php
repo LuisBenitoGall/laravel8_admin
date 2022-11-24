@@ -353,9 +353,9 @@ $permitted = !$order || ($order && $add_items && !$order->parent)? true:false;
                         @endif
 
                         {{-- Indicamos orden si no viene declarado --}}
-                        @if(!$is->budget_order)
+                        @if(!$is->budget_sort)
                             @php
-                            !$is->budget_order = $k;
+                            !$is->budget_sort = $k;
                             @endphp
                         @endif
 

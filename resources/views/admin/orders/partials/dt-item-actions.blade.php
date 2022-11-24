@@ -14,9 +14,11 @@
 	{{-- @endif --}}
 
 	{{-- Ronda de cambios --}}
-	<a href="#" class="btn btn-xs btn-info btnChangesRound" rel="tooltip" title="{!! ucfirst(trans('textos.ronda_cambios')) !!}" data-toggle="modal" data-target="#modal-changes-round" data-id="{{ $item->id }}" data-line="{{ $item->name }}">
-		<i class="fa fa-tasks"></i>
-	</a>
+	@if($order->provider_id == session('currentCompany'))
+		<a href="#" class="btn btn-xs btn-info btnChangesRound" rel="tooltip" title="{!! ucfirst(trans('textos.ronda_cambios')) !!}" data-toggle="modal" data-target="#modal-changes-round" data-id="{{ $item->id }}" data-line="{{ $item->name }}">
+			<i class="fa fa-tasks"></i>
+		</a>
+	@endif
 
 	{{-- Eliminar - condiciones
 		1. Disponer de permisos.

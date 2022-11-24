@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
+use Ladumor\OneSignal\OneSignal;
 
 class RequiredWarningPush extends Command
 {
@@ -93,7 +94,7 @@ class RequiredWarningPush extends Command
                                     ->whereDate('created_at', Carbon::now())->exists();
 
                                 if (!$verify) {
-                                    if (Carbon::now()->format('H:i:s') > $item->required_warning) {
+                                    if (Carbon::now()->format('H:i:s') > Carbon::parse($item->required_warning)->format('H:i')) {
                                         if (User::find($empleado->id)->devicePush) {
                                             if ($item->name == 'Comida') {
                                                 if (Carbon::now()->dayName !== 'Friday') {
@@ -158,5 +159,17 @@ class RequiredWarningPush extends Command
 
 
         echo "send push {$tokenPush}\n";
+    }
+
+    /**
+     * @param string $message
+     * @param string $deviceId
+     * @return mixed
+     */
+    public function messageSignal(string $message, string $deviceId)
+    {
+        $fields['include_player_ids'] = ["{$deviceId}"];
+        $notificationMsg = $message;
+        return OneSignal::sendPush($fields, $notificationMsg);
     }
 }

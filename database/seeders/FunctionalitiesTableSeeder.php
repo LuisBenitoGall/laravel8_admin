@@ -445,11 +445,11 @@ class FunctionalitiesTableSeeder extends Seeder{
             'label' => 'ediciones',
             'module' => 'quizzes'
             ],
-            ['name' => 'questions',
-            'slug' => 'questions',
-            'label' => 'cuestiones',
-            'module' => 'quizzes'
-            ],
+            // ['name' => 'questions',
+            // 'slug' => 'questions',
+            // 'label' => 'cuestiones',
+            // 'module' => 'quizzes'
+            // ],
 
             ['name' => 'procedures',
             'slug' => 'procedures',

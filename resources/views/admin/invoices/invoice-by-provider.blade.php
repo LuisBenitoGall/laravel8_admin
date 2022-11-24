@@ -65,9 +65,15 @@
 						</div>
 
 						{{-- IVA --}}
-						<label for="iva" class="col-lg-2 col-form-label">IVA</label>
-						<div class="col-lg-2">
+						<label for="iva" class="col-lg-1 col-form-label">IVA</label>
+						<div class="col-lg-1">
 							<x-input type="text" name="iva" id="invoiceIva" class="text-right set-decimals" autocomplete="off" maxlength="15" group="right" groupvalue="%" value="{{ config('constants.IVA_DEFAULT_') }}"/>
+						</div>
+
+						{{-- IRPF --}}
+						<label for="irpf" class="col-lg-1 col-form-label">IRPF</label>
+						<div class="col-lg-1">
+							<x-input type="text" name="irpf" id="invoiceIrpf" class="text-right set-decimals" autocomplete="off" maxlength="15" group="right" groupvalue="%"/>
 						</div>
 
 						{{-- Importe total --}}
@@ -154,6 +160,11 @@ $(function(){
     $('#invoiceAmount, #invoiceIva').on('change', function(){
     	var amount = $('#invoiceAmount').val();
     	var iva = $('#invoiceIva').val();
+    	var irpf = $('#invoiceIrpf').val();
+
+    	amount = amount.replace(',', '.');
+    	iva = iva.replace(',', '.');
+    	irpf = irpf.replace(',', '.');
 
     	percent = (amount * iva) / 100;
     	var total = parseFloat(amount) + parseFloat(percent);

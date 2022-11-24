@@ -19,6 +19,7 @@ use Carbon\Carbon;
 //Models:
 use App\Models\BusinessAreas;
 use App\Models\Company;
+use App\Models\CompanyAccounts;
 use App\Models\CompanySettings;
 use App\Models\CostCenters;
 use App\Models\CustomerProviders;
@@ -434,9 +435,6 @@ class OrderController extends Controller{
         //     //$arrIds .= $r->id.',';
         // }
 
-        // dd($arrIds);
-
-
         $estados = helpers::orderStatus();
 
         //Moneda:
@@ -693,6 +691,11 @@ class OrderController extends Controller{
 
         //PROVEEDOR:
         $provider = Company::select('id', 'name', 'tradename')->find($order->provider_id);
+
+        //Cuenta del proveedor:
+        $provider_account = CompanyAccounts::where('company_id', $provider->id)
+        ->where('status', 2)
+        ->first();
 
         $provider_managers = Employee::select(
             DB::raw("CONCAT(users.name,' ',users.surname) AS user"), 'users.id')
@@ -972,7 +975,7 @@ class OrderController extends Controller{
         $module_projects = $this->settedModule('projects');
         $module_rrhh = $this->settedModule('rrhh');
         
-        return view('admin.orders.edit')->with(compact('header', 'order', 'tab', 'patterns', 'purchase_patterns', 'provider', 'provider_managers', 'provider_business_areas', 'provider_cost_centers', 'provider_workplaces', 'default_workplace', 'customer', 'final_customer', 'customer_managers', 'customer_business_areas', 'customer_cost_centers', 'customer_workplaces', 'customer_products', 'customer_settings', 'confirmed_by', 'customers', 'order_amount', 'order_amount_without_discount', 'order_amount_without_discount_in_lines', 'order_groups', 'ordersInGroup', 'orders_off', 'group_amount', 'invoiced', 'invoices', 'previsions', 'products', 'projects', 'project', 'project_purchases', 'deliveries', 'receivings', 'currency', 'items', 'author', 'owner', 'iva', 'order_type', 'templates', 'languages', 'permitted', 'module_accounting', 'module_budgets', 'module_products', 'module_projects', 'module_rrhh', 'module_logistics'));
+        return view('admin.orders.edit')->with(compact('header', 'order', 'tab', 'patterns', 'purchase_patterns', 'provider', 'provider_account', 'provider_managers', 'provider_business_areas', 'provider_cost_centers', 'provider_workplaces', 'default_workplace', 'customer', 'final_customer', 'customer_managers', 'customer_business_areas', 'customer_cost_centers', 'customer_workplaces', 'customer_products', 'customer_settings', 'confirmed_by', 'customers', 'order_amount', 'order_amount_without_discount', 'order_amount_without_discount_in_lines', 'order_groups', 'ordersInGroup', 'orders_off', 'group_amount', 'invoiced', 'invoices', 'previsions', 'products', 'projects', 'project', 'project_purchases', 'deliveries', 'receivings', 'currency', 'items', 'author', 'owner', 'iva', 'order_type', 'templates', 'languages', 'permitted', 'module_accounting', 'module_budgets', 'module_products', 'module_projects', 'module_rrhh', 'module_logistics'));
     }
 
     /**
@@ -1385,7 +1388,7 @@ class OrderController extends Controller{
 
         $currency = $this->co_currency;
 
-        $data = Order::select('orders.id', 'orders.name', 'orders.order_num', 'orders.order_old_num', 'orders.purchase_num', 'orders.purchase_old_num', 'orders.estimated_delivery_date', 'orders.delivery_date', 'orders.order_status', 'orders.invoiced', 'orders.discount', 'order_previsions.year', 'order_previsions.month', 'order_previsions.percent', 'orders.created_at', 'companies.name AS Customer', 'users.name AS Nombre', 'users.surname', 'cc.name AS finalCustomer', 'u_.name AS CustomerManagerName', 'u_.surname AS CustomerManagerSurname', 'business_areas.name AS businessArea', 'workplaces.name AS workplace')
+        $data = Order::select('orders.id', 'orders.name', 'orders.order_num', 'orders.order_old_num', 'orders.purchase_num', 'orders.purchase_old_num', 'orders.is_group', 'orders.estimated_delivery_date', 'orders.delivery_date', 'orders.order_status', 'orders.invoiced', 'orders.discount', 'orders.bag_amount', 'order_previsions.year', 'order_previsions.month', 'order_previsions.percent', 'orders.created_at', 'companies.name AS Customer', 'users.name AS Nombre', 'users.surname', 'cc.name AS finalCustomer', 'u_.name AS CustomerManagerName', 'u_.surname AS CustomerManagerSurname', 'business_areas.name AS businessArea', 'workplaces.name AS workplace')
         ->join('order_previsions', 'orders.id', '=', 'order_previsions.order_id')
         ->join('companies', 'orders.customer_id', '=', 'companies.id')
         ->leftJoin('companies AS cc', 'orders.final_customer_id', '=', 'cc.id')
@@ -1440,16 +1443,33 @@ class OrderController extends Controller{
             return $row->finalCustomer;
         })
         ->addColumn('amount', function($row){
-            $amount = $row->getAmount();
-            return number_format($amount['amount_with_discount'], 2, '.', '');
+            if($row->is_group){
+                $amount = $row->getGroupAmount();
+            }else{
+                $arr_amount = $row->getAmount();
+                $amount = $arr_amount['amount_with_discount'];    
+            }
+            
+            return number_format($amount, 2, '.', '');
         })  
         ->addColumn('a_facturar', function($row){ 
-            $amount = $row->getAmount();
+            if($row->is_group){
+                if($row->bag_amount > 0){
+                    $amount = $row->bag_amount;
+                }else{
+                    $amount = $row->getGroupAmount();
+                }
+            }else{
+                $arr_amount = $row->getAmount();
+                $amount = $arr_amount['amount_with_discount'];    
+            }
+
+            //$amount = $row->getAmount();
             if($row->percent && $row->percent < 100){
-                $a_facturar = helpers::percent($amount['amount_with_discount'], $row->percent);  
+                $a_facturar = helpers::percent($amount, $row->percent);  
                 return number_format($a_facturar, 2, '.', '');
             }else{
-                return number_format($amount['amount_with_discount'], 2, '.', '');
+                return number_format($amount, 2, '.', '');
             }    
         })
         ->addColumn('invoice_amount', function($row){ 

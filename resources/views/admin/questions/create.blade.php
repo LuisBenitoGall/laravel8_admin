@@ -5,10 +5,10 @@
 <div class="row mb-3">
 	<div class="col-12">
 		{{-- Acciones: --}}
-		@if($edition)
-			<a href="{{ route('quiz-editions.edit', $edition) }}" class="btn btn-info">
+		@if($quiz)
+			<a href="{{ route('quizzes.edit', $quiz) }}" class="btn btn-info">
 				<i class="fa fa-angle-left"></i>
-				{!! trans('textos.volver_edicion') !!}
+				{!! trans('textos.volver_concurso') !!}
 			</a>
 		@else
 			<a href="{{ route('questions.index') }}" class="btn btn-info">
@@ -25,8 +25,8 @@
 			<div class="card-body">
 				<form method="post" autocomplete="off" action="{{ route('questions.store') }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
 					{{ csrf_field() }}
-					@if($edition)
-						<input type="hidden" name="edition_id" value="{{ $edition }}">
+					@if($quiz)
+						<input type="hidden" name="quiz_id" value="{{ $quiz }}">
 					@endif
 
 					<div class="form-group row">

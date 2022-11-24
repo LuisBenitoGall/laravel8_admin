@@ -35,7 +35,6 @@
 					@endif
 				</u></b></label>
 			@endif
-
 		</div>
 
 		{{-- Factura nº manual --}}
@@ -43,6 +42,16 @@
 		<div class="col-md-3 col-lg-2">
 			<x-input type="text" name="invoice_old_num" value="{{ $invoice->invoice_old_num }}" autocomplete="off" maxlength="150" info="invoice-old-num" readonly="{{ $readonly }}"/>
 		</div>
+
+		{{-- Dcumento --}}
+		@if($invoice->doc)
+			<label for="doc" class="col-md-3 col-lg-2 col-form-label">{!! ucfirst(trans('textos.documento_ver')) !!}</label>
+			<div class="col-md-2 col-lg-1 pt-2">
+				<a target="_blank" href="{{ asset('docs/invoices/'.$invoice->doc) }}">
+					<i class="fa fa-file" style="font-size: 18px;"></i>
+				</a>
+			</div>
+		@endif
 	</div>
 
 	<div class="form-group row">
