@@ -24,7 +24,9 @@ foreach (\App\Models\DevicePush::where('onesignal',true)->get() as $item){
     $fields['include_player_ids'] = ["{$item->token}"];
     $notificationMsg = 'Prueba API SDK NOE ADN!';
     $msg = OneSignal::sendPush($fields, $notificationMsg);
+    echo $item->token;
 }
+
 
     ///dd($msg);
 });
