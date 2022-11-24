@@ -475,12 +475,13 @@ class TimetableController extends Controller{
             275 => ['comida' => 57, 'entrada' => 53]
         ];
 
+        //Opciones en que no se aplica la inserción de horario:
         $teletrabajo = [
-            4 => [ 9, 10],
-            8 => [ 22, 23],
-            202 => [ 35, 36],
-            227 => [ 48, 49],
-            275 => [ 61, 62]    
+            4 => [ 9, 10, 6, 8, 11, 13],
+            8 => [ 22, 23, 19, 21, 24, 26],
+            202 => [ 35, 36, 32, 34, 37, 39],
+            227 => [ 48, 49, 45, 47, 50, 52],
+            275 => [ 61, 62, 58, 60, 63, 65]    
         ];
 
         //Nº de horas a trabajar en cada jornada del intervalo por cada centro de trabajo:
@@ -510,6 +511,7 @@ class TimetableController extends Controller{
         $users = Employee::select('employees.user_id', 'employees.workplace_id', 'workplaces.company_id')
         ->join('workplaces', 'employees.workplace_id', '=', 'workplaces.id')
         ->whereIn('workplaces.company_id', $adn_companies)
+        ->whereNotIn()
         ->groupBy('employees.user_id')
         ->get();
 

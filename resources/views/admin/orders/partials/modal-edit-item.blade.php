@@ -45,7 +45,7 @@
 						<label for="price" class="col-lg-2 col-form-label price-fixed_">{!! ucfirst(trans('textos.precio_unidad')) !!} </label>
 						<div class="col-lg-2 price-fixed_">
 							@php
-							$readonly = session('currentCompany') == $order->customer_id? true:false;
+							$readonly = session('currentCompany') == $order->customer_id && $provider_account? true:false;
 							@endphp
 
 							<x-input type="text" name="price" class="text-right set-decimals" autocomplete="off" maxlength="10" id="itemPrice_" value="0.00" group="right" groupvalue="{{ $currency->symbol }}" readonly="{{ $readonly }}"/>
