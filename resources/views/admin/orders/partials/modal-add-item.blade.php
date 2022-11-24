@@ -111,11 +111,11 @@
 							<x-input type="text" name="days" class="text-right set-decimals" autocomplete="off" maxlength="10"/>
 						</div>
 
-						{{-- Precio --}}
+						{{-- Precio. Puede ser introducido y modificado por el cliente si el proveedor no gestiona su cuenta de empresa --}}
 						<label for="price" class="col-lg-2 col-form-label price-fixed">{!! ucfirst(trans('textos.precio_unidad')) !!} </label>
 						<div class="col-lg-2 price-fixed">
 							@php
-							$readonly = session('currentCompany') == $order->customer_id? true:false;
+							$readonly = session('currentCompany') == $order->customer_id && $provider_account? true:false;
 							@endphp
 
 							<x-input type="text" name="price" class="text-right set-decimals" autocomplete="off" maxlength="10" id="productPrice" value="0.00" group="right" groupvalue="{{ $currency->symbol }}" readonly="{{ $readonly }}"/>

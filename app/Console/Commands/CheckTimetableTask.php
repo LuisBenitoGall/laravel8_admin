@@ -93,6 +93,7 @@ class CheckTimetableTask extends Command{
                     if(!$noWork || ($noWork->is_working && $noWork->working_day)){
                         $horario = Timetable::select('id', 'hour', 'item_id', 'flag', 'date')
                         ->where('user_id', $user->id)
+                        ->whereNull('deleted_at')
                         ->orderBy('date', 'DESC')
                         ->orderBy('id', 'DESC')
                         ->first();
