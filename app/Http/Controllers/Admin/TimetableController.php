@@ -511,7 +511,7 @@ class TimetableController extends Controller{
         $users = Employee::select('employees.user_id', 'employees.workplace_id', 'workplaces.company_id')
         ->join('workplaces', 'employees.workplace_id', '=', 'workplaces.id')
         ->whereIn('workplaces.company_id', $adn_companies)
-        ->whereNotIn()
+        ->whereNotIn('employees.user_id', $special_users)
         ->groupBy('employees.user_id')
         ->get();
 
