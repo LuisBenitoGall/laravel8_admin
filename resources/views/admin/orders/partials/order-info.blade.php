@@ -190,7 +190,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 		{{-- Título del pedido --}}
 		<label for="name" class="col-md-3 col-lg-2 col-form-label">{!! ucfirst(trans('textos.pedido_titulo')) !!}</label>
 		<div class="col-md-5 col-lg-6">
-			<x-input type="text" name="name" value="{{ $order->name }}" autocomplete="off" maxlength="255" readonly="{{ $read_only_provider }}"/>
+			<x-input type="text" name="name" value="{!! $order->name !!}" autocomplete="off" maxlength="255" readonly="{{ $read_only_provider }}"/>
 		</div>
 	</div>
 
@@ -335,12 +335,22 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 
 								{{-- Porcentaje --}}
 								<label for="percent" class="col-md-2 col-lg-2 col-form-label">{!! ucfirst(trans('textos.porcentaje')) !!}</label>
-								<div class="col-md-4 col-lg-2 sinpadding">
+								<div class="col-md-4 col-lg-2 sinpadding text-right">
 									@php
 									$percent = round($totalPercent, 2) > 100? '':$prev->percent;
+
+									// Porcentaje del monto total
+									$orden_w =  round(($percent*$order_amount)/100, 3);
+									$orden_wo = round(($percent*$order_amount_without_discount)/100, 3);
+									
 									@endphp
 
 									<x-input type="text" name="percent[]" class="text-right set-decimals percent prevision-data" autocomplete="off" maxlength="5" value="{{ $percent }}" group="right" groupvalue="%" required disabled="{{ $disabled_ }}"/>
+
+									{{-- Monto de la orden, aplicando el porcentaje de cobro --}}
+									<small data-container="body" data-toggle="popover" data-placement="top" data-content="{{trans('textos.facturacion_prevista_info_percent')}}">
+										{{$orden_w}}{{ $currency['symbol'] }} ({{$orden_wo}}{{ $currency['symbol'] }}) <li class="fa fa-info-circle"></li>
+									</small>
 
 						            @if(round($totalPercent, 2) > 100)
 						            	<span class="invalid-feedback" role="alert">

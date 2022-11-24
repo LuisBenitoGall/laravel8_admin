@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
+use Ladumor\OneSignal\OneSignal;
 
 class RequiredWarningPush extends Command
 {
@@ -55,7 +56,6 @@ class RequiredWarningPush extends Command
             ->get();
 
 
-
         foreach ($companies as $company) {
             // Emails of company
 
@@ -79,46 +79,64 @@ class RequiredWarningPush extends Command
                     ->orderBy('id', 'DESC')
                     ->first();
 
+                if (!$noWork || ($noWork->is_working && $noWork->working_day)) {
+                    if (isset($horario)) {
 
-                if (isset($horario)) {
-
-                    $timeTableItems = TimetableItems::where('company_id', $company->id)
-                        ->whereNotNull('required')
-                        ->get();
+                        $timeTableItems = TimetableItems::where('company_id', $company->id)
+                            ->whereNotNull('required')
+                            ->get();
 
 
-                    foreach ($timeTableItems as $item) {
+                        foreach ($timeTableItems as $item) {
+                            if ($item->basic_item) {
+                                $verify = Timetable::where('item_id', $item->id)
+                                    ->where('user_id', $empleado->id)
+                                    ->whereDate('created_at', Carbon::now())->exists();
 
-                        $verify = Timetable::where('item_id', $item->id)
-                            ->where('user_id',$empleado->id)
-                            ->whereDate('created_at', Carbon::now())->exists();
+                                if (!$verify) {
+                                    if (Carbon::now()->format('H:i:s') > Carbon::parse($item->required_warning)->format('H:i')) {
+                                        if (User::find($empleado->id)->devicePush) {
+                                            if ($item->name == 'Comida') {
+                                                if (Carbon::now()->dayName !== 'Friday') {
+                                                    $this->message("Recuerda fichar la " . $item->name, User::find($empleado->id)->devicePush->token, $empleado->email);
+                                                    $data_user = [
+                                                        'user' => $empleado,
+                                                        'fecha' => date('d-m-Y'),
+                                                        'company' => $company,
+                                                        'concept' => $item->name,
+                                                    ];
+                                                    Mail::send('emails.send-push-mail-warning', $data_user, function ($message) use ($item, $horario, $empleado, $company) {
+                                                        $message->from(config('constants.EMAIL_'), $company->name);
+                                                        $message->to($empleado->email);
+                                                        $message->subject("Recuerda fichar la {$item->name}");
+                                                    });
+                                                }
+                                            } else {
 
-                        if (!$verify) {
-                            if (Carbon::now()->format('H:i:s') > $item->required_warning) {
-                                if (User::find($empleado->id)->devicePush) {
-                                    $this->message("Recuerda que debes fichar para " . $item->name, User::find($empleado->id)->devicePush->token, $empleado->email);
-                                    $data_user = [
-                                        'user' => $empleado,
-                                        'fecha' => date('d-m-Y'),
-                                        'company' => $company,
-                                        'concept' => $item->name,
-                                    ];
-                                    Mail::send('emails.send-push-mail-warning', $data_user, function ($message) use ($item, $horario, $empleado, $company) {
-                                        $message->from(config('constants.EMAIL_'), $company->name);
-                                        $message->to($empleado->email);
-                                        $message->subject("Recuerda que debes fichar  para {$item->name}");
-                                    });
+                                                $this->message("Recuerda fichar el " . $item->name, User::find($empleado->id)->devicePush->token, $empleado->email);
+                                                $data_user = [
+                                                    'user' => $empleado,
+                                                    'fecha' => date('d-m-Y'),
+                                                    'company' => $company,
+                                                    'concept' => $item->name,
+                                                ];
+                                                Mail::send('emails.send-push-mail-warning', $data_user, function ($message) use ($item, $horario, $empleado, $company) {
+                                                    $message->from(config('constants.EMAIL_'), $company->name);
+                                                    $message->to($empleado->email);
+                                                    $message->subject("Recuerda fichar el {$item->name}");
+                                                });
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
-
                 }
-
-
             }
         }
     }
+
 
     /**
      * @param string $msg
@@ -127,7 +145,8 @@ class RequiredWarningPush extends Command
      * @return void
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function message(string $msg, $tokenPush, $user)
+    public
+    function message(string $msg, $tokenPush, $user)
     {
 
         $client = new Client();
@@ -139,6 +158,18 @@ class RequiredWarningPush extends Command
         ]]);
 
 
-        echo "send push {$tokenPush} {$user->email}\n";
+        echo "send push {$tokenPush}\n";
+    }
+
+    /**
+     * @param string $message
+     * @param string $deviceId
+     * @return mixed
+     */
+    public function messageSignal(string $message, string $deviceId)
+    {
+        $fields['include_player_ids'] = ["{$deviceId}"];
+        $notificationMsg = $message;
+        return OneSignal::sendPush($fields, $notificationMsg);
     }
 }
