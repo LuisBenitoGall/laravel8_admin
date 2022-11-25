@@ -462,6 +462,12 @@ class TimetableController extends Controller{
         //Casos especiales:
         $special_users = [2,221,218,1231,449,503,230];
 
+        //Albert Cano: 210
+        
+
+        //Usuarios descartados: Jordi Pérez, Jordi Pardo
+        $descartes = [213,229];
+
         
         $top_minutes = 470;     //Marca el límite por debajo de 8 horas, por debajo del cual no se marca hora de comida.
         $summer_days = ['start' => '2022-07-11', 'end' => '2022-09-02'];    //Intervalo de fechas de jornada intensiva.
@@ -483,6 +489,14 @@ class TimetableController extends Controller{
             227 => [ 48, 49, 45, 47, 50, 52],
             275 => [ 61, 62, 58, 60, 63, 65]    
         ];
+
+        // $teletrabajo = [
+        //     4 => [ 9, 10],
+        //     8 => [ 22, 23],
+        //     202 => [ 35, 36],
+        //     227 => [ 48, 49],
+        //     275 => [ 61, 62]    
+        // ];
 
         //Nº de horas a trabajar en cada jornada del intervalo por cada centro de trabajo:
         $working_hours = WorkCalendar::select('id', 'workplace_id', 'date', 'hours')
@@ -511,13 +525,15 @@ class TimetableController extends Controller{
         $users = Employee::select('employees.user_id', 'employees.workplace_id', 'workplaces.company_id')
         ->join('workplaces', 'employees.workplace_id', '=', 'workplaces.id')
         ->whereIn('workplaces.company_id', $adn_companies)
-        ->whereNotIn('employees.user_id', $special_users)
+        ->whereNotIn('employees.user_id', $descartes)
         ->groupBy('employees.user_id')
         ->get();
 
         foreach($users as $u){
             //Modificando hora de regreso según usuario:
             //if(in_array($u->user_id, $special_users)) $hour_in = '15:20:00';
+
+            $hour_in = in_array($u->user_id, $special_users)? '15:20:00':'15:00:00';
 
             //Buscamos los items horarios registrados por cada jornada:
             foreach($arrWorkingHours[$u->workplace_id] as $f){
