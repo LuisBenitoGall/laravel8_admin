@@ -18,6 +18,7 @@
                     @if($order->is_budget)
                     	<input type="hidden" name="budget_id" value="{{ $order->id }}">
                     @endif
+                    <input type="hidden" name="invoice_id" value="@if(isset($invoice)) {{ $invoice->id }} @endif">
                     <input type="hidden" name="environment" value="{{ $environment_ }}">
 
                     <div class="form-group row">

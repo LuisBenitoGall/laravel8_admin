@@ -272,7 +272,7 @@ $readonly = $invoice->blocked && !$is_sale? true:false;
 					@else
 						{{-- Items: --}}
 						<div class="tab-pane fade @if($tab == 'items') show active @endif" role="tabpanel" id="tab-items">
-							@include('admin.orders.partials.order-items')
+							@include('admin.orders.partials.order-items', ['env' => 'invoices'])
 						</div>
 					@endif
 
@@ -300,6 +300,8 @@ $readonly = $invoice->blocked && !$is_sale? true:false;
 {{-- Edit payment --}}
 @include('admin.invoice_payments.partials.modal-edit-payment')
 
+{{-- Edit item --}}
+@include('admin.orders.partials.modal-edit-item', ['environment_' => 'invoices'])
 
 {{-- Generate refund --}}
 @include('admin.invoices.partials.modal-generate-refund')

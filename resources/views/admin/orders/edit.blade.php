@@ -635,7 +635,6 @@ $order_amount_without_discount = $order_amount_without_discount_in_lines > $orde
 			  	<div class="tab-content pt-4">
 					{{-- Cabecera --}}
 					<div class="tab-pane fade @if(!$tab) show active @endif" role="tabpanel" id="tab-info">
-
 						@include('admin.orders.partials.order-info')
 					</div>
 
@@ -643,7 +642,7 @@ $order_amount_without_discount = $order_amount_without_discount_in_lines > $orde
 					@if(!$order->is_group)
 
 						<div class="tab-pane fade @if($tab == 'items') show active @endif" role="tabpanel" id="tab-items">
-							@include('admin.orders.partials.order-items')
+							@include('admin.orders.partials.order-items', ['env' => 'orders'])
 						</div>
 					@endif
 

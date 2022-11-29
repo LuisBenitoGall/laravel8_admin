@@ -460,7 +460,7 @@ class TimetableController extends Controller{
         $hour_out = '14:00:00';
         $hour_in = '15:00:00';
         //Casos especiales:
-        $special_users = [2,221,218,1231,449,503,230];
+        $special_users = [2,221,218,227,1231,449,503,230];
 
         //Albert Cano: 210
         
@@ -522,11 +522,18 @@ class TimetableController extends Controller{
             }
         }
 
+        // $users = Employee::select('employees.user_id', 'employees.workplace_id', 'workplaces.company_id')
+        // ->join('workplaces', 'employees.workplace_id', '=', 'workplaces.id')
+        // ->whereIn('workplaces.company_id', $adn_companies)
+        // ->whereNotIn('employees.user_id', $descartes)
+        // ->groupBy('employees.user_id')
+        // ->get();
+
+
+        //Casos: David Barón (227), Olga (220)
         $users = Employee::select('employees.user_id', 'employees.workplace_id', 'workplaces.company_id')
         ->join('workplaces', 'employees.workplace_id', '=', 'workplaces.id')
-        ->whereIn('workplaces.company_id', $adn_companies)
-        ->whereNotIn('employees.user_id', $descartes)
-        ->groupBy('employees.user_id')
+        ->where('employees.user_id', 220)
         ->get();
 
         foreach($users as $u){
@@ -589,17 +596,17 @@ class TimetableController extends Controller{
      */
     public function adjustTimetablesWorkers(){
         //Array con id de usuario y los minutos a descontar:
-        $users = [
-            2 => 22,
-            218 => 4,
-            221 => 15,
-            230 => 12,
-            503 => 4
-        ];
-
         // $users = [
-        //     218 => 10
+        //     2 => 22,
+        //     218 => 4,
+        //     221 => 15,
+        //     230 => 12,
+        //     503 => 4
         // ];
+
+        $users = [
+            232 => 32
+        ];
 
         $from = '2021-09-01';
         $to = '2022-10-31';

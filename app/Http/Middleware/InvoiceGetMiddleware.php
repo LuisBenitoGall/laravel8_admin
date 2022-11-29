@@ -18,7 +18,7 @@ class InvoiceGetMiddleware{
      * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
      */
     public function handle(Request $request, Closure $next){
-        $company = Invoice::select('provider_id')
+        $company = Invoice::select('orders.provider_id', 'orders.customer_id')
         ->join('orders', 'invoices.order_id', '=', 'orders.id')
         ->where('invoices.id', $request->segments()[2])
         ->first();
@@ -30,9 +30,15 @@ class InvoiceGetMiddleware{
         } 
 
         if($company->provider_id != session('currentCompany')){
-            $alert = trans('textos.no_permisos_accion');   
-            return redirect()->route('invoices.index')->with(compact('alert'));
-            exit; 
+            //Comprobamos si el cliente está asociado a la factura
+            if($company->customer_id == session('currentCompany')){
+                return redirect()->route('invoices.edit-purchase', $request->segments()[2]);
+                exit;
+            }else{
+                $alert = trans('textos.no_permisos_accion');   
+                return redirect()->route('invoices.index')->with(compact('alert'));
+                exit; 
+            }
         }
 
         return $next($request);
