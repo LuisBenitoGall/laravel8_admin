@@ -1300,6 +1300,13 @@ class OrderController extends Controller{
                 return trans('textos.por_porcentaje').' ('.$item->calculated_by_percent.'%)';
             }
         })
+        ->addColumn('iva', function($item){
+            if($item->iva > 0){
+                return $item->iva.'%';
+            }else{
+                return '';
+            }
+        })
         ->addColumn('discount', function($item){
             if($item->discount > 0){
                 return $item->discount.'%';
@@ -1307,7 +1314,7 @@ class OrderController extends Controller{
                 return '';
             }
         })
-        ->addColumn('amount', function($item) use($currency, $order_amount){
+        ->addColumn('amount', function($item) use($currency, $order_amount, $environment){
             $amount = '';
             if($item->price != 0){
                 if($item->calculated_by_percent > 0){
@@ -1316,7 +1323,15 @@ class OrderController extends Controller{
                 }else{
                     $arr_amount = helpers::itemAmount($item);
                     $amount = $arr_amount['amount']; 
-                    return $amount.$currency->symbol;
+
+                    //Importe con iva en facturas:
+                    if($environment == 'invoices'){
+                        $amount_with_iva = helpers::itemAmount($item, true);
+
+                        return $amount.$currency->symbol.'<br><small>+iva '.$amount_with_iva['amount'].$currency->symbol.'</small>';
+                    }else{
+                        return $amount.$currency->symbol;    
+                    }
                 }            
             }else{
                 return trans('textos.precio_sin_definir');

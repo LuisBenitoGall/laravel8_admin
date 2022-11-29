@@ -13,6 +13,7 @@ use Illuminate\Support\Str;
 //Models:
 use App\Models\BudgetFormItems;
 use App\Models\BudgetForms;
+use App\Models\CompanyAccounts;
 use App\Models\CompanySettings;
 use App\Models\Item;
 use App\Models\Order;
@@ -289,8 +290,16 @@ class ItemController extends Controller{
 
         $order = Order::select('id', 'invoiced')->find($request->order_id);
 
-        //Si pedido no existe o está facturado:
-        if(!$order || $order->invoiced){
+        //Comprobamos si el proveedor dispone de cuenta, esto es, que pueda generar directamente sus facturas:
+        $provider_account = false;
+        if($order){
+            $provider_account = CompanyAccounts::where('company_id', $order->provider_id)
+            ->where('status', 2)
+            ->first();
+        }
+
+        //Si pedido no existe o está facturado y proveedor gestiona sus propios pedidos y facturas:
+        if(!$order || ($order->invoiced && $provider_account)){
             $alert = trans('textos.pedido_facturado_aviso');
             return redirect()->route('orders.edit', [$request->order_id, 'items'])->with(compact('alert'));
             exit;
@@ -301,7 +310,7 @@ class ItemController extends Controller{
         $item->qty = $request->qty;
         $item->price = $request->price;
         $item->days = $request->days;
-        $item->iva = $request->iva;
+        $item->iva = $request->iva? $request->iva:$item->iva;
         $item->discount = $request->discount;
         $item->observations = $request->observations;
         $item->save();
@@ -309,6 +318,8 @@ class ItemController extends Controller{
         $msg = trans('textos.linea_updated');
         if($request->environment == 'orders'){
             return redirect()->route('orders.edit', [$request->order_id, 'items'])->with(compact('msg'));
+        }elseif($request->environment == 'invoices'){
+            return redirect()->route('invoices.edit', [$request->invoice_id, 'items'])->with(compact('msg'));
         }else{
             return redirect()->route('budgets.edit', [$request->budget_id, 'items'])->with(compact('msg'));    
         }
