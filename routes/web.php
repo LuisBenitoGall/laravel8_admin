@@ -1123,6 +1123,6 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 // Ajuste horarios:
 //Route::get('/admin/adjust_timetables', 'Admin\TimetableController@adjustTimetables')->name('timetables.adjust_timetables');
 
-Route::get('/admin/adjust_timetables_workers', 'Admin\TimetableController@adjustTimetablesWorkers')->name('timetables.adjust_timetables_workers');
+//Route::get('/admin/adjust_timetables_workers', 'Admin\TimetableController@adjustTimetablesWorkers')->name('timetables.adjust_timetables_workers');
 
 //Route::get('/admin/delete-weekends', 'Admin\TimetableController@deleteWeekends')->name('timetables.delete-weekends');

@@ -25,7 +25,7 @@
 					$mes = $meses[$ts->month];
 					$any = $ts->year;
 					if($any == 2021 && $mes == '01'){
-						$any == 2022;
+						$any = 2022;
 					}
 					$fecha = $change? '10/'.$mes.'/'.$any:date('d/m/Y');
 					@endphp
