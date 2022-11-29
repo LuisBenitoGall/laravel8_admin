@@ -164,6 +164,8 @@ class Timetable extends Model{
             ->whereDate('to', '>=', $from)
             ->get(); 
 
+            //dd($custom_timetables);
+
             //Permisos:
             $edit_timetable = Auth::user()->can('employees-timetable.edit');
 

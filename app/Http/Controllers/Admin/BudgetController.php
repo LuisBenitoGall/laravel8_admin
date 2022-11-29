@@ -936,23 +936,22 @@ class BudgetController extends Controller{
         //Si viene declarada la plantilla:
         if($request->template_id){
             //Plantilla original:
-            if($order->budget_template_id == $request->template_id){
+            $orig_template = BudgetSettings::find($request->template_id);
+
+            if($request->conditions || $request->payment_method || $request->observations || $request->footer_legend){
                 $template = [
                     'conditions' => $request->conditions, 
                     'payment_method' => $request->payment_method,
                     'observations' => $request->observations,
                     'footer_legend' => $request->footer_legend
-                ];
+                ];    
             }else{
-                //Plantilla original:
-                $orig_template = BudgetSettings::find($request->template_id);
-
                 $template = [
                     'conditions' => $orig_template->conditions, 
                     'payment_method' => $orig_template->payment_method,
                     'observations' => $orig_template->observations,
                     'footer_legend' => $orig_template->footer_legend
-                ];
+                ];    
             }
 
         //No viene declarada la plantilla:

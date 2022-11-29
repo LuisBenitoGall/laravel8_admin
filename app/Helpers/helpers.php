@@ -2058,7 +2058,7 @@ class Helpers{
         //IVA:	
         if($item->iva > 0 && $with_iva){
         	$percent = ($amount * $item->iva) / 100;
-        	$amount = $amount + $percent;
+        	$amount = round($amount + $percent, 2);
         }
 
         $arr = ['amount' => $amount, 'amount_without_discount' => $amount_without_discount];

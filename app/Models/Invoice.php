@@ -10,6 +10,7 @@ use App\Helpers\helpers;
 class Invoice extends Model{
     /**
      * 1. Calcular importe de factura.
+     * 1.1. Cálculo factura por items.
      * 2. Suma de importes por pedido.
      */
 
@@ -33,6 +34,13 @@ class Invoice extends Model{
 
         $this->amount_with_iva = $iva_amount;
         $this->save();
+    }
+
+    /**
+     * 1.1. Cálculo factura por items.
+     */
+    public function calculateAmountByItems(){
+        
     }
 
     /**

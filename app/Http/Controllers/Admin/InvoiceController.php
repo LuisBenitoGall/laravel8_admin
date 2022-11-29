@@ -20,6 +20,7 @@ use Carbon\Carbon;
 //Models:
 use App\Models\BankAccounts;
 use App\Models\Company;
+use App\Models\CompanyAccounts;
 use App\Models\CompanySettings;
 use App\Models\CustomerProviders;
 use App\Models\Invoice;
@@ -849,8 +850,25 @@ class InvoiceController extends Controller{
         //CLIENTE:
         $customer = Company::select('id', 'name', 'tradename')->find($order->customer_id); 
 
+        //Configuraciones de cliente. Es relación obligatoria, de modo que en caso de no existir debe crearse.
+        $customer_settings = CustomerProviders::where('customer_id', $order->customer_id)
+        ->where('provider_id', $order->provider_id)
+        ->first();
+        if(!$customer_settings){
+            $customer_settings = new CustomerProviders();  
+            $customer_settings->customer_id = $order->customer_id;
+            $customer_settings->provider_id = $order->provider_id;
+            $customer_settings->status = 1;
+            $customer_settings->save();
+        }
+
         //PROVEEDOR:
         $provider = Company::select('id', 'name', 'tradename')->find($order->provider_id);
+
+        //Cuenta del proveedor:
+        $provider_account = CompanyAccounts::where('company_id', $provider->id)
+        ->where('status', 2)
+        ->first();
 
         //Líneas del pedido: 
         $items = Item::where('order_id', $order->id)
@@ -943,7 +961,7 @@ class InvoiceController extends Controller{
             if($ba->featured == 1) $bank_featured = $ba->id;
         }
 
-        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'is_sale', 'order', 'suborders', 'invoiced', 'invoices', 'refund', 'customer', 'provider', 'items', 'patterns', 'payments', 'templates', 'featuredTemplate', 'currency', 'languages', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'payment_methods', 'bank_accounts', 'bank_featured'));
+        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'is_sale', 'order', 'suborders', 'invoiced', 'invoices', 'refund', 'customer', 'customer_settings', 'provider', 'provider_account', 'items', 'patterns', 'payments', 'templates', 'featuredTemplate', 'currency', 'languages', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'payment_methods', 'bank_accounts', 'bank_featured'));
     }
 
     /**
@@ -978,6 +996,11 @@ class InvoiceController extends Controller{
 
         //PROVEEDOR:
         $provider = Company::select('id', 'name', 'tradename')->find($order->provider_id);
+
+        //Cuenta del proveedor:
+        $provider_account = CompanyAccounts::where('company_id', $provider->id)
+        ->where('status', 2)
+        ->first();
 
         //Líneas del pedido: 
         $items = Item::where('order_id', $order->id)
@@ -1027,7 +1050,7 @@ class InvoiceController extends Controller{
         $bank_accounts = [];
         $bank_featured = false;
 
-        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'is_sale', 'order', 'invoiced', 'invoices', 'refund', 'customer', 'provider', 'items', 'currency', 'languages', 'patterns', 'payments', 'templates', 'featuredTemplate', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'payment_methods', 'bank_accounts', 'bank_featured'));
+        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'is_sale', 'order', 'invoiced', 'invoices', 'refund', 'customer', 'provider', 'provider_account', 'items', 'currency', 'languages', 'patterns', 'payments', 'templates', 'featuredTemplate', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'payment_methods', 'bank_accounts', 'bank_featured'));
     }
 
     /**
@@ -1644,8 +1667,6 @@ class InvoiceController extends Controller{
         $msg = trans('textos.factura_agrupacion_pedido_eliminado');
         return redirect()->route('invoices.edit', $invoice)->with(compact('msg'));
     }
-
-    
     
 }
 

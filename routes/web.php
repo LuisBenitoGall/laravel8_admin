@@ -19,11 +19,16 @@ Route::get('/', function () {
 });
 
 Route::get('test/push', function () {
+foreach (\App\Models\DevicePush::where('onesignal',true)->get() as $item){
 
-    $fields['include_player_ids'] = ['6af5566b-266c-4811-b863-02a149227dae'];
+    $fields['include_player_ids'] = ["{$item->token}"];
     $notificationMsg = 'Prueba API SDK NOE ADN!';
     $msg = OneSignal::sendPush($fields, $notificationMsg);
-    dd($msg);
+    echo $item->token.' / '. $item->user->name;
+}
+
+
+    ///dd($msg);
 });
 
 Auth::routes();
@@ -1116,8 +1121,8 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 //Route::get('/admin/import_db/{activate?}', 'Admin\ImportOldDBController@index')->name('import_db.index');
 
 // Ajuste horarios:
-Route::get('/admin/adjust_timetables', 'Admin\TimetableController@adjustTimetables')->name('timetables.adjust_timetables');
+//Route::get('/admin/adjust_timetables', 'Admin\TimetableController@adjustTimetables')->name('timetables.adjust_timetables');
 
-//Route::get('/admin/adjust_timetables_workers', 'Admin\TimetableController@adjustTimetablesWorkers')->name('timetables.adjust_timetables_workers');
+Route::get('/admin/adjust_timetables_workers', 'Admin\TimetableController@adjustTimetablesWorkers')->name('timetables.adjust_timetables_workers');
 
 //Route::get('/admin/delete-weekends', 'Admin\TimetableController@deleteWeekends')->name('timetables.delete-weekends');
