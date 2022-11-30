@@ -116,8 +116,10 @@ class TimetableSignedController extends Controller{
                 //Obtenemos empleados de la empresa:
                 $employees = Employee::select('employees.user_id')
                 ->join('contracts', 'employees.contract_id', '=', 'contracts.id')
+                ->join('users', 'employees.user_id', '=', 'users.id')
                 ->where('contracts.company_id', session('currentCompany'))
                 ->where('employees.time_control', 1)
+                ->where('users.status', 1)
                 ->get();  
 
                 if($employees->count() > 0){
