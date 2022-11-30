@@ -68,7 +68,11 @@ $provider_phones = false;
 
 				<tr>
 					<td>{{ $i }}</td>
-					<td>{{ $row->created_at->format($languages[session()->get('locale')][4]) }}</td>
+					<td>
+						{{-- {{ $row->created_at->format($languages[session()->get('locale')][4]) }} --}}
+						{{ \Carbon\Carbon::parse($row->date)->format($languages[session()->get('locale')][4]) }}
+
+					</td>
 					<td>
 						@php
 						$p = explode(':', $row->hour);
