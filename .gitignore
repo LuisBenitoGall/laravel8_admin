@@ -1,6 +1,7 @@
 /deprecated
 /node_modules
 /public/docs
+/public/docs/timetables_signed
 /public/hot
 /public/storage
 /storage/*.key
