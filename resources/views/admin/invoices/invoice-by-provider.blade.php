@@ -61,7 +61,7 @@
 						{{-- Importe neto --}}
 						<label for="amount" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.importe_neto')) !!}</label>
 						<div class="col-lg-2">
-							<x-input type="text" name="amount" id="invoiceAmount" class="text-right set-decimals" autocomplete="off" maxlength="15" group="right" groupvalue="{{ $currency->symbol }}"/>
+							<x-input type="text" name="amount" id="invoiceAmount" class="text-right " autocomplete="off" maxlength="15" group="right" groupvalue="{{ $currency->symbol }}"/>
 						</div>
 
 						{{-- IVA --}}

@@ -367,7 +367,11 @@
 			--}}
 			@can('invoices.index')
 				@if($invoices->count() && $order->invoiced)
-					<a href="{{ route('invoices.by-order', $order) }}" class="btn btn-info" rel="tooltip">
+					@php
+					$orderId = $order->order_parent && $order->order_parent > 0? $order->order_parent:$order->id;
+					@endphp
+
+					<a href="{{ route('invoices.by-order', $orderId) }}" class="btn btn-info" rel="tooltip">
 						<i class="fa fa-file-invoice-dollar"></i>
 						{{ ucfirst(trans('textos.facturas_pedido')) }}
 					</a>
