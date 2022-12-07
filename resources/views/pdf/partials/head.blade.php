@@ -109,10 +109,12 @@
 				width: 100%;
 			}
 				.tbl-header-left{
-					padding-right: 40px;	
+					padding-right: 40px;
+					width: 300px;	
 				}
 				.tbl-header-right{
 					padding-left: 40px;	
+					width: 350px;
 				}
 				.tbl-header-left div .item-left{
 					float: left;
