@@ -407,6 +407,11 @@ class FunctionalitiesTableSeeder extends Seeder{
             'label' => 'tipos_jornada',
             'module' => 'calendar'
             ],
+            ['name' => 'calendar criterions',
+            'slug' => 'calendar-criterions',
+            'label' => 'calendario_criterios',
+            'module' => 'calendar'
+            ],
             ['name' => 'work user calendar',
             'slug' => 'work-user-calendar',
             'label' => 'calendario_empleados',

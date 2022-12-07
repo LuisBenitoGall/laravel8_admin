@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Session;
 //Models:
 use App\Models\Company;
 use App\Models\DayTypes;
+use App\Models\DayTypesCriterions;
 use App\Models\WorkCalendar;
 use App\Models\WorkUserCalendar;
 
@@ -106,78 +107,114 @@ class Calendar extends Component{
     /**
      * 2. Seleccionar fecha.
      */
-    public function selectDay($fecha){
+    public function selectDay($fecha, $user_day){
         //Si se ha seleccionado tipo de jornada:
         if($this->day_type && $this->workplace){
             $this->date = $fecha;
+            $next_step = true;  //Prosigue con la inserción o eliminación del registro.
 
             //Acción para usuario:
             if($this->user){
-                //Comprobamos si la fecha existe:
-                $thisDate = WorkUserCalendar::where('user_id', $this->user->id)
-                ->where('date', $fecha)
-                ->first();
+                //Criterios. Se aplican si la fecha no está previamente seleccionada por el usuario y el tipo de jornada tiene declarado algún tipo de criterio:
+                if($user_day == '0' && $this->day_type->criterion_id){
+                    $cr = DayTypesCriterions::find($this->day_type->criterion_id);
 
-                //Guardar en array de fechas seleccionadas:
-                $save_in_array_user = true;
+                    //Deben incluirse en el switch los métodos de criterios que se vayan generando en el modelo, junto con sus parámetros:
+                    switch($cr->method){
+                        case 'weeklyDayTypes':
+                            $criterion = DayTypesCriterions::weeklyDayTypes($fecha, $this->day_type, $this->workplace->id, 1);
+                            break;
+                        default:
+                            $criterion = false;
+                    }
 
-                //Creamos ...:
-                if(!$thisDate){
-                    $thisDate = new WorkUserCalendar();
-                    $thisDate->user_id = $this->user->id;
-                    $thisDate->day_type_id = $this->day_type->id;
-                    $thisDate->date = $this->date;
-                    $thisDate->save();
+                    //Acción no permitida:
+                    if(is_array($criterion) && !$criterion['is_allowed']){
+                        $this->dispatchBrowserEvent('swal', [
+                            'text' => $criterion["msg"],
+                            'icon' => 'warning',
+                            'iconColor' => config('constants.COLOR_WARNING_'),
+                            'showCancelButton' => false,
+                            'confirmButtonColor' => config('constants.COLOR_DANGER_'),
+                            'cancelButtonColor' => config('constants.COLOR_DANGER_'),
+                            'confirmButtonText' => ucfirst(trans('textos.aceptar')),
+                            'cancelButtonText' => ucfirst(trans('textos.aceptar')),
+                            'toast'=>false,
+                            'position'=>'center'
+                        ]);
 
-                // ... o actualizamos:
-                }else{
-                    $emailFrom = config('constants.EMAIL_');
+                        $next_step = false;
+                    }
+                }
 
-                    //Si el tipo de jornada está declarado:
-                    if($thisDate->day_type_id){
-                        //Si estaba validada se elimina:
-                        if($thisDate->status){
-                            $save_in_array_user = false;
+                //Acción permitida:
+                if($next_step){
+                    //Comprobamos si la fecha existe:
+                    $thisDate = WorkUserCalendar::where('user_id', $this->user->id)
+                    ->where('date', $fecha)
+                    ->first();
 
-                            //Eliminamos fecha del array de fechas del usuario:
-                            unset($this->userDates[$thisDate->date]);
+                    //Guardar en array de fechas seleccionadas:
+                    $save_in_array_user = true;
 
-                            $thisDate->delete();
-                            $thisDate = false;
+                    //Creamos ...:
+                    if(!$thisDate){
+                        $thisDate = new WorkUserCalendar();
+                        $thisDate->user_id = $this->user->id;
+                        $thisDate->day_type_id = $this->day_type->id;
+                        $thisDate->date = $this->date;
+                        $thisDate->save();
 
-                        //Si no está validado, se valida si el usuario dispone de los permisos, o se elimina si no dispone de ellos:
-                        }else{
-                            if(Auth::user()->can('work-user-calendar.edit')){
-                                $thisDate->status = true;
-                                $thisDate->save();
-                            }else{
+                    // ... o actualizamos:
+                    }else{
+                        $emailFrom = config('constants.EMAIL_');
+
+                        //Si el tipo de jornada está declarado:
+                        if($thisDate->day_type_id){
+                            //Si estaba validada se elimina:
+                            if($thisDate->status){
                                 $save_in_array_user = false;
 
                                 //Eliminamos fecha del array de fechas del usuario:
                                 unset($this->userDates[$thisDate->date]);
 
                                 $thisDate->delete();
-                                $thisDate = false;    
-                            } 
+                                $thisDate = false;
+
+                            //Si no está validado, se valida si el usuario dispone de los permisos, o se elimina si no dispone de ellos:
+                            }else{
+                                if(Auth::user()->can('work-user-calendar.edit')){
+                                    $thisDate->status = true;
+                                    $thisDate->save();
+                                }else{
+                                    $save_in_array_user = false;
+
+                                    //Eliminamos fecha del array de fechas del usuario:
+                                    unset($this->userDates[$thisDate->date]);
+
+                                    $thisDate->delete();
+                                    $thisDate = false;    
+                                } 
+                            }
+
+                        //Sin tipo de jornada declarada:
+                        }else{
+                            $thisDate->day_type_id = $this->day_type->id;
+                            $thisDate->save();
                         }
-
-                    //Sin tipo de jornada declarada:
-                    }else{
-                        $thisDate->day_type_id = $this->day_type->id;
-                        $thisDate->save();
                     }
-                }
 
-                //Guardamos en el array de fechas del usuario...
-                if($save_in_array_user){
-                    $this->userDates[$thisDate->date] = [
-                        'id' => $thisDate->id,
-                        'day_type' => $this->day_type->id,
-                        'color' => $this->day_type->color,
-                        'notified' => NULL,
-                        'doc' => NULL,
-                        'status' => $thisDate->status
-                    ];
+                    //Guardamos en el array de fechas del usuario...
+                    if($save_in_array_user){
+                        $this->userDates[$thisDate->date] = [
+                            'id' => $thisDate->id,
+                            'day_type' => $this->day_type->id,
+                            'color' => $this->day_type->color,
+                            'notified' => NULL,
+                            'doc' => NULL,
+                            'status' => $thisDate->status
+                        ];
+                    }
                 }
 
             //Acción para empresa:

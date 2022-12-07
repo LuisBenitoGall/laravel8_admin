@@ -31,6 +31,9 @@ class RoleController extends Controller{
      * 7. Sincronizar permisos sobre los módulos.
      * 8. Actualizar estado administrador de usuarios según su rol.
      * 9. Copiar role a otras empresas.
+     * 10. Regenerar archivo de roles.
+     * 11. Setear permiso para role.
+     * 12. Setear permisos de una funcionalidad.
      */
     
     private $option = 'configuracion';
@@ -210,14 +213,16 @@ class RoleController extends Controller{
                 ->withInput();
         }   
 
+        //dd($request->all());
+
         //1º Actualizar role:
         $role->update($request->all());
 
         //2º Actualizar permisos:
-        $role->syncPermissions($request->permissions);
+        //$role->syncPermissions($request->permissions);
 
         //3º Permisos sobre los módulos:
-        $this->syncModulePermissions($role);
+        //$this->syncModulePermissions($role);
 
         //4ª Actualizar situación administrador de usuarios con este rol:
         if($role->permissions->count()){
@@ -306,5 +311,57 @@ class RoleController extends Controller{
 
         $msg = trans('textos.roles_copiados');
         return redirect()->route('roles.edit', $main_role->id)->with(compact('msg'));
+    }
+
+    /**
+     * 10. Regenerar archivo de roles.
+     *
+     * Se regeneran los .json de secondary-menu.json y functionalities.json
+     */
+    public function sync(){
+        $this->jsonFunctionalities();
+
+        $this->jsonOptionalModules();
+
+        $msg = trans('textos.roles_regenerados');
+        return redirect()->route('roles.index')->with(compact('msg'));
+    }
+
+    /**
+     * 11. Setear permiso para role.
+     */
+    public function setPermission(Request $request, Role $role, $permission, $action){
+        if($request->ajax()){ 
+            //Guardar:
+            if($action == 'on'){
+                $role->givePermissionTo($permission);     
+
+            //Eliminar:
+            }else{
+                $role->revokePermissionTo($permission);
+            }
+        }    
+    }
+
+    /**
+     * 12. Setear permisos de una funcionalidad.
+     */
+    public function setFunctionalityPermissions(Request $request, Role $role, $functionality, $action){
+        if($request->ajax()){ 
+            $methods = config('constants.METHODS_');
+
+            //Guardar:
+            if($action == 'on'){
+                foreach($methods as $m){
+                    $role->givePermissionTo($functionality.'.'.$m[0]);    
+                }                     
+
+            //Eliminar:
+            }else{
+                foreach($methods as $m){
+                    $role->revokePermissionTo($functionality.'.'.$m[0]);
+                }
+            }
+        }    
     }
 }

@@ -187,6 +187,11 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::delete('business-areas/{business_area}', 'BusinessAreasController@destroy')->name('business-areas.destroy')->middleware('permission:companies.destroy');
     Route::get('business-areas/status/{id}/{status}', 'BusinessAreasController@status')->name('business-areas.status')->middleware('permission:companies.edit');
 
+    // Calendar Criterions:
+    Route::get('calendar-criterions', 'DayTypesCriterionsController@index')->name('calendar-criterions.index')->middleware('permission:work-calendar.edit');
+    Route::post('calendar-criterions/store', 'DayTypesCriterionsController@store')->name('calendar-criterions.store')->middleware('permission:work-calendar.edit');
+    Route::post('calendar-criterions.update', 'DayTypesCriterionsController@update')->name('calendar-criterions.update')->middleware('permission:work-calendar.edit');
+
     // Categories. Tienen un index propio por cada módulo que utiliza esta funcionalidad:
     Route::get('categories', 'CategoryController@index')->name('categories.index');
     Route::get('product-categories', 'CategoryController@index')->name('product-categories.index');
@@ -345,6 +350,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::delete('day-types/{dt}', 'DayTypesController@destroy')->name('day-types.destroy');
     Route::post('day-types/export', 'DayTypesController@export')->name('day-types.export');
     Route::get('day-types/{company_id}/get', 'DayTypesController@getCompanyDayTypes')->name('day-types.get');
+    Route::post('day-types/set-criterions', 'DayTypesController@setCriterions')->name('day-types.set-criterions');
 
     // Day Types Config:
     Route::get('day-types-config/{type}/index', 'DayTypesConfigController@index')->name('day-types-config.index');
@@ -833,6 +839,9 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::delete('roles/{role}', 'RoleController@destroy')->name('roles.destroy')->middleware('permission:roles.destroy');
     Route::get('roles/get-slug/{texto}', 'RoleController@create_slug')->name('roles.get-slug');
     Route::post('roles/copy', 'RoleController@copy')->name('roles.copy')->middleware('permission:roles.create');
+    Route::get('roles/sync', 'RoleController@sync')->name('roles.sync')->middleware('permission:roles.create');
+    Route::get('roles/{role}/set-permission/{permission}/{action}', 'RoleController@setPermission')->name('roles.set-permission')->middleware('permission:roles.edit');
+    Route::get('roles/{role}/set-functionality-permissions/{functionality}/{action}', 'RoleController@setFunctionalityPermissions')->name('roles.set-permission')->middleware('permission:roles.edit');
 
     // Schedule Event Types:
     Route::get('schedule-event-types', 'ScheduleEventTypesController@index')->name('schedule-event-types.index')->middleware('permission:schedules.edit');
