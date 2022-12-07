@@ -49,6 +49,9 @@
 {{-- Config day type --}}
 @include('admin.day_types.partials.modal-config-day-type')
 
+{{-- Set criterions --}}
+@include('admin.day_types.partials.modal-set-criterions')
+
 @push('scripts')
 <script>
 $(function(){
@@ -90,6 +93,15 @@ $(function(){
                 $('#typesConfigList').html(html);
             }
         });
+    });
+
+    //Modal agregar filtros:
+    $(document).on('click', '.btnSetCriterion', function(){
+        var id = $(this).data('id');
+        var criterion = $(this).data('criterion');
+        criterion = criterion != ''? criterion:'';
+        $('#setTypeId').val(id);
+        $("#setTypeCriterion").val(criterion).trigger('change');
     });
 });
 </script>

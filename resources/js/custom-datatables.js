@@ -1541,7 +1541,7 @@ $(document).ready(function(){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
 
         $('#tblDayTypes').DataTable({
-            serverSide: false,
+            serverSide: true,
             processing: true,
             ajax: {
                 "type": "GET",
@@ -1557,70 +1557,7 @@ $(document).ready(function(){
                 {data: 'user_enabled', className: 'text-center'},
                 {data: 'cumulative', className: 'text-center'},
                 {data: 'modifiable', className: 'text-center'},
-                {data: 'id', className: 'text-right'}
-            ],
-            columnDefs: [
-                {"targets": 1,
-                "render": function(data, type, row){
-                    return '<span class="colorEx mr-2" style="background-color: '+row['color']+'"></span> '+row['color'];
-                }
-                },
-                {"targets": 2,
-                "render": function(data, type, row){
-                    if(row['is_working'] == 1){
-                        return '<i class="fa fa-check text-success" rel="tooltip" title="'+txtCompatibleLaborable+'"></i>';
-                    }else{
-                        return '<i class="fa fa-times text-danger" rel="tooltip" title="'+txtCompatibleLaborableNo+'"></i>';
-                    }
-                }
-                },
-                {"targets": 3,
-                "render": function(data, type, row){
-                    if(row['user_enabled'] == 1){
-                        return '<i class="fa fa-check text-success" rel="tooltip" title="'+txtDisponibleUsuario+'"></i>';
-                    }else{
-                        return '<i class="fa fa-times text-danger" rel="tooltip" title="'+txtDisponibleUsuarioNo+'"></i>';
-                    }
-                }
-                },
-                {"targets": 4,
-                "render": function(data, type, row){
-                    if(row['cumulative'] == 1){
-                        return '<i class="fa fa-check text-success" rel="tooltip" title="'+txtAcumulable+'"></i>';
-                    }else{
-                        return '<i class="fa fa-times text-danger" rel="tooltip" title="'+txtAcumulableNo+'"></i>';
-                    }
-                }
-                },
-                {"targets": 5,
-                "render": function(data, type, row){
-                    if(row['modifiable'] == 1){
-                        return '<i class="fa fa-check text-success" rel="tooltip" title="'+txtModificable+'"></i>';
-                    }else{
-                        return '<i class="fa fa-times text-danger" rel="tooltip" title="'+txtModificableNo+'"></i>';
-                    }
-                }
-                },
-                {"targets": -1,
-                "render": function(data, type, row){
-                    if(row['editar']){
-                        //Editar:
-                        var editar = '<a href="/admin/day-types/'+row['id']+'/edit" class="btn btn-xs btn-info btn-module" rel="tooltip" title="'+txtEditar+'"><i class="fa fa-edit"></i></a>';
-
-                        //Configuraciones:
-                        var config = '<a href="#" class="btn btn-xs btn-info btn-module btnDayTypeConfig" rel="tooltip" title="'+txtConfiguracion+'" data-toggle="modal" data-target="#modal-config-day-types" data-id="'+row['id']+'" data-type="'+row['name']+'"><i class="fa fa-cog"></i></a>';
-
-                        //Eliminar:
-                        var eliminar = '<form method="POST" action="/admin/day-types/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
-                            eliminar += '<input name="_method" type="hidden" value="DELETE">';
-                            eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
-                            eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtEliminar+'" data-msg="'+txtJornadaConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
-                        eliminar += '</form>';
-
-                        return editar+' '+config+' '+eliminar;
-                    }
-                }
-                }
+                {data: 'acciones', className: 'text-right'}
             ]
         });
     }

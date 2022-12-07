@@ -307,7 +307,7 @@ class InvoiceController extends Controller{
         $environment = $provider == session('currentCompany') || $customer == 'all'? 'sales':'purchases';
 
         //Campo de búsqueda de la empresa: proveedor o cliente.
-        $company_field = $provider == session('currentCompany') || $customer == 'all'? 'customer':'provider';
+        $company_field = $provider == session('currentCompany') || $customer == 'all'? 'provider':'customer';
 
         $data = Invoice::select('invoices.*', 'orders.id AS orderId', 'orders.order_num', 'orders.order_old_num', 'companies.name', 'companies.tradename', 'cost_centers.name AS costCenter', 'users.name AS Nombre', 'users.surname')
         ->leftJoin('orders', 'invoices.order_id', '=', 'orders.id')

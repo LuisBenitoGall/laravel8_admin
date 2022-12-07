@@ -2,6 +2,8 @@
 
 @section('content')
 
+<input type="hidden" id="roleId" value="{{ $role->id }}">
+
 <div class="row mb-3">
 	{{-- Acciones: --}}
 	<div class="col-sm-12">
@@ -25,12 +27,7 @@
 	<div class="col-12">
 		<div class="card mb-3">
 			<div class="card-body">
-				<form method="post" autocomplete="off" action="{{ route('roles.update', $role->id) }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
-					@method('PUT')
-					
-					@include('admin.roles.partials.form')
-
-				</form>
+				@include('admin.roles.partials.form')
 			</div>
 		</div>
 	</div>

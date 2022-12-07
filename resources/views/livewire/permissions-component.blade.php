@@ -8,7 +8,7 @@
         @foreach($permissions as $row)
             <li class="mb-2">
                 <label class="custom-chk-rdb" rel="tooltip">
-                    <input type="checkbox" name="permissions[]" value="{{ $row->id }}" @if(in_array($row->id, $role_permissions)) checked @endif class="functionality-{{ $functionality->slug }}">
+                    <input type="checkbox" name="permissions[]" value="{{ $row->id }}" @if(in_array($row->id, $role_permissions)) checked @endif class="chkPermission functionality-{{ $functionality->slug }}">
                     <span class="chk chksmall" style="top: 3px;"></span>
                 </label>
 
@@ -29,7 +29,7 @@
                 @endphp
 
                 <label class="custom-chk-rdb" rel="tooltip">
-                    <input type="checkbox" class="all-permissions" data-functionality="{{ $functionality->slug }}">
+                    <input type="checkbox" class="chkFunc all-permissions" data-functionality="{{ $functionality->slug }}" {{ $all_checked }}>
                     <span class="chk chksmall" style="top: 3px;"></span>
                 </label>
 

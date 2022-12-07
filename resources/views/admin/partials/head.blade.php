@@ -69,34 +69,33 @@
 
     @livewireStyles
 
-
     <script>
-        //Hora actual:
-        function horaActual() {
-            var f = new Date();
-            var hours = (f.getHours() < 10) ? '0' + f.getHours() : f.getHours();
-            var minutes = (f.getMinutes() < 10) ? '0' + f.getMinutes() : f.getMinutes();
-            var seconds = (f.getSeconds() < 10) ? '0' + f.getSeconds() : f.getSeconds();
-            hora = hours + ":" + minutes + ":" + seconds;
-            if (document.getElementById('currentHour') !== null) {
-                document.getElementById('currentHour').innerHTML = hora;
-            }
-            setTimeout("horaActual()", 1000);
+    //Hora actual:
+    function horaActual() {
+        var f = new Date();
+        var hours = (f.getHours() < 10) ? '0' + f.getHours() : f.getHours();
+        var minutes = (f.getMinutes() < 10) ? '0' + f.getMinutes() : f.getMinutes();
+        var seconds = (f.getSeconds() < 10) ? '0' + f.getSeconds() : f.getSeconds();
+        hora = hours + ":" + minutes + ":" + seconds;
+        if (document.getElementById('currentHour') !== null) {
+            document.getElementById('currentHour').innerHTML = hora;
         }
+        setTimeout("horaActual()", 1000);
+    }
 
-        //Variables globales:
-        var idm = '{{ App::getLocale() }}';             //Idioma
-        var base_url = '{{ url()->current() }}';        //URL
-        var companyCurrency = "{{ isset($currency)? $currency:config('constants.CURRENCY_') }}";
-        var color_primary = '#23c6c8';
-        var color_danger = '#ed5565';
-        var color_info = '#19ABD4';
-        var color_success = '#18a689';
-        var color_warning = '#f8ac59';
-        var color_chart_success = "#a3e1d4";
-        var color_chart_warning = "#e1d4a3";
-        var color_chart_danger = "#f16688";
-        var color_chart_grey = "#dedede";
+    //Variables globales:
+    var idm = '{{ App::getLocale() }}';             //Idioma
+    var base_url = '{{ url()->current() }}';        //URL
+    var companyCurrency = "{{ isset($currency)? $currency:config('constants.CURRENCY_') }}";
+    var color_primary = "{{ config('constants.COLOR_PRIMARY_') }}";
+    var color_danger = "{{ config('constants.COLOR_DANGER_') }}";
+    var color_info = "{{ config('constants.COLOR_INFO_') }}";
+    var color_success = "{{ config('constants.COLOR_SUCCESS_') }}";
+    var color_warning = "{{ config('constants.COLOR_WARNING_') }}";
+    var color_chart_success = "{{ config('constants.COLOR_CHART_SUCCESS_') }}";
+    var color_chart_warning = "{{ config('constants.COLOR_CHART_WARNING_') }}";
+    var color_chart_danger = "{{ config('constants.COLOR_CHART_DANGER_') }}";
+    var color_chart_grey = "{{ config('constants.COLOR_CHART_GREY_') }}";
     </script>
 
     {{-- JQuery --}}

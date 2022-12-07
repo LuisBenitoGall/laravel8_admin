@@ -34,10 +34,11 @@ use App\Models\WorkUserCalendar;
 class WorkUserCalendarController extends Controller{
     /**
      * 1. Calendario laboral de usuario.
-     * 2. Notificar jornadas solicitadas.
-     * 3. Validar todas las jornadas de usuario.
-     * 4. Adjuntar documento.
-     * 5. Eliminar documento.
+     * 2. Calendario por filtro.
+     * 3. Notificar jornadas solicitadas.
+     * 4. Validar todas las jornadas de usuario.
+     * 5. Adjuntar documento.
+     * 6. Eliminar documento.
      */
     
     private $option = 'calendario';
@@ -105,7 +106,18 @@ class WorkUserCalendarController extends Controller{
     }
 
     /**
-     * 2. Notificar jornadas solicitadas.
+     * 2. Calendario por filtro.
+     */
+    public function calendarBy(Request $request){
+        if($request->year){
+            return redirect()->route('work-user-calendar.index', [$request->user_id, $request->year]);  
+        }else{
+            return redirect()->route('work-user-calendar.index', [$request->user_id]);
+        }       
+    }
+
+    /**
+     * 3. Notificar jornadas solicitadas.
      */
     public function notify(User $user){
         $fechas = WorkUserCalendar::select('work_user_calendars.id', 'work_user_calendars.date AS fecha', 'work_user_calendars.notified', 'day_types.name AS dayType')
@@ -131,8 +143,6 @@ class WorkUserCalendarController extends Controller{
         //Destinatarios del email:
         //1. Emails corporativos:
         $receivers = session('companySettings')->emails? unserialize(session('companySettings')->emails):[];
-
-        //dd($receivers);
 
         //2. Emails responsables de grupo:
         $groups = GroupMembers::where('user_id', $user->id)
@@ -172,7 +182,7 @@ class WorkUserCalendarController extends Controller{
     }
 
     /**
-     * 3. Validar todas las jornadas de usuario.
+     * 4. Validar todas las jornadas de usuario.
      */
     public function validateAll(Request $request){
         $validator = $this->validator($request->all());
@@ -246,7 +256,7 @@ class WorkUserCalendarController extends Controller{
     }
 
     /**
-     * 4. Adjuntar documento.
+     * 5. Adjuntar documento.
      */
     public function addDoc(Request $request){
         $validator = $this->validator($request->all());
@@ -285,7 +295,7 @@ class WorkUserCalendarController extends Controller{
     }
 
     /**
-     * 5. Eliminar documento.
+     * 6. Eliminar documento.
      */
     public function deleteDoc(WorkUserCalendar $doc){
         //Recuperamos año de la fecha:

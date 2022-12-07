@@ -181,13 +181,15 @@
                             //Festivo:
                             $festive = '';
 
-                            //Fecha marcada:
+                            //Fecha marcada por la empresa:
                             $selected_date = isset($selectedDates[$date])? true:false;
+                            //Fecha marcada por el usuario:
+                            $user_date = count($userDates) && isset($userDates[$date])? 1:'0';
                             @endphp
 
                             <td 
                                 class="d-{{ $date }} {{ $weekend }}" 
-                                wire:click="selectDay('{{ $date }}')"
+                                wire:click="selectDay('{{ $date }}', {{ $user_date }})"
                                 @if($selected_date) style="background-color: {!! $selectedDates[$date]['color'] !!};" @endif
                             >
                                 {{-- Colocando el primer día de mes en la celda correcta --}}
@@ -298,6 +300,25 @@
             var id = $(this).data('id');
             $('#wucId').val(id);
         });
+    });
+
+    window.addEventListener('swal',function(e){
+        swal.fire(e.detail);
+        // swal.fire({
+        //     title: 'prueba',
+        //     text: "",
+        //     icon: 'warning',
+        //     iconColor: color_warning,
+        //     showCancelButton: true,
+        //     confirmButtonColor: color_primary,
+        //     cancelButtonColor: color_danger,
+        //     confirmButtonText: txtContinuar,
+        //     cancelButtonText: txtCancelar
+        // }).then((result) => {
+        //     if (result.isConfirmed) {
+        //         window.location.href = '';
+        //     }
+        // });
     });
     </script>
 </div>
