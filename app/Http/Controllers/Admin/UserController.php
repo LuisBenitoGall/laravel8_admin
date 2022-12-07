@@ -384,6 +384,24 @@ class UserController extends Controller{
         //User roles:
         $user_roles = $user->roles;
 
+        //Comprobamos que los permisos del usuario correspondan a la empresa en sesión, que no sean de otra empresa vinculada:
+        $current_company = true;
+        $user_company = false;          //Empresa de los permisos originales del usuario.
+        $roles_arr = [];
+        foreach($roles as $r){
+            array_push($roles_arr, $r->id);
+        }
+
+        foreach($user_roles as $ur){
+            if(!in_array($ur->id, $roles_arr)){
+                $current_company = false;
+                $user_company = Company::select('name', 'tradename')->find($ur->company_id);
+                break;
+            }
+        }
+
+        //dd($roles, $user_roles, $current_company);
+
         //Países:
         $countries = $this->countries(1);
 
@@ -462,7 +480,7 @@ class UserController extends Controller{
         //$stocks = Stock::stockByUser($user->id);
 
         //return view('admin.users.edit')->with(compact('header', 'user', 'tab', 'roles', 'user_roles', 'countries', 'images', 'business_areas', 'user_business_areas', 'cost_centers', 'user_cost_centers', 'workplaces', 'user_workplaces', 'categories', 'user_categories', 'phones', 'employees', 'timetables', 'calendar', 'stocks'));
-        return view('admin.users.edit')->with(compact('header', 'user', 'tab', 'roles', 'user_roles', 'countries', 'images', 'languages', 'employee', 'business_areas', 'user_business_areas', 'cost_centers', 'user_cost_centers',
+        return view('admin.users.edit')->with(compact('header', 'user', 'tab', 'roles', 'user_roles', 'current_company', 'user_company', 'countries', 'images', 'languages', 'employee', 'business_areas', 'user_business_areas', 'cost_centers', 'user_cost_centers',
             'workplaces', 'user_workplaces', 'categories', 'user_categories', 'phones', 'module_timetables', 'module_calendar', 'module_rrhh'));
     }
 

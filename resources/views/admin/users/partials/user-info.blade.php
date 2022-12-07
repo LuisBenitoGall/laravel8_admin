@@ -21,27 +21,44 @@
 				{!! ucfirst(trans('textos.permisos')) !!}*
 			</label>
 
-			<div class="col-lg-10">
-				@foreach($roles as $rol)
+			<div class="col-lg-10" @if(!$current_company) style="padding-top: 7px;" @endif>
+				{{-- Permisos con otra empresa --}}
+				@if(!$current_company)
+					<input type="hidden" name="roles" value="{{ $user_roles[0]->id }}">
+
 					@php
-					$checked = !empty($user_roles) && $user_roles[0]->id == $rol->id? true:false;
+					$rol_ = explode('/', $user_roles[0]->name);
 					@endphp
 
-					<label class="custom-chk-rdb mr-4" style="margin-bottom: 0; margin-top: 7px;">
-				        <input type="radio" name="roles" value="{{ $rol->id }}" @if($checked) checked @endif required>
-				        <span class="rdb chksmall"></span>
+					<span class="text-warning">
+						{!! ucfirst($rol_[1]) !!}	
+					</span>
+					{{ trans('textos.en') }}
+					<b class="text-warning">
+						{!! ucfirst($user_company->name) !!}	
+					</b>
+				@else
+					@foreach($roles as $rol)
+						@php
+						$checked = !empty($user_roles) && $user_roles[0]->id == $rol->id? true:false;
+						@endphp
 
-				        @if($rol->name == config('constants.SUPER_ADMIN_'))
-				        	{{ config('constants.SUPER_ADMIN_') }}
-				        @else
-					        @php
-					        $rol_ = explode('/', $rol->name);
-					        @endphp
-				        	
-				        	@if($rol_[1]) {!! ucfirst($rol_[1]) !!} @endif
-				        @endif
-				    </label>   
-				@endforeach
+						<label class="custom-chk-rdb mr-4" style="margin-bottom: 0; margin-top: 7px;">
+					        <input type="radio" name="roles" value="{{ $rol->id }}" @if($checked) checked @endif required>
+					        <span class="rdb chksmall"></span>
+
+					        @if($rol->name == config('constants.SUPER_ADMIN_'))
+					        	{{ config('constants.SUPER_ADMIN_') }}
+					        @else
+						        @php
+						        $rol_ = explode('/', $rol->name);
+						        @endphp
+					        	
+					        	@if($rol_[1]) {!! ucfirst($rol_[1]) !!} @endif
+					        @endif
+					    </label>   
+					@endforeach
+				@endif
 			</div>
 		</div>
 	@else

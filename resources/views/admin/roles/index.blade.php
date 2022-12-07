@@ -7,6 +7,9 @@
 		{{-- Acciones: --}}
 		@can('roles.create')
 			<a class="btn btn-info" href="{{ route('roles.create') }}"><i class="fa fa-plus"></i> {!! ucfirst(trans('textos.rol_nuevo')) !!}</a>
+
+			{{-- Regenerar .json menú secundario y funcionalidades --}}
+			<a class="btn btn-info btn-confirm" href="{{ route('roles.sync') }}" data-msg="{{ trans('textos.roles_regenerar_json_texto') }}"><i class="fa fa-sync"></i> {!! ucfirst(trans('textos.roles_regenerar_json')) !!}</a>
 		@endcan
 	</div>
 </div>

@@ -1,53 +1,56 @@
-{{ csrf_field() }}	
+<form method="post" autocomplete="off" action="{{ route('roles.update', $role->id) }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
+	@method('PUT')
+	{{ csrf_field() }}
 
-<div class="float-fixed-div">
-	<div class="row">
-		<x-btn-submit name="submit_update" label="{{ trans('textos.guardar') }}" inline="true"/>
+	<div class="float-fixed-div">
+		<div class="row">
+			<x-btn-submit name="submit_update" label="{{ trans('textos.guardar') }}" inline="true"/>
+		</div>
 	</div>
-</div>
 
-<div class="form-group row">
-	{{-- Name --}}
-	<label for="name" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.rol_titulo')) !!} *</label>
-	<div class="col-lg-4">
-		@if($action == 'edit')
-			<input type="hidden" name="name" value="{{ $role->name }}">
+	<div class="form-group row">
+		{{-- Name --}}
+		<label for="name" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.rol_titulo')) !!} *</label>
+		<div class="col-lg-4">
+			@if($action == 'edit')
+				<input type="hidden" name="name" value="{{ $role->name }}">
 
-			@php
-			$roleName = config('constants.SUPER_ADMIN_');
-			if($role->name != config('constants.SUPER_ADMIN_')){
-				$parts = explode('/', $role->name);	
-				$roleName = $parts[1];
-			}
-			@endphp
-			<x-input type="text" name="" class="name-slug" maxlength="150" value="{{ ucfirst($roleName) }}" required info="role-name" readonly="true"/>
-		@else
-			<x-input type="text" name="name" id="name" class="name-slug" maxlength="150" value="" required info="role-name"/>
+				@php
+				$roleName = config('constants.SUPER_ADMIN_');
+				if($role->name != config('constants.SUPER_ADMIN_')){
+					$parts = explode('/', $role->name);	
+					$roleName = $parts[1];
+				}
+				@endphp
+				<x-input type="text" name="" class="name-slug" maxlength="150" value="{{ ucfirst($roleName) }}" required info="role-name" readonly="true"/>
+			@else
+				<x-input type="text" name="name" id="name" class="name-slug" maxlength="150" value="" required info="role-name"/>
+			@endif
+		</div>
+
+		{{-- Switch desplegar opciones --}}
+		@if(!$role || $role->name != config('constants.SUPER_ADMIN_'))
+			<label for="name" class="col-lg-3 col-form-label">{!! ucfirst(trans('textos.permisos_desplegar_todos')) !!}</label>
+			<div class="col-lg-2">
+				<label class="switch" style="margin-top: 6px;">
+		  			<input type="checkbox" class="btnSlideAllPermissions">
+		  			<span class="slider round"></span>
+				</label>
+			</div>
 		@endif
 	</div>
 
-	{{-- Switch desplegar opciones --}}
-	@if(!$role || $role->name != config('constants.SUPER_ADMIN_'))
-		<label for="name" class="col-lg-3 col-form-label">{!! ucfirst(trans('textos.permisos_desplegar_todos')) !!}</label>
-		<div class="col-lg-2">
-			<label class="switch" style="margin-top: 6px;">
-	  			<input type="checkbox" class="btnSlideAllPermissions">
-	  			<span class="slider round"></span>
-			</label>
+	<div class="form-group row">
+		{{-- Description --}}
+		<label for="description" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.descripcion')) !!}</label>
+		<div class="col-lg-10">
+			@php
+			$description = isset($role->description)? $role->description:'';
+			@endphp
+			<x-input-textarea name="description" value="{{ $description }}"/>
 		</div>
-	@endif
-</div>
-
-<div class="form-group row">
-	{{-- Description --}}
-	<label for="description" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.descripcion')) !!}</label>
-	<div class="col-lg-10">
-		@php
-		$description = isset($role->description)? $role->description:'';
-		@endphp
-		<x-input-textarea name="description" value="{{ $description }}"/>
 	</div>
-</div>
+</form>
 
 {{-- Loop functionalities --}}
 @if($action == 'create' || $role->name != config('constants.SUPER_ADMIN_'))
@@ -114,6 +117,32 @@ $(function(){
         		$(this).find('.ibox-content').slideUp();
         	});
         } 
+    });
+
+    // Activar / desactivar permiso:
+    $('.chkPermission').on('change', function(){
+    	var permission = $(this).val();
+    	var role = $('#roleId').val();
+    	var action = 'off';
+
+    	if($(this).is(':checked')){
+    		action = 'on';
+    	}
+
+    	$.get("/admin/roles/"+role+"/set-permission/"+permission+'/'+action);
+    });
+
+    // Activar / desactivar todos los permisos de una funcionalidad:
+    $('.chkFunc').on('change', function(){
+    	var func = $(this).data('functionality');
+    	var role = $('#roleId').val();
+    	var action = 'off';
+
+    	if($(this).is(':checked')){
+    		action = 'on';
+    	}
+
+    	$.get("/admin/roles/"+role+"/set-functionality-permissions/"+func+'/'+action);
     });
 });
 </script>

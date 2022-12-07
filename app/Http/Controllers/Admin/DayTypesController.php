@@ -8,10 +8,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
+use Yajra\DataTables\DataTables;
 
 //Models:
 use App\Models\Company;
 use App\Models\DayTypes;
+use App\Models\DayTypesCriterions;
 
 class DayTypesController extends Controller{
     /**
@@ -24,6 +26,7 @@ class DayTypesController extends Controller{
      * 6. Eliminar tipo de jornada.
      * 7. Exportar valores a otras empresas vinculadas.
      * 8. Obtener day types por empresa.
+     * 9. Establecer criterios de calendario para tipo de jornada.
      */
     
     private $option = 'calendario';
@@ -45,9 +48,17 @@ class DayTypesController extends Controller{
             return Validator::make($data, [
                 'name' => 'required|string|max:150'
             ]);
+
+        //Validación update:
         }elseif(isset($data['submit_update'])){
           return Validator::make($data, [
                 'name' => 'required|string|max:150'
+            ]);
+
+        //Validación set criterions:
+        }elseif(isset($data['submit_set_criterion'])){
+          return Validator::make($data, [
+                'criterion' => 'required|string'
             ]);
         }
     } 
@@ -63,27 +74,66 @@ class DayTypesController extends Controller{
             'slug' => 'day-types'
         ]; 
 
-        return view('admin.day_types.index')->with(compact('header'));  
+        //$criterions = ['-' => ucfirst(trans('textos.criterio_ninguno'))];  //Iniciamos con opción para descartar todo criterio.
+        $arr = DayTypesCriterions::select('id', 'name')
+        ->pluck('name', 'id')
+        ->toArray();
+
+        //array_unshift($criterions, ucfirst(trans('textos.criterio_ninguno')));
+        $no_criterion[0] = ucfirst(trans('textos.criterio_ninguno'));
+
+        $criterions = $no_criterion + $arr;
+
+        return view('admin.day_types.index')->with(compact('header', 'criterions'));  
     }
 
     /**
      * 1.1. Listado de tipos de jornada para DataTable.
      */
     public function getDayTypesDT(){
-        $day_types = DayTypes::where('company_id', session('currentCompany'))
-        ->get();
+        $data = DayTypes::where('company_id', session('currentCompany'))
+        ->orderBy('name', 'ASC');
 
-        //Permisos del usuario:
-        $editar = Auth::user()->can('day-types.edit');
-        $eliminar = Auth::user()->can('day-types.destroy');
-
-        foreach($day_types as $row){
-            //Permisos para las acciones:
-            $row->editar = $editar;
-            $row->eliminar = $eliminar;    
-        }
-
-        return datatables($day_types)->toJson();
+        return DataTables::of($data)
+        ->addColumn('name', function($row){
+            return $row->name; 
+        })
+        ->addColumn('color', function($row){
+            return '<span class="colorEx mr-2" style="background-color: '.$row->color.';"></span> '.$row->color;     
+        })
+        ->addColumn('is_working', function($row){
+            if($row->is_working == 1){
+                return '<i class="fa fa-check text-success" rel="tooltip" title="'.trans('textos.compatible_laborable').'"></i>';
+            }else{
+                return '<i class="fa fa-times text-danger" rel="tooltip" title="'.trans('textos.compatible_no').'"></i>';
+            }     
+        })
+        ->addColumn('user_enabled', function($row){
+            if($row->user_enabled == 1){
+                return '<i class="fa fa-check text-success" rel="tooltip" title="'.trans('textos.disponible_para_usuario').'"></i>';
+            }else{
+                return '<i class="fa fa-times text-danger" rel="tooltip" title="'.trans('textos.disponible_no').'"></i>';
+            }
+        })
+        ->addColumn('cumulative', function($row){
+            if($row->cumulative == 1){
+                return '<i class="fa fa-check text-success" rel="tooltip" title="'.trans('textos.acumulable').'"></i>';
+            }else{
+                return '<i class="fa fa-times text-danger" rel="tooltip" title="'.trans('textos.acumulable_no').'"></i>';
+            }
+        })
+        ->addColumn('modifiable', function($row){
+            if($row->modifiable == 1){
+                return '<i class="fa fa-check text-success" rel="tooltip" title="'.trans('textos.modificable').'"></i>';
+            }else{
+                return '<i class="fa fa-times text-danger" rel="tooltip" title="'.trans('textos.modificable_no').'"></i>';
+            }
+        })
+        ->addColumn('acciones', function($row){
+            return view('admin.day_types.partials.dt-actions', compact('row'));    
+        })
+        ->rawColumns(['color', 'is_working', 'user_enabled', 'cumulative', 'modifiable'])
+        ->make(true);
     }
 
     /**
@@ -245,5 +295,28 @@ class DayTypesController extends Controller{
         }else{
             return response()->json(false);
         }
+    }
+
+    /**
+     * 9. Establecer criterios de calendario para tipo de jornada.
+     */
+    public function setCriterions(Request $request){
+        $validator = $this->validator($request->all());
+        if($validator->fails()){
+            return redirect('admin/day-types')
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        if($request->criterion > 0){
+            DayTypes::where('id', $request->id)
+            ->update(['criterion_id' => $request->criterion]);
+        }else{
+            DayTypes::where('id', $request->id)
+            ->update(['criterion_id' => NULL]);    
+        }
+
+        $msg = trans('textos.criterio_establecido');
+        return redirect()->route('day-types.index')->with(compact('msg'));
     }
 }
