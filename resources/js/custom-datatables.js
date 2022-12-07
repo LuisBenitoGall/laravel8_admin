@@ -829,7 +829,7 @@ $(document).ready(function(){
         $('#tblBudgets thead tr').clone(true).appendTo('#tblBudgets thead');
         $('#tblBudgets thead tr:eq(1) th').each(function(i){
             var title = $(this).text();
-            if(i == 4 || i == 10){
+            if(i == 3 || i == 9){
                 $(this).html('');
             }else{
                 // Check field on json of localstorage
@@ -864,7 +864,7 @@ $(document).ready(function(){
             },
             columns: [
                 {data: 'num', name: 'orders.budget_num', className: 'text-right'},
-                {data: 'budget_old_num', name: 'orders.budget_old_num', className: 'text-right'},
+                // {data: 'budget_old_num', name: 'orders.budget_old_num', className: 'text-right'},
                 {data: 'name', name: 'orders.name'},
                 {data: 'order_num', name: 'orders.order_num'},
                 {data: 'amount', name: 'amount', className: 'text-right'},

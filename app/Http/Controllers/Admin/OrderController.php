@@ -867,9 +867,19 @@ class OrderController extends Controller{
 
         //Facturas pedido simple:
         }else{
-            $invoices = Invoice::select('id', 'invoice_num', 'amount', 'amount_with_iva')
-            ->where('order_id', $order->id)
-            ->get();
+            //Pedido perteneciente a agrupación:
+            if($order->order_parent && $order->order_parent > 0){
+                $invoices = Invoice::select('invoices.id', 'invoices.invoice_num', 'invoices.amount', 'invoices.amount_with_iva')
+                ->join('invoice_orders', 'invoices.id', '=', 'invoice_orders.invoice_id')
+                ->where('invoice_orders.order_id', $order->id)
+                ->get();
+            
+            //Pedido independiente:    
+            }else{         
+                $invoices = Invoice::select('id', 'invoice_num', 'amount', 'amount_with_iva')
+                ->where('order_id', $order->id)
+                ->get();
+            }
         }
         if($invoices->count()) $permitted = false;
 

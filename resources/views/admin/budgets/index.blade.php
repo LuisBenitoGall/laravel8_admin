@@ -26,7 +26,8 @@
 			<thead>
 				<tr>
 					<th class="text-center wdt100">#</th>
-					<th class="text-center wdt100">{!! ucfirst(trans('textos.numero_antiguo')) !!}</th>
+					{{-- 07/12/22: se oculta esta columna a petición de Cuentas --}}
+					{{-- <th class="text-center wdt100">{!! ucfirst(trans('textos.numero_antiguo')) !!}</th> --}}
 					<th class="wdt150">{!! ucfirst(trans('textos.presupuesto')) !!}</th>
 					<th class="wdt100">{!! ucfirst(trans('textos.pedido')) !!}</th>
 					<th class="text-center wdt100">{!! ucfirst(trans('textos.importe')) !!}</th>
