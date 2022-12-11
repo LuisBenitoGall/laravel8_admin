@@ -583,9 +583,10 @@ class BudgetController extends Controller{
             $items = $order->items();
             $arr_amounts = $order->getAmount();    
 
-            $order_amount = $arr_amounts['amount_with_discount'];
-            $order_amount_without_discount = $arr_amounts['amount_without_discount'];
-            $order_amount_without_discount_in_lines = $arr_amounts['amount_without_discount_in_lines'];
+            $order_amount = $arr_amounts['total_amount'];
+            $order_amount_without_discount = $arr_amounts['total_amount_without_discounts'];
+            //$order_amount_without_discount_in_lines = $arr_amounts['amount_without_discount_in_lines'];
+            $order_amount_without_discount_in_lines = $arr_amounts['total_amount_without_discounts'];
         } 
 
         //Productos. Activos y aptos para venta:

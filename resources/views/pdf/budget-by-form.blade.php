@@ -65,7 +65,6 @@ $discount_in_lines = false;
 					}else{
 						$block_id =	$its->recid;
 					}
-					
 
 					//Si el item pertenece al bloque:
 					if($block->id == $block_id){
@@ -116,7 +115,7 @@ $discount_in_lines = false;
 								$importe = $noPriceLinesTexts[$its->item_no_price];
 								$amount = 0;
 							}else{
-								$precio = $its->price.$currency->symbol.$discount;
+								$precio = $its->calculated_by_percent > 0? $its->price.'%':$its->price.$currency->symbol.$discount;
 								$importe = $amount.$currency->symbol;
 							}
 

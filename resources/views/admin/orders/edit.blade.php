@@ -54,11 +54,13 @@
 				1. Disponer de permisos para generar facturas.
 				2. Estar activo el módulo de contabilidad.
 				3. Status apto para facturación: abierto (10)
+				4. Exclusivo proveedores.
 				...
 			--}}
 			@can('invoices.create')
 				@if($module_accounting
 					&& in_array($order->order_status, config('constants.ORDER_GROUPS_OPENED_'))
+					&& $order->provider_id == session('currentCompany')
 				)
 					<a href="{{ route('order-groups.to-invoice', $order) }}" class="btn btn-warning" rel="tooltip" title="{{ ucfirst(trans('textos.agrupacion_facturar')) }}"><i class="fa fa-file-invoice-dollar"></i></a>
 				@endif
@@ -348,6 +350,7 @@
 				3. Status apto para facturación: aprobado (10), entregado (40), finalizado (70)
 				4. El importe facturado debe ser menor al importe total del pedido.
 				5. No debe pertenecer a ninguna agrupación de pedidos.
+				6. Exclusivo proveedor.
 				...
 			--}}
 			@can('invoices.create')
@@ -355,6 +358,7 @@
 					&& in_array($order->order_status, config('constants.ORDER_STATUS_INVOICED_'))
 					&& (!$invoiced || round($order_amount, 2) > round($invoiced['invoiced_amount'], 2))
 					&& !$order->order_parent
+					&& $order->provider_id == session('currentCompany')
 				)
 					<a href="#" class="btn btn-warning" rel="tooltip" title="{{ ucfirst(trans('textos.facturar')) }}" data-toggle="modal" data-target="#modal-generate-invoice"><i class="fa fa-file-invoice-dollar"></i></a>
 				@endif
@@ -379,28 +383,33 @@
 			@endcan
 
 			{{-- Recalcular previsiones de facturación. Cuando se ha modificado el importe del pedido y los porcentajes de previsión de facturación no se ajustan al planteamiento original - condiciones:
-				1. No quedan previsiones de facturación pendientes de facturar.
-				2. El importe del pedido supera al facturado.
+				1. Exclusivo proveedores.
+				2. Permisos de edicion de facturas.
+				3. No quedan previsiones de facturación pendientes de facturar.
+				4. El importe del pedido supera al facturado.
+				...
 			--}}
-			@can('invoices.edit')
-				{{-- Controlamos que no existan previsiones sin facturar --}}
-				@php
-				$no_previsions = true;
-				foreach($previsions as $prv){
-					if(!$prv->invoice_id){
-						$no_previsions = false;
-						break;
+			@if($order->provider_id == session('currentCompany'))
+				@can('invoices.edit')
+					{{-- Controlamos que no existan previsiones sin facturar --}}
+					@php
+					$no_previsions = true;
+					foreach($previsions as $prv){
+						if(!$prv->invoice_id){
+							$no_previsions = false;
+							break;
+						}
 					}
-				}
-				@endphp
+					@endphp
 
-				@if($no_previsions && $invoiced && round($order_amount, 2) > round($invoiced->invoiced_amount, 2))
-					<a href="{{ route('order-previsions.recalculate-previsions', $order) }}" class="btn btn-info btn-confirm" data-msg="{{ ucfirst(trans('textos.facturaciones_previstas_recalculo_texto')) }}">
-						<i class="fa fa-calculator"></i>
-						{{ ucfirst(trans('textos.facturaciones_previstas_recalculo')) }}
-					</a>
-				@endif
-			@endcan
+					@if($no_previsions && $invoiced && round($order_amount, 2) > round($invoiced->invoiced_amount, 2))
+						<a href="{{ route('order-previsions.recalculate-previsions', $order) }}" class="btn btn-info btn-confirm" data-msg="{{ ucfirst(trans('textos.facturaciones_previstas_recalculo_texto')) }}">
+							<i class="fa fa-calculator"></i>
+							{{ ucfirst(trans('textos.facturaciones_previstas_recalculo')) }}
+						</a>
+					@endif
+				@endcan
+			@endif
 		@endif
 		{{-- / Acciones pedidos simples --}}
 

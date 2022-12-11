@@ -1,16 +1,25 @@
 @can('orders.edit')
-	{{-- Estado --}}
-	@include('admin.partials.selector-status', ['estados' => $estados, 'item' => $item])
+	{{-- Estado - condiciones: 
+		1. Exclusivo proveedor o por cliente para facturas de proveedores sin cuenta en el ERP:
+	--}}
+	@if($order->provider_id == session('currentCompany') || ($order->customer_id == session('currentCompany') && !$provider_account))
+		@include('admin.partials.selector-status', ['estados' => $estados, 'item' => $item])
+	@endif
 
 	{{-- Ver --}}
     <a href="#" class="btn btn-xs btn-info btnSeeItem" rel="tooltip" title="{{ ucfirst(trans('textos.ver')) }}"><i class="fa fa-eye"></i></a>
 
     {{-- Editar - condiciones 
 		1. Disponer de permisos.
+		2. Exclusivo proveedor o por cliente para facturas de proveedores sin cuenta en el ERP:
     --}}
     {{-- 4/11/22: se omite la condición de pedido facturado. Se pueden añadir líneas incluso facturado el pedido. --}}
     {{-- @if(!$order->invoiced) --}}
-		<a href="#" class="btn btn-xs btn-info btnEditItem" data-id="{{ $item->id }}" data-toggle="modal" data-target="#modal-edit-line" rel="tooltip" title="{{ ucfirst(trans('textos.editar')) }}"><i class="fa fa-edit"></i></a>
+    @can('invoices.edit')
+    	@if($order->provider_id == session('currentCompany') || ($order->customer_id == session('currentCompany') && !$provider_account))
+			<a href="#" class="btn btn-xs btn-info btnEditItem" data-id="{{ $item->id }}" data-toggle="modal" data-target="#modal-edit-line" rel="tooltip" title="{{ ucfirst(trans('textos.editar')) }}"><i class="fa fa-edit"></i></a>
+		@endif
+	@endcan
 	{{-- @endif --}}
 
 	{{-- Ronda de cambios --}}

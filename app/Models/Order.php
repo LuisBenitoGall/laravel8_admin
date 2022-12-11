@@ -92,7 +92,7 @@ class Order extends Model{
 
         $total_amount = 0;
 
-        foreach ($orders as $row) {
+        foreach($orders as $row){
             $amount = $row->getAmount();
             $total_amount = $total_amount + $amount['amount_with_discount'];
         }
@@ -104,45 +104,80 @@ class Order extends Model{
      * 5. Cálculo importe items.
      *
      * Collection $items    var $percentage_items
+     * 
+     * Agrupamos las líneas según su tipo de IVA.
      */
     public function itemsAmount($items, $percentage_items = false, $with_iva = false){
-        $total_amount = 0;
-        $total_amount_without_discounts = 0;
-
-        foreach ($items as $row) {
-            //Omitimos los items que se calculan porcentualmente:
-            if (!$row->calculated_by_percent && $row->price != 0) {
-                //Cálculo de importe de la línea:
-                $arr_amount = helpers::itemAmount($row, $with_iva = false);
-                $amount = $arr_amount['amount'];
-                $total_amount = $total_amount + $amount;
-
-                //Importe sin descuentos en líneas:
-                $total_amount_without_discounts = $total_amount_without_discounts + $arr_amount['amount_without_discount'];
-            }
-        }
-
-        //Cálculo de los items por porcentaje:
-        if($percentage_items){
-            $total_amount_without_percentuals = $total_amount;
-            $total_amount_without_percentuals_without_discounts = $total_amount_without_discounts;
-
+        //Extraemos los tipos de IVA:
+        if($with_iva){
+            $iva_types = [];
             foreach($items as $row){
-                if ($row->calculated_by_percent){
-                    // $amount = $row->calculated_by_percent * $total_amount_without_percentuals;
-                    $amount = helpers::itemAmountPercentage($row->price, $total_amount_without_percentuals);
-                    $total_amount = $total_amount + $amount;
-
-                    //Sumando porcentaje al importe sin descuentos:
-                    $amount_wd = helpers::itemAmountPercentage($row->price, $total_amount_without_percentuals_without_discounts);
-                    $total_amount_without_discounts = $total_amount_without_discounts + $amount_wd;
+                if(!in_array($row->iva, $iva_types)){
+                    array_push($iva_types, $row->iva);
                 }
             }
         }
 
-        $data = ['total_amount' => round($total_amount, 2), 'total_amount_without_discounts' => round($total_amount_without_discounts, 2)];
+        $order_amount = 0;                      //Importe del pedido sin impuestos (Base imponible).
+        $order_amount_without_discounts = 0;    //Importe del pedido sin impuestos ni descuentos.
+        $invoice_amount = 0;                    //Importe con impuestos.
+            
+        $amounts_by_iva = [];                   //Array que agrupa la suma de importes según tipo de IVA.
+        
 
-        //return round($total_amount, 2);
+        foreach($items as $row){
+            //Omitimos los items que se calculan porcentualmente:
+            if(!$row->calculated_by_percent && $row->price != 0){
+                //Base imponible de la línea:
+                $arr_order_amount = helpers::itemAmount($row, false);
+                $order_amount = $order_amount + $arr_order_amount['amount'];
+                $order_amount_without_discounts = $order_amount_without_discounts +  $arr_order_amount['amount_without_discount'];
+
+                //Cálculo de importe de la línea (con impuestos):
+                $arr_invoice_amount = helpers::itemAmount($row, true);
+                $invoice_amount = $invoice_amount + $arr_invoice_amount['amount'];
+
+                $amounts_by_iva[$row->iva] = isset($amounts_by_iva[$row->iva])? $amounts_by_iva[$row->iva] + $arr_invoice_amount['amount']:$arr_invoice_amount['amount'];
+
+                //11/12/22: QUEDA PENDIENTE EL CÁLCULO DEL RECARGO DE EQUIVALENCIA.
+            }
+        }
+
+        //Cálculo de los items por porcenorder
+        if($percentage_items){
+            $order_amount_without_percentuals = $order_amount;
+            $order_amount_without_percentuals_without_discounts = $order_amount_without_discounts;
+
+            foreach($items as $row){
+                if($row->calculated_by_percent){
+                    // $amount = $row->calculated_by_percent * $total_amount_without_percentuals;
+                    $amount = helpers::itemAmountPercentage($row->price, $order_amount_without_percentuals);
+                    $order_amount = $order_amount + $amount;
+
+                    //Sumando porcentaje al importe sin descuentos:
+                    $amount_wd = helpers::itemAmountPercentage($row->price, $order_amount_without_percentuals_without_discounts);
+                    $order_amount_without_discounts = $order_amount_without_discounts + $amount_wd;
+
+                    //Cálculo de importe de la línea (con impuestos):
+                    $percent = ($amount * $row->iva) / 100;
+                    $amount_with_iva = round($amount + $percent, 2);
+                    $invoice_amount = $invoice_amount + $amount_with_iva;
+
+                    $amounts_by_iva[$row->iva] = isset($amounts_by_iva[$row->iva])? $amounts_by_iva[$row->iva] + $amount_with_iva:$amount_with_iva;
+
+                    //11/12/22: QUEDA PENDIENTE EL CÁLCULO DEL RECARGO DE EQUIVALENCIA.
+                }
+            }
+        }
+
+        //dd($amounts_by_iva, $invoice_amount, $order_amount, $order_amount_without_discounts);
+
+        $data = [
+            'total_amount' => round($order_amount, 2), 
+            'total_amount_without_discounts' => round($order_amount_without_discounts, 2),
+            'invoice_amount' => round($invoice_amount, 2),
+            'amounts_by_iva' => $amounts_by_iva
+        ];
         return $data;
     }
 
@@ -161,27 +196,31 @@ class Order extends Model{
 
     /**
      * 7. Importe del presupuesto-pedido.
+     *
      */
     public function getAmount($discount_ = true, $with_iva = false, $with_percentage_items = true){
-        $items = Item::select('id', 'qty', 'price', 'item_no_price', 'iva', 'discount', 'calculated_by_percent', 'days', 'days_continue', 'days_continue_discount')
+        $items = Item::select('id', 'qty', 'price', 'item_no_price', 'iva', 'equivalence_surcharge', 'discount', 'calculated_by_percent', 'days', 'days_continue', 'days_continue_discount')
             ->where('order_id', $this->id)
             ->get();
 
-        $arr_amount = $this->itemsAmount($items, $with_percentage_items, $with_iva);
-        $amount = $arr_amount['total_amount'];
+        //$arr_amount = $this->itemsAmount($items, $with_percentage_items, $with_iva);
+        //$amount = $arr_amount['total_amount'];
 
         //Aplicando descuento del presupuesto-pedido:
-        $amount_discount = $amount;
-        if ($discount_ && $this->discount && $this->discount > 0) {
-            $percent = helpers::percent($amount_discount, $this->discount);
-            $amount_discount = $amount_discount - $percent;
-        }
+        //11/12/22. El descuento se aplica previamente sobre cada línea del presupuesto, en lugar de aplicarlo globalmente. De este modo se puede calcular IVA para pedidos con productos con distinto tipo de IVA.
+        // $amount_discount = $amount;
+        // if($discount_ && $this->discount && $this->discount > 0){
+        //     $percent = helpers::percent($amount_discount, $this->discount);
+        //     $amount_discount = $amount_discount - $percent;
+        // }
 
-        $data['amount_without_discount'] = $amount;
-        $data['amount_with_discount'] = $amount_discount;
-        $data['amount_without_discount_in_lines'] = $arr_amount['total_amount_without_discounts'];  //Total sin considerar el descuento aplicado en líneas.
+        //$data['amount_without_discount'] = $amount;
+        //$data['amount_with_discount'] = $amount_discount;
+        //$data['amount_without_discount_in_lines'] = $arr_amount['total_amount_without_discounts'];  //Total sin considerar el descuento aplicado en líneas.
 
-        return $data;
+        //return $data;
+        
+        return $this->itemsAmount($items, $with_percentage_items, $with_iva);
     }
 
     /**
@@ -202,8 +241,8 @@ class Order extends Model{
                 AND deleted_at IS NULL
                 AND status != " . config('constants.INVOICE_REFUNDED_') . ") AS invoiced_amount_with_iva")
         )
-            ->where('order_id', $this->id)
-            ->first();
+        ->where('order_id', $this->id)
+        ->first();
 
         return $data;
     }
@@ -213,8 +252,7 @@ class Order extends Model{
      *
      * No se aplica para las agrupaciones. Sólo se aplica el descuento que puedan tener los pedidos que la conforman.
      */
-    public function setDefaultDiscount()
-    {
+    public function setDefaultDiscount(){
         if (!$this->is_group) {
             $settings = CustomerProviders::where('customer_id', $this->customer_id)
                 ->where('provider_id', $this->provider_id)

@@ -30,6 +30,8 @@
 				<label class="text-warning mt-1" style="font-size: 16px;"><b><u>
 					@if($invoice->invoice_num)
 						{{ $invoice->invoice_num }}
+					@elseif($invoice->invoice_old_num)
+						{{ $invoice->invoice_old_num }}	
 					@else
 						{{ $invoice->id }}
 					@endif
@@ -43,7 +45,7 @@
 			<x-input type="text" name="invoice_old_num" value="{{ $invoice->invoice_old_num }}" autocomplete="off" maxlength="150" info="invoice-old-num" readonly="{{ $readonly }}"/>
 		</div>
 
-		{{-- Dcumento --}}
+		{{-- Documento --}}
 		@if($invoice->doc)
 			<label for="doc" class="col-md-3 col-lg-2 col-form-label">{!! ucfirst(trans('textos.documento_ver')) !!}</label>
 			<div class="col-md-2 col-lg-1 pt-2">

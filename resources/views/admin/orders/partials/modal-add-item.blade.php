@@ -101,25 +101,35 @@
 					<div class="form-group row">
 						{{-- Cantidad --}}
                     	<label for="qty" class="col-lg-2 col-form-label price-fixed">{!! ucfirst(trans('textos.cantidad')) !!} *</label>
-						<div class="col-lg-2 price-fixed">
+						<div class="col-lg-4 price-fixed">
 							<x-input type="text" name="qty" class="text-right set-decimals" autocomplete="off" maxlength="10" value="1" required/>
 						</div>
 
 						{{-- Jornadas --}}
 						<label for="days" class="col-lg-2 col-form-label price-fixed">{!! ucfirst(trans('textos.jornadas')) !!}</label>
-						<div class="col-lg-2 price-fixed">
+						<div class="col-lg-4 price-fixed">
 							<x-input type="text" name="days" class="text-right set-decimals" autocomplete="off" maxlength="10"/>
 						</div>
+					</div>
 
+					<div class="form-group row">
 						{{-- Precio. Puede ser introducido y modificado por el cliente si el proveedor no gestiona su cuenta de empresa --}}
 						<label for="price" class="col-lg-2 col-form-label price-fixed">{!! ucfirst(trans('textos.precio_unidad')) !!} </label>
-						<div class="col-lg-2 price-fixed">
+						<div class="col-lg-4 price-fixed">
 							@php
 							$readonly = session('currentCompany') == $order->customer_id && $provider_account? true:false;
 							@endphp
 
 							<x-input type="text" name="price" class="text-right set-decimals" autocomplete="off" maxlength="10" id="productPrice" value="0.00" group="right" groupvalue="{{ $currency->symbol }}" readonly="{{ $readonly }}"/>
 						</div>
+
+						{{-- IVA. Sólo en pedidos. En presupuestos no se tiene en cuenta este impuesto --}}
+						@if($environment_ == 'orders')
+							<label for="iva" class="col-lg-2 col-form-label">IVA</label>
+							<div class="col-lg-4">
+								<x-input type="text" name="iva" class="text-right set-decimals" id="productIva" autocomplete="off" maxlength="5" group="right" groupvalue="%" readonly="{{ $readonly }}" value="{{ config('constants.IVA_DEFAULT_') }}"/>
+							</div>
+						@endif
 
 						{{-- Los inputs de precio por porcentaje se muestran en el siguiente bloque, por una cuestión de coherencia en la maquetación. --}}
 					</div>
@@ -158,14 +168,6 @@
 
 								<x-input type="text" name="calculated_by_percent" class="text-right set-decimals" autocomplete="off" maxlength="8" id="productPriceByPercent" value="0.00" group="right" groupvalue="%" readonly="{{ $readonly }}" info="item-price-by-percent"/>
 							</div>
-
-							{{-- IVA. Sólo en pedidos. En presupuestos no se tiene en cuenta este impuesto --}}
-							@if($environment_ == 'orders')
-								<label for="iva" class="col-lg-2 col-form-label">IVA</label>
-								<div class="col-lg-2">
-									<x-input type="text" name="iva" class="text-right set-decimals" id="productIva" autocomplete="off" maxlength="5" group="right" groupvalue="%"/>
-								</div>
-							@endif
 						</div>
 					@endif
 

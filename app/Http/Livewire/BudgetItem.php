@@ -12,6 +12,7 @@ use App\Models\BudgetForms;
 use App\Models\CompanySettings;
 use App\Models\Invoice;
 use App\Models\Item;
+use App\Models\IvaType;
 use App\Models\Order;
 
 class BudgetItem extends Component{
@@ -114,7 +115,7 @@ class BudgetItem extends Component{
 
         //Importe total:
         $arr_amounts = $this->order->getAmount();
-        $this->total_amount = $arr_amounts['amount_with_discount'];
+        $this->total_amount = $arr_amounts['total_amount'];
 
         //Importe sin items porcentuales:
         $this->amount_without_percentage_items = $this->order->itemsBudgetOrderAmount(false);
@@ -236,6 +237,22 @@ class BudgetItem extends Component{
 
                 //Insert:
             } elseif ($this->action == 'save') {
+                //IVA:
+                $iva = $this->item ? $this->item['iva'] : $this->co_iva;
+
+                //Recargo de equivalencia:
+                $equivalence_surcharge = NULL;
+                if($iva > 0){
+                    $es = IvaType::select('equivalence_surcharge')
+                    ->where('iva', $iva)
+                    ->where('status', 1)
+                    ->whereNull('deleted_at')
+                    ->first();
+
+                    $equivalence_surcharge = $es? $es->equivalence_surcharge:NULL;
+                }
+
+
                 $item = new Item();
                 $item->product_id = $this->item ? $this->item['product_id'] : NULL;
                 $item->order_id = $this->order->id;
@@ -247,7 +264,8 @@ class BudgetItem extends Component{
                 $item->qty = $qty;
                 $item->price = $price;
                 $item->item_no_price = $no_price;
-                $item->iva = $this->item ? $this->item['iva'] : $this->co_iva;
+                $item->iva = $iva;
+                $item->equivalence_surcharge = $equivalence_surcharge;
                 $item->discount = $this->discount;
                 $item->calculated_by_percent = $this->calculated_by_percent > 0 ? $this->calculated_by_percent : NULL;
                 $item->days = $this->days ? $this->days : 0;
@@ -268,8 +286,8 @@ class BudgetItem extends Component{
             $arr_amounts = $this->order->getAmount();
 
             //Enviando importe al componente budget-amount:
-            $this->emit('updateAmount', $arr_amounts['amount_with_discount'], $arr_amounts['amount_without_discount']);
-            $this->emit('updateAmountMini', $arr_amounts['amount_with_discount']);
+            $this->emit('updateAmount', $arr_amounts['total_amount'], $arr_amounts['total_amount_without_discounts']);
+            $this->emit('updateAmountMini', $arr_amounts['total_amount']);
 
 
             //Estado del formulario:
@@ -369,8 +387,7 @@ class BudgetItem extends Component{
     /**
      * 6. Reset formulario.
      */
-    public function resetForm()
-    {
+    public function resetForm(){
         $this->item = false;
         $this->action = 'save';
         $this->field_readonly = false;
@@ -441,8 +458,7 @@ class BudgetItem extends Component{
      * @param $qty
      * @return void
      */
-    public function changeQty($qty)
-    {
+    public function changeQty($qty){
         if (is_numeric($qty)) {
             if (!$this->days) {
                 $subtotal = $qty * $this->price;
@@ -465,8 +481,7 @@ class BudgetItem extends Component{
      * @param $price
      * @return void
      */
-    public function changePrice($price)
-    {
+    public function changePrice($price){
         if (is_numeric($price)) {
 
 
@@ -491,8 +506,7 @@ class BudgetItem extends Component{
      * @param $discount
      * @return void
      */
-    public function changeDiscount($discount)
-    {
+    public function changeDiscount($discount){
 
         if (is_numeric($discount)) {
             if (!$this->days) {
@@ -516,8 +530,7 @@ class BudgetItem extends Component{
      * @param $days
      * @return void
      */
-    public function changeDays($days)
-    {
+    public function changeDays($days){
 
         if (is_numeric($days)) {
             if (!$days) {

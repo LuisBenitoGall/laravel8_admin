@@ -279,6 +279,14 @@
 				"slug" : "units",
 				"permission" : "units.index",
 				"setted" : false	
+			},
+			{
+				"suboption" : "iva tipos",
+				"label" : "iva_tipos",
+				"url": "iva-types.index",
+				"slug" : "iva-types",
+				"permission" : "iva-types.index",
+				"setted" : false	
 			}
 		] 
 	}
