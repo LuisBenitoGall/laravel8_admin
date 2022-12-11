@@ -102,9 +102,13 @@ $order_num = $order->order_num? $order->order_num:$order->id;
 
 						{{-- Acciones --}}
 						<td class="text-right">
-							{{-- Estado --}}
-							@if(!$row->blocked)
-								<x-select-status :options="$invoice_status" id="{{ $row->id }}" />
+							{{-- Estado - condiciones: 
+								1. Exclusivo proveedores.
+							--}}
+							@if($provider->id == session('currentCompany'))
+								@if(!$row->blocked)
+									<x-select-status :options="$invoice_status" id="{{ $row->id }}" />
+								@endif
 							@endif
 
 							{{-- Imprimir --}}
@@ -119,16 +123,21 @@ $order_num = $order->order_num? $order->order_num:$order->id;
 								</a>
 							@endcan
 
-							{{-- Eliminar --}}
+							{{-- Eliminar - condiciones: 
+								1. Permisos para eliminar facturas.
+								2. Exclusivo proveedores.
+							--}}
 							@can('invoices.destroy')
-								@if(!$row->blocked)
-									<form method="POST" action="{{ route('invoices.destroy', $row) }}" class="frm-inline" role="form" accept-charset="UTF-8">
-	                            		<input name="_method" type="hidden" value="DELETE">
-	                            		{{ csrf_field() }}
-	                            		<input type="hidden" name="return" value="by-order">
-	                            		<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="{{ trans('textos.factura_cancelar') }}" data-msg="{{ trans('textos.factura_confirm_cancelar') }}"><i class="fa fa-trash"></i></button>
-	                        		</form>
-	                        	@endif
+								@if($provider->id == session('currentCompany'))
+									@if(!$row->blocked)
+										<form method="POST" action="{{ route('invoices.destroy', $row) }}" class="frm-inline" role="form" accept-charset="UTF-8">
+		                            		<input name="_method" type="hidden" value="DELETE">
+		                            		{{ csrf_field() }}
+		                            		<input type="hidden" name="return" value="by-order">
+		                            		<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="{{ trans('textos.factura_cancelar') }}" data-msg="{{ trans('textos.factura_confirm_cancelar') }}"><i class="fa fa-trash"></i></button>
+		                        		</form>
+		                        	@endif
+		                        @endif
 							@endcan
 
 							{{-- Bloquear factura - condiciones: 

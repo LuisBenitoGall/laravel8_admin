@@ -15,7 +15,10 @@ use App\Models\BudgetFormItems;
 use App\Models\BudgetForms;
 use App\Models\CompanyAccounts;
 use App\Models\CompanySettings;
+use App\Models\Invoice;
+use App\Models\InvoiceItems;
 use App\Models\Item;
+use App\Models\IvaType;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\TempImportOrderItems;
@@ -206,7 +209,7 @@ class ItemController extends Controller{
         } 
 
         //Si la línea pertenece a un presupuesto tipo formulario con bloques, la línea se incorpora a un bloque genérico:
-        $order = Order::select('id', 'modality')->find($request->order_id);
+        $order = Order::select('id', 'modality', 'from_customer', 'provider_id', 'customer_id')->find($request->order_id);
 
         //Producto:
         $product = $request->product_id? Product::select('name')->find($request->product_id):false;
@@ -246,6 +249,21 @@ class ItemController extends Controller{
             $budget_sort = $last_order? $last_order->budget_sort+1:1;
         }
 
+        //IVA:
+        $iva = $request->iva? $request->iva:CompanySettings::co_iva();
+
+        //Recargo de equivalencia:
+        $equivalence_surcharge = NULL;
+        if($iva > 0){
+            $es = IvaType::select('equivalence_surcharge')
+            ->where('iva', $iva)
+            ->where('status', 1)
+            ->whereNull('deleted_at')
+            ->first();
+
+            $equivalence_surcharge = $es? $es->equivalence_surcharge:NULL;
+        }
+
         $item = new Item();
         $item->product_id = $request->product_id? $request->product_id:NULL;
         $item->order_id = $order->id;
@@ -254,13 +272,36 @@ class ItemController extends Controller{
         $item->concept = $product? $product->name:$request->concept;
         $item->observations = $request->observations;
         $item->qty = $request->calculated_by_percent? 1:$request->qty;      //La cantidad siempre es 1 para precios calculados por porcentaje.
-        $item->price = $request->price;
+        $item->price = $request->price? $request->price:($request->calculated_by_percent? $request->calculated_by_percent:NULL);
         $item->days = $request->days? $request->days:'0';
-        $item->iva = $request->iva? $request->iva:CompanySettings::co_iva();
+        $item->iva = $iva;
+        $item->equivalence_surcharge = $equivalence_surcharge;
         $item->discount = $request->discount > 0? $request->discount:NULL;
         $item->calculated_by_percent = $request->price? NULL:$request->calculated_by_percent;
         $item->user_id = Auth::user()->id;
         $item->save();
+
+        //Si se trata de una inclusión de línea sobre un pedido de compra ya facturado, se genera la línea de factura:
+        if($order->customer_id == session('currentCompany') && $order->from_customer){
+            //Obtenemos última factura del pedido:
+            $invoice = Invoice::select('id')
+            ->where('order_id', $order->id)
+            ->latest('id')
+            ->first();
+
+            $amount = helpers::itemAmount($item);
+
+            $ii = new InvoiceItems();
+            $ii->invoice_id = $invoice->id;
+            $ii->item_id = $item->id;
+            $ii->qty = $item->qty;
+            $ii->price = $item->price;
+            $ii->discount = $item->discount? $item->discount:'0';
+            $ii->days = $item->days;
+            $ii->amount = $amount['amount'];
+            $ii->iva = $item->iva;
+            $ii->save();
+        }
 
         $msg = trans('textos.linea_creado_ok');
         return redirect()->route($request->environment.'.edit', [$request->order_id, 'items'])->with(compact('msg'));
@@ -305,15 +346,41 @@ class ItemController extends Controller{
             exit;
         }
 
+        //IVA:
+        $iva = $request->iva? $request->iva:$item->iva;
+
+        //Recargo de equivalencia:
+        $equivalence_surcharge = NULL;
+        if($iva > 0){
+            $es = IvaType::select('equivalence_surcharge')
+            ->where('iva', $iva)
+            ->where('status', 1)
+            ->whereNull('deleted_at')
+            ->first();
+
+            $equivalence_surcharge = $es? $es->equivalence_surcharge:NULL;
+        }
+
         $item = Item::find($request->id);
         $item->concept = $request->concept;
         $item->qty = $request->qty;
         $item->price = $request->price;
         $item->days = $request->days;
-        $item->iva = $request->iva? $request->iva:$item->iva;
+        $item->iva = $iva;
+        $item->equivalence_surcharge = $equivalence_surcharge;
         $item->discount = $request->discount;
         $item->observations = $request->observations;
         $item->save();
+
+        //Actualizamos la línea en líneas de factura, si ésta no está bloqueada:
+        $invoice_item = InvoiceItems::select('invoice_items.*')
+        ->join('invoices', 'invoice_items.invoice_id', '=', 'invoices.id')
+        ->where('invoice_items.item_id', $item->id)
+        ->where('invoices.blocked', '0')
+        ->first();
+        if($invoice_item){
+            InvoiceItems::updateInvoiceItem($item, $invoice_item->invoice_id);
+        }
 
         $msg = trans('textos.linea_updated');
         if($request->environment == 'orders'){
@@ -343,6 +410,18 @@ class ItemController extends Controller{
         ->get();
         if($data->count() > 0){
             foreach($data as $r){
+                //Recargo de equivalencia:
+                $equivalence_surcharge = NULL;
+                if($r->iva > 0){
+                    $es = IvaType::select('equivalence_surcharge')
+                    ->where('iva', $r->iva)
+                    ->where('status', 1)
+                    ->whereNull('deleted_at')
+                    ->first();
+
+                    $equivalence_surcharge = $es? $es->equivalence_surcharge:NULL;
+                }
+
                 $item = new Item();
                 $item->order_id = $r->order_id;
                 //$item->ref = $r->ref;
@@ -351,6 +430,7 @@ class ItemController extends Controller{
                 $item->qty = $r->qty;
                 $item->price = $r->price;
                 $item->iva = $r->iva;
+                $item->equivalence_surcharge = $equivalence_surcharge;
                 $item->discount = $r->discount;
                 $item->user_id = Auth::user()->id;
                 $item->save();

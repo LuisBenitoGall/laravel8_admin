@@ -77,6 +77,11 @@ class FunctionalitiesTableSeeder extends Seeder{
             'label' => 'unidades',
             'module' => 'settings'
             ],
+            ['name' => 'iva types',
+            'slug' => 'iva-types',
+            'label' => 'iva_tipos',
+            'module' => 'settings'
+            ],
             
             ['name' => 'my account',
             'slug' => 'my-account',

@@ -391,10 +391,11 @@ class OrderController extends Controller{
         $order_buy = $order_buy == 'false' ? false : $order_buy;
 
         //Obtenemos pedidos simples, no agrupaciones:
-        $data = Order::select('orders.id', 'orders.is_budget', 'orders.budget_num', 'orders.discount', 'orders.order_parent', 'orders.name', 'orders.order_num', 'orders.order_old_num', 'orders.estimated_delivery_date', 'orders.purchase_num', 'orders.purchase_old_num', 'orders.delivery_date', 'orders.order_status', 'orders.invoiced', 'orders.created_at', 'companies.name AS company', 'business_areas.name AS businessArea', 'cost_centers.name AS costCenter')
+        $data = Order::select('orders.id', 'orders.is_budget', 'orders.budget_num', 'orders.discount', 'orders.order_parent', 'orders.name', 'orders.order_num', 'orders.order_old_num', 'orders.estimated_delivery_date', 'orders.purchase_num', 'orders.purchase_old_num', 'orders.delivery_date', 'orders.provider_id', 'orders.order_status', 'orders.invoiced', 'orders.created_at', 'companies.name AS company', 'business_areas.name AS businessArea', 'cost_centers.name AS costCenter', 'users.name AS nombre', 'users.surname')
         ->join('companies', 'orders.'.$company_field.'_id', '=', 'companies.id')
         ->leftJoin('business_areas', 'orders.customer_business_area_id', '=', 'business_areas.id')
         ->leftJoin('cost_centers', 'orders.customer_cost_center_id', '=', 'cost_centers.id')
+        ->leftJoin('users', 'orders.provider_manager_id', '=', 'users.id')
         //->leftJoin('workplaces', 'orders.workplace_id', '=', 'workplaces.id')
         ->where('orders.is_order', true)
         ->where('orders.is_group', false)
@@ -444,6 +445,13 @@ class OrderController extends Controller{
         ->addColumn('num', function($row){
             return view('admin.orders.partials.dt-num', compact('row')); 
         })
+        ->addColumn('manager', function($row){
+            if($row->nombre){
+                return $row->nombre.' '.$row->surname;
+            }else{
+                return '';
+            }
+        })
         ->addColumn('company', function($row){
             return $row->company;
         })
@@ -466,7 +474,7 @@ class OrderController extends Controller{
         })
         ->addColumn('amount', function($row) use($currency){
             $amount = $row->getAmount();  
-            return $amount['amount_with_discount'].$currency->symbol;
+            return $amount['total_amount'].$currency->symbol;
         })
         ->addColumn('fechaEntregaPrevista', function($row){
             if($row->estimated_delivery_date){
@@ -694,7 +702,7 @@ class OrderController extends Controller{
 
         //Cuenta del proveedor:
         $provider_account = CompanyAccounts::where('company_id', $provider->id)
-        ->where('status', 2)
+        ->where('status', 1)
         ->first();
 
         $provider_managers = Employee::select(
@@ -813,9 +821,10 @@ class OrderController extends Controller{
             $items = $order->items();
             $arr_amounts = $order->getAmount();    
 
-            $order_amount = $arr_amounts['amount_with_discount'];
-            $order_amount_without_discount = $arr_amounts['amount_without_discount'];
-            $order_amount_without_discount_in_lines = $arr_amounts['amount_without_discount_in_lines'];
+            $order_amount = $arr_amounts['total_amount'];
+            $order_amount_without_discount = $arr_amounts['total_amount_without_discounts'];
+            //$order_amount_without_discount_in_lines = $arr_amounts['amount_without_discount_in_lines'];
+            $order_amount_without_discount_in_lines = $arr_amounts['total_amount_without_discounts'];
         } 
 
         //Agrupaciones de pedidos:
@@ -1302,10 +1311,15 @@ class OrderController extends Controller{
         //Importe del pedido sin contar los items con precio porcentual:
         $order_amount = $order->getAmount(true, false, false);
 
+        //Cuenta del proveedor:
+        $provider_account = CompanyAccounts::where('company_id', $order->provider_id)
+        ->where('status', 1)
+        ->first();
+
         return DataTables::of($items)
         ->addColumn('price', function($item) use($currency){
             if($item->price > 0){
-                return $item->price.$currency->symbol;
+                return round($item->price, 2).$currency->symbol;
             }elseif(!$item->price && $item->calculated_by_percent > 0){
                 return trans('textos.por_porcentaje').' ('.$item->calculated_by_percent.'%)';
             }
@@ -1328,7 +1342,7 @@ class OrderController extends Controller{
             $amount = '';
             if($item->price != 0){
                 if($item->calculated_by_percent > 0){
-                    $amount = helpers::itemAmountPercentage($item->price, $order_amount['amount_without_discount']);
+                    $amount = helpers::itemAmountPercentage($item->price, $order_amount['total_amount_without_discounts']);
                     return $amount.$currency->symbol.'<br><small>('.trans('textos.precio_porcentual').')</small>';
                 }else{
                     $arr_amount = helpers::itemAmount($item);
@@ -1338,7 +1352,7 @@ class OrderController extends Controller{
                     if($environment == 'invoices'){
                         $amount_with_iva = helpers::itemAmount($item, true);
 
-                        return $amount.$currency->symbol.'<br><small>+iva '.$amount_with_iva['amount'].$currency->symbol.'</small>';
+                        return round($amount, 2).$currency->symbol.'<br><small>+iva '.$amount_with_iva['amount'].$currency->symbol.'</small>';
                     }else{
                         return $amount.$currency->symbol;    
                     }
@@ -1353,8 +1367,8 @@ class OrderController extends Controller{
         ->addColumn('observations', function($item){
             return $item->observations;
         })
-        ->addColumn('acciones', function($item) use($estados, $order, $environment){
-            return view('admin.orders.partials.dt-item-actions', compact('item', 'estados', 'order', 'environment'));    
+        ->addColumn('acciones', function($item) use($estados, $order, $environment, $provider_account){
+            return view('admin.orders.partials.dt-item-actions', compact('item', 'estados', 'order', 'environment', 'provider_account'));    
         })
         ->rawColumns(['amount', 'observations'])
         ->make(true);
@@ -1803,9 +1817,9 @@ class OrderController extends Controller{
         $order->discount_amount = $discount_amount;
         $order->save();
 
-        //Eliminamos descuentos parciales de cada línea del presupuesto:
+        //Actualizamos el descuento en cada línea del presupuesto:
         Item::where('order_id', $order->id)
-        ->update(['discount' => NULL]);
+        ->update(['discount' => $discount]);
 
         $msg = trans('textos.descuento_aplicado_ok');
         if($request->return == 'budgets'){
@@ -1819,9 +1833,8 @@ class OrderController extends Controller{
      * 18.1. Eliminar descuento de pedido.
      */
     public function removeDiscount(Order $order, $return = false){
-        //Eliminamos descuento sobre cada línea del presupuesto que tuviese ese porcentaje aplicado.  Puede haber alguna línea que tenga un descuento diferente.
+        //Eliminamos descuento sobre cada línea del presupuesto.
         Item::where('order_id', $order->id)
-        ->where('discount', $order->discount)
         ->update(['discount' => NULL]);
 
         $order->discount = NULL;

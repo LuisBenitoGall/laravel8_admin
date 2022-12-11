@@ -266,6 +266,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 				<div class="previsions">
 					@php
 					$totalPercent = 0;
+					//dd($order_amount, $previsions);
 					@endphp
 
 					@if($previsions->count())
@@ -339,17 +340,16 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 									@php
 									$percent = round($totalPercent, 2) > 100? '':$prev->percent;
 
-									// Porcentaje del monto total
-									$orden_w =  round(($percent*$order_amount)/100, 3);
-									$orden_wo = round(($percent*$order_amount_without_discount)/100, 3);
-									
+									// Porcentaje del monto total:
+									$orden_w = $percent != ''? round(($percent * $order_amount) / 100, 3):'';
+									$orden_wo = $percent != ''? round(($percent * $order_amount_without_discount) / 100, 3):'';
 									@endphp
 
 									<x-input type="text" name="percent[]" class="text-right set-decimals percent prevision-data" autocomplete="off" maxlength="5" value="{{ $percent }}" group="right" groupvalue="%" required disabled="{{ $disabled_ }}"/>
 
 									{{-- Monto de la orden, aplicando el porcentaje de cobro --}}
-									<small data-container="body" data-toggle="popover" data-placement="top" data-content="{{trans('textos.facturacion_prevista_info_percent')}}">
-										{{$orden_w}}{{ $currency['symbol'] }} ({{$orden_wo}}{{ $currency['symbol'] }}) <li class="fa fa-info-circle"></li>
+									<small data-container="body" data-toggle="popover" data-placement="top" data-content="{{ trans('textos.facturacion_prevista_info_percent') }}">
+										{{ $orden_w }}{{ $currency['symbol'] }} ({{ $orden_wo }}{{ $currency['symbol'] }}) <li class="fa fa-info-circle"></li>
 									</small>
 
 						            @if(round($totalPercent, 2) > 100)
@@ -565,8 +565,14 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 		{{-- Mostrar observaciones del cliente al proveedor --}}
 		<div class="form-group row">
 			<label for="observations" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.observaciones_cliente')) !!}</label>
-			<div class="col-lg-10">
-				{!! $order->observations_customer !!}
+			<div class="col-lg-10" style="padding-top: 7px;">
+				<i>
+					@if($order->observations_customer)
+						{!! $order->observations_customer !!}
+					@else
+						{{ trans('textos.observaciones_sin') }}.
+					@endif
+				</i>
 			</div>
 		</div>
 
@@ -601,4 +607,3 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 
 	<x-btn-submit name="submit_update" label="{{ trans('textos.guardar') }}"/>
 </form>
-

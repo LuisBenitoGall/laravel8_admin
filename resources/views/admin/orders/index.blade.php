@@ -86,7 +86,8 @@
 				<thead>
 					<tr>
 						<th class="text-center wdt50">#</th>
-						<th class="text-center wdt100">{!! ucfirst(trans('textos.n_manual')) !!}</th>
+						{{-- <th class="text-center wdt100">{!! ucfirst(trans('textos.n_manual')) !!}</th> --}}
+						<th class="wdt100">{!! ucfirst(trans('textos.responsable')) !!}</th>
 						<th class="wdt150">
 							@if($ordersType == 'compras')
 								{!! ucfirst(trans('textos.proveedor')) !!}

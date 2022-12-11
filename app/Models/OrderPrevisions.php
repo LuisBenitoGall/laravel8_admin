@@ -57,7 +57,7 @@ class OrderPrevisions extends Model{
         }else{
             $arr_amounts = $order->getAmount();    
 
-            $order_amount = $arr_amounts['amount_with_discount'];
+            $order_amount = $arr_amounts['total_amount'];
         } 
 
         $total_percent = 0;

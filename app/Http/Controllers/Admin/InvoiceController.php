@@ -48,11 +48,13 @@ class InvoiceController extends Controller{
      * 3. Editar factura.
      * 3.1. Editar factura por parte de cliente.
      * 3.2. Mostrar factura.
+     * 3.3. Recalcular importe factura a partir de sus líneas
      * 4. Actualizar factura.
      * 5. Imprimir factura.
      * 6. Setear info para listado de facturas.
      * 7. Actualizar estado de factura.
      * 8. Bloquear factura.
+     * 8.1. Desbloquear factura.
      * 9. Actualizar plantilla de factura.
      * 10. Facturas por pedido.
      * 10.1. Facturas por agrupación.
@@ -80,13 +82,14 @@ class InvoiceController extends Controller{
 
         $this->middleware('module_setted:accounting');
         $this->middleware('invoice_customer_get', ['only' => ['editPurchase']]);
-        $this->middleware('invoice_get', ['only' => ['edit', 'block', 'updateTemplate', 'destroy']]);
+        $this->middleware('invoice_get', ['only' => ['edit', 'block', 'unlock', 'updateTemplate', 'destroy']]);
         $this->middleware('invoice_update_get', ['only' => ['update', 'print']]);
         $this->middleware('invoice_post', ['only' => ['refund']]);
         $this->middleware('invoice_modality', ['only' => ['createFromOrder']]);
         $this->middleware('invoice_order_remove', ['only' => ['removeFromInvoice']]);
         $this->middleware('order_post', ['only' => ['createFromOrder', 'createFromGroup']]);
         $this->middleware('order_get', ['only' => ['invoicesByOrder']]);
+
     }
 
     //0. Validator:
@@ -457,7 +460,9 @@ class InvoiceController extends Controller{
         }
 
         //Importe total del pedido:
-        $order_amount = $order->getAmount();
+        $order_amount = $order->getAmount(true, true);
+
+        //dd($order_amount);
 
         //Comprobamos si existen otras facturas anteriores del mismo pedido:
         $other_invoices = Invoice::select('id', 'amount', 'with_iva', 'amount_with_iva')
@@ -476,7 +481,7 @@ class InvoiceController extends Controller{
         }
 
         //Importe pendiente, descontadas facturas anteriores:
-        $outstanding_amount = $order_amount['amount_with_discount'] - $previous_amount;
+        $outstanding_amount = $order_amount['total_amount'] - $previous_amount;
         //Porcentaje pendiente:
         $outstanding_percent = 100 - round($previous_percent, 2);
 
@@ -493,18 +498,23 @@ class InvoiceController extends Controller{
             $total_amount = $outstanding_amount;
             //Se validarán las previsiones de facturación restantes.
             $percentage_invoiced = false;
+            $amount_with_iva = $order_amount['invoice_amount'];
 
         //Facturas parciales:
         }else{
             //Si viene declarado el porcentaje, se convierte a importe neto:
             if($request->advance_percent){
-                $provisional_amount = helpers::percent($order_amount['amount_with_discount'], $request->advance_percent);
+                $provisional_amount = helpers::percent($order_amount['total_amount'], $request->advance_percent);
                 
                 //El importe obtenido por porcentaje no puede ser superior al importe pendiente:
                 if($provisional_amount > $outstanding_amount){
                     $alert = trans('textos.importe_mayor_pendiente_aviso');
                     return redirect()->route('orders.edit', [$order, false])->with(compact('alert'));  
                     exit;  
+
+                //Obtenemos el importe con IVA:
+                }else{
+                    $amount_with_iva = helpers::percent($order_amount['invoice_amount'], $request->advance_percent);
                 }
 
                 $total_amount = $provisional_amount;
@@ -519,6 +529,9 @@ class InvoiceController extends Controller{
                 }
 
                 $total_amount = $request->advance_amount;
+
+                //Obtenemos el importe con IVA:
+                $amount_with_iva = ($order_amount['invoice_amount'] * $request->advance_amount) / $order_amount['total_amount'];
             }
 
             //Por previsión de facturación:
@@ -537,19 +550,22 @@ class InvoiceController extends Controller{
                     if(!$more_previsions->count()){
                         $total_amount = $outstanding_amount;
                     }else{
-                        $total_amount = helpers::percent($order_amount['amount_with_discount'], $prevision->percent);
+                        $total_amount = helpers::percent($order_amount['total_amount'], $prevision->percent);
                     }
 
                     $percentage_invoiced = $prevision->percent;
+
+                    //Importe con IVA:
+                    $amount_with_iva = helpers::percent($order_amount['invoice_amount'], $prevision->percent);
                 }
             }
         }
 
         //Cálculo IVA:
-        if($total_amount > 0){
-            $iva_amount = helpers::percent($total_amount, $this->co_iva);
-            $amount_with_iva = $total_amount + $iva_amount;
-        }
+        // if($total_amount > 0){
+        //     $iva_amount = helpers::percent($total_amount, $this->co_iva);
+        //     $amount_with_iva = $total_amount + $iva_amount;
+        // }
 
         //Creamos cabecera de la factura, para poder utilizar su id:
         $invoice = new Invoice();
@@ -599,6 +615,8 @@ class InvoiceController extends Controller{
         //Recalculando porcentaje de las previsiones de facturación:
         OrderPrevisions::recalculatePrevisionsPercent($order);
 
+        //dd($invoice);
+
         $msg = trans('textos.factura_creada');
         return redirect()->route('invoices.edit', [$invoice->id, false])->with(compact('msg'));
     }
@@ -631,7 +649,7 @@ class InvoiceController extends Controller{
         foreach($request->orders as $o){
             $ord = Order::select('id', 'discount', 'invoiced')->find($o);
             $o_amount = $ord->getAmount();
-            $orders_amount = $orders_amount + $o_amount['amount_with_discount'];
+            $orders_amount = $orders_amount + $o_amount['total_amount'];
         }
 
         //Importe total de la agrupación:
@@ -753,33 +771,30 @@ class InvoiceController extends Controller{
         if(!$request->order_id){
             $order = new Order();
             $order->is_order = 1;
+            $order->from_customer = 1;      //Indicamos que es factura generada por el cliente.
             $order->customer_id = session('currentCompany');
             $order->provider_id = $request->provider_id;
             $order->order_status = config('constants.ORDER_FINISHED_');     //Damos el pedido por finalizado.
             $order->invoiced = 1;
             $order->save();
 
-            $from_customer = true;
-
             //Generamos una línea de pedido por el importe de la factura:
-            $item = new Item();
-            $item->order_id = $order->id;
-            $item->budget_sort = 1;
-            $item->concept = trans('textos.pedido_linea');
-            $item->qty = 1;
-            $item->price = $request->amount;
-            $item->iva = $request->iva;
-            $item->invoiced = NOW();
-            $item->active = 1;
-            $item->user_id = Auth::user()->id;
-            $item->save();
+            // $item = new Item();
+            // $item->order_id = $order->id;
+            // $item->budget_sort = 1;
+            // $item->concept = trans('textos.pedido_linea');
+            // $item->qty = 1;
+            // $item->price = $request->amount;
+            // $item->iva = $request->iva;
+            // $item->invoiced = NOW();
+            // $item->active = 1;
+            // $item->user_id = Auth::user()->id;
+            // $item->save();
 
         }else{
             $order = Order::select('id', 'invoiced')->find($request->order_id);
             $order->invoiced = 1;
             $order->save();
-
-            $from_customer = false;
         }
 
         //Formateando fechas:
@@ -793,17 +808,17 @@ class InvoiceController extends Controller{
         $inv = new Invoice();
         $inv->invoice_old_num = $request->invoice_old_num;
         $inv->order_id = $order->id;
-        $inv->amount = $request->amount;
-        $inv->with_iva = $request->iva;
-        $inv->amount_with_iva = $request->amount_with_iva;
-        $inv->irpf = $request->irpf;
+        //$inv->amount = $request->amount;
+        $inv->with_iva = config('constants.IVA_DEFAULT_');
+        //$inv->amount_with_iva = $request->amount_with_iva;
+        //$inv->irpf = $request->irpf;
         $inv->fiscal_date = $fiscal_date;
         $inv->expiration_date = $expiration_date;
         $inv->user_id = Auth::user()->id;
         $inv->customer_observations = $request->customer_observations;
         $inv->doc = $doc;
         $inv->status = $request->status? $request->status:config('constants.INVOICE_OPEN_'); 
-        $inv->blocked = 1;      //Por defecto bloqueamos las facturas así generadas.  
+        $inv->blocked = 0;      //Por defecto mantenemos desbloqueadas las facturas así generadas.  
         $inv->save();
 
         $msg = trans('textos.factura_creada');
@@ -820,6 +835,9 @@ class InvoiceController extends Controller{
             'module' => $this->module,
             'slug' => 'invoices'
         ]; 
+
+        //Recalculando importe factura por sus líneas:
+        //$this->recalculateInvoiceAmount($invoice);
 
         //Entorno: venta.
         $is_sale = true;
@@ -848,7 +866,7 @@ class InvoiceController extends Controller{
         $refund = Invoice::select('id', 'invoice_num')->where('refund', $invoice->id)->first();
 
         //CLIENTE:
-        $customer = Company::select('id', 'name', 'tradename')->find($order->customer_id); 
+        $customer = Company::select('id', 'name', 'tradename')->find($order->customer_id);
 
         //Configuraciones de cliente. Es relación obligatoria, de modo que en caso de no existir debe crearse.
         $customer_settings = CustomerProviders::where('customer_id', $order->customer_id)
@@ -867,7 +885,7 @@ class InvoiceController extends Controller{
 
         //Cuenta del proveedor:
         $provider_account = CompanyAccounts::where('company_id', $provider->id)
-        ->where('status', 2)
+        ->where('status', 1)
         ->first();
 
         //Líneas del pedido: 
@@ -938,8 +956,8 @@ class InvoiceController extends Controller{
             $items = $order->items();
             $arr_amounts = $order->getAmount();    
 
-            $order_amount = $arr_amounts['amount_with_discount'];
-            $order_amount_without_discount = $arr_amounts['amount_without_discount'];
+            $order_amount = $arr_amounts['total_amount'];
+            $order_amount_without_discount = $arr_amounts['total_amount_without_discounts'];
         } 
 
         //Métodos de pago:
@@ -975,6 +993,9 @@ class InvoiceController extends Controller{
             'slug' => 'invoices'
         ]; 
 
+        //Recalculando importe factura por sus líneas:
+        $this->recalculateInvoiceAmount($invoice);
+        
         //Entorno: compra.
         $is_sale = false;
 
@@ -999,7 +1020,7 @@ class InvoiceController extends Controller{
 
         //Cuenta del proveedor:
         $provider_account = CompanyAccounts::where('company_id', $provider->id)
-        ->where('status', 2)
+        ->where('status', 1)
         ->first();
 
         //Líneas del pedido: 
@@ -1064,6 +1085,9 @@ class InvoiceController extends Controller{
             'slug' => 'invoices'
         ];  
 
+        //Recalculando importe factura por sus líneas:
+        $this->recalculateInvoiceAmount($invoice);
+
         //Pedido:
         $order = Order::find($invoice->order_id); 
 
@@ -1098,6 +1122,21 @@ class InvoiceController extends Controller{
         $currency = $this->co_currency;
         
         return view('admin.invoices.show')->with(compact('header', 'invoice', 'order', 'customer', 'customer_workplace', 'provider', 'provider_workplace', 'items', 'languages', 'currency'));  
+    }
+
+    /**
+     * 3.3. Recalcular importe factura a partir de sus líneas.
+     *
+     * $invoice obj
+     */
+    public function recalculateInvoiceAmount($invoice){
+        //Recalculando importe factura por sus líneas:
+        if($invoice->blocked == '0'){
+            $arr_amount = InvoiceItems::setInvoiceAmount($invoice);
+            $invoice->amount = $arr_amount['amount'];
+            $invoice->amount_with_iva = $arr_amount['amount_with_iva'];
+            $invoice->save();
+        }    
     }
 
     /**
@@ -1160,6 +1199,9 @@ class InvoiceController extends Controller{
             return redirect()->route('invoices.index')->with(compact('alert')); 
             exit;       
         }  
+
+        //Recalculando importe factura por sus líneas:
+        $this->recalculateInvoiceAmount($invoice);
 
         $invoice_order = Order::select('orders.*', 'users.name AS Nombre', 'users.surname')
         ->leftJoin('users', 'orders.provider_manager_id', '=', 'users.id')
@@ -1352,6 +1394,21 @@ class InvoiceController extends Controller{
     }
 
     /**
+     * 8.1. Desbloquear factura.
+     */
+    public function unlock(Invoice $invoice, $return = false){
+        $invoice->blocked = false; 
+        $invoice->save(); 
+
+        $msg = trans('textos.factura_desbloqueada_ok');
+        if($return == 'by-order'){
+            return redirect()->route('invoices.by-order', $invoice->order_id)->with(compact('msg'));
+        }else{
+            return redirect()->route('invoices.edit', [$invoice, false])->with(compact('msg'));  
+        }
+    }
+
+    /**
      * 9. Actualizar plantilla de factura.
      *
      * @param  \Illuminate\Http\Request $request
@@ -1422,8 +1479,8 @@ class InvoiceController extends Controller{
             $items = $order->items();
             $arr_amounts = $order->getAmount();    
 
-            $order_amount = $arr_amounts['amount_with_discount'];
-            $order_amount_without_discount = $arr_amounts['amount_without_discount'];
+            $order_amount = $arr_amounts['total_amount'];
+            $order_amount_without_discount = $arr_amounts['total_amount_without_discounts'];
         } 
 
         //Facturas:

@@ -3383,7 +3383,8 @@ $(document).ready(function(){
             },
             columns: [
                 {data: 'num', name: 'orders.order_num', className: 'text-right'},
-                {data: 'order_old_num', name: 'orders.order_old_num', className: 'text-right'},
+                // {data: 'order_old_num', name: 'orders.order_old_num', className: 'text-right'},
+                {data: 'manager', name: 'users.name'},
                 {data: 'company', name: 'companies.name'},
                 {data: 'budget_num', name: 'orders.budget_num', className: 'text-right'},
                 {data: 'order_parent', name: 'orders.order_num', className: 'text-center'},

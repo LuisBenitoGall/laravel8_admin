@@ -2027,7 +2027,7 @@ class Helpers{
 	 *
 	 * Para líneas con importe fijo, NO calculado porcentualmente.
 	 */
-	public static function itemAmount($item, $with_iva = false){
+	public static function itemAmount($item, $with_iva = false, $with_equivalence_surcharge = false){
 		$amount = $item->price * $item->qty;
 
 		//Guardamos el precio original antes de descuento:
@@ -2055,15 +2055,23 @@ class Helpers{
 	        }
 	    }
 
+	    //Guardamos el importe sin IVA (base imponible) para posteriores operaciones:
+	    $tax_base = $amount;
+
         //IVA:	
         if($item->iva > 0 && $with_iva){
         	$percent = ($amount * $item->iva) / 100;
         	$amount = round($amount + $percent, 2);
         }
 
+        //Recargo de equivalencia. Se obtiene sobre la base imponible y se suma al importe total añadido ya el IVA u otros impuestos que pueda haber.
+        if($with_equivalence_surcharge && $with_iva && $item->equivalence_surcharge > 0){
+        	$percent = ($tax_base * $item->equivalence_surcharge) / 100;	
+        	$amount = round($amount + $percent, 2);
+        }
+
         $arr = ['amount' => $amount, 'amount_without_discount' => $amount_without_discount];
 
-        //return $amount;
         return $arr;
 	}
 

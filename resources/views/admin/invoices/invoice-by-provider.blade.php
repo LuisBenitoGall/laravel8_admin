@@ -59,31 +59,31 @@
 
 					<div class="form-group row">
 						{{-- Importe neto --}}
-						<label for="amount" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.importe_neto')) !!}</label>
+						{{-- <label for="amount" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.importe_neto')) !!}</label>
 						<div class="col-lg-2">
 							<x-input type="text" name="amount" id="invoiceAmount" class="text-right " autocomplete="off" maxlength="15" group="right" groupvalue="{{ $currency->symbol }}"/>
-						</div>
+						</div> --}}
 
 						{{-- IVA --}}
-						<label for="iva" class="col-lg-1 col-form-label">IVA</label>
+						{{-- <label for="iva" class="col-lg-1 col-form-label">IVA</label>
 						<div class="col-lg-1">
 							<x-input type="text" name="iva" id="invoiceIva" class="text-right set-decimals" autocomplete="off" maxlength="15" group="right" groupvalue="%" value="{{ config('constants.IVA_DEFAULT_') }}"/>
-						</div>
+						</div> --}}
 
+						{{-- Importe total --}}
+						{{-- <label for="amount_with_iva" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.importe_total')) !!}</label>
+						<div class="col-lg-2">
+							<x-input type="text" name="amount_with_iva" id="invoiceTotalAmount" class="text-right set-decimals" autocomplete="off" maxlength="15" group="right" groupvalue="{{ $currency->symbol }}"/>
+						</div> --}}
+					</div>
+
+					<div class="form-group row">
 						{{-- IRPF --}}
-						<label for="irpf" class="col-lg-1 col-form-label">IRPF</label>
+						<label for="irpf" class="col-lg-2 col-form-label">IRPF</label>
 						<div class="col-lg-1">
 							<x-input type="text" name="irpf" id="invoiceIrpf" class="text-right set-decimals" autocomplete="off" maxlength="15" group="right" groupvalue="%"/>
 						</div>
 
-						{{-- Importe total --}}
-						<label for="amount_with_iva" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.importe_total')) !!}</label>
-						<div class="col-lg-2">
-							<x-input type="text" name="amount_with_iva" id="invoiceTotalAmount" class="text-right set-decimals" autocomplete="off" maxlength="15" group="right" groupvalue="{{ $currency->symbol }}"/>
-						</div>
-					</div>
-
-					<div class="form-group row">
 						{{-- Estado --}}
 						<label for="status" class="col-md-2 col-form-label">{!! ucfirst(trans('textos.estado')) !!}</label>
 						<div class="col-md-4 col-lg-2">
@@ -96,7 +96,7 @@
 
 						{{-- Documento --}}
 						<label for="doc" class="col-md-2 col-form-label">{!! ucfirst(trans('textos.documento')) !!}</label>
-						<div class="col-md-4">
+						<div class="col-md-4 col-lg-3">
 							<x-input-file name="doc"/>
 
 							@if($errors->has('doc'))

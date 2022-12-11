@@ -2777,5 +2777,13 @@ return array(
 	'criterio_updated' => 'El criterio ha sido actualizado correctamente',
 	'criterios' => 'criterios',
 	'metodo' => 'método',
-
+	'iva_tipos' => 'Tipos de IVA',
+	'recargo_equivalencia' => 'Recargo de equivalencia',
+	'tipo_confirm_eliminar' => 'Confirma que deseas eliminar este tipo',
+	'tipo_creado' => 'El tipo se ha creado correctamente',
+	'tipo_deleted' => 'El tipo se ha eliminado correctamente',
+	'tipo_editar' => 'Editar tipo',
+	'tipo_nuevo' => 'Nuevo tipo',
+	'tipo_on_off' => 'Activar / desactivar tipo',
+	'tipo_updated' => 'El tipo se ha actualizado correctamente',
 );
