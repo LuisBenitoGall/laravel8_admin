@@ -484,6 +484,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::get('invoices/{invoice}/print', 'InvoiceController@print')->name('invoices.print');
     Route::get('invoices/{invoice}/status/{status}', 'InvoiceController@status')->name('invoices.status');
     Route::get('invoices/{invoice}/block/{return?}', 'InvoiceController@block')->name('invoices.block')->middleware('permission:invoices.edit');
+    Route::get('invoices/{invoice}/unlock/{return?}', 'InvoiceController@unlock')->name('invoices.unlock')->middleware('permission:invoices.edit');
     Route::delete('invoices/{invoice}', 'InvoiceController@destroy')->name('invoices.destroy')->middleware('permission:invoices.destroy');
     Route::put('invoices/{invoice}/update-template', 'InvoiceController@updateTemplate')->name('invoices.update-template')->middleware('permission:invoices.edit');
     Route::get('invoices/{order}/by-order', 'InvoiceController@invoicesByOrder')->name('invoices.by-order');
@@ -514,6 +515,13 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::delete('items/{item}', 'ItemController@destroy')->name('items.destroy')->middleware('permission:orders.edit');
     Route::post('items/import-items', 'ItemController@importOrderItems')->name('items.import-items')->middleware('permission:orders.edit');
     Route::get('items/{item}/status/{status}', 'ItemController@status')->name('items.status')->middleware('permission:orders.edit');
+
+    // IVA Types:
+    Route::get('iva-types', 'IvaTypeController@index')->name('iva-types.index')->middleware('permission:iva-types.index');
+    Route::post('iva-types/store', 'IvaTypeController@store')->name('iva-types.store')->middleware('permission:iva-types.create');
+    Route::post('iva-types/update', 'IvaTypeController@update')->name('iva-types.update')->middleware('permission:iva-types.update');
+    Route::delete('iva-types/{type}', 'IvaTypeController@destroy')->name('iva-types.destroy')->middleware('permission:iva-types.edit');
+    Route::get('iva-types/status/{id}/{status}', 'IvaTypeController@status')->name('iva-types.status')->middleware('permission:iva-types.edit');
 
     // Messages:
     Route::get('messages/create', 'MessageController@create')->name('messages.create');
