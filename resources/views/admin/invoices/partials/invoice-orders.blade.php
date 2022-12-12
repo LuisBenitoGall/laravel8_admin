@@ -81,7 +81,7 @@
 						@endphp
 
 						<td class="text-right">
-							{{ round($amount['amount_with_discount'], 2) }}{{ $currency->symbol }}
+							{{ round($amount['total_amount'], 2) }}{{ $currency->symbol }}
 						</td>
 
 						{{-- Fecha entrega prevista --}}
