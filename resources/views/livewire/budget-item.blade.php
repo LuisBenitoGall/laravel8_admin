@@ -465,7 +465,7 @@ $permitted = !$order || ($order && $add_items && !$order->parent)? true:false;
                                             @if($is->item_no_price)
                                                 {{ $statusBudgetLinesNoPrice[$is->item_no_price] }}
 
-                                                {{-- Con precio --}}
+                                            {{-- Con precio --}}
                                             @else
                                                 @if($is->calculated_by_percent)
                                                     {{ trans('textos.porcentual') }}

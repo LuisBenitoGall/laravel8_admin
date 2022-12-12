@@ -119,7 +119,7 @@
 						<td class="text-right">
 							@if($oig->invoiceId)
 								<a target="_blank" href="{{ route('invoices.edit', $oig->invoiceId) }}">
-									@if($oig->invoice_num) {{ $oig->invoice_num }} @else {{ $oig->id }} @endif
+									@if($oig->invoice_num) {{ $oig->invoice_num }} @else {{ $oig->invoiceId }} @endif
 								</a>
 							@endif	
 						</td>
