@@ -845,7 +845,7 @@ class OrderController extends Controller{
             foreach($ordersInGroup as $oig){
                 //Calculando importe de la agrupación:
                 $orderAmount = $oig->getAmount();
-                $group_amount = $group_amount + $orderAmount['amount_with_discount'];
+                $group_amount = $group_amount + $orderAmount['total_amount'];
             }
 
             //Pedidos fuera de agrupaciones:
@@ -1486,7 +1486,7 @@ class OrderController extends Controller{
                 $amount = $row->getGroupAmount();
             }else{
                 $arr_amount = $row->getAmount();
-                $amount = $arr_amount['amount_with_discount'];    
+                $amount = $arr_amount['total_amount'];    
             }
             
             return number_format($amount, 2, '.', '');
@@ -1500,7 +1500,7 @@ class OrderController extends Controller{
                 }
             }else{
                 $arr_amount = $row->getAmount();
-                $amount = $arr_amount['amount_with_discount'];    
+                $amount = $arr_amount['total_amount'];    
             }
 
             //$amount = $row->getAmount();
@@ -1616,15 +1616,15 @@ class OrderController extends Controller{
         })
         ->addColumn('amount', function($row){
             $amount = $row->getAmount();
-            return number_format($amount['amount_with_discount'], 2, '.', '');
+            return number_format($amount['total_amount'], 2, '.', '');
         })  
         ->addColumn('a_facturar', function($row){ 
             $amount = $row->getAmount();
             if($row->percent && $row->percent < 100){
-                $a_facturar = helpers::percent($amount['amount_with_discount'], $row->percent);  
+                $a_facturar = helpers::percent($amount['total_amount'], $row->percent);  
                 return number_format($a_facturar, 2, '.', '');
             }else{
-                return number_format($amount['amount_with_discount'], 2, '.', '');
+                return number_format($amount['total_amount'], 2, '.', '');
             }    
         })
         ->addColumn('invoice_amount', function($row){ 

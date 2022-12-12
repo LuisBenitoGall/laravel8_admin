@@ -94,7 +94,7 @@ class Order extends Model{
 
         foreach($orders as $row){
             $amount = $row->getAmount();
-            $total_amount = $total_amount + $amount['amount_with_discount'];
+            $total_amount = $total_amount + $amount['total_amount'];
         }
 
         return $total_amount;
