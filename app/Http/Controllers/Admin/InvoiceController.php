@@ -646,17 +646,19 @@ class InvoiceController extends Controller{
 
         //Importe total de los pedidos seleccionados:
         $orders_amount = 0;
+        $invoices_amount = 0;
         foreach($request->orders as $o){
             $ord = Order::select('id', 'discount', 'invoiced')->find($o);
             $o_amount = $ord->getAmount();
             $orders_amount = $orders_amount + $o_amount['total_amount'];
+            $invoices_amount = $invoices_amount + $o_amount['invoice_amount'];
         }
 
         //Importe total de la agrupación:
         $group_amount = $order->getGroupAmount();
 
 
-        //dd($request->all(), $orders_amount, $group_amount);
+        //dd($request->all(), $orders_amount, $invoices_amount, $group_amount);
 
 
 
@@ -673,10 +675,10 @@ class InvoiceController extends Controller{
 
 
         //Cálculo IVA:
-        if($orders_amount > 0){
-            $iva_amount = helpers::percent($orders_amount, $this->co_iva);
-            $amount_with_iva = $orders_amount + $iva_amount;
-        }
+        // if($orders_amount > 0){
+        //     $iva_amount = helpers::percent($orders_amount, $this->co_iva);
+        //     $amount_with_iva = $orders_amount + $iva_amount;
+        // }
 
         //Creamos cabecera de la factura, para poder utilizar su id:
         $invoice = new Invoice();
@@ -684,7 +686,7 @@ class InvoiceController extends Controller{
         $invoice->user_id = Auth::user()->id;
         $invoice->amount = $orders_amount;
         $invoice->with_iva = $this->co_iva;
-        $invoice->amount_with_iva = $amount_with_iva;
+        $invoice->amount_with_iva = $invoices_amount;
         $invoice->fiscal_date = date('Y-m-d');
         $invoice->status = config('constants.INVOICE_OPEN_');
         $invoice->save();
@@ -994,7 +996,7 @@ class InvoiceController extends Controller{
         ]; 
 
         //Recalculando importe factura por sus líneas:
-        $this->recalculateInvoiceAmount($invoice);
+        //$this->recalculateInvoiceAmount($invoice);
         
         //Entorno: compra.
         $is_sale = false;
@@ -1086,7 +1088,7 @@ class InvoiceController extends Controller{
         ];  
 
         //Recalculando importe factura por sus líneas:
-        $this->recalculateInvoiceAmount($invoice);
+        //$this->recalculateInvoiceAmount($invoice);
 
         //Pedido:
         $order = Order::find($invoice->order_id); 
@@ -1201,7 +1203,7 @@ class InvoiceController extends Controller{
         }  
 
         //Recalculando importe factura por sus líneas:
-        $this->recalculateInvoiceAmount($invoice);
+        //$this->recalculateInvoiceAmount($invoice);
 
         $invoice_order = Order::select('orders.*', 'users.name AS Nombre', 'users.surname')
         ->leftJoin('users', 'orders.provider_manager_id', '=', 'users.id')
