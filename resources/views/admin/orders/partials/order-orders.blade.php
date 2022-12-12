@@ -82,11 +82,11 @@
 						{{-- Importe --}}
 						@php
 						$amount = $oig->getAmount();
-						$groupAmount = $groupAmount + $amount['amount_with_discount'];
+						$groupAmount = $groupAmount + $amount['total_amount'];
 						@endphp
 
 						<td class="text-right">
-							{{ round($amount['amount_without_discount'], 2) }}{{ $currency->symbol }}
+							{{ round($amount['total_amount_without_discounts'], 2) }}{{ $currency->symbol }}
 						</td>
 
 						{{-- Descuento --}}
@@ -98,7 +98,7 @@
 
 						{{-- Total --}}
 						<td class="text-right">
-							{{ round($amount['amount_with_discount'], 2) }}{{ $currency->symbol }}
+							{{ round($amount['total_amount'], 2) }}{{ $currency->symbol }}
 						</td>
 
 						{{-- Fecha entrega prevista --}}
