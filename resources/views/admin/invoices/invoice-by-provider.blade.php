@@ -57,7 +57,7 @@
 						</div>
 					</div>
 
-					<div class="form-group row">
+					{{-- <div class="form-group row"> --}}
 						{{-- Importe neto --}}
 						{{-- <label for="amount" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.importe_neto')) !!}</label>
 						<div class="col-lg-2">
@@ -75,7 +75,7 @@
 						<div class="col-lg-2">
 							<x-input type="text" name="amount_with_iva" id="invoiceTotalAmount" class="text-right set-decimals" autocomplete="off" maxlength="15" group="right" groupvalue="{{ $currency->symbol }}"/>
 						</div> --}}
-					</div>
+					{{-- </div> --}}
 
 					<div class="form-group row">
 						{{-- IRPF --}}
