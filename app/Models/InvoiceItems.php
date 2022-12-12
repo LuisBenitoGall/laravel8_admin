@@ -82,8 +82,6 @@ class InvoiceItems extends Model{
             ->get();
         }
 
-    //dd($items, 'para aquí');
-
         $amount = 0;
         $amount_with_iva = 0;
 

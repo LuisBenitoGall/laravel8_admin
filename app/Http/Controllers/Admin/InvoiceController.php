@@ -601,7 +601,7 @@ class InvoiceController extends Controller{
 
         //Si no existe previsión, generamos una nueva:
         }else{
-            $percent = ($invoice->amount * 100) / $order_amount['amount_with_discount'];
+            $percent = ($invoice->amount * 100) / $order_amount['total_amount'];
 
             $new_prev = new OrderPrevisions();
             $new_prev->order_id = $order->id;
@@ -813,7 +813,7 @@ class InvoiceController extends Controller{
         //$inv->amount = $request->amount;
         $inv->with_iva = config('constants.IVA_DEFAULT_');
         //$inv->amount_with_iva = $request->amount_with_iva;
-        //$inv->irpf = $request->irpf;
+        $inv->irpf = $request->irpf;
         $inv->fiscal_date = $fiscal_date;
         $inv->expiration_date = $expiration_date;
         $inv->user_id = Auth::user()->id;
@@ -995,14 +995,17 @@ class InvoiceController extends Controller{
             'slug' => 'invoices'
         ]; 
 
+        //Pedido:
+        $order = Order::select('id', 'customer_id', 'provider_id', 'bag_amount', 'from_customer')
+        ->find($invoice->order_id);
+
         //Recalculando importe factura por sus líneas:
-        //$this->recalculateInvoiceAmount($invoice);
+        if($order->from_customer == 1){
+            $this->recalculateInvoiceAmount($invoice, $order);
+        }
         
         //Entorno: compra.
         $is_sale = false;
-
-        //Pedido:
-        $order = Order::find($invoice->order_id);
 
         //Importe facturado:
         $invoiced = $order->getInvoicedAmount();
@@ -1062,8 +1065,8 @@ class InvoiceController extends Controller{
             $items = $order->items();
             $arr_amounts = $order->getAmount();    
 
-            $order_amount = $arr_amounts['amount_with_discount'];
-            $order_amount_without_discount = $arr_amounts['amount_without_discount'];
+            $order_amount = $arr_amounts['total_amount'];
+            $order_amount_without_discount = $arr_amounts['total_amount_without_discounts'];
         } 
 
         //Métodos de pago:
@@ -1131,12 +1134,14 @@ class InvoiceController extends Controller{
      *
      * $invoice obj
      */
-    public function recalculateInvoiceAmount($invoice){
+    public function recalculateInvoiceAmount($invoice, $order){
         //Recalculando importe factura por sus líneas:
-        if($invoice->blocked == '0'){
-            $arr_amount = InvoiceItems::setInvoiceAmount($invoice);
-            $invoice->amount = $arr_amount['amount'];
-            $invoice->amount_with_iva = $arr_amount['amount_with_iva'];
+        if($invoice->blocked == '0' && $invoice->order_id){
+            //Importe total del pedido:
+            $order_amount = $order->getAmount(true, true);
+            //$arr_amount = InvoiceItems::setInvoiceAmount($invoice);
+            $invoice->amount = $order_amount['total_amount'];
+            $invoice->amount_with_iva = $order_amount['invoice_amount'];
             $invoice->save();
         }    
     }
@@ -1710,7 +1715,7 @@ class InvoiceController extends Controller{
         $amount_with_iva = 0;
         foreach($suborders as $so){
             $amount = $so->getAmount();
-            $invoice_amount = $invoice_amount + $amount['amount_with_discount'];
+            $invoice_amount = $invoice_amount + $amount['total_amount'];
         }
 
         $invoice->amount = $invoice_amount;
