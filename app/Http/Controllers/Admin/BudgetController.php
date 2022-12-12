@@ -246,7 +246,7 @@ class BudgetController extends Controller{
         })
         ->addColumn('amount', function($budget) use($currency){
             $amount = $budget->getAmount();    
-            return $amount['amount_with_discount'].$currency->symbol;
+            return $amount['total_amount'].$currency->symbol;
         })
         // ->addColumn('modalidad', function($budget) use($abrev){
         //     return ucfirst($abrev[$budget->modality]);
@@ -1446,8 +1446,8 @@ class BudgetController extends Controller{
             $items = $order->items();
             $arr_amounts = $order->getAmount();    
 
-            $order_amount = $arr_amounts['amount_with_discount'];
-            $order_amount_without_discount = $arr_amounts['amount_without_discount'];
+            $order_amount = $arr_amounts['total_amount'];
+            $order_amount_without_discount = $arr_amounts['total_amount_without_discounts'];
         } 
 
         //Moneda:
@@ -1487,7 +1487,7 @@ class BudgetController extends Controller{
             $amount = '';
             if($item->price != 0){
                 if($item->calculated_by_percent > 0){
-                    $amount = helpers::itemAmountPercentage($item->price, $order_amount['amount_with_discount']);
+                    $amount = helpers::itemAmountPercentage($item->price, $order_amount['total_amount']);
                     return $amount.$currency->symbol.'<br><small>('.trans('textos.precio_porcentual').')</small>';
                 }else{
                     $arr_amount = helpers::itemAmount($item);
