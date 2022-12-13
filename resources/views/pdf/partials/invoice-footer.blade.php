@@ -11,7 +11,7 @@
 				</tr>
 
 				{{-- Importes de IVA --}}
-				@if(isset($sumIva) && count($sumIva) > 0)
+				{{-- @if(isset($sumIva) && count($sumIva) > 0)
 					@foreach($sumIva as $i => $si)
 						<tr>
 							<th style="background-color: #efefef; text-align: right; width: 80%;">
@@ -22,7 +22,20 @@
 							</th>
 						</tr>
 					@endforeach
-				@endif
+				@endif --}}
+
+				<tr>
+					<th style="background-color: #efefef; text-align: right; width: 80%;">
+						IVA	
+					</th>
+					<th style="background-color: #efefef; text-align: right;">
+						@php
+						$iva_amount = $invoice->amount_with_iva - $invoice->amount;
+						@endphp
+
+						<b>{{ $iva_amount }}{{ $currency->symbol }}</b>
+					</th>
+				</tr>
 			</thead>
 
 			<tbody>

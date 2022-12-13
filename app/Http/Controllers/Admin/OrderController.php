@@ -39,10 +39,15 @@ use App\Models\Project;
 use App\Models\ProjectOrders;
 use App\Models\ProjectPurchases;
 use App\Models\PurchasePatterns;
+use App\Models\TempExportOrders;
 use App\Models\User;
 use App\Models\UserCompanies;
 use App\Models\UserWorkplaces;
 use App\Models\Workplace;
+
+//Exports XLS:
+//use App\Exports\OrdersExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class OrderController extends Controller{
     /**
@@ -78,6 +83,7 @@ class OrderController extends Controller{
      * 22. Añadir miembro a equipo.
      * 23. Eliminar miembro de equipo.
      * 24. Pedidos según proveedor.
+     * 25. Exportar .xls pedidos por rango de fecha.
      */
     
     private $option = 'pedidos';
@@ -286,7 +292,9 @@ class OrderController extends Controller{
         //Módulos activos:
         $module_accounting = $this->settedModule('accounting');
 
-        return view('admin.orders.index')->with(compact('header', 'year', 'owner', 'status', 'customer_id', 'provider_id', 'customer', 'provider', 'ordersType', 'customers', 'providers', 'owners', 'order_status', 'module_accounting', 'order_buy'));
+        $languages = $this->languages;
+
+        return view('admin.orders.index')->with(compact('header', 'year', 'owner', 'status', 'customer_id', 'provider_id', 'customer', 'provider', 'ordersType', 'customers', 'providers', 'owners', 'order_status', 'module_accounting', 'order_buy', 'languages'));
     }
 
     /**
@@ -2059,6 +2067,125 @@ class OrderController extends Controller{
 
             return response()->json($data);
         }     
+    }
+
+    /**
+     * 25. Exportar .xls pedidos por rango de fecha.
+     */
+    public function exportOrdersByDateRange(Request $request){
+        $validator = $this->validator($request->all());
+        if($validator->fails()){
+            //Indicamos el origen de la acción realizada para manejar el modal:
+            $validator->getMessageBag()->add('accion', 'modal-set-report');
+
+            return redirect('admin/orders/list/'.$request->customer_id.'/'.$request->provider_id)
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        //Eliminamos registros de la tabla temporal anteriores a la última hora:
+        TempExportOrders::where('created_at', '<', Carbon::now()->subHours(1))->delete();
+
+        $from = ($request->input('from') != '')? (config('app.locale') != 'en')? Helpers::convertFecha($request->input('from'), true):$request->input('from'):date('Y-m-d');
+        $to = ($request->input('to') != '')? (config('app.locale') != 'en')? Helpers::convertFecha($request->input('to'), true):$request->input('to'):date('Y-m-d');
+
+        //Pasamos los datos a una tabla temporal:
+        $tempData = Item::select('orders.created_at', 
+            'orders.delivery_date',
+            'orders.estimated_delivery_date',
+            'orders.order_num', 
+            'orders.old_order', 
+            'orders.name AS Order',
+            'orders.status',
+            'users.name', 
+            'users.surname',
+            'companies.name AS Company',
+            'orders.customer_team',
+            'business_areas.name AS Ba',
+            'cost_centers.name AS CostCenter',
+            'products.name AS Product', 
+            'items.price', 
+            'items.qty',
+            'items.discount',
+            DB::raw("(items.qty * items.price) AS amount")
+        )
+        ->join('orders', 'items.order_id', '=', 'orders.id')
+        ->leftJoin('users', 'orders.owner', '=', 'users.id')
+        ->join('companies', 'orders.customer_id', '=', 'companies.id')
+        ->leftJoin('business_areas', 'orders.business_area_id', '=', 'business_areas.id')
+        ->leftJoin('cost_centers', 'orders.cost_center_id', '=', 'cost_centers.id')
+        ->join('products', 'items.product_id', '=', 'products.id')
+        ->whereBetween('orders.delivery_date', [$from, $to])
+        ->where('orders.customer_id', $request->customer_id)
+        ->where('orders.provider_id', $request->provider_id)
+        ->get();
+
+        //Pasamos la info ya customizada a una tabla temporal:
+        $temp_num = $request->customer_id.$request->provider_id.time();
+        foreach($tempData as $td){
+            //Fecha customizada:
+            $fecha = $td->created_at? $td->created_at->format(config('locale.languages.'.config('app.locale'))[4]):'';
+
+            //10/11/20: se cambia la fecha de creación por la fecha de entrega del pedido:
+            //$fecha = $td->delivery_date && $td->delivery_date != config('constants.DATE_NULL_')? Carbon::parse($td->delivery_date)->format(config('locale.languages.'.config('app.locale'))[4]):'';
+
+            //19/01/21: se solicita que aparezcan tres columnas de fechas: creación pedido, fecha prevista entrega, fecha real de entrega.
+            $delivery_date = $td->delivery_date && $td->delivery_date != config('constants.DATE_NULL_')? Carbon::parse($td->delivery_date)->format(config('locale.languages.'.config('app.locale'))[4]):'';
+
+            $fecha_prevista = $td->estimated_delivery_date && $td->estimated_delivery_date != config('constants.DATE_NULL_')? Carbon::parse($td->estimated_delivery_date)->format(config('locale.languages.'.config('app.locale'))[4]):'';
+
+            //Manager cliente:
+            $arr_customer_manager = $td->customer_team? unserialize($td->customer_team):false;
+
+            if(count($arr_customer_manager) > 0){
+                $cm = $arr_customer_manager[0];
+                if(substr(rtrim($cm), -1) == "|"){
+                    $cm_id = substr($cm, 0, -1);
+                }else{
+                    $cm_id = $cm;
+                }
+                $cm_data = User::select('name', 'surname')->find($cm_id);
+                $customer_manager = $cm_data? $cm_data->name.' '.$cm_data->surname:'';
+            }else{
+                $customer_manager = ''; 
+            }
+            
+            //Status:
+            $status = $td->status? Helpers::orderStatus($td->status):'';
+
+            //Descuento en el producto:
+            if($td->discount){
+                $discount = $td->discount;
+                $percentage = Helpers::percent($td->amount, $discount); 
+                $amount = $td->amount - $percentage;    
+            }else{
+                $discount = 0;
+                $amount = $td->amount;
+            }
+
+            $toe = new TempExportOrders();
+            $toe->temp_num = $temp_num;
+            $toe->order_date = $fecha;
+            $toe->estimated_date = $fecha_prevista;
+            $toe->delivery_date = $delivery_date;
+            $toe->order_num = $td->order_num;
+            $toe->order_old = $td->old_order;
+            $toe->order_title = $td->Order;
+            $toe->order_status = $status;
+            $toe->order_provider_manager = $td->name.' '.$td->surname;
+            $toe->order_company = $td->Company;
+            $toe->order_customer_manager = $customer_manager;
+            $toe->order_business_area = $td->Ba;
+            $toe->order_cost_center = $td->CostCenter;
+            $toe->order_tipology = $td->Product;
+            $toe->order_price = $td->price;
+            $toe->order_qty = $td->qty;
+            $toe->order_discount = $discount;
+            $toe->order_amount = $amount;
+            $toe->save();
+        }
+
+        //return (new OrdersExport($temp_num))->download('orders.xlsx');
     }
     
 }
