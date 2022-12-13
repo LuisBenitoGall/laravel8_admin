@@ -39,13 +39,16 @@
 			@endcan
 		@endif
 
-		{{-- Informes: --}}
-		{{-- @if($customerInfo && $providerInfo)
+		{{-- Informes - condiciones: 
+			1. Exclusivo proveedor.
+			2. Viene declarado el cliente.
+		--}}
+		@if($customer_id && $provider->id == session('currentCompany'))
 			<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-set-report">
 				<i class="fa fa-chart-bar"></i>
 				{!! ucfirst(trans('textos.informes')) !!}
 			</a>
-		@endif --}}
+		@endif
 	</div>
 </div>
 
@@ -113,68 +116,6 @@
 		</div>
 	</div>
 
-	{{-- Modals --}}
-	{{-- Informes: --}}
-	<div class="modal fade modal-set-report" id="modal-set-report" tabindex="-1" role="dialog" aria-labelledby="setReport" aria-hidden="true">
-	    <div class="modal-dialog modal-lg" role="document">
-	        <div class="modal-content">
-	            <div class="modal-header">
-	                <h4 class="modal-title" id="setReport">{!! ucfirst(trans('textos.informes')) !!}</h4>
-	                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-	                    <span aria-hidden="true">&times;</span>
-	                </button>
-	            </div>
-
-	            <div class="modal-body">
-	                <form method="post" autocomplete="off" action="{{ route('orders.export-by-range-dates') }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
-	                    {{ csrf_field() }}
-	                    <input type="hidden" name="customer_id" value="@if($customer) {{ $customer->id }} @endif">
-	                    <input type="hidden" name="provider_id" value="@if($provider) {{ $provider->id }} @endif">
-
-	                    <div class="row">
-	                    	<p class="col-12 text-warning">{!! trans('textos.informe_pedidos_rango_fechas') !!}</p>
-	                    </div>
-
-	                    {{-- Desde --}}
-	                    <div class="form-group row">
-							<label for="from" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.desde')) !!} *</label>
-							<div class="col-lg-4">
-								<span class="deleteValue">
-									<i class="fa fa-times"></i>
-								</span>
-
-								<input type="text" name="from" class="form-control dateTimePicker" autocomplete="off" maxlength="15" data-fecha="" value="{{ old('from') }}" readonly required>
-
-								@if($errors->has('from'))
-	                                <span class="invalid-feedback" role="alert">
-	                                  <strong>{{ $errors->first('from') }}</strong>
-	                                </span>
-	                            @endif
-							</div>
-
-							<label for="to" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.hasta')) !!} *</label>
-							<div class="col-lg-4">
-								<span class="deleteValue">
-									<i class="fa fa-times"></i>
-								</span>
-
-								<input type="text" name="to" class="form-control dateTimePicker endDay" autocomplete="off" maxlength="15" data-fecha="" value="{{ old('to') }}" readonly required>
-
-								@if($errors->has('to'))
-	                                <span class="invalid-feedback" role="alert">
-	                                  <strong>{{ $errors->first('to') }}</strong>
-	                                </span>
-	                            @endif
-							</div>
-						</div>
-
-						<x-btn-submit name="submit_set_report" label="{{ trans('textos.buscar') }}"/>
-	                </form>
-	            </div>
-	        </div>
-	    </div>
-	</div>
-
 @else
 	<div class="row">
 		<div class="col-12 text-center pt-4">
@@ -186,6 +127,10 @@
 {{-- Modals: --}}
 {{-- Factura --}}
 {{-- @include('admin.orders.partials.modal-generate-invoice') --}}
+
+{{-- Set report --}}
+@include('admin.orders.partials.modal-set-report')
+
 @push('scripts')
     <script>
         $(function(){
@@ -199,4 +144,5 @@
         });
     </script>
 @endpush
+
 @endsection
