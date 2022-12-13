@@ -24,7 +24,7 @@ use App\Models\CompanyAccounts;
 use App\Models\CompanySettings;
 use App\Models\CustomerProviders;
 use App\Models\Invoice;
-use App\Models\InvoiceItems;
+//use App\Models\InvoiceItems;
 use App\Models\InvoiceOrders;
 use App\Models\InvoicePatterns;
 use App\Models\InvoicePayments;
@@ -498,7 +498,9 @@ class InvoiceController extends Controller{
             $total_amount = $outstanding_amount;
             //Se validarán las previsiones de facturación restantes.
             $percentage_invoiced = false;
-            $amount_with_iva = $order_amount['invoice_amount'];
+
+            //Calculamos importe con IVA a partir del importe restante.
+            $amount_with_iva = ($total_amount * $order_amount['invoice_amount']) / $order_amount['total_amount'];
 
         //Facturas parciales:
         }else{
@@ -614,8 +616,6 @@ class InvoiceController extends Controller{
 
         //Recalculando porcentaje de las previsiones de facturación:
         OrderPrevisions::recalculatePrevisionsPercent($order);
-
-        //dd($invoice);
 
         $msg = trans('textos.factura_creada');
         return redirect()->route('invoices.edit', [$invoice->id, false])->with(compact('msg'));
@@ -1116,9 +1116,7 @@ class InvoiceController extends Controller{
             $provider_workplace = Workplace::companyFeaturedWorkplace($order->provider_id);
         }
 
-        $items = InvoiceItems::select('invoice_items.*', 'items.concept')
-        ->leftJoin('items', 'invoice_items.item_id', '=', 'items.id')
-        ->where('invoice_id', $invoice->id)
+        $items = Item::where('order_id', $order->id)
         ->get();
 
         $languages = $this->languages;

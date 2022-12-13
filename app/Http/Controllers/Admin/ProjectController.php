@@ -498,7 +498,7 @@ class ProjectController extends Controller{
 
             //Importe:
             $arr_amounts = $row->getAmount();    
-            $row->amount = $arr_amounts['amount_with_discount'];
+            $row->amount = $arr_amounts['total_amount'];
 
             //Modalidad:
             $row->modalidad = $row->modality? ucfirst($abrev[$row->modality]):'';
