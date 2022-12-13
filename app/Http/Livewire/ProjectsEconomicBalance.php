@@ -33,7 +33,7 @@ class ProjectsEconomicBalance extends Component{
 
         foreach($orders as $order){
             $amount = $order->getAmount();
-            $this->orders_amount = $this->orders_amount + $amount['amount_with_discount'];   
+            $this->orders_amount = $this->orders_amount + $amount['total_amount'];   
         }
 
         //Compras:
@@ -44,7 +44,7 @@ class ProjectsEconomicBalance extends Component{
 
         foreach($purchases as $purchase){
             $amount = $purchase->getAmount();
-            $this->purchases_amount = $this->purchases_amount + $amount['amount_with_discount'];   
+            $this->purchases_amount = $this->purchases_amount + $amount['total_amount'];   
         }
 
         //Gastos:
