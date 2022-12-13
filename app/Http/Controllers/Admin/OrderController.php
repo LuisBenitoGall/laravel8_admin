@@ -46,7 +46,7 @@ use App\Models\UserWorkplaces;
 use App\Models\Workplace;
 
 //Exports XLS:
-//use App\Exports\OrdersExport;
+use App\Exports\OrdersExport;
 use Maatwebsite\Excel\Facades\Excel;
 
 class OrderController extends Controller{
@@ -2086,17 +2086,17 @@ class OrderController extends Controller{
         //Eliminamos registros de la tabla temporal anteriores a la última hora:
         TempExportOrders::where('created_at', '<', Carbon::now()->subHours(1))->delete();
 
-        $from = ($request->input('from') != '')? (config('app.locale') != 'en')? Helpers::convertFecha($request->input('from'), true):$request->input('from'):date('Y-m-d');
-        $to = ($request->input('to') != '')? (config('app.locale') != 'en')? Helpers::convertFecha($request->input('to'), true):$request->input('to'):date('Y-m-d');
+        $from = $request->from != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->from):$request->from:NULL;
+        $to = $request->to != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->to):$request->to:NULL;
 
         //Pasamos los datos a una tabla temporal:
         $tempData = Item::select('orders.created_at', 
             'orders.delivery_date',
             'orders.estimated_delivery_date',
             'orders.order_num', 
-            'orders.old_order', 
+            'orders.order_old_num', 
             'orders.name AS Order',
-            'orders.status',
+            'orders.order_status',
             'users.name', 
             'users.surname',
             'companies.name AS Company',
@@ -2110,10 +2110,10 @@ class OrderController extends Controller{
             DB::raw("(items.qty * items.price) AS amount")
         )
         ->join('orders', 'items.order_id', '=', 'orders.id')
-        ->leftJoin('users', 'orders.owner', '=', 'users.id')
+        ->leftJoin('users', 'orders.provider_manager_id', '=', 'users.id')
         ->join('companies', 'orders.customer_id', '=', 'companies.id')
-        ->leftJoin('business_areas', 'orders.business_area_id', '=', 'business_areas.id')
-        ->leftJoin('cost_centers', 'orders.cost_center_id', '=', 'cost_centers.id')
+        ->leftJoin('business_areas', 'orders.provider_business_area_id', '=', 'business_areas.id')
+        ->leftJoin('cost_centers', 'orders.provider_cost_center_id', '=', 'cost_centers.id')
         ->join('products', 'items.product_id', '=', 'products.id')
         ->whereBetween('orders.delivery_date', [$from, $to])
         ->where('orders.customer_id', $request->customer_id)
@@ -2124,20 +2124,20 @@ class OrderController extends Controller{
         $temp_num = $request->customer_id.$request->provider_id.time();
         foreach($tempData as $td){
             //Fecha customizada:
-            $fecha = $td->created_at? $td->created_at->format(config('locale.languages.'.config('app.locale'))[4]):'';
+            $fecha = $td->created_at? $td->created_at->format($this->languages[session()->get('locale')][4]):'';
 
             //10/11/20: se cambia la fecha de creación por la fecha de entrega del pedido:
             //$fecha = $td->delivery_date && $td->delivery_date != config('constants.DATE_NULL_')? Carbon::parse($td->delivery_date)->format(config('locale.languages.'.config('app.locale'))[4]):'';
 
             //19/01/21: se solicita que aparezcan tres columnas de fechas: creación pedido, fecha prevista entrega, fecha real de entrega.
-            $delivery_date = $td->delivery_date && $td->delivery_date != config('constants.DATE_NULL_')? Carbon::parse($td->delivery_date)->format(config('locale.languages.'.config('app.locale'))[4]):'';
+            $delivery_date = $td->delivery_date && $td->delivery_date != config('constants.DATE_NULL_')? Carbon::parse($td->delivery_date)->format(session()->get('locale') != 'en'):'';
 
-            $fecha_prevista = $td->estimated_delivery_date && $td->estimated_delivery_date != config('constants.DATE_NULL_')? Carbon::parse($td->estimated_delivery_date)->format(config('locale.languages.'.config('app.locale'))[4]):'';
+            $fecha_prevista = $td->estimated_delivery_date && $td->estimated_delivery_date != config('constants.DATE_NULL_')? Carbon::parse($td->estimated_delivery_date)->format(session()->get('locale') != 'en'):'';
 
             //Manager cliente:
             $arr_customer_manager = $td->customer_team? unserialize($td->customer_team):false;
 
-            if(count($arr_customer_manager) > 0){
+            if(is_array($arr_customer_manager) && count($arr_customer_manager) > 0){
                 $cm = $arr_customer_manager[0];
                 if(substr(rtrim($cm), -1) == "|"){
                     $cm_id = substr($cm, 0, -1);
@@ -2156,7 +2156,7 @@ class OrderController extends Controller{
             //Descuento en el producto:
             if($td->discount){
                 $discount = $td->discount;
-                $percentage = Helpers::percent($td->amount, $discount); 
+                $percentage = helpers::percent($td->amount, $discount); 
                 $amount = $td->amount - $percentage;    
             }else{
                 $discount = 0;
@@ -2173,7 +2173,7 @@ class OrderController extends Controller{
             $toe->order_title = $td->Order;
             $toe->order_status = $status;
             $toe->order_provider_manager = $td->name.' '.$td->surname;
-            $toe->order_company = $td->Company;
+            $toe->order_customer = $td->Company;
             $toe->order_customer_manager = $customer_manager;
             $toe->order_business_area = $td->Ba;
             $toe->order_cost_center = $td->CostCenter;
@@ -2185,7 +2185,7 @@ class OrderController extends Controller{
             $toe->save();
         }
 
-        //return (new OrdersExport($temp_num))->download('orders.xlsx');
+        return (new OrdersExport($temp_num))->download('orders.xlsx');
     }
     
 }
