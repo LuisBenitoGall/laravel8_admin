@@ -1414,7 +1414,13 @@ class OrderController extends Controller{
 
         $currency = $this->co_currency;
 
-        return view('admin.orders.control-panel')->with(compact('header', 'year', 'min_year', 'max_year', 'order_type', 'currency'));
+        //Centros de trabajo:
+        $workplaces = Workplace::where('company_id', session('currentCompany'))
+        ->where('status', 1)
+        ->pluck('name', 'id')
+        ->toArray();
+
+        return view('admin.orders.control-panel')->with(compact('header', 'year', 'min_year', 'max_year', 'order_type', 'currency', 'workplaces'));
     }
 
     /**
@@ -1466,9 +1472,9 @@ class OrderController extends Controller{
         ->addColumn('customer', function($row){
             return $row->Customer;
         })
-        ->addColumn('business_area', function($row){
-            return $row->businessArea;
-        })
+        // ->addColumn('business_area', function($row){
+        //     return $row->businessArea;
+        // })
         ->addColumn('order_num', function($row){
             $order_num = $row->order_num? $row->order_num:($row->order_old_num? $row->order_old_num:$row->id);
             return '<a target="_blank" href="'.route('orders.edit', $row->id).'">'.$order_num.'</a>';
@@ -1602,9 +1608,9 @@ class OrderController extends Controller{
         ->addColumn('provider', function($row){
             return $row->Provider;
         })
-        ->addColumn('business_area', function($row){
-            return $row->businessArea;
-        })
+        // ->addColumn('business_area', function($row){
+        //     return $row->businessArea;
+        // })
         ->addColumn('order_num', function($row){
             $order_num = $row->order_num? $row->order_num:($row->order_old_num? $row->order_old_num:$row->id);
             return '<a target="_blank" href="'.route('orders.edit', $row->id).'">'.$order_num.'</a>';

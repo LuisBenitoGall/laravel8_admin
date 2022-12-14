@@ -55,6 +55,15 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::get('accounting', 'AccountingController@index')->name('accounting.index');
     Route::post('get/device/id', [\App\Http\Controllers\Admin\DevicePushController::class,'store'])->name('save.push');
 
+    // Accounting Concepts:
+    Route::get('accounting-concepts', 'AccountingConceptController@index')->name('accounting-concepts.index')->middleware('permission:accounting-concepts.index');
+    Route::get('accounting-concepts/create', 'AccountingConceptController@create')->name('accounting-concepts.create')->middleware('permission:accounting-concepts.create');
+    Route::post('accounting-concepts/store', 'AccountingConceptController@store')->name('accounting-concepts.store')->middleware('permission:accounting-concepts.create');
+    Route::get('accounting-concepts/{concept}/edit', 'AccountingConceptController@edit')->name('accounting-concepts.edit')->middleware('permission:accounting-concepts.edit');
+    Route::put('accounting-concepts/{concept}/update', 'AccountingConceptController@update')->name('accounting-concepts.update')->middleware('permission:accounting-concepts.edit');
+    Route::delete('accounting-concepts/{concept}', 'AccountingConceptController@destroy')->name('accounting-concepts.destroy');
+    Route::get('accounting-concepts/status/{id}/{status}', 'AccountingConceptController@status')->name('accounting-concepts.status');
+
     // Accounts:
     Route::resource('accounts', 'AccountController')->middleware('permission:accounts.edit');
     Route::get('accounts/status/{id}/{status}', 'AccountController@status')->name('accounts.status')->middleware('permission:accounts.edit');
@@ -336,6 +345,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
 
     Route::post('customers/config', 'CustomerProvidersController@updateCustomerConfig')->name('customers.config')->middleware('permission:customers.edit');
     Route::post('customers/add-responsable', 'CustomerProvidersController@addManager')->name('customers.add-responsable');
+    Route::post('providers/config', 'CustomerProvidersController@updateProviderConfig')->name('providers.config')->middleware('permission:providers.edit');
 
     // Dashboard:
     Route::get('/', 'AdminController@index')->name('dashboard');

@@ -41,9 +41,9 @@
 						<td class="text-right">
 							@php
 							$purchase_amount = $pp->getAmount();
-							$totalAmount = $totalAmount + $purchase_amount['amount_without_discount'];
+							$totalAmount = $totalAmount + $purchase_amount['total_amount_without_discounts'];
 							@endphp
-							{{ $purchase_amount['amount_without_discount'] }}
+							{{ $purchase_amount['total_amount_without_discounts'] }}
 							{{ $currency->symbol }}
 						</td>
 						{{-- Fecha entrega --}}

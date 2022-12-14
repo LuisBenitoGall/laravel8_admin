@@ -144,6 +144,27 @@ $(document).ready(function(){
         stateSave: true,    //Guarda página al refrescar. 
     });
 
+    //Tabla Accounting Concepts:
+    if($('#tblAccountingConcepts').length > 0){
+        $('#tblAccountingConcepts').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/accounting-concepts",
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'name'},
+                {data: 'level'},
+                {data: 'description'},
+                {data: 'acciones', name: 'acciones', className: 'text-right'}
+            ]
+        });
+    }
+
     //Tabla Accounts:
     if($('#tblAccounts').length > 0){
         $('#tblAccounts').DataTable({
@@ -3423,7 +3444,7 @@ $(document).ready(function(){
             columns: [
                 {data: 'fecha', name: 'order_previsions.month'},
                 {data: 'provider', name: 'companies.name'},
-                {data: 'business_area', name: 'business_areas.name'},
+                //{data: 'business_area', name: 'business_areas.name'},
                 {data: 'order_num', name: 'orders.order_num', className: 'text-right'},
                 {data: 'purchase_num', name: 'orders.purchase_num', className: 'text-right'},
                 {data: 'name', name: 'companies.name'},
@@ -3529,7 +3550,7 @@ $(document).ready(function(){
             columns: [
                 {data: 'fecha', name: 'order_previsions.month'},
                 {data: 'customer', name: 'companies.name'},
-                {data: 'business_area', name: 'business_areas.name'},
+                //{data: 'business_area', name: 'business_areas.name'},
                 {data: 'order_num', name: 'orders.order_num', className: 'text-right'},
                 {data: 'purchase_num', name: 'orders.purchase_num', className: 'text-right'},
                 {data: 'name', name: 'companies.name'},
@@ -3570,6 +3591,18 @@ $(document).ready(function(){
 
                 //Total:
                 total = api
+                .column(8, { search: 'applied' })
+                .data()
+                .reduce(function(a, b){
+                    return intVal(a) + intVal(b);
+                }, 0);
+
+                $(api.column(8).footer()).html(
+                    total.toFixed(2)+currency   
+                );
+
+                //Total por filtro aplicado:
+                a_facturar = api
                 .column(9, { search: 'applied' })
                 .data()
                 .reduce(function(a, b){
@@ -3577,18 +3610,6 @@ $(document).ready(function(){
                 }, 0);
 
                 $(api.column(9).footer()).html(
-                    total.toFixed(2)+currency   
-                );
-
-                //Total por filtro aplicado:
-                a_facturar = api
-                .column(10, { search: 'applied' })
-                .data()
-                .reduce(function(a, b){
-                    return intVal(a) + intVal(b);
-                }, 0);
-
-                $(api.column(10).footer()).html(
                     a_facturar.toFixed(2)+currency    
                 );
             }
