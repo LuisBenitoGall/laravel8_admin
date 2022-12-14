@@ -201,6 +201,10 @@ class ItemController extends Controller{
                 return redirect('admin/orders/'.$request->order_id.'/edit')
                 ->withErrors($validator)
                 ->withInput();
+            }elseif($request->environment == 'invoices'){
+                return redirect('admin/invoices/'.$request->invoice_id.'/edit')
+                ->withErrors($validator)
+                ->withInput();
             }else{
                 return redirect('admin/budgets/'.$request->order_id.'/edit')
                 ->withErrors($validator)
@@ -304,7 +308,12 @@ class ItemController extends Controller{
         }
 
         $msg = trans('textos.linea_creado_ok');
-        return redirect()->route($request->environment.'.edit', [$request->order_id, 'items'])->with(compact('msg'));
+        $msg = trans('textos.linea_creado_ok');
+        if($request->environment == 'invoices'){
+            return redirect()->route('invoices.edit', [$request->invoice_id, 'items'])->with(compact('msg'));
+        }else{
+            return redirect()->route($request->environment.'.edit', [$request->order_id, 'items'])->with(compact('msg'));
+        }
     }
 
     /**

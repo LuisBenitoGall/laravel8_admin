@@ -48,6 +48,16 @@ $readonly = $invoice->blocked && !$is_sale || ($order->customer_id == session('c
 			</a>	
 		@endcan
 
+		{{-- Nueva línea --}}
+		@can('orders.edit')
+			{{-- @if(!$order->invoiced) --}}
+			@if($order->from_customer == 1)
+				<a href="#" class="btn btn-info btnAddItem" data-toggle="modal" data-target="#modal-new-line">
+					<i class="fa fa-plus"></i> {!! ucfirst(trans('textos.linea_nueva')) !!}
+				</a>
+		    @endif
+		@endcan
+
 		{{-- Facturas del pedido --}}
 		@if($invoices->count() > 1)
 			<a href="{{ route('invoices.by-order', $order->id) }}" class="btn btn-info" rel="tooltip">
@@ -314,8 +324,14 @@ $readonly = $invoice->blocked && !$is_sale || ($order->customer_id == session('c
 {{-- Edit payment --}}
 @include('admin.invoice_payments.partials.modal-edit-payment')
 
+{{-- Add item --}}
+@include('admin.orders.partials.modal-add-item', ['environment_' => 'invoices', 'modality' => $order->modality])
+
 {{-- Edit item --}}
 @include('admin.orders.partials.modal-edit-item', ['environment_' => 'invoices'])
+
+{{-- See catalogue --}}
+@include('admin.orders.partials.modal-see-catalogue')
 
 {{-- Generate refund --}}
 @include('admin.invoices.partials.modal-generate-refund')

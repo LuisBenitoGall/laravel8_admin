@@ -13,6 +13,9 @@
                     {{ csrf_field() }}
                     <input type="hidden" name="order_id" value="{{ $order->id }}">
                     <input type="hidden" name="environment" value="{{ $environment_ }}">
+                    @if($environment_ == 'invoices')
+                    	<input type="hidden" name="invoice_id" value="{{ $invoice->id }}">
+                    @endif
 
                     @if($errors->has('order_id'))
                         <span class="invalid-feedback" role="alert">
@@ -38,7 +41,7 @@
                     	</label>
 						<div class="col-8 col-lg-9">
 							{{-- Selector de productos o input libre en función de la modalidad del formulario --}}
-							@if($modality == config('constants.BUDGET_CATALOGUE_MODALITY_') || $environment_ == 'orders')
+							@if($modality == config('constants.BUDGET_CATALOGUE_MODALITY_') || $environment_ == 'orders' || $environment_ == 'invoices')
 
 								@php
 								$products_ = [];
@@ -124,7 +127,7 @@
 						</div>
 
 						{{-- IVA. Sólo en pedidos. En presupuestos no se tiene en cuenta este impuesto --}}
-						@if($environment_ == 'orders')
+						@if($environment_ == 'orders' || $environment_ == 'invoices')
 							<label for="iva" class="col-lg-2 col-form-label">IVA</label>
 							<div class="col-lg-4">
 								<x-input type="text" name="iva" class="text-right set-decimals" id="productIva" autocomplete="off" maxlength="5" group="right" groupvalue="%" readonly="{{ $readonly }}" value="{{ config('constants.IVA_DEFAULT_') }}"/>

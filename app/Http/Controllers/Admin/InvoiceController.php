@@ -33,6 +33,7 @@ use App\Models\Item;
 use App\Models\Order;
 use App\Models\OrderPrevisions;
 use App\Models\Phone;
+use App\Models\Product;
 use App\Models\User;
 use App\Models\Workplace;
 
@@ -895,6 +896,9 @@ class InvoiceController extends Controller{
         ->orderBy('concept', 'ASC')
         ->get();
 
+        //Productos. Activos y aptos para venta:
+        $products = Product::companyProducts($order->provider_id, $order->customer_id, true, true);
+
         //Patrones de numeración de la factura:
         $patterns = false;
         if(!$invoice->pattern_id){
@@ -981,7 +985,7 @@ class InvoiceController extends Controller{
             if($ba->featured == 1) $bank_featured = $ba->id;
         }
 
-        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'is_sale', 'order', 'suborders', 'invoiced', 'invoices', 'refund', 'customer', 'customer_settings', 'provider', 'provider_account', 'items', 'patterns', 'payments', 'templates', 'featuredTemplate', 'currency', 'languages', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'payment_methods', 'bank_accounts', 'bank_featured'));
+        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'is_sale', 'order', 'suborders', 'invoiced', 'invoices', 'refund', 'customer', 'customer_settings', 'provider', 'provider_account', 'items', 'products', 'patterns', 'payments', 'templates', 'featuredTemplate', 'currency', 'languages', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'payment_methods', 'bank_accounts', 'bank_featured'));
     }
 
     /**
@@ -1033,6 +1037,9 @@ class InvoiceController extends Controller{
         ->orderBy('concept', 'ASC')
         ->get();
 
+        //Productos. Activos y aptos para venta:
+        $products = Product::companyProducts($order->provider_id, $order->customer_id, true, true);
+
         //Moneda:
         $currency = $this->co_currency;
 
@@ -1076,7 +1083,7 @@ class InvoiceController extends Controller{
         $bank_accounts = [];
         $bank_featured = false;
 
-        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'is_sale', 'order', 'invoiced', 'invoices', 'refund', 'customer', 'provider', 'provider_account', 'items', 'currency', 'languages', 'patterns', 'payments', 'templates', 'featuredTemplate', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'payment_methods', 'bank_accounts', 'bank_featured'));
+        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'is_sale', 'order', 'invoiced', 'invoices', 'refund', 'customer', 'provider', 'provider_account', 'items', 'products', 'currency', 'languages', 'patterns', 'payments', 'templates', 'featuredTemplate', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'payment_methods', 'bank_accounts', 'bank_featured'));
     }
 
     /**
