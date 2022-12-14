@@ -69,6 +69,9 @@ $modal_action = $tabla == 'tblCustomers'? 'customers.export':'providers.export';
 {{-- Editar configuración de cliente: --}}
 @include('admin.customer_providers.partials.modal-edit-config')
 
+{{-- Editar configuración de proveedor: --}}
+@include('admin.customer_providers.partials.modal-edit-config-provider')
+
 {{-- New responsable: --}}
 @include('admin.customer_providers.partials.modal-add-manager')
 
@@ -158,6 +161,27 @@ $(document).ready(function(){
                 }  
             });
         } 
+    });
+
+    //Modal de configuraciones de proveedor.
+    $(document).on('click', '.btnProviderConfig', function(){
+        var id = $(this).data('provider');
+        var ac_id = $(this).data('acid');   //Accounting concept
+
+        if(id){
+            $('#configProvider').val(id);
+            $.get("/admin/customers/"+id+"/customer-config", function(response, state){
+                if(response){
+                    //Empresa:
+                    $('#modal-edit-config-provider h4 b').text(response.company);
+
+                    //Conceptos contables:
+                    $('#configAccountingConcept').val(ac_id);
+                    $('#configAccountingConcept').trigger('change');
+
+                }  
+            });
+        }
     });
 });
 </script>

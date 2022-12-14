@@ -14,6 +14,6 @@ class Account extends Model{
 
     protected $dates = ['deleted_at'];
 
-    protected $fillable = ['name', 'slug', 'description', 'rate', 'duration', 'status']; 	
+    protected $fillable = ['company_id', 'name', 'slug', 'description', 'main', 'status']; 	
 
 }

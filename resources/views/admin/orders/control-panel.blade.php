@@ -34,6 +34,18 @@
 						{{-- Año --}}
 						@include('admin.partials.selector-year', ['selected_year' => $year])
 
+						{{-- Centros de trabajo --}}
+						{{-- @if(count($workplaces) > 1)
+							<label for="workplace" class="col-2 col-form-label">{{ ucfirst(trans('textos.centro_trabajo')) }}</label>
+	                    	<div class="col-3">
+	                    		<x-select name="workplace" class="select2" label="centro_trabajo_selec" :options="$workplaces"/>
+	                    	</div>
+	                    @elseif(count($workplaces) == 1)
+	                    	@foreach($workplaces as $i => $wk)
+	                    		<input type="hidden" name="workplace" value="{{ $i }}">
+	                    	@endforeach
+	                    @endif --}}
+
 						<x-btn-submit name="submit_filter" label="{{ trans('textos.buscar') }}" inline/>
 					</div>
 				</form>
@@ -57,7 +69,7 @@
 					$lbl1 = $order_type == 'compras'? 'proveedor':'cliente';
 					@endphp
 					<th class="wdt200">{!! ucfirst(trans('textos.'.$lbl1)) !!}</th>
-					<th class="wdt150">{!! ucfirst(trans('textos.area_negocio')) !!}</th>
+					{{-- <th class="wdt150">{!! ucfirst(trans('textos.area_negocio')) !!}</th> --}}
 					<th class="text-center wdt100">{!! ucfirst(trans('textos.pedido_num_abrv')) !!}</th>
 					<th class="text-center wdt150">{!! ucfirst(trans('textos.orden_compra')) !!}</th>
 					<th class="wdt200">{!! ucfirst(trans('textos.pedido_titulo')) !!}</th>
@@ -77,7 +89,7 @@
 				<tr>
 					<td></td>
 					<td></td>
-					<td></td>
+					{{-- <td></td> --}}
 					@if($order_type != 'compras')
 						<td></td>
 						<td></td>

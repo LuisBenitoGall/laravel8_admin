@@ -70,6 +70,8 @@ class Kernel extends HttpKernel{
         'iprestrict' => \App\Http\Middleware\RestrictIpMiddleware::class,
         'usersituation' => \App\Http\Middleware\UserSituationMiddleware::class,
 
+        'accounting_concept_get' => \App\Http\Middleware\AccountingConceptGetMiddleware::class,
+
         'answer_get' => \App\Http\Middleware\AnswerGetMiddleware::class,
         'answer_post' => \App\Http\Middleware\AnswerPostMiddleware::class,
 

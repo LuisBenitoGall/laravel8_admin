@@ -16,6 +16,7 @@ use Yajra\DataTables\DataTables;
 
 //Models:
 use App\Models\Account;
+use App\Models\AccountingConcept;
 use App\Models\BusinessAreas;
 use App\Models\Company;
 use App\Models\CompanyAccounts;
@@ -108,6 +109,13 @@ class CustomerProvidersController extends Controller{
                 'discount.numeric' => trans('textos.valor_numerico')
             ]); 
 
+        //Validación update configuración proveedor:
+        }elseif(isset($data['submit_update_config_provider'])){
+            return Validator::make($data, [
+                'provider_id' => 'required|integer',
+                'ac_id' => 'nullable|integer'
+            ]);
+
         //Validación update conditions:
         }elseif(isset($data['submit_update_conditions'])){
             return Validator::make($data, [
@@ -192,7 +200,13 @@ class CustomerProvidersController extends Controller{
         //Moneda:
         $currency = $this->co_currency;
 
-        return view('admin.customer_providers.index')->with(compact('header', 'tabla', 'currency'));   
+        //Conceptos contables:
+        $concepts = AccountingConcept::where('company_id', session('currentCompany'))
+        ->where('main', '0')
+        ->pluck('name', 'id')
+        ->toArray();
+
+        return view('admin.customer_providers.index')->with(compact('header', 'tabla', 'currency', 'concepts'));   
     }
 
     /**
@@ -408,7 +422,7 @@ class CustomerProvidersController extends Controller{
      * 8. Obtener info de empresas por criterio.
      */
     private function getCompaniesData($join, $condition){
-        $data = CustomerProviders::select('customer_providers.id AS cp_id', 'customer_providers.ba_id', 'customer_providers.workplace_id', 'customer_providers.cc_id', 'customer_providers.discount', 'customer_providers.credit_risk', 'customer_providers.budget_access', 'customer_providers.syncro_invoice', 'customer_providers.status AS cp_status', 'companies.id', 'companies.name', 'companies.tradename', 'companies.logo', 'companies.nif', 'company_accounts.guardian', 'company_accounts.status')
+        $data = CustomerProviders::select('customer_providers.id AS cp_id', 'customer_providers.ba_id', 'customer_providers.workplace_id', 'customer_providers.cc_id', 'customer_providers.discount', 'customer_providers.credit_risk', 'customer_providers.budget_access', 'customer_providers.syncro_invoice', 'customer_providers.status AS cp_status', 'customer_providers.accounting_concept_id', 'companies.id', 'companies.name', 'companies.tradename', 'companies.logo', 'companies.nif', 'company_accounts.guardian', 'company_accounts.status')
         ->join('companies', 'customer_providers.'.$join, '=', 'companies.id')
         ->leftJoin('company_accounts', 'companies.id', '=', 'company_accounts.company_id')
         ->where('companies.id', '!=', session('currentCompany'))
@@ -801,6 +815,31 @@ class CustomerProvidersController extends Controller{
 
         $msg = trans('textos.cliente_updated');
         return redirect()->route('customers.index')->with(compact('msg'));
+    }
+
+    /**
+     * 15.1. Actualizar configuración de proveedor.
+     */
+    public function updateProviderConfig(Request $request){
+        $validator = $this->validator($request->all());
+        if($validator->fails()){
+            //Indicamos el origen de la acción realizada para manejar el modal:
+            $validator->getMessageBag()->add('accion', 'modal-edit-config-provider');
+
+            return redirect('/admin/providers')
+                ->withErrors($validator)
+                ->withInput();
+        }    
+
+        $cp = CustomerProviders::where('customer_id', session('currentCompany'))
+        ->where('provider_id', $request->provider_id)
+        ->first();
+
+        $cp->accounting_concept_id = $request->ac_id;
+        $cp->save();
+
+        $msg = trans('textos.proveedor_updated');
+        return redirect()->route('providers.index')->with(compact('msg'));
     }
 
     /**
