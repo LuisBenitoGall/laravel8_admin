@@ -354,6 +354,11 @@ class BudgetController extends Controller{
         //Comprobamos si hay algún descuento por defecto del proveedor con el cliente para sus pedidos:
         $cu_pr = CustomerProviders::customerProvider($request->customer_id, session('currentCompany'));
 
+        //Centro de trabajo. Por default el del usuario en sesión:
+        $user_workplace = UserWorkplaces::select('workplace_id')
+        ->where('user_id', Auth::user()->id)
+        ->first();
+
         $budget = new Order();
         $budget->is_budget = true;
         $budget->modality = $request->modality;
@@ -361,6 +366,7 @@ class BudgetController extends Controller{
         $budget->customer_id = $request->customer_id;
         $budget->provider_id = session('currentCompany');
         $budget->provider_manager_id = Auth::user()->id;
+        $budget->provider_workplace_id = $user_workplace->workplace_id;
         $budget->created_by = Auth::user()->id; 
         $budget->discount = $cu_pr->discount;
         $budget->save();

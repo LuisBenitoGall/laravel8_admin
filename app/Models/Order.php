@@ -123,7 +123,6 @@ class Order extends Model{
         $invoice_amount = 0;                    //Importe con impuestos.
             
         $amounts_by_iva = [];                   //Array que agrupa la suma de importes según tipo de IVA.
-        
 
         foreach($items as $row){
             //Omitimos los items que se calculan porcentualmente:
@@ -143,7 +142,7 @@ class Order extends Model{
             }
         }
 
-        //Cálculo de los items por porcenorder
+        //Cálculo de los items por porcentaje:
         if($percentage_items){
             $order_amount_without_percentuals = $order_amount;
             $order_amount_without_percentuals_without_discounts = $order_amount_without_discounts;
@@ -178,6 +177,7 @@ class Order extends Model{
             'invoice_amount' => round($invoice_amount, 2),
             'amounts_by_iva' => $amounts_by_iva
         ];
+
         return $data;
     }
 
@@ -202,6 +202,10 @@ class Order extends Model{
         $items = Item::select('id', 'qty', 'price', 'item_no_price', 'iva', 'equivalence_surcharge', 'discount', 'calculated_by_percent', 'days', 'days_continue', 'days_continue_discount')
             ->where('order_id', $this->id)
             ->get();
+
+        if($this->id == 10084){
+            //dd('items ya', $items);
+        }
 
         //$arr_amount = $this->itemsAmount($items, $with_percentage_items, $with_iva);
         //$amount = $arr_amount['total_amount'];

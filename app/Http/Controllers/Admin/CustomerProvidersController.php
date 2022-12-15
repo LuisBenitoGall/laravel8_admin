@@ -152,7 +152,9 @@ class CustomerProvidersController extends Controller{
         //Moneda:
         $currency = $this->co_currency;
 
-        return view('admin.customer_providers.index')->with(compact('header', 'tabla', 'currency'));   
+        $concepts = [];
+
+        return view('admin.customer_providers.index')->with(compact('header', 'tabla', 'currency', 'concepts'));   
     }  
 
     /**
