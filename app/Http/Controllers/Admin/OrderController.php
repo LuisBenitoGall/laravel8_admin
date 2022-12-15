@@ -1397,7 +1397,7 @@ class OrderController extends Controller{
     /**
      * 11. Panel control de ventas.
      */
-    public function controlPanelSales($year = false){
+    public function controlPanelSales($year = false, $workplace_id = false){
         $header = [
             'option' => $this->option, 
             'suboption' => 'textos.panel_control_ventas',
@@ -1420,20 +1420,23 @@ class OrderController extends Controller{
         ->pluck('name', 'id')
         ->toArray();
 
-        return view('admin.orders.control-panel')->with(compact('header', 'year', 'min_year', 'max_year', 'order_type', 'currency', 'workplaces'));
+        $workplaces[''] = trans('textos.todos');
+        ksort($workplaces);     //Reordenamos array.
+
+        return view('admin.orders.control-panel')->with(compact('header', 'year', 'workplace_id', 'min_year', 'max_year', 'order_type', 'currency', 'workplaces'));
     }
 
     /**
      * 11.1. Filtrar año para panel de control de ventas.
      */
     public function controlPanelSalesPost(Request $request){
-        return redirect()->route('orders.control-panel-sales', $request->year);
+        return redirect()->route('orders.control-panel-sales', [$request->year, $request->workplace]);
     }
 
     /**
      * 11.2. Listado de pedidos del panel de control de ventas para DataTable.
      */
-    public function getOrdersControlPanelSalesDT($year){
+    public function getOrdersControlPanelSalesDT($year, $workplace_id = false){
         //Estados de pedido que quedan fuera del panel: pedidos cancelados,...
         $statusRejected = config('constants.ORDER_STATUS_NOT_INVOICED_');
 
@@ -1457,6 +1460,9 @@ class OrderController extends Controller{
         ->whereNull('order_previsions.deleted_at')
         ->where('order_previsions.year', $year)
         ->whereNotIn('orders.order_status', $statusRejected)
+        ->when($workplace_id, function($q) use($workplace_id){
+            return $q->where('orders.provider_workplace_id', $workplace_id);
+        })
         ->orderBy('orders.id', 'DESC')
         ->orderBy('orders.created_at', 'DESC');
 

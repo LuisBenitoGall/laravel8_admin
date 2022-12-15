@@ -63,6 +63,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::put('accounting-concepts/{concept}/update', 'AccountingConceptController@update')->name('accounting-concepts.update')->middleware('permission:accounting-concepts.edit');
     Route::delete('accounting-concepts/{concept}', 'AccountingConceptController@destroy')->name('accounting-concepts.destroy');
     Route::get('accounting-concepts/status/{id}/{status}', 'AccountingConceptController@status')->name('accounting-concepts.status');
+    Route::post('accounting-concepts/export', 'AccountingConceptController@export')->name('accounting-concepts.export')->middleware('permission:accounting-concepts.edit');
 
     // Accounts:
     Route::resource('accounts', 'AccountController')->middleware('permission:accounts.edit');
@@ -485,7 +486,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::get('invoices/list/{year?}/{month?}/{company?}', 'InvoiceController@index')->name('invoices.index')->middleware('permission:invoices.index');
     Route::post('invoices', 'InvoiceController@getInvoicesBy')->name('invoices.list')->middleware('permission:invoices.index');
     Route::post('invoices/create-from-order', 'InvoiceController@createFromOrder')->name('invoices.create-from-order')->middleware('permission:invoices.create');
-    Route::get('invoices/create-from-provider', 'InvoiceController@createFromProvider')->name('invoices.create-from-provider')->middleware('permission:invoices.create');
+    Route::get('invoices/create-from-provider/{project_id?}', 'InvoiceController@createFromProvider')->name('invoices.create-from-provider')->middleware('permission:invoices.create');
     Route::post('invoices/store-from-provider', 'InvoiceController@storeFromProvider')->name('invoices.store-from-provider')->middleware('permission:invoices.create');
     Route::get('invoices/{invoice}/edit/{tab?}', 'InvoiceController@edit')->name('invoices.edit')->middleware('permission:invoices.edit');
     Route::get('invoices/{invoice}/edit-purchase/{tab?}', 'InvoiceController@editPurchase')->name('invoices.edit-purchase')->middleware('permission:invoices.edit');
@@ -608,7 +609,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     // Orders:
     Route::get('orders/list/{year?}/{customer_id?}/{provider_id?}/{owner?}/{status?}', 'OrderController@index')->name('orders.index')->middleware('permission:orders.index');
     Route::post('orders', 'OrderController@getOrdersBy')->name('orders.list')->middleware('permission:orders.index');
-    Route::get('orders/control-panel-sales/{year?}', 'OrderController@controlPanelSales')->name('orders.control-panel-sales')->middleware('permission:orders.index');
+    Route::get('orders/control-panel-sales/{year?}/{workplace_id?}', 'OrderController@controlPanelSales')->name('orders.control-panel-sales')->middleware('permission:orders.index');
     Route::get('orders/control-panel-purchases/{year?}', 'OrderController@controlPanelPurchases')->name('orders.control-panel-purchases')->middleware('permission:orders.index');
     Route::get('orders/{order}/order-from-budget', 'OrderController@orderFromBudget')->name('orders.order-from-budget')->middleware('permission:orders.create');
     Route::get('orders/{type}/create/{company_id?}', 'OrderController@create')->name('orders.create')->middleware('permission:orders.create');

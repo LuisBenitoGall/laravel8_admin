@@ -24,6 +24,7 @@ class AccountingConceptController extends Controller{
      * 5. Actualizar concepto.
      * 6. Actualizar estado.
      * 7. Eliminar concepto.
+     * 8. Exportar valores a otras empresas vinculadas.
      */
     
     private $option = 'conceptos_contables';
@@ -204,5 +205,66 @@ class AccountingConceptController extends Controller{
 
         $msg = trans('textos.concepto_deleted');
         return redirect()->route('accounting-concepts.index')->with(compact('msg'));
+    }
+
+    /**
+     * 8. Exportar valores a otras empresas vinculadas.
+     */
+    public function export(Request $request){
+        if(is_array($request->companies) && count($request->companies) > 0){
+            $data = AccountingConcept::where('company_id', session('currentCompany'))
+            ->where('main', '0')
+            ->get();
+
+            if($data->count() > 0){
+                foreach($request->companies as $co){
+                    foreach($data as $row){
+                        //Comprobamos que no exista el registro:
+                        $exist = AccountingConcept::select('id')
+                        ->where('company_id', $co)
+                        ->where('name', $row->name)
+                        ->first();
+
+                        if(!$exist){
+                            $ac = new AccountingConcept();
+                            $ac->company_id = $co;
+                            $ac->name = $row->name;
+                            $ac->slug = $row->slug;
+                            $ac->main = '0';
+                            $ac->description = $row->description;
+                            $ac->status = $row->status;
+                            $ac->save();
+
+                            //Obtenemos las subcategorías del concepto original:
+                            $subconcepts = AccountingConcept::where('company_id', session('currentCompany'))
+                            ->where('main', $row->id)
+                            ->get();
+
+                            foreach($subconcepts as $sc){
+                                $ac_ = new AccountingConcept();
+                                $ac_->company_id = $co;
+                                $ac_->name = $sc->name;
+                                $ac_->slug = $sc->slug;
+                                $ac_->main = $ac->id;
+                                $ac_->description = $sc->description;
+                                $ac_->status = $sc->status;
+                                $ac_->save();    
+                            }
+                        }
+                    }
+                }
+
+                $msg = trans('textos.exportacion_ok');
+                return redirect()->route('accounting-concepts.index')->with(compact('msg'));
+
+            }else{
+                $alert = trans('textos.exportacion_vacia');
+            }
+
+        }else{
+            $alert = trans('textos.exportacion_vacia');
+        }
+
+        return redirect()->route('accounting-concepts.index')->with(compact('alert'));
     }
 }

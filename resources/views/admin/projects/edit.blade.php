@@ -77,6 +77,14 @@
 			</a>	
         @endcan
 
+        {{-- Adjuntar factura de compra --}}
+        @can('invoices.create')
+	        <a target="_blank" href="{{ route('invoices.create-from-provider', $project->id) }}" class="btn btn-info">
+				<i class="fa fa-plus"></i>
+				{!! ucfirst(trans('textos.factura_compra_introducir')) !!}
+			</a>
+		@endcan
+
         {{-- Estados de tareas --}}
         @can('projects.edit')
 			<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-task-status">

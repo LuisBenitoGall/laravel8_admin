@@ -3512,6 +3512,7 @@ $(document).ready(function(){
     if($('#tblOrdersControlPanelSales').length > 0){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
         var year = $('#dtYear').val();
+        var workplace = $('#dtWorkplace').val();
         var currency = $('#dtCurrency').val();
 
         //Filters:
@@ -3542,7 +3543,7 @@ $(document).ready(function(){
             // },
             ajax: {
                 "type": "GET",
-                "url": "/api/admin/orders-control-panel-sales/"+year,
+                "url": "/api/admin/orders-control-panel-sales/"+year+'/'+workplace,
                 "error": function(reason){
                     console.log(reason);
                 }

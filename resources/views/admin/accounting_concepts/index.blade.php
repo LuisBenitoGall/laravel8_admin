@@ -7,6 +7,15 @@
 		@can('accounting-concepts.create')
 			<a class="btn btn-info" href="{{ route('accounting-concepts.create') }}"><i class="fa fa-plus"></i> {!! ucfirst(trans('textos.concepto_nuevo')) !!}</a>
 		@endcan
+
+		{{-- Exportar valores --}}
+        @can('accounting-concepts.edit')
+            @if(count(session('companies')) > 1)
+                <a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-export-values">
+                    <i class="fa fa-file-export"></i> {!! ucfirst(trans('textos.exportar_valores')) !!} 
+                </a>
+            @endif
+        @endcan
 	</div>	
 </div>
 
@@ -24,5 +33,9 @@
 		</table>
 	</div>
 </div>
+
+{{-- Modals --}}
+{{-- Export values --}}
+@include('admin.partials.modal-export-values', ['action' => 'accounting-concepts.export'])
 
 @endsection

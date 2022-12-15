@@ -34,6 +34,8 @@ use App\Models\Order;
 use App\Models\OrderPrevisions;
 use App\Models\Phone;
 use App\Models\Product;
+use App\Models\Project;
+use App\Models\ProjectPurchases;
 use App\Models\User;
 use App\Models\Workplace;
 
@@ -737,13 +739,23 @@ class InvoiceController extends Controller{
     /**
      * 2.2. Introducir factura de proveedor.
      */
-    public function createFromProvider(){
+    public function createFromProvider($project_id = false){
         $header = [
             'option' => $this->option, 
             'suboption' => 'textos.factura_compra_introducir',
             'module' => $this->module,
             'slug' => 'invoices'
-        ];   
+        ];  
+
+        //Comprobamos que el proyecto pertenezca a la empresa en session:
+        if($project_id){
+            $project = Project::select('company_id')->find($project_id);
+            if($project->company_id != session('currentCompany')){
+                $alert = trans('textos.no_permisos_accion');   
+                return redirect()->route('projects.index')->with(compact('alert'));
+                exit;
+            }
+        } 
 
         $providers = Company::join('customer_providers', 'companies.id', '=', 'customer_providers.provider_id')
         ->where('customer_providers.customer_id', session('currentCompany'))
@@ -756,7 +768,7 @@ class InvoiceController extends Controller{
 
         $currency = $this->co_currency;
 
-        return view('admin.invoices.invoice-by-provider')->with(compact('header', 'providers', 'languages', 'currency'));          
+        return view('admin.invoices.invoice-by-provider')->with(compact('header', 'project_id', 'providers', 'languages', 'currency'));          
     }
 
     /**
@@ -823,6 +835,11 @@ class InvoiceController extends Controller{
         $inv->status = $request->status? $request->status:config('constants.INVOICE_OPEN_'); 
         $inv->blocked = 0;      //Por defecto mantenemos desbloqueadas las facturas así generadas.  
         $inv->save();
+
+        //Vinculamos pedido a proyecto:
+        if($request->project_id && $request->project_id > 0){
+            ProjectPurchases::firstOrCreate(['project_id' => $request->project_id, 'order_id' => $order->id]);
+        }
 
         $msg = trans('textos.factura_creada');
         return redirect()->route('invoices.edit-purchase', [$inv->id, false])->with(compact('msg'));       

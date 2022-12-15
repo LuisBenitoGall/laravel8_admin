@@ -213,7 +213,7 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     Route::get('orders-control-panel-purchases/{year}', 'OrderController@getOrdersControlPanelPurchasesDT');
 
     //Orders Control Panel Sales:
-    Route::get('orders-control-panel-sales/{year}', 'OrderController@getOrdersControlPanelSalesDT');
+    Route::get('orders-control-panel-sales/{year}/{workplace_id?}', 'OrderController@getOrdersControlPanelSalesDT');
 
     //Permissions:
     Route::get('permissions', 'PermissionController@getPermissionsDT');

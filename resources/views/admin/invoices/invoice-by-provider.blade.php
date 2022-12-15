@@ -16,6 +16,9 @@
 			<div class="card-body">
 				<form method="post" autocomplete="off" action="{{ route('invoices.store-from-provider') }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
 					{{ csrf_field() }}
+					@if($project_id)
+						<input type="hidden" name="project_id" value="{{ $project_id }}">
+					@endif
 
 					<div class="form-group row">
 						{{-- Proveedor --}}
