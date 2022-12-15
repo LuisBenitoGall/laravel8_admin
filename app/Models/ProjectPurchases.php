@@ -9,4 +9,6 @@ class ProjectPurchases extends Model{
     use HasFactory;
 
     protected $table = 'project_purchases';
+
+    protected $fillable = ['project_id', 'order_id'];
 }

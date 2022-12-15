@@ -393,7 +393,7 @@ class ItemController extends Controller{
 
         $msg = trans('textos.linea_updated');
         if($request->environment == 'orders'){
-            return redirect()->route('orders.edit', [$request->order_id, 'items'])->with(compact('msg'));
+            return redirect()->route('orders.edit', [$order->id, 'items'])->with(compact('msg'));
         }elseif($request->environment == 'invoices'){
             return redirect()->route('invoices.edit', [$request->invoice_id, 'items'])->with(compact('msg'));
         }else{

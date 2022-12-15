@@ -3,6 +3,7 @@
 @section('content')
 
 <input type="hidden" id="dtYear" value="{{ $year }}">
+<input type="hidden" id="dtWorkplace" value="{{ $workplace_id }}">
 <input type="hidden" id="dtCurrency" value="{{ $currency->symbol }}">
 
 <div class="row mb-3">
@@ -35,16 +36,16 @@
 						@include('admin.partials.selector-year', ['selected_year' => $year])
 
 						{{-- Centros de trabajo --}}
-						{{-- @if(count($workplaces) > 1)
+						@if(count($workplaces) > 1)
 							<label for="workplace" class="col-2 col-form-label">{{ ucfirst(trans('textos.centro_trabajo')) }}</label>
 	                    	<div class="col-3">
-	                    		<x-select name="workplace" class="select2" label="centro_trabajo_selec" :options="$workplaces"/>
+	                    		<x-select name="workplace" class="select2" label="centro_trabajo_selec" :options="$workplaces" value="{{ $workplace_id }}"/>
 	                    	</div>
 	                    @elseif(count($workplaces) == 1)
 	                    	@foreach($workplaces as $i => $wk)
 	                    		<input type="hidden" name="workplace" value="{{ $i }}">
 	                    	@endforeach
-	                    @endif --}}
+	                    @endif
 
 						<x-btn-submit name="submit_filter" label="{{ trans('textos.buscar') }}" inline/>
 					</div>
