@@ -18,6 +18,8 @@ use PDF;
 use Carbon\Carbon;
 
 //Models:
+use App\Models\AccountingConcept;
+use App\Models\AccountingOption;
 use App\Models\BankAccounts;
 use App\Models\Company;
 use App\Models\CompanyAccounts;
@@ -65,23 +67,17 @@ class InvoiceController extends Controller{
      * 12. Activar - desactivar IVA en factura.
      * 13. Generar factura de abono.
      * 14. Eliminar pedido de factura de agrupación.
+     * 15. Opciones contables.
      */
     
     private $option = 'contabilidad';
     private $module = 'accounting';
     private $languages;
-    private $co_currency;
-    private $co_iva;
+    private $accounting_options;
 
     public function __construct(){
         //Idiomas:
         $this->languages = helpers::languages();
-
-        //Moneda:
-        $this->co_currency = CompanySettings::co_currency(0);
-
-        //IVA:
-        $this->co_iva = CompanySettings::co_iva();
 
         $this->middleware('module_setted:accounting');
         $this->middleware('invoice_customer_get', ['only' => ['editPurchase']]);
@@ -92,7 +88,8 @@ class InvoiceController extends Controller{
         $this->middleware('invoice_order_remove', ['only' => ['removeFromInvoice']]);
         $this->middleware('order_post', ['only' => ['createFromOrder', 'createFromGroup']]);
         $this->middleware('order_get', ['only' => ['invoicesByOrder']]);
-
+        $this->middleware('accounting_block_purchases', ['only' => ['createFromProvider', 'storeFromProvider', 'update']]);
+        $this->middleware('accounting_block_sales', ['only' => ['createFromOrder', 'createFromGroup', 'update']]);
     }
 
     //0. Validator:
@@ -155,7 +152,7 @@ class InvoiceController extends Controller{
         $customer_id = false;
         $provider_id = false;
         $invoicesType = 'facturas';
-        
+
         if($company){
             $p = explode('-', $company);
 
@@ -193,7 +190,10 @@ class InvoiceController extends Controller{
         $providers = false;
 
         //Moneda:
-        $currency = $this->co_currency; 
+        $currency = CompanySettings::co_currency(0); 
+
+        //Opciones contables:
+        $accounting_options = $this->accountingOptions();
 
         //Comprobamos si la empresa hace gestión de clientes:
         if(session('companySettings')['customers_management'] == 1){
@@ -205,7 +205,7 @@ class InvoiceController extends Controller{
             $providers = CustomerProviders::getCompanyProviders(session('currentCompany'));
         }
 
-        return view('admin.invoices.index')->with(compact('header', 'invoicesType', 'year', 'month', 'customer_id', 'provider_id', 'customer', 'provider', 'customers', 'providers', 'currency'));
+        return view('admin.invoices.index')->with(compact('header', 'invoicesType', 'year', 'month', 'customer_id', 'provider_id', 'customer', 'provider', 'customers', 'providers', 'currency', 'accounting_options'));
     }
 
     /**
@@ -350,7 +350,7 @@ class InvoiceController extends Controller{
         $estados = helpers::invoiceStatus();
 
         //Moneda:
-        $currency = $this->co_currency;        
+        $currency = CompanySettings::co_currency(0);        
 
         return DataTables::of($data) 
         ->addColumn('invoice_num', function($row) use($environment){
@@ -577,7 +577,7 @@ class InvoiceController extends Controller{
         $invoice->order_id = $order->id;
         $invoice->user_id = Auth::user()->id;
         $invoice->amount = $total_amount;
-        $invoice->with_iva = $this->co_iva;
+        $invoice->with_iva = CompanySettings::co_iva();
         $invoice->amount_with_iva = $amount_with_iva;
         $invoice->fiscal_date = date('Y-m-d');
         $invoice->status = config('constants.INVOICE_OPEN_');
@@ -688,7 +688,7 @@ class InvoiceController extends Controller{
         $invoice->order_id = $order->id;
         $invoice->user_id = Auth::user()->id;
         $invoice->amount = $orders_amount;
-        $invoice->with_iva = $this->co_iva;
+        $invoice->with_iva = CompanySettings::co_iva();
         $invoice->amount_with_iva = $invoices_amount;
         $invoice->fiscal_date = date('Y-m-d');
         $invoice->status = config('constants.INVOICE_OPEN_');
@@ -766,9 +766,12 @@ class InvoiceController extends Controller{
 
         $languages = $this->languages;
 
-        $currency = $this->co_currency;
+        $currency = CompanySettings::co_currency(0);
 
-        return view('admin.invoices.invoice-by-provider')->with(compact('header', 'project_id', 'providers', 'languages', 'currency'));          
+        //Opciones contables:
+        $accounting_options = $this->accountingOptions();
+
+        return view('admin.invoices.invoice-by-provider')->with(compact('header', 'project_id', 'providers', 'languages', 'currency', 'accounting_options'));          
     }
 
     /**
@@ -961,7 +964,7 @@ class InvoiceController extends Controller{
         }
 
         //Moneda:
-        $currency = $this->co_currency;
+        $currency = CompanySettings::co_currency(0);
 
         $languages = $this->languages;
 
@@ -1002,7 +1005,10 @@ class InvoiceController extends Controller{
             if($ba->featured == 1) $bank_featured = $ba->id;
         }
 
-        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'is_sale', 'order', 'suborders', 'invoiced', 'invoices', 'refund', 'customer', 'customer_settings', 'provider', 'provider_account', 'items', 'products', 'patterns', 'payments', 'templates', 'featuredTemplate', 'currency', 'languages', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'payment_methods', 'bank_accounts', 'bank_featured'));
+        //Opciones contables:
+        $accounting_options = $this->accountingOptions();
+
+        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'is_sale', 'order', 'suborders', 'invoiced', 'invoices', 'refund', 'customer', 'customer_settings', 'provider', 'provider_account', 'items', 'products', 'patterns', 'payments', 'templates', 'featuredTemplate', 'currency', 'languages', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'payment_methods', 'bank_accounts', 'bank_featured', 'accounting_options'));
     }
 
     /**
@@ -1049,6 +1055,29 @@ class InvoiceController extends Controller{
         ->where('status', 1)
         ->first();
 
+        //Configuraciones de proveedor:
+        $provider_settings = CustomerProviders::select('accounting_concept_id')
+        ->where('customer_id', $customer->id)
+        ->where('provider_id', $provider->id)
+        ->first();
+
+        //Cuentas de gastos del cliente a partir de su estructura de gastos:
+        $structure_concepts = [];
+        if($provider_settings->accounting_concept_id || $invoice->accounting_structure_id){
+            //Si la factura ya tiene una estructura definida utilizamos ésta, si no la que tenga declarada el proveedor:
+            $by = $invoice->accounting_structure_id? $invoice->accounting_structure_id:$provider_settings->accounting_concept_id;
+
+            $structure_concepts = AccountingConcept::where('main', $by) 
+            ->pluck('name', 'id')
+            ->toArray();   
+
+            //Si no hay concepto seleccionado:
+            if(!$invoice->accounting_concept_id){
+                $structure_concepts[''] = trans('textos.concepto_selec');
+                ksort($structure_concepts);
+            }
+        }
+
         //Líneas del pedido: 
         $items = Item::where('order_id', $order->id)
         ->orderBy('concept', 'ASC')
@@ -1058,7 +1087,7 @@ class InvoiceController extends Controller{
         $products = Product::companyProducts($order->provider_id, $order->customer_id, true, true);
 
         //Moneda:
-        $currency = $this->co_currency;
+        $currency = CompanySettings::co_currency(0);
 
         $languages = $this->languages;
 
@@ -1096,11 +1125,21 @@ class InvoiceController extends Controller{
         //Métodos de pago:
         $payment_methods = helpers::paymentMethods();
 
+        //Conceptos contables:
+        $concepts = AccountingConcept::where('company_id', session('currentCompany'))
+        ->where('status', 1)
+        ->where('main', '0')
+        ->pluck('name', 'id')
+        ->toArray();
+
         //Cuentas bancarias:
         $bank_accounts = [];
         $bank_featured = false;
 
-        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'is_sale', 'order', 'invoiced', 'invoices', 'refund', 'customer', 'provider', 'provider_account', 'items', 'products', 'currency', 'languages', 'patterns', 'payments', 'templates', 'featuredTemplate', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'payment_methods', 'bank_accounts', 'bank_featured'));
+        //Opciones contables:
+        $accounting_options = $this->accountingOptions();
+
+        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'is_sale', 'order', 'invoiced', 'invoices', 'refund', 'customer', 'provider', 'provider_account', 'provider_settings', 'structure_concepts', 'items', 'products', 'currency', 'languages', 'patterns', 'payments', 'templates', 'featuredTemplate', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'payment_methods', 'concepts', 'bank_accounts', 'bank_featured', 'accounting_options'));
     }
 
     /**
@@ -1146,9 +1185,12 @@ class InvoiceController extends Controller{
         $languages = $this->languages;
 
         //Moneda:
-        $currency = $this->co_currency;
+        $currency = CompanySettings::co_currency(0);
+
+        //Opciones contables:
+        $accounting_options = $this->accountingOptions();
         
-        return view('admin.invoices.show')->with(compact('header', 'invoice', 'order', 'customer', 'customer_workplace', 'provider', 'provider_workplace', 'items', 'languages', 'currency'));  
+        return view('admin.invoices.show')->with(compact('header', 'invoice', 'order', 'customer', 'customer_workplace', 'provider', 'provider_workplace', 'items', 'languages', 'currency', 'accounting_options'));  
     }
 
     /**
@@ -1209,7 +1251,9 @@ class InvoiceController extends Controller{
 
         //Compra:
         }else{
-            $invoice->customer_observations = $request->observations;    
+            $invoice->customer_observations = $request->observations;  
+            $invoice->accounting_structure_id = $request->accounting_structure;
+            $invoice->accounting_concept_id = $request->accounting_concept;
         }
 
         $invoice->save();
@@ -1300,7 +1344,7 @@ class InvoiceController extends Controller{
         }
 
         //Moneda:
-        $currency = $this->co_currency;
+        $currency = CompanySettings::co_currency(0);
 
         //Actualizamos número de impresiones:
         $invoice->printed = $invoice->printed + 1;
@@ -1326,7 +1370,7 @@ class InvoiceController extends Controller{
      */
     public function setInvoicesData($data, $environment){
         //Moneda:
-        $currency = $this->co_currency;
+        $currency = CompanySettings::co_currency(0);
 
         $arrEstados = helpers::invoiceStatus();
         //Pasamos array a string con los índices:
@@ -1388,7 +1432,8 @@ class InvoiceController extends Controller{
                 $row->eliminar = $eliminar;
 
                 //Moneda:
-                $row->currency = $this->co_currency->symbol;
+                $c = CompanySettings::co_currency(0);
+                $row->currency = $c->symbol;
             }  
         }
 
@@ -1521,7 +1566,7 @@ class InvoiceController extends Controller{
         $invoice_status = helpers::invoiceStatus();
 
         //Moneda:
-        $currency = $this->co_currency;
+        $currency = CompanySettings::co_currency(0);
 
         $languages = $this->languages;
 
@@ -1554,7 +1599,7 @@ class InvoiceController extends Controller{
         $invoice_status = helpers::invoiceStatus();
 
         //Moneda:
-        $currency = $this->co_currency;
+        $currency = CompanySettings::co_currency(0);
 
         $languages = $this->languages;
 
@@ -1602,7 +1647,7 @@ class InvoiceController extends Controller{
      */
     public function withIva(Request $request, Invoice $invoice, $status){
         if($request->ajax()){  
-            $iva = $status == 1? $this->co_iva:NULL;
+            $iva = $status == 1? CompanySettings::co_iva():NULL;
 
             $invoice->with_iva = $iva;
             $invoice->save();
@@ -1652,7 +1697,7 @@ class InvoiceController extends Controller{
         if($request->refund == 'p'){    
             $refund_amount = $request->refund_amount;
 
-            $iva_amount = helpers::percent($refund_amount, $this->co_iva);
+            $iva_amount = helpers::percent($refund_amount, CompanySettings::co_iva());
             $refund_amount_with_iva = $refund_amount + $iva_amount;
   
             $refund_discount_amount = NULL;
@@ -1744,7 +1789,7 @@ class InvoiceController extends Controller{
 
         //Cálculo IVA:
         if($invoice_amount > 0 && $invoice->with_iva){
-            $iva_amount = helpers::percent($invoice_amount, $this->co_iva);
+            $iva_amount = helpers::percent($invoice_amount, CompanySettings::co_iva());
             $amount_with_iva = $invoice_amount + $iva_amount;
         }
         $invoice->amount_with_iva = $amount_with_iva;
@@ -1752,6 +1797,13 @@ class InvoiceController extends Controller{
 
         $msg = trans('textos.factura_agrupacion_pedido_eliminado');
         return redirect()->route('invoices.edit', $invoice)->with(compact('msg'));
+    }
+
+    /**
+     * 15. Opciones contables.
+     */
+    private function accountingOptions(){
+        return AccountingOption::getCompanyOptions();
     }
     
 }

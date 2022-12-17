@@ -25,6 +25,7 @@ class AccountingConceptController extends Controller{
      * 6. Actualizar estado.
      * 7. Eliminar concepto.
      * 8. Exportar valores a otras empresas vinculadas.
+     * 9. Obtener subconceptos por concepto principal.
      */
     
     private $option = 'conceptos_contables';
@@ -266,5 +267,19 @@ class AccountingConceptController extends Controller{
         }
 
         return redirect()->route('accounting-concepts.index')->with(compact('alert'));
+    }
+
+    /**
+     * 9. Obtener subconceptos por concepto principal.
+     */
+    public function filter(Request $request, $concept){
+        if($request->ajax()){
+            $data = AccountingConcept::select('id', 'name')
+            ->where('main', $concept)
+            ->orderBy('name', 'ASC')
+            ->get();
+
+            return response()->json($data);
+        }
     }
 }

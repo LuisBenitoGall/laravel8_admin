@@ -2,6 +2,9 @@
 
 @section('content')
 
+{{-- Avisos --}}
+@include('admin.invoices.partials.invoice-warning-template', ['accounting_options' => $accounting_options])
+
 <div class="row mb-3">
 	{{-- Acciones --}}
 	<div class="col-12">
