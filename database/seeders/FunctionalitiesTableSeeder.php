@@ -384,6 +384,11 @@ class FunctionalitiesTableSeeder extends Seeder{
             'label' => 'conceptos_contables',
             'module' => 'accounting'            
             ],
+            ['name' => 'accounting options',
+            'slug' => 'accounting-options',
+            'label' => 'opciones_contables',
+            'module' => 'accounting'            
+            ],
 
             ['name' => 'incidences',
             'slug' => 'incidences',

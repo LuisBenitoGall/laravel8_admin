@@ -257,6 +257,13 @@ if(!$initial_imports->value){
                                                         @endphp
                                                     @endif
 
+                                                    {{-- Omitimos los conceptos básicos si el usuario se encuentra fuera de las ip's válidas --}}
+                                                    @if($ti->basic_item == 1 && $agent->isDesktop() && !in_array($ip, $setted_ips))
+                                                        @php
+                                                        $seeConcept = 'oculto';
+                                                        @endphp
+                                                    @endif
+
                                                     {{-- Omitimos los conceptos que hayan alcanzado el número de veces diario: --}}
                                                     @if(isset($ti->qty))
                                                         @foreach($nVeces as $vez)
