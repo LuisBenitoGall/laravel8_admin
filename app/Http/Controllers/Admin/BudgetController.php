@@ -81,14 +81,10 @@ class BudgetController extends Controller{
     private $option = 'presupuestos';
     private $module = 'budgets';
     private $languages;
-    private $co_currency;
 
     public function __construct(){
         //Idiomas:
         $this->languages = helpers::languages();
-
-        //Moneda:
-        $this->co_currency = CompanySettings::co_currency(0);
 
         $this->middleware('module_setted:budgets');
         $this->middleware('order_get', ['only' => ['edit', 'update', 'destroy', 'resetNum', 'removeOcDoc', 'createOrder', 'removeTemplate', 'print', 'modify', 'updateTemplate']]);
@@ -1457,7 +1453,7 @@ class BudgetController extends Controller{
         } 
 
         //Moneda:
-        $currency = $this->co_currency;
+        $currency = CompanySettings::co_currency(0);
 
         return view('admin.budgets.show')->with(compact('header', 'order', 'provider', 'customer', 'final_customer', 'order_amount', 'currency'));   
     }
@@ -1469,7 +1465,7 @@ class BudgetController extends Controller{
         $items = Item::where('order_id', $order->id);
 
         //Moneda:
-        $currency = $this->co_currency;
+        $currency = CompanySettings::co_currency(0);
 
         //Importe del pedido sin contar los items con precio porcentual:
         $order_amount = $order->getAmount(true, false, false);

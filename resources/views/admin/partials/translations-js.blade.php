@@ -49,6 +49,7 @@ var txtCompatibleLaborableNo = "{!! ucfirst(trans('textos.compatible_no')) !!}";
 var txtCompletado = "{!! ucfirst(trans("textos.completado")) !!}";
 var txtCompraNueva = "{!! trans("textos.compra_nueva") !!}";
 var txtConceptoConfirmEliminar = "{!! trans("textos.concepto_confirm_eliminar") !!}";
+var txtConceptoSelec = "{!! trans("textos.concepto_selec") !!}";
 var txtConcursoConfirmEliminar = "{!! trans("textos.concurso_confirm_eliminar") !!}";
 var txtConcursoOnOff = "{!! trans("textos.concurso_on_off") !!}";
 var txtCondicionesPago = "{!! trans("textos.condiciones_pago") !!}";

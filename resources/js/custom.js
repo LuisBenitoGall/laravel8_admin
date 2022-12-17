@@ -314,6 +314,7 @@ $(window).on('load', function () {
     27. Aplicar descuento por defecto del cliente a líneas del pedido, tanto nueva como edición.
     28. Cálculo precio + precio con iva en gastos.
     29. Guardar preferencia.
+    30. Selector cuenta de gastos por estructura.
     */
 
     // 1. Eliminar preview imagen seleccionada:
@@ -1108,6 +1109,27 @@ $(window).on('load', function () {
             datatype: "JSON",
             success: function(response){
                 //showSuccess(response);
+            }
+        });
+    });
+
+    // 30. Selector cuenta de gastos por estructura.
+    $('#accountingStructure').on('change', function (event) {
+        //Limpiamos posibles valores heredados:
+        $('#accountingConcept').empty().val('');
+        $('#accountingStructure option:selected').each(function () {
+            var id = event.target.value;
+
+            if (id == null || id == 0) {
+                $('#accountingConcept').attr('disabled', 'disabled');
+            } else {
+                $('#accountingConcept').removeAttr('disabled');
+                $.get("/admin/accounting-concepts/filter/" + id + "", function (response, state) {
+                    $("#accountingConcept").append('<option value="" selected>' + txtConceptoSelec + '</option>');
+                    for (i = 0; i < response.length; i++) {
+                        $("#accountingConcept").append('<option value="' + response[i].id + '">' + response[i].name + '</option>');
+                    }
+                });
             }
         });
     });

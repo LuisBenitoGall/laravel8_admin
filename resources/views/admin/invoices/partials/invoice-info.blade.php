@@ -88,6 +88,32 @@
 		</div>
 	</div>
 
+	{{-- Conceptos contables. Sólo para compras --}}
+	@if(!$is_sale)
+		<div class="form-group row">
+			{{-- Estructura --}}
+			@php
+			$as_id = $invoice->accounting_structure_id? $invoice->accounting_structure_id:($provider_settings? $provider_settings->accounting_concept_id:'');
+			@endphp
+
+			<label for="accounting_structure" class="col-md-2 col-form-label">{!! ucfirst(trans('textos.estructura_gastos')) !!}</label>
+			<div class="col-md-4">
+				<x-select name="accounting_structure" class="select2" id="accountingStructure" label="concepto_selec" :options="$concepts" value="{{ $as_id }}" info="invoice-accounting-structure"/>
+			</div>
+
+			{{-- Cuenta de gastos --}}
+			@php
+			$ac_id = $invoice->accounting_concept_id? $invoice->accounting_concept_id:'';
+			$disabled = count($structure_concepts)? false:true;
+			@endphp
+			
+			<label for="accounting_concept" class="col-md-2 col-form-label">{!! ucfirst(trans('textos.cuenta_gastos')) !!}</label>
+			<div class="col-md-4">
+				<x-select name="accounting_concept" class="select2" id="accountingConcept" label="" :options="$structure_concepts" value="{{ $ac_id }}" disabled="{{ $disabled }}"/>
+			</div>
+		</div>
+	@endif
+
 	<div class="form-group row">
 		{{-- Observaciones --}}
 		<label for="observations" class="col-md-2 col-form-label">{!! ucfirst(trans('textos.observaciones')) !!}</label>

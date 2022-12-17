@@ -64,6 +64,11 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::delete('accounting-concepts/{concept}', 'AccountingConceptController@destroy')->name('accounting-concepts.destroy');
     Route::get('accounting-concepts/status/{id}/{status}', 'AccountingConceptController@status')->name('accounting-concepts.status');
     Route::post('accounting-concepts/export', 'AccountingConceptController@export')->name('accounting-concepts.export')->middleware('permission:accounting-concepts.edit');
+    Route::get('accounting-concepts/filter/{concept}', 'AccountingConceptController@filter')->name('accounting-concepts.filter');
+
+    // Accounting Options:
+    Route::get('accounting-options', 'AccountingOptionController@index')->name('accounting-options.index')->middleware('permission:accounting-options.index');
+    Route::post('accounting-options.store', 'AccountingOptionController@store')->name('accounting-options.store')->middleware('permission:accounting-options.edit');
 
     // Accounts:
     Route::resource('accounts', 'AccountController')->middleware('permission:accounts.edit');

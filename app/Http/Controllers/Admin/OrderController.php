@@ -89,14 +89,10 @@ class OrderController extends Controller{
     private $option = 'pedidos';
     private $module = 'orders';
     private $languages;
-    private $co_currency;
 
     public function __construct(){
         //Idiomas:
         $this->languages = helpers::languages();
-
-        //Moneda:
-        $this->co_currency = CompanySettings::co_currency(0);
 
         $this->middleware('module_setted:orders');
         $this->middleware('order_get', ['only' => ['orderFromBudget', 'edit', 'update', 'destroy', 'print', 'setOrderDelivery', 'resetNum', 'removePurchaseDoc']]);
@@ -447,7 +443,7 @@ class OrderController extends Controller{
         $estados = helpers::orderStatus();
 
         //Moneda:
-        $currency = $this->co_currency;
+        $currency = CompanySettings::co_currency(0);
 
         return DataTables::of($data)
         ->addColumn('num', function($row){
@@ -1412,7 +1408,7 @@ class OrderController extends Controller{
 
         $order_type = 'ventas';
 
-        $currency = $this->co_currency;
+        $currency = CompanySettings::co_currency(0);
 
         //Centros de trabajo:
         $workplaces = Workplace::where('company_id', session('currentCompany'))
@@ -1442,7 +1438,7 @@ class OrderController extends Controller{
 
         $estados = helpers::orderStatus();
 
-        $currency = $this->co_currency;
+        $currency = CompanySettings::co_currency(0);
 
         $data = Order::select('orders.id', 'orders.name', 'orders.order_num', 'orders.order_old_num', 'orders.purchase_num', 'orders.purchase_old_num', 'orders.is_group', 'orders.estimated_delivery_date', 'orders.delivery_date', 'orders.order_status', 'orders.invoiced', 'orders.discount', 'orders.bag_amount', 'order_previsions.year', 'order_previsions.month', 'order_previsions.percent', 'orders.created_at', 'companies.name AS Customer', 'users.name AS Nombre', 'users.surname', 'cc.name AS finalCustomer', 'u_.name AS CustomerManagerName', 'u_.surname AS CustomerManagerSurname', 'business_areas.name AS businessArea', 'workplaces.name AS workplace')
         ->join('order_previsions', 'orders.id', '=', 'order_previsions.order_id')
@@ -1561,7 +1557,7 @@ class OrderController extends Controller{
 
         $order_type = 'compras';
 
-        $currency = $this->co_currency;
+        $currency = CompanySettings::co_currency(0);
 
         return view('admin.orders.control-panel')->with(compact('header', 'year', 'min_year', 'max_year', 'order_type', 'currency'));
     }
@@ -1582,7 +1578,7 @@ class OrderController extends Controller{
 
         $estados = helpers::orderStatus();
 
-        $currency = $this->co_currency;
+        $currency = CompanySettings::co_currency(0);
 
         $data = Order::select('orders.id', 'orders.name', 'orders.order_num', 'orders.order_old_num', 'orders.purchase_num', 'orders.purchase_old_num', 'orders.estimated_delivery_date', 'orders.delivery_date', 'orders.order_status', 'orders.invoiced', 'orders.discount', 'order_previsions.year', 'order_previsions.month', 'order_previsions.percent', 'orders.created_at', 'companies.name AS Provider', 'users.name AS Nombre', 'users.surname', 'cc.name AS finalCustomer', 'u_.name AS CustomerManagerName', 'u_.surname AS CustomerManagerSurname', 'business_areas.name AS businessArea')
         ->join('order_previsions', 'orders.id', '=', 'order_previsions.order_id')
@@ -1994,7 +1990,7 @@ class OrderController extends Controller{
         }    
 
         //Moneda:
-        $currency = $this->co_currency;
+        $currency = CompanySettings::co_currency(0);
 
         //Título .pdf:
         $pdf_title = $order->order_num? helpers::slugFiles($order->order_num, '_', false):$order->id;
