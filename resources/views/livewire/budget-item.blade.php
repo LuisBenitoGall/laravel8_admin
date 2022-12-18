@@ -226,11 +226,13 @@ $permitted = !$order || ($order && $add_items && !$order->parent)? true:false;
                                    id="newItemPrice" autocomplete="off" maxlength="8" wire:model.defer="price" wire:keydown.debounce="changePrice($event.target.value)"
                                    @if($field_readonly) readonly @endif>
                             <div class="input-group-append">
-                                <span class="input-group-addon">@if($field_readonly)
+                                <span class="input-group-addon">
+                                    @if($field_readonly)
                                         %
                                     @else
                                         {{ $currency->symbol }}
-                                    @endif</span>
+                                    @endif
+                                </span>
                             </div>
                         </div>
 
@@ -279,7 +281,6 @@ $permitted = !$order || ($order && $add_items && !$order->parent)? true:false;
                     </div>
 
                     {{-- Jornadas continuas --}}
-
                     <label for="days_continue"
                            class="col-4 col-sm-2 col-form-label sinpadding-right">{!! ucfirst(trans('textos.jornadas_continuas')) !!}</label>
                     <div class="col-8 col-sm-1 col-xl-1 mb-3">
@@ -303,9 +304,9 @@ $permitted = !$order || ($order && $add_items && !$order->parent)? true:false;
                     <label for="" class="col-4 col-sm-2 col-xl-1 col-form-label sinpadding-right">{!! ucfirst(trans('textos.subtotal')) !!}</label>
                     <div class="col-8 col-sm-1 col-xl-1 mb-3 text-left">
                         <label class="custom-chk-rdb" style="top: 7px">
-                            <strong class="mr-5">
-                                @if($tempSubToralRow > 0)
-                                    {{$tempSubToralRow}}{{$currency->symbol}}
+                            <strong class="mr-5 subtotal_">
+                                @if($tempSubTotalRow > 0)
+                                    {{$tempSubTotalRow}}{{$currency->symbol}}
                                 @else
                                     {!! $sub_total[$rowId['id'] ?? 0] ?? 0 !!}{{$currency->symbol}}
                                 @endif
@@ -569,16 +570,15 @@ $permitted = !$order || ($order && $add_items && !$order->parent)? true:false;
                 $('.new-budget-item').slideUp();
                 $('.btnAddBudgetItem').removeClass('opened').html('<i class="fa fa-plus"></i> ' + txtLineaAdd);
                 $('#newItemObservations').trumbowyg("html", '');
-                @this.
-                set('form_on', false);
+                @this.set('form_on', false);
 
                 //Abrir:
             } else {
                 $('.new-budget-item').slideDown();
                 //Modo para esconder el formulario:
                 $('.btnAddBudgetItem').addClass('opened').html('<i class="fa fa-minus"></i> ' + txtCancelar);
-                @this.
-                set('form_on', true);
+                $('#newItemObservations').trumbowyg("html", '');
+                @this.set('form_on', true);
             }
         });
 
@@ -639,8 +639,8 @@ $permitted = !$order || ($order && $add_items && !$order->parent)? true:false;
         });
         $('#lineNoPrice').on('change', function () {
             var text = $('#lineNoPrice option:selected').text();
-            @this.
-            set('price', text);
+            $('.subtotal_').text(text);
+            @this.set('price', text);
         });
 
         //Actualizar el modelo con el editor trumbowyg
@@ -649,8 +649,7 @@ $permitted = !$order || ($order && $add_items && !$order->parent)? true:false;
         });
         //Pasando valor al controller:
         $('#newItemObservations').on('tbwchange', function (e) {
-            @this.
-            set('observations', e.target.value)
+            @this.set('observations', e.target.value)
         });
 
         //Ordenación de bloques:

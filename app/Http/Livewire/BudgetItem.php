@@ -55,7 +55,7 @@ class BudgetItem extends Component{
     public $total_amount;
     public $sub_total;
     public $rowId;
-    public $tempSubToralRow;
+    public $tempSubTotalRow;
 
     protected $rules = [
         'block' => 'required|integer',
@@ -68,7 +68,7 @@ class BudgetItem extends Component{
         $this->blocks = BudgetFormItems::getBudgetBlocks($order->form_id, $order->id);
 
         $this->amount_by_blocks = [];
-        $this->tempSubToralRow = 0;
+        $this->tempSubTotalRow = 0;
         $this->rowId = 0;
         $this->sub_total = [];
         $this->co_iva = CompanySettings::co_iva();
@@ -80,17 +80,18 @@ class BudgetItem extends Component{
         $this->items_selected = [];
 
         //Bloqueo de factura. Se pueden agregar o eliminar items de un presupuesto si la factura o facturas no están todas bloqueadas.
-        $this->add_items = false;
-        $invoices = Invoice::select('blocked')->where('order_id', $order->id)->get();
-        if($invoices->count()){
-            foreach ($invoices as $inv) {
-                if ($inv->blocked == 0) {
-                    $this->add_items = true;
-                }
-            }
-        } else {
-            $this->add_items = true;
-        }
+        //18/12/22: se mantiene -temporalmente- que se puedan añadir items en un presupuesto en cualquier momento.
+        $this->add_items = true;
+        // $invoices = Invoice::select('blocked')->where('order_id', $order->id)->get();
+        // if($invoices->count()){
+        //     foreach ($invoices as $inv) {
+        //         if ($inv->blocked == 0) {
+        //             $this->add_items = true;
+        //         }
+        //     }
+        // } else {
+        //     $this->add_items = true;
+        // }
 
         $this->form_on = false;
 
@@ -150,6 +151,10 @@ class BudgetItem extends Component{
             }
         }
 
+        //Subtotal de la línea editada con precio indefinido:
+        if($this->price == '0' || !is_numeric($this->price)){
+            $this->tempSubTotalRow = '0';
+        }
 
         return view('livewire.budget-item');
     }
@@ -467,10 +472,10 @@ class BudgetItem extends Component{
             }
 
             if (!$this->discount) {
-                $this->tempSubToralRow = $subtotal;
+                $this->tempSubTotalRow = $subtotal;
             } else {
                 $discount = $this->discount * $subtotal / 100;
-                $this->tempSubToralRow = $subtotal - $discount;
+                $this->tempSubTotalRow = $subtotal - $discount;
             }
         }
     }
@@ -483,18 +488,16 @@ class BudgetItem extends Component{
      */
     public function changePrice($price){
         if (is_numeric($price)) {
-
-
             if (!$this->days) {
                 $subtotal = $this->qty * $price;
             } else {
                 $subtotal = $this->qty * $price * $this->days;
             }
             if (!$this->discount) {
-                $this->tempSubToralRow = $subtotal;
+                $this->tempSubTotalRow = $subtotal;
             } else {
                 $discount = $this->discount * $subtotal / 100;
-                $this->tempSubToralRow = $subtotal - $discount;
+                $this->tempSubTotalRow = $subtotal - $discount;
 
             }
         }
@@ -517,9 +520,9 @@ class BudgetItem extends Component{
 
             if (is_numeric($discount)) {
                 $discount = $discount * $subtotal / 100;
-                $this->tempSubToralRow = $subtotal - $discount;
+                $this->tempSubTotalRow = $subtotal - $discount;
             } else {
-                $this->tempSubToralRow = $subtotal;
+                $this->tempSubTotalRow = $subtotal;
             }
 
         }
@@ -540,10 +543,10 @@ class BudgetItem extends Component{
             }
 
             if (!$this->discount) {
-                $this->tempSubToralRow = $subtotal;
+                $this->tempSubTotalRow = $subtotal;
             } else {
                 $discount = $this->discount * $subtotal / 100;
-                $this->tempSubToralRow = $subtotal - $discount;
+                $this->tempSubTotalRow = $subtotal - $discount;
 
             }
         }

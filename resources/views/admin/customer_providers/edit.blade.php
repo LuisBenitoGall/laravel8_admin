@@ -2,6 +2,8 @@
 
 @section('content')
 
+<input type="hidden" id="dtCompany" value="{{ $company->id }}">
+
 <div class="row mb-3">
 	{{-- Acciones: --}}
 	<div class="col-sm-12">
@@ -21,15 +23,30 @@
 	<div class="col-12">
 		<div class="card mb-3">
 			<div class="card-body">	
-				<h3 class="mb-4"><u>{{ ucfirst($company->name) }}</u></h3>	
+				<h3 class="mb-3"><u>{{ ucfirst($company->name) }}</u></h3>	
 
-				<form method="post" autocomplete="off" action="{{ route('companies.update', $company->id) }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
-					@method('PUT')
-					{{ csrf_field() }}
-					<input type="hidden" name="business_relationship" value="{{ $business_relationship }}">
+				{{-- Tabs: --}}
+				<ul class="nav nav-tabs" role="tablist">
+					<li class="nav-item @if(!$tab) active @endif">
+			    		<a class="nav-link @if(!$tab) active @endif" href="#tab-info" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.pedido_cabecera')) !!}</a>
+			  		</li>
 
-					@include('admin.companies.partials.form-edit', ['company' => $company])
-				</form>
+			  		<li class="nav-item @if($tab == 'users') active @endif">
+			  			<a class="nav-link @if($tab == 'users') active @endif" href="#tab-users" role="tab" data-toggle="tab">{{ ucfirst(trans('textos.usuarios')) }}</a>
+			  		</li>
+			  	</ul>
+
+			  	<div class="tab-content pt-4">
+					{{-- Cabecera --}}
+					<div class="tab-pane fade @if(!$tab) show active @endif" role="tabpanel" id="tab-info">
+						@include('admin.customer_providers.partials.customer-providers-info')
+					</div>
+
+					{{-- Usuarios --}}
+					<div class="tab-pane fade @if($tab == 'users') show active @endif" role="tabpanel" id="tab-users">
+						@include('admin.customer_providers.partials.customer-providers-users')
+					</div>
+				</div>				
 			</div>
 		</div>
 	</div>
