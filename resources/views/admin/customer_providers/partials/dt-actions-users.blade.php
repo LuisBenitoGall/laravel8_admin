@@ -1,0 +1,1 @@
+<a target="_blank" href="{{ route('users.show', $row->id) }}" class="btn btn-xs btn-info btn-module" rel="tooltip" title="{{ ucfirst(trans('textos.usuario_ver')) }}"><i class="fa fa-eye"></i></a>

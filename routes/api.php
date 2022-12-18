@@ -142,6 +142,9 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     //CustomerProducts:
     Route::get('customer-products/{customer_id}/{ba_id?}/{cc_id?}', 'CustomerProductsController@getProductsDT');
 
+    //CustomerProvidersUsers:
+    Route::get('customer-providers-users/{company_id}', 'CustomerProvidersController@getUsersDT');
+
     //Customers:
     Route::get('customers', 'CustomerProvidersController@getCustomersDT');
 

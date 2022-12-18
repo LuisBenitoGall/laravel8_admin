@@ -338,7 +338,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     // Customers:
     Route::get('customers', 'CustomerProvidersController@customers')->name('customers.index');
     Route::get('customers/create', 'CustomerProvidersController@createCustomer')->name('customers.create')->middleware('permission:customers.create');
-    Route::get('customers/{company}/edit', 'CustomerProvidersController@editCustomer')->name('customers.edit')->middleware('permission:customers.edit');
+    Route::get('customers/{company}/edit/{tab?}', 'CustomerProvidersController@editCustomer')->name('customers.edit')->middleware('permission:customers.edit');
     Route::get('customers/status/{id}/{status}', 'CustomerProvidersController@status')->name('customers.status')->middleware('permission:customers.edit');
     Route::delete('customers/{cp}', 'CustomerProvidersController@destroy')->name('customers.destroy')->middleware('permission:customers.destroy');
     Route::get('customers/{cp}/show', 'CustomerProvidersController@show')->name('customers.show')->middleware('permission:customers.show');

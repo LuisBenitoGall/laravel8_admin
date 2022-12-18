@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Helpers\helpers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -57,6 +58,7 @@ class CustomerProvidersController extends Controller{
      * 16. Condiciones de pago de cliente.
      * 17. Actualizar condiciones de pago de cliente.
      * 18. Obtener formulario de presupuesto por defecto de cliente.
+     * 19. Usuarios por empresa para DataTable.
      */
     
     private $option = 'empresas';
@@ -259,7 +261,7 @@ class CustomerProvidersController extends Controller{
     /**
      * 3.1. Editar cliente.
      */
-    public function editCustomer(Company $company){
+    public function editCustomer(Company $company, $tab = false){
         $header = [
             'option' => 'clientes', 
             'suboption' => 'textos.cliente_editar',
@@ -278,7 +280,7 @@ class CustomerProvidersController extends Controller{
 
         $business_relationship = 'customers';
 
-        return view('admin.customer_providers.edit')->with(compact('header', 'company', 'workplaces', 'areas', 'acronym', 'business_relationship'));     
+        return view('admin.customer_providers.edit')->with(compact('header', 'company', 'tab', 'workplaces', 'areas', 'acronym', 'business_relationship'));     
     }
 
     /**
@@ -353,7 +355,7 @@ class CustomerProvidersController extends Controller{
     /**
      * 4.1. Editar proveedor.
      */
-    public function editProvider(Company $company){
+    public function editProvider(Company $company, $tab = false){
         $header = [
             'option' => 'proveedores', 
             'suboption' => 'textos.proveedor_editar',
@@ -372,7 +374,7 @@ class CustomerProvidersController extends Controller{
 
         $business_relationship = 'providers';
 
-        return view('admin.customer_providers.edit')->with(compact('header', 'company', 'workplaces', 'areas', 'acronym', 'business_relationship'));     
+        return view('admin.customer_providers.edit')->with(compact('header', 'company', 'tab', 'workplaces', 'areas', 'acronym', 'business_relationship'));     
     }
 
     /**
@@ -899,6 +901,67 @@ class CustomerProvidersController extends Controller{
 
             return response()->json($data);
         }
+    }
+
+    /**
+     * 19. Usuarios por empresa para DataTable.
+     */
+    public function getUsersDT($company_id){
+        $data = User::with('phones')->select('users.*', 'user_companies.categories',
+            DB::raw('(SELECT image FROM user_images WHERE user_id = users.id AND featured = 1) AS Image')
+            )
+        ->join('user_companies', 'users.id', '=', 'user_companies.user_id')
+        ->where('user_companies.company_id', $company_id)
+        ->groupBy('users.id')
+        ->orderBy('users.name');
+
+        return DataTables::of($data)
+        ->addColumn('user', function($row){
+            return $row->name.' '.$row->surname;
+        })
+        ->addColumn('email', function($row){
+             return '<a target="_blank" href="mailto:'.$row->email.'">'.$row->email.'</a>';
+        })
+        ->addColumn('phones', function($row){
+            $phones = '';
+            $data_phones = $row->phones;
+            $i = 0;
+            if($data_phones->count() > 0){
+                foreach($data_phones as $p){
+                    if($i > 0){
+                        $phones .= ' - ';
+                    }
+                    $phones .= $p->phone_number;
+                    $i++;
+                }
+            }
+            return $phones;
+        })
+        ->addColumn('categories', function($row){
+            $categories = '';
+            if($row->categories){
+                $arr = explode(',', $row->categories);
+                $obj_categories = Category::whereIn('id', $arr)
+                ->pluck('name')
+                ->toArray();
+
+                $categories = implode(', ', $obj_categories);
+            }
+
+            return $categories;
+        })
+        ->addColumn('image', function($row){
+            if($row->Image){
+                return '<img src="'.asset('img/users/'.$row->Image).'" class="img-circle" width="36">';
+            }else{
+                return helpers::setAvatar($row->name, $row->surname);
+            }
+        })
+        ->addColumn('acciones', function($row){
+            return view('admin.customer_providers.partials.dt-actions-users', compact('row'));
+        })
+        ->rawColumns(['email', 'image'])
+        ->make(true);
     }
 
 }
