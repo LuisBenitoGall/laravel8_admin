@@ -1399,6 +1399,7 @@ return array(
 	'n_antiguo' => 'Nº antiguo',
 	'contabilidad' => 'Contabilidad',
 	'fecha_final' => 'Fecha finalización',
+	'fecha_comprobante' => 'Fecha de comprobante',
 	'fecha_constitucion' => 'Fecha constitución',
 	'fecha_vencimiento' => 'Fecha vencimiento',
 	'fecha_vencimiento_prevista' => 'Fecha vencimiento prevista',
@@ -2806,4 +2807,9 @@ return array(
 	'cierre_mensual_compras_aviso' => 'Actualmente no se pueden generar o editar facturas de compra.',
 	'cierre_mensual_compras_texto' => 'Bloqueo de la generación o edición de facturas de compra durante el mes actual.',
 	'estructura_gastos' => 'Estructura de gastos',
+	'favorito' => 'favorito',
+	'favorito_confirm_eliminar' => 'Confirma que deseas eliminar este favorito.',
+	'favorito_deleted' => 'El favorito se ha eliminado correctamente',
+	'favoritos' => 'favoritos',
+	'favoritos_sin' => 'No tienes seleccionado ningún favorito en este momento.',
 );

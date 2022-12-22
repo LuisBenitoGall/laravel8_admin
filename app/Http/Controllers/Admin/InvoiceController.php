@@ -1251,9 +1251,12 @@ class InvoiceController extends Controller{
 
         //Compra:
         }else{
+            $check_in_date = $request->check_in_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->check_in_date):$request->check_in_date:NULL;
+
             $invoice->customer_observations = $request->observations;  
             $invoice->accounting_structure_id = $request->accounting_structure;
             $invoice->accounting_concept_id = $request->accounting_concept;
+            $invoice->check_in_date = $check_in_date;
         }
 
         $invoice->save();
