@@ -16,6 +16,12 @@
     		</a>
         @endcan
 
+        {{-- Favoritos --}}
+        <a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-favourites">
+			<i class="fa fa-star"></i>
+			{!! ucfirst(trans('textos.favoritos')) !!}
+		</a>
+
         {{-- Estadísticas --}}
         <a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-statistics">
 			<i class="fa fa-chart-bar"></i>
@@ -102,7 +108,47 @@ $str_status_values = $status_values? implode(',', $status_values):'';
 </div>
 
 {{-- Modals: --}}
+{{-- Favoritos --}}
+@include('admin.projects.partials.modal-favourites')
+
 {{-- Statistics --}}
 @include('admin.projects.partials.modal-statistics')
+
+@push('scripts')
+<script>
+$(function(){
+	//Agregar favorito.
+	$(document).on('click', '.btnFav', function(){
+		var project = $(this).data('project');
+		var elem = $(this);
+		if(elem.hasClass('selected')){
+			var status = 'off';
+		}else{
+			var status = 'on';
+		}
+
+		$.get('/admin/project-favourites/status/'+project+'/'+status, function (response, state){
+            if(response){
+            	if(status == 'on'){
+            		elem.addClass('selected');
+            	}else{
+            		elem.removeClass('selected');	
+            	}
+            }
+    	});
+	});
+
+	//Modal favoritos:
+	var favourites = {!! json_encode($favourites) !!};
+	if(favourites.length > 0){
+		$('#modal-favourites').modal({
+            backdrop: 'static',
+            keyboard: false,
+            toggle: true
+        });	
+	}
+});
+</script>
+@endpush
 
 @endsection

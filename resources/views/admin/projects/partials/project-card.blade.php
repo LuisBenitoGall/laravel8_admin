@@ -20,13 +20,13 @@
         @endif
 
         {{-- <h4>Info about Design Team</h4> --}}
-        <p>
+        {{-- <p> --}}
             @php
-            $text = $project->description? App\Helpers\helpers::truncate($project->description):'';
+            //$text = $project->description? App\Helpers\helpers::truncate($project->description):'';
             @endphp
 
-            {!! $text !!}
-        </p>
+            {{-- {!! $text !!} --}}
+        {{-- </p> --}}
         <div>
             <span>{{ ucfirst(trans('textos.progreso')) }}:</span>
             <div class="stat-percent">{{ $project->completed }}%</div>

@@ -4322,13 +4322,19 @@ $(document).ready(function(){
         var status = $('#dtStatus').val();
 
         //Filters:
+        var jsonData = JSON.parse(localStorage.getItem('DataTables_tblProjects_'+window.location.pathname));
+
         $('#tblProjects thead tr').clone(true).appendTo('#tblProjects thead');
         $('#tblProjects thead tr:eq(1) th').each(function(i){
             var title = $(this).text(); 
-            if(i == 6 || i == 7 || i == 9){
+            if(i == 5 || i == 6 || i == 7 || i == 9){
                 $(this).html('');
             }else{
-                $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
+                let value = jsonData && jsonData.columns[i].search.search ? jsonData.columns[i].search.search : '';
+                let htmlRaw = `<input type="text" class="DTsearch" placeholder="${txtBuscar+' '+title}" value="${value}" />`
+                $(this).html(htmlRaw);
+
+                // $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
                 // aquí el código retirado
                 
             }
@@ -4346,6 +4352,7 @@ $(document).ready(function(){
         var tableProjects = $('#tblProjects').DataTable({
             serverSide: true,
             processing: true,
+            stateSave: true,
             ajax: {
                 "type": "GET",
                 "url": "/api/admin/projects/"+status,
@@ -4354,113 +4361,17 @@ $(document).ready(function(){
                 }
             },
             columns: [
-                {data: 'name'},
-                {data: 'customer'},
-                {data: 'id', className: 'text-right'},
-                {data: 'id', className: 'text-right'},
-                {data: 'id', className: 'text-right'},
+                {data: 'name', name: 'projects.name'},
+                {data: 'customer', name: 'companies.name'},
+                {data: 'alta', className: 'text-right'},
+                {data: 'entrega_prevista', className: 'text-right'},
+                {data: 'entrega', className: 'text-right'},
                 {data: 'hours_forecast', className: 'text-right'},
-                {data: 'hours_worked'},
-                {data: 'id', className: 'position-relative'},
-                {data: 'estado'},
-                {data: 'id', className: 'text-right'}
-            ],
-            columnDefs: [
-                {"targets": 0,
-                "render": function(data, type, row){
-                    return '<a href="/admin/projects/'+row['id']+'/edit">'+row['name']+'</a>';
-                }
-                },
-                {"targets": 2,
-                "render": function(data, type, row){
-                    return '<span style="display: none">'+row['created_at']+'</span>'+row['alta'];
-                }
-                },
-                {"targets": 3,
-                "render": function(data, type, row){
-                    return '<span style="display: none">'+row['estimated_delivery_date']+'</span>'+row['prevista'];
-                }
-                },
-                {"targets": 4,
-                "render": function(data, type, row){
-                    return '<span style="display: none">'+row['delivery_date']+'</span>'+row['entrega'];
-                }
-                },
-                {"targets": 6,
-                "visible": false
-                },
-                {"targets": 7,
-                "render": function(data, type, row){
-                    var completed = row['completed'] > 100? 100:row['completed'];
-
-                    var progress = '';
-                    if(completed > 0){
-                        progress += '<div class="tooltip-fixed"><span class="tooltiptext" style="left: calc('+completed+'% - 26px)">'+completed+'%</span></div>';
-                    }
-                    progress += '<div class="progress progress-mini  mx-1"><div style="width: '+completed+'%;" class="progress-bar"></div></div>';
-
-                    return progress;
-                }
-                },
-                {"targets": -2,
-                "render": function(data, type, row){
-                    return '<span class="xoption-'+row['id']+'">'+row['estado']+'</span>'; 
-                }
-                }, 
-                {"targets": -1,
-                "render": function(data, type, row){
-                    //Estado múltiple:
-                    var estado = multipleStatus(row['estados'], row['status'], row['id']);
-
-                    //Editar:
-                    var editar = '';
-                    if(row['editar']){
-                        var editar = '<a href="/admin/projects/'+row['id']+'/edit" class="btn btn-xs btn-info" rel="tooltip" title="'+txtEditar+'"><i class="fa fa-edit"></i></a>';
-                    }
-
-                    //Eliminar:
-                    var eliminar = '';
-                    if(row['eliminar']){
-                        var eliminar = '<form method="POST" action="/admin/projects/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
-                            eliminar += '<input name="_method" type="hidden" value="DELETE">';
-                            eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
-                            eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtEliminar+'" data-msg="'+txtProyectoConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
-                        eliminar += '</form>';
-                    }
-
-                    return estado+' '+editar+' '+eliminar;
-                }
-                }
-            ],
-            "footerCallback": function(row, data, start, end, display){
-                var api = this.api(), data;
-
-                var intVal = function(i){
-                    return i;
-                };
-
-                //Total por filtro aplicado:
-                hours_forecast = api
-                .column(5, { search: 'applied' })
-                .data()
-                .reduce(function(a, b){
-                    return intVal(a) + intVal(b);
-                }, 0);
-
-                //Horas trabajadas:
-                hours_worked = api
-                .column(6, { search: 'applied' })
-                .data()
-                .reduce(function(a, b){
-                    return intVal(a) + intVal(b);
-                }, 0);
-
-                var pending = hours_forecast - hours_worked;
-
-                $(api.column(5).footer()).html(
-                    hours_forecast.toFixed(2)+' / '+pending.toFixed(2)
-                );
-            }
+                {data: 'hours_worked', visible: false},
+                {data: 'progress', className: 'position-relative'},
+                {data: 'estado', name: 'estado'},
+                {data: 'acciones', orderable: false, searchable: false, className: 'text-right'}
+            ]
         });
     }
 
