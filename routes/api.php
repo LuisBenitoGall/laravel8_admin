@@ -26,6 +26,7 @@ use App\Http\Controllers\Api\CompanyProductPatternsController;
 use App\Http\Controllers\Api\CompanyProductsController;
 use App\Http\Controllers\Api\CompanyPurchasePatternsController;
 use App\Http\Controllers\Api\CompanyQuestionsController;
+use App\Http\Controllers\Api\CompanyStaffPicksController;
 use App\Http\Controllers\Api\CompanyWorkOrderPatternsController;
 
 use App\Http\Controllers\Api\CompanyWorkOrdersController;
@@ -49,6 +50,8 @@ use App\Http\Controllers\Api\QuestionAnswersController;
 use App\Http\Controllers\Api\UserInvoicesController;
 use App\Http\Controllers\Api\UserOrdersController;
 use App\Http\Controllers\Api\UserProductsController;
+use App\Http\Controllers\Api\UserStaffPickCandidatesController;
+use App\Http\Controllers\Api\UserStaffPicksController;
 use App\Http\Controllers\Api\UserWorkOrdersController;
 use App\Http\Controllers\Api\UserWorkplacesController;
 
@@ -368,8 +371,8 @@ Route::prefix('v1')->namespace('Api')->group(function () {
 
     Route::middleware('auth:api')
         ->get('/user', function (Request $request) {
-            $user =collect($request->user());
-            return $user->merge(['img_company'=> asset('img/companies/'.$request->user()->companies()[0]->logo)]);
+            $user = collect($request->user());
+            return $user->merge(['img_company' => asset('img/companies/' . $request->user()->companies()[0]->logo)]);
 
         })
         ->name('api.user');
@@ -983,6 +986,47 @@ Route::prefix('v1')->namespace('Api')->group(function () {
 
             // Device Push
             Route::apiResource('device-pushes', DevicePushController::class);
+
+            // Company Staff Picks
+            Route::get('/companies/{company}/staff-picks', [
+                CompanyStaffPicksController::class,
+                'index',
+            ])->name('companies.staff-picks.index');
+            Route::post('/companies/{company}/staff-picks', [
+                CompanyStaffPicksController::class,
+                'store',
+            ])->name('companies.staff-picks.store');
+
+            // User Staff Pick Candidates
+            Route::get('/users/{user}/staff-pick-candidates', [
+                UserStaffPickCandidatesController::class,
+                'index',
+            ])->name('users.staff-pick-candidates.index');
+            Route::post('/users/{user}/staff-pick-candidates', [
+                UserStaffPickCandidatesController::class,
+                'store',
+            ])->name('users.staff-pick-candidates.store');
+
+            // User Staff Picks
+            Route::get('/users/{user}/staff-picks', [
+                UserStaffPicksController::class,
+                'index',
+            ])->name('users.staff-picks.index');
+            Route::post('/users/{user}/staff-picks', [
+                UserStaffPicksController::class,
+                'store',
+            ])->name('users.staff-picks.store');
+
+            // User Staff Picks2
+            Route::get('/users/{user}/staff-picks', [
+                UserStaffPicksController::class,
+                'index',
+            ])->name('users.staff-picks.index');
+            Route::post('/users/{user}/staff-picks', [
+                UserStaffPicksController::class,
+                'store',
+            ])->name('users.staff-picks.store');
+
         });
 
     /**
