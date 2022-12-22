@@ -748,6 +748,10 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::get('project-docs/set-thumb/{project}/{image}', 'ProjectDocsController@setThumb')->name('project-docs.set-thumb')->middleware('permission:projects.edit');
     Route::get('project-docs/{doc}/destroy', 'ProjectDocsController@destroy')->name('project-docs.destroy')->middleware('permission:projects.edit');
 
+    // Project Favourites:
+    Route::get('project-favourites/status/{project}/{status}', 'ProjectFavouriteController@status')->name('project-favourites.status');
+    Route::get('project-favourites/{project_id}/delete', 'ProjectFavouriteController@delete')->name('project-favourites.delete');
+
     // Project Orders:
     Route::post('project-orders/store', 'ProjectOrdersController@store')->name('project-orders.store')->middleware('permission:projects.edit');
 

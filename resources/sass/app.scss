@@ -3113,8 +3113,13 @@ div.dt-button-info {
         }
     }
 }
-.widget.style1 h2 {
-  font-size: 30px;
+.widget.style1{ 
+    h2 {
+        font-size: 30px;
+    }
+    a{
+        color: #FFF;
+    }
 }
 .widget h2,
 .widget h3 {
@@ -11557,6 +11562,14 @@ ul{
 #sort-blocks{
     li{
         cursor: pointer;
+    }
+}
+
+.btnFav{
+    &.selected{
+        .fa{
+            color: $orange !important;
+        }
     }
 }
 
