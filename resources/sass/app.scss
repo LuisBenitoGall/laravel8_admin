@@ -11573,6 +11573,53 @@ ul{
     }
 }
 
+#functionalities{
+    .ibox-content{ 
+        padding-bottom: 0;
+    }
+}
+
+.scroll-to-top{
+    /* alineacion vertical */
+    align-items: center;
+    background-color: $primary;
+    border-radius: 50%;
+    bottom: 15px;
+    color: #FFF;
+    cursor: pointer;
+    -ms-display: flex;
+    display: flex;
+    // display: none;
+    font-size: 26px;
+    height: 40px;
+    /* alineacion horizontal */
+    justify-content: center;
+    position: fixed;
+    right: 46px;
+    text-align: center;
+    text-decoration: none;
+    transition: .3s;
+    width: 40px;
+    z-index: 50;
+    
+    &:hover{
+        color: #ccc;
+        text-decoration:none;
+    }
+  
+    .sr-only{
+        border: 0;
+        clip: rect(0,0,0,0);
+        height: 1px;
+        margin: -1px;
+        overflow: hidden;
+        padding: 0;
+        position: absolute;
+        width: 1px;     
+    }   
+}
+
+
 /**
  * RESPONSIVE MEDIA QUERIES
  */

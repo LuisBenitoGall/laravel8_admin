@@ -30635,6 +30635,47 @@ ul li.rev .fa {
   color: #f6993f !important;
 }
 
+#functionalities .ibox-content {
+  padding-bottom: 0;
+}
+
+.scroll-to-top {
+  /* alineacion vertical */
+  align-items: center;
+  background-color: #23c6c8;
+  border-radius: 50%;
+  bottom: 15px;
+  color: #FFF;
+  cursor: pointer;
+  -ms-display: flex;
+  display: flex;
+  font-size: 26px;
+  height: 40px;
+  /* alineacion horizontal */
+  justify-content: center;
+  position: fixed;
+  right: 46px;
+  text-align: center;
+  text-decoration: none;
+  transition: 0.3s;
+  width: 40px;
+  z-index: 50;
+}
+.scroll-to-top:hover {
+  color: #ccc;
+  text-decoration: none;
+}
+.scroll-to-top .sr-only {
+  border: 0;
+  clip: rect(0, 0, 0, 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+}
+
 /**
  * RESPONSIVE MEDIA QUERIES
  */

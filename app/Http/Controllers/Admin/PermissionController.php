@@ -13,6 +13,7 @@ use Illuminate\Validation\Rule;
 
 //Models:
 use App\Models\Functionality;
+use App\Models\Module;
 use App\Models\User;
 use App\Models\WorkUserCalendar;
 use Spatie\Permission\Models\Permission;
@@ -156,6 +157,7 @@ class PermissionController extends Controller{
         $functionalities = Functionality::permissionsJoinModule();
 
         $permissions = Permission::get();
+        $modules = Module::orderBy('label', 'ASC')->get();
 
         //Obtenemos los permisos vinculados al rol. Estos permisos no pueden ser eliminados si no se desvincula antes al usuario del rol asignado.
         $role_permissions = $user->getPermissionsViaRoles();
@@ -164,7 +166,7 @@ class PermissionController extends Controller{
             array_push($role_permissions_arr, $rp->id);
         }
 
-        return view('admin.permissions.user')->with(compact('header', 'user', 'previous_url', 'roles', 'user_permissions', 'functionalities', 'permissions', 'role_permissions_arr'));
+        return view('admin.permissions.user')->with(compact('header', 'user', 'previous_url', 'roles', 'user_permissions', 'functionalities', 'permissions', 'modules', 'role_permissions_arr'));
     }
 
     /**

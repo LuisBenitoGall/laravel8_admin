@@ -160,6 +160,7 @@ $(document).ready(function () {
     2. Editor texto.
     3. Botón animado.
     4. Scroll top horizontal.
+        4.1. Scroll top vertical.
     5. Popover.
     6. Botón Ladda.
     7. Bloquear doble submit en formularios.
@@ -234,6 +235,12 @@ $(document).ready(function () {
     });
     $(".scroll-bottom").scroll(function () {
         $(".scroll-top").scrollLeft($(".scroll-bottom").scrollLeft());
+    });
+
+    // 4.1. Scroll top vertical.
+    $('.scroll-to-top').on('click', function(e){
+        e.preventDefault();
+        $('html, body').animate({scrollTop : 0}, 1000);
     });
 
     // 5. Popover.
@@ -315,6 +322,7 @@ $(window).on('load', function () {
     28. Cálculo precio + precio con iva en gastos.
     29. Guardar preferencia.
     30. Selector cuenta de gastos por estructura.
+    31. Desplegar bloque de permisos.
     */
 
     // 1. Eliminar preview imagen seleccionada:
@@ -1132,6 +1140,22 @@ $(window).on('load', function () {
                 });
             }
         });
+    });
+
+    // 31. Desplegar bloque de permisos.
+    $('.btnSlideAllPermissions').on('change', function(){
+        if($(this).is(':checked')){
+            $('.ibox').each(function(){
+                $(this).addClass('border-bottom');
+                $(this).find('.ibox-content').slideDown();
+            });
+            
+        }else{
+            $('.ibox').each(function(){
+                $(this).removeClass('border-bottom');
+                $(this).find('.ibox-content').slideUp();
+            });
+        } 
     });
 
 });

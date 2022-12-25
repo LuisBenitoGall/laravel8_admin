@@ -176,8 +176,12 @@ class RoleController extends Controller{
             'slug' => 'roles'
         ]; 
 
+        //Sincronizar permisos sobre los módulos:
+        $this->syncModulePermissions($role);
+
         $functionalities = Functionality::permissionsJoinModule();
         $permissions = Permission::get();
+        $modules = Module::orderBy('label', 'ASC')->get();
 
         //Obtenemos permisos del rol:
         $data = $role->permissions;
@@ -195,7 +199,7 @@ class RoleController extends Controller{
 
         $action = 'edit';
 
-        return view('admin.roles.edit', compact('header', 'role', 'functionalities', 'permissions', 'role_permissions', 'companies', 'action'));    
+        return view('admin.roles.edit', compact('header', 'role', 'functionalities', 'permissions', 'modules', 'role_permissions', 'companies', 'action'));    
     }
 
     /**
@@ -222,7 +226,7 @@ class RoleController extends Controller{
         //$role->syncPermissions($request->permissions);
 
         //3º Permisos sobre los módulos:
-        //$this->syncModulePermissions($role);
+        $this->syncModulePermissions($role);
 
         //4ª Actualizar situación administrador de usuarios con este rol:
         if($role->permissions->count()){

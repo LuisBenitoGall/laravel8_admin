@@ -17,6 +17,8 @@ $secondary_menu = json_decode(file_get_contents($pathMenuOp), true);
 if(session()->get('locale') == NULL){
 	\Session::put('locale', App::getLocale());    
 } 
+
+//dd(Auth::user()->getRoleNames(), Auth::user()->getAllPermissions());
 @endphp
 
 <body onload="horaActual()" @yield('on-load')>
@@ -57,6 +59,7 @@ if(session()->get('locale') == NULL){
 	                {{-- Menu básico --}}
 					@foreach($menu as $option)
                         @if($option['active'])
+                            {{-- Acceso al módulo --}}
                             @can($option['permission'])
                             	<li @if(isset($header['module']) && $option['module'] == $header['module']) class="active" @endif>
                             		<a href="{{ ($option['url'] != '')? route($option['url']):'#' }}">
@@ -81,8 +84,12 @@ if(session()->get('locale') == NULL){
                                                     @endphp
                                                 @endif
 
+                                                @if($suboption['slug'] == 'company-settings____')
+                                                    {{ dd($suboption, Auth::user()->can($suboption['slug'])) }}
+                                                @endif
+
                                                 @if($paintOption)
-                                                    @can($suboption['permission'])
+                                                    @can($suboption['slug'].'.index')
                                                         <li @if(isset($header['slug']) && isset($suboption['slug']) && $header['slug'] == $suboption['slug']) class="active" @endif>
                                                             @php
                                                             $ruta = $suboption['url'];
@@ -111,9 +118,9 @@ if(session()->get('locale') == NULL){
                         	{{-- El módulo debe estar activo para la empresa --}}
                         	@if(session('modules') && in_array($option['id'], session('modules')))
                         		{{-- El usuario debe tener acceso al modulo --}}
-                        		@can('module_'.$option['slug'])
-                        			<li @if(isset($header['module']) && $option['slug'] == $header['module']) class="active" @endif>
-                        				<a 
+                                @can('module_'.$option['slug'])
+                                    <li @if(isset($header['module']) && $option['slug'] == $header['module']) class="active" @endif>
+                                        <a 
                                             class="@if(isset($header) && $header['option'] == $option['slug']) active @endif" href="{{ !is_array($option['functionalities'])? route($option['slug'].'.index'):'#' }}">
                                             <i class="fa fa-{{ $option['icon'] }}"></i>
                                             <span class="nav-label">@if($option['label']) {!! ucfirst(trans('textos.'.$option['label'])) !!} @else {!! ucfirst(trans('textos.'.$option['slug'])) !!} @endif</span>
@@ -124,11 +131,15 @@ if(session()->get('locale') == NULL){
                                         </a>
 
                                         @if(is_array($option['functionalities']))
-                                        	<ul class="nav nav-second-level">
+                                            <ul class="nav nav-second-level">
                                                 @foreach($option['functionalities'] as $func)  
                                                     @php
                                                     $ruta = !in_array($func['slug'], $slug_exceptions)? $func['slug'].'.index':$func['slug'];
                                                     @endphp
+
+                                                    @if($func['slug'] == 'company-settings')
+                                                        {{ dd($func) }}
+                                                    @endif
 
                                                     {{-- Funcionalidad --}}
                                                     @can($func['slug'].'.index')
@@ -180,8 +191,8 @@ if(session()->get('locale') == NULL){
                                                 @endforeach
                                             </ul>
                                         @endif
-                        			</li>
-                        		@endcan
+                                    </li>
+                                @endcan
                         	@endif
                         @endforeach
                     @endif
@@ -196,7 +207,6 @@ if(session()->get('locale') == NULL){
                         </li>
                     {{-- @endcan --}}
 	            </ul>
-
 	        </div>
 	    </nav>
 
