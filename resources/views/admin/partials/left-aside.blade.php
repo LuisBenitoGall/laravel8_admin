@@ -84,10 +84,6 @@ if(session()->get('locale') == NULL){
                                                     @endphp
                                                 @endif
 
-                                                @if($suboption['slug'] == 'company-settings____')
-                                                    {{ dd($suboption, Auth::user()->can($suboption['slug'])) }}
-                                                @endif
-
                                                 @if($paintOption)
                                                     @can($suboption['slug'].'.index')
                                                         <li @if(isset($header['slug']) && isset($suboption['slug']) && $header['slug'] == $suboption['slug']) class="active" @endif>
