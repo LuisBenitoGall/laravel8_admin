@@ -104,6 +104,10 @@ $readonly = $invoice->blocked && !$is_sale || ($order->customer_id == session('c
 			<a href="{{ route('invoices.print', $invoice) }}" class="btn btn-info close-animation" rel="tooltip" title="{!! ucfirst(trans('textos.imprimir')) !!}">
 				<i class="fa fa-print"></i>
 			</a>
+
+			<a href="{{ route('invoices.print', [$invoice, true]) }}" class="btn btn-info close-animation" rel="tooltip" title="{!! ucfirst(trans('textos.imprimir_bn')) !!}">
+				<i class="fa fa-print"></i> B/N
+			</a>
 		@endif
 
 		{{-- Cancelar factura - condiciones:

@@ -1269,7 +1269,7 @@ class InvoiceController extends Controller{
     /**
      * 5. Imprimir factura.
      */
-    public function print(Invoice $invoice){
+    public function print(Invoice $invoice, $bn = false){
         if(!$invoice || $invoice->deleted_at){
             $alert = trans('textos.factura_no_existe');
             return redirect()->route('invoices.index')->with(compact('alert')); 
