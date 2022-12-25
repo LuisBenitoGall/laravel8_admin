@@ -536,6 +536,7 @@ return array(
 	'importe_total_texto' => 'El cálculo del importe total del pedido se obtiene con la suma de los importes de las líneas con precio fijo, más el importe de las líneas con precio porcentual, lo que consideramos importe neto. En caso de descuento, el importe total se obtiene de detraer el importe del descuento del importe neto.',
 	'importe_presupuesto' => 'Importe presupuesto',
 	'imprimir' => 'imprimir',
+	'imprimir_bn' => 'imprimir B/N',
 	'subtotal' => 'subtotal',
 	'equipo' => 'equipo',
 	'equipo_nuevo' => 'Nuevo equipo',
