@@ -31,7 +31,12 @@ $scroll_top = true;
 	<div class="col-12">
 		<div class="card mb-3">
 			<div class="card-body">
-				@include('admin.roles.partials.form')
+				<form method="post" autocomplete="off" action="{{ route('roles.update', $role->id) }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
+					@method('PUT')
+					{{ csrf_field() }}
+
+					@include('admin.roles.partials.form')
+
 			</div>
 		</div>
 	</div>
