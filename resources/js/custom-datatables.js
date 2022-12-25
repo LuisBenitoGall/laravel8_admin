@@ -4371,7 +4371,36 @@ $(document).ready(function(){
                 {data: 'progress', className: 'position-relative'},
                 {data: 'estado', name: 'estado'},
                 {data: 'acciones', orderable: false, searchable: false, className: 'text-right'}
-            ]
+            ],
+            "footerCallback": function(row, data, start, end, display){
+                var api = this.api(), data;
+
+                var intVal = function(i){
+                    return i;
+                };
+
+                //Total por filtro aplicado:
+                hours_forecast = api
+                .column(5, { search: 'applied' })
+                .data()
+                .reduce(function(a, b){
+                    return intVal(a) + intVal(b);
+                }, 0);
+
+                //Horas trabajadas:
+                hours_worked = api
+                .column(6, { search: 'applied' })
+                .data()
+                .reduce(function(a, b){
+                    return intVal(a) + intVal(b);
+                }, 0);
+
+                var pending = hours_forecast - hours_worked;
+
+                $(api.column(5).footer()).html(
+                    hours_forecast.toFixed(2)+' / '+pending.toFixed(2)
+                );
+            }
         });
     }
 

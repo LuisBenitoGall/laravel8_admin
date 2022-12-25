@@ -248,7 +248,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::get('companies/{company_id}/roles', 'CompanyController@getCompanyRoles')->name('companies.roles');
 
     // Company Accounts:
-    Route::get('company-accounts', 'CompanyAccountsController@index')->name('company-accounts.index');
+    Route::get('company-accounts', 'CompanyAccountsController@index')->name('company-accounts.index')->middleware('permission:my-account.edit');
     Route::get('company-accounts/create', 'CompanyAccountsController@create')->name('company-accounts.create')->middleware('permission:companies.create');
     Route::post('company-accounts/store', 'CompanyAccountsController@store')->name('company-accounts.store')->middleware('permission:companies.edit');
     Route::delete('company-accounts/{account}', 'CompanyAccountsController@destroy')->name('company-accounts.destroy')->middleware('permission:companies.destroy');
@@ -258,18 +258,18 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::post('company-calendar', 'CompanyCalendarController@calendarBy')->name('company-calendar.calendar-by');
 
     // Company Modules:
-    Route::get('company-modules', 'CompanyModulesController@index')->name('company-modules.index');
-    Route::get('company-modules/{slug}/store', 'CompanyModulesController@store')->name('company-modules.store');
-    Route::get('company-modules/{slug}/delete', 'CompanyModulesController@destroy')->name('company-modules.delete');
-    Route::get('company-modules/{slug}/is-setted', 'CompanyModulesController@isSetted')->name('company-modules.is-setted');
+    Route::get('company-modules', 'CompanyModulesController@index')->name('company-modules.index')->middleware('permission:company-settings.edit');
+    Route::get('company-modules/{slug}/store', 'CompanyModulesController@store')->name('company-modules.store')->middleware('permission:company-settings.edit');
+    Route::get('company-modules/{slug}/delete', 'CompanyModulesController@destroy')->name('company-modules.delete')->middleware('permission:company-settings.edit');
+    Route::get('company-modules/{slug}/is-setted', 'CompanyModulesController@isSetted')->name('company-modules.is-setted')->middleware('permission:company-settings.edit');
 
     // Company Notifications Management:
     Route::get('company-notifications-management', 'CompanyNotificationsManagementController@index')->name('company-notifications-management.index')->middleware('permission:company.edit');
     Route::post('company-notifications-management/store', 'CompanyNotificationsManagementController@store')->name('company-notifications-management.store')->middleware('permission:company.edit');
 
     // Company Settings:
-    Route::get('company-settings', 'CompanySettingsController@index')->name('company-settings.index');
-    Route::post('company-settings/update', 'CompanySettingsController@update')->name('company-settings.update');
+    Route::get('company-settings', 'CompanySettingsController@index')->name('company-settings.index')->middleware('permission:company-settings.index');
+    Route::post('company-settings/update', 'CompanySettingsController@update')->name('company-settings.update')->middleware('permission:company-settings.edit');
 
     // Company Sectors:
     Route::get('company-sectors/store/{company_id}/{category_id}', 'CompanySectorsController@store')->name('company-sectors.store');

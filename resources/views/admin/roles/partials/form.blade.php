@@ -52,27 +52,58 @@
 	</div>
 </form>
 
+{{-- Módulos --}}
+@if($role->name != config('constants.SUPER_ADMIN_'))
+	<div class="row">
+		<div class="col-12 py-3">
+			@foreach($modules as $mod_)
+				<a href="#module-{{ $mod_->slug }}">
+					<span class="label label-info mb-2 d-inline-block">{{ ucfirst(trans('textos.'.$mod_->label)) }}</span>
+				</a>
+			@endforeach
+		</div>
+	</div>
+@endif
+
 {{-- Loop functionalities --}}
 @if($action == 'create' || $role->name != config('constants.SUPER_ADMIN_'))
-	<div class="row">
-		@foreach($functionalities as $func)
-			<div class="col-md-6 col-lg-4 mb-3">
-				<div class="ibox collapsed">
-					<div class="ibox-title bg-muted">
-						<h4 class="text-center">
-							{{ ucfirst(trans('textos.'.$func->label)) }}
-						</h4>
-
-						<div class="ibox-tools">
-							<a class="collapse-link" data-slug="{{ $func->slug }}">
-                                <i class="fa fa-chevron-up"></i>
-                            </a>
+	<div class="row" id="functionalities">
+		{{-- Agrupamos las funcionalidades por módulo --}}
+		@foreach($modules as $mod)
+			<div class="col-12 mb-2" id="module-{{ $mod->slug }}">
+				<div class="widget style1" style="background-color: {{ $mod->color }}; color: #FFF;">
+                    <div class="row vertical-align">
+                        <div class="col-12">
+                        	<h3>{{ strtoupper(trans('textos.'.$mod->label)) }}</h3>
                         </div>
                     </div>
-
-                    @livewire('permissions-component', ['role' => $role, 'functionality' => $func], key($func->id))
-				</div>
+                </div>
 			</div>
+
+			@foreach($functionalities as $func)
+				@if($func->module_id == $mod->id)
+					<div class="col-md-6 col-lg-4">
+						<div class="ibox collapsed" data-module="{{ $func->module_id }}">
+							<div class="ibox-title bg-muted">
+								<h4 class="text-center">
+									{{ ucfirst(trans('textos.'.$func->label)) }}
+								</h4>
+
+								<div class="ibox-tools">
+									<a class="collapse-link" data-slug="{{ $func->slug }}">
+		                                <i class="fa fa-chevron-up"></i>
+		                            </a>
+		                        </div>
+		                    </div>
+
+		                    @livewire('permissions-component', ['role' => $role, 'functionality' => $func], key($func->id))
+						</div>
+					</div>
+				@endif
+			@endforeach
+
+			<div class="col-12 mb-3"><hr style="margin-top: 0;"></div>
+
 		@endforeach
 	</div>
 @endif
@@ -101,22 +132,6 @@ $(function(){
     	}else{
     		parent.find('.ibox-title').removeClass('bg-warning').addClass('bg-muted');	
     	}
-    });
-
-    // Desplegar todos los permisos:
-    $('.btnSlideAllPermissions').on('change', function(){
-    	if($(this).is(':checked')){
-        	$('.ibox').each(function(){
-        		$(this).addClass('border-bottom');
-        		$(this).find('.ibox-content').slideDown();
-        	});
-        	
-        }else{
-        	$('.ibox').each(function(){
-        		$(this).removeClass('border-bottom');
-        		$(this).find('.ibox-content').slideUp();
-        	});
-        } 
     });
 
     // Activar / desactivar permiso:
