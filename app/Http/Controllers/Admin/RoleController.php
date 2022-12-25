@@ -153,7 +153,7 @@ class RoleController extends Controller{
         $role = Company::saveCompanyRole($request->name, session('currentCompany'), $request->description);
 
         //Guardamos permisos:
-        $role->syncPermissions($request->permissions);
+        //$role->syncPermissions($request->permissions);
 
         //Permisos sobre los módulos:
         $this->syncModulePermissions($role);
