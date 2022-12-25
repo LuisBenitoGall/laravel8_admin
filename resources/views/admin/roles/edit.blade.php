@@ -2,6 +2,10 @@
 
 @section('content')
 
+@php
+$scroll_top = true;
+@endphp
+
 <input type="hidden" id="roleId" value="{{ $role->id }}">
 
 <div class="row mb-3">
@@ -35,5 +39,7 @@
 
 {{-- Modals: --}}
 @include('admin.roles.partials.modal-copy')
+
+{!! App\Helpers\helpers::scrollToTop() !!}
 
 @endsection
