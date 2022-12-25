@@ -177,7 +177,7 @@ class RoleController extends Controller{
         ]; 
 
         //Sincronizar permisos sobre los módulos:
-        $this->syncModulePermissions($role);
+        //$this->syncModulePermissions($role);
 
         $functionalities = Functionality::permissionsJoinModule();
         $permissions = Permission::get();

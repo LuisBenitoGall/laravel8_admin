@@ -497,7 +497,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::get('invoices/{invoice}/edit-purchase/{tab?}', 'InvoiceController@editPurchase')->name('invoices.edit-purchase')->middleware('permission:invoices.edit');
     Route::get('invoices/{invoice}/show', 'InvoiceController@show')->name('invoices.show');
     Route::put('invoices/{invoice}/update', 'InvoiceController@update')->name('invoices.update')->middleware('permission:invoices.edit');
-    Route::get('invoices/{invoice}/print', 'InvoiceController@print')->name('invoices.print');
+    Route::get('invoices/{invoice}/print/{bn?}', 'InvoiceController@print')->name('invoices.print');
     Route::get('invoices/{invoice}/status/{status}', 'InvoiceController@status')->name('invoices.status');
     Route::get('invoices/{invoice}/block/{return?}', 'InvoiceController@block')->name('invoices.block')->middleware('permission:invoices.edit');
     Route::get('invoices/{invoice}/unlock/{return?}', 'InvoiceController@unlock')->name('invoices.unlock')->middleware('permission:invoices.edit');
