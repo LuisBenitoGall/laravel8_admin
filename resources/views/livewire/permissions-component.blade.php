@@ -29,7 +29,7 @@
                 @endphp
 
                 <label class="custom-chk-rdb" rel="tooltip">
-                    <input type="checkbox" class="chkFunc all-permissions" data-functionality="{{ $functionality->slug }}" {{ $all_checked }}>
+                    <input type="checkbox" class="chkFunc" data-functionality="{{ $functionality->slug }}" {{ $all_checked }}>
                     <span class="chk chksmall" style="top: 3px;"></span>
                 </label>
 

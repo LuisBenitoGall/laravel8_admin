@@ -186,9 +186,15 @@ class RoleController extends Controller{
         //Obtenemos permisos del rol:
         $data = $role->permissions;
 
-        $role_permissions = [];
+        $module_permissions = [];       //Permisos de módulo.
+        $role_permissions = [];         //Permisos de funcionalidad.
         foreach($data as $row){
-            array_push($role_permissions, $row->id);       
+            //Separamos los permisos según sean de módulo o de funcionalidad:
+            if(substr($row->name, 0, 7) === "module_"){
+                array_push($module_permissions, $row->id);
+            }else{
+                array_push($role_permissions, $row->id);   
+            }
         }   
 
         $companies = Company::join('user_companies', 'companies.id', '=', 'user_companies.company_id')
@@ -199,7 +205,7 @@ class RoleController extends Controller{
 
         $action = 'edit';
 
-        return view('admin.roles.edit', compact('header', 'role', 'functionalities', 'permissions', 'modules', 'role_permissions', 'companies', 'action'));    
+        return view('admin.roles.edit', compact('header', 'role', 'functionalities', 'permissions', 'modules', 'module_permissions', 'role_permissions', 'companies', 'action'));    
     }
 
     /**
@@ -220,7 +226,7 @@ class RoleController extends Controller{
         //dd($request->all());
 
         //1º Actualizar role:
-        $role->update($request->all());
+        //$role->update($request->all());
 
         //2º Actualizar permisos:
         //$role->syncPermissions($request->permissions);
@@ -334,15 +340,28 @@ class RoleController extends Controller{
     /**
      * 11. Setear permiso para role.
      */
-    public function setPermission(Request $request, Role $role, $permission, $action){
+    public function setPermission(Request $request, Role $role, $permission, $action, $module_on, $remove_module){
         if($request->ajax()){ 
             //Guardar:
             if($action == 'on'){
-                $role->givePermissionTo($permission);     
+                $role->givePermissionTo($permission);   
+
+                //Activar permiso sobre módulo:
+                if($module_on != '0' && is_numeric($module_on)){
+                    $role->givePermissionTo($module_on);
+                    return response()->json(1);     //Activar módulo del permiso.
+                }  
+
 
             //Eliminar:
             }else{
                 $role->revokePermissionTo($permission);
+
+                //Eliminar permiso de módulo:
+                if($remove_module != '0' && is_numeric($module_on)){
+                    $role->revokePermissionTo($remove_module); 
+                    return response()->json(2);     //Desactivar módulo del permiso.   
+                }
             }
         }    
     }
@@ -350,7 +369,7 @@ class RoleController extends Controller{
     /**
      * 12. Setear permisos de una funcionalidad.
      */
-    public function setFunctionalityPermissions(Request $request, Role $role, $functionality, $action){
+    public function setFunctionalityPermissions(Request $request, Role $role, $functionality, $action, $module_on, $remove_module){
         if($request->ajax()){ 
             $methods = config('constants.METHODS_');
 
@@ -358,12 +377,24 @@ class RoleController extends Controller{
             if($action == 'on'){
                 foreach($methods as $m){
                     $role->givePermissionTo($functionality.'.'.$m[0]);    
+                }  
+
+                //Activar permiso sobre módulo:
+                if($module_on != '0' && is_numeric($module_on)){
+                    $role->givePermissionTo($module_on);
+                    return response()->json(1);     //Activar módulo del permiso.
                 }                     
 
             //Eliminar:
             }else{
                 foreach($methods as $m){
                     $role->revokePermissionTo($functionality.'.'.$m[0]);
+                }
+
+                //Eliminar permiso de módulo:
+                if($remove_module != '0' && is_numeric($module_on)){
+                    $role->revokePermissionTo($remove_module);  
+                    return response()->json(2);     //Desactivar módulo del permiso.  
                 }
             }
         }    
