@@ -868,8 +868,8 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::get('roles/get-slug/{texto}', 'RoleController@create_slug')->name('roles.get-slug');
     Route::post('roles/copy', 'RoleController@copy')->name('roles.copy')->middleware('permission:roles.create');
     Route::get('roles/sync', 'RoleController@sync')->name('roles.sync')->middleware('permission:roles.create');
-    Route::get('roles/{role}/set-permission/{permission}/{action}', 'RoleController@setPermission')->name('roles.set-permission')->middleware('permission:roles.edit');
-    Route::get('roles/{role}/set-functionality-permissions/{functionality}/{action}', 'RoleController@setFunctionalityPermissions')->name('roles.set-permission')->middleware('permission:roles.edit');
+    Route::get('roles/{role}/set-permission/{permission}/{action}/{module_on}/{remove_module}', 'RoleController@setPermission')->name('roles.set-permission')->middleware('permission:roles.edit');
+    Route::get('roles/{role}/set-functionality-permissions/{functionality}/{action}/{module_on}/{remove_module}', 'RoleController@setFunctionalityPermissions')->name('roles.set-permission')->middleware('permission:roles.edit');
 
     // Schedule Event Types:
     Route::get('schedule-event-types', 'ScheduleEventTypesController@index')->name('schedule-event-types.index')->middleware('permission:schedules.edit');
