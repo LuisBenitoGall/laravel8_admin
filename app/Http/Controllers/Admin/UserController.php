@@ -863,7 +863,17 @@ class UserController extends Controller{
         return redirect()->route('users.edit', $user->id)->with(compact('msg'));
     }
 
+    /**
+     * Close Joke.
+     */
+    public function closeJoke(Request $request){
+        if($request->ajax()){
+            User::where('id', Auth::user()->id)
+            ->update(['joke' => 1]);
 
+            Auth::user()->joke = 1;
+        }
+    }
 
 
 

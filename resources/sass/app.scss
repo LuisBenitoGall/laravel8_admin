@@ -11619,6 +11619,43 @@ ul{
     }   
 }
 
+/************** JOKE ***********/
+#modal-joke{
+    .joke-step{
+        display: none;
+    }
+    #step1{
+        display: block;
+    }
+
+    #step2{
+        .progress{
+            background-color: #EEE;
+            .progress-bar{
+                background-color: $danger;
+                -webkit-transition: width 10s ease-in-out;
+                -moz-transition: width 10s ease-in-out;
+                -o-transition: width 10s ease-in-out;
+                transition: width 10s ease-in-out;
+                width: 0;
+
+                &.expand {
+                    width: 100%;
+                }
+            }
+        }
+        .step2-messages2,
+        .btn-step2{
+            display: none;
+        }
+    }
+    #step5_2{
+        .explosion{
+            display: none;
+        }
+    }
+}
+
 
 /**
  * RESPONSIVE MEDIA QUERIES
