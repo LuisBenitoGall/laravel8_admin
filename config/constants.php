@@ -39,7 +39,7 @@ return [
     'INVOICE_STATUS_REFUNDED_' => [20],
     'IP_USER' => ['127.0.0.1'], // IP`s 
     'IVA_DEFAULT_' => 21,
-    'JOKE_' => false,
+    'JOKE_' => true,
     'METHODS_' => [
         ['index', 'Ver '], 
         ['create', 'Crear '], 
