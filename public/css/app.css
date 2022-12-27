@@ -30676,6 +30676,32 @@ ul li.rev .fa {
   width: 1px;
 }
 
+/************** JOKE ***********/
+#modal-joke .joke-step {
+  display: none;
+}
+#modal-joke #step1 {
+  display: block;
+}
+#modal-joke #step2 .progress {
+  background-color: #EEE;
+}
+#modal-joke #step2 .progress .progress-bar {
+  background-color: #ed5565;
+  transition: width 10s ease-in-out;
+  width: 0;
+}
+#modal-joke #step2 .progress .progress-bar.expand {
+  width: 100%;
+}
+#modal-joke #step2 .step2-messages2,
+#modal-joke #step2 .btn-step2 {
+  display: none;
+}
+#modal-joke #step5_2 .explosion {
+  display: none;
+}
+
 /**
  * RESPONSIVE MEDIA QUERIES
  */

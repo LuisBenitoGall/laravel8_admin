@@ -1,4 +1,9 @@
 				{{-- Modals --}}
+				{{-- Inocentada --}}
+				@if(config('constants.JOKE_'))
+					@include('admin.partials.joke')
+				@endif
+
 				{{-- Translations: --}}
 				@include('admin.languages.partials.modal-translations')
 

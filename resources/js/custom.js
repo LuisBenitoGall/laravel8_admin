@@ -622,8 +622,8 @@ $(window).on('load', function () {
     });
 
     // 10. Modal selector empresa inicial.
-    if ($('#modal-select-company, #modal-modality').length > 0) {
-        $('#modal-select-company, #modal-modality').modal({
+    if ($('#modal-select-company, #modal-modality, #modal-joke').length > 0) {
+        $('#modal-select-company, #modal-modality, #modal-joke').modal({
             backdrop: 'static',
             keyboard: false,
             toggle: true

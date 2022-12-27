@@ -1150,6 +1150,9 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::post('work-user-calendar/validate-all', 'WorkUserCalendarController@validateAll')->name('work-user-calendar.validate-all');
     Route::post('work-user-calendar/add-doc', 'WorkUserCalendarController@addDoc')->name('work-user-calendar.add-doc');
     Route::get('work-user-calendar/{doc}/delete-doc', 'WorkUserCalendarController@deleteDoc')->name('work-user-calendar.delete-doc');
+
+    // JOKE:
+    Route::get('close-joke', 'UserController@closeJoke')->name('close-joke');
 });
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
