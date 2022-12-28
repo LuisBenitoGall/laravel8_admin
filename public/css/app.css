@@ -30676,6 +30676,11 @@ ul li.rev .fa {
   width: 1px;
 }
 
+.group {
+  background-color: #F5F8FA;
+  border: 1px solid #E8E8E8;
+}
+
 /************** JOKE ***********/
 #modal-joke .joke-step {
   display: none;

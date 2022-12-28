@@ -160,6 +160,8 @@
             $('#step3').fadeOut(function(){   
                 $('#step4').fadeIn();
             });
+
+            $.get("admin/close-joke");
         });
 
         //To Step 5:
@@ -192,8 +194,6 @@
         //Close:
         $('.btn-step7').on('click', function(){
             $('#modal-joke').modal('toggle');
-
-            $.get("admin/close-joke");
         });
     });
     </script>
