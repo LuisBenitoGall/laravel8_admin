@@ -36,7 +36,7 @@
                             <div class="step2-messages2 mb-4 text-bold text-danger"> 
                                 <b>Se ha hallado un malware de categoría DEFCON 1, exception fckng666.
                                 <br>
-                                Podrían haberse eliminado archivos importantes de la carpeta<br> 'Mis Documentos'.
+                                Lo sentimos, <u>se han eliminado TODOS los archivos del sistema.</u>
                                 <br>
                                 Vamos a proceder con los siguientes pasos para tratar de recuperar los archivos extraviados. </b>                      
                             </div>
@@ -49,7 +49,7 @@
                             <h3>Debes responder a las siguientes cuestiones para conocer los archivos que debemos recuperar.</h3>
                             <br>
 
-                            <p>¿Has visitado websites del tipo... ya sabes... de los que no debes visitar delante de menores?</p>
+                            <p>¿Has visitado websites del tipo... ya sabes... de los que no debes visitar en presencia de menores?</p>
                             <br>
 
                             <button class="btn btn-info btn-step3">SI</button>
@@ -171,7 +171,7 @@
         $('.btn-step4_').on('click', function(){
             $('#step4').fadeOut(function(){   
                 $('#step5_2').fadeIn();
-                $('.explosion').delay(3000).fadeIn();
+                $('.explosion').delay(2000).fadeIn();
             });
         });
 
