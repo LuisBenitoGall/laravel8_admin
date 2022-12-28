@@ -76,7 +76,7 @@
 						<td>
 							{{ trans('textos.presupuesto_num') }}:
 
-							<b style="color: #111">
+							<b style="color: #FFF">
 								@if($invoice_order->budget_num)
 									{{ $invoice_order->budget_num }}
 								@elseif($invoice_order->budget_old_num)
@@ -93,7 +93,7 @@
 					<tr>
 						<td>
 							{{ trans('textos.pedido') }}:
-							<b style="color: #111">{{ $invoice_order->order_num }}</b>
+							<b style="color: #FFF">{{ $invoice_order->order_num }}</b>
 						</td>	
 					</tr>
 				@endif
@@ -102,7 +102,7 @@
 					<tr>
 						<td>
 							{{ trans('textos.orden_compra_num') }}:
-							<b style="color: #111">@if($invoice_order->purchase_num) {{ $invoice_order->purchase_num }} @else {{ $invoice_order->old_purchase }} @endif</b>
+							<b style="color: #FFF">@if($invoice_order->purchase_num) {{ $invoice_order->purchase_num }} @else {{ $invoice_order->old_purchase }} @endif</b>
 						</td>	
 					</tr>
 				@endif

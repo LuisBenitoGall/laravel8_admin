@@ -11619,6 +11619,11 @@ ul{
     }   
 }
 
+.group{
+    background-color: $grey-light;
+    border: 1px solid $grey-light2;
+}
+
 /************** JOKE ***********/
 #modal-joke{
     .joke-step{
