@@ -41,9 +41,11 @@ class AccountingOptionController extends Controller{
 
         $options = AccountingOption::where('company_id', session('currentCompany'))->first();
 
+        $months = helpers::yearMonths();
+
         $languages = $this->languages;
 
-        return view('admin.accounting_options.index')->with(compact('header', 'options', 'languages'));       
+        return view('admin.accounting_options.index')->with(compact('header', 'options', 'months', 'languages'));       
     }
 
     /**

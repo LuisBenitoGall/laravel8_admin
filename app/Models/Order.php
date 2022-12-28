@@ -142,6 +142,8 @@ class Order extends Model{
             }
         }
 
+        //dd($items, $order_amount, $order_amount_without_discounts);
+
         //Cálculo de los items por porcentaje:
         if($percentage_items){
             $order_amount_without_percentuals = $order_amount;
@@ -203,9 +205,9 @@ class Order extends Model{
             ->where('order_id', $this->id)
             ->get();
 
-        if($this->id == 10084){
-            //dd('items ya', $items);
-        }
+        // if($this->id == 9863){
+        //     dd('items ya', $items);
+        // }
 
         //$arr_amount = $this->itemsAmount($items, $with_percentage_items, $with_iva);
         //$amount = $arr_amount['total_amount'];

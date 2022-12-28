@@ -1353,18 +1353,13 @@ class InvoiceController extends Controller{
         $invoice->printed = $invoice->printed + 1;
         $invoice->save();
 
-
-
-
-
-
         //Nombre del archivo:
         $invoice_name_pdf = $invoice->invoice_num? $invoice->invoice_num:trans('textos.factura').'_'.$invoice->id;
 
         //Template de factura. Se pasa por variable por si se incluyen más templates.
         $invoice_template = 'pdf/invoice';
 
-        $pdf = PDF::loadView($invoice_template, compact('invoice', 'invoice_order', 'items', 'advance_invoices', 'provider', 'customer', 'template', 'fechaLiteral', 'company_settings', 'provider_workplace', 'provider_phones', 'customer_workplace', 'customer_manager', 'currency'));
+        $pdf = PDF::loadView($invoice_template, compact('invoice', 'bn', 'invoice_order', 'items', 'advance_invoices', 'provider', 'customer', 'template', 'fechaLiteral', 'company_settings', 'provider_workplace', 'provider_phones', 'customer_workplace', 'customer_manager', 'currency'));
         return $pdf->download($invoice_name_pdf.'.pdf'); 
     }
 
