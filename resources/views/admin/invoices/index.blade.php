@@ -2,9 +2,6 @@
 
 @section('content')
 
-{{-- Avisos --}}
-@include('admin.invoices.partials.invoice-warning-template', ['accounting_options' => $accounting_options])
-
 <input type="hidden" id="dtController" value="invoices">
 
 <div class="row mb-3">

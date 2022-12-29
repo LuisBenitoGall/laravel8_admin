@@ -73,7 +73,6 @@ class InvoiceController extends Controller{
     private $option = 'contabilidad';
     private $module = 'accounting';
     private $languages;
-    private $accounting_options;
 
     public function __construct(){
         //Idiomas:
@@ -88,8 +87,6 @@ class InvoiceController extends Controller{
         $this->middleware('invoice_order_remove', ['only' => ['removeFromInvoice']]);
         $this->middleware('order_post', ['only' => ['createFromOrder', 'createFromGroup']]);
         $this->middleware('order_get', ['only' => ['invoicesByOrder']]);
-        $this->middleware('accounting_block_purchases', ['only' => ['createFromProvider', 'storeFromProvider', 'update']]);
-        $this->middleware('accounting_block_sales', ['only' => ['createFromOrder', 'createFromGroup', 'update']]);
     }
 
     //0. Validator:
@@ -192,9 +189,6 @@ class InvoiceController extends Controller{
         //Moneda:
         $currency = CompanySettings::co_currency(0); 
 
-        //Opciones contables:
-        $accounting_options = $this->accountingOptions();
-
         //Comprobamos si la empresa hace gestión de clientes:
         if(session('companySettings')['customers_management'] == 1){
             $customers = CustomerProviders::getCompanyCustomers(session('currentCompany')); 
@@ -205,7 +199,7 @@ class InvoiceController extends Controller{
             $providers = CustomerProviders::getCompanyProviders(session('currentCompany'));
         }
 
-        return view('admin.invoices.index')->with(compact('header', 'invoicesType', 'year', 'month', 'customer_id', 'provider_id', 'customer', 'provider', 'customers', 'providers', 'currency', 'accounting_options'));
+        return view('admin.invoices.index')->with(compact('header', 'invoicesType', 'year', 'month', 'customer_id', 'provider_id', 'customer', 'provider', 'customers', 'providers', 'currency'));
     }
 
     /**
@@ -768,10 +762,7 @@ class InvoiceController extends Controller{
 
         $currency = CompanySettings::co_currency(0);
 
-        //Opciones contables:
-        $accounting_options = $this->accountingOptions();
-
-        return view('admin.invoices.invoice-by-provider')->with(compact('header', 'project_id', 'providers', 'languages', 'currency', 'accounting_options'));          
+        return view('admin.invoices.invoice-by-provider')->with(compact('header', 'project_id', 'providers', 'languages', 'currency'));          
     }
 
     /**
@@ -783,6 +774,19 @@ class InvoiceController extends Controller{
             return redirect('/admin/invoices/create-from-provider')
                 ->withErrors($validator)
                 ->withInput();
+        }
+
+        //Formateando fechas:
+        $fiscal_date = $request->fiscal_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->fiscal_date):$request->fiscal_date:NULL;
+        $expiration_date = $request->expiration_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->expiration_date):$request->expiration_date:NULL;
+
+        //Comprobamos si la fecha fiscal es válida, que el mes y año no estén cerrados.
+        if($fiscal_date){
+            $no_valid = AccountingOption::validInvoiceDate($fiscal_date, 'p', session('currentCompany'));  
+            if($no_valid){
+                $alert = trans('textos.cierre_mensual_compras_aviso');
+                return redirect()->route('invoices.create-from-provider')->with(compact('alert'));     
+            }
         }
 
         //Creamos pedido si no existe. Seteamos la variable $add_items para indicar si se deben introducir líneas del pedido o no.
@@ -814,10 +818,6 @@ class InvoiceController extends Controller{
             $order->invoiced = 1;
             $order->save();
         }
-
-        //Formateando fechas:
-        $fiscal_date = $request->fiscal_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->fiscal_date):$request->fiscal_date:NULL;
-        $expiration_date = $request->expiration_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->expiration_date):$request->expiration_date:NULL;
 
         //Subir documento.
         $doc = $this->loadFile($request, 'invoices');
@@ -1005,10 +1005,7 @@ class InvoiceController extends Controller{
             if($ba->featured == 1) $bank_featured = $ba->id;
         }
 
-        //Opciones contables:
-        $accounting_options = $this->accountingOptions();
-
-        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'is_sale', 'order', 'suborders', 'invoiced', 'invoices', 'refund', 'customer', 'customer_settings', 'provider', 'provider_account', 'items', 'products', 'patterns', 'payments', 'templates', 'featuredTemplate', 'currency', 'languages', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'payment_methods', 'bank_accounts', 'bank_featured', 'accounting_options'));
+        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'is_sale', 'order', 'suborders', 'invoiced', 'invoices', 'refund', 'customer', 'customer_settings', 'provider', 'provider_account', 'items', 'products', 'patterns', 'payments', 'templates', 'featuredTemplate', 'currency', 'languages', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'payment_methods', 'bank_accounts', 'bank_featured'));
     }
 
     /**
@@ -1136,10 +1133,7 @@ class InvoiceController extends Controller{
         $bank_accounts = [];
         $bank_featured = false;
 
-        //Opciones contables:
-        $accounting_options = $this->accountingOptions();
-
-        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'is_sale', 'order', 'invoiced', 'invoices', 'refund', 'customer', 'provider', 'provider_account', 'provider_settings', 'structure_concepts', 'items', 'products', 'currency', 'languages', 'patterns', 'payments', 'templates', 'featuredTemplate', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'payment_methods', 'concepts', 'bank_accounts', 'bank_featured', 'accounting_options'));
+        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'is_sale', 'order', 'invoiced', 'invoices', 'refund', 'customer', 'provider', 'provider_account', 'provider_settings', 'structure_concepts', 'items', 'products', 'currency', 'languages', 'patterns', 'payments', 'templates', 'featuredTemplate', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'payment_methods', 'concepts', 'bank_accounts', 'bank_featured'));
     }
 
     /**
@@ -1186,11 +1180,8 @@ class InvoiceController extends Controller{
 
         //Moneda:
         $currency = CompanySettings::co_currency(0);
-
-        //Opciones contables:
-        $accounting_options = $this->accountingOptions();
-        
-        return view('admin.invoices.show')->with(compact('header', 'invoice', 'order', 'customer', 'customer_workplace', 'provider', 'provider_workplace', 'items', 'languages', 'currency', 'accounting_options'));  
+    
+        return view('admin.invoices.show')->with(compact('header', 'invoice', 'order', 'customer', 'customer_workplace', 'provider', 'provider_workplace', 'items', 'languages', 'currency'));  
     }
 
     /**
@@ -1230,6 +1221,16 @@ class InvoiceController extends Controller{
             //Formateando fechas:
             $fiscal_date = $request->fiscal_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->fiscal_date):$request->fiscal_date:NULL;
             $expiration_date = $request->expiration_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->expiration_date):$request->expiration_date:NULL;
+
+            //Comprobamos si la fecha fiscal es válida, que el mes y año no estén cerrados.
+            //29/12/22: preguntar a Marcelo si aplica también para la edición.
+            // if($fiscal_date){
+            //     $no_valid = AccountingOption::validInvoiceDate($fiscal_date, 's', session('currentCompany'));  
+            //     if($no_valid){
+            //         $alert = trans('textos.cierre_mensual_ventas_aviso');
+            //         return redirect()->route('invoices.edit', $invoice->id)->with(compact('alert'));     
+            //     }
+            // }
 
             //Actualizando datos:
             if($request->pattern_id){

@@ -831,12 +831,6 @@ class OrderController extends Controller{
             $order_amount_without_discount_in_lines = $arr_amounts['total_amount_without_discounts'];
         } 
 
-        //Descuento sobre pedido:
-        if($order->discount && $order->discount > 0){
-            $percentage_ = helpers::percent($order_amount, $order->discount);    
-            $order_amount = $order_amount - $percentage_;    
-        }
-
         //Agrupaciones de pedidos:
         $order_groups = Order::select('orders.id', 'orders.order_num', 'orders.name')
         ->where('orders.provider_id', session('currentCompany'))

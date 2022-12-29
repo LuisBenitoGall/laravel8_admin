@@ -591,12 +591,6 @@ class BudgetController extends Controller{
             $order_amount_without_discount_in_lines = $arr_amounts['total_amount_without_discounts'];
         } 
 
-        //Descuento sobre pedido:
-        if($order->discount && $order->discount > 0){
-            $percentage_ = helpers::percent($order_amount, $order->discount);    
-            $order_amount = $order_amount - $percentage_;    
-        }
-
         //Productos. Activos y aptos para venta:
         $products = [];
         if($order->modality == config('constants.BUDGET_CATALOGUE_MODALITY_') || $order->modality == config('constants.BUDGET_BASIC_MODALITY_')){
@@ -1457,12 +1451,6 @@ class BudgetController extends Controller{
             $order_amount = $arr_amounts['total_amount'];
             $order_amount_without_discount = $arr_amounts['total_amount_without_discounts'];
         } 
-
-        //Descuento sobre pedido:
-        if($order->discount && $order->discount > 0){
-            $percentage_ = helpers::percent($order_amount, $order->discount);    
-            $order_amount = $order_amount - $percentage_;    
-        }
 
         //Moneda:
         $currency = CompanySettings::co_currency(0);

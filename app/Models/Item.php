@@ -29,9 +29,6 @@ class Item extends Model{
      */
     public function getItemAmount($item, $set_discount = true){
         if($item->price){
-
-
-
             $amount = helpers::setNumericFloat($item->qty) * helpers::setNumericFloat($item->price);
             
             //Contabilizando jornadas:
