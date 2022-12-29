@@ -68,7 +68,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
 
     // Accounting Options:
     Route::get('accounting-options', 'AccountingOptionController@index')->name('accounting-options.index')->middleware('permission:accounting-options.index');
-    Route::post('accounting-options.store', 'AccountingOptionController@store')->name('accounting-options.store')->middleware('permission:accounting-options.edit');
+    Route::get('accounting-options/store/{year}/{month}/{type}', 'AccountingOptionController@store')->name('accounting-options.store')->middleware('permission:accounting-options.edit');
 
     // Accounts:
     Route::resource('accounts', 'AccountController')->middleware('permission:accounts.edit');

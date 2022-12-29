@@ -11622,6 +11622,19 @@ ul{
 .group{
     background-color: $grey-light;
     border: 1px solid $grey-light2;
+
+    .cell{
+        background-color: #FFF;
+        padding: 15px;
+    }
+}
+
+.closeAccounting{
+    cursor: pointer;
+    &.closed{
+        background-color: $danger;
+        color: #FFF;
+    }
 }
 
 /************** JOKE ***********/

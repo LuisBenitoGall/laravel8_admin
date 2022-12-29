@@ -2,14 +2,10 @@
 
 @section('content')
 
-{{-- Avisos --}}
-@include('admin.invoices.partials.invoice-warning-template', ['accounting_options' => $accounting_options])
-
 @php
 //Campos que se bloquean ante factura bloqueada o para compras, campos que son gestionados por el proveedor.
 $disabled = $invoice->blocked || ($order->customer_id == session('currentCompany') && $provider_account)? true:false;
 $readonly = $invoice->blocked && !$is_sale || ($order->customer_id == session('currentCompany') && $provider_account)? true:false;
-//dd($order->customer_id, session('currentCompany'), $provider_account);
 @endphp
 
 <div class="row mb-3">

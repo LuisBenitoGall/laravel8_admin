@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Session;
 
 class AccountingOption extends Model{
     /**
-     * 1. Opciones contables por empresa.
+     * 1. Validez de factura.
      */
 
     use HasFactory;
@@ -17,12 +17,18 @@ class AccountingOption extends Model{
     protected $table = 'accounting_options';
 
     /**
-     * 1. Opciones contables por empresa.
+     * 1. Validez de factura.
+     *
+     * Comprobamos que la factura tenga una fecha que no esté bloqueada.
      */
-    public static function getCompanyOptions($company_id = false){
-        $companyId = $company_id? $company_id:Session::get('currentCompany');
+    public static function validInvoiceDate($date, $type, $company_id){
+        $p = explode('-', $date);
 
-        return AccountingOption::where('company_id', $companyId)
+        return AccountingOption::select('id')
+        ->where('company_id', $company_id)
+        ->where('type', $type)
+        ->where('year', $p[0])
+        ->where('month', $p[1])
         ->first();
     }
 }
