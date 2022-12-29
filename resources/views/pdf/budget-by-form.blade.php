@@ -192,25 +192,30 @@ $discount_in_lines = false;
 				{!! $resumen !!}
 			</tbody>
 
+			@php
+			//Obteniendo total del pedido
+			$arr_amounts = $order->getAmount();    
+			@endphp
+
 			<tfoot>
 				<tr>
 					<td colspan="2" style="background-color: #FFF;"></td>
 					<td style="background-color: {{ $bg_color }}; color: #FFF; text-align: left;">{{ strtoupper(trans('textos.total')) }}</td>
 					<td style="background-color: {{ $bg_color }}; color: #FFF; text-align: right;">
-						{{ number_format($totalAmount, 2) }}{{ $currency->symbol }}
+						{{ number_format($arr_amounts['total_amount_without_discounts'], 2) }}{{ $currency->symbol }}
 					</td>
 				</tr>
 
 				@if($order->discount && $order->discount > 0)	{{-- //&& !$order->final_customer_id --}}
 					@php
-					$percentage_ = App\Helpers\helpers::percent($totalAmount, $order->discount);	
-					$totalAmountWithDiscount = $totalAmount - $percentage_;
+					// $percentage_ = App\Helpers\helpers::percent($totalAmount, $order->discount);	
+					// $totalAmountWithDiscount = $totalAmount - $percentage_;
 					@endphp
 					<tr>
 						<td colspan="2" style="background-color: #FFF;"></td>
 						<td style="background-color: {{ $bg_color }}; color: #FFF; text-align: left;">{{ strtoupper(trans('textos.importe_descuento')) }} ({{ $order->discount }}%)</td>	
 						<td style="background-color: {{ $bg_color }}; color: #FFF; text-align: right;">
-							{{ $totalAmountWithDiscount }}{{ $currency->symbol }}
+							{{ $arr_amounts['total_amount'] }}{{ $currency->symbol }}
 						</td>
 					</tr>
 				@endif
@@ -221,7 +226,7 @@ $discount_in_lines = false;
 						<td colspan="2" style="background-color: #FFF;"></td>
 						<td style="background-color: {{ $bg_color }}; color: #FFF; text-align: left;">{{ strtoupper(trans('textos.importe_sin_descuentos')) }}</td>	
 						<td style="background-color: {{ $bg_color }}; color: #FFF; text-align: right;">
-							{{ $totalAmountWithoutDiscounts }}{{ $currency->symbol }}
+							{{ $arr_amounts['total_amount_without_discounts'] }}{{ $currency->symbol }}
 						</td>	
 					</tr>
 				@endif

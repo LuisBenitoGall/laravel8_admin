@@ -30680,6 +30680,18 @@ ul li.rev .fa {
   background-color: #F5F8FA;
   border: 1px solid #E8E8E8;
 }
+.group .cell {
+  background-color: #FFF;
+  padding: 15px;
+}
+
+.closeAccounting {
+  cursor: pointer;
+}
+.closeAccounting.closed {
+  background-color: #ed5565;
+  color: #FFF;
+}
 
 /************** JOKE ***********/
 #modal-joke .joke-step {

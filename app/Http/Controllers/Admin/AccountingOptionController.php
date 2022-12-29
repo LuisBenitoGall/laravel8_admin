@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Helpers\helpers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
@@ -43,35 +44,50 @@ class AccountingOptionController extends Controller{
 
         $months = helpers::yearMonths();
 
+        $sales = AccountingOption::select(DB::raw("CONCAT(year, '-', month) as fecha"))
+        ->where('company_id', session('currentCompany'))
+        ->where('type', 's')
+        ->pluck('fecha')
+        ->toArray();
+
+        $purchases = AccountingOption::select(DB::raw("CONCAT(year, '-', month) as fecha"))
+        ->where('company_id', session('currentCompany'))
+        ->where('type', 'p')
+        ->pluck('fecha')
+        ->toArray();
+
         $languages = $this->languages;
 
-        return view('admin.accounting_options.index')->with(compact('header', 'options', 'months', 'languages'));       
+        return view('admin.accounting_options.index')->with(compact('header', 'options', 'months', 'sales', 'purchases', 'languages'));       
     }
 
     /**
      * 2. Guardar opción.
      */
-    public function store(Request $request){
-        $field = $request->field;
+    public function store(Request $request, $year, $month, $type){
+        if($request->ajax()){
+            $r = AccountingOption::select('id')
+            ->where('company_id', session('currentCompany'))
+            ->where('type', $type)
+            ->where('year', $year)
+            ->where('month', $month)
+            ->first();
 
-        $data = AccountingOption::where('company_id', session('currentCompany'))->first();
+            if($r){
+                $r->delete();
+                $response = false;
 
-        if(!$data){
-            $data = new AccountingOption();
-            $data->company_id = session('currentCompany');
-            $data->$field = Carbon::now();
-
-        }else{
-            if($data->$field){
-                $data->$field = NULL;
-                
             }else{
-                $data->$field = Carbon::now();
-            }
-        }
-        $data->save();
+                $data = new AccountingOption();
+                $data->company_id = session('currentCompany');
+                $data->type = $type;
+                $data->year = $year;
+                $data->month = $month;
+                $data->save();  
+                $response = true;  
+            }            
 
-        $msg = trans('textos.opcion_updated');
-        return redirect()->route('accounting-options.index')->with(compact('msg'));
+            return response()->json($response);
+        }
     }
 }
