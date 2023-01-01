@@ -12,7 +12,6 @@
 					<th class="text-center wdt100">{!! ucfirst(trans('textos.acciones')) !!}</th>
 				</tr>
 			</thead>
-
 		</table>
 	</div>
 </div>

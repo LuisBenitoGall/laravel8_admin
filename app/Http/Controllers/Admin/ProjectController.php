@@ -564,7 +564,7 @@ class ProjectController extends Controller{
      * 4.1. Gastos por proyecto para DT.
      */
     public function getProjectExpensesDT($project_id){
-        $data = Expense::select('expenses.*', 'companies.name')
+        $data = Expense::select('expenses.*', 'companies.name AS company')
         ->leftJoin('companies', 'expenses.provider_id', '=', 'companies.id')
         ->where('expenses.project_id', $project_id);
 

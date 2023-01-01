@@ -35,7 +35,7 @@ class CreateStocksTable extends Migration{
             $table->string('doc_num')->nullable();
             //FK:
             $table->unsignedBigInteger('for_user')->nullable();
-            $table->foreign('for_user')->references('id')->on('users');
+            $table->foreign('for_user')->references('id')->on('users');         //Usuario receptor de la línea de stock. Para entregas de consumo interno.
             $table->dateTime('accepted_at')->nullable();
             $table->dateTime('returned_at')->nullable();
             //FK:

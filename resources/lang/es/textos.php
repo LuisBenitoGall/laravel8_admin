@@ -307,6 +307,7 @@ return array(
 	'proyecto_selec' => 'Selecciona proyecto',
 	'proyecto_titulo' => 'Título del proyecto',
 	'proyecto_activo' => 'proyecto activo',
+	'proyecto_cliente' => 'Proyecto del cliente',
 	'proyecto_confirm_eliminar' => '¿Estás seguro de eliminar este proyecto?',
 	'proyecto_codigo' => 'Código de proyecto',
 	'proyecto_invitacion' => 'Invitación a proyecto',
@@ -620,6 +621,7 @@ return array(
 	'almacen_pertenece_empresa' => '¿Pertenece a alguna empresa?',
 	'almacen_regular' => 'almacén regular',
 	'almacen_selec' => 'selecciona almacén',
+	'almacen_selec_texto' => 'Selecciona el almacén donde deseas realizar el movimiento.',
 	'almacen_tipo' => 'tipo de almacén',
 	'almacen_tipo_selec' => 'selecciona tipo de almacén',
 	'almacen_updated' => 'El almacén ha sido actualizado correctamente',
@@ -2813,4 +2815,5 @@ return array(
 	'favorito_deleted' => 'El favorito se ha eliminado correctamente',
 	'favoritos' => 'favoritos',
 	'favoritos_sin' => 'No tienes seleccionado ningún favorito en este momento.',
+	'autorizacion_administrador' => 'Con autorización del administrador',
 );

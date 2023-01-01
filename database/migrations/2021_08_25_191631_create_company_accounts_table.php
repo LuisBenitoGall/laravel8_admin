@@ -26,7 +26,7 @@ class CreateCompanyAccountsTable extends Migration{
             $table->date('end_date')->nullable();
             $table->decimal('price', 9, 2)->default(0);
             $table->date('payment_date')->nullable();
-            $table->integer('status')->default(1);
+            $table->integer('status')->default(1);      //Leyenda: 0 = inactivo; 1 = activo; 2 = caducado.
             $table->softDeletes();
             $table->timestamps();
         });

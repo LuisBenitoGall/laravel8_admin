@@ -57,6 +57,13 @@ class Order extends Model{
     }
 
     /**
+     * 1.1. Facturas del pedido.
+     */
+    public function invoices(){
+        return $this->hasMany(Invoice::class);
+    }
+
+    /**
      * 2. Items por pedido.
      */
     public function items(){
