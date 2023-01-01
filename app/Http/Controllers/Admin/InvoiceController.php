@@ -314,7 +314,10 @@ class InvoiceController extends Controller{
         ->leftJoin('companies', 'orders.'.$company_field.'_id', '=', 'companies.id')
         ->leftJoin('cost_centers', 'orders.'.$company_field.'_cost_center_id', '=', 'cost_centers.id')
         ->leftJoin('users', 'orders.'.$company_field.'_manager_id', '=', 'users.id')
-        ->whereYear('invoices.fiscal_date', $year)
+        ->where(function ($query) use($year){
+            $query->whereYear('invoices.fiscal_date', $year)
+            ->orWhereNull('invoices.fiscal_date');
+        })
         ->whereNull('invoices.deleted_at')
         ->when($customer && $provider, function($q) use($customer, $provider){
             if(is_numeric($customer) && is_numeric($provider)){
@@ -363,7 +366,7 @@ class InvoiceController extends Controller{
             return $row->Nombre.' '.$row->surname;
         })
         ->addColumn('fiscal_date', function($row){
-            return Carbon::parse($row->fiscal_date)->format($this->languages[session()->get('locale')][4]);
+            return $row->fiscal_date? Carbon::parse($row->fiscal_date)->format($this->languages[session()->get('locale')][4]):'';
         })
         ->addColumn('expiration_date', function($row){
             return Carbon::parse($row->expiration_date)->format($this->languages[session()->get('locale')][4]);
@@ -812,11 +815,20 @@ class InvoiceController extends Controller{
             // $item->active = 1;
             // $item->user_id = Auth::user()->id;
             // $item->save();
+            
+
+            $order_amount = NULL;
+            $invoice_amount = NULL;
 
         }else{
             $order = Order::select('id', 'invoiced')->find($request->order_id);
             $order->invoiced = 1;
             $order->save();
+
+            //Si existe el pedido, incluimos importe en la factura:
+            $arr_amounts = $order->getAmount();    
+            $order_amount = $arr_amounts['total_amount'];
+            $invoice_amount = $arr_amounts['invoice_amount'];
         }
 
         //Subir documento.
@@ -826,9 +838,9 @@ class InvoiceController extends Controller{
         $inv = new Invoice();
         $inv->invoice_old_num = $request->invoice_old_num;
         $inv->order_id = $order->id;
-        //$inv->amount = $request->amount;
+        $inv->amount = $order_amount;
         $inv->with_iva = config('constants.IVA_DEFAULT_');
-        //$inv->amount_with_iva = $request->amount_with_iva;
+        $inv->amount_with_iva = $invoice_amount;
         $inv->irpf = $request->irpf;
         $inv->fiscal_date = $fiscal_date;
         $inv->expiration_date = $expiration_date;

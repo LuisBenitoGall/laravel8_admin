@@ -164,6 +164,7 @@ class TimetableItemsController extends Controller{
         $item->reviewable = $reviewable;
         $item->required = $request->required;
         $item->required_warning = $request->required_warning;
+        $item->with_authorization = $request->with_authorization? 1:0;
         $item->save();
 
         //Indicamos si el movimiento -de entrada- tiene movimiento exclusivo de salida:
@@ -230,6 +231,7 @@ class TimetableItemsController extends Controller{
         $item->reviewable = $reviewable;
         $item->required = $request->required;
         $item->required_warning = $request->required_warning;
+        $item->with_authorization = $request->with_authorization? 1:0;
         $item->save();
 
         $msg = trans('textos.concepto_updated');

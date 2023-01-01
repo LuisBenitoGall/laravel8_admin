@@ -145,11 +145,11 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 
 	<div class="form-group row">
 		{{-- Confirmación de pedido, exclusivamente por el cliente: --}}
-		@if($order->customer_id == session('currentCompany') && !$order->customer_confirmation)
+		@if($order->customer_id == session('currentCompany'))
 			<label for="customer_confirmation" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.pedido_confirmar')) !!}</label>
 			<div class="col-lg-1">
 				<label class="custom-chk-rdb" rel="tooltip">
-	                <input type="checkbox" name="customer_confirmation">
+	                <input type="checkbox" name="customer_confirmation" @if($order->customer_confirmation) checked @endif>
 	                <span class="chk" style="top: 5px;"></span>
 	            </label>
 

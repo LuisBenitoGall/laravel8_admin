@@ -28,9 +28,9 @@ use App\Models\Store;
 class StockController extends Controller{
     /**
      * 1. Stock de productos.
-     * 1.1. Stock por almacén para DataTables.
+     * 1.1. Stock por almacén para table.
      * 2. Histórico de movimientos de producto.
-     * 3. Select 2.
+     * 3. Guardar movimiento de stock.
      */
 
     private $option = 'stocks';
@@ -46,10 +46,23 @@ class StockController extends Controller{
         $this->middleware('product_get', ['only' => ['show']]);
     }
 
+    //0. Validator:
+    protected function validator(array $data){
+        //Validación save:
+        if(isset($data['submit_save'])){
+            return Validator::make($data, [
+                'product_id' => 'required|integer',
+                'store_id' => 'required|integer',
+                'movement' => 'required|integer',
+                'qty' => 'required|numeric'
+            ]);
+        }
+    }
+
     /**
      * 1. Stock de productos.
      */
-    public function index($storeSelected = false){
+    public function index($product_id = false){
         $header = [
             'option' => $this->option, 
             'suboption' => 'textos.stock_productos',
@@ -70,15 +83,22 @@ class StockController extends Controller{
         ->orderBy('name', 'ASC')
         ->get();
 
-        //Almacenes:
+        //Almacenes, que pasamos a una session:
         $stores = Store::select('id', 'name', 'type')
         ->where('company_id', session('currentCompany'))
         ->where('status', 1)
         ->get();
 
+        session(['currentCompanyStores' => $stores]);
+
         //Movimientos de stock:
         $movements = StockMovements::orderBy('name', 'ASC')
         ->get();
+
+        $movements_arr = [];
+        foreach($movements as $m){
+            $movements_arr[$m->id] = $m->name;
+        }
 
         //Últimos movimientos de stock realizados.
         $last_movements = Stock::select('stocks.created_at', 'products.id', 'products.name')
@@ -88,41 +108,98 @@ class StockController extends Controller{
         ->take(10)
         ->get();
 
+        //Employees:
+        $employees = Employee::companyEmployees(session('currentCompany'));
+
         //Moneda:
         $currency = CompanySettings::co_currency(0);
 
         //Employees:
-        $employees = Employee::companyEmployees(session('currentCompany'));
+        $employees_data = Employee::companyEmployees(session('currentCompany'));
+        $employees = [];
+        foreach($employees_data as $e){
+            $employees[$e->id] = $e->name.' '.$e->surname;
+        }
 
-        return view('admin.stocks.index')->with(compact('header', 'storeSelected', 'stockMovId', 'productSelected', 'stockResultante', 'products', 'stores', 'movements', 'last_movements', 'currency', 'employees'));
+        $languages = $this->languages;
+
+        return view('admin.stocks.index')->with(compact('header', 'product_id', 'stockMovId', 'productSelected', 'stockResultante', 'products', 'stores', 'movements', 'movements_arr', 'last_movements', 'employees', 'currency', 'employees', 'languages'));
     }
 
     /**
      * 1.1. Stock por almacén para DataTables.
      */
-    public function getStoresStockDT($product_id){
-        $data = Store::select('stocks.id', 'stocks.qty', 'stocks.result', 'stores.id AS storeId', 'stores.name')
-        ->leftJoin('stocks', 'stores.id', '=', 'stocks.store_id')
-        ->where('stocks.product_id', $product_id)
-        ->groupBy('stores.id')
-        ->get();
+    public function storesStock(Request $request, $product_id){
+        if($request->ajax()){
+            $data = [];
 
-        //dd($data);
+            //Lotes del producto:
+            $batches = Batch::select('id', 'name')->where('product_id', $product_id)->get();
 
-        return DataTables::of($data)
-        ->addColumn('name', function($row){
-            return $row->name; 
-        })
-        ->addColumn('batch', function($row){
-            return ''; 
-        })
-        ->addColumn('stock', function($row){
-            return $row->result; 
-        })
-        ->addColumn('acciones', function($row){
-            return '';   
-        })
-        ->make(true);
+            //Almacenes de la empresa, que obtenemos de los guardados en session:
+            if(session('currentCompanyStores') && !empty(session('currentCompanyStores'))){
+                $stores = session('currentCompanyStores');
+            }else{
+                $stores = Store::select('id', 'name', 'type')
+                ->where('company_id', session('currentCompany'))
+                ->where('status', 1)
+                ->get();
+
+                session(['currentCompanyStores' => $stores]);
+            }
+
+            foreach($stores as $s){
+                foreach($batches as $b){
+                    $stock = Stock::select('id', 'result')
+                    ->where('product_id', $product_id)
+                    ->where('store_id', $s->id)
+                    ->where('batch_id', $b->id)
+                    ->orderBy('id', 'DESC')
+                    ->first();
+
+                    $row = [
+                        'store' => $s->name,
+                        'store_id' => $s->id,
+                        'batch' => $b->name? $b->name:'',
+                        'batch_id' => $b->id,
+                        'stock' => $stock? $stock->result:'0',
+                        'stock_id' => $stock? $stock->id:''
+                    ];
+                    array_push($data, $row);
+                }
+            }
+
+            return response()->json($data);
+
+            // $product->stocks()->get();
+            // $stock = collect($product->stocks()->with('stores')->get());
+            // $result = collect($stock)->sortBy('created_at',SORT_DESC,true)->unique('store_id');
+
+            // return response()->json($result->all());
+
+            // $data = Store::select('stocks.id', 'stocks.qty', 'stocks.result', 'stores.id AS storeId', 'stores.name')
+            // ->leftJoin('stocks', 'stores.id', '=', 'stocks.store_id')
+            // ->where('stocks.product_id', $product_id)
+            // ->groupBy('stores.id')
+            // ->get();
+
+            // //dd($data);
+
+            // return DataTables::of($data)
+            // ->addColumn('name', function($row){
+            //     return $row->name; 
+            // })
+            // ->addColumn('batch', function($row){
+            //     return ''; 
+            // })
+            // ->addColumn('stock', function($row){
+            //     return $row->result; 
+            // })
+            // ->addColumn('acciones', function($row){
+            //     return '';   
+            // })
+            // ->make(true);
+        }
     }
 
     /**
@@ -141,5 +218,60 @@ class StockController extends Controller{
         return view('admin.stocks.show')->with(compact('header', 'product'));
     }
 
+    /**
+     * 3. Guardar movimiento de stock.
+     */
+    public function store(Request $request){
+        $validator = $this->validator($request->all());
+        if($validator->fails()){
+            return redirect('/admin/stocks')
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        //Tipo de movimiento:
+        $stock_mov = StockMovements::select('sign')->find($request->movement);
+
+        //dd($request->all());
+
+        //Recuperamos última línea del producto, almacén y lote:
+        $result = 0;
+        if($request->stock_id){
+            $last_row = Stock::find($request->stock_id);   
+            $result = $last_row? $last_row->result:0;
+        }
+
+        //Actualizando result:
+        if($stock_mov->sign == 's'){
+            $result = $result + $request->qty;    
+        }elseif($stock_mov->sign == 'r' || $stock_mov->sign == 'x'){
+            $result = $result - $request->qty;
+        }
+         
+
+        // $stock = new Stock();
+        // $stock->product_id = $request->product_id;
+        // $stock->stock_mov_id = $request->movement;
+        // $stock->batch_id = '';
+        // $stock->store_id = $request->store_id;
+        // $stock->user_id = Auth::user()->id;
+        // $stock->qty = $request->qty;
+        // $stock->operation = $stock_mov->sign;
+        // $stock->result = $result;
+        // $stock->doc = $request->doc;
+        // $stock->doc_num = $request->doc_num;
+        // $stock->for_user = '';
+        // $stock->observations = $request->observations;
+        // $stock->save();
+        
+
+        //Destino de movimientos de traspaso:
+        if($stock_mov->sign == 'x'){
+
+        }
+
+        $msg = trans('textos.movimiento_ok');
+        return redirect()->route('stocks.index', $request->product_id)->with(compact('msg'));
+    }
    
 }
