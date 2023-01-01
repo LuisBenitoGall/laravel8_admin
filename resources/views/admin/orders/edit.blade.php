@@ -482,10 +482,20 @@ $order_amount_without_discount = $order_amount_without_discount_in_lines > $orde
 						@endif
 					@endif
 					<u>
-						@if($order->order_num)
-							{{ $order->order_num }}
+						@if($order_type == 'sale')
+							@if($order->order_num)
+								{{ $order->order_num }}
+							@else
+								{{ $order->id }}
+							@endif
 						@else
-							{{ $order->id }}
+							@if($order->purchase_num)
+								{{ $order->purchase_num }}
+							@elseif($order->purchase_old_num)
+								{{ $order->purchase_old_num }}
+							@else
+								{{ $order->id }}
+							@endif
 						@endif
 
 						@if($order->name)
@@ -506,15 +516,23 @@ $order_amount_without_discount = $order_amount_without_discount_in_lines > $orde
 					{{-- Cliente --}}
 					@include('admin.orders.partials.data-customer')
 
+					{{-- Projectos del cliente --}}
+					@if($order_type == 'sale' && $customer_projects)
+						<label class="mr-5">
+							{!! ucfirst(trans('textos.proyecto_cliente')) !!}:
+							<b class="text-warning">{!! $customer_projects !!}</b>
+						</label>
+					@endif
+
 					{{-- Proveedor --}}
 					@include('admin.orders.partials.data-provider')
 
 					{{-- Cliente Final --}}
 					@if($final_customer)
 						<label class="mr-5">
-						{!! ucfirst(trans('textos.cliente_final')) !!}:
-						<b>{{ $final_customer->name }}</b>
-					</label>
+							{!! ucfirst(trans('textos.cliente_final')) !!}:
+							<b>{{ $final_customer->name }}</b>
+						</label>
 					@endif
 
 					{{-- Fecha alta --}}

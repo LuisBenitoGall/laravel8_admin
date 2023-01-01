@@ -526,6 +526,7 @@ class OrderController extends Controller{
             $companies = CustomerProviders::select('companies.id', 'companies.name', 'companies.tradename')
             ->join('companies', 'customer_providers.customer_id', '=', 'companies.id')
             ->where('customer_providers.provider_id', session('currentCompany'))
+            ->where('companies.id', '!=', session('currentCompany'))
             ->orderBy('companies.name', 'ASC')
             ->get();
         }
@@ -535,6 +536,7 @@ class OrderController extends Controller{
             $companies = CustomerProviders::select('companies.id', 'companies.name', 'companies.tradename')
             ->join('companies', 'customer_providers.provider_id', '=', 'companies.id')
             ->where('customer_providers.customer_id', session('currentCompany'))
+            ->where('companies.id', '!=', session('currentCompany'))
             ->orderBy('companies.name', 'ASC')
             ->get();
         }
@@ -680,6 +682,8 @@ class OrderController extends Controller{
             'module' => $this->module,
             'slug' => $slug
         ]; 
+
+        $order_type = $order->customer_id == session('currentCompany')? 'purchase':'sale';
 
         //Cambios bloqueados: establece en función de si el pedido está facturado o no, las opciones que quedan bloqueadas.
         $permitted = true;
@@ -929,6 +933,24 @@ class OrderController extends Controller{
             ->get();    
         } 
 
+        //Proyecto del cliente:
+        $customer_projects = false;
+        if($order_type == 'sale'){
+            $customer_projects_arr = ProjectPurchases::select('projects.id', 'projects.project_num', 'projects.project_old_num')
+            ->join('projects', 'project_purchases.project_id', '=', 'projects.id')
+            ->where('project_purchases.order_id', $order->id)
+            ->get();
+
+            if($customer_projects_arr->count()){
+                $customer_projects = '';
+                foreach($customer_projects_arr as $cp){
+                    $p = $cp->project_num? $cp->project_num:($cp->project_old_num? $cp->project_old_num:$cp->id);
+                    $customer_projects .= $p.', ';                     
+                }
+                $customer_projects = rtrim($customer_projects,', ');
+            }
+        }
+
         //Entregas del pedido:
         $deliveries = DeliveryOrders::select('delivery_orders.id', 'deliveries.id AS deliveryId', 'deliveries.delivery_num', 'deliveries.delivery_old_num', 'deliveries.origin', 'deliveries.estimated_reception_date', 'deliveries.reception_date', 'deliveries.customer_observations', 'deliveries.provider_observations')
         ->join('deliveries', 'delivery_orders.delivery_id', '=', 'deliveries.id')
@@ -961,7 +983,7 @@ class OrderController extends Controller{
         //IVA:
         $iva = CompanySettings::co_iva();
 
-        $order_type = $order->customer_id == session('currentCompany')? 'purchase':'sale';
+        
 
         //Templates:
         $templates = false;
@@ -998,7 +1020,7 @@ class OrderController extends Controller{
         $module_projects = $this->settedModule('projects');
         $module_rrhh = $this->settedModule('rrhh');
         
-        return view('admin.orders.edit')->with(compact('header', 'order', 'tab', 'patterns', 'purchase_patterns', 'provider', 'provider_account', 'provider_managers', 'provider_business_areas', 'provider_cost_centers', 'provider_workplaces', 'default_workplace', 'customer', 'final_customer', 'customer_managers', 'customer_business_areas', 'customer_cost_centers', 'customer_workplaces', 'customer_products', 'customer_settings', 'confirmed_by', 'customers', 'order_amount', 'order_amount_without_discount', 'order_amount_without_discount_in_lines', 'order_groups', 'ordersInGroup', 'orders_off', 'group_amount', 'invoiced', 'invoices', 'previsions', 'products', 'projects', 'project', 'project_purchases', 'deliveries', 'receivings', 'currency', 'items', 'author', 'owner', 'iva', 'order_type', 'templates', 'languages', 'permitted', 'module_accounting', 'module_budgets', 'module_products', 'module_projects', 'module_rrhh', 'module_logistics'));
+        return view('admin.orders.edit')->with(compact('header', 'order', 'tab', 'patterns', 'purchase_patterns', 'provider', 'provider_account', 'provider_managers', 'provider_business_areas', 'provider_cost_centers', 'provider_workplaces', 'default_workplace', 'customer', 'final_customer', 'customer_managers', 'customer_business_areas', 'customer_cost_centers', 'customer_workplaces', 'customer_products', 'customer_settings', 'confirmed_by', 'customers', 'order_amount', 'order_amount_without_discount', 'order_amount_without_discount_in_lines', 'order_groups', 'ordersInGroup', 'orders_off', 'group_amount', 'invoiced', 'invoices', 'previsions', 'products', 'projects', 'project', 'project_purchases', 'customer_projects', 'deliveries', 'receivings', 'currency', 'items', 'author', 'owner', 'iva', 'order_type', 'templates', 'languages', 'permitted', 'module_accounting', 'module_budgets', 'module_products', 'module_projects', 'module_rrhh', 'module_logistics'));
     }
 
     /**
@@ -1085,6 +1107,9 @@ class OrderController extends Controller{
         if($request->customer_confirmation){
             $order->customer_confirmation = NOW();
             $order->confirmed_by = Auth::user()->id;
+        }else{
+            $order->customer_confirmation = NULL;   
+            $order->confirmed_by = NULL; 
         }
         if($delivery_date){
             $order->delivery_date = $delivery_date;
@@ -2061,6 +2086,8 @@ class OrderController extends Controller{
 
     /**
      * 24. Pedidos según proveedor.
+     *
+     * Pedidos no facturados.
      */
     public function aboutProviders(Request $request, $provider_id){
         if($request->ajax()){ 

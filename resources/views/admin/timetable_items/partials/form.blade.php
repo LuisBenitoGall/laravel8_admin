@@ -150,18 +150,27 @@
         <x-input type="text" name="required" value="{{ $required }}" class="text-right" autocomplete="off" maxlength="3" info="timetable-item-required"/>
     </div>
 
-
-    {{-- required_warning --}}
+    {{-- Hora límite --}}
     <label for="min_hour" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.hora_required')) !!} </label>
     <div class="col-lg-2">
         @php
-            $required_warning = $item && $item->required_warning? substr($item->required_warning,0,-3):'';
+        $required_warning = $item && $item->required_warning? substr($item->required_warning,0,-3):'';
         @endphp
 
         <x-input type="text" name="required_warning" value="{{ $required_warning }}" class="text-right maskHours" placeholder="hh:mm"
                  autocomplete="off" maxlength="5" info="timetable-min-hour"/>
     </div>
 
+    {{-- Con autorización --}}
+    <label for="with_authorization" class="col-lg-2 col-form-label ">{!! ucfirst(trans('textos.autorizacion_administrador')) !!}</label>
+    <div class="col-lg-1">
+        <label class="custom-chk-rdb" rel="tooltip">
+            <input type="checkbox" name="with_authorization" @if($item && $item->with_authorization) checked @endif>
+            <span class="chk" style="top: 5px;"></span>
+
+            {!! App\Helpers\Helpers::info('timetable-item-with-authorization', true) !!}
+        </label>
+    </div>
 </div>
 
 <div class="form-group row">

@@ -939,8 +939,10 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::get('stock-movements/status/{id}/{status}', 'StockMovementsController@status')->name('stock-movements.status')->middleware('permission:stock-movements.edit');
 
     // Stocks:
-    Route::get('stocks', 'StockController@index')->name('stocks.index');
+    Route::get('stocks/{product_id?}', 'StockController@index')->name('stocks.index')->where('product_id', '[0-9]+');
     Route::get('stocks/{product}/show', 'StockController@show')->name('stocks.show');
+    Route::get('stocks/{product_id}/stores-stock', 'StockController@storesStock')->name('stocks.stores-stock');
+    Route::post('stocks.store', 'StockController@store')->name('stocks.store')->middleware('permission:stocks.create');
 
     // Stores:
     Route::get('stores/index/{storeSelected?}', 'StoreController@index')->name('stores.index');
