@@ -800,7 +800,6 @@ class UserController extends Controller{
             })
             ->addColumn('accumulated', function($row){
                 $accumulated = isset($row['accumulated'])? $row['accumulated']:'';
-                //$accumulated = $row['accumulated'];
                 if($row['accumulated'] != '' && $row['hoursOfWork']){
                     $accumulated .= ' / '.$row['hoursOfWork'];
                 }
