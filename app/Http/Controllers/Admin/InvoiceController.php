@@ -68,6 +68,8 @@ class InvoiceController extends Controller{
      * 13. Generar factura de abono.
      * 14. Eliminar pedido de factura de agrupación.
      * 15. Opciones contables.
+     * 16. Control de facturación.
+     * 16.1. Control de facturación para DataTable.
      */
     
     private $option = 'contabilidad';
@@ -1815,6 +1817,42 @@ class InvoiceController extends Controller{
      */
     private function accountingOptions(){
         return AccountingOption::getCompanyOptions();
+    }
+
+    /**
+     * 16. Control de facturación.
+     */
+    public function control(){
+        $header = [
+            'option' => $this->option, 
+            'suboption' => 'textos.facturacion_control',
+            'module' => $this->module,
+            'slug' => 'invoices'
+        ];      
+
+        return view('admin.invoices.control-list')->with(compact('header'));
+    }
+
+    /**
+     * 16.1. Control de facturación para DataTable.
+     */
+    public function getControlDT(){
+        $data = Invoice::select('invoices.*', 'orders.id AS orderId', 'orders.order_num', 'orders.order_old_num', 'companies.name', 'companies.tradename', 'cost_centers.name AS costCenter', 'users.name AS Nombre', 'users.surname')
+        ->leftJoin('orders', 'invoices.order_id', '=', 'orders.id')
+        ->leftJoin('companies', 'orders.'.$company_field.'_id', '=', 'companies.id')
+        ->leftJoin('cost_centers', 'orders.'.$company_field.'_cost_center_id', '=', 'cost_centers.id')
+        ->leftJoin('users', 'orders.'.$company_field.'_manager_id', '=', 'users.id')
+        ->where(function ($query) use($year){
+            $query->whereYear('invoices.fiscal_date', $year)
+            ->orWhereNull('invoices.fiscal_date');
+        }) 
+
+
+        return DataTables::of($data)
+
+
+        ->rawColumns(['invoice_num', 'order'])
+        ->make(true);
     }
     
 }

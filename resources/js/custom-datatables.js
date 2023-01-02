@@ -2190,6 +2190,27 @@ $(document).ready(function(){
         });
     }
 
+    //Tabla Invoice Control:
+    if($('#tblInvoiceControl').length > 0){
+        $('#tblInvoiceControl').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/invoice-control",
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'name'},
+                {data: 'alta', name: 'alta', className: 'text-right'},
+                {data: 'description'},
+                {data: 'acciones', name: 'acciones', className: 'text-right'}
+            ]
+        });
+    }
+
     //Tabla Invoice Items:
     if($('#tblInvoiceItems').length > 0){
         function format(d){

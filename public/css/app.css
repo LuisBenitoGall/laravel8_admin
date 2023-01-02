@@ -29681,7 +29681,8 @@ ul li.rev .fa {
 #budgetForms,
 #noBudgetForms,
 #customerRef,
-#movementForm {
+#movementForm,
+#typeX {
   display: none;
 }
 

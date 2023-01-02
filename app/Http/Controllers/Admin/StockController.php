@@ -149,56 +149,41 @@ class StockController extends Controller{
             }
 
             foreach($stores as $s){
-                foreach($batches as $b){
-                    $stock = Stock::select('id', 'result')
-                    ->where('product_id', $product_id)
-                    ->where('store_id', $s->id)
-                    ->where('batch_id', $b->id)
-                    ->orderBy('id', 'DESC')
-                    ->first();
+                if($batches->count()){
+                    foreach($batches as $b){
+                        $stock = Stock::select('id', 'result')
+                        ->where('product_id', $product_id)
+                        ->where('store_id', $s->id)
+                        ->where('batch_id', $b->id)
+                        ->orderBy('id', 'DESC')
+                        ->first();
 
+                        $row = [
+                            'store' => $s->name,
+                            'store_id' => $s->id,
+                            'batch' => $b->name? $b->name:'',
+                            'batch_id' => $b->id,
+                            'stock' => $stock? $stock->result:'0',
+                            'stock_id' => $stock? $stock->id:''
+                        ];
+                        array_push($data, $row);
+                    }
+
+                //Producto sin lotes:
+                }else{
                     $row = [
                         'store' => $s->name,
                         'store_id' => $s->id,
-                        'batch' => $b->name? $b->name:'',
-                        'batch_id' => $b->id,
-                        'stock' => $stock? $stock->result:'0',
-                        'stock_id' => $stock? $stock->id:''
+                        'batch' => '',
+                        'batch_id' => '',
+                        'stock' => 0,
+                        'stock_id' => ''
                     ];
-                    array_push($data, $row);
+                    array_push($data, $row);    
                 }
             }
 
             return response()->json($data);
-
-            // $product->stocks()->get();
-            // $stock = collect($product->stocks()->with('stores')->get());
-            // $result = collect($stock)->sortBy('created_at',SORT_DESC,true)->unique('store_id');
-
-            // return response()->json($result->all());
-
-            // $data = Store::select('stocks.id', 'stocks.qty', 'stocks.result', 'stores.id AS storeId', 'stores.name')
-            // ->leftJoin('stocks', 'stores.id', '=', 'stocks.store_id')
-            // ->where('stocks.product_id', $product_id)
-            // ->groupBy('stores.id')
-            // ->get();
-
-            // //dd($data);
-
-            // return DataTables::of($data)
-            // ->addColumn('name', function($row){
-            //     return $row->name; 
-            // })
-            // ->addColumn('batch', function($row){
-            //     return ''; 
-            // })
-            // ->addColumn('stock', function($row){
-            //     return $row->result; 
-            // })
-            // ->addColumn('acciones', function($row){
-            //     return '';   
-            // })
-            // ->make(true);
         }
     }
 
@@ -248,18 +233,38 @@ class StockController extends Controller{
 
         //Lote:
         $batch_id = $request->batch? $request->batch:NULL;
-        if(!$batch && $request->new_batch){
+        if(!$batch_id){
             $expiry_date = $request->expiry_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->expiry_date):$request->expiry_date:NULL;
 
             $batch = new Batch();
             $batch->product_id = $request->product_id;
-            $batch->name = $request->batch;
+            $batch->name = $request->new_batch;
             $batch->expiry_date = $expiry_date;
             $batch->initial_qty = $request->qty;
             $batch->save();
 
             $batch_id = $batch->id;
         }
+
+        //Documento:
+        $fileName = NULL;
+        if($request->hasFile('doc')){
+            $file = $request->file('doc');
+
+            //Extensión del archivo:
+            $ext = helpers::mimeExtension($file->getClientMimeType());
+
+            $path = public_path().'/docs/stock-docs';
+            $prefix = ($request->doc_num != '')? $request->doc_num:$file->getClientOriginalName();
+            $fileName = $prefix.'-'.uniqid().$ext;
+            $moved = $file->move($path, $fileName);
+
+            //Si el archivo no ha sido guardado correctamente:
+            if(!$moved){
+                $error->doc = trans('textos.documento_error_guardar');
+                return response()->json(['errors'=>$error]);   
+            }
+        }  
 
         $stock = new Stock();
         $stock->product_id = $request->product_id;
@@ -270,7 +275,7 @@ class StockController extends Controller{
         $stock->qty = $request->qty;
         $stock->operation = $stock_mov->sign;
         $stock->result = $result;
-        $stock->doc = $request->doc;
+        $stock->doc = $fileName;
         $stock->doc_num = $request->doc_num;
         $stock->for_user = $request->for_user;
         $stock->observations = $request->observations;

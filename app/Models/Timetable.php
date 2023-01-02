@@ -297,11 +297,14 @@ class Timetable extends Model{
                             //El acumulado se muestra sólo en el último registro del día:
                             if ($row->flag == 2 && ((isset($timetables[$idx]) && $timetables[$idx]->date != $date) || !isset($timetables[$idx]))){
                                 //Si el horario fijo es inferior al personalizado, se toma el horario fijo:
-                                if($fixedTime){
-                                    $real_hours = $acumuladoDia;
-                                }else{
-                                    $real_hours = $hoursOfWork < $acumuladoDia? $hoursOfWork:$acumuladoDia;    
-                                }
+                                // if($fixedTime){
+                                //     $real_hours = $acumuladoDia;
+                                // }else{
+                                //     $real_hours = $hoursOfWork < $acumuladoDia? $hoursOfWork:$acumuladoDia;    
+                                // }
+                                
+
+                                $real_hours = $fixedTime && $hoursOfWork < $acumuladoDia? $hoursOfWork:$acumuladoDia;
 
                                 $arr['accumulated'] = $real_hours;
                                 $arr['diferencia'] = helpers::getTimeBetweenHours($real_hours, $hoursOfWork);

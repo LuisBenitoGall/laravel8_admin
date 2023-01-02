@@ -1788,6 +1788,7 @@ return array(
 	'registro' => 'Registro',
 	'registro_falta' => 'Faltan registros',
 	'facturacion' => 'Facturación',
+	'facturacion_control' => 'Control de facturación',
 	'facturacion_fecha_prevista' => 'Fecha prevista de facturación',
 	'facturacion_prevision_pendiente' => 'Pendiente de previsión de facturación',
 	'facturacion_previsiones_aviso' => 'Debes completar los datos relativos a las previsiones de facturación antes de proseguir',
