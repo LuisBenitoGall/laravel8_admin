@@ -164,8 +164,6 @@ class Timetable extends Model{
             ->whereDate('to', '>=', $from)
             ->get(); 
 
-            //dd($custom_timetables);
-
             //Permisos:
             $edit_timetable = Auth::user()->can('employees-timetable.edit');
 
@@ -295,7 +293,6 @@ class Timetable extends Model{
                                 $totalTime = helpers::sumaHoras($totalTime, helpers::getTimeFromMinutes($row->max));
                                 $acumuladoDia = helpers::sumaHoras($acumuladoDia, helpers::getTimeFromMinutes($row->max));
                             }
-//dd(2, $tiempo, $totalTime, $acumuladoDia, $hoursOfWork);
 
                             //El acumulado se muestra sólo en el último registro del día:
                             if ($row->flag == 2 && ((isset($timetables[$idx]) && $timetables[$idx]->date != $date) || !isset($timetables[$idx]))){

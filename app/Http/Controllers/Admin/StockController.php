@@ -232,8 +232,6 @@ class StockController extends Controller{
         //Tipo de movimiento:
         $stock_mov = StockMovements::select('sign')->find($request->movement);
 
-        //dd($request->all());
-
         //Recuperamos última línea del producto, almacén y lote:
         $result = 0;
         if($request->stock_id){
@@ -247,23 +245,36 @@ class StockController extends Controller{
         }elseif($stock_mov->sign == 'r' || $stock_mov->sign == 'x'){
             $result = $result - $request->qty;
         }
-         
 
-        // $stock = new Stock();
-        // $stock->product_id = $request->product_id;
-        // $stock->stock_mov_id = $request->movement;
-        // $stock->batch_id = '';
-        // $stock->store_id = $request->store_id;
-        // $stock->user_id = Auth::user()->id;
-        // $stock->qty = $request->qty;
-        // $stock->operation = $stock_mov->sign;
-        // $stock->result = $result;
-        // $stock->doc = $request->doc;
-        // $stock->doc_num = $request->doc_num;
-        // $stock->for_user = '';
-        // $stock->observations = $request->observations;
-        // $stock->save();
-        
+        //Lote:
+        $batch_id = $request->batch? $request->batch:NULL;
+        if(!$batch && $request->new_batch){
+            $expiry_date = $request->expiry_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->expiry_date):$request->expiry_date:NULL;
+
+            $batch = new Batch();
+            $batch->product_id = $request->product_id;
+            $batch->name = $request->batch;
+            $batch->expiry_date = $expiry_date;
+            $batch->initial_qty = $request->qty;
+            $batch->save();
+
+            $batch_id = $batch->id;
+        }
+
+        $stock = new Stock();
+        $stock->product_id = $request->product_id;
+        $stock->stock_mov_id = $request->movement;
+        $stock->batch_id = $batch_id;
+        $stock->store_id = $request->store_id;
+        $stock->user_id = Auth::user()->id;
+        $stock->qty = $request->qty;
+        $stock->operation = $stock_mov->sign;
+        $stock->result = $result;
+        $stock->doc = $request->doc;
+        $stock->doc_num = $request->doc_num;
+        $stock->for_user = $request->for_user;
+        $stock->observations = $request->observations;
+        $stock->save();
 
         //Destino de movimientos de traspaso:
         if($stock_mov->sign == 'x'){
