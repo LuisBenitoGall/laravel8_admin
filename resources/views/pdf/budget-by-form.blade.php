@@ -132,8 +132,9 @@ $discount_in_lines = false;
 
 							//Observaciones:
 							//Manipulamos el font-size de las observations (hasta que encontrar una solución más estable en Trumbowyg):
-					        $observations = str_replace("14.4", "11", $its->observations);
-					        $observations = str_replace("14", "11", $observations);
+							$observations = $its->observations? $its->observations:'&nbsp;';
+					        //$observations = str_replace("14.4", "11", $its->observations);
+					        //$observations = str_replace("14", "11", $observations);
 							$htmlItems .= '<td colspan="2">'.$observations.'</td>';
 						$htmlItems .= '</tr>';
 
@@ -157,8 +158,8 @@ $discount_in_lines = false;
 							$bloques .= '<th style="background-color: '.$bg_color.'; text-align: center; width: 60px;">'.trans('textos.ct').'</th>';
 							$bloques .= '<th style="background-color: '.$bg_color.'; text-align: center; width: 60px;">'.ucfirst(trans('textos.coste')).'</th>';
 							$bloques .= '<th style="background-color: '.$bg_color.'; text-align: center; width: 70px;">'.ucfirst(trans('textos.coste_total')).'</th>';
-							$bloques .= '<th style="background-color: '.$bg_color.';">'.ucfirst(trans('textos.observaciones')).'</th>';
-							$bloques .= '<th style="background-color: '.$bg_color.'; text-align: right;">'.$blockAmount.$currency->symbol.'</th>';
+							$bloques .= '<th style="background-color: '.$bg_color.'; width: 180px;">'.ucfirst(trans('textos.observaciones')).'</th>';
+							$bloques .= '<th style="background-color: '.$bg_color.'; text-align: right; width: 40px;">'.$blockAmount.$currency->symbol.'</th>';
 						$bloques .= '</tr>';
 					$bloques .= '</thead>';
 
