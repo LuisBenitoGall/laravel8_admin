@@ -175,6 +175,9 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     //Groups:
     Route::get('groups', 'GroupController@getGroupsDT');
 
+    //InvoiceControl:
+     Route::get('invoice-control', 'InvoiceController@getControlDT');
+
     //InvoicePatterns:
     Route::get('invoice-patterns', 'InvoicePatternsController@getPatternsDT');
 

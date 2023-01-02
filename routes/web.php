@@ -509,6 +509,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::get('invoices/{order}/by-order-group', 'InvoiceController@invoicesByOrderGroup')->name('invoices.by-order-group');
     Route::post('invoices/refund', 'InvoiceController@refund')->name('invoices.refund')->middleware('permission:invoices.edit');
     Route::get('invoices/{invoice}/remove-from-invoice/{order}', 'InvoiceController@removeFromInvoice')->name('invoices.remove-from-invoice')->middleware('permission:invoices.edit');
+    Route::get('invoices/control', 'InvoiceController@control')->name('invoices.control')->middleware('permission:invoices.index');
 
     // IP Access:
     Route::get('ip-access', 'IpAccessController@index')->name('ip-access.index');

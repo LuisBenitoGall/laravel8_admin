@@ -201,7 +201,7 @@
                                 }
                                 @endphp
 
-                                <x-select name="to_store" class="select2" label="almacen_selec" :options="$stores_"/>
+                                <x-select name="to_store" class="select2" label="almacen_destino_selec" :options="$stores_"/>
                             </div>
 
                             {{-- Empleados --}}
@@ -315,9 +315,7 @@ console.log(movements);
             }else{
                 $('#withBatch').slideUp();
             }
-
 		}
-
     });
 
     //Selección lote de almacén:
