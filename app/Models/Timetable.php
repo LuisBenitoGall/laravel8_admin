@@ -295,11 +295,16 @@ class Timetable extends Model{
                                 $totalTime = helpers::sumaHoras($totalTime, helpers::getTimeFromMinutes($row->max));
                                 $acumuladoDia = helpers::sumaHoras($acumuladoDia, helpers::getTimeFromMinutes($row->max));
                             }
+//dd(2, $tiempo, $totalTime, $acumuladoDia, $hoursOfWork);
 
                             //El acumulado se muestra sólo en el último registro del día:
                             if ($row->flag == 2 && ((isset($timetables[$idx]) && $timetables[$idx]->date != $date) || !isset($timetables[$idx]))){
                                 //Si el horario fijo es inferior al personalizado, se toma el horario fijo:
-                                $real_hours = $fixedTime && $hoursOfWork < $acumuladoDia? $hoursOfWork:$acumuladoDia;
+                                if($fixedTime){
+                                    $real_hours = $acumuladoDia;
+                                }else{
+                                    $real_hours = $hoursOfWork < $acumuladoDia? $hoursOfWork:$acumuladoDia;    
+                                }
 
                                 $arr['accumulated'] = $real_hours;
                                 $arr['diferencia'] = helpers::getTimeBetweenHours($real_hours, $hoursOfWork);
@@ -311,7 +316,7 @@ class Timetable extends Model{
                         }
                     }
 
-                    //Si NO es fecha trabajada:
+                //Si NO es fecha trabajada:
                 } else {
                     $arr['fecha'] = Carbon::parse($date)->format($languages[session()->get('locale')][4]);
                     $arr['date_order'] = $date;
