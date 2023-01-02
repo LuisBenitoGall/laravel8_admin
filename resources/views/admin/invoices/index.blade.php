@@ -12,6 +12,12 @@
 			<i class="fa fa-plus"></i>
 			{!! ucfirst(trans('textos.factura_compra_introducir')) !!}
 		</a>
+
+		{{-- Control de facturación --}}
+		{{-- <a href="{{ route('invoices.control') }}" class="btn btn-info">
+			<i class="fa fa-tasks"></i>
+			{!! ucfirst(trans('textos.facturacion_control')) !!}
+		</a> --}}
 	</div>
 </div>
 
