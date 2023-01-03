@@ -1837,22 +1837,22 @@ class InvoiceController extends Controller{
      * 16.1. Control de facturación para DataTable.
      */
     public function getControlDT(){
-        $data = Invoice::select('invoices.*', 'orders.id AS orderId', 'orders.order_num', 'orders.order_old_num', 'companies.name', 'companies.tradename', 'cost_centers.name AS costCenter', 'users.name AS Nombre', 'users.surname')
-        ->leftJoin('orders', 'invoices.order_id', '=', 'orders.id')
-        ->leftJoin('companies', 'orders.'.$company_field.'_id', '=', 'companies.id')
-        ->leftJoin('cost_centers', 'orders.'.$company_field.'_cost_center_id', '=', 'cost_centers.id')
-        ->leftJoin('users', 'orders.'.$company_field.'_manager_id', '=', 'users.id')
-        ->where(function ($query) use($year){
-            $query->whereYear('invoices.fiscal_date', $year)
-            ->orWhereNull('invoices.fiscal_date');
-        }) 
+        // $data = Invoice::select('invoices.*', 'orders.id AS orderId', 'orders.order_num', 'orders.order_old_num', 'companies.name', 'companies.tradename', 'cost_centers.name AS costCenter', 'users.name AS Nombre', 'users.surname')
+        // ->leftJoin('orders', 'invoices.order_id', '=', 'orders.id')
+        // ->leftJoin('companies', 'orders.'.$company_field.'_id', '=', 'companies.id')
+        // ->leftJoin('cost_centers', 'orders.'.$company_field.'_cost_center_id', '=', 'cost_centers.id')
+        // ->leftJoin('users', 'orders.'.$company_field.'_manager_id', '=', 'users.id')
+        // ->where(function ($query) use($year){
+        //     $query->whereYear('invoices.fiscal_date', $year)
+        //     ->orWhereNull('invoices.fiscal_date');
+        // }) 
 
 
-        return DataTables::of($data)
+        // return DataTables::of($data)
 
 
-        ->rawColumns(['invoice_num', 'order'])
-        ->make(true);
+        // ->rawColumns(['invoice_num', 'order'])
+        // ->make(true);
     }
     
 }
