@@ -155,6 +155,7 @@ class TimetableItemsController extends Controller{
         $item->slug = $slug;
         $item->type = $request->type;
         $item->fixed = $request->fixed;
+        $item->fixed_priority = $request->fixed_priority? 1:0;
         $item->icon = $request->icon;
         $item->min = $request->min;
         $item->max = $request->max;
@@ -222,6 +223,7 @@ class TimetableItemsController extends Controller{
         $item->name = $request->name;
         $item->slug = $slug;
         $item->fixed = $request->fixed;
+        $item->fixed_priority = $request->fixed_priority? 1:0;
         $item->icon = $request->icon;
         $item->min = $request->min;
         $item->max = $request->max;

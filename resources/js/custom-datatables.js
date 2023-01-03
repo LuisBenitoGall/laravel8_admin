@@ -5333,7 +5333,11 @@ $(document).ready(function(){
                 {"targets": 2,
                 "render": function(data, type, row){
                     if(row['fixed']){ 
-                        return row['fixed']+'"';
+                        var fixed = row['fixed']+'"';
+                        if(row['fixed_priority']){
+                            fixed += ' <i class="fa fa-asterisk text-warning" style="font-size: 9px;"></i>';
+                        }
+                        return fixed;
                     }else{
                         return '';
                     } 
