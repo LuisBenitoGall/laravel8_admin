@@ -63,12 +63,24 @@
     <label for="fixed" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.fijo')) !!}
         ({!! trans('textos.minutos') !!})</label>
     <div class="col-lg-2">
-        @php
-            $fixed = $item && $item->fixed? $item->fixed:'';
-        @endphp
+        <div class="row">
+            <div class="col-10">
+                @php
+                $fixed = $item && $item->fixed? $item->fixed:'';
+                @endphp
 
-        <x-input type="text" name="fixed" value="{{ $fixed }}" class="text-right" autocomplete="off" maxlength="5"
-                 info="timetable-fixed-time"/>
+                <x-input type="text" name="fixed" value="{{ $fixed }}" class="text-right" autocomplete="off" maxlength="5"
+                         info="timetable-fixed-time"/>    
+            </div>
+
+            {{-- Prioridad de la duración fija --}}
+            <div class="col-2">
+                <label class="custom-chk-rdb" rel="tooltip">
+                    <input type="checkbox" name="fixed_priority" @if($item && $item->fixed_priority) checked @endif>
+                    <span class="chk" style="top: 5px;"></span>
+                </label>
+            </div>
+        </div>
     </div>
 
     {{-- Duración mínima --}}
@@ -79,8 +91,7 @@
             $min = $item && $item->min? $item->min:'';
         @endphp
 
-        <x-input type="text" name="min" value="{{ $min }}" class="text-right" autocomplete="off" maxlength="5"
-                 info="timetable-min-time"/>
+        <x-input type="text" name="min" value="{{ $min }}" class="text-right" autocomplete="off" maxlength="5" info="timetable-min-time"/>
     </div>
 
     {{-- Duración máxima --}}

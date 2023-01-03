@@ -30,7 +30,7 @@ class Timetable extends Model{
      */
     public static function getUserTimetable($user_id = false, $from, $to){
         if ($user_id) {
-            $data = Timetable::select('timetables.id', 'timetables.hour', 'timetables.date', 'timetables.created_at', 'timetables.flag', 'timetables.revision', 'timetables.comments', 'timetable_items.name', 'timetable_items.type', 'timetable_items.fixed', 'timetable_items.icon', 'timetable_items.min', 'timetable_items.max', 'timetable_items.min_hour')
+            $data = Timetable::select('timetables.id', 'timetables.hour', 'timetables.date', 'timetables.created_at', 'timetables.flag', 'timetables.revision', 'timetables.comments', 'timetable_items.name', 'timetable_items.type', 'timetable_items.fixed', 'timetable_items.fixed_priority', 'timetable_items.icon', 'timetable_items.min', 'timetable_items.max', 'timetable_items.min_hour')
                 ->leftJoin('timetable_items', 'timetables.item_id', '=', 'timetable_items.id')
                 ->where('timetables.user_id', $user_id)
                 ->whereBetween('timetables.date', [$from, $to])
@@ -177,14 +177,14 @@ class Timetable extends Model{
                 //Día de la semana:
                 $week_day = date('N', strtotime($date));
 
-                $acumuladoDia = 0;
+                $acumuladoDia = 0;          //Tiempo de trabajo acumulado por el empleado.
                 $arr['valid'] = true;
                 $customTimetableDay = false;
                 $isWorkedDay = true;
 
                 //Obtenemos el tiempo de trabajo del día según el calendario de Empresa:
                 if (in_array($date, $arrWorkCalendar)) {
-                    $hoursOfWork = $arrWorkCalendarHours[strval($date)];
+                    $hoursOfWork = $arrWorkCalendarHours[strval($date)];        //Horas de la jornada laborable.
                 } else {
                     $hoursOfWork = false;
                     $isWorkedDay = false;
@@ -218,11 +218,11 @@ class Timetable extends Model{
                     }
                 }
 
+                //Establece si se trata de un registro con duración fija:
                 $fixedTime = false;
-
+                $priority = false;
 
                 //Si es fecha trabajada y carece de tratamiento especial como fecha personalizada:
-
                 //if(in_array($date, $arrWorkedDays)){
                 if(in_array($date, $arrEmployeeWorkingDays)){
                     //Recorremos las fechas trabajadas por el usuario buscando coincidencia con la fecha del array:
@@ -261,11 +261,13 @@ class Timetable extends Model{
                                     if ($row->fixed > 0 && !$customTimetableDay) {
                                         $hasta = helpers::sumaHoras($hora, helpers::getTimeFromMinutes($row->fixed));
                                         $fixedTime = true;
+                                        $priority = $row->fixed_priority? true:false;
 
                                     //Si el usuario tiene horarios personalizados, se sustituye el valor de hora fija que tenga la empresa por el valor del horario personalizado, esto es, la prevalencia la marca el horario personalizado sobre el horario fijo:
                                     }elseif($row->fixed > 0 && $customTimetableDay){
                                         $hasta = helpers::sumaHoras($hora, $hoursOfWork);
                                         $fixedTime = true;
+                                        $priority = $row->fixed_priority? true:false;
 
                                     } else {
                                         $hasta = $timetables[$idx]->hour;
@@ -297,14 +299,12 @@ class Timetable extends Model{
                             //El acumulado se muestra sólo en el último registro del día:
                             if ($row->flag == 2 && ((isset($timetables[$idx]) && $timetables[$idx]->date != $date) || !isset($timetables[$idx]))){
                                 //Si el horario fijo es inferior al personalizado, se toma el horario fijo:
-                                // if($fixedTime){
-                                //     $real_hours = $acumuladoDia;
-                                // }else{
-                                //     $real_hours = $hoursOfWork < $acumuladoDia? $hoursOfWork:$acumuladoDia;    
-                                // }
-                                
-
                                 $real_hours = $fixedTime && $hoursOfWork < $acumuladoDia? $hoursOfWork:$acumuladoDia;
+
+                                //Criterio de prioridad:
+                                if($priority){
+                                    $real_hours = $acumuladoDia;
+                                }
 
                                 $arr['accumulated'] = $real_hours;
                                 $arr['diferencia'] = helpers::getTimeBetweenHours($real_hours, $hoursOfWork);
