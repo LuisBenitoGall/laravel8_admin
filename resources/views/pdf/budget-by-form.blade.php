@@ -203,7 +203,7 @@ $discount_in_lines = false;
 					<td colspan="2" style="background-color: #FFF;"></td>
 					<td style="background-color: {{ $bg_color }}; color: #FFF; text-align: left;">{{ strtoupper(trans('textos.total')) }}</td>
 					<td style="background-color: {{ $bg_color }}; color: #FFF; text-align: right;">
-						{{ number_format($arr_amounts['total_amount_without_discounts'], 2) }}{{ $currency->symbol }}
+						{{ number_format($arr_amounts['total_amount'], 2) }}{{ $currency->symbol }}
 					</td>
 				</tr>
 
