@@ -1604,6 +1604,7 @@ $(document).ready(function(){
                 {data: 'user_enabled', className: 'text-center'},
                 {data: 'cumulative', className: 'text-center'},
                 {data: 'modifiable', className: 'text-center'},
+                {data: 'repetition', className: 'text-center'},
                 {data: 'acciones', className: 'text-right'}
             ]
         });
