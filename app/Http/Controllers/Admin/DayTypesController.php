@@ -129,10 +129,17 @@ class DayTypesController extends Controller{
                 return '<i class="fa fa-times text-danger" rel="tooltip" title="'.trans('textos.modificable_no').'"></i>';
             }
         })
+        ->addColumn('repetition', function($row){
+            if($row->annual_repetition == 1){
+                return '<i class="fa fa-check text-success" rel="tooltip" title="'.trans('textos.repeticion').'"></i>';
+            }else{
+                return '<i class="fa fa-times text-danger" rel="tooltip" title="'.trans('textos.repeticion_no').'"></i>';
+            }
+        })
         ->addColumn('acciones', function($row){
             return view('admin.day_types.partials.dt-actions', compact('row'));    
         })
-        ->rawColumns(['color', 'is_working', 'user_enabled', 'cumulative', 'modifiable'])
+        ->rawColumns(['color', 'is_working', 'user_enabled', 'cumulative', 'modifiable', 'repetition'])
         ->make(true);
     }
 
@@ -167,6 +174,7 @@ class DayTypesController extends Controller{
         $cumulative = $request->input('cumulative')? 1:0;
         $rank = $request->input('rank')? 1:0;
         $modifiable = $request->input('modifiable')? 1:0;
+        $annual_repetition = $request->input('annual_repetition')? 1:0;
 
         $daytype = new DayTypes();
         $daytype->company_id = session('currentCompany');
@@ -178,6 +186,7 @@ class DayTypesController extends Controller{
         $daytype->cumulative = $cumulative;
         $daytype->rank = $rank;
         $daytype->modifiable = $modifiable;
+        $daytype->annual_repetition = $annual_repetition;
         $daytype->save();
 
         $msg = trans('textos.jornada_ok');
@@ -194,6 +203,9 @@ class DayTypesController extends Controller{
             'module' => $this->module,
             'slug' => 'day-types'
         ]; 
+
+        //Copiar tipo de jornada de un año a otro:
+        $dt->copyYearToYear(date('Y', strtotime('-1 year')), date('Y'));
 
         return view('admin.day_types.edit')->with(compact('header', 'dt'));    
     }
@@ -212,12 +224,14 @@ class DayTypesController extends Controller{
         $cumulative = $request->input('cumulative')? 1:0;
         $rank = $request->input('rank')? 1:0;
         $modifiable = $request->input('modifiable')? 1:0;
+        $annual_repetition = $request->input('annual_repetition')? 1:0;
 
         $dt->name = $request->input('name');
         $dt->color = $request->input('color');
         $dt->cumulative = $cumulative;
         $dt->rank = $rank;
         $dt->modifiable = $modifiable;
+        $dt->annual_repetition = $annual_repetition;
         $dt->save();
 
         $msg = trans('textos.jornada_update');
