@@ -2817,4 +2817,8 @@ return array(
 	'favoritos' => 'favoritos',
 	'favoritos_sin' => 'No tienes seleccionado ningún favorito en este momento.',
 	'autorizacion_administrador' => 'Con autorización del administrador',
+	'repeticion' => 'Repetición',
+	'repeticion_anual' => 'Repetición anual',
+	'repeticion_no' => 'Sin repetición',
+
 );
