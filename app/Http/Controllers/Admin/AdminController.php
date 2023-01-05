@@ -51,7 +51,7 @@ class AdminController extends Controller{
         ->orderBy('modules.level', 'ASC')
         ->get();
 
-        $this->test();
+        //$this->test();
 
         // $company_emails = CompanySettings::select('emails')
         //     ->where('company_id', session('currentCompany'))
