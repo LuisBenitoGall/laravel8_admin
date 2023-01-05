@@ -31,15 +31,15 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule){
         //Production Commands:
         // //->weekdays()  sólo días laborables.
-        $schedule->command('check_timetable:task')->dailyAt('23:45');
+        //$schedule->command('check_timetable:task')->dailyAt('23:45');
         //$schedule->command('closed:signed')->dailyAt('23:52');
-        $schedule->command('required_timetable_items:task')->dailyAt('23:55');
-        $schedule->command('company_accounts:task')->dailyAt('00:01');
-        $schedule->command('employees_expiration:task')->dailyAt('00:02');
+        //$schedule->command('required_timetable_items:task')->dailyAt('23:55');
+        //$schedule->command('company_accounts:task')->dailyAt('00:01');
+        //$schedule->command('employees_expiration:task')->dailyAt('00:02');
 
         // Tareas para los push.
-        $schedule->command('warning:push')->everyFifteenMinutes()->between('9:00','17:00');
-        $schedule->command('push:send')->everyFifteenMinutes()->between('9:00','17:00');
+        //$schedule->command('warning:push')->everyFifteenMinutes()->between('9:00','17:00');
+        //$schedule->command('push:send')->everyFifteenMinutes()->between('9:00','17:00');
 
         //Test Commands
         //$schedule->command('check_timetable:task')->everyMinute();
