@@ -45,13 +45,13 @@ class AdminController extends Controller{
             'module' => $this->module
         ];
 
+        //$this->test();
+
         $preferences = Preference::select('preferences.id', 'preferences.name', 'preferences.url', 'modules.color', 'modules.icon')
         ->leftJoin('modules', 'preferences.module_id', '=', 'modules.id')
         ->where('preferences.user_id', Auth::user()->id)
         ->orderBy('modules.level', 'ASC')
         ->get();
-
-        //$this->test();
 
         // $company_emails = CompanySettings::select('emails')
         //     ->where('company_id', session('currentCompany'))
@@ -145,10 +145,10 @@ class AdminController extends Controller{
                     //Si es jornada festiva:
                     $noWork = WorkUserCalendar::noWorkDay($user->id, Carbon::today());
 
-                    $items_done = [];
-
                     //Si no ha tomado festivo o es jornada laborable tipo 'teletrabajo':
                     if(!$noWork || ($noWork->is_working && $noWork->in_office)){
+                        $items_done = [];
+
                         //Registros de la jornada del usuario:
                         $user_required_items = Timetable::where('user_id', $user->id)
                         ->where('date', Carbon::today())
@@ -161,43 +161,44 @@ class AdminController extends Controller{
                                 array_push($items_done, $uri->item_id);
                             }
                         }
-                    }
+                    
 
-                    //Insert de los registros obligatorios no hallados:
-                    foreach($required_timetable_items as $idx => $rti){
-                        //Si el índice no está como valor en el array de items cumplidos:
-                        if(!in_array($idx, $items_done)){
-                            //Hora de inicio del registro:
-                            $hour_from = '10:00:00';
-                            foreach($required_timetable_items_collection as $r_){
-                                if($r_->id == $idx){
-                                    $hour_from = $r_->required_warning;
-                                    break;
+                        //Insert de los registros obligatorios no hallados:
+                        foreach($required_timetable_items as $idx => $rti){
+                            //Si el índice no está como valor en el array de items cumplidos:
+                            if(!in_array($idx, $items_done)){
+                                //Hora de inicio del registro:
+                                $hour_from = '10:00:00';
+                                foreach($required_timetable_items_collection as $r_){
+                                    if($r_->id == $idx){
+                                        $hour_from = $r_->required_warning;
+                                        break;
+                                    }
                                 }
-                            }
 
-                            //Registro de salida:
-                            $t_out = new Timetable();
-                            $t_out->date = Carbon::today();
-                            $t_out->hour = $hour_from;
-                            $t_out->user_id = $user->id;
-                            $t_out->item_id = $idx;
-                            $t_out->flag = 2;
-                            $t_out->save();
+                                //Registro de salida:
+                                $t_out = new Timetable();
+                                $t_out->date = Carbon::today();
+                                $t_out->hour = $hour_from;
+                                $t_out->user_id = $user->id;
+                                $t_out->item_id = $idx;
+                                $t_out->flag = 2;
+                                $t_out->save();
 
-                            $minutes = helpers::getMinutes($t_out->hour) + $rti;
-                            $hora_entrada = date('H:i:s', mktime(0,$minutes,0));
+                                $minutes = helpers::getMinutes($t_out->hour) + $rti;
+                                $hora_entrada = date('H:i:s', mktime(0,$minutes,0));
 
-                            //Registro de entrada:
-                            $t_in = new Timetable();
-                            $t_in->date = Carbon::today();
-                            $t_in->hour = $hora_entrada;
-                            $t_in->user_id = $user->id;
-                            $t_in->item_id = $entrada->id;
-                            $t_in->flag = 1;
-                            $t_in->save();
-                        }    
-                    }      
+                                //Registro de entrada:
+                                $t_in = new Timetable();
+                                $t_in->date = Carbon::today();
+                                $t_in->hour = $hora_entrada;
+                                $t_in->user_id = $user->id;
+                                $t_in->item_id = $entrada->id;
+                                $t_in->flag = 1;
+                                $t_in->save();
+                            }    
+                        }  
+                    }    
                 }
             }
         }
