@@ -20,6 +20,7 @@ use App\Models\Contract;
 use App\Models\Employee;
 use App\Models\Module;
 use App\Models\User;
+use App\Models\UserTimetables;
 use App\Models\UserWorkplaces;
 use App\Models\Workplace;
 
