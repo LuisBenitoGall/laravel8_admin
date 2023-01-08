@@ -9,8 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 
-class Workplace extends Model
-{
+class Workplace extends Model{
     /**
      * 1. Empresa del centro de trabajo.
      * 2. Validación del centro de trabajo para middleware.

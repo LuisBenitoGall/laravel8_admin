@@ -411,4 +411,8 @@ class Order extends Model{
         return $this->belongsTo(CostCenters::class, 'provider_cost_center_id');
     }
 
+    public function previsions(){
+        return $this->hasMany(OrderPrevisions::class);
+    }
+
 }

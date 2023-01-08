@@ -14,10 +14,10 @@
 		</a>
 
 		{{-- Control de facturación --}}
-		{{-- <a href="{{ route('invoices.control') }}" class="btn btn-info">
+		<a href="{{ route('invoices.control') }}" class="btn btn-info">
 			<i class="fa fa-tasks"></i>
 			{!! ucfirst(trans('textos.facturacion_control')) !!}
-		</a> --}}
+		</a>
 	</div>
 </div>
 

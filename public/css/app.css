@@ -21290,6 +21290,7 @@ div.dt-button-info {
 select.form-control:not([size]):not([multiple]) {
   /*height: 2.30rem;*/
   /*height: 2rem;*/
+  height: calc(2.25rem);
 }
 
 .input-sm,

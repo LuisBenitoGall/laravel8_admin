@@ -1837,22 +1837,56 @@ class InvoiceController extends Controller{
      * 16.1. Control de facturación para DataTable.
      */
     public function getControlDT(){
-        // $data = Invoice::select('invoices.*', 'orders.id AS orderId', 'orders.order_num', 'orders.order_old_num', 'companies.name', 'companies.tradename', 'cost_centers.name AS costCenter', 'users.name AS Nombre', 'users.surname')
-        // ->leftJoin('orders', 'invoices.order_id', '=', 'orders.id')
-        // ->leftJoin('companies', 'orders.'.$company_field.'_id', '=', 'companies.id')
-        // ->leftJoin('cost_centers', 'orders.'.$company_field.'_cost_center_id', '=', 'cost_centers.id')
-        // ->leftJoin('users', 'orders.'.$company_field.'_manager_id', '=', 'users.id')
-        // ->where(function ($query) use($year){
-        //     $query->whereYear('invoices.fiscal_date', $year)
-        //     ->orWhereNull('invoices.fiscal_date');
-        // }) 
+        //Moneda:
+        $currency = CompanySettings::co_currency(0);
 
+        $estados = helpers::orderStatus();
 
-        // return DataTables::of($data)
+        $data = Order::select('orders.id', 'orders.order_num', 'orders.order_old_num', 'orders.delivery_date', 'orders.order_status', 'companies.name', 'companies.tradename', 'users.name AS Nombre', 'users.surname')
+        ->join('companies', 'orders.customer_id', '=', 'companies.id')
+        ->leftJoin('users', 'orders.provider_manager_id', '=', 'users.id')
+        ->whereHas('previsions', function ($query){
+            $query->whereNull('invoice_id');
+            $query->select(DB::raw('SUM(percent) as total'))
+            ->havingRaw('total < 100');
+        })
+        ->where('orders.provider_id', session('currentCompany'))
+        ->with('previsions')
+        ->orderBy('orders.id', 'ASC');
 
+        return DataTables::of($data)
+        ->addColumn('order_num', function($row){
+            $num = $row->order_num? $row->order_num:($row->order_old_num? $row->order_old_num:$row->id);
+            return '<a href="'.route('orders.edit', $row).'">'.$num.'</a>'; 
+        })
+        ->addColumn('company', function($row){
+            return $row->name;
+        })
+        ->addColumn('manager', function($row){
+            return $row->Nombre.' '.$row->surname;
+        })
+        ->addColumn('delivery_date', function($row){
+            return $row->delivery_date? Carbon::parse($row->delivery_date)->format($this->languages[session()->get('locale')][4]):'';
+        })
+        ->addColumn('amount', function($row) use($currency){
+            $amount = $row->getAmount();  
+            return $amount['total_amount'].$currency->symbol;
+        })
+        ->addColumn('pendiente', function($row) use($currency){
+            $amount = $row->getAmount();
+            $invoice_amounts = $row->getInvoicedAmount();
+            $diff = isset($invoice_amounts['invoiced_amount'])? $amount['total_amount'] - $invoice_amounts['invoiced_amount']:false;
 
-        // ->rawColumns(['invoice_num', 'order'])
-        // ->make(true);
+            return $diff? round($diff, 2).$currency->symbol:'';
+        })
+        ->addColumn('estado', function($row) use($estados){
+            return view('admin.orders.partials.dt-status', compact('row', 'estados'));    
+        })
+        ->addColumn('acciones', function($row) use($estados){
+            return view('admin.invoices.partials.dt-actions-control', compact('row', 'estados'));    
+        })
+        ->rawColumns(['order_num'])
+        ->make(true);
     }
     
 }
