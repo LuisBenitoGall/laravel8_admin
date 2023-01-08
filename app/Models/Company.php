@@ -11,8 +11,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 
-class Company extends Model
-{
+class Company extends Model{
     /**
      * 1. Almacenes de la empresa.
      * 2. Tipos de jornada de la empresa.
