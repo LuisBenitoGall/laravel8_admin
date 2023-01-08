@@ -2,6 +2,8 @@
 
 @section('content')
 
+<input type="hidden" id="dtController" value="orders">
+
 <div class="row mb-3">
 	{{-- Acciones: --}}
 	<div class="col-12">
@@ -17,18 +19,20 @@
 
 {{-- Tabla --}}
 <div class="row">
+	<div class="col-12">
+		<h4 class="text-warning mb-3">Relación de pedidos con facturación pendiente.</h4>
+	</div>
+
 	<div class="table-responsive">
 		<table class="table table-hover dtabla" id="tblInvoiceControl">
 			<thead>
 				<tr>
 					<th class="text-center wdt50">#</th>
 					<th class="wdt150">{!! ucfirst(trans('textos.cliente')) !!}</th>
-					<th class="text-center wdt50">{!! ucfirst(trans('textos.pedido')) !!}</th>
 					<th class="text-center wdt100">{!! ucfirst(trans('textos.responsable')) !!}</th>
 					<th class="text-center wdt50">{!! ucfirst(trans('textos.fecha')) !!}</th>
-					<th class="text-center wdt100">{!! ucfirst(trans('textos.fecha_vencimiento')) !!}</th>
 					<th class="text-center wdt100">{!! trans('textos.importe') !!}</th>
-					<th class="wdt100">{!! trans('textos.mes') !!}</th>
+					<th class="text-center wdt100">{!! ucfirst(trans('textos.pendiente')) !!}</th>
 					<th class="wdt100">{!! trans('textos.estado') !!}</th>
 					<th class="text-center wdt100">{!! ucfirst(trans('textos.acciones')) !!}</th>
 				</tr>

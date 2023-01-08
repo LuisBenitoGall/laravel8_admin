@@ -2204,10 +2204,14 @@ $(document).ready(function(){
                 }
             },
             columns: [
-                {data: 'name'},
-                {data: 'alta', name: 'alta', className: 'text-right'},
-                {data: 'description'},
-                {data: 'acciones', name: 'acciones', className: 'text-right'}
+                {data: 'order_num', name: 'orders.order_num', className: 'text-right'},
+                {data: 'company', name: 'companies.name'},
+                {data: 'manager', name: 'users.name'},
+                {data: 'delivery_date', className: 'text-right'},
+                {data: 'amount', name: 'invoices.amount', className: 'text-right'},
+                {data: 'pendiente', className: 'text-right'},
+                {data: 'estado'},
+                {data: 'acciones', className: 'text-right'}
             ]
         });
     }

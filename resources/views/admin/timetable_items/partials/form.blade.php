@@ -1,7 +1,7 @@
 @php
-    //Icons:
-    $pathIcons = storage_path()."/json/fa-icons.json";
-    $icons = json_decode(file_get_contents($pathIcons), true);
+//Icons:
+$pathIcons = storage_path()."/json/fa-icons.json";
+$icons = json_decode(file_get_contents($pathIcons), true);
 @endphp
 
 <div class="form-group row">
@@ -149,16 +149,31 @@
 
 <div class="form-group row">
     {{-- Obligatorio --}}
-    @php
-        $required = $item && $item->required? $item->required:'';
-    @endphp
     <label for="required" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.obligatorio_diario')) !!}</label>
     <div class="col-lg-2">
-        @php
-            $required = $item && $item->required? $item->required:'';
-        @endphp
+        <div class="row">
+            <div class="col-10">
+                @php
+                $required = $item && $item->required? $item->required:'';
+                @endphp
 
-        <x-input type="text" name="required" value="{{ $required }}" class="text-right" autocomplete="off" maxlength="3" info="timetable-item-required"/>
+                <x-input type="text" name="required" value="{{ $required }}" class="text-right" autocomplete="off" maxlength="3" info="timetable-item-required"/>
+            </div>
+
+            {{-- Modal de condiciones --}}
+            @if($item)
+                @php
+                $rules_arr = $item->required_condition? unserialize($item->required_condition):false;
+                $rules = $rules_arr? implode('|', $rules_arr):'';
+                @endphp
+
+                <div class="col-2">
+                    <a href="#" class="btn btn-info btn-xs btnEditRule" data-rule="{!! $rules !!}" data-toggle="modal" data-target="#modal-required-conditions" rel="tooltip" title="{{ trans('textos.condiciones') }}">
+                        <i class="fa fa-ruler"></i>
+                    </a>
+                </div>
+            @endif
+        </div>
     </div>
 
     {{-- Hora límite --}}
@@ -198,3 +213,5 @@
         @endforeach
     </div>
 </div>
+
+

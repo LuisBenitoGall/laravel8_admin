@@ -96,6 +96,7 @@ class CheckTimetableTask extends Command{
                         ->where('user_id', $user->id)
                         ->whereNull('deleted_at')
                         ->orderBy('date', 'DESC')
+                        ->orderBy('hour', 'DESC')
                         ->orderBy('flag', 'DESC')
                         ->orderBy('id', 'DESC')
                         ->first();

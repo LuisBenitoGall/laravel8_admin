@@ -1008,6 +1008,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::put('timetable-items/{item}/update', 'TimetableItemsController@update')->name('timetable-items.update');
     Route::delete('timetable-items/{item}', 'TimetableItemsController@destroy')->name('timetable-items.destroy');
     Route::post('timetable-items/export', 'TimetableItemsController@export')->name('timetable-items.export');
+    Route::post('timetable-items/store-rule', 'TimetableItemsController@storeRule')->name('timetable-items.store-rule');
 
     // Timetable Signed:
     Route::get('timetable-signed/list/{year?}', 'TimetableSignedController@index')->name('timetable-signed.index');
