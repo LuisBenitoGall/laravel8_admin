@@ -63,7 +63,7 @@ class AdminController extends Controller{
 
         // dd($emailsTo);
 
-        //$this->adjustRequiredTimetables();
+        $this->adjustRequiredTimetables();
 
 
         return view('admin.dashboard', compact('header', 'preferences'));
