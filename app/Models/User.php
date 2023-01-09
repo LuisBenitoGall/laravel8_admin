@@ -14,8 +14,7 @@ use Illuminate\Support\Facades\Session;
 use Laravel\Passport\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
-class User extends Authenticatable
-{
+class User extends Authenticatable{
     /**
      * 1. Empresas del usuario.
      * 2. Imágenes del usuario.
@@ -28,6 +27,7 @@ class User extends Authenticatable
      * 9. Notas del usuario.
      * 10. Validación usuario para middleware.
      * 11. Listado de categorias del usuario.
+     * 12. Centro de trabajo del usuario.
      */
 
     use HasApiTokens;
@@ -86,8 +86,7 @@ class User extends Authenticatable
     /**
      * 1. Empresas del usuario.
      */
-    public function companies()
-    {
+    public function companies(){
         $data = Company::select('companies.*')
             ->join('user_companies', 'companies.id', '=', 'user_companies.company_id')
             ->where('user_companies.user_id', $this->id)
@@ -100,16 +99,14 @@ class User extends Authenticatable
     /**
      * 2. Imágenes del usuario.
      */
-    public function images()
-    {
+    public function images(){
         return $this->hasMany(UserImage::class);
     }
 
     /**
      * 3. Documentos del usuario.
      */
-    public function docs()
-    {
+    public function docs(){
         return $this->hasMany(UserDoc::class);
     }
 
@@ -152,8 +149,7 @@ class User extends Authenticatable
     /**
      * 5. Usuarios por empresa.
      */
-    public static function companyUsers($company_id, $status = false, $limit = false)
-    {
+    public static function companyUsers($company_id, $status = false, $limit = false){
         $q = User::select('users.*', 'user_companies.categories',
             DB::raw('(SELECT image FROM user_images WHERE user_id = users.id AND featured = 1) AS Image')
         )
@@ -173,24 +169,21 @@ class User extends Authenticatable
     /**
      * 6. Preferencias de usuario.
      */
-    public function preferences()
-    {
+    public function preferences(){
         return $this->hasMany(Preference::class);
     }
 
     /**
      * 7. Teléfonos del usuario.
      */
-    public function phones()
-    {
+    public function phones(){
         return $this->hasMany(Phone::class);
     }
 
     /**
      * 8. Usuario como Super Admin.
      */
-    public function isSuperAdmin()
-    {
+    public function isSuperAdmin(){
         $roles = $this->getRoleNames();
 
         $sa = false;
@@ -209,21 +202,18 @@ class User extends Authenticatable
     /**
      * 9. Notas del usuario.
      */
-    public function notes()
-    {
+    public function notes(){
         return $this->hasMany(Note::class)->count();
     }
 
-    public static function getProfilePhotoUrlAttribute()
-    {
+    public static function getProfilePhotoUrlAttribute(){
         return false;
     }
 
     /**
      * 10. Validación usuario para middleware.
      */
-    public static function userMiddleware($user_id)
-    {
+    public static function userMiddleware($user_id){
         //Si el usuario es distinto de la sesión:
         if (Auth::user()->id != $user_id) {
             $alert = trans('textos.no_permisos_edicion');
@@ -268,8 +258,7 @@ class User extends Authenticatable
     /**
      * 11. Listado de categorias del usuario.
      */
-    public function categories_of_user_string($categories_raw)
-    {
+    public function categories_of_user_string($categories_raw){
         // Si el campo es null, se retorna un string vació
         if ($categories_raw == null) {
             return "";
@@ -285,8 +274,14 @@ class User extends Authenticatable
         return $categories_string;
     }
 
-    public function workplaces()
-    {
+    /**
+     * 12. Centro de trabajo del usuario.
+     */
+    public function workplace(){
+        return $this->hasOne(UserWorkplaces::class);
+    }
+
+    public function workplaces(){
         return $this->hasMany(Workplace::class);
     }
 

@@ -37,6 +37,7 @@ class EmployeeController extends Controller{
      * 7. Eliminar empleo.
      * 7.1. Actualizar status del empleo.
      * 8. Cancelar contrato de empleado.
+     * 9. Actualizar contrato.
      */
     
     private $option = 'empleados';
@@ -398,5 +399,49 @@ class EmployeeController extends Controller{
 
         $msg = trans('textos.contrato_cancelled');
         return redirect()->route('employees.user', $request->input('user_id'))->with(compact('msg'));  
-    }    
+    }   
+
+    /**
+      * 9. Actualizar contrato.
+      */ 
+    public function update(Request $request, Employee $employee){
+        $validator = $this->validator($request->all());
+        if($validator->fails()){
+            return redirect('admin/employees/'.$employee->id.'/edit')
+                ->withErrors($validator)
+                ->withInput();
+        }  
+//dd($request->all(), date('d/m/Y', strtotime($request->input('end_date'))));
+        //Formateando fechas de inicio y fin:
+        $start_date = helpers::convertFecha($request->input('start_date'));
+
+        if($request->input('end_date')){
+            //Si es fecha:
+            $arr = explode('/', $request->input('end_date'));
+            if(count($arr) == 3){
+                $end_date = helpers::convertFecha($request->input('end_date'));
+            }else{
+                $end_date = config('constants.UNDEFINED_DATE_');    
+            }            
+        }else{
+            $end_date = config('constants.UNDEFINED_DATE_');
+        }
+
+        $time_control = $request->input('time_control')? 1:0;
+        $status = ($start_date > date('Y-m-d'))? 0:1;
+
+        //Empleo:
+        $employee->job_title = $request->input('job_title');
+        $employee->start_date = $start_date;
+        $employee->end_date = $end_date;
+        $employee->weekly_hours = $request->input('weekly_hours');
+        $employee->time_control = $time_control;
+        $employee->year_salary = $request->input('year_salary');
+        $employee->status = $status;
+        $employee->observations = $request->input('observations');
+        $employee->save();
+
+        $msg = trans('textos.contrato_updated');
+        return redirect()->route('employees.edit', $employee->id)->with(compact('msg'));
+    }
 }

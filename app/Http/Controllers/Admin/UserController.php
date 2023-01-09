@@ -796,7 +796,14 @@ class UserController extends Controller{
                 return $row['hour'];
             })
             ->addColumn('name', function($row){
-                return ucfirst($row['name']);
+                $concept = '';
+                if($row['flag'] == 1){
+                    $concept .= '<i class="fa fa-sign-in-alt text-success"></i> ';
+                }else{
+                    $concept .= '<i class="fa fa-sign-out-alt text-danger"></i> ';    
+                }
+                $concept .= ucfirst($row['name']);
+                return $concept; 
             })
             ->addColumn('accumulated', function($row){
                 $accumulated = isset($row['accumulated'])? $row['accumulated']:'';
@@ -815,7 +822,7 @@ class UserController extends Controller{
             ->addColumn('acciones', function($row){
                 return view('admin.users.partials.dt-timetable-actions', compact('row'));
             })
-            ->rawColumns(['fecha', 'accumulated'])
+            ->rawColumns(['fecha', 'name', 'accumulated'])
             ->make(true);
 
         }else{
