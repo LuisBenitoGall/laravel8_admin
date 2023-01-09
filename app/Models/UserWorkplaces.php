@@ -28,7 +28,8 @@ class UserWorkplaces extends Model{
         $data = UserWorkplaces::select('user_workplaces.id', 'user_workplaces.workplace_id', 'workplaces.name')
         ->join('workplaces', 'user_workplaces.workplace_id', '=', 'workplaces.id')
         ->where('user_workplaces.user_id', $user_id)
-        ->where('workplaces.company_id', $company_id)->get();
+        ->where('workplaces.company_id', $company_id)
+        ->get();
 
         return $data;
     }

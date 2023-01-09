@@ -141,6 +141,8 @@ class RequiredTimetableItemsTask extends Command{
                                 ->orderBy('id', 'ASC')
                                 ->get();
 
+                                //El primer registro debe ser entrada ordinaria:
+
                                 foreach($user_required_items as $uri){
                                     //Los items requeridos existentes se guardan en nuevo array:
                                     if(array_key_exists($uri->item_id, $required_timetable_items)){
