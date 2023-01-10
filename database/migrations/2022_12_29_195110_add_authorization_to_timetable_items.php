@@ -12,7 +12,7 @@ class AddAuthorizationToTimetableItems extends Migration{
      */
     public function up(){
         Schema::table('timetable_items', function (Blueprint $table){
-            $table->boolean('with_authorization')->nullable()->after('required_warning');
+            $table->boolean('with_authorization')->default(0)->after('required_warning');
         });
     }
 
