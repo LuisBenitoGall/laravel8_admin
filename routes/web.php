@@ -1028,6 +1028,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::delete('timetable/{timetable}', 'TimetableController@destroy')->name('timetable.destroy')->middleware('permission:employees-timetable.destroy');
     Route::post('timetable/revision', 'TimetableController@revisionHorarioOn')->name('timetable.revision-horario');
     Route::get('timetable/revision/{id}', 'TimetableController@revisionHorarioOff')->name('timetable.revision-horario');
+    Route::get('timetable/authorize-concept/{timetable}', 'TimetableController@authorizeConcept')->name('timetable.authorize-concept');
 
     // Towns:
     Route::get('towns/{province}', 'TownController@index')->name('towns.index');
