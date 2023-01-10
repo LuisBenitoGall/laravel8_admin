@@ -24,19 +24,22 @@ class Timetable extends Model{
 
     protected $dates = ['deleted_at'];
 
-
     /**
      * 1. Horarios de trabajo por usuario.
      */
-    public static function getUserTimetable($user_id = false, $from, $to){
+    public static function getUserTimetable($user_id = false, $from, $to, $authorized = false){
         if ($user_id) {
-            $data = Timetable::select('timetables.id', 'timetables.hour', 'timetables.date', 'timetables.created_at', 'timetables.flag', 'timetables.revision', 'timetables.comments', 'timetable_items.name', 'timetable_items.type', 'timetable_items.fixed', 'timetable_items.fixed_priority', 'timetable_items.icon', 'timetable_items.min', 'timetable_items.max', 'timetable_items.min_hour')
-                ->leftJoin('timetable_items', 'timetables.item_id', '=', 'timetable_items.id')
-                ->where('timetables.user_id', $user_id)
-                ->whereBetween('timetables.date', [$from, $to])
-                ->orderBy('timetables.date', 'ASC')
-                ->orderBy('timetables.hour', 'ASC')
-                ->get();
+            $data = Timetable::select('timetables.id', 'timetables.hour', 'timetables.date', 'timetables.created_at', 'timetables.flag', 'timetables.revision', 'timetables.authorized', 'timetables.comments', 'timetable_items.name', 'timetable_items.type', 'timetable_items.fixed', 'timetable_items.fixed_priority', 'timetable_items.icon', 'timetable_items.min', 'timetable_items.max', 'timetable_items.min_hour')
+            ->leftJoin('timetable_items', 'timetables.item_id', '=', 'timetable_items.id')
+            ->where('timetables.user_id', $user_id)
+            //Condición de item autorizado:
+            ->when($authorized, function($q){
+                return $q->where('timetables.authorized', true);
+            })
+            ->whereBetween('timetables.date', [$from, $to])
+            ->orderBy('timetables.date', 'ASC')
+            ->orderBy('timetables.hour', 'ASC')
+            ->get();
 
             return $data;
         } else {
