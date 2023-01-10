@@ -50,7 +50,7 @@ class Timetable extends Model{
     /**
      * 2. Relación de horarios por intervalo de fechas.
      */
-    public static function listUserTimetables($from, $to, $user_id, $workplace_id){
+    public static function listUserTimetables($from, $to, $user_id, $workplace_id, $see_authorized){
         //Todos los contratos desde la fecha de inicio, obteniendo los contratos cuya fecha de finalización sea posterior a la fecha de inicio del intervalo.
         $employees = Employee::select('start_date', 'end_date')
         ->where('user_id', $user_id)
@@ -92,8 +92,8 @@ class Timetable extends Model{
         //Array del intervalo de fechas:
         $arrFromTo = Timetable::setRankDatesArr($from, $to);
 
-        //Horarios del usuario:
-        $timetables = Timetable::getUserTimetable($user_id, $from, $to);
+        //Horarios del usuario por intervalo de fechas. Incluimos si puede acceder a los conceptos bajo autorización:
+        $timetables = Timetable::getUserTimetable($user_id, $from, $to, $see_authorized);
 
         //Guardamos en un array todas las fechas trabajadas:
         $arrWorkedDays = [];
@@ -248,6 +248,7 @@ class Timetable extends Model{
                             $arr['edit_timetable'] = $edit_timetable;
                             $arr['flag'] = $row->flag;
                             $arr['revision'] = $row->revision;
+                            $arr['authorized'] = $row->authorized;
 
                             // ******** CAMPOS CALCULADOS: *********
                             //Guardamos el siguiente índice para posteriores consultas:
@@ -336,13 +337,14 @@ class Timetable extends Model{
                     $arr['edit_timetable'] = false;
                     $arr['flag'] = false;
                     $arr['revision'] = false;
+                    $arr['authorized'] = $row->authorized;
 
                     //Comprobamos que la fecha no aparezca en el calendario personal del usuario. Si el valor es true debe tener horas trabajadas o las debe si la jornada era de trabajo.
                     $workday = in_array($date, $arrUserCalendar) || in_array($date, $arrEmployeeWorkingDays)? true:false;
                     //$workday = in_array($date, $arrUserCalendar) ? false : true;
 
                     //Si es jornada laboral, no es jornada libre del usuario y no hay registros del usuario, debe las horas:
-                    if ($workday && $isWorkedDay) {
+                    if($workday && $isWorkedDay){
                         //Comprobamos si la fecha existe o no en el calendario laboral:
                         if (in_array($date, $arrWorkCalendar)) {
                             $arr['name'] = trans('textos.registro_falta');
