@@ -784,7 +784,10 @@ class UserController extends Controller{
             //Centro de trabajo del usuario en el intervalo señalado:
             $workplace = UserWorkplaces::getEmployeeWorkplace($user_id, $from, $to);
 
-            $data = Timetable::listUserTimetables($from, $to, $user_id, $workplace->id);
+            //Indicamos si el usuario puede acceder a los conceptos que requieren autorización:
+            $see_authorized = Auth::user()->can('employees-timetable.edit')? false:true;
+
+            $data = Timetable::listUserTimetables($from, $to, $user_id, $workplace->id, $see_authorized);
 
             return DataTables::of($data)
             ->addColumn('fecha', function($row){
@@ -817,8 +820,8 @@ class UserController extends Controller{
             ->addColumn('comments', function($row){
                 return $row['comments'];
             })
-            ->addColumn('acciones', function($row){
-                return view('admin.users.partials.dt-timetable-actions', compact('row'));
+            ->addColumn('acciones', function($row) use($see_authorized){
+                return view('admin.users.partials.dt-timetable-actions', compact('row', 'see_authorized'));
             })
             ->rawColumns(['fecha', 'name', 'accumulated'])
             ->make(true);

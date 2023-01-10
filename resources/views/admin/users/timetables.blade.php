@@ -241,6 +241,13 @@ $(function(){
             }
         });
     });
+
+    // Autorizar registro horario.
+    $(document).on('change', '.btnAuthorizeConcept', function(){
+    	var id = $(this).data('id');
+  	
+    	$.get("/admin/timetable/authorize-concept/"+id);
+    });
 });
 </script>
 @endpush
