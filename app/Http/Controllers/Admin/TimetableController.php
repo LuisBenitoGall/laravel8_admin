@@ -279,6 +279,9 @@ class TimetableController extends Controller{
                 }
             }
 
+            //Item con autorización:
+            
+
             //Guardamos registro horario:
             $hour = new Timetable();
             $hour->date = $dia;
@@ -647,6 +650,6 @@ class TimetableController extends Controller{
         ->orWhereRaw('WEEKDAY(date) = 6')
         ->get();
 
-        dd($before_data, $data);  
+        //dd($before_data, $data);  
     }
 }

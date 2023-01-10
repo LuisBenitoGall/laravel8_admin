@@ -400,8 +400,6 @@ class UserController extends Controller{
             }
         }
 
-        //dd($roles, $user_roles, $current_company);
-
         //Países:
         $countries = $this->countries(1);
 
