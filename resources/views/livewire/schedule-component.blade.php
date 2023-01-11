@@ -25,7 +25,7 @@
                         </li>
                     @endforeach
                 </ul>
-                {{ var_export($schedules_on) }}
+                {{-- {{ var_export($schedules_on) }} --}}
             </div>
         </div>
     </div>

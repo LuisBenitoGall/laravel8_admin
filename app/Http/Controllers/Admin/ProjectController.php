@@ -27,6 +27,7 @@ use App\Models\Group;
 use App\Models\Order;
 use App\Models\Project;
 use App\Models\ProjectDocs;
+use App\Models\ProjectFavourite;
 use App\Models\ProjectOrders;
 use App\Models\ProjectPatterns;
 use App\Models\ProjectPurchases;
@@ -130,7 +131,14 @@ class ProjectController extends Controller{
         //Importación de proyectos desde .json. Se ejecuta 1 vez.
         Project::import();
 
-        return view('admin.projects.index')->with(compact('header', 'status', 'view'));
+        //Proyectos favoritos del usuario:
+        $favourites = ProjectFavourite::select('projects.id', 'projects.project_num', 'projects.name')
+        ->join('projects', 'project_favourites.project_id', '=', 'projects.id')
+        ->where('project_favourites.user_id', Auth::user()->id)
+        ->orderBy('projects.name', 'ASC')
+        ->get();
+
+        return view('admin.projects.index')->with(compact('header', 'status', 'view', 'favourites'));
     }
 
     /**
@@ -154,64 +162,60 @@ class ProjectController extends Controller{
     public function getProjectsDT($status = false){
         $arrStatus = $status? explode(',', $status):false;
 
-        $query = Project::select('projects.id', 'projects.name', 'projects.estimated_delivery_date', 'projects.delivery_date', 'projects.hours_forecast', 'projects.hours_worked', 'projects.completed', 'projects.status', 'projects.created_at', 'companies.name AS customer')
+        $estados = helpers::projectStatus();
+
+        //Proyectos favoritos del usuario:
+        $favourites = ProjectFavourite::where('user_id', Auth::user()->id)
+        ->pluck('project_id')
+        ->toArray();
+
+        $data = Project::select('projects.id', 'projects.name', 'projects.estimated_delivery_date', 'projects.delivery_date', 'projects.hours_forecast', 'projects.hours_worked', 'projects.completed', 'projects.status', 'projects.created_at', 'companies.name AS customer'
+        )
         ->leftJoin('companies', 'projects.customer_id', '=', 'companies.id')
-        ->where('projects.company_id', session('currentCompany'));
+        ->where('projects.company_id', session('currentCompany'))
         //Filtro status:
-        if($arrStatus){
-            $query = $query->whereIn('projects.status', $arrStatus);
-        }
-        $projects = $query->get();
+        ->when($arrStatus, function($q) use($arrStatus){
+            return $q->whereIn('projects.status', $arrStatus);
+        })
+        ->orderBy('projects.created_at', 'DESC');
 
-        //Permisos del usuario:
-        $editar = Auth::user()->can('projects.edit');
-        $eliminar = Auth::user()->can('projects.destroy');
-
-        $arrEstados = Helpers::projectStatus();
-        //Pasamos array a string con los índices:
-        $strEstados = '';
-        foreach($arrEstados as $idx => $est){
-            $strEstados .= $idx.'|'.$est.';';
-        }
-
-        //Ampliación de información de los objetos:
-        if($projects){
-            foreach($projects as $row){
-                $row->alta = $row->created_at->format($this->languages[session()->get('locale')][4]);
-
-                //Fecha entrega prevista:
-                $row->prevista = $row->estimated_delivery_date? Carbon::parse($row->estimated_delivery_date)->format($this->languages[session()->get('locale')][4]):'';
-
-                //Fecha entrega:
-                $row->entrega = $row->delivery_date? Carbon::parse($row->delivery_date)->format($this->languages[session()->get('locale')][4]):'';
-
-                //Grupos:
-                //11/03/22: se elimina esta opción por una barra de progreso del proyecto.
-                // $arrGroups = $row->groups? explode(',', $row->groups):false;
-                // if($arrGroups){
-                //     $row->grupos = '';
-                //     foreach($arrGroups as $grp){
-                //         $group = Group::select('name')->find($grp);
-                //         if($row->grupos != ''){
-                //             $row->grupos .= ', ';
-                //         } 
-                //         $row->grupos .= $group->name;
-                //     }
-                // }else{
-                //     $row->grupos = '';
-                // }
-
-                //Estado:
-                $row->estado = $row->status? ucfirst($arrEstados[$row->status]):'';
-                $row->estados = $row->status.';'.$strEstados;
-
-                //Permisos para las acciones:
-                $row->editar = $editar;
-                $row->eliminar = $eliminar;
+        return DataTables::of($data)
+        ->addColumn('name', function($row){
+            return '<a href="/admin/projects/'.$row->id.'/edit">'.$row->name.'</a>'; 
+        })
+        ->addColumn('customer', function($row){
+            return $row->customer;
+        })
+        ->addColumn('alta', function($row){
+            return $row->alta = $row->created_at->format($this->languages[session()->get('locale')][4]);
+        })
+        ->addColumn('entrega_prevista', function($row){
+            return $row->prevista = $row->estimated_delivery_date? Carbon::parse($row->estimated_delivery_date)->format($this->languages[session()->get('locale')][4]):'';
+        })
+        ->addColumn('entrega', function($row){
+            return $row->entrega = $row->delivery_date? Carbon::parse($row->delivery_date)->format($this->languages[session()->get('locale')][4]):'';
+        })
+        ->addColumn('progress', function($row){
+            $progress = '';
+            if(!$row->completed){
+                $completed = $row->completed > 100? 100:$row->completed;
+                if($completed > 0){
+                    $progress .= '<div class="tooltip-fixed"><span class="tooltiptext" style="left: calc('.$completed.'% - 26px)">'.$completed.'%</span></div>';
+                }
+                $progress .= '<div class="progress progress-mini mx-1"><div style="width: '.$completed.'%;" class="progress-bar"></div></div>';
             }
-        }
 
-        return datatables($projects)->toJson();
+            return $progress;
+        })
+        ->addColumn('estado', function($row) use($estados){
+            return view('admin.projects.partials.dt-status', compact('row', 'estados'));
+        })
+        ->addColumn('acciones', function($row) use($estados, $favourites){
+            $manage_status = true;
+            return view('admin.projects.partials.dt-actions', compact('row', 'estados', 'favourites', 'manage_status'));    
+        })
+        ->rawColumns(['name', 'progress'])
+        ->make(true);
     }
 
     /**
@@ -560,7 +564,7 @@ class ProjectController extends Controller{
      * 4.1. Gastos por proyecto para DT.
      */
     public function getProjectExpensesDT($project_id){
-        $data = Expense::select('expenses.*', 'companies.name')
+        $data = Expense::select('expenses.*', 'companies.name AS company')
         ->leftJoin('companies', 'expenses.provider_id', '=', 'companies.id')
         ->where('expenses.project_id', $project_id);
 

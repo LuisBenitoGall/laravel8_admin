@@ -1,3 +1,13 @@
+{{-- Autorizar conceptos --}}
+@can('employees-timetable.edit')
+    @if(!$row['authorized'])
+        <label class="switch mr-2 btnAuthorizeConcept" data-id="{{ $row['id'] }}" rel="tooltip" title="Autorizar concepto">
+            <input type="checkbox" class="btnSlideAllPermissions">
+            <span class="slider round"></span>
+        </label>
+    @endif
+@endcan
+
 {{-- Revisión --}}
 <label class="custom-chk-rdb" rel="tooltip" title="{{ ucfirst(trans('textos.solicitar_revision')) }}">
     <input type="checkbox" name="revision" @if($row['revision'] == 1) checked @endif><span class="chk chkRev" data-id="{{ $row['id'] }}"></span>

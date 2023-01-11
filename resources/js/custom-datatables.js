@@ -1604,6 +1604,7 @@ $(document).ready(function(){
                 {data: 'user_enabled', className: 'text-center'},
                 {data: 'cumulative', className: 'text-center'},
                 {data: 'modifiable', className: 'text-center'},
+                {data: 'repetition', className: 'text-center'},
                 {data: 'acciones', className: 'text-right'}
             ]
         });
@@ -2186,6 +2187,31 @@ $(document).ready(function(){
                 {data: 'alta', name: 'alta', className: 'text-right'},
                 {data: 'description'},
                 {data: 'acciones', name: 'acciones', className: 'text-right'}
+            ]
+        });
+    }
+
+    //Tabla Invoice Control:
+    if($('#tblInvoiceControl').length > 0){
+        $('#tblInvoiceControl').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/invoice-control",
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'order_num', name: 'orders.order_num', className: 'text-right'},
+                {data: 'company', name: 'companies.name'},
+                {data: 'manager', name: 'users.name'},
+                {data: 'delivery_date', className: 'text-right'},
+                {data: 'amount', name: 'invoices.amount', className: 'text-right'},
+                {data: 'pendiente', className: 'text-right'},
+                {data: 'estado'},
+                {data: 'acciones', className: 'text-right'}
             ]
         });
     }
@@ -4322,13 +4348,19 @@ $(document).ready(function(){
         var status = $('#dtStatus').val();
 
         //Filters:
+        var jsonData = JSON.parse(localStorage.getItem('DataTables_tblProjects_'+window.location.pathname));
+
         $('#tblProjects thead tr').clone(true).appendTo('#tblProjects thead');
         $('#tblProjects thead tr:eq(1) th').each(function(i){
             var title = $(this).text(); 
-            if(i == 6 || i == 7 || i == 9){
+            if(i == 5 || i == 6 || i == 7 || i == 9){
                 $(this).html('');
             }else{
-                $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
+                let value = jsonData && jsonData.columns[i].search.search ? jsonData.columns[i].search.search : '';
+                let htmlRaw = `<input type="text" class="DTsearch" placeholder="${txtBuscar+' '+title}" value="${value}" />`
+                $(this).html(htmlRaw);
+
+                // $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
                 // aquí el código retirado
                 
             }
@@ -4346,6 +4378,7 @@ $(document).ready(function(){
         var tableProjects = $('#tblProjects').DataTable({
             serverSide: true,
             processing: true,
+            stateSave: true,
             ajax: {
                 "type": "GET",
                 "url": "/api/admin/projects/"+status,
@@ -4354,83 +4387,16 @@ $(document).ready(function(){
                 }
             },
             columns: [
-                {data: 'name'},
-                {data: 'customer'},
-                {data: 'id', className: 'text-right'},
-                {data: 'id', className: 'text-right'},
-                {data: 'id', className: 'text-right'},
+                {data: 'name', name: 'projects.name'},
+                {data: 'customer', name: 'companies.name'},
+                {data: 'alta', className: 'text-right'},
+                {data: 'entrega_prevista', className: 'text-right'},
+                {data: 'entrega', className: 'text-right'},
                 {data: 'hours_forecast', className: 'text-right'},
-                {data: 'hours_worked'},
-                {data: 'id', className: 'position-relative'},
-                {data: 'estado'},
-                {data: 'id', className: 'text-right'}
-            ],
-            columnDefs: [
-                {"targets": 0,
-                "render": function(data, type, row){
-                    return '<a href="/admin/projects/'+row['id']+'/edit">'+row['name']+'</a>';
-                }
-                },
-                {"targets": 2,
-                "render": function(data, type, row){
-                    return '<span style="display: none">'+row['created_at']+'</span>'+row['alta'];
-                }
-                },
-                {"targets": 3,
-                "render": function(data, type, row){
-                    return '<span style="display: none">'+row['estimated_delivery_date']+'</span>'+row['prevista'];
-                }
-                },
-                {"targets": 4,
-                "render": function(data, type, row){
-                    return '<span style="display: none">'+row['delivery_date']+'</span>'+row['entrega'];
-                }
-                },
-                {"targets": 6,
-                "visible": false
-                },
-                {"targets": 7,
-                "render": function(data, type, row){
-                    var completed = row['completed'] > 100? 100:row['completed'];
-
-                    var progress = '';
-                    if(completed > 0){
-                        progress += '<div class="tooltip-fixed"><span class="tooltiptext" style="left: calc('+completed+'% - 26px)">'+completed+'%</span></div>';
-                    }
-                    progress += '<div class="progress progress-mini  mx-1"><div style="width: '+completed+'%;" class="progress-bar"></div></div>';
-
-                    return progress;
-                }
-                },
-                {"targets": -2,
-                "render": function(data, type, row){
-                    return '<span class="xoption-'+row['id']+'">'+row['estado']+'</span>'; 
-                }
-                }, 
-                {"targets": -1,
-                "render": function(data, type, row){
-                    //Estado múltiple:
-                    var estado = multipleStatus(row['estados'], row['status'], row['id']);
-
-                    //Editar:
-                    var editar = '';
-                    if(row['editar']){
-                        var editar = '<a href="/admin/projects/'+row['id']+'/edit" class="btn btn-xs btn-info" rel="tooltip" title="'+txtEditar+'"><i class="fa fa-edit"></i></a>';
-                    }
-
-                    //Eliminar:
-                    var eliminar = '';
-                    if(row['eliminar']){
-                        var eliminar = '<form method="POST" action="/admin/projects/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
-                            eliminar += '<input name="_method" type="hidden" value="DELETE">';
-                            eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
-                            eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtEliminar+'" data-msg="'+txtProyectoConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
-                        eliminar += '</form>';
-                    }
-
-                    return estado+' '+editar+' '+eliminar;
-                }
-                }
+                {data: 'hours_worked', visible: false},
+                {data: 'progress', className: 'position-relative'},
+                {data: 'estado', name: 'estado'},
+                {data: 'acciones', orderable: false, searchable: false, className: 'text-right'}
             ],
             "footerCallback": function(row, data, start, end, display){
                 var api = this.api(), data;
@@ -5372,7 +5338,11 @@ $(document).ready(function(){
                 {"targets": 2,
                 "render": function(data, type, row){
                     if(row['fixed']){ 
-                        return row['fixed']+'"';
+                        var fixed = row['fixed']+'"';
+                        if(row['fixed_priority']){
+                            fixed += ' <i class="fa fa-asterisk text-warning" style="font-size: 9px;"></i>';
+                        }
+                        return fixed;
                     }else{
                         return '';
                     } 
@@ -5732,94 +5702,6 @@ $(document).ready(function(){
                     );
                 }
             }
-
-
-            // columnDefs: [
-            //     {"targets": 0,
-            //     //"render": $.fn.dataTable.render.moment( 'YYYY/MM/DD', 'DD-MM-YYYY' )
-            //     "render": function(data, type, row){
-            //         var fecha = '<span style="display: none">'+row['date_order']+'</span>';
-            //         if(row['warning']){
-            //             fecha += '<span class="text-danger">'+row['date']+'</span>';
-            //         }else{
-            //             fecha += row['date'];
-            //         }
-            //         return fecha;
-            //     }
-            //     },
-            //     {"targets": 2,
-            //     "render": function(data, type, row){
-            //         var concept = '';
-            //         if(row['flag'] == 1){
-            //             concept += '<i class="fa fa-sign-in-alt text-success"></i> ';
-            //         }else if(row['flag'] == 2){
-            //             concept += '<i class="fa fa-sign-out-alt text-danger"></i> ';
-            //         }else{
-            //             concept += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';   
-            //         }
-
-            //         if(row['warning']){
-            //             concept += '<span class="text-danger">'+row['name'].charAt(0).toUpperCase()+row['name'].slice(1)+'</span>';
-            //         }else{
-            //             concept += row['name'].charAt(0).toUpperCase()+row['name'].slice(1);
-            //         }
-            //         return concept;
-            //     }
-            //     },
-            //     {"targets": 3,
-            //     "render": function(data, type, row){
-            //         var accumulated = row['accumulated'];
-            //         if(row['accumulated'] != '' && row['hoursOfWork']){
-            //             accumulated += ' / '+row['hoursOfWork'];
-            //         }
-            //         if(row['diferencia']){
-            //             var clase = row['sign'] == '-'? 'text-danger':'text-success';
-            //             accumulated += ' <strong class="'+clase+' ml-2">'+row['diferencia']+'</strong>';    
-            //         }
-            //         return accumulated;
-            //     }
-            //     },
-            //     {"targets": -1,
-            //     "render": function(data, type, row){
-            //         //Revisión:
-            //         var checked = row['revision'] == 1? 'checked':'';
-            //         var review = '<label class="custom-chk-rdb" rel="tooltip" title="'+txtSolicitarRevision+'">';
-            //             review += '<input type="checkbox" name="revision" '+checked+'><span class="chk1 chkRev" data-id="'+row['id']+'"></span>';
-            //         review += '</label>';
-
-            //         //Editar:
-            //         if(row['edit_timetable']){
-            //             var edit = '<a href="#" class="btn btn-xs btn-info  " rel="tooltip" title="'+txtRegistroHorarioEditar+'" data-toggle="modal" data-target="#modal-edit-timetable" data-id="'+row['id']+'" data-concepto="'+row['name']+'" data-icono="'+row['icon']+'" data-flag="'+row['flag']+'">';
-            //                 edit += '<i class="fa fa-edit"></i>';
-            //             edit += '</a>';
-            //         }else{
-            //             var edit = '';
-            //         }
-
-            //         //Añadir registro horario:
-            //         if(row['add_timetable']){
-            //             var create = '<a href="#" class="btn btn-xs btn-info btnAddRegistroHorario" rel="tooltip" title="'+txtRegistroHorarioAdd+'" data-toggle="modal" data-target="#modal-add-timetable" data-date="'+row['date']+'">';
-            //                 create += '<i class="fa fa-plus"></i>';
-            //             create += '</a>';
-            //         }else{
-            //             var create = '';
-            //         }
-
-            //         //Eliminar registro horario:
-            //         if(row['edit_timetable']){
-            //             var eliminar = '<form method="POST" action="/admin/timetable/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
-            //                 eliminar += '<input name="_method" type="hidden" value="DELETE">';
-            //                 eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
-            //                 eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtRegistroHorarioEliminar+'" data-msg="'+txtRegistroHorarioEliminarConfirm+'"><i class="fa fa-trash"></i></button>';
-            //             eliminar += '</form>'; 
-            //         }else{
-            //             var eliminar = '';
-            //         }
-
-            //         return review+' '+edit+' '+create+' '+eliminar;
-            //     }
-            //     }
-            // ]
         });
     }
 

@@ -186,6 +186,7 @@ class ExpenseController extends Controller{
         ->where('customer_providers.customer_id', session('currentCompany'))
         ->where('companies.status', 1)
         ->where('customer_providers.status', 1)
+        ->where('companies.id', '!=', session('currentCompany'))
         ->pluck('companies.name', 'companies.id')
         ->toArray();
 

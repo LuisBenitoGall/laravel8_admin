@@ -2,6 +2,10 @@
 
 @section('content')
 
+@php
+$scroll_top = true;
+@endphp
+
 <input type="hidden" id="roleId" value="{{ $role->id }}">
 
 <div class="row mb-3">
@@ -27,7 +31,12 @@
 	<div class="col-12">
 		<div class="card mb-3">
 			<div class="card-body">
-				@include('admin.roles.partials.form')
+				<form method="post" autocomplete="off" action="{{ route('roles.update', $role->id) }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
+					@method('PUT')
+					{{ csrf_field() }}
+
+					@include('admin.roles.partials.form')
+
 			</div>
 		</div>
 	</div>
@@ -35,5 +44,7 @@
 
 {{-- Modals: --}}
 @include('admin.roles.partials.modal-copy')
+
+{!! App\Helpers\helpers::scrollToTop() !!}
 
 @endsection

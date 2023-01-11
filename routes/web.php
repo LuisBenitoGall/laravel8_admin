@@ -68,7 +68,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
 
     // Accounting Options:
     Route::get('accounting-options', 'AccountingOptionController@index')->name('accounting-options.index')->middleware('permission:accounting-options.index');
-    Route::post('accounting-options.store', 'AccountingOptionController@store')->name('accounting-options.store')->middleware('permission:accounting-options.edit');
+    Route::get('accounting-options/store/{year}/{month}/{type}', 'AccountingOptionController@store')->name('accounting-options.store')->middleware('permission:accounting-options.edit');
 
     // Accounts:
     Route::resource('accounts', 'AccountController')->middleware('permission:accounts.edit');
@@ -248,7 +248,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::get('companies/{company_id}/roles', 'CompanyController@getCompanyRoles')->name('companies.roles');
 
     // Company Accounts:
-    Route::get('company-accounts', 'CompanyAccountsController@index')->name('company-accounts.index');
+    Route::get('company-accounts', 'CompanyAccountsController@index')->name('company-accounts.index')->middleware('permission:my-account.edit');
     Route::get('company-accounts/create', 'CompanyAccountsController@create')->name('company-accounts.create')->middleware('permission:companies.create');
     Route::post('company-accounts/store', 'CompanyAccountsController@store')->name('company-accounts.store')->middleware('permission:companies.edit');
     Route::delete('company-accounts/{account}', 'CompanyAccountsController@destroy')->name('company-accounts.destroy')->middleware('permission:companies.destroy');
@@ -258,18 +258,18 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::post('company-calendar', 'CompanyCalendarController@calendarBy')->name('company-calendar.calendar-by');
 
     // Company Modules:
-    Route::get('company-modules', 'CompanyModulesController@index')->name('company-modules.index');
-    Route::get('company-modules/{slug}/store', 'CompanyModulesController@store')->name('company-modules.store');
-    Route::get('company-modules/{slug}/delete', 'CompanyModulesController@destroy')->name('company-modules.delete');
-    Route::get('company-modules/{slug}/is-setted', 'CompanyModulesController@isSetted')->name('company-modules.is-setted');
+    Route::get('company-modules', 'CompanyModulesController@index')->name('company-modules.index')->middleware('permission:company-settings.edit');
+    Route::get('company-modules/{slug}/store', 'CompanyModulesController@store')->name('company-modules.store')->middleware('permission:company-settings.edit');
+    Route::get('company-modules/{slug}/delete', 'CompanyModulesController@destroy')->name('company-modules.delete')->middleware('permission:company-settings.edit');
+    Route::get('company-modules/{slug}/is-setted', 'CompanyModulesController@isSetted')->name('company-modules.is-setted')->middleware('permission:company-settings.edit');
 
     // Company Notifications Management:
     Route::get('company-notifications-management', 'CompanyNotificationsManagementController@index')->name('company-notifications-management.index')->middleware('permission:company.edit');
     Route::post('company-notifications-management/store', 'CompanyNotificationsManagementController@store')->name('company-notifications-management.store')->middleware('permission:company.edit');
 
     // Company Settings:
-    Route::get('company-settings', 'CompanySettingsController@index')->name('company-settings.index');
-    Route::post('company-settings/update', 'CompanySettingsController@update')->name('company-settings.update');
+    Route::get('company-settings', 'CompanySettingsController@index')->name('company-settings.index')->middleware('permission:company-settings.index');
+    Route::post('company-settings/update', 'CompanySettingsController@update')->name('company-settings.update')->middleware('permission:company-settings.edit');
 
     // Company Sectors:
     Route::get('company-sectors/store/{company_id}/{category_id}', 'CompanySectorsController@store')->name('company-sectors.store');
@@ -497,7 +497,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::get('invoices/{invoice}/edit-purchase/{tab?}', 'InvoiceController@editPurchase')->name('invoices.edit-purchase')->middleware('permission:invoices.edit');
     Route::get('invoices/{invoice}/show', 'InvoiceController@show')->name('invoices.show');
     Route::put('invoices/{invoice}/update', 'InvoiceController@update')->name('invoices.update')->middleware('permission:invoices.edit');
-    Route::get('invoices/{invoice}/print', 'InvoiceController@print')->name('invoices.print');
+    Route::get('invoices/{invoice}/print/{bn?}', 'InvoiceController@print')->name('invoices.print');
     Route::get('invoices/{invoice}/status/{status}', 'InvoiceController@status')->name('invoices.status');
     Route::get('invoices/{invoice}/block/{return?}', 'InvoiceController@block')->name('invoices.block')->middleware('permission:invoices.edit');
     Route::get('invoices/{invoice}/unlock/{return?}', 'InvoiceController@unlock')->name('invoices.unlock')->middleware('permission:invoices.edit');
@@ -509,6 +509,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::get('invoices/{order}/by-order-group', 'InvoiceController@invoicesByOrderGroup')->name('invoices.by-order-group');
     Route::post('invoices/refund', 'InvoiceController@refund')->name('invoices.refund')->middleware('permission:invoices.edit');
     Route::get('invoices/{invoice}/remove-from-invoice/{order}', 'InvoiceController@removeFromInvoice')->name('invoices.remove-from-invoice')->middleware('permission:invoices.edit');
+    Route::get('invoices/control', 'InvoiceController@control')->name('invoices.control')->middleware('permission:invoices.index');
 
     // IP Access:
     Route::get('ip-access', 'IpAccessController@index')->name('ip-access.index');
@@ -748,6 +749,10 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::get('project-docs/set-thumb/{project}/{image}', 'ProjectDocsController@setThumb')->name('project-docs.set-thumb')->middleware('permission:projects.edit');
     Route::get('project-docs/{doc}/destroy', 'ProjectDocsController@destroy')->name('project-docs.destroy')->middleware('permission:projects.edit');
 
+    // Project Favourites:
+    Route::get('project-favourites/status/{project}/{status}', 'ProjectFavouriteController@status')->name('project-favourites.status');
+    Route::get('project-favourites/{project_id}/delete', 'ProjectFavouriteController@delete')->name('project-favourites.delete');
+
     // Project Orders:
     Route::post('project-orders/store', 'ProjectOrdersController@store')->name('project-orders.store')->middleware('permission:projects.edit');
 
@@ -864,8 +869,8 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::get('roles/get-slug/{texto}', 'RoleController@create_slug')->name('roles.get-slug');
     Route::post('roles/copy', 'RoleController@copy')->name('roles.copy')->middleware('permission:roles.create');
     Route::get('roles/sync', 'RoleController@sync')->name('roles.sync')->middleware('permission:roles.create');
-    Route::get('roles/{role}/set-permission/{permission}/{action}', 'RoleController@setPermission')->name('roles.set-permission')->middleware('permission:roles.edit');
-    Route::get('roles/{role}/set-functionality-permissions/{functionality}/{action}', 'RoleController@setFunctionalityPermissions')->name('roles.set-permission')->middleware('permission:roles.edit');
+    Route::get('roles/{role}/set-permission/{permission}/{action}/{module_on}/{remove_module}', 'RoleController@setPermission')->name('roles.set-permission')->middleware('permission:roles.edit');
+    Route::get('roles/{role}/set-functionality-permissions/{functionality}/{action}/{module_on}/{remove_module}', 'RoleController@setFunctionalityPermissions')->name('roles.set-permission')->middleware('permission:roles.edit');
 
     // Schedule Event Types:
     Route::get('schedule-event-types', 'ScheduleEventTypesController@index')->name('schedule-event-types.index')->middleware('permission:schedules.edit');
@@ -935,8 +940,10 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::get('stock-movements/status/{id}/{status}', 'StockMovementsController@status')->name('stock-movements.status')->middleware('permission:stock-movements.edit');
 
     // Stocks:
-    Route::get('stocks', 'StockController@index')->name('stocks.index');
+    Route::get('stocks/{product_id?}', 'StockController@index')->name('stocks.index')->where('product_id', '[0-9]+');
     Route::get('stocks/{product}/show', 'StockController@show')->name('stocks.show');
+    Route::get('stocks/{product_id}/stores-stock', 'StockController@storesStock')->name('stocks.stores-stock');
+    Route::post('stocks.store', 'StockController@store')->name('stocks.store')->middleware('permission:stocks.create');
 
     // Stores:
     Route::get('stores/index/{storeSelected?}', 'StoreController@index')->name('stores.index');
@@ -1001,6 +1008,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::put('timetable-items/{item}/update', 'TimetableItemsController@update')->name('timetable-items.update');
     Route::delete('timetable-items/{item}', 'TimetableItemsController@destroy')->name('timetable-items.destroy');
     Route::post('timetable-items/export', 'TimetableItemsController@export')->name('timetable-items.export');
+    Route::post('timetable-items/store-rule', 'TimetableItemsController@storeRule')->name('timetable-items.store-rule');
 
     // Timetable Signed:
     Route::get('timetable-signed/list/{year?}', 'TimetableSignedController@index')->name('timetable-signed.index');
@@ -1020,6 +1028,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::delete('timetable/{timetable}', 'TimetableController@destroy')->name('timetable.destroy')->middleware('permission:employees-timetable.destroy');
     Route::post('timetable/revision', 'TimetableController@revisionHorarioOn')->name('timetable.revision-horario');
     Route::get('timetable/revision/{id}', 'TimetableController@revisionHorarioOff')->name('timetable.revision-horario');
+    Route::get('timetable/authorize-concept/{timetable}', 'TimetableController@authorizeConcept')->name('timetable.authorize-concept');
 
     // Towns:
     Route::get('towns/{province}', 'TownController@index')->name('towns.index');
@@ -1146,6 +1155,9 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::post('work-user-calendar/validate-all', 'WorkUserCalendarController@validateAll')->name('work-user-calendar.validate-all');
     Route::post('work-user-calendar/add-doc', 'WorkUserCalendarController@addDoc')->name('work-user-calendar.add-doc');
     Route::get('work-user-calendar/{doc}/delete-doc', 'WorkUserCalendarController@deleteDoc')->name('work-user-calendar.delete-doc');
+
+    // JOKE:
+    Route::get('close-joke', 'UserController@closeJoke')->name('close-joke');
 });
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

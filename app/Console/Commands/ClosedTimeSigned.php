@@ -13,8 +13,7 @@ use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
 
-class ClosedTimeSigned extends Command
-{
+class ClosedTimeSigned extends Command{
     /**
      * The name and signature of the console command.
      *
@@ -27,15 +26,14 @@ class ClosedTimeSigned extends Command
      *
      * @var string
      */
-    protected $description = 'Cerramos comida ó Desayuno';
+    protected $description = 'Cerramos comida o desayuno';
 
     /**
      * Create a new command instance.
      *
      * @return void
      */
-    public function __construct()
-    {
+    public function __construct(){
         parent::__construct();
     }
 
@@ -44,8 +42,7 @@ class ClosedTimeSigned extends Command
      *
      * @return int
      */
-    public function handle()
-    {
+    public function handle(){
         $slug = 'timetables';
         $companies = CompanyModules::select('companies.*')
             ->join('companies', 'company_modules.company_id', '=', 'companies.id')
@@ -57,7 +54,6 @@ class ClosedTimeSigned extends Command
 
         foreach ($companies as $company) {
             // Emails of company
-
             $empleados = Employee::select('users.id', 'users.name', 'users.surname', 'users.email')
                 ->join('users', 'employees.user_id', '=', 'users.id')
                 ->join('contracts', 'employees.contract_id', '=', 'contracts.id')
@@ -67,30 +63,27 @@ class ClosedTimeSigned extends Command
                 ->where('contracts.company_id', $company->id)
                 ->get();
 
+            // Items requeridos por empresa:
+            $timeTableItems = TimetableItems::where('company_id', $company->id)
+                ->whereNotNull('required')
+                ->get();
 
             foreach ($empleados as $empleado) {
                 $noWork = WorkUserCalendar::noWorkDay($empleado->id, Carbon::today());
 
                 $horario = Timetable::select('id', 'hour', 'item_id', 'flag', 'date')
                     ->where('user_id', $empleado->id)
-                    ->whereDate('created_at', Carbon::now())
+                    ->whereDate('date', Carbon::today())
                     ->orderBy('date', 'DESC')
                     ->orderBy('id', 'DESC')
                     ->first();
 
-                if (!$noWork || ($noWork->is_working && $noWork->working_day)) {
-                    if (isset($horario)) {
-
-                        $timeTableItems = TimetableItems::where('company_id', $company->id)
-                            ->whereNotNull('required')
-                            ->get();
-
-
+                if(!$noWork || ($noWork->is_working && $noWork->working_day)){
+                    if($horario){
                         foreach ($timeTableItems as $item) {
-
                             $verify = Timetable::where('item_id', $item->id)
                                 ->where('user_id', $empleado->id)
-                                ->whereDate('created_at', Carbon::now())->exists();
+                                ->whereDate('date', Carbon::today())->exists();
 
                             if (!$verify) {
                                 if (Carbon::now()->format('H:i:s') > $item->required_warning) {
@@ -129,7 +122,6 @@ class ClosedTimeSigned extends Command
                         }
                     }
                 }
-
             }
         }
     }

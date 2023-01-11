@@ -75,6 +75,7 @@ class Helpers{
 	 * 	7.1. Render galería imágenes.
 	 * 	7.2. Render documentos proyectos.
 	 * 	7.3. Render documentos productos.
+	 * 	7.4. Scroll to top.
 	 */ 
 	
 	/**
@@ -2233,4 +2234,12 @@ class Helpers{
 
         return $render; 	
 	}
+
+	/**
+	 * 7.4. Scroll to top.
+	 */
+	public static function scrollToTop(){
+		$html = '<a href="#" class="scroll-to-top"><i class="fa fa-chevron-up"></i><span class="sr-only">Go to top</span></a>';
+		return $html;
+	} 
 }

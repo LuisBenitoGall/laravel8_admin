@@ -3113,8 +3113,13 @@ div.dt-button-info {
         }
     }
 }
-.widget.style1 h2 {
-  font-size: 30px;
+.widget.style1{ 
+    h2 {
+        font-size: 30px;
+    }
+    a{
+        color: #FFF;
+    }
 }
 .widget h2,
 .widget h3 {
@@ -3214,6 +3219,7 @@ div.dt-button-info {
 select.form-control:not([size]):not([multiple]) {
   /*height: 2.30rem;*/
   /*height: 2rem;*/
+  height: calc(2.25rem);
 }
 .input-sm,
 .form-control-sm {
@@ -10493,7 +10499,8 @@ ul{
 #budgetForms,
 #noBudgetForms,
 #customerRef,
-#movementForm{
+#movementForm,
+#typeX{
     display: none;
 }
 
@@ -11559,6 +11566,116 @@ ul{
         cursor: pointer;
     }
 }
+
+.btnFav{
+    &.selected{
+        .fa{
+            color: $orange !important;
+        }
+    }
+}
+
+#functionalities{
+    .ibox-content{ 
+        padding-bottom: 0;
+    }
+}
+
+.scroll-to-top{
+    /* alineacion vertical */
+    align-items: center;
+    background-color: $primary;
+    border-radius: 50%;
+    bottom: 15px;
+    color: #FFF;
+    cursor: pointer;
+    -ms-display: flex;
+    display: flex;
+    // display: none;
+    font-size: 26px;
+    height: 40px;
+    /* alineacion horizontal */
+    justify-content: center;
+    position: fixed;
+    right: 46px;
+    text-align: center;
+    text-decoration: none;
+    transition: .3s;
+    width: 40px;
+    z-index: 50;
+    
+    &:hover{
+        color: #ccc;
+        text-decoration:none;
+    }
+  
+    .sr-only{
+        border: 0;
+        clip: rect(0,0,0,0);
+        height: 1px;
+        margin: -1px;
+        overflow: hidden;
+        padding: 0;
+        position: absolute;
+        width: 1px;     
+    }   
+}
+
+.group{
+    background-color: $grey-light;
+    border: 1px solid $grey-light2;
+
+    .cell{
+        background-color: #FFF;
+        padding: 15px;
+    }
+}
+
+.closeAccounting{
+    cursor: pointer;
+    &.closed{
+        background-color: $danger;
+        color: #FFF;
+    }
+}
+
+/************** JOKE ***********/
+#modal-joke{
+    .joke-step{
+        display: none;
+    }
+    #step1{
+        display: block;
+    }
+
+    #step2{
+        .progress{
+            background-color: #EEE;
+            .progress-bar{
+                background-color: $danger;
+                -webkit-transition: width 10s ease-in-out;
+                -moz-transition: width 10s ease-in-out;
+                -o-transition: width 10s ease-in-out;
+                transition: width 10s ease-in-out;
+                width: 0;
+
+                &.expand {
+                    width: 100%;
+                }
+            }
+        }
+        .step2-messages2,
+        .btn-step2{
+            display: none;
+        }
+    }
+    #step5_2{
+        .explosion{
+            display: none;
+        }
+    }
+}
+
 
 /**
  * RESPONSIVE MEDIA QUERIES

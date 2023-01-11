@@ -1,7 +1,7 @@
 @php
-    //Icons:
-    $pathIcons = storage_path()."/json/fa-icons.json";
-    $icons = json_decode(file_get_contents($pathIcons), true);
+//Icons:
+$pathIcons = storage_path()."/json/fa-icons.json";
+$icons = json_decode(file_get_contents($pathIcons), true);
 @endphp
 
 <div class="form-group row">
@@ -63,12 +63,24 @@
     <label for="fixed" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.fijo')) !!}
         ({!! trans('textos.minutos') !!})</label>
     <div class="col-lg-2">
-        @php
-            $fixed = $item && $item->fixed? $item->fixed:'';
-        @endphp
+        <div class="row">
+            <div class="col-10">
+                @php
+                $fixed = $item && $item->fixed? $item->fixed:'';
+                @endphp
 
-        <x-input type="text" name="fixed" value="{{ $fixed }}" class="text-right" autocomplete="off" maxlength="5"
-                 info="timetable-fixed-time"/>
+                <x-input type="text" name="fixed" value="{{ $fixed }}" class="text-right" autocomplete="off" maxlength="5"
+                         info="timetable-fixed-time"/>    
+            </div>
+
+            {{-- Prioridad de la duración fija --}}
+            <div class="col-2">
+                <label class="custom-chk-rdb" rel="tooltip">
+                    <input type="checkbox" name="fixed_priority" @if($item && $item->fixed_priority) checked @endif>
+                    <span class="chk" style="top: 5px;"></span>
+                </label>
+            </div>
+        </div>
     </div>
 
     {{-- Duración mínima --}}
@@ -79,8 +91,7 @@
             $min = $item && $item->min? $item->min:'';
         @endphp
 
-        <x-input type="text" name="min" value="{{ $min }}" class="text-right" autocomplete="off" maxlength="5"
-                 info="timetable-min-time"/>
+        <x-input type="text" name="min" value="{{ $min }}" class="text-right" autocomplete="off" maxlength="5" info="timetable-min-time"/>
     </div>
 
     {{-- Duración máxima --}}
@@ -138,30 +149,54 @@
 
 <div class="form-group row">
     {{-- Obligatorio --}}
-    @php
-        $required = $item && $item->required? $item->required:'';
-    @endphp
     <label for="required" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.obligatorio_diario')) !!}</label>
     <div class="col-lg-2">
-        @php
-            $required = $item && $item->required? $item->required:'';
-        @endphp
+        <div class="row">
+            <div class="col-10">
+                @php
+                $required = $item && $item->required? $item->required:'';
+                @endphp
 
-        <x-input type="text" name="required" value="{{ $required }}" class="text-right" autocomplete="off" maxlength="3" info="timetable-item-required"/>
+                <x-input type="text" name="required" value="{{ $required }}" class="text-right" autocomplete="off" maxlength="3" info="timetable-item-required"/>
+            </div>
+
+            {{-- Modal de condiciones --}}
+            @if($item)
+                @php
+                $rules_arr = $item->required_condition? unserialize($item->required_condition):false;
+                $rules = $rules_arr? implode('|', $rules_arr):'';
+                @endphp
+
+                <div class="col-2">
+                    <a href="#" class="btn btn-info btn-xs btnEditRule" data-rule="{!! $rules !!}" data-toggle="modal" data-target="#modal-required-conditions" rel="tooltip" title="{{ trans('textos.condiciones') }}">
+                        <i class="fa fa-ruler"></i>
+                    </a>
+                </div>
+            @endif
+        </div>
     </div>
 
-
-    {{-- required_warning --}}
+    {{-- Hora límite --}}
     <label for="min_hour" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.hora_required')) !!} </label>
     <div class="col-lg-2">
         @php
-            $required_warning = $item && $item->required_warning? substr($item->required_warning,0,-3):'';
+        $required_warning = $item && $item->required_warning? substr($item->required_warning,0,-3):'';
         @endphp
 
         <x-input type="text" name="required_warning" value="{{ $required_warning }}" class="text-right maskHours" placeholder="hh:mm"
                  autocomplete="off" maxlength="5" info="timetable-min-hour"/>
     </div>
 
+    {{-- Con autorización --}}
+    <label for="with_authorization" class="col-lg-2 col-form-label ">{!! ucfirst(trans('textos.autorizacion_administrador')) !!}</label>
+    <div class="col-lg-1">
+        <label class="custom-chk-rdb" rel="tooltip">
+            <input type="checkbox" name="with_authorization" @if($item && $item->with_authorization) checked @endif>
+            <span class="chk" style="top: 5px;"></span>
+
+            {!! App\Helpers\Helpers::info('timetable-item-with-authorization', true) !!}
+        </label>
+    </div>
 </div>
 
 <div class="form-group row">
@@ -178,3 +213,5 @@
         @endforeach
     </div>
 </div>
+
+

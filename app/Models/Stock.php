@@ -37,4 +37,16 @@ class Stock extends Model{
 
         return $stock;
     }
+
+    public function stores(){
+        return $this->belongsTo(Store::class,'store_id','id');
+    }
+
+    public function product(){
+        return $this->belongsTo(Product::class,'product_id','id');
+    }
+
+    public function movement(){
+        return $this->belongsTo(StockMovements::class,'stock_mov_id','id');
+    }
 }

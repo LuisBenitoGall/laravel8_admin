@@ -132,8 +132,9 @@ $discount_in_lines = false;
 
 							//Observaciones:
 							//Manipulamos el font-size de las observations (hasta que encontrar una solución más estable en Trumbowyg):
-					        $observations = str_replace("14.4", "11", $its->observations);
-					        $observations = str_replace("14", "11", $observations);
+							$observations = $its->observations? $its->observations:'&nbsp;';
+					        //$observations = str_replace("14.4", "11", $its->observations);
+					        //$observations = str_replace("14", "11", $observations);
 							$htmlItems .= '<td colspan="2">'.$observations.'</td>';
 						$htmlItems .= '</tr>';
 
@@ -157,8 +158,8 @@ $discount_in_lines = false;
 							$bloques .= '<th style="background-color: '.$bg_color.'; text-align: center; width: 60px;">'.trans('textos.ct').'</th>';
 							$bloques .= '<th style="background-color: '.$bg_color.'; text-align: center; width: 60px;">'.ucfirst(trans('textos.coste')).'</th>';
 							$bloques .= '<th style="background-color: '.$bg_color.'; text-align: center; width: 70px;">'.ucfirst(trans('textos.coste_total')).'</th>';
-							$bloques .= '<th style="background-color: '.$bg_color.';">'.ucfirst(trans('textos.observaciones')).'</th>';
-							$bloques .= '<th style="background-color: '.$bg_color.'; text-align: right;">'.$blockAmount.$currency->symbol.'</th>';
+							$bloques .= '<th style="background-color: '.$bg_color.'; width: 180px;">'.ucfirst(trans('textos.observaciones')).'</th>';
+							$bloques .= '<th style="background-color: '.$bg_color.'; text-align: right; width: 40px;">'.$blockAmount.$currency->symbol.'</th>';
 						$bloques .= '</tr>';
 					$bloques .= '</thead>';
 
@@ -192,25 +193,30 @@ $discount_in_lines = false;
 				{!! $resumen !!}
 			</tbody>
 
+			@php
+			//Obteniendo total del pedido
+			$arr_amounts = $order->getAmount();    
+			@endphp
+
 			<tfoot>
 				<tr>
 					<td colspan="2" style="background-color: #FFF;"></td>
 					<td style="background-color: {{ $bg_color }}; color: #FFF; text-align: left;">{{ strtoupper(trans('textos.total')) }}</td>
 					<td style="background-color: {{ $bg_color }}; color: #FFF; text-align: right;">
-						{{ number_format($totalAmount, 2) }}{{ $currency->symbol }}
+						{{ number_format($arr_amounts['total_amount'], 2) }}{{ $currency->symbol }}
 					</td>
 				</tr>
 
 				@if($order->discount && $order->discount > 0)	{{-- //&& !$order->final_customer_id --}}
 					@php
-					$percentage_ = App\Helpers\helpers::percent($totalAmount, $order->discount);	
-					$totalAmountWithDiscount = $totalAmount - $percentage_;
+					// $percentage_ = App\Helpers\helpers::percent($totalAmount, $order->discount);	
+					// $totalAmountWithDiscount = $totalAmount - $percentage_;
 					@endphp
 					<tr>
 						<td colspan="2" style="background-color: #FFF;"></td>
 						<td style="background-color: {{ $bg_color }}; color: #FFF; text-align: left;">{{ strtoupper(trans('textos.importe_descuento')) }} ({{ $order->discount }}%)</td>	
 						<td style="background-color: {{ $bg_color }}; color: #FFF; text-align: right;">
-							{{ $totalAmountWithDiscount }}{{ $currency->symbol }}
+							{{ $arr_amounts['total_amount'] }}{{ $currency->symbol }}
 						</td>
 					</tr>
 				@endif
@@ -221,7 +227,7 @@ $discount_in_lines = false;
 						<td colspan="2" style="background-color: #FFF;"></td>
 						<td style="background-color: {{ $bg_color }}; color: #FFF; text-align: left;">{{ strtoupper(trans('textos.importe_sin_descuentos')) }}</td>	
 						<td style="background-color: {{ $bg_color }}; color: #FFF; text-align: right;">
-							{{ $totalAmountWithoutDiscounts }}{{ $currency->symbol }}
+							{{ $arr_amounts['total_amount_without_discounts'] }}{{ $currency->symbol }}
 						</td>	
 					</tr>
 				@endif

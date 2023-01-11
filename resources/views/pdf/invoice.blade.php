@@ -1,6 +1,6 @@
 @php
 $invoiceNum = $invoice->invoice_num? $invoice->invoice_num:$invoice->id;
-$bg_color = $company_settings->base_color_invoices? $company_settings->base_color_invoices:'#10172C';
+$bg_color = $bn? '#000':($company_settings->base_color_invoices? $company_settings->base_color_invoices:'#10172C');
 @endphp
 
 @include('pdf.partials.head', ['header_title' => ucfirst(trans('textos.factura')).' #'.$invoiceNum])

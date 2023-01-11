@@ -352,6 +352,15 @@ $order_amount_without_discount = $order_amount_without_discount_in_lines > $orde
 						@livewire('budget-amount-mini', ['budget_amount' => $order_amount, 'currency' => $currency->symbol])
 					</label>
 
+					{{-- Descuento aplicado - condiciones:
+						1. El pedido no debe estar facturado.
+						...
+					--}}
+					@php
+					$remove_discount = !$order->invoiced? true:false;
+					@endphp
+					@include('admin.orders.partials.data-discount-applied', ['return' => 'orders', 'remove_discount' => $remove_discount])
+
 					{{-- Modalidad --}}
 					@if($order->provider_id == session('currentCompany'))
 						<label class="mr-5">

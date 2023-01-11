@@ -57,6 +57,13 @@ class Order extends Model{
     }
 
     /**
+     * 1.1. Facturas del pedido.
+     */
+    public function invoices(){
+        return $this->hasMany(Invoice::class);
+    }
+
+    /**
      * 2. Items por pedido.
      */
     public function items(){
@@ -107,7 +114,7 @@ class Order extends Model{
      * 
      * Agrupamos las líneas según su tipo de IVA.
      */
-    public function itemsAmount($items, $percentage_items = false, $with_iva = false){
+    public function itemsAmount($items, $order_discount = false, $percentage_items = false, $with_iva = false){
         //Extraemos los tipos de IVA:
         if($with_iva){
             $iva_types = [];
@@ -129,6 +136,32 @@ class Order extends Model{
             if(!$row->calculated_by_percent && $row->price != 0){
                 //Base imponible de la línea:
                 $arr_order_amount = helpers::itemAmount($row, false);
+
+                $a = $arr_order_amount['amount'];
+
+                //Aplicando descuento del pedido:
+                if($order_discount && $order_discount > 0){
+                    $percentage_ = helpers::percent($arr_order_amount['amount'], $order_discount);    
+                    $arr_order_amount['amount'] = $arr_order_amount['amount'] - $percentage_;    
+                }
+
+                
+
+                // if($apply_row_discount && $row->discount && $row->discount > 0){
+                //     $percentage_ = helpers::percent($arr_order_amount['amount'], $row->discount);    
+                //     $arr_order_amount['amount'] = $arr_order_amount['amount'] - $percentage_;         
+                // }
+
+                //dd($a, $arr_order_amount['amount']);
+
+
+
+
+            
+                
+
+
+
                 $order_amount = $order_amount + $arr_order_amount['amount'];
                 $order_amount_without_discounts = $order_amount_without_discounts +  $arr_order_amount['amount_without_discount'];
 
@@ -141,6 +174,8 @@ class Order extends Model{
                 //11/12/22: QUEDA PENDIENTE EL CÁLCULO DEL RECARGO DE EQUIVALENCIA.
             }
         }
+
+        //dd($items, $order_amount, $order_amount_without_discounts);
 
         //Cálculo de los items por porcentaje:
         if($percentage_items){
@@ -189,7 +224,7 @@ class Order extends Model{
             ->where('order_id', $this->id)
             ->get();
 
-        $total_amount = $this->itemsAmount($items, $percentage_items);
+        $total_amount = $this->itemsAmount($items, $this->discount, $percentage_items);
 
         return round($total_amount['total_amount'], 2);
     }
@@ -203,11 +238,7 @@ class Order extends Model{
             ->where('order_id', $this->id)
             ->get();
 
-        if($this->id == 10084){
-            //dd('items ya', $items);
-        }
-
-        //$arr_amount = $this->itemsAmount($items, $with_percentage_items, $with_iva);
+        //$arr_amount = $this->itemsAmount($items, $this->discount, $with_percentage_items, $with_iva);
         //$amount = $arr_amount['total_amount'];
 
         //Aplicando descuento del presupuesto-pedido:
@@ -224,7 +255,7 @@ class Order extends Model{
 
         //return $data;
         
-        return $this->itemsAmount($items, $with_percentage_items, $with_iva);
+        return $this->itemsAmount($items, $this->discount, $with_percentage_items, $with_iva);
     }
 
     /**
@@ -378,6 +409,10 @@ class Order extends Model{
     public function providerCostCenterId()
     {
         return $this->belongsTo(CostCenters::class, 'provider_cost_center_id');
+    }
+
+    public function previsions(){
+        return $this->hasMany(OrderPrevisions::class);
     }
 
 }
