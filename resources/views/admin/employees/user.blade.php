@@ -291,6 +291,12 @@ $(function(){
     $(document).on('click', '.day-type-text .fa', function(){
         $(this).parent().remove();
     });
+
+    //Modal cancelar contrato:
+    $(document).on('click', '.btnCancelEmployee', function(){
+    	var id = $(this).data('id');
+    	$('#employeeIdCancel').val(id);
+    });
 });
 </script>
 @endpush

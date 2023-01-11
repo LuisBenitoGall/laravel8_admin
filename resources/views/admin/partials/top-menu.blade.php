@@ -54,8 +54,13 @@ if(!$initial_imports->value){
                 {{-- Control horario --}}
                 @if($setTimetable)
                     @php
-                    //Obtenemos conceptos horarios de la empresa.
-                    $timetable_items = App\Models\TimetableItems::where('company_id', session('currentCompany'))->get();
+                    //Obtenemos conceptos horarios de la empresa a la que pertenece el usuario:
+                    $user_workplace = Auth::user()->workplace;
+                    if($user_workplace && $user_workplace->workplace_id){
+                        $timetable_items = App\Models\TimetableItems::itemsByWorkplace($user_workplace->workplace_id);
+                    }else{
+                        $timetable_items = App\Models\TimetableItems::where('company_id', session('currentCompany'))->get();    
+                    }   
                     @endphp
 
                     {{-- Condiciones:

@@ -85,7 +85,8 @@
 				@foreach($user_workplaces as $uwp)
 					<p>
 						{{ $uwp->name }}
-						<a href="{{ route('user-workplaces.delete', $uwp->id) }}" class="text-danger btn-confirm" data-msg="{!! trans('textos.centro_confirm_eliminar') !!}"><i class="fa fa-times mt-1 float-right"></i></a>
+						{{-- 09/01/2023: se modifica la lógica para que sólo haya un centro de trabajo por trabajador, por lo que se omite la opción de eliminar, siempre debe haber un centro de trabajo --}}
+						{{-- <a href="{{ route('user-workplaces.delete', $uwp->id) }}" class="text-danger btn-confirm" data-msg="{!! trans('textos.centro_confirm_eliminar') !!}"><i class="fa fa-times mt-1 float-right"></i></a> --}}
 					</p>	
 				@endforeach	
 			</div>

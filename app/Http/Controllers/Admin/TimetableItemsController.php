@@ -27,6 +27,7 @@ class TimetableItemsController extends Controller{
      * 5. Actualizar item.
      * 6. Eliminar item.
      * 7. Exportar valores a otras empresas vinculadas.
+     * 8. Guardar regla de concepto obligatorio.
      */
 
     private $option = 'horarios';
@@ -50,6 +51,16 @@ class TimetableItemsController extends Controller{
         }elseif(isset($data['submit_update'])){
             return Validator::make($data, [
                 'name' => 'required|string|max:191'
+            ]);
+
+        //Validación regla de concepto obligatorio:
+         }elseif(isset($data['submit_rule'])){
+            return Validator::make($data, [
+                'id' => 'required|integer',
+                'tabla' => 'required',
+                'campo' => 'required',
+                'regla' => 'required',
+                'valor' => 'required'
             ]);
         }
     }
@@ -155,6 +166,7 @@ class TimetableItemsController extends Controller{
         $item->slug = $slug;
         $item->type = $request->type;
         $item->fixed = $request->fixed;
+        $item->fixed_priority = $request->fixed_priority? 1:0;
         $item->icon = $request->icon;
         $item->min = $request->min;
         $item->max = $request->max;
@@ -164,6 +176,7 @@ class TimetableItemsController extends Controller{
         $item->reviewable = $reviewable;
         $item->required = $request->required;
         $item->required_warning = $request->required_warning;
+        $item->with_authorization = $request->with_authorization? 1:0;
         $item->save();
 
         //Indicamos si el movimiento -de entrada- tiene movimiento exclusivo de salida:
@@ -221,6 +234,7 @@ class TimetableItemsController extends Controller{
         $item->name = $request->name;
         $item->slug = $slug;
         $item->fixed = $request->fixed;
+        $item->fixed_priority = $request->fixed_priority? 1:0;
         $item->icon = $request->icon;
         $item->min = $request->min;
         $item->max = $request->max;
@@ -230,6 +244,7 @@ class TimetableItemsController extends Controller{
         $item->reviewable = $reviewable;
         $item->required = $request->required;
         $item->required_warning = $request->required_warning;
+        $item->with_authorization = $request->with_authorization? 1:0;
         $item->save();
 
         $msg = trans('textos.concepto_updated');
@@ -299,5 +314,30 @@ class TimetableItemsController extends Controller{
         }
 
         return redirect()->route('timetable-items.index')->with(compact('alert'));
+    }
+
+    /**
+     * 8. Guardar regla de concepto obligatorio.
+     */
+    public function storeRule(Request $request){
+        $validator = $this->validator($request->all());
+        if($validator->fails()){
+            return redirect('/admin/timetable-items/'.$request->id.'/edit')
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        $arr = [];
+        $arr['tabla'] = $request->tabla;
+        $arr['campo'] = $request->campo;
+        $arr['regla'] = $request->regla;
+        $arr['valor'] = $request->valor;
+        $rule = serialize($arr);
+
+        TimetableItems::where('id', $request->id)
+        ->update(['required_condition' => $rule]);
+
+        $msg = trans('textos.condicion_updated');
+        return redirect()->route('timetable-items.edit', $request->id)->with(compact('msg'));
     }
 }

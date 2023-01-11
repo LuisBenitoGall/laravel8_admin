@@ -58,7 +58,6 @@ class CheckTimetableTask extends Command{
         ->get();
 
         foreach($companies as $co){
-
             //Emails de la empresa:
             $company_emails = CompanySettings::select('emails')
             ->where('company_id', $co->id)
@@ -71,10 +70,12 @@ class CheckTimetableTask extends Command{
                 $users = Employee::select('users.id', 'users.name', 'users.surname', 'users.email')
                 ->join('users', 'employees.user_id', '=', 'users.id')
                 ->join('user_companies', 'users.id', '=', 'user_companies.user_id')
+                ->join('contracts', 'employees.contract_id', '=', 'contracts.id')
                 ->where('users.status', 1)
                 ->where('employees.status', 1)
                 ->where('employees.time_control', 1)
                 ->where('user_companies.company_id', $co->id)
+                ->where('contracts.company_id', $co->id)
                 ->get();
 
                 //Concepto de salida:
@@ -94,6 +95,8 @@ class CheckTimetableTask extends Command{
                         ->where('user_id', $user->id)
                         ->whereNull('deleted_at')
                         ->orderBy('date', 'DESC')
+                        ->orderBy('hour', 'DESC')
+                        ->orderBy('flag', 'DESC')
                         ->orderBy('id', 'DESC')
                         ->first();
 

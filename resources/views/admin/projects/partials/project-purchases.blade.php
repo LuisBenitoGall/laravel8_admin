@@ -7,6 +7,7 @@
 					<th>{!! ucfirst(trans('textos.proveedor')) !!}</th>
 					<th class="text-center">{!! ucfirst(trans('textos.importe')) !!}</th>
 					<th class="text-center">{!! ucfirst(trans('textos.fecha_entrega')) !!}</th>
+					<th class="text-center">{!! ucfirst(trans('textos.facturas')) !!}</th>
 					<th class="text-center">{!! ucfirst(trans('textos.estado')) !!}</th>
 					<th class="text-center">{!! ucfirst(trans('textos.acciones')) !!}</th>
 				</tr>
@@ -52,6 +53,24 @@
 								{!! Carbon\Carbon::parse($pp->delivery_date)->format($languages[session()->get('locale')][4]) !!}
 							@endif
 						</td>
+						{{-- Factura --}}
+						<td class="text-right">
+							@php
+							$invoices = $pp->invoices;
+							@endphp
+
+							@foreach($invoices as $inv)
+								<a target="_blank" href="{{ route('invoices.edit', $inv->id) }}">
+									@if($inv->invoice_num)
+										{{ $inv->invoice_num }}
+									@elseif($inv->invoice_old_num)
+										{{ $inv->invoice_old_num }}
+									@else
+										{{ $inv->id }}
+									@endif
+								</a>
+							@endforeach
+						</td>
 						{{-- Estado --}}
 						<td>
 							@if($pp->status > 0)
@@ -85,7 +104,7 @@
 					<td class="text-right">
 						{{ $totalAmount }}{{ $currency->symbol }}
 					</td>
-					<td colspan="3" class="text-right">
+					<td colspan="4" class="text-right">
 				</tr>	
 			</tfoot>
 		</table>

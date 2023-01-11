@@ -400,8 +400,6 @@ class UserController extends Controller{
             }
         }
 
-        //dd($roles, $user_roles, $current_company);
-
         //Países:
         $countries = $this->countries(1);
 
@@ -786,7 +784,10 @@ class UserController extends Controller{
             //Centro de trabajo del usuario en el intervalo señalado:
             $workplace = UserWorkplaces::getEmployeeWorkplace($user_id, $from, $to);
 
-            $data = Timetable::listUserTimetables($from, $to, $user_id, $workplace->id);
+            //Indicamos si el usuario puede acceder a los conceptos que requieren autorización:
+            $see_authorized = Auth::user()->can('employees-timetable.edit')? false:true;
+
+            $data = Timetable::listUserTimetables($from, $to, $user_id, $workplace->id, $see_authorized);
 
             return DataTables::of($data)
             ->addColumn('fecha', function($row){
@@ -796,11 +797,17 @@ class UserController extends Controller{
                 return $row['hour'];
             })
             ->addColumn('name', function($row){
-                return ucfirst($row['name']);
+                $concept = '';
+                if($row['flag'] == 1){
+                    $concept .= '<i class="fa fa-sign-in-alt text-success"></i> ';
+                }else{
+                    $concept .= '<i class="fa fa-sign-out-alt text-danger"></i> ';    
+                }
+                $concept .= ucfirst($row['name']);
+                return $concept; 
             })
             ->addColumn('accumulated', function($row){
                 $accumulated = isset($row['accumulated'])? $row['accumulated']:'';
-                //$accumulated = $row['accumulated'];
                 if($row['accumulated'] != '' && $row['hoursOfWork']){
                     $accumulated .= ' / '.$row['hoursOfWork'];
                 }
@@ -813,10 +820,10 @@ class UserController extends Controller{
             ->addColumn('comments', function($row){
                 return $row['comments'];
             })
-            ->addColumn('acciones', function($row){
-                return view('admin.users.partials.dt-timetable-actions', compact('row'));
+            ->addColumn('acciones', function($row) use($see_authorized){
+                return view('admin.users.partials.dt-timetable-actions', compact('row', 'see_authorized'));
             })
-            ->rawColumns(['fecha', 'accumulated'])
+            ->rawColumns(['fecha', 'name', 'accumulated'])
             ->make(true);
 
         }else{
@@ -863,7 +870,17 @@ class UserController extends Controller{
         return redirect()->route('users.edit', $user->id)->with(compact('msg'));
     }
 
+    /**
+     * Close Joke.
+     */
+    public function closeJoke(Request $request){
+        if($request->ajax()){
+            User::where('id', Auth::user()->id)
+            ->update(['joke' => 1]);
 
+            Auth::user()->joke = 1;
+        }
+    }
 
 
 

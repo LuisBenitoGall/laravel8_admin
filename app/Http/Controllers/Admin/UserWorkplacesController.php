@@ -34,6 +34,8 @@ class UserWorkplacesController extends Controller{
     /**
      * 1. Guardar centro de trabajo de usuario.
      *
+     * 09/01/2023: sólo un centro de trabajo por usuario. Una relación múltiple interfiere con el buen funcionamiento de los horarios y calendario.
+     *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
@@ -46,14 +48,17 @@ class UserWorkplacesController extends Controller{
         }   
 
         //Comprobamos que no exista previamente el vínculo:
-        $exist = UserWorkplaces::where('user_id', $request->user_id)
-        ->where('workplace_id', $request->workplace_id)
-        ->first();
+        // $exist = UserWorkplaces::where('user_id', $request->user_id)
+        // ->where('workplace_id', $request->workplace_id)
+        // ->first();
 
-        if($exist){
-            $alert = trans('textos.registro_duplicado_alert');
-            return redirect()->route('users.edit', [$request->user_id, 'company'])->with(compact('alert')); 
-        }
+        // if($exist){
+        //     $alert = trans('textos.registro_duplicado_alert');
+        //     return redirect()->route('users.edit', [$request->user_id, 'company'])->with(compact('alert')); 
+        // }
+        
+        //Eliminamos registros previos del usuario:
+        UserWorkplaces::where('user_id', $request->user_id)->delete();
 
         $uwp = new UserWorkplaces();
         $uwp->user_id = $request->user_id;

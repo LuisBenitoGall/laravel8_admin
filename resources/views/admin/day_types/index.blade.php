@@ -35,6 +35,7 @@
                     <th class="text-center">{!! ucfirst(trans('textos.disponible_para_usuario')) !!}</th>
                     <th class="text-center">{!! ucfirst(trans('textos.acumulable')) !!}</th>
                     <th class="text-center">{!! ucfirst(trans('textos.modificable_manualmente')) !!}</th>
+                    <th class="text-center">{!! ucfirst(trans('textos.repeticion_anual')) !!}</th>
                     <th class="text-center">{!! ucfirst(trans('textos.acciones')) !!}</th>
                 </tr>
             </thead>

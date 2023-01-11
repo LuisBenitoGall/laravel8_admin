@@ -38,6 +38,7 @@ class TimetableController extends Controller{
      * 6. Marcar horario para revisar.
      * 7. Desmarcar horario revisado.
      * 8. Enviar email revisión.
+     * 9. Autorizar / desautorizar registro horario.
      */
     
     private $option = 'horarios';
@@ -228,7 +229,7 @@ class TimetableController extends Controller{
             $revisable = $item->reviewable? 1:0;
         
             //Obtenemos último registro del usuario:
-            $prevRecord = Timetable::select('timetables.id', 'timetables.date', 'timetables.hour', 'timetables.item_id', 'timetables.flag', 'timetable_items.min', 'timetable_items.max', 'timetable_items.fixed')
+            $prevRecord = Timetable::select('timetables.id', 'timetables.date', 'timetables.hour', 'timetables.item_id', 'timetables.flag', 'timetables.authorized', 'timetable_items.min', 'timetable_items.max', 'timetable_items.fixed')
             ->join('timetable_items', 'timetables.item_id', '=', 'timetable_items.id')
             ->where('timetables.user_id', Auth::user()->id)
             ->orderBy('timetables.date', 'DESC')
@@ -240,6 +241,9 @@ class TimetableController extends Controller{
                 return back();
                 exit;
             }
+
+            //Item con autorización:
+            $authorized = $item->with_authorization? false:true;
 
             //Comprobaciones registros anteriores:
             if($prevRecord){
@@ -277,6 +281,11 @@ class TimetableController extends Controller{
                 if($prevRecord->min > 0 && helpers::getMinutes(helpers::getTimeBetweenHours($prevRecord->hour, $hora)) < $prevRecord->min){
                     $hora = helpers::sumaHoras($prevRecord->hour, helpers::getTimeFromMinutes($prevRecord->min));
                 }
+
+                //Autorización concepto de salida:
+                if($prevRecord->flag == 1 && $item->type == 2 && $prevRecord->authorized == false){
+                    $authorized = false;
+                }
             }
 
             //Guardamos registro horario:
@@ -287,6 +296,7 @@ class TimetableController extends Controller{
             $hour->item_id = $item->id;
             $hour->flag = $item->type;
             $hour->revision = $revisable;
+            $hour->authorized = $authorized;
             $hour->save();
 
             return redirect()->route('users.timetables', Auth::user()->id);
@@ -446,6 +456,20 @@ class TimetableController extends Controller{
                 }); 
             }  
         }    
+    }
+
+    /**
+     * 9. Autorizar / desautorizar registro horario.
+     */
+    public function authorizeConcept(Request $request, Timetable $timetable){
+        if($request->ajax()){
+            if($timetable->authorized){
+                $timetable->authorized = false;    
+            }else{
+                $timetable->authorized = true;
+            }
+            $timetable->save();
+        }
     }
 
     /**
@@ -647,6 +671,6 @@ class TimetableController extends Controller{
         ->orWhereRaw('WEEKDAY(date) = 6')
         ->get();
 
-        dd($before_data, $data);  
+        //dd($before_data, $data);  
     }
 }

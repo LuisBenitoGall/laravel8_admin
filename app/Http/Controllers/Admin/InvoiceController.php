@@ -68,12 +68,13 @@ class InvoiceController extends Controller{
      * 13. Generar factura de abono.
      * 14. Eliminar pedido de factura de agrupación.
      * 15. Opciones contables.
+     * 16. Control de facturación.
+     * 16.1. Control de facturación para DataTable.
      */
     
     private $option = 'contabilidad';
     private $module = 'accounting';
     private $languages;
-    private $accounting_options;
 
     public function __construct(){
         //Idiomas:
@@ -88,8 +89,6 @@ class InvoiceController extends Controller{
         $this->middleware('invoice_order_remove', ['only' => ['removeFromInvoice']]);
         $this->middleware('order_post', ['only' => ['createFromOrder', 'createFromGroup']]);
         $this->middleware('order_get', ['only' => ['invoicesByOrder']]);
-        $this->middleware('accounting_block_purchases', ['only' => ['createFromProvider', 'storeFromProvider', 'update']]);
-        $this->middleware('accounting_block_sales', ['only' => ['createFromOrder', 'createFromGroup', 'update']]);
     }
 
     //0. Validator:
@@ -192,9 +191,6 @@ class InvoiceController extends Controller{
         //Moneda:
         $currency = CompanySettings::co_currency(0); 
 
-        //Opciones contables:
-        $accounting_options = $this->accountingOptions();
-
         //Comprobamos si la empresa hace gestión de clientes:
         if(session('companySettings')['customers_management'] == 1){
             $customers = CustomerProviders::getCompanyCustomers(session('currentCompany')); 
@@ -205,7 +201,7 @@ class InvoiceController extends Controller{
             $providers = CustomerProviders::getCompanyProviders(session('currentCompany'));
         }
 
-        return view('admin.invoices.index')->with(compact('header', 'invoicesType', 'year', 'month', 'customer_id', 'provider_id', 'customer', 'provider', 'customers', 'providers', 'currency', 'accounting_options'));
+        return view('admin.invoices.index')->with(compact('header', 'invoicesType', 'year', 'month', 'customer_id', 'provider_id', 'customer', 'provider', 'customers', 'providers', 'currency'));
     }
 
     /**
@@ -320,7 +316,10 @@ class InvoiceController extends Controller{
         ->leftJoin('companies', 'orders.'.$company_field.'_id', '=', 'companies.id')
         ->leftJoin('cost_centers', 'orders.'.$company_field.'_cost_center_id', '=', 'cost_centers.id')
         ->leftJoin('users', 'orders.'.$company_field.'_manager_id', '=', 'users.id')
-        ->whereYear('invoices.fiscal_date', $year)
+        ->where(function ($query) use($year){
+            $query->whereYear('invoices.fiscal_date', $year)
+            ->orWhereNull('invoices.fiscal_date');
+        })
         ->whereNull('invoices.deleted_at')
         ->when($customer && $provider, function($q) use($customer, $provider){
             if(is_numeric($customer) && is_numeric($provider)){
@@ -369,7 +368,7 @@ class InvoiceController extends Controller{
             return $row->Nombre.' '.$row->surname;
         })
         ->addColumn('fiscal_date', function($row){
-            return Carbon::parse($row->fiscal_date)->format($this->languages[session()->get('locale')][4]);
+            return $row->fiscal_date? Carbon::parse($row->fiscal_date)->format($this->languages[session()->get('locale')][4]):'';
         })
         ->addColumn('expiration_date', function($row){
             return Carbon::parse($row->expiration_date)->format($this->languages[session()->get('locale')][4]);
@@ -768,10 +767,7 @@ class InvoiceController extends Controller{
 
         $currency = CompanySettings::co_currency(0);
 
-        //Opciones contables:
-        $accounting_options = $this->accountingOptions();
-
-        return view('admin.invoices.invoice-by-provider')->with(compact('header', 'project_id', 'providers', 'languages', 'currency', 'accounting_options'));          
+        return view('admin.invoices.invoice-by-provider')->with(compact('header', 'project_id', 'providers', 'languages', 'currency'));          
     }
 
     /**
@@ -783,6 +779,19 @@ class InvoiceController extends Controller{
             return redirect('/admin/invoices/create-from-provider')
                 ->withErrors($validator)
                 ->withInput();
+        }
+
+        //Formateando fechas:
+        $fiscal_date = $request->fiscal_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->fiscal_date):$request->fiscal_date:NULL;
+        $expiration_date = $request->expiration_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->expiration_date):$request->expiration_date:NULL;
+
+        //Comprobamos si la fecha fiscal es válida, que el mes y año no estén cerrados.
+        if($fiscal_date){
+            $no_valid = AccountingOption::validInvoiceDate($fiscal_date, 'p', session('currentCompany'));  
+            if($no_valid){
+                $alert = trans('textos.cierre_mensual_compras_aviso');
+                return redirect()->route('invoices.create-from-provider')->with(compact('alert'));     
+            }
         }
 
         //Creamos pedido si no existe. Seteamos la variable $add_items para indicar si se deben introducir líneas del pedido o no.
@@ -808,16 +817,21 @@ class InvoiceController extends Controller{
             // $item->active = 1;
             // $item->user_id = Auth::user()->id;
             // $item->save();
+            
+
+            $order_amount = NULL;
+            $invoice_amount = NULL;
 
         }else{
             $order = Order::select('id', 'invoiced')->find($request->order_id);
             $order->invoiced = 1;
             $order->save();
-        }
 
-        //Formateando fechas:
-        $fiscal_date = $request->fiscal_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->fiscal_date):$request->fiscal_date:NULL;
-        $expiration_date = $request->expiration_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->expiration_date):$request->expiration_date:NULL;
+            //Si existe el pedido, incluimos importe en la factura:
+            $arr_amounts = $order->getAmount();    
+            $order_amount = $arr_amounts['total_amount'];
+            $invoice_amount = $arr_amounts['invoice_amount'];
+        }
 
         //Subir documento.
         $doc = $this->loadFile($request, 'invoices');
@@ -826,9 +840,9 @@ class InvoiceController extends Controller{
         $inv = new Invoice();
         $inv->invoice_old_num = $request->invoice_old_num;
         $inv->order_id = $order->id;
-        //$inv->amount = $request->amount;
+        $inv->amount = $order_amount;
         $inv->with_iva = config('constants.IVA_DEFAULT_');
-        //$inv->amount_with_iva = $request->amount_with_iva;
+        $inv->amount_with_iva = $invoice_amount;
         $inv->irpf = $request->irpf;
         $inv->fiscal_date = $fiscal_date;
         $inv->expiration_date = $expiration_date;
@@ -1005,10 +1019,7 @@ class InvoiceController extends Controller{
             if($ba->featured == 1) $bank_featured = $ba->id;
         }
 
-        //Opciones contables:
-        $accounting_options = $this->accountingOptions();
-
-        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'is_sale', 'order', 'suborders', 'invoiced', 'invoices', 'refund', 'customer', 'customer_settings', 'provider', 'provider_account', 'items', 'products', 'patterns', 'payments', 'templates', 'featuredTemplate', 'currency', 'languages', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'payment_methods', 'bank_accounts', 'bank_featured', 'accounting_options'));
+        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'is_sale', 'order', 'suborders', 'invoiced', 'invoices', 'refund', 'customer', 'customer_settings', 'provider', 'provider_account', 'items', 'products', 'patterns', 'payments', 'templates', 'featuredTemplate', 'currency', 'languages', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'payment_methods', 'bank_accounts', 'bank_featured'));
     }
 
     /**
@@ -1136,10 +1147,7 @@ class InvoiceController extends Controller{
         $bank_accounts = [];
         $bank_featured = false;
 
-        //Opciones contables:
-        $accounting_options = $this->accountingOptions();
-
-        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'is_sale', 'order', 'invoiced', 'invoices', 'refund', 'customer', 'provider', 'provider_account', 'provider_settings', 'structure_concepts', 'items', 'products', 'currency', 'languages', 'patterns', 'payments', 'templates', 'featuredTemplate', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'payment_methods', 'concepts', 'bank_accounts', 'bank_featured', 'accounting_options'));
+        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'is_sale', 'order', 'invoiced', 'invoices', 'refund', 'customer', 'provider', 'provider_account', 'provider_settings', 'structure_concepts', 'items', 'products', 'currency', 'languages', 'patterns', 'payments', 'templates', 'featuredTemplate', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'payment_methods', 'concepts', 'bank_accounts', 'bank_featured'));
     }
 
     /**
@@ -1186,11 +1194,8 @@ class InvoiceController extends Controller{
 
         //Moneda:
         $currency = CompanySettings::co_currency(0);
-
-        //Opciones contables:
-        $accounting_options = $this->accountingOptions();
-        
-        return view('admin.invoices.show')->with(compact('header', 'invoice', 'order', 'customer', 'customer_workplace', 'provider', 'provider_workplace', 'items', 'languages', 'currency', 'accounting_options'));  
+    
+        return view('admin.invoices.show')->with(compact('header', 'invoice', 'order', 'customer', 'customer_workplace', 'provider', 'provider_workplace', 'items', 'languages', 'currency'));  
     }
 
     /**
@@ -1231,6 +1236,16 @@ class InvoiceController extends Controller{
             $fiscal_date = $request->fiscal_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->fiscal_date):$request->fiscal_date:NULL;
             $expiration_date = $request->expiration_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->expiration_date):$request->expiration_date:NULL;
 
+            //Comprobamos si la fecha fiscal es válida, que el mes y año no estén cerrados.
+            //29/12/22: preguntar a Marcelo si aplica también para la edición.
+            // if($fiscal_date){
+            //     $no_valid = AccountingOption::validInvoiceDate($fiscal_date, 's', session('currentCompany'));  
+            //     if($no_valid){
+            //         $alert = trans('textos.cierre_mensual_ventas_aviso');
+            //         return redirect()->route('invoices.edit', $invoice->id)->with(compact('alert'));     
+            //     }
+            // }
+
             //Actualizando datos:
             if($request->pattern_id){
                 if(!empty($patternNum)){
@@ -1251,9 +1266,12 @@ class InvoiceController extends Controller{
 
         //Compra:
         }else{
+            $check_in_date = $request->check_in_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->check_in_date):$request->check_in_date:NULL;
+
             $invoice->customer_observations = $request->observations;  
             $invoice->accounting_structure_id = $request->accounting_structure;
             $invoice->accounting_concept_id = $request->accounting_concept;
+            $invoice->check_in_date = $check_in_date;
         }
 
         $invoice->save();
@@ -1266,7 +1284,7 @@ class InvoiceController extends Controller{
     /**
      * 5. Imprimir factura.
      */
-    public function print(Invoice $invoice){
+    public function print(Invoice $invoice, $bn = false){
         if(!$invoice || $invoice->deleted_at){
             $alert = trans('textos.factura_no_existe');
             return redirect()->route('invoices.index')->with(compact('alert')); 
@@ -1350,18 +1368,13 @@ class InvoiceController extends Controller{
         $invoice->printed = $invoice->printed + 1;
         $invoice->save();
 
-
-
-
-
-
         //Nombre del archivo:
         $invoice_name_pdf = $invoice->invoice_num? $invoice->invoice_num:trans('textos.factura').'_'.$invoice->id;
 
         //Template de factura. Se pasa por variable por si se incluyen más templates.
         $invoice_template = 'pdf/invoice';
 
-        $pdf = PDF::loadView($invoice_template, compact('invoice', 'invoice_order', 'items', 'advance_invoices', 'provider', 'customer', 'template', 'fechaLiteral', 'company_settings', 'provider_workplace', 'provider_phones', 'customer_workplace', 'customer_manager', 'currency'));
+        $pdf = PDF::loadView($invoice_template, compact('invoice', 'bn', 'invoice_order', 'items', 'advance_invoices', 'provider', 'customer', 'template', 'fechaLiteral', 'company_settings', 'provider_workplace', 'provider_phones', 'customer_workplace', 'customer_manager', 'currency'));
         return $pdf->download($invoice_name_pdf.'.pdf'); 
     }
 
@@ -1804,6 +1817,76 @@ class InvoiceController extends Controller{
      */
     private function accountingOptions(){
         return AccountingOption::getCompanyOptions();
+    }
+
+    /**
+     * 16. Control de facturación.
+     */
+    public function control(){
+        $header = [
+            'option' => $this->option, 
+            'suboption' => 'textos.facturacion_control',
+            'module' => $this->module,
+            'slug' => 'invoices'
+        ];      
+
+        return view('admin.invoices.control-list')->with(compact('header'));
+    }
+
+    /**
+     * 16.1. Control de facturación para DataTable.
+     */
+    public function getControlDT(){
+        //Moneda:
+        $currency = CompanySettings::co_currency(0);
+
+        $estados = helpers::orderStatus();
+
+        $data = Order::select('orders.id', 'orders.order_num', 'orders.order_old_num', 'orders.delivery_date', 'orders.order_status', 'companies.name', 'companies.tradename', 'users.name AS Nombre', 'users.surname')
+        ->join('companies', 'orders.customer_id', '=', 'companies.id')
+        ->leftJoin('users', 'orders.provider_manager_id', '=', 'users.id')
+        ->whereHas('previsions', function ($query){
+            $query->whereNull('invoice_id');
+            $query->select(DB::raw('SUM(percent) as total'))
+            ->havingRaw('total < 100');
+        })
+        ->where('orders.provider_id', session('currentCompany'))
+        ->with('previsions')
+        ->orderBy('orders.id', 'ASC');
+
+        return DataTables::of($data)
+        ->addColumn('order_num', function($row){
+            $num = $row->order_num? $row->order_num:($row->order_old_num? $row->order_old_num:$row->id);
+            return '<a href="'.route('orders.edit', $row).'">'.$num.'</a>'; 
+        })
+        ->addColumn('company', function($row){
+            return $row->name;
+        })
+        ->addColumn('manager', function($row){
+            return $row->Nombre.' '.$row->surname;
+        })
+        ->addColumn('delivery_date', function($row){
+            return $row->delivery_date? Carbon::parse($row->delivery_date)->format($this->languages[session()->get('locale')][4]):'';
+        })
+        ->addColumn('amount', function($row) use($currency){
+            $amount = $row->getAmount();  
+            return $amount['total_amount'].$currency->symbol;
+        })
+        ->addColumn('pendiente', function($row) use($currency){
+            $amount = $row->getAmount();
+            $invoice_amounts = $row->getInvoicedAmount();
+            $diff = isset($invoice_amounts['invoiced_amount'])? $amount['total_amount'] - $invoice_amounts['invoiced_amount']:false;
+
+            return $diff? round($diff, 2).$currency->symbol:'';
+        })
+        ->addColumn('estado', function($row) use($estados){
+            return view('admin.orders.partials.dt-status', compact('row', 'estados'));    
+        })
+        ->addColumn('acciones', function($row) use($estados){
+            return view('admin.invoices.partials.dt-actions-control', compact('row', 'estados'));    
+        })
+        ->rawColumns(['order_num'])
+        ->make(true);
     }
     
 }

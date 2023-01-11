@@ -78,14 +78,28 @@
 		</div>
 
 		{{-- Estado --}}
-		<label for="status" class="col-md-2 col-form-label">{!! ucfirst(trans('textos.estado')) !!}</label>
-		<div class="col-md-4 col-lg-2">
-			@php
-			$estados = App\Helpers\helpers::invoiceStatus();
-			@endphp
+		@if($is_sale)
+			<label for="status" class="col-md-2 col-form-label">{!! ucfirst(trans('textos.estado')) !!}</label>
+			<div class="col-md-4 col-lg-2">
+				@php
+				$estados = App\Helpers\helpers::invoiceStatus();
+				@endphp
 
-			<x-select name="status" class="select2" label="indica_estado" :options="$estados" value="{{ $invoice->status }}" disabled="{{ $disabled }}"/>	
-		</div>
+				<x-select name="status" class="select2" label="indica_estado" :options="$estados" value="{{ $invoice->status }}" disabled="{{ $disabled }}"/>	
+			</div>
+		@endif
+
+		{{-- Fecha de comprobante --}}
+		@if(!$is_sale)
+			<label for="check_in_date" class="col-md-2 col-form-label">{!! ucfirst(trans('textos.fecha_comprobante')) !!}</label>
+			<div class="col-md-4 col-lg-2">
+				@php
+				$check_in_date = $invoice->check_in_date != ''? \Carbon\Carbon::parse($invoice->check_in_date)->format($languages[session()->get('locale')][4]):'';
+				@endphp	
+
+				<x-date-picker name="check_in_date" value="{{ $check_in_date }}" :format="$languages[config('app.locale')][4]"/>
+			</div>
+		@endif
 	</div>
 
 	{{-- Conceptos contables. Sólo para compras --}}

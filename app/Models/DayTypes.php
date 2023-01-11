@@ -12,6 +12,8 @@ class DayTypes extends Model{
      * 2. Configuración por tipo de fecha y año.
      * 3. Número de tipo de días por usuario y año.
      * 4. Calculando jornadas acumuladas.
+     * 5. Obtener número de jornadas por usuario.
+     * 6. Copiar tipo de jornada de un año a otro.
      */
     
     use HasFactory;
@@ -99,5 +101,42 @@ class DayTypes extends Model{
         ->first();
 
         return $data;
+    }
+
+    /**
+     * 6. Copiar tipo de jornada de un año a otro.
+     */
+    public function copyYearToYear($from, $to){
+        if($this->annual_repetition){
+            //Obtenemos los registros con tipo de jornada a repetir durante el año $from:
+            $data = WorkUserCalendar::select('user_id', 'date')
+            ->where('day_type_id', $this->id)
+            ->whereYear('date', $from)
+            ->get();
+
+            //Diferencia entre años:
+            $sum = $to - $from;
+
+            //Guardamos en el nuevo año:
+            foreach($data as $r){
+                $date = strtotime ('+'.$sum.' year' , strtotime($r->date));
+                $date = date ('Y-m-d',$date);
+
+                //Comprobamos que no exista previamente:
+                $exist = WorkUserCalendar::select('id')
+                ->where('user_id', $r->user_id)
+                ->where('date', $date)
+                ->first();
+                
+                if(!$exist){
+                    $wuc = new WorkUserCalendar();
+                    $wuc->user_id = $r->user_id;
+                    $wuc->day_type_id = $this->id;
+                    $wuc->date = $date;
+                    $wuc->status = 1;
+                    $wuc->save();
+                }
+            }
+        }
     }
 }

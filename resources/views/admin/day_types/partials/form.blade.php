@@ -139,6 +139,17 @@
             {!! App\Helpers\Helpers::info('day-type-modifiable', true) !!}
         </label>
     </div>
+
+    {{-- Repetición anual --}}
+    <label for="annual_repetition" class="col-lg-2 col-form-label">{{ ucfirst(trans('textos.repeticion_anual')) }}</label>
+    <div class="col-lg-1 sinpadding">
+        <label class="custom-chk-rdb">
+            <input type="checkbox" name="annual_repetition" @if($day_type && $day_type->annual_repetition) checked @endif>
+            <span class="chk" style="margin-top: 6px;"></span>
+
+            {!! App\Helpers\Helpers::info('day-type-annual-repetition', true) !!}
+        </label>
+    </div>
 </div>
 
                      

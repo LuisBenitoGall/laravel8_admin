@@ -72,6 +72,10 @@ class Product extends Model{
     /**
      * 3.1. Productos por empresa con gestión de stock.
      */ 
+    
+    public function stocks(){
+        return $this->hasMany(Stock::class);
+    }
 }
 
 
