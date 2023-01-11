@@ -173,4 +173,8 @@ class Company extends Model{
     {
         return $this->belongsToMany(User::class,'user_companies');
     }
+    public function staffPicks()
+    {
+        return $this->hasMany(StaffPick::class);
+    }
 }

@@ -14,7 +14,7 @@ class AuthServiceProvider extends ServiceProvider
      * @var array
      */
     protected $policies = [
-        // 'App\Models\Model' => 'App\Policies\ModelPolicy',
+         'App\Models\Model' => 'App\Policies\ModelPolicy',
     ];
 
     /**
@@ -27,7 +27,9 @@ class AuthServiceProvider extends ServiceProvider
         $this->registerPolicies();
 
 
-        Passport::routes();
+        if (!$this->app->routesAreCached()) {
+            Passport::routes();
+        }
 
         //Permisos Spatie de Super-Administrador:
         Gate::before(function ($user, $ability) {
