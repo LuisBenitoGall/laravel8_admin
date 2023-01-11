@@ -19,7 +19,11 @@
         "postcss": "^8.1.14",
         "resolve-url-loader": "^4.0.0",
         "sass": "^1.32.11",
-        "sass-loader": "^11.0.1"
+        "sass-loader": "^11.0.1",
+        "vue": "^2.5.17",
+        "vue-loader": "^15.9.6",
+        "vue-template-compiler": "^2.6.10",
+        "vue-resource": "^0.9.3"
     },
     "dependencies": {
         "datatables": "^1.10.18",

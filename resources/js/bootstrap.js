@@ -11,7 +11,8 @@ try {
     window.$ = window.jQuery = require('jquery');
 
     require('bootstrap');
-} catch (e) {}
+} catch (e) {
+}
 
 /**
  * We'll load the axios HTTP library which allows us to easily issue requests
@@ -39,6 +40,27 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 //     cluster: process.env.MIX_PUSHER_APP_CLUSTER,
 //     forceTLS: true
 // });
-// 
+//
+
 
 window.swal = require('sweetalert2');
+
+//import * as Vue from 'vue'
+
+import Vue from 'vue';
+// Vue.component('example', require('./components/Example.vue'));
+Vue.component(
+    'passport-personal-access-tokens',
+    require('./componentes/passport/PersonalAccessTokens.vue').default);
+
+Vue.component(
+    'passport-clients',
+    require('./componentes/passport/Clients.vue').default);
+
+Vue.component(
+    'passport-authorized-clients',
+    require('./componentes/passport/AuthorizedClients.vue').default);
+
+const app = new Vue({
+    el: '#app'
+});

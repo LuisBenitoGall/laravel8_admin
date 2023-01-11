@@ -20,7 +20,6 @@
     <link href="{{ mix('css/app.css') }}" rel="stylesheet">
     @laravelPWA
     @livewireStyles
-
 </head>
 
 <body>
@@ -100,7 +99,7 @@
 
 @stack('scripts')
 
-<script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>
+{{--<script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>
 <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"></script>
 <script>
     window.OneSignal = window.OneSignal || [];
@@ -119,8 +118,8 @@
     });
 
     OneSignal.push(["init", {
-        appId: "55e7e4db-87fd-4f97-b0f3-c62922107e03",
-        safari_web_id: "web.onesignal.auto.3f550615-46c0-4fa5-9ee8-42953ece3d19",
+        appId: "692f6061-b175-46b2-b92e-ff5ba97c42cd",
+        safari_web_id: "web.onesignal.auto.02091d44-51df-4a38-967b-45e7d1e7feaf",
         autoRegister: false,
         promptOptions: {
             /* My prompt options */
@@ -142,6 +141,6 @@
     }]);
 
 
-</script>
+</script>--}}
 </body>
 </html>
