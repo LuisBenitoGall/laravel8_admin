@@ -175,6 +175,6 @@ class Company extends Model{
     }
     public function staffPicks()
     {
-        return $this->hasMany(StaffPick::class);
+        return $this->hasMany(StaffPick::class)->where('status',true);
     }
 }
