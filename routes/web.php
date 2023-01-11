@@ -49,11 +49,20 @@ Route::get('province-towns/{id}', 'Admin\AdminController@getProvinceTowns');
 Route::get('company-register', 'Admin\CompanyController@create')->name('company-register')->middleware('auth');
 Route::post('company/store', 'Admin\CompanyController@store')->name('company.store')->middleware('auth');
 
+
+//Passport
+Route::get('my-tokens', 'HomeController@getTokens')->name('personal-tokens');
+Route::get('my-clients', 'HomeController@getClients')->name('personal-clients');
+Route::get('authorized-clients', 'HomeController@getAuthorizedClients')->name('authorized-clients');
+
+
 // ADMIN:   'company_session',
 Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('admin')->namespace('Admin')->group(function () {
+
+
     // Accounting:
     Route::get('accounting', 'AccountingController@index')->name('accounting.index');
-    Route::post('get/device/id', [\App\Http\Controllers\Admin\DevicePushController::class,'store'])->name('save.push');
+    Route::post('get/device/id', [\App\Http\Controllers\Admin\DevicePushController::class, 'store'])->name('save.push');
 
     // Accounting Concepts:
     Route::get('accounting-concepts', 'AccountingConceptController@index')->name('accounting-concepts.index')->middleware('permission:accounting-concepts.index');
@@ -1171,3 +1180,7 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 //Route::get('/admin/adjust_timetables_workers', 'Admin\TimetableController@adjustTimetablesWorkers')->name('timetables.adjust_timetables_workers');
 
 //Route::get('/admin/delete-weekends', 'Admin\TimetableController@deleteWeekends')->name('timetables.delete-weekends');
+
+Auth::routes();
+
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
