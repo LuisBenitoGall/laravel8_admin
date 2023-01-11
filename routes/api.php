@@ -992,6 +992,7 @@ Route::prefix('v1')->namespace('Api')->group(function () {
                 CompanyStaffPicksController::class,
                 'index',
             ])->name('companies.staff-picks.index');
+
             Route::post('/companies/{company}/staff-picks', [
                 CompanyStaffPicksController::class,
                 'store',
