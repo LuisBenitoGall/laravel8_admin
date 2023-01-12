@@ -30,6 +30,7 @@ class StockController extends Controller{
      * 1. Stock de productos.
      * 1.1. Stock por almacén para table.
      * 2. Histórico de movimientos de producto.
+     * 2.1. Movimientos por producto para DataTable.
      * 3. Guardar movimiento de stock.
      */
 
@@ -101,7 +102,7 @@ class StockController extends Controller{
         }
 
         //Últimos movimientos de stock realizados.
-        $last_movements = Stock::select('stocks.created_at', 'products.id', 'products.name')
+        $last_movements = Stock::select('stocks.qty', 'stocks.operation', 'stocks.created_at', 'products.id', 'products.name')
         ->join('products', 'stocks.product_id', '=', 'products.id')
         ->where('products.company_id', session('currentCompany'))
         ->orderBy('stocks.created_at', 'DESC')
@@ -183,6 +184,9 @@ class StockController extends Controller{
                 }
             }
 
+                        //dd($data);
+
+
             return response()->json($data);
         }
     }
@@ -198,9 +202,74 @@ class StockController extends Controller{
             'slug' => 'stocks'
         ];   
 
-
-
         return view('admin.stocks.show')->with(compact('header', 'product'));
+    }
+
+    /**
+     * 2.1. Movimientos por producto para DataTable.
+     */
+    public function getProductStockMovementsDT($product_id){
+        $data = Stock::select('stocks.qty', 'stocks.result', 'stocks.operation', 'stocks.doc', 'stocks.doc_num', 'stocks.observations', 'stocks.created_at', 'products.id', 'products.name', 'stock_movements.name AS movement', 'stores.name AS store', 'batches.name AS batch', 'users.name AS Nombre', 'users.surname')
+        ->join('products', 'stocks.product_id', '=', 'products.id')
+        ->join('stock_movements', 'stocks.stock_mov_id', '=', 'stock_movements.id')
+        ->join('stores', 'stocks.store_id', '=', 'stores.id')
+        ->leftJoin('users', 'stocks.user_id', '=', 'users.id')
+        ->leftJoin('batches', 'stocks.batch_id', '=', 'batches.id')
+        ->where('stocks.product_id', $product_id)
+        ->orderBy('stocks.created_at', 'DESC');
+
+        return DataTables::of($data)
+        ->addColumn('fecha', function($row){
+            return $row->created_at->format($this->languages[session()->get('locale')][4].' H:i:s');
+        })
+        ->addColumn('movement', function($row){
+            return ucfirst($row->movement);
+        })
+        ->addColumn('store', function($row){
+            return $row->store;
+        })
+        ->addColumn('batch', function($row){
+            if($row->batch != '' || $row->batch != config('constants.NOBATCH_')){
+                return $row->batch;
+            }else{
+                return '';
+            }
+        })
+        ->addColumn('qty', function($row){
+            if($row->operation == 'r'){
+                return '-'.$row->qty;
+            }else{
+                return $row->qty;    
+            }
+        })
+        ->addColumn('stock', function($row){
+            return $row->result;
+        })
+        ->addColumn('doc', function($row){
+            $doc = '';
+            if($row->doc){
+                $doc .= '<a target="_blank" href="/docs/stock-docs/'.$row->doc.'">';
+                    if($row->doc_num){
+                        $doc .= $row->doc_num;
+                    }else{
+                        $doc .= '<i class="fa fa-file"></i>';
+                    }
+                $doc .= '</a>';
+            }
+            return $doc;
+        })
+        ->addColumn('user', function($row){
+            if($row->Nombre){
+                return $row->Nombre.' '.$row->surname;
+            }else{
+                return '';
+            }
+        })
+        ->addColumn('acciones', function($row){
+            return view('admin.stocks.partials.dt-actions', compact('row'));
+        })
+        ->rawColumns(['doc'])
+        ->make(true);
     }
 
     /**
@@ -213,6 +282,17 @@ class StockController extends Controller{
                 ->withErrors($validator)
                 ->withInput();
         }
+
+        //Producto:
+        $product = Product::select('id', 'price', 'batch', 'stock_management')->find($request->product_id);
+
+        if(!$product->stock_management){
+            $alert = trans('textos.producto_sin_gestion_stock');
+            return redirect()->route('stocks.index', $request->product_id)->with(compact('alert'));   
+            exit; 
+        }
+
+        //dd($request->all());
 
         //Tipo de movimiento:
         $stock_mov = StockMovements::select('sign')->find($request->movement);
@@ -231,14 +311,26 @@ class StockController extends Controller{
             $result = $result - $request->qty;
         }
 
-        //Lote:
-        $batch_id = $request->batch? $request->batch:NULL;
+        //Con gestión de lotes:
+        if($product->batch){
+            $batch_id = $request->batch? $request->batch:false;
+
+        //Sin gestión de lotes. Recuperamos el último lote existente:
+        }else{
+            $batch = Batch::select('id')
+            ->where('product_id', $product->id)
+            ->orderBy('id', 'DESC')
+            ->first();
+
+            $batch_id = $batch? $batch->id:false;
+        }
+        //Creamos lote en caso de no existir:
         if(!$batch_id){
             $expiry_date = $request->expiry_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->expiry_date):$request->expiry_date:NULL;
 
             $batch = new Batch();
             $batch->product_id = $request->product_id;
-            $batch->name = $request->new_batch;
+            $batch->name = $request->new_batch? $request->new_batch:config('constants.NOBATCH_');
             $batch->expiry_date = $expiry_date;
             $batch->initial_qty = $request->qty;
             $batch->save();

@@ -63,6 +63,29 @@
                             <h3 class="mb-3">{{ trans('textos.movimientos_ultimos') }}</h3>  
                         </div>     
 
+                        <div class="col-12">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>{{ trans('textos.fecha') }}</th>
+                                        <th>{{ ucfirst(trans('textos.producto')) }}</th>
+                                        <th class="text-center">{{ trans('textos.cantidad') }}</th>
+                                    </tr>    
+                                </thead>
+
+                                <tbody>
+                                    @foreach($last_movements as $lm)
+                                        <tr>
+                                            <td>{{ $lm->created_at->format($languages[session()->get('locale')][4].' H:i:s') }}</td>
+                                            <td>{{ $lm->name }}</td>
+                                            <td class="text-right">
+                                                @if($lm->operation == 'r') - @endif {{ $lm->qty }}
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -250,71 +273,81 @@
 
 @push('scripts')
 <script>
+//Acciones al seleccionar producto:
+function selectProduct(products, currency, product_id){
+    $('#stockProductId').val(product_id);
+
+    $('#tblStoresStock tbody').empty();
+
+    //Stock por almacenes:
+    $.get('/admin/stocks/'+product_id+'/stores-stock', function (response, state) {
+        if(response){
+            response.forEach(function (item, index, arr){
+                var batch_ = item.batch == 'lote_0'? '':item.batch;
+                var tr = '<tr>';
+                    tr += '<td>'+item.store+'</td>';
+                    tr += '<td>'+batch_+'</td>';
+                    tr += '<td class="text-right">'+item.stock+'</td>';
+                    tr += '<td class="text-right">';
+                        tr += '<a href="#" class="btn btn-xs btn-info btnSelectBatch" data-stockid="'+item.stock_id+'" data-stock="'+item.stock+'" data-store="'+item.store_id+'" data-batch="'+item.batch_id+'" rel="tooltip" title="'+txtLoteSelec+'"><i class="fa fa-filter"></i></a>';
+                    tr += '</td>';
+                tr += '</tr>';
+                $('#tblStoresStock tbody').append(tr);           
+            });
+        }
+    });
+
+    $('.productFirstScreen').fadeOut();
+    $('.productForm').fadeIn();
+
+    for(const p of products){
+        if(p.id == product_id){
+            product = p;
+            break;
+        }
+    }
+
+    $('#productTitle u').text(product.name);
+    const date = new Date(product.created_at);
+    $('#productAlta b').text(date.toLocaleDateString());
+    var ref = product.ref? product.ref:product.manual_ref;
+    $('#productRef b').text(ref);
+    $('#productPrice b').text(product.price+currency);
+    $('#productIva b').text(product.iva+'%');
+    var batch = product.batch == 1? '<i class="fa fa-check text-success ml-1"></i>':'<i class="fa fa-ban text-danger ml-1"></i>';
+    $('#productBatches span').html(batch);
+    $('#productEdit').attr('href', '/admin/products/'+product_id+'/edit'); 
+    $('#productStockHistory').attr('href', '/admin/stocks/'+product_id+'/show'); 
+
+    //Lotes:
+    if(product.batch == 1){
+        $('#withBatch').slideDown();
+    }else{
+        $('#withBatch').slideUp();
+    }
+}
+
 $(function(){
 	var currency = '{!! $currency->symbol !!}';
 	var products = {!! json_encode($products) !!};
     var movements = {!! json_encode($movements_arr) !!};
-	var product_id = '';
+    var product_id = @if($product_id) {{ $product_id }} @else false @endif;
 	var product = '';
-console.log(movements);
+
     //Inputs inactivos por defecto:
     $('.desactivado').prop('disabled', true);
+
+    //Producto recibido por parámetro:
+    if(product_id){
+        selectProduct(products, currency, product_id);    
+    }
 
 	// Selección producto:
 	$('#product').on('change', function(e){ 
 		product_id = $(this).val();  
 
 		if(product_id != ''){
-            $('#stockProductId').val(product_id);
-
-            $('#tblStoresStock tbody').empty();
-
-            //Stock por almacenes:
-            $.get('/admin/stocks/'+product_id+'/stores-stock', function (response, state) {
-                if(response){
-                    response.forEach(function (item, index, arr){
-                        var batch_ = item.batch == 'lote_0'? '':item.batch;
-                        var tr = '<tr>';
-                            tr += '<td>'+item.store+'</td>';
-                            tr += '<td>'+batch_+'</td>';
-                            tr += '<td class="text-right">'+item.stock+'</td>';
-                            tr += '<td class="text-right">';
-                                tr += '<a href="#" class="btn btn-xs btn-info btnSelectBatch" data-stockid="'+item.stock_id+'" data-stock="'+item.stock+'" data-store="'+item.store_id+'" data-batch="'+item.batch_id+'" rel="tooltip" title="'+txtProductoSeleccionar+'"><i class="fa fa-filter"></i></a>';
-                            tr += '</td>';
-                        tr += '</tr>';
-                        $('#tblStoresStock tbody').append(tr);           
-                    });
-                }
-            });
-
-			$('.productFirstScreen').fadeOut();
-			$('.productForm').fadeIn();
-
-			for(const p of products){
-				if(p.id == product_id){
-					product = p;
-					break;
-				}
-			}
-
-			$('#productTitle u').text(product.name);
-			const date = new Date(product.created_at);
-			$('#productAlta b').text(date.toLocaleDateString());
-			var ref = product.ref? product.ref:product.manual_ref;
-			$('#productRef b').text(ref);
-			$('#productPrice b').text(product.price+currency);
-			$('#productIva b').text(product.iva+'%');
-			var batch = product.batch == 1? '<i class="fa fa-check text-success ml-1"></i>':'<i class="fa fa-ban text-danger ml-1"></i>';
-			$('#productBatches span').html(batch);
-            $('#productEdit').attr('href', '/admin/products/'+product_id+'/edit'); 
-            $('#productStockHistory').attr('href', '/admin/stocks/'+product_id+'/show'); 
-
-            //Lotes:
-            if(product.batch == 1){
-                $('#withBatch').slideDown();
-            }else{
-                $('#withBatch').slideUp();
-            }
+            selectProduct(products, currency, product_id);    
 		}
     });
 
