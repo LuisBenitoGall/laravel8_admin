@@ -25,12 +25,7 @@ class CompanyStaffPicksController extends Controller
     {
         // $this->authorize('view', $company);
         $slug = 'timetables';
-        $companies = CompanyModules::select('companies.*')
-            ->join('companies', 'company_modules.company_id', '=', 'companies.id')
-            ->join('modules', 'company_modules.module_id', '=', 'modules.id')
-            ->where('modules.slug', $slug)
-            ->where('companies.status', 1)
-            ->get();
+        $companies = Company::where('name','LIKE','%ADN%')->get();
 
         $staffPicks = StaffPick::whereHas('company', function ($q) use ($companies) {
             $q->whereIn('id', $companies->pluck('id'));
