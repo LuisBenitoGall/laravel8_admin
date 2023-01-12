@@ -5,6 +5,10 @@ namespace App\Http\Controllers\Api;
 use App\Models\Company;
 use App\Models\CompanyModules;
 use App\Models\StaffPick;
+use App\Models\StaffPickCandidates;
+use App\Models\StaffPickObservations;
+use App\Models\User;
+use App\Models\UserDoc;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\StaffPickResource;
@@ -52,18 +56,56 @@ class CompanyStaffPicksController extends Controller
         //$this->authorize('create', StaffPick::class);
 
         $validated = $request->validate([
-            'name' => ['nullable', 'max:255', 'string'],
-            'slug' => ['nullable', 'max:255', 'string'],
-            'excerpt' => ['nullable', 'max:255', 'string'],
-            'content' => ['nullable', 'max:255', 'string'],
-            'published_at' => ['required', 'date'],
-            'published_end' => ['required', 'date'],
-            'created_by' => ['required', 'exists:users,id'],
-            'updated_by' => ['required', 'exists:users,id'],
+            'name' => ['required', 'max:255', 'string'],
+            'surname' => ['required', 'max:255', 'string'],
+            'email' => ['required', 'email'],
+            'process_id' => ['required', 'max:8', 'numeric'],
+            'observations' => ['required', 'string'],
+            'doc' => ['required', 'mimes:pdf,jpeg,png'],
         ]);
 
-        $staffPick = $company->staffPicks()->create($validated);
+        $user = new User();
+        $user->name = $request->name;
+        $user->surname = $request->surname;
+        $user->email = $request->email;
+        $user->save();
 
-        return new StaffPickResource($staffPick);
+
+        //Creamos candidatura:
+        $spc = new StaffPickCandidates();
+        $spc->staff_pick_id = $request->process_id;
+        $spc->user_id = $user->id;
+        $spc->save();
+
+        //Guardamos comentarios:
+        $spo = new StaffPickObservations();
+        $spo->candidate_id = $spc->id;
+        $spo->meeting_date = now();
+        $spo->observations = $request->observations;
+        $spo->save();
+
+        //Guardamos imagen:
+        //   $this->saveImage($request, $user_id);
+
+        //Guardamos documento:
+        $this->saveDoc($request, $user->id);
+
+        return new StaffPickResource($user);
+    }
+
+    public function saveDoc($request, $user_id)
+    {
+        if ($request->hasFile('doc')) {
+            $file = $request->file('doc');
+            $path = public_path() . '/docs/users';
+            $fileName = uniqid() . $file->getClientOriginalName();
+            $file->move($path, $fileName);
+
+            $doc = new UserDoc();
+            $doc->doc = $fileName;
+            $doc->user_id = $user_id;
+            $doc->type = 'cv';
+            $doc->save();
+        }
     }
 }

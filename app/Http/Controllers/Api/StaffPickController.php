@@ -3,6 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\StaffPick;
+use App\Models\StaffPickCandidates;
+use App\Models\StaffPickObservations;
+use App\Models\User;
+use App\Models\UserDoc;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\StaffPickResource;
@@ -30,15 +34,38 @@ class StaffPickController extends Controller
      * @param \App\Http\Requests\StaffPickStoreRequest $request
      * @return Response
      */
-    public function store(StaffPickStoreRequest $request)
+    public function store(Request $request)
     {
 
 
         $validated = $request->validated();
+        $user = new User();
+        $user->name = $request->name;
+        $user->surname = $request->surname;
+        $user->email = $request->email;
+        $user->save();
 
-        $staffPick = StaffPick::create($validated);
 
-        return new StaffPickResource($staffPick);
+        //Creamos candidatura:
+        $spc = new StaffPickCandidates();
+        $spc->staff_pick_id = $request->process_id;
+        $spc->user_id = $user->id;
+        $spc->save();
+
+        //Guardamos comentarios:
+        $spo = new StaffPickObservations();
+        $spo->candidate_id = $spc->id;
+        $spo->meeting_date = now();
+        $spo->observations = $request->observations;
+        $spo->save();
+
+        //Guardamos imagen:
+     //   $this->saveImage($request, $user_id);
+
+        //Guardamos documento:
+        $this->saveDoc($request, $user->id);
+
+        return new StaffPickResource($user);
     }
 
     /**
@@ -83,5 +110,20 @@ class StaffPickController extends Controller
         $staffPick->delete();
 
         return response()->noContent();
+    }
+
+    public function saveDoc($request, $user_id){
+        if($request->hasFile('doc')){
+            $file = $request->file('doc');
+            $path = public_path().'/docs/users';
+            $fileName = uniqid().$file->getClientOriginalName();
+            $file->move($path, $fileName);
+
+            $doc = new UserDoc();
+            $doc->doc = $fileName;
+            $doc->user_id = $user_id;
+            $doc->type = 'cv';
+            $doc->save();
+        }
     }
 }
