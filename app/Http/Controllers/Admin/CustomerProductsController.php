@@ -68,6 +68,13 @@ class CustomerProductsController extends Controller{
 
         $business_area = $ba? BusinessAreas::find($ba):false;
 
+        //Productos de la empresa en session:
+        // $session_products = Product::where('company_id', session('currentCompany'))
+        // ->where('type', 'p')
+        // ->where('status', 1)
+        // ->pluck('name', 'id')
+        // ->toArray();
+
         return view('admin.customer_products.index')->with(compact('header', 'customer', 'provider', 'business_area', 'areas'));
     }
 
@@ -150,7 +157,7 @@ class CustomerProductsController extends Controller{
         ->addColumn('customer_price', function($row) use($customer_id, $currency){
             //Sólo se pueden modificar productos con precio fijo, no porcentual:
             if(!$row->calculated_by_percent || $row->calculated_by_percent == 0){
-                $readonly = false;
+                $readonly = $row->priceForCustomer? '':'readonly';
                 $price = $row->priceForCustomer? $row->priceForCustomer:$row->price;
                 $html = '<span style="display: none">'.$price.'</span>';
                 $html .= '<div class="input-group">';
