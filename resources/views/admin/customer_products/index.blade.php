@@ -123,7 +123,7 @@
 
 {{-- Modals --}}
 {{-- Modal de correspondencia de referencia --}}
-@include('admin.customer_products.partials.modal-set-reference')
+{{-- @include('admin.customer_products.partials.modal-set-reference') --}}
 
 @push('scripts')
 <script>
