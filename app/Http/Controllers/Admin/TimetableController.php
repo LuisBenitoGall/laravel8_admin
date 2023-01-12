@@ -299,6 +299,11 @@ class TimetableController extends Controller{
             $hour->authorized = $authorized;
             $hour->save();
 
+            //Se envía email si el concepto es revisable:
+            if($revisable == 1){
+                $this->mailRevision(Auth::user(), $hour, 'Concepto revisable', $item->name);
+            }
+
             return redirect()->route('users.timetables', Auth::user()->id);
 
         }else{
