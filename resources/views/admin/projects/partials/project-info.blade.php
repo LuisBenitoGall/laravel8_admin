@@ -182,8 +182,16 @@
 	</div>
 	<br><br>
 
+	{{-- Descripción breve --}}
+	{{-- <div class="form-group row mt-5">
+		<label for="short_description" class="col-lg-2 col-form-label">{{ ucfirst(trans('textos.descripcion_breve')) }}</label>
+		<div class="col-lg-10">
+			<x-input-textarea name="short_description" value="{{ $project->short_description }}"/>
+		</div>
+	</div> --}}
+
 	{{-- Descripción --}}
-	<div class="form-group row mt-5">
+	<div class="form-group row">
 		<label for="description" class="col-lg-2 col-form-label">{{ ucfirst(trans('textos.descripcion')) }}</label>
 		<div class="col-lg-10">
 			<x-input-textarea name="description" class="editor" value="{{ $project->description }}"/>

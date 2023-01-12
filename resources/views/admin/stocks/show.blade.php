@@ -2,6 +2,8 @@
 
 @section('content')
 
+<input type="hidden" id="productId" value="{{ $product->id }}">
+
 <div class="row mb-3">
 	{{-- Acciones: --}}
 	<div class="col-12">
@@ -27,15 +29,15 @@
 		<table class="table table-hover dtabla" id="tblProductStockMovements">
 			<thead>
 				<tr>
-					<th class="wdt50 text-center">#</th>
 					<th class="text-center">{!! ucfirst(trans('textos.fecha')) !!}</th>
 					<th>{!! ucfirst(trans('textos.movimiento')) !!}</th>
 					<th>{!! ucfirst(trans('textos.almacen')) !!}</th>
 					<th>{!! ucfirst(trans('textos.lote')) !!}</th>
 					<th class="text-center">{!! ucfirst(trans('textos.cantidad')) !!}</th>
 					<th class="text-center">Stock</th>
-					<th>{!! ucfirst(trans('textos.documento')) !!}</th>
-					<th>{!! ucfirst(trans('textos.observaciones')) !!}</th>
+					<th class="text-center">{!! ucfirst(trans('textos.documento')) !!}</th>
+					<th>{!! ucfirst(trans('textos.usuario')) !!}</th>
+					<th class="text-center">{!! ucfirst(trans('textos.acciones')) !!}</th>
 				</tr>
 			</thead>
 		</table>
