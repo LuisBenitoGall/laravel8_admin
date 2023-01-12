@@ -132,7 +132,7 @@ class ProjectController extends Controller{
         Project::import();
 
         //Proyectos favoritos del usuario:
-        $favourites = ProjectFavourite::select('projects.id', 'projects.project_num', 'projects.name')
+        $favourites = ProjectFavourite::select('projects.id', 'projects.project_num', 'projects.name', 'projects.hours_forecast', 'projects.hours_worked')
         ->join('projects', 'project_favourites.project_id', '=', 'projects.id')
         ->where('project_favourites.user_id', Auth::user()->id)
         ->orderBy('projects.name', 'ASC')
@@ -651,6 +651,7 @@ class ProjectController extends Controller{
         $project->project_old_num = $request->project_old_num;
         $project->name = $request->name;
         $project->slug = $slug;
+        $project->short_description = $request->short_description;
         $project->description = $request->description;
         $project->briefing = $request->briefing;
         $project->restricted_access = $request->restricted_access? true:false;

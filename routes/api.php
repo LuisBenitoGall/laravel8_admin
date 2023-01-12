@@ -254,6 +254,9 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     //ProductSerialsCards:
     Route::get('product-serials-cards/{serial_id}', 'ProductSerialsCardsController@getProductAttributesDT');
 
+    //ProductStockMovements:
+    Route::get('product-stock-movements/{product_id}', 'StockController@getProductStockMovementsDT');
+
     //ProductUnits:
     Route::get('product-units/{product_id}', 'ProductUnitsController@getUnitsDT');
 

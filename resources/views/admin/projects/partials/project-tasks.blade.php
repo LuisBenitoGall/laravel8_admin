@@ -61,7 +61,7 @@ $columns_index = [];
 
 				// Descripción:
 				if($task->description){
-					$text = App\Helpers\Helpers::truncate($task->description, 200);
+					$text = App\Helpers\Helpers::truncate(strip_tags($task->description, 200));
 					$html .= '<hr><div>'.$text.'</div>';
 				}
 
