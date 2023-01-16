@@ -14,6 +14,7 @@ use App\Models\CompanySettings;
 use App\Models\Employee;
 use App\Models\Timetable;
 use App\Models\TimetableItems;
+use App\Models\UserTimetables;
 use App\Models\WorkCalendar;
 use App\Models\WorkUserCalendar;
 
@@ -131,64 +132,86 @@ class RequiredTimetableItemsTask extends Command{
                             //Si es jornada festiva del usuario:
                             $noWork = WorkUserCalendar::noWorkDay($user->id, Carbon::today());
 
-                            //Si no ha tomado festivo o es jornada laborable tipo 'teletrabajo':
-                            if(!$noWork || ($noWork->is_working && $noWork->in_office)){
-                                $items_done = [];
+                            //Horarios reducidos del usuario:
+                            $with_custom_hours = false;
+                            $user_timetables = UserTimetables::select('daily_hours')
+                            ->where('user_id', $user->id)
+                            ->where('from', '<=', Carbon::today())
+                            ->where('to', '>=', Carbon::today())
+                            ->first();
+                            if($user_timetables){
+                                //Día de la semana:
+                                $dia_semana = date('N', strtotime(Carbon::today()));
 
-                                //Registros de la jornada del usuario:
-                                $user_required_items = Timetable::select('timetables.id', 'timetables.date', 'timetables.hour', 'timetables.item_id', 'timetables.flag', 'timetable_items.basic_item')
-                                ->join('timetable_items', 'timetables.item_id', '=', 'timetable_items.id')
-                                ->where('timetables.user_id', $user->id)
-                                ->where('date', Carbon::today())
-                                ->orderBy('timetables.id', 'ASC')
-                                ->get();
+                                $user_hours = unserialize($user_timetables->daily_hours);
 
-                                //El primer registro debe ser entrada ordinaria, pues sólo incluye a los conceptos por trabajo en oficina:
-                                if($user_required_items->count() && $user_required_items[0]->basic_item){
-                                    foreach($user_required_items as $uri){
-                                        //Los items requeridos existentes se guardan en nuevo array:
-                                        if(array_key_exists($uri->item_id, $required_timetable_items)){
-                                            array_push($items_done, $uri->item_id);
-                                        }
-                                    }
-
-                                    //Insert de los registros obligatorios no hallados:
-                                    foreach($required_timetable_items as $idx => $rti){
-                                        //Si el índice no está como valor en el array de items cumplidos:
-                                        if(!in_array($idx, $items_done)){
-                                            //Hora de inicio del registro:
-                                            $hour_from = '10:00:00';
-                                            foreach($required_timetable_items_collection as $r_){
-                                                if($r_->id == $idx){
-                                                    $hour_from = $r_->required_warning;
-                                                    break;
-                                                }
-                                            }
-
-                                            //Registro de salida:
-                                            $t_out = new Timetable();
-                                            $t_out->date = Carbon::today();
-                                            $t_out->hour = $hour_from.':00:00';
-                                            $t_out->user_id = $user->id;
-                                            $t_out->item_id = $idx;
-                                            $t_out->flag = 2;
-                                            $t_out->save();
-
-                                            $minutes = helpers::getMinutes($t_out->hour) + $rti;
-                                            $hora_entrada = date('H:i:s', mktime(0,$minutes,0));
-
-                                            //Registro de entrada:
-                                            $t_in = new Timetable();
-                                            $t_in->date = Carbon::today();
-                                            $t_in->hour = $hora_entrada;
-                                            $t_in->user_id = $user->id;
-                                            $t_in->item_id = $entrada->id;
-                                            $t_in->flag = 1;
-                                            $t_in->save();
-                                        }    
-                                    } 
+                                //Si el número de horas a trabajar por el usuario es inferior al número de horas de empresa, se omite la acción de añadir los conceptos horarios faltantes.
+                                if($user_hours[$dia_semana] > 0 && $calendar->hours > $user_hours[$dia_semana]){
+                                    $with_custom_hours = true;
                                 }
-                            }     
+                            }
+
+                            //Si el usuario no tiene horarios personalizados:
+                            if(!$with_custom_hours){
+                                //Si no ha tomado festivo o es jornada laborable tipo 'teletrabajo':
+                                if(!$noWork || ($noWork && $noWork->is_working && $noWork->in_office)){
+                                    $items_done = [];
+
+                                    //Registros de la jornada del usuario:
+                                    $user_required_items = Timetable::select('timetables.id', 'timetables.date', 'timetables.hour', 'timetables.item_id', 'timetables.flag', 'timetable_items.basic_item')
+                                    ->join('timetable_items', 'timetables.item_id', '=', 'timetable_items.id')
+                                    ->where('timetables.user_id', $user->id)
+                                    ->where('date', Carbon::today())
+                                    ->orderBy('timetables.id', 'ASC')
+                                    ->get();
+
+                                    //El primer registro debe ser entrada ordinaria, pues sólo incluye a los conceptos por trabajo en oficina:
+                                    if($user_required_items->count() && $user_required_items[0]->basic_item){
+                                        foreach($user_required_items as $uri){
+                                            //Los items requeridos existentes se guardan en nuevo array:
+                                            if(array_key_exists($uri->item_id, $required_timetable_items)){
+                                                array_push($items_done, $uri->item_id);
+                                            }
+                                        }
+
+                                        //Insert de los registros obligatorios no hallados:
+                                        foreach($required_timetable_items as $idx => $rti){
+                                            //Si el índice no está como valor en el array de items cumplidos:
+                                            if(!in_array($idx, $items_done)){
+                                                //Hora de inicio del registro:
+                                                $hour_from = '10:00:00';
+                                                foreach($required_timetable_items_collection as $r_){
+                                                    if($r_->id == $idx){
+                                                        $hour_from = $r_->required_warning;
+                                                        break;
+                                                    }
+                                                }
+
+                                                //Registro de salida:
+                                                $t_out = new Timetable();
+                                                $t_out->date = Carbon::today();
+                                                $t_out->hour = $hour_from.':00:00';
+                                                $t_out->user_id = $user->id;
+                                                $t_out->item_id = $idx;
+                                                $t_out->flag = 2;
+                                                $t_out->save();
+
+                                                $minutes = helpers::getMinutes($t_out->hour) + $rti;
+                                                $hora_entrada = date('H:i:s', mktime(0,$minutes,0));
+
+                                                //Registro de entrada:
+                                                $t_in = new Timetable();
+                                                $t_in->date = Carbon::today();
+                                                $t_in->hour = $hora_entrada;
+                                                $t_in->user_id = $user->id;
+                                                $t_in->item_id = $entrada->id;
+                                                $t_in->flag = 1;
+                                                $t_in->save();
+                                            }    
+                                        } 
+                                    }
+                                }     
+                            }
                         }
                     }
                 }

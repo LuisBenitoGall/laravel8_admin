@@ -18,6 +18,8 @@ use Yajra\DataTables\DataTables;
 //Models:
 use App\Models\Account;
 use App\Models\AccountingConcept;
+use App\Models\BankAccounts;
+use App\Models\Banks;
 use App\Models\BusinessAreas;
 use App\Models\Company;
 use App\Models\CompanyAccounts;
@@ -488,6 +490,7 @@ class CustomerProvidersController extends Controller{
         $xls_errors = [];
         $withXlsErrors = false;
         $i = 2;     //La fila 1 corresponde a las cabeceras de las columnas.
+        $paymentMethods = helpers::paymentMethods();
 
         foreach($data as $r){
             $xls_errors[$i] = false;
@@ -568,10 +571,21 @@ class CustomerProvidersController extends Controller{
 
                 $workplace_id = $workplace? $workplace->id:NULL;
 
+                //Concepto contable de la empresa en session:
+                $concept = AccountingConcept::select('id')
+                ->where('company_id', session('currentCompany'))
+                ->where('name', $r->cuenta_gastos)
+                ->first();
+
+                //Método de pago:
+                $payment_method = $r->condicion_pago? array_search($r->condicion_pago, $paymentMethods):NULL;
+
                 $cu_pr = new CustomerProviders(); 
                 $cu_pr->customer_id = $customerId;
                 $cu_pr->provider_id = $providerId;
                 $cu_pr->workplace_id = $workplace_id;
+                $cu_pr->accounting_concept_id = $concept? $concept->id:NULL;
+                $cu_pr->payment_method = $payment_method;
 
                 if($environment == 'customers'){
                     $cu_pr->pay_after_days = $r->pay_after_days;
@@ -579,6 +593,23 @@ class CustomerProvidersController extends Controller{
                     $cu_pr->billing_comunication = $r->billing_comunication;
                 }
                 $cu_pr->save();
+
+                //Cuenta bancaria:
+                if($r->iban){
+                    //Extraemos identificador del banco del IBAN:
+                    $bank_code = substr($r->iban, 4, 4);
+                    $bank = Bank::select('id')->where('supervisor_code', $bank_code)->first();
+
+                    if($bank){
+                        $ba = new BankAccounts();
+                        $ba->company_id = $company->id;
+                        $ba->bank_id = $bank->id;
+                        $ba->account = $r->iban;
+                        $ba->featured = true;
+                        $ba->status = true;
+                        $ba->save();
+                    }
+                }
             }
 
             if($xls_errors[$i]) $withXlsErrors = true;
