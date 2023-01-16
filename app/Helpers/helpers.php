@@ -960,7 +960,9 @@ class Helpers{
 		$data = [
 			1 => trans('textos.transferencia_bancaria'),
 			10 => trans('textos.efectivo'),
-			20 => trans('textos.talon_bancario')
+			20 => trans('textos.talon_bancario'),
+			30 => trans('textos.tarjeta'),
+			40 => trans('textos.domiciliado')
 		];
 		if($method){
 			return $data[$method];

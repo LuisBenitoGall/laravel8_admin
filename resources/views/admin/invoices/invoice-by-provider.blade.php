@@ -84,7 +84,7 @@
 						{{-- IRPF --}}
 						<label for="irpf" class="col-lg-2 col-form-label">IRPF</label>
 						<div class="col-lg-1">
-							<x-input type="text" name="irpf" id="invoiceIrpf" class="text-right set-decimals" autocomplete="off" maxlength="15" group="right" groupvalue="%"/>
+							<x-input type="text" name="irpf" id="invoiceIrpf" class="text-right set-decimals" autocomplete="off" maxlength="6" group="right" groupvalue="%"/>
 						</div>
 
 						{{-- Estado --}}
