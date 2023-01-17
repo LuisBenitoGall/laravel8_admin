@@ -24,10 +24,13 @@ class CompaniesImport implements ToModel, WithHeadingRow{
         $cp = isset($row['cp'])? $row['cp']:NULL;
         $town = isset($row['poblacion'])? $row['poblacion']:NULL;
         $billing_comunication = isset($row['forma_envio_facturacion'])? $row['forma_envio_facturacion']:NULL;
-        $pay_after_days = isset($row['forma_pago'])? $row['forma_pago']:NULL;
-        $payday = isset($row['dia_pago'])? $row['dia_pago']:NULL;
+        //16/01/2023: los campos payday y condicion_pago son lo mismo. En el excel se mantiene la columna 'condicion pago' y en la BD 'payday'.
+        //$payday = isset($row['dia_pago'])? $row['dia_pago']:NULL;
+        //$condicion_pago = isset($row['condicion_pago'])? $row['condicion_pago']:NULL;
+        $payday = isset($row['condicion_pago'])? $row['condicion_pago']:NULL;
+        $payment_method = isset($row['forma_pago'])? $row['forma_pago']:NULL;
         $iban = isset($row['iban'])? $row['iban']:NULL;
-        $condicion_pago = isset($row['condicion_pago'])? $row['condicion_pago']:NULL;
+        
         $concepto_general = isset($row['concepto_general'])? $row['concepto_general']:NULL;
         $cuenta_gastos = isset($row['cuenta_gastos'])? $row['cuenta_gastos']:NULL;
 
@@ -41,10 +44,11 @@ class CompaniesImport implements ToModel, WithHeadingRow{
                 'cp' => $cp,
                 'town' => $town,
                 'billing_comunication' => $billing_comunication,
-                'pay_after_days' =>  $pay_after_days,
+                //'pay_after_days' =>  $pay_after_days,
                 'payday' => $payday,
+                'payment_method' => $payment_method,
                 'iban' => $iban,
-                'condicion_pago' => $condicion_pago,
+                //'condicion_pago' => $condicion_pago,
                 'concepto_general' => $concepto_general,
                 'cuenta_gastos' => $cuenta_gastos
             ]); 

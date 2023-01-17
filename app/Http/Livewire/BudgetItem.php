@@ -174,7 +174,7 @@ class BudgetItem extends Component{
                 $price = NULL;
 
                 //Recuperamos el índice de la opción seleccionada:
-                $idx = array_search(trans('textos.' . $this->price), $this->items_no_price);
+                $idx = array_search($this->price, $this->items_no_price);
 
                 $no_price = $idx;
             }
@@ -286,14 +286,12 @@ class BudgetItem extends Component{
                 $this->action = 'update';
             }
 
-
             //Importe del presupuesto:
             $arr_amounts = $this->order->getAmount();
 
             //Enviando importe al componente budget-amount:
             $this->emit('updateAmount', $arr_amounts['total_amount'], $arr_amounts['total_amount_without_discounts']);
             $this->emit('updateAmountMini', $arr_amounts['total_amount']);
-
 
             //Estado del formulario:
             $this->form_on = false;
@@ -457,7 +455,6 @@ class BudgetItem extends Component{
         }
     }
 
-
     /**
      * get change Qty value for subtotal
      * @param $qty
@@ -480,7 +477,6 @@ class BudgetItem extends Component{
         }
     }
 
-
     /**
      * get change price value for subtotal
      * @param $price
@@ -498,11 +494,9 @@ class BudgetItem extends Component{
             } else {
                 $discount = $this->discount * $subtotal / 100;
                 $this->tempSubTotalRow = $subtotal - $discount;
-
             }
         }
     }
-
 
     /**
      * get change price value for subtotal
@@ -510,7 +504,6 @@ class BudgetItem extends Component{
      * @return void
      */
     public function changeDiscount($discount){
-
         if (is_numeric($discount)) {
             if (!$this->days) {
                 $subtotal = $this->qty * $this->price;
