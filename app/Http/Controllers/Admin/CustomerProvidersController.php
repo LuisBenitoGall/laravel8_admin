@@ -578,7 +578,7 @@ class CustomerProvidersController extends Controller{
                 ->first();
 
                 //Método de pago:
-                $payment_method = $r->condicion_pago? array_search($r->condicion_pago, $paymentMethods):NULL;
+                $payment_method = $r->payment_method? array_search($r->payment_method, $paymentMethods):NULL;
 
                 $cu_pr = new CustomerProviders(); 
                 $cu_pr->customer_id = $customerId;
