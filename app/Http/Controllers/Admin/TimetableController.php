@@ -139,7 +139,7 @@ class TimetableController extends Controller{
 
         //Ampliación datos:
         foreach($data as $row){
-            $timetables = Timetable::listUserTimetables($from, $to, $row->id, $workplace_id);
+            $timetables = Timetable::listUserTimetables($from, $to, $row->id, $workplace_id, false);
 
             //Totales:
             $worked_seconds = 0;
