@@ -19,7 +19,7 @@ use Yajra\DataTables\DataTables;
 use App\Models\Account;
 use App\Models\AccountingConcept;
 use App\Models\BankAccounts;
-use App\Models\Banks;
+use App\Models\Bank;
 use App\Models\BusinessAreas;
 use App\Models\Company;
 use App\Models\CompanyAccounts;
@@ -571,11 +571,21 @@ class CustomerProvidersController extends Controller{
 
                 $workplace_id = $workplace? $workplace->id:NULL;
 
-                //Concepto contable de la empresa en session:
-                $concept = AccountingConcept::select('id')
+                //Concepto contable de la empresa en session. Primero obtenemos concepto general, y posteriormente cuenta de gastos, pues el término de cuenta de gastos puede repetirse entre distintos conceptos generales:
+                $general_concept = AccountingConcept::select('id')
                 ->where('company_id', session('currentCompany'))
-                ->where('name', $r->cuenta_gastos)
+                ->where('name', $r->concepto_general)
+                ->where('main', '0')
                 ->first();
+
+                $concept = false;
+                if($general_concept){
+                    $concept = AccountingConcept::select('id')
+                    ->where('company_id', session('currentCompany'))
+                    ->where('name', $r->cuenta_gastos)
+                    ->where('main', $general_concept->id)
+                    ->first();
+                }
 
                 //Método de pago:
                 $payment_method = $r->payment_method? array_search($r->payment_method, $paymentMethods):NULL;
