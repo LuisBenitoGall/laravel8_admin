@@ -272,7 +272,7 @@ class CompanyController extends Controller{
             $ute_start_at = $request->input('ute_start_at') != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->input('ute_start_at')):$request->input('ute_start_at'):NULL;
             $ute_finish_at = $request->input('ute_finish_at') != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->input('ute_finish_at')):$request->input('ute_finish_at'):NULL;
         }
-$nif = $request->nif? helpers::cleanNif($request->nif):NULL;
+        $nif = $request->nif? helpers::cleanNif($request->nif):NULL;
 
         $company = Company::create([
             'name' => $request->name,
