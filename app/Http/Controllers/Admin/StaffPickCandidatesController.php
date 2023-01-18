@@ -37,7 +37,7 @@ class StaffPickCandidatesController extends Controller{
 
     public function __construct(){
         //Idiomas:
-        $this->languages = Helpers::languages();
+        $this->languages = helpers::languages();
 
         $this->middleware('module_setted:rrhh');
         $this->middleware('staff_pick_get', ['only' => ['create']]);
