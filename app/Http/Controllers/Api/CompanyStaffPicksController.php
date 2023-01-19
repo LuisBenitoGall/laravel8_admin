@@ -25,7 +25,7 @@ class CompanyStaffPicksController extends Controller
     {
         // $this->authorize('view', $company);
         $slug = 'timetables';
-        $companies = Company::where('name','LIKE','%ADN%')->get();
+        $companies = Company::where('name', 'LIKE', '%ADN%')->get();
 
         $staffPicks = StaffPick::whereHas('company', function ($q) use ($companies) {
             $q->whereIn('id', $companies->pluck('id'));
@@ -59,11 +59,16 @@ class CompanyStaffPicksController extends Controller
             'doc' => ['required', 'mimes:pdf,jpeg,png'],
         ]);
 
-        $user = new User();
-        $user->name = $request->name;
-        $user->surname = $request->surname;
-        $user->email = $request->email;
-        $user->save();
+
+        if (User::where('email', '=', $request->email)->exists()) {
+            User::where('email', '=', $request->email)->first();
+        } else {
+            $user = new User();
+            $user->name = $request->name;
+            $user->surname = $request->surname;
+            $user->email = $request->email;
+            $user->save();
+        }
 
 
         //Creamos candidatura:
