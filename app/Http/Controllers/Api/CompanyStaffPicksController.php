@@ -61,7 +61,7 @@ class CompanyStaffPicksController extends Controller
 
 
         if (User::where('email', '=', $request->email)->exists()) {
-            User::where('email', '=', $request->email)->first();
+        $user =    User::where('email', '=', $request->email)->first();
         } else {
             $user = new User();
             $user->name = $request->name;
