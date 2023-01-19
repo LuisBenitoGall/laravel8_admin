@@ -46,13 +46,26 @@
 		</div>
 
 		{{-- Documento --}}
-		@if($invoice->doc)
-			<label for="doc" class="col-md-3 col-lg-2 col-form-label">{!! ucfirst(trans('textos.documento_ver')) !!}</label>
-			<div class="col-md-2 col-lg-1 pt-2">
-				<a target="_blank" href="{{ asset('docs/invoices/'.$invoice->doc) }}">
-					<i class="fa fa-file" style="font-size: 18px;"></i>
-				</a>
-			</div>
+		@if(!$is_sale)
+			@if($invoice->doc)
+				<label for="doc" class="col-md-3 col-lg-2 col-form-label">{!! ucfirst(trans('textos.documento_ver')) !!}</label>
+				<div class="col-md-2 col-lg-1 pt-2">
+					<a target="_blank" href="{{ asset('docs/invoices/'.$invoice->doc) }}">
+						<i class="fa fa-file" style="font-size: 18px;"></i>
+					</a>
+				</div>
+			@else
+				<label for="doc" class="col-md-3 col-lg-2 col-form-label">{!! ucfirst(trans('textos.documento_adjuntar')) !!}</label>
+				<div class="col-md-2">
+					<x-input-file name="doc"/>
+
+					@if($errors->has('doc'))
+	                    <span class="invalid-feedback" role="alert">
+	                      <strong>{{ $errors->first('doc') }}</strong>
+	                    </span>
+	                @endif
+				</div>	
+			@endif
 		@endif
 	</div>
 
@@ -105,13 +118,19 @@
 	{{-- Conceptos contables. Sólo para compras --}}
 	@if(!$is_sale)
 		<div class="form-group row">
+			{{-- IRPF --}}
+			<label for="irpf" class="col-lg-2 col-form-label">IRPF</label>
+			<div class="col-lg-1">
+				<x-input type="text" name="irpf" class="text-right set-decimals" autocomplete="off" maxlength="6" group="right" groupvalue="%" value="{{ $invoice->irpf }}"/>
+			</div>
+
 			{{-- Estructura --}}
 			@php
 			$as_id = $invoice->accounting_structure_id? $invoice->accounting_structure_id:($provider_settings? $provider_settings->accounting_concept_id:'');
 			@endphp
 
 			<label for="accounting_structure" class="col-md-2 col-form-label">{!! ucfirst(trans('textos.estructura_gastos')) !!}</label>
-			<div class="col-md-4">
+			<div class="col-md-3">
 				<x-select name="accounting_structure" class="select2" id="accountingStructure" label="concepto_selec" :options="$concepts" value="{{ $as_id }}" info="invoice-accounting-structure"/>
 			</div>
 
@@ -122,7 +141,7 @@
 			@endphp
 			
 			<label for="accounting_concept" class="col-md-2 col-form-label">{!! ucfirst(trans('textos.cuenta_gastos')) !!}</label>
-			<div class="col-md-4">
+			<div class="col-md-2">
 				<x-select name="accounting_concept" class="select2" id="accountingConcept" label="" :options="$structure_concepts" value="{{ $ac_id }}" disabled="{{ $disabled }}"/>
 			</div>
 		</div>

@@ -2165,9 +2165,9 @@ class OrderController extends Controller{
             //$fecha = $td->delivery_date && $td->delivery_date != config('constants.DATE_NULL_')? Carbon::parse($td->delivery_date)->format(config('locale.languages.'.config('app.locale'))[4]):'';
 
             //19/01/21: se solicita que aparezcan tres columnas de fechas: creación pedido, fecha prevista entrega, fecha real de entrega.
-            $delivery_date = $td->delivery_date && $td->delivery_date != config('constants.DATE_NULL_')? Carbon::parse($td->delivery_date)->format(session()->get('locale') != 'en'):'';
+            $delivery_date = $td->delivery_date && $td->delivery_date != config('constants.DATE_NULL_')? Carbon::parse($td->delivery_date)->format($this->languages[session()->get('locale')][4]):'';
 
-            $fecha_prevista = $td->estimated_delivery_date && $td->estimated_delivery_date != config('constants.DATE_NULL_')? Carbon::parse($td->estimated_delivery_date)->format(session()->get('locale') != 'en'):'';
+            $fecha_prevista = $td->estimated_delivery_date && $td->estimated_delivery_date != config('constants.DATE_NULL_')? Carbon::parse($td->estimated_delivery_date)->format($this->languages[session()->get('locale')][4]):'';
 
             //Manager cliente:
             $arr_customer_manager = $td->customer_team? unserialize($td->customer_team):false;
@@ -2189,13 +2189,12 @@ class OrderController extends Controller{
             $status = $td->status? Helpers::orderStatus($td->status):'';
 
             //Descuento en el producto:
-            if($td->discount){
-                $discount = $td->discount;
-                $percentage = helpers::percent($td->amount, $discount); 
+            if($td->discount && $td->discount > 0){
+                $percentage = helpers::percent($td->amount, $td->discount); 
                 $amount = $td->amount - $percentage;    
             }else{
                 $discount = 0;
-                $amount = $td->amount;
+                $amount = $td->amount? $td->amount:'0';
             }
 
             $toe = new TempExportOrders();
@@ -2213,7 +2212,7 @@ class OrderController extends Controller{
             $toe->order_business_area = $td->Ba;
             $toe->order_cost_center = $td->CostCenter;
             $toe->order_tipology = $td->Product;
-            $toe->order_price = $td->price;
+            $toe->order_price = $td->price? $td->price:'0';
             $toe->order_qty = $td->qty;
             $toe->order_discount = $discount;
             $toe->order_amount = $amount;

@@ -1,4 +1,4 @@
-@props(['stars' => 5, ])
+@props(['stars' => 5, 'name', 'points'])
 
 <div class="rating">
     @php

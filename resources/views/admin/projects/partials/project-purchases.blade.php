@@ -21,7 +21,7 @@
 				@foreach($project_purchases as $pp)
 					<tr>
 						{{-- Número compra --}}
-						<td>
+						<td class="text-right">
 							@php
 							$num = $pp->purchase_num? $pp->purchase_num:($pp->purchase_old_num? $pp->purchase_old_num:$pp->id);
 							@endphp
@@ -57,9 +57,16 @@
 						<td class="text-right">
 							@php
 							$invoices = $pp->invoices;
+							$invoices_docs = [];
 							@endphp
 
 							@foreach($invoices as $inv)
+								@if($inv->doc)
+									@php
+									array_push($invoices_docs, $inv->doc);
+									@endphp
+								@endif
+
 								<a target="_blank" href="{{ route('invoices.edit', $inv->id) }}">
 									@if($inv->invoice_num)
 										{{ $inv->invoice_num }}
@@ -80,6 +87,13 @@
 						{{-- Acciones --}}
 						<td class="text-right">
 							@can('orders.edit')
+								{{-- Documento --}}
+								@if(!empty($invoices_docs))
+									@foreach($invoices_docs as $id_)
+										<a target="_blank" href="{{ asset('docs/invoices/'.$id_) }}" class="btn btn-xs btn-info" rel="tooltip" title="{{ ucfirst(trans('textos.documento_ver')) }}"><i class="fa fa-file"></i></a>	
+									@endforeach
+								@endif
+
 								{{-- Editar --}}
 								<a target="_blank" href="{{ route('orders.edit', $pp->id) }}" class="btn btn-xs btn-info" rel="tooltip" title="{{ ucfirst(trans('textos.editar')) }}"><i class="fa fa-edit"></i></a>
 

@@ -11,6 +11,6 @@ class TempImportCompanies extends Model{
     protected $table = 'temp_import_companies'; 
 
     protected $fillable = [
-        'user_id', 'name', 'tradename', 'nif', 'address', 'cp', 'town', 'billing_comunication', 'pay_after_days', 'payday'
+        'user_id', 'name', 'tradename', 'nif', 'address', 'cp', 'town', 'billing_comunication', 'pay_after_days', 'payday', 'payment_method', 'iban', 'concepto_general', 'cuenta_gastos'
     ]; 
 }

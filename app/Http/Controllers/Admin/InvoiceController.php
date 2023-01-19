@@ -819,8 +819,8 @@ class InvoiceController extends Controller{
             // $item->save();
             
 
-            $order_amount = NULL;
-            $invoice_amount = NULL;
+            $order_amount = 0;
+            $invoice_amount = 0;
 
         }else{
             $order = Order::select('id', 'invoiced')->find($request->order_id);
@@ -831,6 +831,12 @@ class InvoiceController extends Controller{
             $arr_amounts = $order->getAmount();    
             $order_amount = $arr_amounts['total_amount'];
             $invoice_amount = $arr_amounts['invoice_amount'];
+        }
+
+        //Descontando IRPF:
+        if($request->irpf > 0){
+            $desc_irpf = ($request->irpf * $order_amount) / 100;
+            $order_amount = $order_amount - $desc_irpf;
         }
 
         //Subir documento.
@@ -1208,8 +1214,16 @@ class InvoiceController extends Controller{
         if($invoice->blocked == '0' && $invoice->order_id){
             //Importe total del pedido:
             $order_amount = $order->getAmount(true, true);
+            $base_amount = $order_amount['total_amount'];
             //$arr_amount = InvoiceItems::setInvoiceAmount($invoice);
-            $invoice->amount = $order_amount['total_amount'];
+            
+            //Descontando IRPF:
+            if($invoice->irpf > 0){
+                $desc_irpf = ($invoice->irpf * $base_amount) / 100;
+                $base_amount = $base_amount - $desc_irpf;
+            }
+
+            $invoice->amount = $base_amount;
             $invoice->amount_with_iva = $order_amount['invoice_amount'];
             $invoice->save();
         }    
@@ -1220,7 +1234,7 @@ class InvoiceController extends Controller{
      */
     public function update(Request $request, Invoice $invoice){
         //Discriminamos si el update lo hace el vendedor o el comprador:
-        $order = $invoice->order_id? Order::select('customer_id', 'provider_id')->find($invoice->order_id):false;
+        $order = $invoice->order_id? Order::select('id', 'customer_id', 'provider_id')->find($invoice->order_id):false;
 
         $is_sale = $order && $order->provider_id == session('currentCompany')? true:false;
 
@@ -1268,10 +1282,23 @@ class InvoiceController extends Controller{
         }else{
             $check_in_date = $request->check_in_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->check_in_date):$request->check_in_date:NULL;
 
+            //Subir documento.
+            $doc = $this->loadFile($request, 'invoices');
+
             $invoice->customer_observations = $request->observations;  
             $invoice->accounting_structure_id = $request->accounting_structure;
             $invoice->accounting_concept_id = $request->accounting_concept;
+            $invoice->irpf = $request->irpf;
             $invoice->check_in_date = $check_in_date;
+            $invoice->doc = $doc;
+        }
+
+        //Recalculando descuento por IRPF:
+        if($invoice->irpf > 0 && $order){
+            $order_amount = $order->getAmount();
+
+            $desc_irpf = ($invoice->irpf * $order_amount['total_amount']) / 100;
+            $invoice->amount = $order_amount['total_amount'] - $desc_irpf;
         }
 
         $invoice->save();
