@@ -220,6 +220,11 @@ $readonly = $invoice->blocked && !$is_sale || ($order->customer_id == session('c
 					{{-- Importe facturado --}}
 					<label class="mr-5">
 						{!! ucfirst(trans('textos.importe_facturado')) !!}: 
+
+						@if($invoice->irpf > 0)
+							<small>(-{{ $invoice->irpf }}% IRPF)</small>
+						@endif
+
     					<b>{!! $invoice->amount !!}{{ $currency->symbol }}</b>
 					</label>
 

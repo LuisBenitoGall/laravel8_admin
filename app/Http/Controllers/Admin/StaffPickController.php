@@ -9,10 +9,12 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Yajra\DataTables\DataTables;
 use Carbon\Carbon;
 
 //Models:
 use App\Models\StaffPick;
+use App\Models\StaffPickCandidates;
 
 class StaffPickController extends Controller{
     /**
@@ -66,8 +68,29 @@ class StaffPickController extends Controller{
     public function getProcessesDT(){
         $data = StaffPick::select('id', 'name', 'published_at', 'published_end', 'status')
         ->where('company_id', session('currentCompany'))
-        ->orderBy('published_at', 'DESC')
-        ->get();
+        ->orderBy('published_at', 'DESC');
+
+        return DataTables::of($data)
+        ->addColumn('name', function($row){
+            return $row->name;
+        })
+        ->addColumn('published_at', function($row){
+            $published_at = $row->published_at? Carbon::parse($row->published_at)->format($this->languages[session()->get('locale')][4]):'';
+            return $published_at;
+        })
+        ->addColumn('published_end', function($row){
+            $published_end = $row->published_end? Carbon::parse($row->published_end)->format($this->languages[session()->get('locale')][4]):'';
+            return $published_end;
+        })
+        ->addColumn('candidates', function($row){
+            return StaffPickCandidates::where('staff_pick_id', $row->id)->count();
+        })
+        ->addColumn('acciones', function($row){
+            return view('admin.staff_picks.partials.dt-actions', compact('row'));    
+        })
+        ->make(true);
+
+
 
         //Permisos del usuario:
         $editar = Auth::user()->can('staff-pick.edit');

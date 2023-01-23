@@ -28,11 +28,11 @@ class StockMovementGetMiddleware{
             exit; 
         } 
 
-        if((!$company->company_id && $company->basic) || $company->company_id != session('currentCompany')){
-            $alert = trans('textos.no_permisos_accion');   
-            return redirect()->route('stock-movements.index')->with(compact('alert'));
-            exit;     
-        }
+        // if((!$company->company_id && $company->basic) || $company->company_id != session('currentCompany')){
+        //     $alert = trans('textos.no_permisos_accion');   
+        //     return redirect()->route('stock-movements.index')->with(compact('alert'));
+        //     exit;     
+        // }
 
         return $next($request);
     }

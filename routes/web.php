@@ -125,6 +125,9 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::delete('batch-patterns/{pattern}', 'BatchPatternsController@destroy')->name('batch-patterns.destroy')->middleware('permission:batch-patterns.destroy');
     Route::get('batch-patterns/status/{id}/{status}', 'BatchPatternsController@status')->name('batch-patterns.status')->middleware('permission:batch-patterns.edit');
 
+    // Batches:
+    Route::get('batches/{product_id}/product-batches', 'BatchController@productBatches')->name('batches.product-batches')->middleware('permission:products.edit');
+
     // Budget Form Items:
     Route::post('budget-form-items/store', 'BudgetFormItemsController@store')->name('budget-form-items.store')->middleware('permission:budget-forms.edit');
     Route::post('budget-form-items/update', 'BudgetFormItemsController@update')->name('budget-form-items.update')->middleware('permission:budgets.edit');

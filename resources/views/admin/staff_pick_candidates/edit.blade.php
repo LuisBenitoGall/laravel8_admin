@@ -50,6 +50,25 @@
 					</u>
 				</h3>
 
+				{{-- Info --}}
+				<div class="mb-3">
+					{{-- Fecha alta --}}
+					<label class="mr-5">
+						{!! ucfirst(trans('textos.fecha_alta')) !!}:
+						<b>
+							{{ $candidate->created_at->format($languages[session()->get('locale')][4].' H:i:s') }}
+						</b>
+					</label>
+
+					{{-- Fecha última actualización --}}
+					<label class="mr-5">
+						{!! ucfirst(trans('textos.ultima_edicion')) !!}:
+						<b>
+							@if($candidate->updated_at) {{ $candidate->updated_at->format($languages[session()->get('locale')][4].' H:i:s') }} @endif
+						</b>
+					</label>
+				</div>
+
 				{{-- Tabs: --}}
 				<ul class="nav nav-tabs" role="tablist">
 					<li class="nav-item @if(!$tab) active @endif">

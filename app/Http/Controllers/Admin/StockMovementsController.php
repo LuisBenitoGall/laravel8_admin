@@ -93,7 +93,7 @@ class StockMovementsController extends Controller{
         ->addColumn('explicacion', function($row){
             $explanations = $row->explanation? unserialize($row->explanation):false;
             if($explanations){
-
+                return $explanations[session()->get('locale')];
             }else{
                 return '';
             }
@@ -101,7 +101,7 @@ class StockMovementsController extends Controller{
         ->addColumn('acciones', function($row){
             return view('admin.stock_movements.partials.dt-actions', compact('row'));    
         })
-        ->rawColumns(['acronym'])
+        ->rawColumns(['acronym', 'explicacion'])
         ->make(true);
     }
 
