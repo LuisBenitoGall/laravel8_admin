@@ -22,6 +22,7 @@
 					<td>{{ ucfirst(trans('textos.proceso')) }}</td>
 					<td class="text-center">{{ ucfirst(trans('textos.publicado_desde')) }}</td>
 					<td class="text-center">{{ ucfirst(trans('textos.publicado_hasta')) }}</td>
+					<td class="text-center">{{ ucfirst(trans('textos.candidatos')) }}</td>
 					<td class="text-center">{{ ucfirst(trans('textos.acciones')) }}</td>
 				</tr>
 			</thead>

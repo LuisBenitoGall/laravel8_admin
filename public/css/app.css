@@ -28497,8 +28497,7 @@ ul li.rev .fa {
 #budgetForms,
 #noBudgetForms,
 #customerRef,
-#movementForm,
-#typeX {
+#movementForm {
   display: none;
 }
 
@@ -29506,6 +29505,10 @@ ul li.rev .fa {
 .closeAccounting.closed {
   background-color: #ed5565;
   color: #FFF;
+}
+
+#movementExplanation_ {
+  background-color: #F5F8FA;
 }
 
 /************** JOKE ***********/

@@ -592,6 +592,7 @@ return array(
 	'movimiento_updated' => 'El movimiento de stock ha sido actualizado correctamente',
 	'movimiento_confirm_eliminar' => '¿Estás seguro de eliminar este movimiento de stock?',
 	'movimiento_selec' => 'Selecciona movimiento de stock',
+	'movimiento_selec_aviso' => 'Debes seleccionar un movimiento de stock',
 	'movimientos_historico_ver' => 'Ver histórico de movimientos',
 	'movimientos_ultimos' => 'Últimos movimientos',
 	'movimientos_ver' => 'Ver movimientos de stock',
@@ -629,6 +630,7 @@ return array(
 	'almacen_tipo_selec' => 'selecciona tipo de almacén',
 	'almacen_updated' => 'El almacén ha sido actualizado correctamente',
 	'almacenes' => 'almacenes',
+	'almacenes_diferentes_aviso' => 'Los almacenes de origen y destino deben ser diferentes',
 	'almacenes_mis' => 'Mis almacenes',
 	'almacen_nuevo' => 'nuevo almacén',
 	'propietario' => 'Propietario',
@@ -2834,5 +2836,7 @@ return array(
 	'mayor_igual' => 'Mayor o igual que',
 	'menor_que' => 'Menor que',
 	'menor_igual' => 'Menor o igual que',
+	'tarjeta' => 'Tarjeta',
+	'domiciliado' => 'Domiciliado',
 
 );

@@ -495,131 +495,157 @@ class CustomerProvidersController extends Controller{
         foreach($data as $r){
             $xls_errors[$i] = false;
 
-            //Validamos nombre empresa:
-            if($r->name){
-                $name = $r->name;
-                $slug = Str::slug($name);
-            }else{
-                $name = false;
-                $name = $xls_errors[$i] .= trans('textos.razon_social').': '.trans('textos.razon_social_obligatorio').' ';    
-            }
-
             //Validamos NIF:
             if($r->nif){
                 $nif = $r->nif;
 
-                //El NIF debe ser único:
-                if($nif){
-                    $exist_nif = Company::select('nif')->where('nif', $r->nif)->first();
-                    if($exist_nif){
-                        $nif = false;
-                        $xls_errors[$i] .= $r->name.', NIF: '.trans('textos.nif_existe').' ';
+                //Comprobamos si existe la empresa:
+                $company = Company::where('nif', $r->nif)->first();
+
+                if(!$company){
+                    //Validamos nombre empresa:
+                    if($r->name){
+                        $name = $r->name;
+                        $slug = Str::slug($name);
+                    }else{
+                        $name = false;
+                        $name = $xls_errors[$i] .= trans('textos.razon_social').': '.trans('textos.razon_social_obligatorio').' ';    
+                    }   
+                    
+                    //Creamos empresa:
+                    if($name){
+                        $company = Company::create([
+                            'name' => $name,
+                            'slug' => $slug,
+                            'tradename' => $r->tradename,
+                            'nif' => $nif    
+                        ]);
+                    }
+                }
+
+                //Una vez creada la empresa:
+                if($company){
+                    //Centro de trabajo:
+                    if($r->town){
+                        //Obtenemos town_id:
+                        $slug_town = Str::slug($r->town);
+                        $town = Town::select('id')->where('slug', $slug_town)->first();
+
+                        if($town){
+                            //Verificamos que no exista el centro de trabajo:
+                            $workplace = Workplace::select('id')
+                            ->where('company_id', $company->id)
+                            ->where('town_id', $town->id)
+                            ->where('address', $r->address)
+                            ->first();
+
+                            if(!$workplace){
+                                $workplace = new Workplace();
+                                $workplace->company_id = $company->id;
+                                $workplace->name = trans('textos.centro_trabajo');
+                                $workplace->slug = Str::slug(trans('textos.centro_trabajo'));
+                                $workplace->featured = 1;
+                                $workplace->address = $r->address;
+                                $workplace->cp = $r->cp;
+                                $workplace->town_id = $town->id;
+                                $workplace->save();
+                            }
+                        }else{
+                            $xls_errors[$i] .= $r->name.', '.ucfirst(trans('textos.poblacion')).': '.trans('textos.poblacion_no_registrada').' ';
+                            $workplace = false;    
+                        }
+
+                    }else{
+                        $xls_errors[$i] .= $r->name.', '.ucfirst(trans('textos.poblacion')).': '.trans('textos.poblacion_obligatoria').' ';
+                        $workplace = false;
                     }
 
-                }else{
-                    $nif = false;
-                    $xls_errors[$i] .= $r->name.', NIF: '.trans('textos.nif_no_valido').' ';     
+                    $workplace_id = $workplace? $workplace->id:NULL;
+
+
+                    //Vínculo cliente - proveedor:
+                    if($environment == 'customers'){
+                        $customerId = $company->id;
+                        $providerId = session('currentCompany');
+                    }else{
+                        $customerId = session('currentCompany');
+                        $providerId = $company->id;
+                    }
+
+                    //Verificamos si existe previamente la relación:
+                    $customer_provider = CustomerProviders::where('customer_id', $customerId)
+                    ->where('provider_id', $providerId)
+                    ->first();
+
+                    if(!$customer_provider){
+                        //Concepto contable de la empresa en session. Primero obtenemos concepto general, y posteriormente cuenta de gastos, pues el término de cuenta de gastos puede repetirse entre distintos conceptos generales:
+                        $general_concept = AccountingConcept::select('id')
+                        ->where('company_id', session('currentCompany'))
+                        ->where('name', $r->concepto_general)
+                        ->where('main', '0')
+                        ->first();
+
+                        $concept = false;
+                        if($general_concept){
+                            $concept = AccountingConcept::select('id')
+                            ->where('company_id', session('currentCompany'))
+                            ->where('name', $r->cuenta_gastos)
+                            ->where('main', $general_concept->id)
+                            ->first();
+                        }
+
+
+
+                        //Método de pago:
+                        $payment_method = $r->payment_method? array_search($r->payment_method, $paymentMethods):NULL;
+
+                        $cu_pr = new CustomerProviders(); 
+                        $cu_pr->customer_id = $customerId;
+                        $cu_pr->provider_id = $providerId;
+                        $cu_pr->workplace_id = $workplace_id;
+                        $cu_pr->accounting_concept_id = $concept? $concept->id:NULL;
+                        $cu_pr->payment_method = $payment_method;
+
+                        if($environment == 'customers'){
+                            $cu_pr->pay_after_days = $r->pay_after_days;
+                            $cu_pr->payday = $r->payday;
+                            $cu_pr->billing_comunication = $r->billing_comunication;
+                        }
+                        $cu_pr->save();
+                    }
+
+
+
+                    //Cuenta bancaria:
+                    if($r->iban){
+                        //Extraemos identificador del banco del IBAN:
+                        $bank_code = substr($r->iban, 4, 4);
+                        $bank = Bank::select('id')->where('supervisor_code', $bank_code)->first();
+
+                        if($bank){
+                            //Comprobamos que no exista la cuenta previamente:
+                            $account = BankAccounts::select('id')
+                            ->where('company_id', $company->id)
+                            ->where('account', $r->iban)
+                            ->where('bank_id', $bank->id)
+                            ->first();
+
+                            if(!$account){
+                                $ba = new BankAccounts();
+                                $ba->company_id = $company->id;
+                                $ba->bank_id = $bank->id;
+                                $ba->account = $r->iban;
+                                $ba->featured = true;
+                                $ba->status = true;
+                                $ba->save();
+                            }
+                        }
+                    }
                 }
+
             }else{
                 $nif = false;
                 $xls_errors[$i] .= $r->name.', NIF: '.trans('textos.nif_obligatorio').' ';
-            }
-
-            //Creamos empresa:
-            if($name && $nif){
-                $company = Company::create([
-                    'name' => $name,
-                    'slug' => $slug,
-                    'tradename' => $r->tradename,
-                    'nif' => $nif    
-                ]);
-
-                //Centro de trabajo:
-                if($r->town){
-                    //Obtenemos town_id:
-                    $slug_town = Str::slug($r->town);
-                    $town = Town::select('id')->where('slug', $slug_town)->first();
-
-                    if($town){
-                        $workplace = new Workplace();
-                        $workplace->company_id = $company->id;
-                        $workplace->name = trans('textos.centro_trabajo');
-                        $workplace->slug = Str::slug(trans('textos.centro_trabajo'));
-                        $workplace->featured = 1;
-                        $workplace->address = $r->address;
-                        $workplace->cp = $r->cp;
-                        $workplace->town_id = $town->id;
-                        $workplace->save();
-                    }else{
-                        $xls_errors[$i] .= $r->name.', '.ucfirst(trans('textos.poblacion')).': '.trans('textos.poblacion_no_registrada').' ';
-                        $workplace = false;    
-                    }
-
-                }else{
-                    $xls_errors[$i] .= $r->name.', '.ucfirst(trans('textos.poblacion')).': '.trans('textos.poblacion_obligatoria').' ';
-                    $workplace = false;
-                }
-
-                //Vínculo cliente - proveedor:
-                if($environment == 'customers'){
-                    $customerId = $company->id;
-                    $providerId = session('currentCompany');
-                }else{
-                    $customerId = session('currentCompany');
-                    $providerId = $company->id;
-                }
-
-                $workplace_id = $workplace? $workplace->id:NULL;
-
-                //Concepto contable de la empresa en session. Primero obtenemos concepto general, y posteriormente cuenta de gastos, pues el término de cuenta de gastos puede repetirse entre distintos conceptos generales:
-                $general_concept = AccountingConcept::select('id')
-                ->where('company_id', session('currentCompany'))
-                ->where('name', $r->concepto_general)
-                ->where('main', '0')
-                ->first();
-
-                $concept = false;
-                if($general_concept){
-                    $concept = AccountingConcept::select('id')
-                    ->where('company_id', session('currentCompany'))
-                    ->where('name', $r->cuenta_gastos)
-                    ->where('main', $general_concept->id)
-                    ->first();
-                }
-
-                //Método de pago:
-                $payment_method = $r->payment_method? array_search($r->payment_method, $paymentMethods):NULL;
-
-                $cu_pr = new CustomerProviders(); 
-                $cu_pr->customer_id = $customerId;
-                $cu_pr->provider_id = $providerId;
-                $cu_pr->workplace_id = $workplace_id;
-                $cu_pr->accounting_concept_id = $concept? $concept->id:NULL;
-                $cu_pr->payment_method = $payment_method;
-
-                if($environment == 'customers'){
-                    $cu_pr->pay_after_days = $r->pay_after_days;
-                    $cu_pr->payday = $r->payday;
-                    $cu_pr->billing_comunication = $r->billing_comunication;
-                }
-                $cu_pr->save();
-
-                //Cuenta bancaria:
-                if($r->iban){
-                    //Extraemos identificador del banco del IBAN:
-                    $bank_code = substr($r->iban, 4, 4);
-                    $bank = Bank::select('id')->where('supervisor_code', $bank_code)->first();
-
-                    if($bank){
-                        $ba = new BankAccounts();
-                        $ba->company_id = $company->id;
-                        $ba->bank_id = $bank->id;
-                        $ba->account = $r->iban;
-                        $ba->featured = true;
-                        $ba->status = true;
-                        $ba->save();
-                    }
-                }
             }
 
             if($xls_errors[$i]) $withXlsErrors = true;

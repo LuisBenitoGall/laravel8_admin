@@ -4125,7 +4125,7 @@ $(document).ready(function(){
                 {data: 'fecha', className: 'text-right'},
                 {data: 'movement', name: 'stock_movements.name'},
                 {data: 'store', name: 'stores.name'},
-                {data: 'batch', name: 'batch.name'},
+                {data: 'batch', name: 'batches.name'},
                 {data: 'qty', className: 'text-right'},
                 {data: 'stock', className: 'text-right'},
                 {data: 'doc', className: 'text-center'},
@@ -5213,49 +5213,50 @@ $(document).ready(function(){
             },
             columns: [
                 {data: 'name', className: 'capitalize'},
-                {data: 'published_from', className: 'text-right'},
-                {data: 'published_to', className: 'text-right'},
-                {data: 'id', className: 'text-right'}
-            ],
-            columnDefs: [
-                {"targets": 0,
-                "render": function(data, type, row){
-                    if(row['name']){
-                        return row['name'];
-                    }else{
-                        return row['id'];
-                    }
-                }
-                },
-                {"targets": -1,
-                "render": function(data, type, row){
-                    var estado = '';
-                    var editar = '';
-                    if(row['editar']){
-                        //Estado:
-                        var checked = (row['status'] == 1)? 'checked':'';
-                        var estado = '<label class="custom-chk-rdb" rel="tooltip" title="'+txtProcesoOnOff+'">';
-                            estado += '<input type="checkbox" name="status" '+checked+'><span class="chk chk-action" data-id="'+row['id']+'" data-ctrl="staff-pick/status"></span>';
-                        estado += '</label>';
-
-                        //Editar:
-                        editar = '<a href="staff-pick/'+row['id']+'/edit" class="btn btn-xs btn-info" rel="tooltip" title="'+txtEditar+'"><i class="fa fa-edit"></i></a>';
-                    }
-
-                    //Eliminar:
-                    var eliminar = '';
-                    if(row['eliminar']){
-                        eliminar = '<form method="POST" action="staff-pick/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
-                            eliminar += '<input name="_method" type="hidden" value="DELETE">';
-                            eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
-                            eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtEliminar+'" data-msg="'+txtProcesoConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
-                        eliminar += '</form>';
-                    }
-
-                    return estado+' '+editar+' '+eliminar;
-                }
-                }
+                {data: 'published_at', className: 'text-right'},
+                {data: 'published_end', className: 'text-right'},
+                {data: 'candidates', className: 'text-right'},
+                {data: 'acciones', className: 'text-right'}
             ]
+            // columnDefs: [
+            //     {"targets": 0,
+            //     "render": function(data, type, row){
+            //         if(row['name']){
+            //             return row['name'];
+            //         }else{
+            //             return row['id'];
+            //         }
+            //     }
+            //     },
+            //     {"targets": -1,
+            //     "render": function(data, type, row){
+            //         var estado = '';
+            //         var editar = '';
+            //         if(row['editar']){
+            //             //Estado:
+            //             var checked = (row['status'] == 1)? 'checked':'';
+            //             var estado = '<label class="custom-chk-rdb" rel="tooltip" title="'+txtProcesoOnOff+'">';
+            //                 estado += '<input type="checkbox" name="status" '+checked+'><span class="chk chk-action" data-id="'+row['id']+'" data-ctrl="staff-pick/status"></span>';
+            //             estado += '</label>';
+
+            //             //Editar:
+            //             editar = '<a href="staff-pick/'+row['id']+'/edit" class="btn btn-xs btn-info" rel="tooltip" title="'+txtEditar+'"><i class="fa fa-edit"></i></a>';
+            //         }
+
+            //         //Eliminar:
+            //         var eliminar = '';
+            //         if(row['eliminar']){
+            //             eliminar = '<form method="POST" action="staff-pick/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
+            //                 eliminar += '<input name="_method" type="hidden" value="DELETE">';
+            //                 eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
+            //                 eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtEliminar+'" data-msg="'+txtProcesoConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
+            //             eliminar += '</form>';
+            //         }
+
+            //         return estado+' '+editar+' '+eliminar;
+            //     }
+            //     }
+            // ]
         });
     }
 
