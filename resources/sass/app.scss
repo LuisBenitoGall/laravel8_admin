@@ -10499,8 +10499,7 @@ ul{
 #budgetForms,
 #noBudgetForms,
 #customerRef,
-#movementForm,
-#typeX{
+#movementForm{
     display: none;
 }
 
@@ -11637,6 +11636,10 @@ ul{
         background-color: $danger;
         color: #FFF;
     }
+}
+
+#movementExplanation_{
+    background-color: $grey-light;
 }
 
 /************** JOKE ***********/

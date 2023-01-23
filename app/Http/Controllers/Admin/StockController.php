@@ -53,9 +53,12 @@ class StockController extends Controller{
         if(isset($data['submit_save'])){
             return Validator::make($data, [
                 'product_id' => 'required|integer',
-                'store_id' => 'required|integer',
+                'store_id' => 'required|integer|different:to_store',
                 'movement' => 'required|integer',
-                'qty' => 'required|numeric'
+                'qty' => 'required|numeric',
+            ],[
+                'movement.required' => trans('textos.movimiento_selec_aviso'),
+                'store_id.different' => trans('textos.almacenes_diferentes_aviso')    
             ]);
         }
     }
@@ -99,6 +102,14 @@ class StockController extends Controller{
         $movements_arr = [];
         foreach($movements as $m){
             $movements_arr[$m->id] = $m->name;
+
+            //Modificamos la explicación:
+            $explanation = '';
+            if($m->explanation){
+                $p = unserialize($m->explanation);
+                $explanation = $p[session()->get('locale')];
+            }
+            $m->explanation_ = $explanation;
         }
 
         //Últimos movimientos de stock realizados.
@@ -106,6 +117,7 @@ class StockController extends Controller{
         ->join('products', 'stocks.product_id', '=', 'products.id')
         ->where('products.company_id', session('currentCompany'))
         ->orderBy('stocks.created_at', 'DESC')
+        ->orderBy('stocks.id', 'DESC')
         ->take(10)
         ->get();
 
@@ -151,23 +163,46 @@ class StockController extends Controller{
 
             foreach($stores as $s){
                 if($batches->count()){
+                    //Variable para controlar que el almacén se muestre al menos 1 vez en caso de no tener ninguna cantidad:
+                    $store_in = false;
+
                     foreach($batches as $b){
                         $stock = Stock::select('id', 'result')
                         ->where('product_id', $product_id)
                         ->where('store_id', $s->id)
                         ->where('batch_id', $b->id)
                         ->orderBy('id', 'DESC')
+                        ->orderBy('result', 'DESC')
                         ->first();
 
-                        $row = [
-                            'store' => $s->name,
-                            'store_id' => $s->id,
-                            'batch' => $b->name? $b->name:'',
-                            'batch_id' => $b->id,
-                            'stock' => $stock? $stock->result:'0',
-                            'stock_id' => $stock? $stock->id:''
-                        ];
-                        array_push($data, $row);
+                        $batch = $stock && $stock->result > 0? $b->name:'';
+
+                        //Si el almacén no aparece:
+                        if(!$store_in){
+                            $row = [
+                                'store' => $s->name,
+                                'store_id' => $s->id,
+                                'batch' => $batch,
+                                'batch_id' => $b->id,
+                                'stock' => $stock? $stock->result:'0',
+                                'stock_id' => $stock? $stock->id:''
+                            ];
+                            array_push($data, $row);
+
+                            $store_in = true;
+
+                        //Si el almacén aparece y la cantidad en stock es superior a 0:
+                        }elseif($store_in && $stock && $stock->result > 0){
+                            $row = [
+                                'store' => $s->name,
+                                'store_id' => $s->id,
+                                'batch' => $batch,
+                                'batch_id' => $b->id,
+                                'stock' => $stock? $stock->result:'0',
+                                'stock_id' => $stock? $stock->id:''
+                            ];
+                            array_push($data, $row);    
+                        }
                     }
 
                 //Producto sin lotes:
@@ -180,12 +215,11 @@ class StockController extends Controller{
                         'stock' => 0,
                         'stock_id' => ''
                     ];
-                    array_push($data, $row);    
+                    array_push($data, $row);  
                 }
             }
 
-                        //dd($data);
-
+            //dd($data);
 
             return response()->json($data);
         }
@@ -229,7 +263,7 @@ class StockController extends Controller{
             return $row->store;
         })
         ->addColumn('batch', function($row){
-            if($row->batch != '' || $row->batch != config('constants.NOBATCH_')){
+            if($row->batch != '' && $row->batch != config('constants.NOBATCH_')){
                 return $row->batch;
             }else{
                 return '';
@@ -278,7 +312,7 @@ class StockController extends Controller{
     public function store(Request $request){
         $validator = $this->validator($request->all());
         if($validator->fails()){
-            return redirect('/admin/stocks')
+            return redirect('/admin/stocks/'.$request->product_id)
                 ->withErrors($validator)
                 ->withInput();
         }
@@ -292,23 +326,27 @@ class StockController extends Controller{
             exit; 
         }
 
-        //dd($request->all());
-
         //Tipo de movimiento:
         $stock_mov = StockMovements::select('sign')->find($request->movement);
 
         //Recuperamos última línea del producto, almacén y lote:
         $result = 0;
         if($request->stock_id){
-            $last_row = Stock::find($request->stock_id);   
+            $last_row = Stock::where('batch_id', $request->batch)
+            ->where('product_id', $request->product_id)
+            ->where('store_id', $request->store_id)
+            ->orderBy('id', 'DESC')
+            ->first();
             $result = $last_row? $last_row->result:0;
         }
 
         //Actualizando result:
         if($stock_mov->sign == 's'){
-            $result = $result + $request->qty;    
+            $result = $result + $request->qty;  
+            $operation = 's'; 
         }elseif($stock_mov->sign == 'r' || $stock_mov->sign == 'x'){
             $result = $result - $request->qty;
+            $operation = 'r';
         }
 
         //Con gestión de lotes:
@@ -365,7 +403,7 @@ class StockController extends Controller{
         $stock->store_id = $request->store_id;
         $stock->user_id = Auth::user()->id;
         $stock->qty = $request->qty;
-        $stock->operation = $stock_mov->sign;
+        $stock->operation = $operation;
         $stock->result = $result;
         $stock->doc = $fileName;
         $stock->doc_num = $request->doc_num;
@@ -374,8 +412,31 @@ class StockController extends Controller{
         $stock->save();
 
         //Destino de movimientos de traspaso:
-        if($stock_mov->sign == 'x'){
+        if($stock_mov->sign == 'x' && $request->to_store){
+            //Stock en el almacén de destino:
+            $last_result = Stock::select('result')
+            ->where('product_id', $stock->product_id)
+            ->where('batch_id', $stock->batch_id)
+            ->where('store_id', $request->to_store)
+            ->orderBy('id', 'DESC')
+            ->first();
 
+            $result2 = $last_result? $last_result->result + $request->qty:$request->qty;
+
+            $stock2 = new Stock();
+            $stock2->product_id = $request->product_id;
+            $stock2->stock_mov_id = $request->movement;
+            $stock2->batch_id = $batch_id;
+            $stock2->store_id = $request->to_store;         //Almacén de destino.
+            $stock2->user_id = Auth::user()->id;
+            $stock2->qty = $request->qty;
+            $stock2->operation = 's';
+            $stock2->result = $result2;
+            $stock2->doc = $fileName;
+            $stock2->doc_num = $request->doc_num;
+            $stock2->for_user = $request->for_user;
+            $stock2->observations = $request->observations;
+            $stock2->save();
         }
 
         $msg = trans('textos.movimiento_ok');

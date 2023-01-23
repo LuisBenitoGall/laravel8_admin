@@ -1294,11 +1294,15 @@ class InvoiceController extends Controller{
         }
 
         //Recalculando descuento por IRPF:
-        if($invoice->irpf > 0 && $order){
+        if($order){
             $order_amount = $order->getAmount();
 
-            $desc_irpf = ($invoice->irpf * $order_amount['total_amount']) / 100;
-            $invoice->amount = $order_amount['total_amount'] - $desc_irpf;
+            if($invoice->irpf > 0){
+                $desc_irpf = ($invoice->irpf * $order_amount['total_amount']) / 100;
+                $invoice->amount = $order_amount['total_amount'] - $desc_irpf;
+            }else{
+                $invoice->amount = $order_amount['total_amount'];
+            }
         }
 
         $invoice->save();

@@ -5,6 +5,12 @@
 <div class="row mb-3">
 	{{-- Acciones: --}}
 	<div class="col-12">
+        {{-- Catálogo --}}
+        <a target="_blank" href="{{ route('products.index') }}" class="btn btn-info">
+            <i class="fa fa-gift"></i>
+            {!! ucfirst(trans('textos.catalogo')) !!}
+        </a>
+
 		{{-- Nuevo producto - condiciones 
 			1. Disponer de permisos de creación de producto.
 			...
@@ -96,7 +102,7 @@
     <div class="col-md-8">
         <div class="card mb-3">
             <div class="card-body">
-            	<div class="productForm">
+            	<div class="productForm" @if($errors->any()) style="display: block;" @endif>
                     @php
                     $setProduct = true;
                     @endphp
@@ -167,11 +173,30 @@
 		                        <tbody>
 		                        	
 		                        </tbody>
+
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="2" class="text-right">
+                                            <b>{{ ucfirst(trans('textos.total')) }}</b>
+                                        </td>
+                                        <td class="total-stock text-right">
+                                            <b></b>
+                                        </td>
+                                        <td>                                      
+                                        </td>
+                                    </tr>
+                                </tfoot>
 		                    </table>
 
                             <p class="text-center text-warning"><b>{{ trans('textos.almacen_selec_texto') }}</b></p>
 	                	</div>
                 	</div>
+
+                    <div class="row" id="movementExplanation">
+                        <div class="col-12">
+                                
+                        </div>     
+                    </div>
 
                     <form method="post" autocomplete="off" action="{{ route('stocks.store') }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
                         {{ csrf_field() }}
@@ -189,7 +214,7 @@
                             {{-- Cantidad --}}
                             <label for="qty" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.cantidad')) !!}*</label>
                             <div class="col-lg-2">
-                                <x-input type="text" name="qty" class="text-right set-decimals desactivado" autocomplete="off" maxlength="10" required/>
+                                <x-input type="text" name="qty" id="stockQty" class="text-right set-decimals desactivado" autocomplete="off" maxlength="10" required/>
                             </div>
                         </div>
 
@@ -197,23 +222,23 @@
                             {{-- Lotes --}}
                             <label for="batch" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.lote')) !!}</label>
                             <div class="col-lg-2">
-                                <x-select name="batch" class="select2" label="lote_selec" :options="[]"/>
+                                <x-select name="batch" class="select2 desactivado" id="batches" label="lote_selec" :options="[]"/>
                             </div>
 
                             {{-- Nuevo lote --}}
                             <label for="new_batch" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.lote_nuevo')) !!}</label>
                             <div class="col-lg-2">
-                                <x-input type="text" name="new_batch" autocomplete="off" maxlength="25"/>
+                                <x-input type="text" class="desactivado" id="newBatch" name="new_batch" autocomplete="off" maxlength="25"/>
                             </div>
 
                             {{-- Fecha caducidad --}}
                             <label for="expiry_date" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.lote_caducidad')) !!}</label>
                             <div class="col-lg-2">
-                                <x-date-picker name="expiry_date" id="expiryDate" :format="$languages[config('app.locale')][4]"/>
+                                <x-date-picker name="expiry_date" id="expiryDate" :format="$languages[config('app.locale')][4]" disabled/>
                             </div>
                         </div>
 
-                        <div class="form-group row" id="typeX">
+                        <div class="form-group row" >
                             {{-- Almacén destino --}}
                             <label for="to_store" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.almacen_destino')) !!}</label>
                             <div class="col-lg-4">
@@ -224,13 +249,15 @@
                                 }
                                 @endphp
 
-                                <x-select name="to_store" class="select2" label="almacen_destino_selec" :options="$stores_"/>
+                                <x-select name="to_store" class="select2 typeX" id="toStore" label="almacen_destino_selec" :options="$stores_" disabled/>
+
+                                <x-input-errors name="store_id"/>
                             </div>
 
                             {{-- Empleados --}}
-                            <label for="for_user" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.almacen_destino')) !!}</label>
+                            <label for="for_user" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.empleados')) !!}</label>
                             <div class="col-lg-4">
-                                <x-select name="for_user" class="select2" label="empleado_selec" :options="$employees"/>
+                                <x-select name="for_user" class="select2 typeX" label="empleado_selec" :options="$employees" disabled/>
                             </div>
                         </div>
 
@@ -261,7 +288,7 @@
                 </div>
 
                 {{-- Aviso antes de seleccionar producto --}}
-                <div class="productFirstScreen">
+                <div class="productFirstScreen" @if($errors->any()) style="display: none;" @endif>
                 	<h2 class="text-center text-warning mb-3">
                         {{ trans('textos.producto_no_seleccionado') }}
                     </h2>
@@ -276,24 +303,28 @@
 //Acciones al seleccionar producto:
 function selectProduct(products, currency, product_id){
     $('#stockProductId').val(product_id);
-
+    $('#stockMov, #stockQty, #batches, #newBatch').prop('disabled', true);
     $('#tblStoresStock tbody').empty();
 
     //Stock por almacenes:
-    $.get('/admin/stocks/'+product_id+'/stores-stock', function (response, state) {
+    $.get('/admin/stocks/'+product_id+'/stores-stock', function (response, state){
         if(response){
+            var total_stock = 0;
             response.forEach(function (item, index, arr){
+                total_stock = parseFloat(total_stock) + parseFloat(item.stock);
                 var batch_ = item.batch == 'lote_0'? '':item.batch;
+                var batch_id_ = batch_ != ''? item.batch_id:'';     //Si el producto no tiene gestión de lotes, no se pasa el batch_id.
                 var tr = '<tr>';
                     tr += '<td>'+item.store+'</td>';
                     tr += '<td>'+batch_+'</td>';
                     tr += '<td class="text-right">'+item.stock+'</td>';
                     tr += '<td class="text-right">';
-                        tr += '<a href="#" class="btn btn-xs btn-info btnSelectBatch" data-stockid="'+item.stock_id+'" data-stock="'+item.stock+'" data-store="'+item.store_id+'" data-batch="'+item.batch_id+'" rel="tooltip" title="'+txtLoteSelec+'"><i class="fa fa-filter"></i></a>';
+                        tr += '<a href="#" class="btn btn-xs btn-info btnSelectBatch" data-stockid="'+item.stock_id+'" data-stock="'+item.stock+'" data-store="'+item.store_id+'" data-batch="'+batch_id_+'" rel="tooltip" title="'+txtLoteSelec+'"><i class="fa fa-filter"></i></a>';
                     tr += '</td>';
                 tr += '</tr>';
                 $('#tblStoresStock tbody').append(tr);           
             });
+            $('.total-stock b').text(total_stock.toFixed(2));
         }
     });
 
@@ -322,6 +353,17 @@ function selectProduct(products, currency, product_id){
     //Lotes:
     if(product.batch == 1){
         $('#withBatch').slideDown();
+        //Lotes activos del producto:
+        $.get('/admin/batches/'+product_id+'/product-batches', function (response, state){
+            if(response){
+                $('#batches').empty(); //.append('<option value="">Selecciona lote</option>');
+                response.forEach(function (item, index, arr){
+                    var option = '<option value="'+item.id+'">'+item.name+'</option>';
+                    $('#batches').append(option);
+                });
+            }
+        });
+
     }else{
         $('#withBatch').slideUp();
     }
@@ -330,7 +372,8 @@ function selectProduct(products, currency, product_id){
 $(function(){
 	var currency = '{!! $currency->symbol !!}';
 	var products = {!! json_encode($products) !!};
-    var movements = {!! json_encode($movements_arr) !!};
+    var movements = {!! json_encode($movements) !!};
+    var stores = {!! json_encode($stores_) !!};
     var product_id = @if($product_id) {{ $product_id }} @else false @endif;
 	var product = '';
 
@@ -344,6 +387,7 @@ $(function(){
 
 	// Selección producto:
 	$('#product').on('change', function(e){ 
+        e.preventDefault();
 		product_id = $(this).val();  
 
 		if(product_id != ''){
@@ -352,7 +396,8 @@ $(function(){
     });
 
     //Selección lote de almacén:
-    $(document).on('click', '.btnSelectBatch', function(){
+    $(document).on('click', '.btnSelectBatch', function(e){
+        e.preventDefault();
         var elem = $(this);
         var stock_id = elem.data('stockid');
         var stock = elem.data('stock');
@@ -367,15 +412,51 @@ $(function(){
 
         $('#stockId').val(stock_id);
         $('#stockStoreId').val(store);
+
+        //Reseteamos las opciones de almacén de destino sin el almacén de origen:
+        if(store > 0){
+            $('#toStore').empty();
+
+            for(const k in stores){
+                if(k != store){
+                    var option = '<option value="'+k+'">'+stores[k]+'</option>';
+                    $('#toStore').append(option);
+                }
+            }
+        }
+
+        //Seteando opciones de lote:
+        //if(batch != ''){
+            var arr_batches = [batch];
+            $('#batches').val(arr_batches);
+            $('#batches').trigger('change');
+        //}
+    });
+
+    //Fecha caducidad nuevo lote:
+    $('#newBatch').on('change', function(){
+        if($(this).val() != ''){
+            $('#expiryDate').prop('disabled', false);
+        }else{
+            $('#expiryDate').val('').prop('disabled', true);
+        }
     });
 
     //Seleccionar tipo de movimiento:
     $('#stockMov').on('change', function(e){
         var mov = e.target.value;
-        for(const m of movements){
-            console.log(p.name);
-
-        }
+        movements.forEach(function(item, index){
+            if(item.id == mov){
+                var html = '<div id="movementExplanation_" class="p-3"><b>'+item.name+':</b> '+item.explanation_+'</div>';
+                $('#movementExplanation div').empty().html(html);
+            
+                if(item.sign == 'x'){
+                    $('.typeX').removeAttr('disabled');
+                }else{
+                    $('.typeX').prop('disabled', true);    
+                }
+            }
+        });
     });
 });
 </script>
