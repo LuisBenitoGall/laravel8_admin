@@ -126,7 +126,12 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::get('batch-patterns/status/{id}/{status}', 'BatchPatternsController@status')->name('batch-patterns.status')->middleware('permission:batch-patterns.edit');
 
     // Batches:
+    Route::get('batches', 'BatchController@index')->name('batches.index');
+    Route::get('batches/create', 'BatchController@create')->name('batches.create')->middleware('permission:batches.create');
+    Route::post('batches/store', 'BatchController@store')->name('batches.store')->middleware('permission:batches.create');
+    Route::get('batches/{batch}/edit', 'BatchController@edit')->name('batches.edit')->middleware('permission:batches.edit');
     Route::get('batches/{product_id}/product-batches', 'BatchController@productBatches')->name('batches.product-batches')->middleware('permission:products.edit');
+    Route::put('batches/{batch}/update', 'BatchController@update')->name('batches.update')->middleware('permission:batches.edit');
 
     // Budget Form Items:
     Route::post('budget-form-items/store', 'BudgetFormItemsController@store')->name('budget-form-items.store')->middleware('permission:budget-forms.edit');

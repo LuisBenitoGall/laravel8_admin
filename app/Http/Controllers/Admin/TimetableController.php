@@ -147,7 +147,7 @@ class TimetableController extends Controller{
 
             if(count($timetables) > 0){
                 foreach($timetables as $tm){
-                    if($tm['accumulated']){
+                    if(isset($tm['accumulated'])){
                         $worked_seconds = $worked_seconds + helpers::getSeconds($tm['accumulated']);    
                     } 
 
@@ -224,6 +224,20 @@ class TimetableController extends Controller{
             }
 
             $dia = date('Y-m-d');
+
+            //Verificamos que el usuario no tenga asignada previamente alguna jornada de tipo no laborable:
+            $is_working_day = WorkUserCalendar::select('day_types.working_day')
+            ->join('day_types', 'work_user_calendars.day_type_id', '=', 'day_types.id')
+            ->where('work_user_calendars.user_id', Auth::user()->id)
+            ->where('work_user_calendars.date', $dia)
+            ->first();
+
+            if($is_working_day && $is_working_day->working_day == '0'){
+                $alert = trans('textos.horario_incompatible_jornada');
+                return redirect()->route('dashboard')->with(compact('alert'));
+                exit;
+            }
+
             //Formato hora:
             $hora = date("H:i");
             $revisable = $item->reviewable? 1:0;
