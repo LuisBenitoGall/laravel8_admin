@@ -91,6 +91,9 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     //BatchPatterns:
     Route::get('batch-patterns', 'BatchPatternsController@getPatternsDT');
 
+    //Batches:
+    Route::get('batches', 'BatchController@getBatchesDT');
+
     //BudgetFormCustomers:
     Route::get('budget-form-customers/{form}', 'BudgetFormsController@getBudgetFormCustomersDT');
 
