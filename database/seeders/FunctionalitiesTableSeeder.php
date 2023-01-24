@@ -234,6 +234,11 @@ class FunctionalitiesTableSeeder extends Seeder{
             'label' => 'trabajo_ordenes_',
             'module' => 'production'
             ],
+            ['name' => 'batches',
+            'slug' => 'batches',
+            'label' => 'lotes',
+            'module' => 'production'
+            ],
             ['name' => 'work order patterns',
             'slug' => 'work-order-patterns',
             'label' => 'trabajo_ordenes_patrones',
