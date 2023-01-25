@@ -23,8 +23,9 @@ class BatchController extends Controller{
      * 1.1. Listado de lotes para DataTable.
      * 2. Lotes por producto.
      * 3. Crear lote.
-     * 4. Editar lote.
-     * 5. Actualizar lote.
+     * 4. Guardar lote.
+     * 5. Editar lote.
+     * 6. Actualizar lote.
      */
     
     private $option = 'lotes';  
@@ -33,8 +34,14 @@ class BatchController extends Controller{
 
     //0. Validator:
     protected function validator(array $data){
+        //Validación save:
+        if(isset($data['submit_save'])){
+            return Validator::make($data, [
+
+            ]);
+
         //Validación update:
-        if(isset($data['submit_update'])){
+        }elseif(isset($data['submit_update'])){
             return Validator::make($data, [
                 'name' => 'required'
             ]); 
@@ -149,7 +156,19 @@ class BatchController extends Controller{
     }
 
     /**
-     * 4. Editar lote.
+     * 4. Guardar lote.
+     */
+    public function store(Request $request){
+        $validator = $this->validator($request->all());
+        if($validator->fails()){
+            return redirect('admin/batches/create')
+                ->withErrors($validator)
+                ->withInput();
+        }      
+    }
+
+    /**
+     * 5. Editar lote.
      */
     public function edit(Batch $batch){
         $header = [
@@ -165,7 +184,7 @@ class BatchController extends Controller{
     }
 
     /**
-     * 5. Actualizar lote.
+     * 6. Actualizar lote.
      */
     public function update(Request $request, Batch $batch){
         $validator = $this->validator($request->all());
