@@ -443,6 +443,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::get('expenses/{expense}/destroy-doc', 'ExpenseController@destroyDoc')->name('expenses.destroy-doc')->middleware('permission:expenses.edit');
     Route::post('expenses/{expense}/unlink-project', 'ExpenseController@unlinkProject')->name('expenses.unlink-project')->middleware('permission:expenses.edit');
     Route::post('expenses.link-projects', 'ExpenseController@linkToProject')->name('expenses.link-projects')->middleware('permission:projects.edit');
+    Route::delete('expenses/{expense}', 'ExpenseController@destroy')->name('expenses.destroy')->middleware('permission:expenses.destroy');
 
     // Files:
     Route::get('files', 'FileController@index')->name('files.index');
