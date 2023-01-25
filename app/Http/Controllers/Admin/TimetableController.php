@@ -151,7 +151,7 @@ class TimetableController extends Controller{
                         $worked_seconds = $worked_seconds + helpers::getSeconds($tm['accumulated']);    
                     } 
 
-                    if($tm['hoursOfWork']){
+                    if(isset($tm['hoursOfWork'])){
                         $working_seconds = $working_seconds + helpers::getSeconds($tm['hoursOfWork']);
                     }
                 }    

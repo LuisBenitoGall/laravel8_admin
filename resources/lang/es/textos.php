@@ -806,6 +806,7 @@ return array(
 	'lotes' => 'lotes',
 	'lotes_crear' => 'Crear nuevo lote',
 	'lotes_editar' => 'Editar lotes',
+	'lote_nombre' => 'Nombre de lote',
 	'lote_nuevo' => 'nuevo lote',
 	'lote_editar' => 'editar lote',
 	'lote_eliminar' => 'eliminar lote',

@@ -359,7 +359,8 @@ class Helpers{
 		if($hora != ''){
 			$p = explode(':',$hora);
 			$hminutos = intval($p[0]) * 60;
-			$minutos = $hminutos + $p[1];
+			$m = isset($p[1])? $p[1]:'0';
+;			$minutos = $hminutos + $m;
 			return $minutos;
 		}else{
 			return false;
