@@ -152,14 +152,6 @@ class Order extends Model{
                 //     $arr_order_amount['amount'] = $arr_order_amount['amount'] - $percentage_;         
                 // }
 
-                //dd($a, $arr_order_amount['amount']);
-
-
-
-
-            
-                
-
 
 
                 $order_amount = $order_amount + $arr_order_amount['amount'];
@@ -174,8 +166,6 @@ class Order extends Model{
                 //11/12/22: QUEDA PENDIENTE EL CÁLCULO DEL RECARGO DE EQUIVALENCIA.
             }
         }
-
-        //dd($items, $order_amount, $order_amount_without_discounts);
 
         //Cálculo de los items por porcentaje:
         if($percentage_items){
@@ -203,8 +193,6 @@ class Order extends Model{
                 }
             }
         }
-
-        //dd($amounts_by_iva, $invoice_amount, $order_amount, $order_amount_without_discounts);
 
         $data = [
             'total_amount' => round($order_amount, 2), 
@@ -234,7 +222,7 @@ class Order extends Model{
      *
      */
     public function getAmount($discount_ = true, $with_iva = false, $with_percentage_items = true){
-        $items = Item::select('id', 'qty', 'price', 'item_no_price', 'iva', 'equivalence_surcharge', 'discount', 'calculated_by_percent', 'days', 'days_continue', 'days_continue_discount')
+        $items = Item::select('id', 'concept', 'qty', 'price', 'item_no_price', 'iva', 'equivalence_surcharge', 'discount', 'calculated_by_percent', 'days', 'days_continue', 'days_continue_discount')
             ->where('order_id', $this->id)
             ->get();
 
