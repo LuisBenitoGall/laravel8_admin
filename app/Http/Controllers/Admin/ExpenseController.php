@@ -143,7 +143,11 @@ class ExpenseController extends Controller{
             return $row->company;
         }) 
         ->addColumn('project', function($row){
-            return $row->project_id;
+            if($row->project_id){
+                return '<a target="_blank" href="'.route('projects.edit', $row->project_id).'">'.$row->project_id.'</a>';
+            }else{
+                return '';
+            }
         }) 
         ->addColumn('doc', function($row){
             if($row->doc){
@@ -156,7 +160,7 @@ class ExpenseController extends Controller{
             $return = 'expenses';
             return view('admin.expenses.partials.dt-actions', compact('row', 'return')); 
         }) 
-        ->rawColumns(['doc'])
+        ->rawColumns(['project', 'doc'])
         ->make(true);
     }
 

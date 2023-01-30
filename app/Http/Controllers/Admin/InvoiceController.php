@@ -1730,8 +1730,14 @@ class InvoiceController extends Controller{
             return redirect()->route('invoices.edit', $invoice)->with(compact('alert')); 
             exit;   
         }
-        //El importe indicado no puede superar al de la factura.
-        if($request->refund == 'p' && $request->refund_amount > $invoice->amount){
+        //El importe indicado no puede superar al de la factura, teniendo en cuenta además otros abonos anteriores.
+        $refunds = Invoice::where('refund', $invoice->id)
+        ->sum('amount');
+        $pending_amount = $invoice->amount - $refunds;
+
+        //dd($request->all(), $request->refund_amount, $pending_amount);
+        
+        if($request->refund == 'p' && $request->refund_amount > $pending_amount){
             $alert = trans('textos.factura_importe_superior_warning');
             return redirect()->route('invoices.edit', $invoice)->with(compact('alert')); 
             exit;     
@@ -1746,7 +1752,7 @@ class InvoiceController extends Controller{
   
             $refund_discount_amount = NULL;
         }else{
-            $refund_amount = $invoice->amount;
+            $refund_amount = $pending_amount;
             $refund_amount_with_iva = $invoice->amount_with_iva;
             $refund_discount_amount = $invoice->discount_amount;
         }
@@ -1788,9 +1794,34 @@ class InvoiceController extends Controller{
         $invoice->status = config('constants.INVOICE_REFUNDED_');
         $invoice->save();
 
-        //Actualizando previsiones de facturación: la desvinculamos de la factura y eliminamos el porcentaje.
-        OrderPrevisions::where('invoice_id', $invoice->id)
-        ->update(['percent' => NULL, 'invoice_id' => NULL]);
+        //Actualizando previsiones de facturación: la desvinculamos de la factura y colocamos el porcentaje correcto.
+        if($request->refund == 'p'){
+            $order_previsions = OrderPrevisions::where('invoice_id', $invoice->order_id)
+            ->get();   
+
+            //Obtenemos el porcentaje que se mantiene facturado:
+            $still_invoiced = $invoice->amount - $refund_amount;
+            $still_invoiced_percent = ($still_invoiced * 100) / $invoice->amount;
+
+            foreach($order_previsions as $op){
+                //Actualizamos la factura inicial:
+                if($op->invoice_id == $invoice->id){         
+                    $op->percent = round($still_invoiced_percent, 2);
+                    $op->save();
+                }
+            }
+
+            //Creamos nueva previsión por el porcentaje pendiente:
+            $new_order_prevision = new OrderPrevisions();
+            $new_order_prevision->order_id = $invoice->order_id;
+            $new_order_prevision->year = date('Y');
+            $new_order_prevision->percent = round(($refund_amount * 100) / $invoice->amount, 2);
+            $new_order_prevision->save();
+
+        }elseif($request->refund == 't'){
+            OrderPrevisions::where('invoice_id', $invoice->id)
+            ->update(['percent' => NULL, 'invoice_id' => NULL]);
+        }
 
         $msg = trans('textos.factura_abono_creada');
         return redirect()->route('invoices.edit', $refund->id)->with(compact('msg'));

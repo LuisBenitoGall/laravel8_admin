@@ -370,12 +370,12 @@ $order_amount_without_discount = $order_amount_without_discount_in_lines > $orde
 					@endif
 
 					{{-- Descuento aplicado --}}
-					@if(!$order || ($order && !$order->invoiced))
+					{{-- @if(!$order || ($order && !$order->invoiced))
 						@php
 						$remove_discount = !$invoiced? true:false;
 						@endphp
 						@include('admin.orders.partials.data-discount-applied', ['return' => 'budgets', 'remove_discount' => $remove_discount])
-					@endif
+					@endif --}}
 
 					{{-- Pedido --}}
 					@include('admin.orders.partials.link-order')

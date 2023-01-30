@@ -2132,7 +2132,7 @@ $(document).ready(function(){
                 {data: 'amount', className: 'text-right'},
                 {data: 'type'},
                 {data: 'provider'},
-                {data: 'project'},
+                {data: 'project', className: 'text-right'},
                 {data: 'doc', className: 'text-center'},
                 {data: 'acciones', className: 'text-right'}
             ]
