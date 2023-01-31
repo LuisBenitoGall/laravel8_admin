@@ -620,26 +620,33 @@ class BudgetController extends Controller{
         //Templates:
         $templates = false;
         if($order->provider_id == session('currentCompany')){
-            $templates = BudgetSettings::select('id', 'name', 'featured')
+            $templates = BudgetSettings::select('id', 'name', 'featured', 'conditions', 'payment_method', 'observations', 'footer_legend')
             ->where('company_id', $order->provider_id)
             ->where('status', 1)
             ->get();
         }
 
-        if($templates && count($templates) == 1 && !$order->budget_template_id){
-            $default_template = OrderSettings::select('conditions', 'payment_method', 'observations', 'footer_legend')
-            ->find($templates[0]->id);
+        if($templates && $templates->count() && !$order->budget_template_id){
+            $default_template = false;
+            foreach($templates as $tpt){
+                if($tpt->featured == 1){
+                    $default_template = $tpt;
+                    break;    
+                }
+            }
 
-            $template = [
-                'conditions' => $default_template? $default_template->conditions:'', 
-                'payment_method' => $default_template? $default_template->payment_method:'',
-                'observations' => $default_template? $default_template->observations:'',
-                'footer_legend' => $default_template? $default_template->footer_legend:''
-            ];
+            if($default_template){      
+                $template = [
+                    'conditions' => $default_template? $default_template->conditions:'', 
+                    'payment_method' => $default_template? $default_template->payment_method:'',
+                    'observations' => $default_template? $default_template->observations:'',
+                    'footer_legend' => $default_template? $default_template->footer_legend:''
+                ];
 
-            $order->budget_template_id = $templates[0]->id;
-            $order->budget_template = serialize($template);
-            $order->save();
+                $order->budget_template_id = $templates[0]->id;
+                $order->budget_template = serialize($template);
+                $order->save();
+            }
         }
 
         $budget_from = $order->provider_id == session('currentCompany')? 'customers':'providers';
