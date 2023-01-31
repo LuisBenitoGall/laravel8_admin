@@ -26,9 +26,6 @@ foreach (\App\Models\DevicePush::where('onesignal',true)->get() as $item){
     $msg = OneSignal::sendPush($fields, $notificationMsg);
     echo $item->token.' / '. $item->user->name;
 }
-
-
-    ///dd($msg);
 });
 
 Auth::routes();
