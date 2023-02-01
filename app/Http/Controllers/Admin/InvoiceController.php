@@ -1753,7 +1753,10 @@ class InvoiceController extends Controller{
             $refund_discount_amount = NULL;
         }else{
             $refund_amount = $pending_amount;
-            $refund_amount_with_iva = $invoice->amount_with_iva;
+
+            $iva_amount = helpers::percent($refund_amount, CompanySettings::co_iva());
+
+            $refund_amount_with_iva = $refund_amount + $iva_amount;
             $refund_discount_amount = $invoice->discount_amount;
         }
 
