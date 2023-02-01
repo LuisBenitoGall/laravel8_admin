@@ -1840,7 +1840,7 @@ class OrderController extends Controller{
                 ->withErrors($validator)
                 ->withInput();
         }
-
+//dd($request->all());
         //Calculamos ambos tipos de descuento a partir del import total:
         $budget_amount = $order->itemsBudgetOrderAmount(true);
 
@@ -1859,8 +1859,10 @@ class OrderController extends Controller{
         $order->save();
 
         //Actualizamos el descuento en cada línea del presupuesto:
-        Item::where('order_id', $order->id)
-        ->update(['discount' => $discount]);
+        Item::leftJoin('products', 'items.product_id', '=', 'products.id')
+        ->where('items.order_id', $order->id)
+        ->whereNull('products.calculated_by_percent')
+        ->update(['items.discount' => $discount]);
 
         $msg = trans('textos.descuento_aplicado_ok');
         if($request->return == 'budgets'){
