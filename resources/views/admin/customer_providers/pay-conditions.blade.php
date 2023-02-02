@@ -5,9 +5,13 @@
 <div class="row mb-3">
 	{{-- Acciones: --}}
 	<div class="col-sm-12">
-		<a href="{{ route('customers.index') }}" class="btn btn-info">
+		<a href="{{ route($environment.'.index') }}" class="btn btn-info">
 			<i class="fa fa-angle-left"></i>
-			{!! trans('textos.volver_clientes') !!}
+			@if($environment == 'customers')
+				{!! trans('textos.volver_clientes') !!}
+			@else
+				{!! trans('textos.volver_proveedores') !!}
+			@endif
 		</a>
 	</div>
 </div>
@@ -16,12 +20,13 @@
 	<div class="col-12">
 		<div class="card mb-3">
 			<div class="card-body">	
-				<h3 class="mb-4">{{ trans('textos.condiciones_pago_de') }} <u>{{ $customer->name }}</u></h3>	
+				<h3 class="mb-4">{{ trans('textos.condiciones_pago_de') }} <u>{{ $company->name }}</u></h3>	
 
 				<form method="post" autocomplete="off" action="{{ route('customers.update-conditions', $conditions->id) }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
 					@method('PUT')
 					{{ csrf_field() }}
-					<input type="hidden" name="customer_id" value="{{ $customer->id }}">
+					<input type="hidden" name="company_id" value="{{ $company->id }}">
+					<input type="hidden" name="environment" value="{{ $environment }}">
 
 					<div class="form-group row">
 						{{-- Días para vencimiento --}}
@@ -58,7 +63,7 @@
 		<div class="col-12">
 			<div class="card mb-3">
 				<div class="card-body">	
-					<h3>{{ trans('textos.facturas_area_negocio') }} <u>{{ $customer->name }}</u></h3>	
+					<h3>{{ trans('textos.facturas_area_negocio') }} <u>{{ $company->name }}</u></h3>	
 					<p class="text-warning">{{ trans('textos.facturas_area_negocio_aviso') }}</p>
 					<br>
 
