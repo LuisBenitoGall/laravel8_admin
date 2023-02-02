@@ -235,9 +235,9 @@ $readonly = $invoice->blocked && !$is_sale || ($order->customer_id == session('c
 					</label>
 
 					{{-- Incluir IVA: - condiciones: 
-						1. Exclusivo proveedores. 
+						1. Exclusivo ventas o para compras sin gestión de proveedor:
 					--}}
-					@if($order->provider_id == session('currentCompany'))
+					@if($order->provider_id == session('currentCompany') || !$provider_account)
 						<label class="mr-5">
 							{!! ucfirst(trans('textos.incluye_iva')) !!}:
 

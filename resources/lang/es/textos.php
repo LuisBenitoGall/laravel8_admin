@@ -1826,6 +1826,7 @@ return array(
 	'pendiente_facturar' => 'Pendiente de facturar',
 	'total_facturado' => 'Total facturado',
 	'factura_deleted' => 'La factura ha sido eliminada correctamente',
+	'iva_exento' => 'Exento IVA',
 	'iva_incluye' => 'Precio con IVA',
 	'iva_sin' => 'Sin IVA',
 	'iva_valido_aviso' => 'Debes introducir un valor válido del IVA',

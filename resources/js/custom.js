@@ -323,6 +323,7 @@ $(window).on('load', function () {
     29. Guardar preferencia.
     30. Selector cuenta de gastos por estructura.
     31. Desplegar bloque de permisos.
+    32. Producto exento de IVA.
     */
 
     // 1. Eliminar preview imagen seleccionada:
@@ -824,7 +825,8 @@ $(window).on('load', function () {
     });
 
     // 20. Mini-modal.
-    $(document).on('click', '.btnMiniModal', function () {
+    $(document).on('click', '.btnMiniModal', function (e) {
+        e.preventDefault();
         var elem = $(this);
         var next = elem.next('.mini-modal-content');
         //Cerrar:
@@ -1056,7 +1058,7 @@ $(window).on('load', function () {
                     $('#itemCalculatedByPercent_').val(response.calculated_by_percent);
                     $('#itemPrice_').val('');
 
-                    //Precio fijo:
+                //Precio fijo:
                 } else {
                     $('.price-by-percent_').fadeOut(400, function () {
                         $('.price-fixed_').fadeIn();
@@ -1067,6 +1069,10 @@ $(window).on('load', function () {
                     $('#itemDiscount_').val(response.discount);
                     $('#itemIva_').val(response.iva);
                     $('#itemCalculatedByPercent_').val('');
+
+                    if(response.iva == ''){
+                        $('#frmEditItem .withoutIva').prop('checked', true);
+                    }
                 }
             }
         });
@@ -1156,6 +1162,19 @@ $(window).on('load', function () {
                 $(this).find('.ibox-content').slideUp();
             });
         } 
+    });
+
+    // 32. Producto exento de IVA.
+    $('.withoutIva').on('change', function(){
+        if($(this).is(':checked')){
+            $('.iva0').val('');
+        }    
+    });
+    $('.iva0').on('change', function(){
+        if($(this).val() > 0){
+            $('.withoutIva').prop('checked', false);
+                
+        }
     });
 
 });
