@@ -50,8 +50,13 @@
 			@if($invoice->doc)
 				<label for="doc" class="col-md-3 col-lg-2 col-form-label">{!! ucfirst(trans('textos.documento_ver')) !!}</label>
 				<div class="col-md-2 col-lg-1 pt-2">
-					<a target="_blank" href="{{ asset('docs/invoices/'.$invoice->doc) }}">
+					<a target="_blank" href="{{ asset('docs/invoices/'.$invoice->doc) }}" rel="tooltip" title="{{ trans('textos.documento_ver') }}">
 						<i class="fa fa-file" style="font-size: 18px;"></i>
+					</a>
+
+					{{-- Eliminar documento --}}
+					<a href="{{ route('invoices.delete-doc', $invoice) }}" class="ml-3 btn-confirm" rel="tooltip" title="{{ trans('textos.documento_eliminar') }}" data-msg="{{ ucfirst(trans('textos.documento_eliminar_confirm')) }}">
+						<i class="fa fa-trash text-danger" style="font-size: 18px;"></i>
 					</a>
 				</div>
 			@else

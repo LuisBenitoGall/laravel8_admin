@@ -1379,9 +1379,13 @@ class OrderController extends Controller{
 
                     //Importe con iva en facturas:
                     if($environment == 'invoices'){
-                        $amount_with_iva = helpers::itemAmount($item, true);
+                        if($item->iva > 0){
+                            $amount_with_iva = helpers::itemAmount($item, true);
 
-                        return round($amount, 2).$currency->symbol.'<br><small>+iva '.$amount_with_iva['amount'].$currency->symbol.'</small>';
+                            return round($amount, 2).$currency->symbol.'<br><small>+iva '.$amount_with_iva['amount'].$currency->symbol.'</small>';
+                        }else{
+                            return $amount.$currency->symbol.'<br><small>'.trans('textos.iva_exento').'</small>';    
+                        }
                     }else{
                         return $amount.$currency->symbol;    
                     }

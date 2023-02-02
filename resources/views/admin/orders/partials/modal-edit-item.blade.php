@@ -12,7 +12,7 @@
                 <form method="post" autocomplete="off" action="{{ route('items.update') }}" id="frmEditItem" accept-charset="utf-8" enctype="multipart/form-data" role="form">
                     {{ csrf_field() }}
                     <input type="hidden" name="id" id="itemId_">
-                    @if($order->is_order)
+                    @if($order->is_order || $environment_ == 'invoices')
                     	<input type="hidden" name="order_id" value="{{ $order->id }}">
                     @endif
                     @if($order->is_budget)
@@ -57,9 +57,18 @@
 						{{-- IVA. Sólo en pedidos y facturas. En presupuestos no se tiene en cuenta este impuesto --}}
 						@if($environment_ == 'orders' || $environment_ == 'invoices')
 							<label for="iva" class="col-lg-2 col-form-label">IVA</label>
-							<div class="col-lg-4">
-								<x-input type="text" name="iva" class="text-right set-decimals" id="itemIva_" autocomplete="off" maxlength="5" group="right" groupvalue="%" readonly="{{ $readonly }}"/>
+							<div class="col-lg-2">
+								<x-input type="text" name="iva" class="text-right set-decimals iva0" id="itemIva_" autocomplete="off" maxlength="5" group="right" groupvalue="%" readonly="{{ $readonly }}"/>
 							</div>
+
+							{{-- Exento IVA --}}
+							<label for="without_iva" class="col-lg-1 col-form-label sinpadding">{{ trans('textos.iva_sin') }}</label>
+							<div class="col-lg-1">
+								<label class="custom-chk-rdb" rel="tooltip">
+				                    <input type="checkbox" name="without_iva" class="withoutIva">
+				                    <span class="chk" style="top: 5px;"></span>
+				                </label>
+				            </div>
 						@endif
 
 						{{-- Los inputs de precio por porcentaje se muestran en el siguiente bloque, por una cuestión de coherencia en la maquetación. --}}
