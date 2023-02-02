@@ -58,6 +58,7 @@ class CustomerProvidersController extends Controller{
      * 14. Editar configuración de cliente.
      * 15. Actualizar configuración de cliente.
      * 16. Condiciones de pago de cliente.
+     * 16.1. Condiciones de pago de proveedor.
      * 17. Actualizar condiciones de pago de cliente.
      * 18. Obtener formulario de presupuesto por defecto de cliente.
      * 19. Usuarios por empresa para DataTable.
@@ -594,8 +595,6 @@ class CustomerProvidersController extends Controller{
                             ->first();
                         }
 
-
-
                         //Método de pago:
                         $payment_method = $r->payment_method? array_search($r->payment_method, $paymentMethods):NULL;
 
@@ -606,15 +605,13 @@ class CustomerProvidersController extends Controller{
                         $cu_pr->accounting_concept_id = $concept? $concept->id:NULL;
                         $cu_pr->payment_method = $payment_method;
 
-                        if($environment == 'customers'){
+                        //if($environment == 'customers'){
                             $cu_pr->pay_after_days = $r->pay_after_days;
                             $cu_pr->payday = $r->payday;
                             $cu_pr->billing_comunication = $r->billing_comunication;
-                        }
+                        //}
                         $cu_pr->save();
                     }
-
-
 
                     //Cuenta bancaria:
                     if($r->iban){
@@ -916,7 +913,7 @@ class CustomerProvidersController extends Controller{
     /**
      * 16. Condiciones de pago de cliente.
      */
-    public function payConditions(Company $customer){
+    public function payConditions(Company $company){
         $header = [
             'option' => 'clientes', 
             'suboption' => 'textos.condiciones_pago',
@@ -924,14 +921,39 @@ class CustomerProvidersController extends Controller{
             'slug' => 'customers'
         ];
 
-        $conditions = CustomerProviders::where('customer_id', $customer->id)
+        $environment = 'customers';
+
+        $conditions = CustomerProviders::where('customer_id', $company->id)
         ->where('provider_id', session('currentCompany'))
         ->first();
 
         //Areas de negocio:
-        $areas = BusinessAreas::where('company_id', $customer->id)->get();
+        $areas = BusinessAreas::where('company_id', $company->id)->get();
 
-        return view('admin.customer_providers.pay-conditions')->with(compact('header', 'customer', 'conditions', 'areas')); 
+        return view('admin.customer_providers.pay-conditions')->with(compact('header', 'company', 'environment', 'conditions', 'areas')); 
+    }
+
+    /**
+     * 16.1. Condiciones de pago de proveedor.
+     */
+    public function payConditionsProvider(Company $company){
+        $header = [
+            'option' => 'proveedores', 
+            'suboption' => 'textos.condiciones_pago',
+            'module' => $this->module,
+            'slug' => 'providers'
+        ];
+
+        $environment = 'providers';
+
+        $conditions = CustomerProviders::where('provider_id', $company->id)
+        ->where('customer_id', session('currentCompany'))
+        ->first();
+
+        //Areas de negocio:
+        $areas = BusinessAreas::where('company_id', $company->id)->get();
+
+        return view('admin.customer_providers.pay-conditions')->with(compact('header', 'company', 'environment', 'conditions', 'areas')); 
     }
 
     /**
@@ -939,8 +961,10 @@ class CustomerProvidersController extends Controller{
      */
     public function updateConditions(Request $request, CustomerProviders $cp){
         $validator = $this->validator($request->all());
-        if($validator->fails()){
-            return redirect('/admin/customers/'.$request->customer_id.'/pay-conditions')
+        if($validator->fails()){    
+            $segment = $request->environment == 'customers'? 'pay-conditions':' pay-conditions-provider';      
+
+            return redirect('/admin/'.$request->environment.'/'.$request->company_id.'/'.$segment)
                 ->withErrors($validator)
                 ->withInput();
         }
@@ -950,8 +974,10 @@ class CustomerProvidersController extends Controller{
         $cp->billing_comunication = $request->billing_comunication;
         $cp->save();
 
+        $ruta = $request->environment == 'customers'? 'customers.pay-conditions':'providers.pay-conditions-provider';
+
         $msg = trans('textos.cliente_updated');
-        return redirect()->route('customers.pay-conditions', $request->customer_id)->with(compact('msg'));
+        return redirect()->route($ruta, $request->company_id)->with(compact('msg'));
     }
 
     /**

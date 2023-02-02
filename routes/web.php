@@ -359,7 +359,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::get('customers/import', 'CustomerProvidersController@importForm')->name('customers.import')->middleware('permission:customers.edit');
     Route::post('customers/export', 'CustomerProvidersController@exportCustomers')->name('customers.export')->middleware('permission:customers.edit');
     Route::get('customers/{company}/customer-config', 'CustomerProvidersController@editCustomerConfig')->name('customers.customer-config');
-    Route::get('customers/{customer}/pay-conditions', 'CustomerProvidersController@payConditions')->name('customers.pay-conditions')->middleware('permission:customers.edit');
+    Route::get('customers/{company}/pay-conditions', 'CustomerProvidersController@payConditions')->name('customers.pay-conditions')->middleware('permission:customers.edit');
     Route::put('customers/{cp}/update-conditions', 'CustomerProvidersController@updateConditions')->name('customers.update-conditions')->middleware('permission:customers.edit');
     Route::get('customers/own-budget-form/{customer_id}/{provider_id?}', 'CustomerProvidersController@ownBudgetForm')->name('customers.own-budget-form');
 
@@ -810,6 +810,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::get('providers/{cp}/show', 'CustomerProvidersController@show')->name('providers.show');
     Route::get('providers/import', 'CustomerProvidersController@importForm')->name('providers.import')->middleware('permission:providers.edit');
     Route::post('providers/export', 'CustomerProvidersController@exportProviders')->name('providers.export')->middleware('permission:providers.edit');
+    Route::get('providers/{company}/pay-conditions-provider', 'CustomerProvidersController@payConditionsProvider')->name('providers.pay-conditions-provider')->middleware('permission:providers.edit');
 
     // Provinces:
     Route::get('provinces/{country}', 'ProvinceController@index')->name('provinces.index');

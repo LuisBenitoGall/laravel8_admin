@@ -1611,6 +1611,7 @@ return array(
 	'grupo_miembros_agregar_texto' => 'Se agregarán al proyecto todos los miembros del grupo seleccionado.',
 	'condicion_updated' => 'La condición se ha actualizado correctamente',
 	'condiciones_pago' => 'Condiciones de pago',
+	'condiciones_pago_a' => 'Condiciones de pago a',
 	'condiciones_pago_de' => 'Condiciones de pago de',
 	'dias_vencimiento' => 'Días para vencimiento',
 	'dias_vencimiento_aviso' => 'Indica el número de días para el pago de la factura',
