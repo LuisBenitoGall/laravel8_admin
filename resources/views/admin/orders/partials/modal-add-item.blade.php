@@ -129,9 +129,18 @@
 						{{-- IVA. Sólo en pedidos. En presupuestos no se tiene en cuenta este impuesto --}}
 						@if($environment_ == 'orders' || $environment_ == 'invoices')
 							<label for="iva" class="col-lg-2 col-form-label">IVA</label>
-							<div class="col-lg-4">
-								<x-input type="text" name="iva" class="text-right set-decimals" id="productIva" autocomplete="off" maxlength="5" group="right" groupvalue="%" readonly="{{ $readonly }}" value="{{ config('constants.IVA_DEFAULT_') }}"/>
+							<div class="col-lg-2">
+								<x-input type="text" name="iva" class="text-right set-decimals iva0" id="productIva" autocomplete="off" maxlength="5" group="right" groupvalue="%" readonly="{{ $readonly }}" value="{{ config('constants.IVA_DEFAULT_') }}"/>
 							</div>
+
+							{{-- Exento IVA --}}
+							<label for="without_iva" class="col-lg-1 col-form-label sinpadding">{{ trans('textos.iva_sin') }}</label>
+							<div class="col-lg-1">
+								<label class="custom-chk-rdb" rel="tooltip">
+				                    <input type="checkbox" name="without_iva" class="withoutIva">
+				                    <span class="chk" style="top: 5px;"></span>
+				                </label>
+				            </div>
 						@endif
 
 						{{-- Los inputs de precio por porcentaje se muestran en el siguiente bloque, por una cuestión de coherencia en la maquetación. --}}

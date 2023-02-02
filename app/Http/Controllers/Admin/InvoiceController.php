@@ -70,6 +70,7 @@ class InvoiceController extends Controller{
      * 15. Opciones contables.
      * 16. Control de facturación.
      * 16.1. Control de facturación para DataTable.
+     * 17. Eliminar documento.
      */
     
     private $option = 'contabilidad';
@@ -309,7 +310,7 @@ class InvoiceController extends Controller{
         $environment = $provider == session('currentCompany') || $customer == 'all'? 'sales':'purchases';
 
         //Campo de búsqueda de la empresa: proveedor o cliente.
-        $company_field = $provider == session('currentCompany') || $customer == 'all'? 'provider':'customer';
+        $company_field = $provider == session('currentCompany') || $customer == 'all'? 'customer':'provider';
 
         $data = Invoice::select('invoices.*', 'orders.id AS orderId', 'orders.order_num', 'orders.order_old_num', 'companies.name', 'companies.tradename', 'cost_centers.name AS costCenter', 'users.name AS Nombre', 'users.surname')
         ->leftJoin('orders', 'invoices.order_id', '=', 'orders.id')
@@ -1290,7 +1291,9 @@ class InvoiceController extends Controller{
             $invoice->accounting_concept_id = $request->accounting_concept;
             $invoice->irpf = $request->irpf;
             $invoice->check_in_date = $check_in_date;
-            $invoice->doc = $doc;
+            if($doc){
+                $invoice->doc = $doc;
+            }
         }
 
         //Recalculando descuento por IRPF:
@@ -1952,6 +1955,19 @@ class InvoiceController extends Controller{
         })
         ->rawColumns(['order_num'])
         ->make(true);
+    }
+
+    /**
+     * 17. Eliminar documento.
+     */
+    public function removeDoc(Invoice $invoice){
+        File::delete(public_path().'/docs/invoices/'.$invoice->doc);
+
+        $invoice->doc = NULL;
+        $invoice->save();
+
+        $msg = trans('textos.archivo_deleted');
+        return redirect()->route('invoices.edit-purchase', $invoice)->with(compact('msg'));
     }
     
 }

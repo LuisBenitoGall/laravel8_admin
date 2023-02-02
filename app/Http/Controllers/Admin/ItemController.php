@@ -254,7 +254,7 @@ class ItemController extends Controller{
         }
 
         //IVA:
-        $iva = $request->iva? $request->iva:CompanySettings::co_iva();
+        $iva = $request->iva? $request->iva:($request->without_iva? '0':CompanySettings::co_iva());
 
         //Recargo de equivalencia:
         $equivalence_surcharge = NULL;
@@ -356,7 +356,7 @@ class ItemController extends Controller{
         }
 
         //IVA:
-        $iva = $request->iva? $request->iva:$item->iva;
+        $iva = $request->iva? $request->iva:($request->without_iva? '0':$item->iva);
 
         //Recargo de equivalencia:
         $equivalence_surcharge = NULL;
