@@ -117,6 +117,7 @@ class BankController extends Controller{
         $row->name = $request->name;
         $row->slug = $slug;
         $row->tradename = $request->tradename;
+        $row->swift = $request->swift;
         $row->lei = $request->lei;
         $row->eu_code = $request->eu_code;
         $row->supervisor_code = $request->supervisor_code;
@@ -161,6 +162,7 @@ class BankController extends Controller{
         $bank->name = $request->name;
         $bank->slug = $slug;
         $bank->tradename = $request->tradename;
+        $bank->swift = $request->swift;
         $bank->lei = $request->lei;
         $bank->eu_code = $request->eu_code;
         $bank->supervisor_code = $request->supervisor_code;

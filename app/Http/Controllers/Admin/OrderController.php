@@ -901,12 +901,14 @@ class OrderController extends Controller{
         if($invoices->count()) $permitted = false;
 
         //Previsiones de facturación del pedido:      
-        $previsions = OrderPrevisions::select('order_previsions.*', 'invoices.id AS invoiceId', 'invoices.invoice_num')
-        ->leftJoin('invoices', 'order_previsions.invoice_id', '=', 'invoices.id')
-        ->where('order_previsions.order_id', $order->id)
-        ->orderBy('order_previsions.year', 'ASC')
-        ->orderBy('order_previsions.month', 'ASC')
-        ->get();
+        $previsions = OrderPrevisions::previsions($order->id);
+
+        //Debe existir siempre al menos una previsión:
+        if(!$previsions->count()){
+            OrderPrevisions::store($order->id);
+
+            $previsions = OrderPrevisions::previsions($order->id);
+        }
 
         //Productos. Activos y aptos para venta:
         $products = Product::companyProducts($order->provider_id, $order->customer_id, true, true);

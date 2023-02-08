@@ -1168,6 +1168,7 @@ return array(
 	'configuracion_updated' => 'La configuración ha sido actualizada correctamente',
 	'moneda_activa' => 'Moneda activa',
 	'cuenta' => 'cuenta',
+	'cuenta_bancaria' => 'cuenta bancaria',
 	'cuenta_mi' => 'Mi cuenta',
 	'cuentas' => 'cuentas',
 	'cuenta_nueva' => 'nueva cuenta',
@@ -2706,6 +2707,7 @@ return array(
 	'cobro_updated' => 'El cobro se ha actualizado correctamente',
 	'cobros' => 'cobros',
 	'modo' => 'modo',
+	'bancarios_datos' => 'Datos bancarios',
 	'banco' => 'banco',
 	'banco_confirm_eliminar' => 'Confirma que deseas eliminar este banco.',
 	'banco_creado' => 'El banco se ha creado correctamente',
@@ -2848,5 +2850,6 @@ return array(
 	'menor_igual' => 'Menor o igual que',
 	'tarjeta' => 'Tarjeta',
 	'domiciliado' => 'Domiciliado',
+	'entidad' => 'entidad',
 
 );
