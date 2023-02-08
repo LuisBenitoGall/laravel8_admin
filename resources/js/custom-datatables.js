@@ -226,6 +226,7 @@ $(document).ready(function(){
             columns: [
                 {data: 'name'},
                 {data: 'tradename'},
+                {data: 'swift'},
                 {data: 'eu_code'},
                 {data: 'lei'},
                 {data: 'acciones', className: 'text-right'}

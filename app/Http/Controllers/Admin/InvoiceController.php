@@ -465,8 +465,6 @@ class InvoiceController extends Controller{
         //Importe total del pedido:
         $order_amount = $order->getAmount(true, true);
 
-        //dd($order_amount);
-
         //Comprobamos si existen otras facturas anteriores del mismo pedido:
         $other_invoices = Invoice::select('id', 'amount', 'with_iva', 'amount_with_iva')
         ->where('order_id', $order->id)
@@ -504,6 +502,9 @@ class InvoiceController extends Controller{
 
             //Calculamos importe con IVA a partir del importe restante.
             $amount_with_iva = ($total_amount * $order_amount['invoice_amount']) / $order_amount['total_amount'];
+
+            //Factura íntrega deja 0% por facturar:
+            $outstanding_percent = 0;
 
         //Facturas parciales:
         }else{
@@ -571,6 +572,14 @@ class InvoiceController extends Controller{
         //     $iva_amount = helpers::percent($total_amount, $this->co_iva);
         //     $amount_with_iva = $total_amount + $iva_amount;
         // }
+        
+        //Cuenta bancaria:
+        $bank_account_ = BankAccounts::select('id')
+        ->where('company_id', $order->provider_id)
+        ->where('featured', 1)
+        ->where('status', 1)
+        ->first();
+        $bank_account = $bank_account_? $bank_account_->id:NULL;
 
         //Creamos cabecera de la factura, para poder utilizar su id:
         $invoice = new Invoice();
@@ -580,6 +589,7 @@ class InvoiceController extends Controller{
         $invoice->with_iva = CompanySettings::co_iva();
         $invoice->amount_with_iva = $amount_with_iva;
         $invoice->fiscal_date = date('Y-m-d');
+        $invoice->bank_account_id = $bank_account;
         $invoice->status = config('constants.INVOICE_OPEN_');
         $invoice->save();
 
@@ -617,8 +627,9 @@ class InvoiceController extends Controller{
             $new_prev->save();    
         }
 
-        //Recalculando porcentaje de las previsiones de facturación:
-        OrderPrevisions::recalculatePrevisionsPercent($order);
+        //Recalculando porcentaje de las previsiones de facturación. Se considera que con un porcentaje por facturar por debajo del 0.1%, ya no queda nada por facturar.
+        $all_invoiced = $outstanding_percent < 0.1? true:false;
+        OrderPrevisions::recalculatePrevisionsPercent($order, $all_invoiced);
 
         $msg = trans('textos.factura_creada');
         return redirect()->route('invoices.edit', [$invoice->id, false])->with(compact('msg'));
@@ -661,7 +672,6 @@ class InvoiceController extends Controller{
         $group_amount = $order->getGroupAmount();
 
 
-        //dd($request->all(), $orders_amount, $invoices_amount, $group_amount);
 
 
 
@@ -1074,7 +1084,7 @@ class InvoiceController extends Controller{
         ->first();
 
         //Configuraciones de proveedor:
-        $provider_settings = CustomerProviders::select('accounting_concept_id')
+        $provider_settings = CustomerProviders::select('accounting_concept_id', 'pay_after_days', 'payday', 'payment_method')
         ->where('customer_id', $customer->id)
         ->where('provider_id', $provider->id)
         ->first();
@@ -1276,6 +1286,7 @@ class InvoiceController extends Controller{
                 $invoice->fiscal_date = $fiscal_date;
                 $invoice->expiration_date = $expiration_date;
                 $invoice->status = $request->status? $request->status:'0';
+                $invoice->bank_account_id = $request->bank_account_id;
             }
             $invoice->provider_observations = $request->observations;
 
@@ -1383,20 +1394,31 @@ class InvoiceController extends Controller{
 
         //Responsable cliente:
         $customer_manager = false;
-        if($invoice_order->customer_team){
-            $responsibles = unserialize($invoice_order->customer_team);
+        // if($invoice_order->customer_team){
+        //     $responsibles = unserialize($invoice_order->customer_team);
             
-            foreach($responsibles as $rsp){
-                if(substr($rsp, -1) == '|'){
-                    $x = trim($rsp, '|');
-                    $customer_manager = User::select('name', 'surname')->find($x);  
-                    break;
-                }
-            }
+        //     foreach($responsibles as $rsp){
+        //         if(substr($rsp, -1) == '|'){
+        //             $x = trim($rsp, '|');
+        //             $customer_manager = User::select('name', 'surname')->find($x);  
+        //             break;
+        //         }
+        //     }
+        // }
+        if($invoice_order->customer_manager_id){
+            $customer_manager = User::select('name', 'surname')->find($invoice_order->customer_manager_id);   
         }
 
         //Moneda:
         $currency = CompanySettings::co_currency(0);
+
+        //Datos bancarios:
+        $bank_account = false;
+        if($invoice->bank_account_id){
+            $bank_account = BankAccounts::select('banks.tradename', 'banks.swift', 'bank_accounts.account')
+            ->join('banks', 'bank_accounts.bank_id', '=', 'banks.id')
+            ->find($invoice->bank_account_id);
+        }
 
         //Actualizamos número de impresiones:
         $invoice->printed = $invoice->printed + 1;
@@ -1408,7 +1430,7 @@ class InvoiceController extends Controller{
         //Template de factura. Se pasa por variable por si se incluyen más templates.
         $invoice_template = 'pdf/invoice';
 
-        $pdf = PDF::loadView($invoice_template, compact('invoice', 'bn', 'invoice_order', 'items', 'advance_invoices', 'provider', 'customer', 'template', 'fechaLiteral', 'company_settings', 'provider_workplace', 'provider_phones', 'customer_workplace', 'customer_manager', 'currency'));
+        $pdf = PDF::loadView($invoice_template, compact('invoice', 'bn', 'invoice_order', 'items', 'advance_invoices', 'provider', 'customer', 'template', 'fechaLiteral', 'company_settings', 'provider_workplace', 'provider_phones', 'customer_workplace', 'customer_manager', 'currency', 'bank_account'));
         return $pdf->download($invoice_name_pdf.'.pdf'); 
     }
 
@@ -1737,9 +1759,8 @@ class InvoiceController extends Controller{
         $refunds = Invoice::where('refund', $invoice->id)
         ->sum('amount');
         $pending_amount = $invoice->amount - $refunds;
-
-        //dd($request->all(), $request->refund_amount, $pending_amount);
         
+        //Abono parcial:
         if($request->refund == 'p' && $request->refund_amount > $pending_amount){
             $alert = trans('textos.factura_importe_superior_warning');
             return redirect()->route('invoices.edit', $invoice)->with(compact('alert')); 
@@ -1826,7 +1847,7 @@ class InvoiceController extends Controller{
 
         }elseif($request->refund == 't'){
             OrderPrevisions::where('invoice_id', $invoice->id)
-            ->update(['percent' => NULL, 'invoice_id' => NULL]);
+            ->update(['month' => NULL, 'percent' => 100, 'invoice_id' => NULL]);
         }
 
         $msg = trans('textos.factura_abono_creada');

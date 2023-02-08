@@ -19,6 +19,7 @@
 				<tr>
 					<th>{!! ucfirst(trans('textos.banco')) !!}</th>
 					<th>{!! ucfirst(trans('textos.nombre_comercial')) !!}</th>
+					<th>SWIFT / BIC</th>
 					<th>{!! ucfirst(trans('textos.codigo_europeo')) !!}</th>
 					<th>LEI</th>
 					<th class="text-center">{!! ucfirst(trans('textos.acciones')) !!}</th>

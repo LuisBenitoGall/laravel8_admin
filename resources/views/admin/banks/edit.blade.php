@@ -60,15 +60,21 @@
                     </div>
 
                     <div class="form-group row">
+                    	{{-- SWIFT / BIC --}}
+                    	<label for="swift" class="col-md-2 col-form-label">SWIFT / BIC</label>
+						<div class="col-md-2">
+							<x-input type="text" name="swift" value="{{ $bank->swift }}"/>
+						</div>
+
                         {{-- Código europeo --}}
                         <label for="eu_code" class="col-md-2 col-form-label">{!! ucfirst(trans('textos.codigo_europeo')) !!}</label>
-						<div class="col-md-4">
+						<div class="col-md-2">
 							<x-input type="text" name="eu_code" value="{{ $bank->eu_code }}"/>
 						</div>
 
 						{{-- Código supervisor --}}
                         <label for="supervisor_code" class="col-md-2 col-form-label">{!! ucfirst(trans('textos.codigo_supervisor')) !!}</label>
-						<div class="col-md-4">
+						<div class="col-md-2">
 							<x-input type="text" name="supervisor_code" value="{{ $bank->supervisor_code }}"/>
 						</div>
 					</div>
