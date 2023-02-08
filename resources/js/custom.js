@@ -278,6 +278,10 @@ $(document).ready(function () {
         e.preventDefault();
         $(".navbar-top-links").toggleClass('d-none');
     });
+
+    $('.pop-over').on('click', function(e){
+        e.preventDefault();
+    });
 });
 
 // ************************************ WINDOW LOAD: ************************************

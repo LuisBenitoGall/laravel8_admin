@@ -11,6 +11,7 @@ class OrderPrevisions extends Model{
     /**
      * 1. Guardar previsión de facturación.
      * 2. Recalcular porcentajes de previsiones de facturación.
+     * 3. Previsiones de facturación por pedido.
      */
 
     use HasFactory;
@@ -44,9 +45,11 @@ class OrderPrevisions extends Model{
 
     /**
      * 2. Recalcular porcentajes de previsiones de facturación.
+     *
+     * $all_invoiced: indica si el pedido se ha facturado por completo.
      */
-    public static function recalculatePrevisionsPercent($order){
-        $previsions = OrderPrevisions::select('order_previsions.id', 'order_previsions.month', 'order_previsions.percent', 'invoices.amount')
+    public static function recalculatePrevisionsPercent($order, $all_invoiced = false){
+        $previsions = OrderPrevisions::select('order_previsions.id', 'order_previsions.month', 'order_previsions.percent', 'invoices.amount', 'order_previsions.invoice_id')
         ->leftJoin('invoices', 'order_previsions.invoice_id', '=', 'invoices.id')
         ->where('order_previsions.order_id', $order->id)
         ->get();
@@ -77,9 +80,24 @@ class OrderPrevisions extends Model{
                 $prev->percent = round($percent, 2);
                 $prev->save();
             }
+
+            //En caso de facturación total, se eliminan las previsiones no cumplidas y sin facturar:
+            if(!$prev->invoice_id && $all_invoiced){
+                $prev->delete();
+            }
         }
     }
 
-
+    /**
+     * 3. Previsiones de facturación por pedido.
+     */
+    public static function previsions($order_id){
+        return OrderPrevisions::select('order_previsions.*', 'invoices.id AS invoiceId', 'invoices.invoice_num')
+        ->leftJoin('invoices', 'order_previsions.invoice_id', '=', 'invoices.id')
+        ->where('order_previsions.order_id', $order_id)
+        ->orderBy('order_previsions.year', 'ASC')
+        ->orderBy('order_previsions.month', 'ASC')
+        ->get();    
+    }
 
 }

@@ -119,9 +119,9 @@
 			</div>
 		@endif
 	</div>
-
-	{{-- Conceptos contables. Sólo para compras --}}
+	
 	@if(!$is_sale)
+		{{-- Conceptos contables. Sólo para compras --}}
 		<div class="form-group row">
 			{{-- IRPF --}}
 			<label for="irpf" class="col-lg-2 col-form-label">IRPF</label>
@@ -149,6 +149,35 @@
 			<div class="col-md-2">
 				<x-select name="accounting_concept" class="select2" id="accountingConcept" label="" :options="$structure_concepts" value="{{ $ac_id }}" disabled="{{ $disabled }}"/>
 			</div>
+		</div>
+
+		{{-- Condiciones de pago --}}
+		<div class="form-group row">
+			{{-- Días para vencimiento --}}
+			<label for="pay_after_days" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.dias_vencimiento')) !!}</label>
+			<div class="col-lg-1">
+				<x-input type="text" name="pay_after_days" class="text-right" autocomplete="off" maxlength="3" required info="pay-conditions-days" value="{{ $provider_settings->pay_after_days }}" readonly/>
+			</div>
+
+			{{-- Fecha de pago --}}
+			<label for="payday" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.dia_mes')) !!}</label>
+			<div class="col-lg-1">
+				<x-input type="text" name="payday" class="text-right max-value" datas="maxvalue:31" autocomplete="off" maxlength="3" required info="pay-conditions-pay-day" value="{{ $provider_settings->payday }}" readonly/>
+			</div>	
+
+		</div>
+	@endif
+
+	@if($is_sale)
+		<div class="form-group row">
+			{{-- Cuenta bancaria --}}
+			@php
+            $bankAccount = $invoice->bank_account_id? $invoice->bank_account_id:$bank_featured;
+            @endphp
+			<label for="bank_account_id" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.cuenta_bancaria')) !!}</label>
+            <div class="col-lg-4">
+                <x-select name="bank_account_id" class="select2" label="banco_selec" :options="$bank_accounts" value="{{ $bankAccount }}"/>
+            </div>
 		</div>
 	@endif
 

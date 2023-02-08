@@ -65,6 +65,29 @@
 			@endif
 		@endif
 
+		@if($bank_account)
+			<table class="footer-textos">
+				<tbody>	
+					<tr>
+						<td style="font-weight: bold; text-transform: uppercase;">{{ trans('textos.bancarios_datos') }}:</td>
+					</tr>
+					<tr>
+						<td>{{ ucfirst(trans('textos.entidad')) }}: {{ $bank_account->tradename }}</td>	
+					</tr>
+					<tr>
+						@php
+						//Formato IBAN:
+						$ba_ = App\Helpers\helpers::customString($bank_account->account, 4, ' ');
+						@endphp
+						<td>IBAN: {{ $ba_ }}</td>	
+					</tr>
+					<tr>
+						<td>BIC/SWIFT: {{ $bank_account->swift }}</td>	
+					</tr>
+				</tbody>
+			</table>
+		@endif
+
 		<table class="tblFoot" style="background-color: {{ $bg_color }}">
 			<tbody>
 				<tr>

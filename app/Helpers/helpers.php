@@ -61,6 +61,7 @@ class Helpers{
 	 *  4.3. Customizar CIF.
 	 *  4.3.1. Setear NIF.
 	 *  4.4. Formato numérico para decimales.
+	 *  4.5. Customizar strings.
 	 *
 	 * 5. Archivos:
 	 *  5.1. Allowed Image Mime Types.
@@ -1145,6 +1146,14 @@ class Helpers{
 			$num = str_replace(',','.',$num);
 		}
 		return $num;
+	}
+
+	/**
+	 * 4.5. Customizar strings.
+	 */
+	public static function customString($string, $num, $character){
+		$arr = str_split($string, $num);
+		return implode($character, $arr);
 	}
 
 	/**

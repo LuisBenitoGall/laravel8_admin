@@ -72,7 +72,6 @@ class Timetable extends Model{
         //Quitamos duplicados:
         $arrEmployeeWorkingDays = array_unique($arrEmployeeWorkingDays);
 
-
         //Obtenemos fecha de inicio del contrato más antiguo del empleado, pues la fecha $from no puede ser anterior al inicio de la actividad del empleado en la empresa:
         // $employee = Employee::select('start_date')
         // ->where('user_id', $user_id)
@@ -92,6 +91,9 @@ class Timetable extends Model{
         //Array del intervalo de fechas:
         $arrFromTo = Timetable::setRankDatesArr($from, $to);
 
+        //Calendario del usuario:
+        $user_calendar = WorkUserCalendar::getUserCalendar($user_id, $from, $to);
+
         //Horarios del usuario por intervalo de fechas. Incluimos si puede acceder a los conceptos bajo autorización:
         $timetables = Timetable::getUserTimetable($user_id, $from, $to, $see_authorized);
 
@@ -103,8 +105,11 @@ class Timetable extends Model{
         //Quitamos valores duplicados:
         $arrWorkedDays = array_unique($arrWorkedDays);
 
-        //Calendario del usuario:
-        $user_calendar = WorkUserCalendar::getUserCalendar($user_id, $from, $to);
+
+
+
+        
+        //dd($user_calendar, $arrEmployeeWorkingDays, $arrWorkedDays);
         //Guardamos en array las fechas del calendario del usuario:
         $arrUserCalendar = [];
         //Guardamos en array las horas de trabajo propias en días concretos:
@@ -166,6 +171,8 @@ class Timetable extends Model{
             ->whereDate('from', '<=', $to)
             ->whereDate('to', '>=', $from)
             ->get(); 
+
+            //dd($arrFromTo, $arrWorkCalendar, $custom_timetables);
 
             //Permisos:
             $edit_timetable = Auth::user()->can('employees-timetable.edit');
@@ -230,12 +237,16 @@ class Timetable extends Model{
                 if(in_array($date, $arrEmployeeWorkingDays)){
                     //Recorremos las fechas trabajadas por el usuario buscando coincidencia con la fecha del array:
                     foreach ($timetables as $row) {
-                        if ($row->date == $date) {
-                            //Enviamos las fechas ya formateadas:
-                            $arr['fecha'] = $row->date ? Carbon::parse($row->date)->format($languages[session()->get('locale')][4]) : '';
-                            $arr['date_order'] = $row->date;
+                        //Enviamos las fechas ya formateadas:
+                        $arr['fecha'] = $row->date ? Carbon::parse($row->date)->format($languages[session()->get('locale')][4]) : '';
+                        $arr['date_order'] = $row->date;
+                        $arr['id'] = $row->id;
 
-                            $arr['id'] = $row->id;
+                        //Fecha con registros:
+                        if ($row->date == $date) {
+
+                            //dd('entra', $date, $arrEmployeeWorkingDays);
+
                             $arr['hour'] = $row->hour;
                             $arr['name'] = $row->name;
                             $arr['comments'] = $row->comments;
@@ -317,6 +328,11 @@ class Timetable extends Model{
                             }
                             array_push($data, $arr);
                             $k++;
+
+                        //Fecha sin registros:
+                        }else{
+                                                                          
+
                         }
                     }
 
@@ -376,6 +392,63 @@ class Timetable extends Model{
                 }
             }
         }
+
+        return $data;
+    }
+
+    public static function listUserTimetables__($from, $to, $user_id, $workplace_id, $see_authorized){
+        //Todos los contratos desde la fecha de inicio, obteniendo los contratos cuya fecha de finalización sea posterior a la fecha de inicio del intervalo.
+        $employees = Employee::select('start_date', 'end_date')
+        ->where('user_id', $user_id)
+        ->where('end_date', '>=', $from)
+        ->orderBy('start_date', 'ASC')
+        ->get();
+
+        //Calendario del usuario:
+        $user_calendar = WorkUserCalendar::getUserCalendar($user_id, $from, $to);
+
+        //Array de fechas trabajadas en los contratos comprendidas entre el intervalo recibido:
+        $arrEmployeeWorkingDays = [];
+        foreach($employees as $e){
+            $inicio = $e->start_date < $from? $from:$e->start_date;
+            $fin = $e->end_date > $to? $to:$e->end_date;
+            $arr = Timetable::setRankDatesArr($inicio, $fin);
+
+            //Merge con el array $arrEmployeeWorkingDays:
+            $arrEmployeeWorkingDays = array_merge($arrEmployeeWorkingDays, $arr);
+        }
+
+
+
+
+        dd($arrEmployeeWorkingDays, $user_calendar);
+
+
+
+
+
+
+
+
+
+
+        //Los datos se entregan en un array:
+        $data = [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         return $data;
     }
