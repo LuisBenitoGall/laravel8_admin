@@ -847,7 +847,7 @@ class InvoiceController extends Controller{
         //Descontando IRPF:
         if($request->irpf > 0){
             $desc_irpf = ($request->irpf * $order_amount) / 100;
-            $order_amount = $order_amount - $desc_irpf;
+            $invoice_amount = $invoice_amount - $desc_irpf;
         }
 
         //Subir documento.
@@ -1226,16 +1226,17 @@ class InvoiceController extends Controller{
             //Importe total del pedido:
             $order_amount = $order->getAmount(true, true);
             $base_amount = $order_amount['total_amount'];
+            $invoice_amount = $order_amount['invoice_amount'];
             //$arr_amount = InvoiceItems::setInvoiceAmount($invoice);
             
             //Descontando IRPF:
             if($invoice->irpf > 0){
                 $desc_irpf = ($invoice->irpf * $base_amount) / 100;
-                $base_amount = $base_amount - $desc_irpf;
+                $invoice_amount = $invoice_amount - $desc_irpf;
             }
 
             $invoice->amount = $base_amount;
-            $invoice->amount_with_iva = $order_amount['invoice_amount'];
+            $invoice->amount_with_iva = $invoice_amount;
             $invoice->save();
         }    
     }
@@ -1310,12 +1311,13 @@ class InvoiceController extends Controller{
         //Recalculando descuento por IRPF:
         if($order){
             $order_amount = $order->getAmount();
+            $invoice->amount = $order_amount['total_amount'];
 
             if($invoice->irpf > 0){
                 $desc_irpf = ($invoice->irpf * $order_amount['total_amount']) / 100;
-                $invoice->amount = $order_amount['total_amount'] - $desc_irpf;
+                $invoice->amount_with_iva = $order_amount['invoice_amount'] - $desc_irpf;
             }else{
-                $invoice->amount = $order_amount['total_amount'];
+                $invoice->amount_with_iva = $order_amount['invoice_amount'];
             }
         }
 

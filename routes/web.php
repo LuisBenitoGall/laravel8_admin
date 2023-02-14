@@ -96,13 +96,13 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
     Route::delete('attributes/{attribute}', 'AttributeController@destroy')->name('attributes.destroy');
 
     // Bank Accounts:
-    Route::get('bank-accounts', 'BankAccountsController@index')->name('bank-accounts.index')->middleware('permission:companies.edit');
-    Route::get('bank-accounts/create', 'BankAccountsController@create')->name('bank-accounts.create')->middleware('permission:companies.edit');
-    Route::post('bank-accounts/store', 'BankAccountsController@store')->name('bank-accounts.store')->middleware('permission:companies.edit');
-    Route::get('bank-accounts/{account}/edit', 'BankAccountsController@edit')->name('bank-accounts.edit')->middleware('permission:companies.edit');
-    Route::put('bank-accounts/{account}/update', 'BankAccountsController@update')->name('bank-accounts.update')->middleware('permission:companies.edit');
-    Route::get('bank-accounts/status/{id}/{status}', 'BankAccountsController@status')->name('bank-accounts.status')->middleware('permission:companies.edit');
-    Route::delete('bank-accounts/{account}', 'BankAccountsController@destroy')->name('bank-accounts.destroy')->middleware('permission:companies.edit');
+    Route::get('bank-accounts', 'BankAccountsController@index')->name('bank-accounts.index')->middleware('permission:bank-accounts.index');
+    Route::get('bank-accounts/create', 'BankAccountsController@create')->name('bank-accounts.create')->middleware('permission:bank-accounts.create');
+    Route::post('bank-accounts/store', 'BankAccountsController@store')->name('bank-accounts.store')->middleware('permission:bank-accounts.create');
+    Route::get('bank-accounts/{account}/edit', 'BankAccountsController@edit')->name('bank-accounts.edit')->middleware('permission:bank-accounts.edit');
+    Route::put('bank-accounts/{account}/update', 'BankAccountsController@update')->name('bank-accounts.update')->middleware('permission:bank-accounts.edit');
+    Route::get('bank-accounts/status/{id}/{status}', 'BankAccountsController@status')->name('bank-accounts.status')->middleware('permission:bank-accounts.edit');
+    Route::delete('bank-accounts/{account}', 'BankAccountsController@destroy')->name('bank-accounts.destroy')->middleware('permission:bank-accounts.destroy');
 
     // Banks:
     Route::get('banks', 'BankController@index')->name('banks.index')->middleware('permission:budget-forms.index');
