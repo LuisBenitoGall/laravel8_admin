@@ -220,17 +220,19 @@ $readonly = $invoice->blocked && !$is_sale || ($order->customer_id == session('c
 					{{-- Importe facturado --}}
 					<label class="mr-5">
 						{!! ucfirst(trans('textos.importe_facturado')) !!}: 
-
-						@if($invoice->irpf > 0)
-							<small>(-{{ $invoice->irpf }}% IRPF)</small>
-						@endif
-
     					<b>{!! $invoice->amount !!}{{ $currency->symbol }}</b>
 					</label>
 
 					{{-- Total factura --}}
 					<label class="mr-5">
 						{!! ucfirst(trans('textos.factura_total')) !!}: 
+						@if($invoice->irpf > 0)
+							@php
+							$irpf_amount = ($invoice->irpf * $invoice->amount) / 100;
+							@endphp
+
+							<small>(-{{ $invoice->irpf }}% IRPF, {{ round($irpf_amount, 2) }}{{ $currency->symbol }})</small>
+						@endif
     					<b>{!! $invoice->amount_with_iva !!}{{ $currency->symbol }}</b>
 					</label>
 
