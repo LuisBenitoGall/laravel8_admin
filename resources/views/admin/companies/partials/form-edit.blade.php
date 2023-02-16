@@ -27,7 +27,7 @@
     		@endphp
     	@enderror
 
-    	<x-input type="text" name="nif" class="{{ $is_invalid }}" value="{{ $company->nif }}" autocomplete="off" maxlength="11" required info="company-nif"/>
+    	<x-input type="text" name="nif" class="{{ $is_invalid }}" value="{{ $company->nif }}" autocomplete="off" maxlength="14" required info="company-nif"/>
     </div>
 
     {{-- CCC --}}
