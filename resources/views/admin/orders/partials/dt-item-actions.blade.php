@@ -11,7 +11,7 @@
 
     {{-- Editar - condiciones 
 		1. Disponer de permisos.
-		2. Exclusivo proveedor o por cliente para facturas de proveedores sin cuenta en el ERP:
+		2. Exclusivo proveedor o para cliente con facturas de proveedores sin cuenta en el ERP:
     --}}
     {{-- 4/11/22: se omite la condición de pedido facturado. Se pueden añadir líneas incluso facturado el pedido. --}}
     {{-- @if(!$order->invoiced) --}}
@@ -29,11 +29,12 @@
 		</a>
 	@endif
 
-	{{-- Eliminar - condiciones
+	{{-- Eliminar - condiciones:
 		1. Disponer de permisos.
         2. No debe ser pedido vinculado a agrupación ni estar facturado.
+        3. Para clientes con facturas de proveedores sin cuenta en el ERP:
 	--}}
-	@if(!$order->invoiced && !$order->order_parent)
+	@if( (!$order->invoiced && !$order->order_parent) || ($order->customer_id == session('currentCompany') && !$provider_account) )
 		<form method="POST" action="{{ route('items.destroy', $item) }}" class="frm-inline" role="form" accept-charset="UTF-8">
 		    <input name="_method" type="hidden" value="DELETE">
 		    {{ csrf_field() }}
