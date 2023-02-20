@@ -80,6 +80,9 @@ class ItemController extends Controller{
     public function destroy(Request $request, Item $item){
         //Se eliminan líneas que no hayan sido facturadas:
         if(!$item->invoiced){
+            //Borrado línea de factura:
+            InvoiceItems::where('item_id', $item->id)->forcedelete();
+
             //Borrado definitivo:
             $item->forcedelete();
 
