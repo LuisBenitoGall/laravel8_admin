@@ -1250,6 +1250,22 @@ class InvoiceController extends Controller{
 
         $is_sale = $order && $order->provider_id == session('currentCompany')? true:false;
 
+        //Formateando fechas - condiciones:
+        // 1. para ventas o compras a proveedores sin cuenta.
+        // 2. facturas no bloqueadas.
+        //Cuenta del proveedor:
+        $provider_account = CompanyAccounts::where('company_id', $order->provider_id)
+        ->where('status', 1)
+        ->first();
+
+        if( ($is_sale || !$provider_account) && !$invoice->blocked){
+            $fiscal_date = $request->fiscal_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->fiscal_date):$request->fiscal_date:NULL;
+            $expiration_date = $request->expiration_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->expiration_date):$request->expiration_date:NULL;
+
+            $invoice->fiscal_date = $fiscal_date;
+            $invoice->expiration_date = $expiration_date;
+        }
+
         //Venta:
         if($is_sale){
             //Número de factura:
@@ -1257,10 +1273,6 @@ class InvoiceController extends Controller{
             if($request->pattern_id){
                 $patternNum = $this->setPatternNumber('invoice', $request->pattern_id);
             } 
-
-            //Formateando fechas:
-            $fiscal_date = $request->fiscal_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->fiscal_date):$request->fiscal_date:NULL;
-            $expiration_date = $request->expiration_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->expiration_date):$request->expiration_date:NULL;
 
             //Comprobamos si la fecha fiscal es válida, que el mes y año no estén cerrados.
             //29/12/22: preguntar a Marcelo si aplica también para la edición.
@@ -1284,8 +1296,6 @@ class InvoiceController extends Controller{
             //Campos que sólo se actualizan si la factura NO está bloqueada:
             if(!$invoice->blocked){
                 $invoice->invoice_old_num = $request->invoice_old_num;
-                $invoice->fiscal_date = $fiscal_date;
-                $invoice->expiration_date = $expiration_date;
                 $invoice->status = $request->status? $request->status:'0';
                 $invoice->bank_account_id = $request->bank_account_id;
             }
