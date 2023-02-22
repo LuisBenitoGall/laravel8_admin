@@ -83,7 +83,7 @@ class IvaTypeController extends Controller{
         $row = new IvaType();
         $row->name = $request->name;
         $row->iva = $request->iva;
-        $row->equivalence_surcharge = $request->equivalence_surcharge;
+        $row->equivalence_surcharge = $request->equivalence_surcharge? $request->equivalence_surcharge:'0';
         $row->save();
 
         //Generar .json de datos:
@@ -109,7 +109,7 @@ class IvaTypeController extends Controller{
         $row = IvaType::find($request->id);
         $row->name = $request->name;
         $row->iva = $request->iva;
-        $row->equivalence_surcharge = $request->equivalence_surcharge;
+        $row->equivalence_surcharge = $request->equivalence_surcharge? $request->equivalence_surcharge:'0';
         $row->save();
 
         //Generar .json de datos:
