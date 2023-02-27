@@ -3,7 +3,7 @@ admin.weareadn.com
 server: 164.92.251.87
 db: larave8_admin
 
-## Preview
+## Previewpc
 preview-admin.weareadn.com
 server: 164.92.251.87
 db: preview_admin_laravel8
@@ -24,6 +24,9 @@ db: preview_admin_laravel8
         });	
         
 - Migración inicial de tablas: php artisan migrate
+
+- Migración de tabla específica:
+php artisan migrate --path=/database/migrations/table_name.php
 
 
 - Descomentar la línea protected $namespace = 'App\\Http\\Controllers'; en app\Providers\RouteServiceProvider.php para utilizar el sistema de enrutamiento antiguo.
