@@ -216,12 +216,17 @@ class InvoiceController extends Controller{
             $invoiceId = $request->invoice_id;
 
             //Comprobamos si el valor recibido corresponde a id, invoice_num o old_invoice:
-            $invoice = Invoice::select('id')
-            ->where('id', '>=', 1)
-            ->where(function($query) use ($invoiceId){
-                $query->where('id', $invoiceId)
-                ->orWhere('invoice_num', $invoiceId)
-                ->orWhere('invoice_old_num', $invoiceId);
+            $invoice = Invoice::select('invoices.id')
+            ->join('orders', 'invoices.order_id', '=', 'orders.id')
+            ->where('invoices.id', '>=', 1)
+            ->where(function($query) use($currentCompany){
+                $query->where('orders.customer_id', $currentCompany)
+                ->orWhere('orders.provider_id', $currentCompany);
+            })
+            ->where(function($query2) use ($invoiceId){
+                $query2->where('invoices.id', $invoiceId)
+                ->orWhere('invoices.invoice_num', $invoiceId)
+                ->orWhere('invoices.invoice_old_num', $invoiceId);
             })
             // ->where(function($query1) use ($currentCompany){
             //     $query1->where('customer_id', $currentCompany)
