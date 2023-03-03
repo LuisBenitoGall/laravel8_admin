@@ -317,7 +317,7 @@ class InvoiceController extends Controller{
         //Campo de búsqueda de la empresa: proveedor o cliente.
         $company_field = $provider == session('currentCompany') || $customer == 'all'? 'customer':'provider';
 
-        $data = Invoice::select('invoices.*', 'orders.id AS orderId', 'orders.order_num', 'orders.order_old_num', 'companies.name', 'companies.tradename', 'cost_centers.name AS costCenter', 'users.name AS Nombre', 'users.surname')
+        $data = Invoice::select('invoices.*', 'orders.id AS orderId', 'orders.order_num', 'orders.order_old_num', 'companies.id AS companyId', 'companies.name', 'companies.tradename', 'cost_centers.name AS costCenter', 'users.name AS Nombre', 'users.surname')
         ->leftJoin('orders', 'invoices.order_id', '=', 'orders.id')
         ->leftJoin('companies', 'orders.'.$company_field.'_id', '=', 'companies.id')
         ->leftJoin('cost_centers', 'orders.'.$company_field.'_cost_center_id', '=', 'cost_centers.id')
@@ -355,7 +355,7 @@ class InvoiceController extends Controller{
         $estados = helpers::invoiceStatus();
 
         //Moneda:
-        $currency = CompanySettings::co_currency(0);        
+        $currency = CompanySettings::co_currency(0);   
 
         return DataTables::of($data) 
         ->addColumn('invoice_num', function($row) use($environment){
@@ -398,13 +398,6 @@ class InvoiceController extends Controller{
         })
         ->rawColumns(['invoice_num', 'order'])
         ->make(true);
-
-
-
-
-
-
-
 
 
         //Campo de búsqueda de la empresa: proveedor o cliente.
@@ -1356,8 +1349,10 @@ class InvoiceController extends Controller{
         //Recalculando importe factura por sus líneas:
         //$this->recalculateInvoiceAmount($invoice);
 
-        $invoice_order = Order::select('orders.*', 'users.name AS Nombre', 'users.surname')
+        $invoice_order = Order::select('orders.*', 'users.name AS Nombre', 'users.surname', 'projects.name AS project')
         ->leftJoin('users', 'orders.provider_manager_id', '=', 'users.id')
+        ->leftJoin('project_orders', 'orders.id', '=', 'project_orders.order_id')
+        ->leftJoin('projects', 'project_orders.project_id', '=', 'orders.id')
         ->where('orders.id', $invoice->order_id)
         ->first();
 
@@ -1382,7 +1377,7 @@ class InvoiceController extends Controller{
 
         $template = $invoice->template? unserialize($invoice->template):false;
 
-        $fechaLiteral = helpers::fechaLiteral($invoice->created_at, session()->get('locale'));
+        $fechaLiteral = $invoice->fiscal_date? helpers::fechaLiteral($invoice->fiscal_date, session()->get('locale')):helpers::fechaLiteral($invoice->created_at, session()->get('locale'));
 
         $company_settings = session('companySettings');
 

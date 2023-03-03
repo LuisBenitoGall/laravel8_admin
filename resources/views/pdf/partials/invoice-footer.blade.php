@@ -121,11 +121,11 @@
 					</tr>
 				@endif
 
-				@if($invoice_order->purchase_num || $invoice_order->old_purchase)
+				@if($invoice_order->purchase_num || $invoice_order->purchase_old_num)
 					<tr>
 						<td>
 							{{ trans('textos.orden_compra_num') }}:
-							<b style="color: #FFF">@if($invoice_order->purchase_num) {{ $invoice_order->purchase_num }} @else {{ $invoice_order->old_purchase }} @endif</b>
+							<b style="color: #FFF">@if($invoice_order->purchase_num) {{ $invoice_order->purchase_num }} @else {{ $invoice_order->purchase_old_num }} @endif</b>
 						</td>	
 					</tr>
 				@endif

@@ -1706,6 +1706,7 @@ return array(
 	'volver_gastos' => 'Volver a gastos',
 	'volver_grupos' => 'Volver a grupos',
 	'volver_lotes' => 'Volver a lotes',
+	'volver_metodos_pago' => 'Volver a métodos de pago',
 	'volver_modulos' => 'Volver a módulos',
 	'volver_movimientos_stock' => 'Volver a movimientos de stock',
 	'volver_notificaciones' => 'Volver a notificaciones',
@@ -2851,5 +2852,13 @@ return array(
 	'tarjeta' => 'Tarjeta',
 	'domiciliado' => 'Domiciliado',
 	'entidad' => 'entidad',
+	'metodo_confirm_eliminar' => 'Confirma que deseas eliminar este método',
+	'metodo_creado' => 'El método se ha creado correctamente',
+	'metodo_deleted' => 'El método ha sido eliminado correctamente',
+	'metodo_editar' => 'Editar método',
+	'metodo_nuevo' => 'Nuevo método',
+	'metodo_on_off' => 'Activar / desactivar método',
+	'metodo_updated' => 'El método ha sido actualizado correctamente',
+	'metodos_pago' => 'Métodos de pago',
 
 );

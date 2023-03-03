@@ -101,6 +101,7 @@ class Kernel extends HttpKernel{
 
         'category_get' => \App\Http\Middleware\CategoryGetMiddleware::class,
 
+        'company_account' => \App\Http\Middleware\CompanyAccountMiddleware::class,
         'company_ajax' => \App\Http\Middleware\CompanyAjaxMiddleware::class,
         'company_get' => \App\Http\Middleware\CompanyGetMiddleware::class,
         'company_get3' => \App\Http\Middleware\CompanyGet3Middleware::class,
@@ -156,6 +157,8 @@ class Kernel extends HttpKernel{
         'order_groups_post' => \App\Http\Middleware\OrderGroupsPostMiddleware::class,
 
         'order_pattern_get' => \App\Http\Middleware\OrderPatternGetMiddleware::class,
+
+        'payment_methods_get' => \App\Http\Middleware\PaymentMethodsGetMiddleware::class,
 
         'phone_get' => \App\Http\Middleware\PhoneGetMiddleware::class,
 

@@ -23,7 +23,7 @@
 
 		<p style="display: block; font-size: 11px; font-weight: normal; line-height: 120%; margin: 0 0 5px 0; width: 100%;">
 			<span class="item-left" style="color: {{ $bg_color }}; display: inline-block; vertical-align: top; width: 35%;"><b>{{ strtoupper(trans('textos.proyecto_info_')) }}:</b></span>	
-			<span class="item-left" style="display: inline-block; vertical-align: top; width: 64%;">{{ $invoice->project_info }}</span>
+			<span class="item-left" style="display: inline-block; vertical-align: top; width: 64%;">@if($invoice_order->project) {{ $invoice_order->project }} @else {{ $invoice_order->name }} @endif</span>
 		</p>
 
 		<p style="display: block; font-size: 11px; font-weight: normal; line-height: 120%; margin: 0 0 5px 0; width: 100%;">
