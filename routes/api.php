@@ -227,6 +227,9 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     //Orders Control Panel Sales:
     Route::get('orders-control-panel-sales/{year}/{workplace_id?}', 'OrderController@getOrdersControlPanelSalesDT');
 
+    //Payment Methods:
+    Route::get('payment-methods', 'PaymentMethodController@getPaymentMethodsDT');
+
     //Permissions:
     Route::get('permissions', 'PermissionController@getPermissionsDT');
 

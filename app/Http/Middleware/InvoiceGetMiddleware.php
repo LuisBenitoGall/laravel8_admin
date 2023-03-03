@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 
 //Models:
+use App\Models\CompanyAccounts;
 use App\Models\Invoice;
 
 class InvoiceGetMiddleware{
@@ -30,14 +31,19 @@ class InvoiceGetMiddleware{
         } 
 
         if($company->provider_id != session('currentCompany')){
-            //Comprobamos si el cliente está asociado a la factura
-            if($company->customer_id == session('currentCompany')){
-                return redirect()->route('invoices.edit-purchase', $request->segments()[2]);
-                exit;
-            }else{
-                $alert = trans('textos.no_permisos_accion');   
-                return redirect()->route('invoices.index')->with(compact('alert'));
-                exit; 
+            //Comprobamos si el proveedor está tutelado:
+            $co_account = CompanyAccounts::getCompanyAccount($company->provider_id);
+
+            if($co_account){
+                //Comprobamos si el cliente está asociado a la factura
+                if($company->customer_id == session('currentCompany')){
+                    return redirect()->route('invoices.edit-purchase', $request->segments()[2]);
+                    exit;
+                }else{
+                    $alert = trans('textos.no_permisos_accion');   
+                    return redirect()->route('invoices.index')->with(compact('alert'));
+                    exit; 
+                }
             }
         }
 

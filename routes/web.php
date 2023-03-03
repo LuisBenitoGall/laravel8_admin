@@ -54,8 +54,7 @@ Route::get('authorized-clients', 'HomeController@getAuthorizedClients')->name('a
 
 
 // ADMIN:   'company_session',
-Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('admin')->namespace('Admin')->group(function () {
-
+Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_account'])->prefix('admin')->namespace('Admin')->group(function () {
 
     // Accounting:
     Route::get('accounting', 'AccountingController@index')->name('accounting.index');
@@ -662,6 +661,15 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation'])->prefix('adm
 
 
     Route::get('orders/create/{project_id?}', 'OrderController@create')->name('orders-forms.create')->middleware('permission:orders.create');
+
+    // Payment Methods:
+    Route::get('payment-methods', 'PaymentMethodController@index')->name('payment-methods.index')->middleware('permission:payment-methods.index');
+    Route::get('payment-methods/create', 'PaymentMethodController@create')->name('payment-methods.create')->middleware('permission:payment-methods.create');
+    Route::post('payment-methods/store', 'PaymentMethodController@store')->name('payment-methods.store')->middleware('permission:payment-methods.create');
+    Route::get('payment-methods/{method}/edit', 'PaymentMethodController@edit')->name('payment-methods.edit')->middleware('permission:payment-methods.edit');
+    Route::put('payment-methods/{method}/update', 'PaymentMethodController@update')->name('payment-methods.update')->middleware('permission:payment-methods.edit');
+    Route::get('payment-methods/status/{id}/{status}', 'PaymentMethodController@status')->name('payment-methods.status')->middleware('permission:payment-methods.edit');
+    Route::delete('payment-methods/{method}', 'PaymentMethodController@destroy')->name('payment-methods.destroy')->middleware('permission:payment-methods.destroy');
 
     // Permissions:
     Route::resource('permissions', 'PermissionController', ['except' => ['update', 'create', 'show']]);
