@@ -16,10 +16,17 @@
 
 {{-- Eliminar - condiciones: 
 	1. Disponer de permisos.
-	2. Sólo proveedores.
+	2. Proveedores o clientes sobre proveedores tutelados.
 --}}
 @can('invoices.destroy')
-	@if($environment == 'sales')
+	@php
+	//Cuenta del proveedor:
+    $provider_account = App\Models\CompanyAccounts::where('company_id', $row->companyId)
+    ->where('status', 1)
+    ->first(); 
+   	@endphp
+
+	@if($environment == 'sales' || !$provider_account)
 		<form method="POST" action="{{ route('invoices.destroy', $row->id) }}" class="frm-inline" role="form" accept-charset="UTF-8">
 		    <input name="_method" type="hidden" value="DELETE">
 		    {{ csrf_field() }}

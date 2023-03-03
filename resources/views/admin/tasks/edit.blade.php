@@ -72,7 +72,12 @@
 			  		</li>
 
 			  		<li class="nav-item @if($tab == 'subtasks') active @endif">
-			  			<a class="nav-link @if($tab == 'subtasks') active @endif" href="#tab-subtasks" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.subtareas')) !!}</a>	
+			  			<a class="nav-link @if($tab == 'subtasks') active @endif" href="#tab-subtasks" role="tab" data-toggle="tab">
+			  				{!! ucfirst(trans('textos.subtareas')) !!}
+			  				@if($subtasks->count())
+			  					<span class="ml-2 badge badge-warning">{{ $subtasks->count() }}</span>	
+			  				@endif
+			  			</a>	
 			  		</li>
 				</ul>
 

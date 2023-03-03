@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 
 //Models:
+use App\Models\CompanyAccounts;
 use App\Models\CompanyModules;
 use App\Models\CompanySettings;
 use App\Models\Employee;
@@ -90,7 +91,11 @@ class LoginController extends Controller{
      */
     public function logout(Request $request){
         //Borramos sesiones:
+        $request->session()->forget(['currentCompany']);
+ 
         $request->session()->flush();
+        
+        $request->session()->invalidate();
         
         Auth::logout();
         return redirect('/');

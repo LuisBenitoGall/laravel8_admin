@@ -13,7 +13,7 @@ $setTimetable = $controller->settedModule('timetables');
 // Idiomas:
 $languages = App\Helpers\helpers::languages();
 
-//Configuraciones 1ª vez:
+// Configuraciones 1ª vez:
 $initial_imports = App\Models\AppSettings::select('id', 'value')->where('field', 'initial_imports')->first();
 $imports_done = false;
 if(!$initial_imports->value){
