@@ -254,7 +254,11 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 	--}}
 	@if($order->provider_id == session('currentCompany') && !$order->order_parent)
 		<div class="form-group row">
-			<label class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.facturacion_prevista')) !!}</label>
+			<label class="col-lg-2 col-form-label">
+				{!! ucfirst(trans('textos.facturacion_prevista')) !!}
+				{{-- <br><br>
+				<small class="text-warning">{!! ucfirst(trans('textos.facturacion_prevista_texto')) !!}</small> --}}
+			</label>
 
 			<div class="col-lg-1 pt-1">
 				<button class="btn btn-warning btn-circle btnAddPrevision" rel="tooltip" title="{{ trans('textos.agregar_prevision') }}">
@@ -266,7 +270,9 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 				<div class="previsions">
 					@php
 					$totalPercent = 0;
-					//dd($order_amount, $previsions);
+					$accumulatedAmount = 0;			//Importe acumulado de previsiones.
+					$k = 1;							//Contador de previsiones.
+					//dd($order_amount, $order_amount_without_discount, $previsions);
 					@endphp
 
 					@if($previsions->count())
@@ -338,18 +344,25 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 								<label for="percent" class="col-md-2 col-lg-2 col-form-label">{!! ucfirst(trans('textos.porcentaje')) !!}</label>
 								<div class="col-md-4 col-lg-2 sinpadding text-right">
 									@php
-									$percent = round($totalPercent, 2) > 100? '':$prev->percent;
+									$percent = $totalPercent > 100? '':$prev->percent;
 
 									// Porcentaje del monto total:
-									$orden_w = $percent != ''? round(($percent * $order_amount) / 100, 3):'';
-									$orden_wo = $percent != ''? round(($percent * $order_amount_without_discount) / 100, 3):'';
+									$orden_w = $prev->amount? $prev->amount:($percent != ''? ($percent * $order_amount) / 100:'');
+									$orden_wo = $prev->amount && $order_amount_without_discount == $order_amount? $prev->amount:($percent != ''? ($percent * $order_amount_without_discount) / 100:'');
+
+									//Si se trata de la última previsión y el porcentaje es igual o superior a 100, el importe es el restante hasta completar el total del pedido:
+									if($k = $previsions->count() && $totalPercent >= 100){
+										$orden_w = $order_amount - $accumulatedAmount;
+									}
+
+									$accumulatedAmount = $accumulatedAmount + $orden_w;
 									@endphp
 
 									<x-input type="text" name="percent[]" class="text-right set-decimals percent prevision-data" autocomplete="off" maxlength="5" value="{{ $percent }}" group="right" groupvalue="%" required disabled="{{ $disabled_ }}"/>
 
 									{{-- Monto de la orden, aplicando el porcentaje de cobro --}}
 									<small data-container="body" data-toggle="popover" data-placement="top" data-content="{{ trans('textos.facturacion_prevista_info_percent') }}">
-										{{ $orden_w }}{{ $currency['symbol'] }} ({{ $orden_wo }}{{ $currency['symbol'] }}) <li class="fa fa-info-circle"></li>
+										{{ round($orden_w, 3) }}{{ $currency['symbol'] }} ({{ round($orden_wo, 3) }}{{ $currency['symbol'] }}) <li class="fa fa-info-circle"></li>
 									</small>
 
 						            @if(round($totalPercent, 2) > 100)
@@ -381,6 +394,10 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 									</div>
 								@endif
 							</div>
+
+							@php
+							$k++;
+							@endphp
 						@endforeach
 					@endif
 

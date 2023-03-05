@@ -29,11 +29,11 @@ use App\Models\Invoice;
 //use App\Models\InvoiceItems;
 use App\Models\InvoiceOrders;
 use App\Models\InvoicePatterns;
-use App\Models\InvoicePayments;
 use App\Models\InvoiceSettings;
 use App\Models\Item;
 use App\Models\Order;
 use App\Models\OrderPrevisions;
+use App\Models\Payment;
 use App\Models\Phone;
 use App\Models\Product;
 use App\Models\Project;
@@ -470,12 +470,16 @@ class InvoiceController extends Controller{
         ->whereNull('refund')
         ->where('status', '!=', config('constants.INVOICE_REFUNDED_'))
         ->get();
-        //Importe ya facturado con anterioridad:
+        //Importe facturado con anterioridad:
         $previous_amount = 0;
+        //Porcentaje facturado con anterioridad:
         $previous_percent = 0;
         if($other_invoices->count()){
             foreach($other_invoices as $oi){
                 $previous_amount = $previous_amount + $oi->amount;
+
+                $pct = ($oi->amount * 100) / $order_amount['total_amount'];
+                $previous_percent = $previous_percent + $pct;
             }    
         }
 
@@ -544,23 +548,23 @@ class InvoiceController extends Controller{
                 $prevision = OrderPrevisions::find($request->modality);
 
                 if($prevision){
-                    //Si se trata de la última previsión de facturación, el importe debe ser todo el pendiente:
+                    //Si se trata de la última previsión de facturación y no queda porcentaje por establecer previsión, el importe debe ser todo el pendiente:
                     $more_previsions = OrderPrevisions::select('invoice_id')
                     ->where('order_id', $prevision->order_id)
                     ->whereNull('invoice_id')
                     ->where('id', '!=', $prevision->id)
                     ->get();
 
-                    if(!$more_previsions->count()){
-                        $total_amount = $outstanding_amount;
-                    }else{
-                        $total_amount = helpers::percent($order_amount['total_amount'], $prevision->percent);
-                    }
+                    //Porcentaje pendiente de facturación. Si el porcentaje de la previsión + los porcentajes ya facturados superan el 100%, entonces el porcentaje pendiente es la diferencia entre el total y lo ya facturado.
+                    $percent_to_invoice = $previous_percent + $prevision->percent > 100? 100 - $previous_percent:$prevision->percent;
 
-                    $percentage_invoiced = $prevision->percent;
+                    //Importe de la factura:
+                    $total_amount = helpers::percent($order_amount['total_amount'], $percent_to_invoice);
+                    //Porcentaje facturado:
+                    $percentage_invoiced = $percent_to_invoice;
 
                     //Importe con IVA:
-                    $amount_with_iva = helpers::percent($order_amount['invoice_amount'], $prevision->percent);
+                    $amount_with_iva = helpers::percent($order_amount['invoice_amount'], $percent_to_invoice);
                 }
             }
         }
@@ -958,7 +962,7 @@ class InvoiceController extends Controller{
         }
 
         //Pagos:
-        $payments = InvoicePayments::where('invoice_id', $invoice->id)
+        $payments = Payment::where('invoice_id', $invoice->id)
         ->orderBy('created_at', 'DESC')
         ->get();
 
@@ -1073,6 +1077,11 @@ class InvoiceController extends Controller{
         //CLIENTE:
         $customer = Company::select('id', 'name', 'tradename')->find($order->customer_id); 
 
+        //Cuenta del cliente:
+        $customer_account = CompanyAccounts::where('company_id', $customer->id)
+        ->where('status', 1)
+        ->first();
+
         //PROVEEDOR:
         $provider = Company::select('id', 'name', 'tradename')->find($order->provider_id);
 
@@ -1120,7 +1129,7 @@ class InvoiceController extends Controller{
         $patterns = false;
 
         //Pagos:
-        $payments = InvoicePayments::where('invoice_id', $invoice->id)
+        $payments = Payment::where('invoice_id', $invoice->id)
         ->orderBy('created_at', 'DESC')
         ->get();
 
@@ -1162,7 +1171,7 @@ class InvoiceController extends Controller{
         $bank_accounts = [];
         $bank_featured = false;
 
-        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'is_sale', 'order', 'invoiced', 'invoices', 'refund', 'customer', 'provider', 'provider_account', 'provider_settings', 'structure_concepts', 'items', 'products', 'currency', 'languages', 'patterns', 'payments', 'templates', 'featuredTemplate', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'payment_methods', 'concepts', 'bank_accounts', 'bank_featured'));
+        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'is_sale', 'order', 'invoiced', 'invoices', 'refund', 'customer', 'customer_account', 'provider', 'provider_account', 'provider_settings', 'structure_concepts', 'items', 'products', 'currency', 'languages', 'patterns', 'payments', 'templates', 'featuredTemplate', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'payment_methods', 'concepts', 'bank_accounts', 'bank_featured'));
     }
 
     /**
