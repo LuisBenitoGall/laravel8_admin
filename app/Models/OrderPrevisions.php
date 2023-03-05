@@ -92,7 +92,7 @@ class OrderPrevisions extends Model{
      * 3. Previsiones de facturación por pedido.
      */
     public static function previsions($order_id){
-        return OrderPrevisions::select('order_previsions.*', 'invoices.id AS invoiceId', 'invoices.invoice_num')
+        return OrderPrevisions::select('order_previsions.*', 'invoices.id AS invoiceId', 'invoices.invoice_num', 'invoices.amount', 'invoices.amount_with_iva')
         ->leftJoin('invoices', 'order_previsions.invoice_id', '=', 'invoices.id')
         ->where('order_previsions.order_id', $order_id)
         ->orderBy('order_previsions.year', 'ASC')

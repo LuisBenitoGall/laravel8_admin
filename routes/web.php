@@ -486,11 +486,6 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::delete('invoice-patterns/{pattern}', 'InvoicePatternsController@destroy')->name('invoice-patterns.destroy')->middleware('permission:invoice-patterns.destroy');
     Route::get('invoice-patterns/status/{id}/{status}', 'InvoicePatternsController@status')->name('invoice-patterns.status')->middleware('permission:invoice-patterns.edit');
 
-    // Invoice Payments:
-    Route::post('invoice-payments/store', 'InvoicePaymentsController@store')->name('invoice-payments.store')->middleware('permission:invoices.edit');
-    Route::post('invoice-payments/update', 'InvoicePaymentsController@update')->name('invoice-payments.update')->middleware('permission:invoices.edit');
-    Route::delete('invoice-payments/{payment}', 'InvoicePaymentsController@destroy')->name('invoice-payments.destroy')->middleware('permission:invoices.edit');
-
     // Invoice Settings:
     Route::get('invoice-settings', 'InvoiceSettingsController@index')->name('invoice-settings.index')->middleware('permission:invoices.edit');
     Route::get('invoice-settings/create', 'InvoiceSettingsController@create')->name('invoice-settings.create')->middleware('permission:invoices.edit');
@@ -670,6 +665,11 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::put('payment-methods/{method}/update', 'PaymentMethodController@update')->name('payment-methods.update')->middleware('permission:payment-methods.edit');
     Route::get('payment-methods/status/{id}/{status}', 'PaymentMethodController@status')->name('payment-methods.status')->middleware('permission:payment-methods.edit');
     Route::delete('payment-methods/{method}', 'PaymentMethodController@destroy')->name('payment-methods.destroy')->middleware('permission:payment-methods.destroy');
+
+    // Payments:
+    Route::post('payments/store', 'PaymentController@store')->name('payments.store')->middleware('permission:invoices.edit');
+    Route::post('payments/update', 'PaymentController@update')->name('payments.update')->middleware('permission:invoices.edit');
+    Route::delete('payments/{payment}', 'PaymentController@destroy')->name('payments.destroy')->middleware('permission:invoices.edit');
 
     // Permissions:
     Route::resource('permissions', 'PermissionController', ['except' => ['update', 'create', 'show']]);

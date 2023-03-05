@@ -47,12 +47,12 @@ class CompanyAccountsTask extends Command{
         if($accounts->count()){
             foreach($accounts as $row){
                 //Desactivar:
-                if($row->status == 1 && $row->end_date > $today){
+                if($row->status == 1 && $row->end_date < $today){
                     $row->status = 2;
                     $row->save();
                 }
                 //Activar:
-                if($row->status == '0' && $row->start_date <= $today){
+                if($row->status == '0' && $row->start_date >= $today){
                     $row->status = 1;
                     $row->save();
                 }                

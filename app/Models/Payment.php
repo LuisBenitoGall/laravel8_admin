@@ -6,11 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class InvoicePayments extends Model{
+class Payment extends Model{
     use HasFactory;
     use SoftDeletes;
 
-    protected $table = 'invoice_payments';
+    protected $table = 'payments';
 
     protected $dates = ['deleted_at'];
 }

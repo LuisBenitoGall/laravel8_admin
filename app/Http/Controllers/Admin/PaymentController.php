@@ -14,9 +14,9 @@ use Illuminate\Support\Facades\Validator;
 
 //Models:
 use App\Models\CompanySettings;
-use App\Models\InvoicePayments;
+use App\Models\Payment;
 
-class InvoicePaymentsController extends Controller{
+class PaymentController extends Controller{
     /**
      * 1. Cobros de facturas.
      * 1.1. Listado de cobros para DataTable.
@@ -94,7 +94,7 @@ class InvoicePaymentsController extends Controller{
                 ->withInput();
         }
 
-        $row = new InvoicePayments();
+        $row = new Payment();
         $row->invoice_id = $request->invoice_id;
         $row->amount = $request->amount;
         $row->mode = $request->mode;
@@ -121,7 +121,7 @@ class InvoicePaymentsController extends Controller{
                 ->withInput();
         }   
 
-        $row = InvoicePayments::find($request->payment_id);
+        $row = Payment::find($request->payment_id);
         $row->amount = $request->amount;
         $row->mode = $request->mode;
         $row->bank_account_id = $request->bank_account_id;
@@ -135,7 +135,7 @@ class InvoicePaymentsController extends Controller{
     /**
      * 4. Eliminar cobro.
      */
-    public function destroy(Request $request, InvoicePayments $payment){
+    public function destroy(Request $request, Payment $payment){
         $invoice_id = $payment->invoice_id;
 
         $payment->delete();
