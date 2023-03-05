@@ -347,7 +347,7 @@ class ItemController extends Controller{
         $provider_account = false;
         if($order){
             $provider_account = CompanyAccounts::where('company_id', $order->provider_id)
-            ->where('status', 2)
+            ->where('status', 1)
             ->first();
         }
 

@@ -57,6 +57,22 @@ $readonly = $invoice->blocked && !$is_sale || ($order->customer_id == session('c
 		    @endif
 		@endcan
 
+		{{-- Nuevo pago o cobro - condiciones: 
+			1. Permisos de edición de facturas.
+			2. Activo para clientes o proveedores para clientes sin cuenta activa.	
+		--}}
+		@can('invoices.edit')
+			@if($is_sale || ($order->customer_id == session('currentCompany') && !$provider_account))
+				@php
+				$label_text = $is_sale? 'cobro_nuevo':'pago_nuevo';
+				@endphp
+
+				<a href="#" class="btn btn-info btnAddPayment" data-toggle="modal" data-target="#modal-add-payment">
+					<i class="fa fa-plus"></i> {!! ucfirst(trans('textos.'.$label_text)) !!}
+				</a>
+			@endif
+		@endcan
+		
 		{{-- Facturas del pedido --}}
 		@if($invoices->count() > 1)
 			<a href="{{ route('invoices.by-order', $order->id) }}" class="btn btn-info" rel="tooltip">
@@ -80,18 +96,6 @@ $readonly = $invoice->blocked && !$is_sale || ($order->customer_id == session('c
 				</a>
 			@endif
 		@endcan
-
-		{{-- Agregar cobro - condiciones: 
-			1. No debe tratarse de una factura de abono.
-			2. Ser una venta.
-			...
-		--}}
-		@if(!$invoice->refund && $is_sale)
-			<a href="#" class="btn btn-warning" data-toggle="modal" data-target="#modal-add-payment">
-				<i class="fa fa-cash-register"></i>
-				{{ ucfirst(trans('textos.cobro_add')) }}
-			</a>
-		@endif
 
 		{{-- Imprimir - condiciones 
 			1. Para facturas simples.
@@ -329,10 +333,10 @@ $readonly = $invoice->blocked && !$is_sale || ($order->customer_id == session('c
 
 {{-- Modals: --}}
 {{-- Add payment --}}
-@include('admin.invoice_payments.partials.modal-add-payment')
+@include('admin.payments.partials.modal-add-payment')
 
 {{-- Edit payment --}}
-@include('admin.invoice_payments.partials.modal-edit-payment')
+@include('admin.payments.partials.modal-edit-payment')
 
 {{-- Add item --}}
 @include('admin.orders.partials.modal-add-item', ['environment_' => 'invoices', 'modality' => $order->modality])
