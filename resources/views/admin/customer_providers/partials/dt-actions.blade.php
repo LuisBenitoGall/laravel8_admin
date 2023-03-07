@@ -55,7 +55,7 @@
 
 	{{-- Configuración del proveedor --}}
 	@else
-		<a href="#" class="btn btn-xs btn-info btn-module btnProviderConfig" rel="tooltip" title="{!! trans("textos.proveedor_configuraciones") !!}" data-toggle="modal" data-target="#modal-edit-config-provider" data-provider="{{ $row->id }}" data-acid="{{ $row->accounting_concept_id }}"><i class="fa fa-cog"></i></a>	
+		<a href="#" class="btn btn-xs btn-info btn-module btnProviderConfig" rel="tooltip" title="{!! trans("textos.proveedor_configuraciones") !!}" data-toggle="modal" data-target="#modal-edit-config-provider" data-provider="{{ $row->id }}" data-acid="{{ $row->accounting_concept_id }}" data-bankaccount="{{ $row->bank_account_id }}"><i class="fa fa-cog"></i></a>	
 
 		{{-- Condiciones de pago --}}
 		<a href="{{ route('providers.pay-conditions-provider', $row->id) }}" class="btn btn-xs btn-info" rel="tooltip" title="{!! trans("textos.condiciones_pago") !!}"><i class="fa fa-money-check-alt"></i></a>

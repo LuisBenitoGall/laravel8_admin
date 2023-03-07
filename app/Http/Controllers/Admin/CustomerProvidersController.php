@@ -283,7 +283,18 @@ class CustomerProvidersController extends Controller{
 
         $business_relationship = 'customers';
 
-        return view('admin.customer_providers.edit')->with(compact('header', 'company', 'tab', 'workplaces', 'areas', 'acronym', 'business_relationship'));     
+        //Cuenta de la empresa:
+        $company_account = CompanyAccounts::where('company_id', $company->id)
+        ->where('status', 1)
+        ->first();
+
+        //Bancos:
+        $banks = Bank::getBanks(true);
+
+        //Cuentas bancarias de la empresa:
+        $bank_accounts = BankAccounts::getBankAccounts($company->id);
+
+        return view('admin.customer_providers.edit')->with(compact('header', 'company', 'tab', 'workplaces', 'areas', 'acronym', 'business_relationship', 'company_account', 'banks', 'bank_accounts'));     
     }
 
     /**
@@ -377,7 +388,18 @@ class CustomerProvidersController extends Controller{
 
         $business_relationship = 'providers';
 
-        return view('admin.customer_providers.edit')->with(compact('header', 'company', 'tab', 'workplaces', 'areas', 'acronym', 'business_relationship'));     
+        //Cuenta de la empresa:
+        $company_account = CompanyAccounts::where('company_id', $company->id)
+        ->where('status', 1)
+        ->first();
+
+        //Bancos:
+        $banks = Bank::getBanks(true);
+
+        //Cuentas bancarias de la empresa:
+        $bank_accounts = BankAccounts::getBankAccounts($company->id);
+
+        return view('admin.customer_providers.edit')->with(compact('header', 'company', 'tab', 'workplaces', 'areas', 'acronym', 'business_relationship', 'company_account', 'banks', 'bank_accounts'));     
     }
 
     /**
@@ -429,7 +451,7 @@ class CustomerProvidersController extends Controller{
      * 8. Obtener info de empresas por criterio.
      */
     private function getCompaniesData($join, $condition){
-        $data = CustomerProviders::select('customer_providers.id AS cp_id', 'customer_providers.ba_id', 'customer_providers.workplace_id', 'customer_providers.cc_id', 'customer_providers.discount', 'customer_providers.credit_risk', 'customer_providers.budget_access', 'customer_providers.syncro_invoice', 'customer_providers.status AS cp_status', 'customer_providers.accounting_concept_id', 'companies.id', 'companies.name', 'companies.tradename', 'companies.logo', 'companies.nif', 'company_accounts.guardian', 'company_accounts.status')
+        $data = CustomerProviders::select('customer_providers.id AS cp_id', 'customer_providers.ba_id', 'customer_providers.workplace_id', 'customer_providers.cc_id', 'customer_providers.discount', 'customer_providers.credit_risk', 'customer_providers.budget_access', 'customer_providers.syncro_invoice', 'customer_providers.status AS cp_status', 'customer_providers.accounting_concept_id', 'customer_providers.bank_account_id', 'companies.id', 'companies.name', 'companies.tradename', 'companies.logo', 'companies.nif', 'company_accounts.guardian', 'company_accounts.status')
         ->join('companies', 'customer_providers.'.$join, '=', 'companies.id')
         ->leftJoin('company_accounts', 'companies.id', '=', 'company_accounts.company_id')
         ->where('companies.id', '!=', session('currentCompany'))
@@ -904,6 +926,7 @@ class CustomerProvidersController extends Controller{
         ->first();
 
         $cp->accounting_concept_id = $request->ac_id;
+        $cp->bank_account_id = $request->bank_account_id;
         $cp->save();
 
         $msg = trans('textos.proveedor_updated');
