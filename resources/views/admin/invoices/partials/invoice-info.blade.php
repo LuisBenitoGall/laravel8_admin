@@ -165,6 +165,11 @@
 				<x-input type="text" name="payday" class="text-right max-value" datas="maxvalue:31" autocomplete="off" maxlength="3" required info="pay-conditions-pay-day" value="{{ $provider_settings->payday }}" readonly/>
 			</div>	
 
+			{{-- Métodos de pago --}}
+			<label for="payment_method" class="col-md-2 col-form-label">{!! ucfirst(trans('textos.metodos_pago')) !!}</label>
+			<div class="col-md-2">
+				<x-select name="payment_method" class="select2" id="paymentMethods" label="metodo_selec" :options="$payment_methods" value="{{ $invoice->payment_method_id }}" disabled="{{ $disabled }}"/>
+			</div>
 		</div>
 	@endif
 

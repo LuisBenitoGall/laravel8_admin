@@ -945,23 +945,36 @@ class BudgetController extends Controller{
 
         //Si viene declarada la plantilla:
         if($request->template_id){
-            //Plantilla original:
-            $orig_template = BudgetSettings::find($request->template_id);
+            //Si viene declarada una plantilla distinta a la original:
+            if($request->template_id != $order->budget_template_id){
+                $new_template = BudgetSettings::find($request->template_id);
 
-            if($request->conditions || $request->payment_method || $request->observations || $request->footer_legend){
                 $template = [
-                    'conditions' => $request->conditions, 
-                    'payment_method' => $request->payment_method,
-                    'observations' => $request->observations,
-                    'footer_legend' => $request->footer_legend
-                ];    
+                    'conditions' => $new_template->conditions, 
+                    'payment_method' => $new_template->payment_method,
+                    'observations' => $new_template->observations,
+                    'footer_legend' => $new_template->footer_legend    
+                ];
+
             }else{
-                $template = [
-                    'conditions' => $orig_template->conditions, 
-                    'payment_method' => $orig_template->payment_method,
-                    'observations' => $orig_template->observations,
-                    'footer_legend' => $orig_template->footer_legend
-                ];    
+                //Plantilla original:
+                $orig_template = BudgetSettings::find($request->template_id);
+
+                if($request->conditions || $request->payment_method || $request->observations || $request->footer_legend){
+                    $template = [
+                        'conditions' => $request->conditions, 
+                        'payment_method' => $request->payment_method,
+                        'observations' => $request->observations,
+                        'footer_legend' => $request->footer_legend
+                    ];    
+                }else{
+                    $template = [
+                        'conditions' => $orig_template->conditions, 
+                        'payment_method' => $orig_template->payment_method,
+                        'observations' => $orig_template->observations,
+                        'footer_legend' => $orig_template->footer_legend
+                    ];    
+                }
             }
 
         //No viene declarada la plantilla:
