@@ -21,8 +21,12 @@ class BankAccountsController extends Controller{
      * 3. Guardar nueva cuenta.
      * 4. Editar cuenta.
      * 5. Actualizar cuenta.
+     * 5.1. Actualizar cuenta desde modal.
      * 6. Actualizar estado de cuenta.
      * 7. Eliminar cuenta.
+     * 7.1. Eliminar cuenta desde modal.
+     * 8. Actualizar cuenta principal.
+     * 9. Cuentas por empresa.
      */
     
     private $option = 'contabilidad';
@@ -49,6 +53,15 @@ class BankAccountsController extends Controller{
         //Validación update:
         }elseif(isset($data['submit_update'])){
             return Validator::make($data, [
+                'bank_id' => 'required|integer',
+                'account' => 'required|max:25'
+            ]);
+
+        //Validación update modal:
+        }elseif(isset($data['submit_update_'])){
+            return Validator::make($data, [
+                'id' => 'required|integer',
+                'company_id' => 'required|integer',
                 'bank_id' => 'required|integer',
                 'account' => 'required|max:25'
             ]);
@@ -105,8 +118,10 @@ class BankAccountsController extends Controller{
             ->withInput();    
         }
 
+        $companyId = $request->company_id? $request->company_id:session('currentCompany');
+
         $row = new BankAccounts();
-        $row->company_id = session('currentCompany');
+        $row->company_id = $companyId;
         $row->bank_id = $request->bank_id;
         $row->account = $request->account;
         $row->featured = $request->featured? true:false;
@@ -114,7 +129,12 @@ class BankAccountsController extends Controller{
         $row->save();
 
         $msg = trans('textos.banco_cuenta_creada');
-        return redirect()->route('bank-accounts.edit', $row)->with(compact('msg'));
+
+        if($request->return){
+            return redirect()->route($request->return.'.edit', [$companyId, 'banks'])->with(compact('msg')); 
+        }else{
+            return redirect()->route('bank-accounts.edit', $row)->with(compact('msg'));    
+        }
     }
 
     /**
@@ -144,7 +164,6 @@ class BankAccountsController extends Controller{
             ->withInput();    
         }
 
-        $account->company_id = session('currentCompany');
         $account->bank_id = $request->bank_id;
         $account->account = $request->account;
         $account->featured = $request->featured? true:false;
@@ -153,6 +172,26 @@ class BankAccountsController extends Controller{
 
         $msg = trans('textos.banco_cuenta_updated');
         return redirect()->route('bank-accounts.edit', $account)->with(compact('msg'));
+    }
+
+    /**
+     * 5.1. Actualizar cuenta desde modal.
+     */
+    public function updateFromModal(Request $request){
+        $validator = $this->validator($request->all());
+        if($validator->fails()){
+            return redirect('admin/'.$request->return.'/'.$request->company_id.'/edit')
+            ->withErrors($validator)
+            ->withInput();    
+        }    
+
+        $account = BankAccounts::find($request->id);
+        $account->bank_id = $request->bank_id;
+        $account->account = $request->account;
+        $account->save();
+
+        $msg = trans('textos.banco_cuenta_updated');
+        return redirect()->route($request->return.'.edit', [$request->company_id, 'banks'])->with(compact('msg'));
     }
 
     /**
@@ -177,5 +216,45 @@ class BankAccountsController extends Controller{
 
         $msg = trans('textos.banco_cuenta_deleted');
         return redirect()->route('bank-accounts.index')->with(compact('msg')); 
+    }
+
+    /**
+     * 7.1. Eliminar cuenta desde modal.
+     */
+    public function destroyFromModal(Request $request, BankAccounts $account){
+        $company_id = $account->company_id;
+        
+        $account->delete();
+
+        $msg = trans('textos.banco_cuenta_deleted');
+        return redirect()->route($request->return.'.edit', [$company_id, 'banks'])->with(compact('msg'));
+    }
+
+    /**
+     * 8. Actualizar cuenta principal.
+     */
+    public function featured(BankAccounts $account, $return = false){
+        BankAccounts::where('company_id', $account->company_id)
+        ->update(['featured' => false]);
+
+        $account->featured = true;
+        $account->save();
+
+        $msg = trans('textos.banco_cuenta_updated');
+        if($return){
+            return redirect()->route($return.'.edit', [$account->company_id, 'banks'])->with(compact('msg'));
+        }else{
+
+        }
+    }
+
+    /**
+     * 9. Cuentas por empresa.
+     */
+    public function companyAccounts(Request $request, $company_id){
+        if($request->ajax()){ 
+            $data = BankAccounts::getBankAccounts($company_id);
+            return response()->json($data);
+        }    
     }
 }

@@ -287,7 +287,7 @@ $(function(){
     		$('#type-select').fadeIn();
     		var arr_options = values.split(",");
     		var arr_values = value.split(",");
-    		console.log(arr_values, arr_options);
+    		//console.log(arr_values, arr_options);
     		$("#paValueSelect").select2({width: '100%', data: arr_options});
     		$("#paValueSelect").val(arr_values).trigger('change');
 
@@ -299,7 +299,7 @@ $(function(){
     		var html = '';
 
     		for(var i in arr_options){
-    			console.log(i);
+    			//console.log(i);
     			if(arr_options[i] != ''){
     				var p = arr_options[i].split("-");
     				var checked = arr_values.includes(p[0])? 'checked':'';
@@ -312,7 +312,7 @@ $(function(){
     		
     		$('#paValueColor').html(html);
 
-    		console.log(arr_options, arr_values);
+    		//console.log(arr_options, arr_values);
     	}
 
 
