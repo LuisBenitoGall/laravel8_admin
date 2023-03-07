@@ -1781,24 +1781,37 @@ class OrderController extends Controller{
 
         //Si viene declarada la plantilla:
         if($request->template_id){
-            //Plantilla original:
-            if($order->order_template_id == $request->template_id){
-                $template = [
-                    'conditions' => $request->conditions, 
-                    'payment_method' => $request->payment_method,
-                    'observations' => $request->observations,
-                    'footer_legend' => $request->footer_legend
-                ];
-            }else{
-                //Plantilla original:
-                $orig_template = OrderSettings::find($request->template_id);
+            //Si viene declarada una plantilla distinta a la original:
+            if($request->template_id != $order->order_template_id){
+                $new_template = OrderSettings::find($request->template_id);
 
                 $template = [
-                    'conditions' => $orig_template->conditions, 
-                    'payment_method' => $orig_template->payment_method,
-                    'observations' => $orig_template->observations,
-                    'footer_legend' => $orig_template->footer_legend
+                    'conditions' => $new_template->conditions, 
+                    'payment_method' => $new_template->payment_method,
+                    'observations' => $new_template->observations,
+                    'footer_legend' => $new_template->footer_legend    
                 ];
+
+            }else{
+                //Plantilla original:
+                if($order->order_template_id == $request->template_id){
+                    $template = [
+                        'conditions' => $request->conditions, 
+                        'payment_method' => $request->payment_method,
+                        'observations' => $request->observations,
+                        'footer_legend' => $request->footer_legend
+                    ];
+                }else{
+                    //Plantilla original:
+                    $orig_template = OrderSettings::find($request->template_id);
+
+                    $template = [
+                        'conditions' => $orig_template->conditions, 
+                        'payment_method' => $orig_template->payment_method,
+                        'observations' => $orig_template->observations,
+                        'footer_legend' => $orig_template->footer_legend
+                    ];
+                }
             }
 
         //No viene declarada la plantilla:
