@@ -167,9 +167,12 @@ $(document).ready(function(){
     $(document).on('click', '.btnProviderConfig', function(){
         var id = $(this).data('provider');
         var ac_id = $(this).data('acid');   //Accounting concept
+        var bank_account = $(this).data('bankaccount');
 
         if(id){
             $('#configProvider').val(id);
+
+            //Conceptos contables:
             $.get("/admin/customers/"+id+"/customer-config", function(response, state){
                 if(response){
                     //Empresa:
@@ -178,8 +181,20 @@ $(document).ready(function(){
                     //Conceptos contables:
                     $('#configAccountingConcept').val(ac_id);
                     $('#configAccountingConcept').trigger('change');
-
                 }  
+            });
+
+            //Cuentas bancarias:
+            $.get("/admin/bank-accounts/"+id+"/company-accounts", function(response, state){
+                if(response){
+                    $("#bankAccountId option").remove();
+                    //$("#bankAccountId").append('<option value=""></option>');
+                    for(i=0; i<response.length; i++){
+                        $("#bankAccountId").append('<option value="'+response[i].id+'">'+response[i].name+' - '+response[i].account+'</option>');    
+                    }
+                    $('#bankAccountId').val(bank_account);
+                    $('#bankAccountId').trigger('change');
+                }
             });
         }
     });

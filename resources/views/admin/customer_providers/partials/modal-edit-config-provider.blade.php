@@ -26,6 +26,14 @@
                         </div>
                     </div>
 
+                    {{-- Cuenta bancaria --}}
+                    <div class="form-group row">
+                        <label for="bank_account_id" class="col-lg-12">{!! ucfirst(trans('textos.cuenta_bancaria')) !!}</label>
+                        <div class="col-lg-12">
+                            <x-select name="bank_account_id" class="select2" id="bankAccountId" :options="[]" label="cuenta_bancaria_selec"/>
+                        </div>
+                    </div>
+
                     <x-btn-submit name="submit_update_config_provider" label="{{ trans('textos.guardar') }}"/>
                 </form>
             </div>

@@ -100,8 +100,12 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::post('bank-accounts/store', 'BankAccountsController@store')->name('bank-accounts.store')->middleware('permission:bank-accounts.create');
     Route::get('bank-accounts/{account}/edit', 'BankAccountsController@edit')->name('bank-accounts.edit')->middleware('permission:bank-accounts.edit');
     Route::put('bank-accounts/{account}/update', 'BankAccountsController@update')->name('bank-accounts.update')->middleware('permission:bank-accounts.edit');
+    Route::post('bank-accounts/update', 'BankAccountsController@updateFromModal')->name('bank-accounts.update')->middleware('permission:bank-accounts.edit');  //update desde modal.
     Route::get('bank-accounts/status/{id}/{status}', 'BankAccountsController@status')->name('bank-accounts.status')->middleware('permission:bank-accounts.edit');
     Route::delete('bank-accounts/{account}', 'BankAccountsController@destroy')->name('bank-accounts.destroy')->middleware('permission:bank-accounts.destroy');
+    Route::delete('bank-accounts-modal/{account}', 'BankAccountsController@destroyFromModal')->name('bank-accounts-modal.destroy')->middleware('permission:companies.edit');
+    Route::get('bank-accounts/{account}/featured/{return?}', 'BankAccountsController@featured')->name('bank-accounts.featured')->middleware('permission:bank-accounts.edit');
+    Route::get('bank-accounts/{company_id}/company-accounts', 'BankAccountsController@companyAccounts')->name('bank-accounts.company-accounts')->middleware('permission:companies.edit');
 
     // Banks:
     Route::get('banks', 'BankController@index')->name('banks.index')->middleware('permission:budget-forms.index');
@@ -814,7 +818,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     // Providers:
     Route::get('providers', 'CustomerProvidersController@providers')->name('providers.index');
     Route::get('providers/create', 'CustomerProvidersController@createProvider')->name('providers.create')->middleware('permission:providers.create');
-    Route::get('providers/{company}/edit', 'CustomerProvidersController@editProvider')->name('providers.edit')->middleware('permission:providers.edit');
+    Route::get('providers/{company}/edit/{tab?}', 'CustomerProvidersController@editProvider')->name('providers.edit')->middleware('permission:providers.edit');
     Route::get('providers/{cp}/show', 'CustomerProvidersController@show')->name('providers.show');
     Route::get('providers/import', 'CustomerProvidersController@importForm')->name('providers.import')->middleware('permission:providers.edit');
     Route::post('providers/export', 'CustomerProvidersController@exportProviders')->name('providers.export')->middleware('permission:providers.edit');
