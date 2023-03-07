@@ -34,6 +34,7 @@ use App\Models\Item;
 use App\Models\Order;
 use App\Models\OrderPrevisions;
 use App\Models\Payment;
+use App\Models\PaymentMethod;
 use App\Models\Phone;
 use App\Models\Product;
 use App\Models\Project;
@@ -1020,7 +1021,10 @@ class InvoiceController extends Controller{
         } 
 
         //Métodos de pago:
-        $payment_methods = helpers::paymentMethods();
+        //$payment_methods = helpers::paymentMethods();
+        $payment_methods = PaymentMethod::where('company_id', $customer->id)
+        ->pluck('name', 'id')
+        ->toArray();
 
         //Cuentas bancarias:
         $bank_accounts = [];
@@ -1158,7 +1162,10 @@ class InvoiceController extends Controller{
         } 
 
         //Métodos de pago:
-        $payment_methods = helpers::paymentMethods();
+        //$payment_methods = helpers::paymentMethods();
+        $payment_methods = PaymentMethod::where('company_id', $customer->id)
+        ->pluck('name', 'id')
+        ->toArray();
 
         //Conceptos contables:
         $concepts = AccountingConcept::where('company_id', session('currentCompany'))
@@ -1318,6 +1325,7 @@ class InvoiceController extends Controller{
             $invoice->customer_observations = $request->observations;  
             $invoice->accounting_structure_id = $request->accounting_structure;
             $invoice->accounting_concept_id = $request->accounting_concept;
+            $invoice->payment_method_id = $request->payment_method;
             $invoice->irpf = $request->irpf;
             $invoice->check_in_date = $check_in_date;
             if($doc){
@@ -1593,24 +1601,38 @@ class InvoiceController extends Controller{
         }
 
         //Si no existe template_id o el recibido es distinto al almacenado, guardamos los datos recibidos tal cual:
-        if(!$invoice->template_id || $invoice->template_id != $request->template_id){
-            //Plantilla original:
-            $orig_template = InvoiceSettings::find($request->template_id);
+        //if(!$invoice->template_id || $invoice->template_id != $request->template_id){
+        if($request->template_id){
+            if($invoice->template_id != $request->template_id){
+                $new_template = InvoiceSettings::find($request->template_id);
 
-            $template = [
-                'conditions' => $orig_template->conditions, 
-                'payment_method' => $orig_template->payment_method,
-                'observations' => $orig_template->observations
-            ];
-        
-        //Se mantiene el mismo template_id:
-        }elseif($invoice->template_id == $request->template_id){
-            $template = [
-                'conditions' => $request->conditions, 
-                'payment_method' => $request->payment_method,
-                'observations' => $request->observations
-            ];
+                $template = [
+                    'conditions' => $new_template->conditions, 
+                    'payment_method' => $new_template->payment_method,
+                    'observations' => $new_template->observations
+                ];
+
+            }else{
+                //Se mantiene el mismo template_id:
+                if($invoice->template_id == $request->template_id){
+                    $template = [
+                        'conditions' => $request->conditions, 
+                        'payment_method' => $request->payment_method,
+                        'observations' => $request->observations
+                    ];
+
+                }else{
+                    $orig_template = InvoiceSettings::find($request->template_id);
+
+                    $template = [
+                        'conditions' => $orig_template->conditions, 
+                        'payment_method' => $orig_template->payment_method,
+                        'observations' => $orig_template->observations
+                    ];
+                }
+            }
         }
+
         $template = serialize($template);
 
         $invoice->template_id = $request->template_id;
