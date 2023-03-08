@@ -2831,6 +2831,7 @@ return array(
 	'activar' => 'Activar',
 	'desactivar' => 'Desactivar',
 	'cuenta_gastos' => 'Cuenta de gastos',
+	'cuenta_gastos_selec' => 'Selecciona cuenta de gastos',
 	'cierre_mensual_ventas' => 'Cierre mensual de ventas',
 	'cierre_mensual_ventas_aviso' => 'No se pueden generar o editar facturas de venta en el año y mes indicados. Período cerrado.',
 	'cierre_mensual_ventas_texto' => 'Bloqueo de la generación o edición de facturas de venta por mes y año.',

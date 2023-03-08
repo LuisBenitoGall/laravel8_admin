@@ -167,20 +167,36 @@ $(document).ready(function(){
     $(document).on('click', '.btnProviderConfig', function(){
         var id = $(this).data('provider');
         var ac_id = $(this).data('acid');   //Accounting concept
+        var ea_id = $(this).data('eaid');   //Cuenta de gastos
         var bank_account = $(this).data('bankaccount');
 
         if(id){
             $('#configProvider').val(id);
 
             //Conceptos contables:
-            $.get("/admin/customers/"+id+"/customer-config", function(response, state){
+            $.get("/admin/customers/"+id+"/customer-config/"+ac_id, function(response, state){
                 if(response){
+                    $("#configExpenseAccount option").remove().val('');
+                    $('#configExpenseAccount').val('');
+                    $('#configExpenseAccount').trigger('change');
+
+                    console.log(response.concepts);
                     //Empresa:
                     $('#modal-edit-config-provider h4 b').text(response.company);
 
                     //Conceptos contables:
                     $('#configAccountingConcept').val(ac_id);
                     $('#configAccountingConcept').trigger('change');
+
+                    //Cuentas de gastos:
+                    if(ea_id > 0){
+                        $('#configExpenseAccount').removeAttr('disabled');    
+                        for (i = 0; i < response.concepts.length; i++) {
+                            $("#configExpenseAccount").append('<option value="' + response.concepts[i].id + '">' + response.concepts[i].name + '</option>');
+                        }
+                        $('#configExpenseAccount').val(ea_id);
+                        $('#configExpenseAccount').trigger('change');
+                    }
                 }  
             });
 
@@ -197,6 +213,28 @@ $(document).ready(function(){
                 }
             });
         }
+    });
+
+    //Cuenta de gastos por concepto contable.
+    $('#configAccountingConcept').on('change', function(event){
+        $("#configExpenseAccount").empty().val('');
+        $('#configExpenseAccount').val('');
+        $('#configExpenseAccount').trigger('change');
+
+        $('#configAccountingConcept option:selected').each(function (){
+            var id = event.target.value;   
+            if (id == null || id == 0) {
+                $('#configExpenseAccount').attr('disabled', 'disabled');
+            } else {
+                $('#configExpenseAccount').removeAttr('disabled');
+                $.get("/admin/accounting-concepts/filter/" + id + "", function (response, state) {
+                    $("#configExpenseAccount").append('<option value="">' + txtConceptoSelec + '</option>');
+                    for (i = 0; i < response.length; i++) {
+                        $("#configExpenseAccount").append('<option value="' + response[i].id + '">' + response[i].name + '</option>');
+                    }
+                });
+            }
+        });
     });
 });
 </script>
