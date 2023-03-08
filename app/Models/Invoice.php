@@ -40,7 +40,23 @@ class Invoice extends Model{
      * 1.1. Cálculo factura por items.
      */
     public function calculateAmountByItems(){
+        $items = InvoiceItems::select('id', 'amount', 'iva')
+        ->where('invoice_id', $this->id)
+        ->get();
+
+        $amount = 0;
+        $amount_with_iva = 0;
+
+        foreach($items as $i){
+            $amount = $amount + $i->amount;
+
+            $iva = $i->iva > 0? round(($i->amount * $i->iva) / 100, 2):0;
+            $amount_with_iva = $amount_with_iva + $i->amount + $iva;
+        }
         
+        $this->amount = $amount;
+        $this->amount_with_iva = $amount_with_iva;
+        $this->save();
     }
 
     /**
