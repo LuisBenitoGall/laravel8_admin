@@ -1328,7 +1328,7 @@ class OrderController extends Controller{
      * 9. Obtener líneas de pedido.
      */
     public function getItemsDT(Order $order, $environment){
-        $items = Item::where('order_id', $order->id);
+        $items = Item::where('order_id', $order->id)->get();
 
         //Moneda:
         $currency = CompanySettings::co_currency(0);
@@ -1859,7 +1859,7 @@ class OrderController extends Controller{
                 ->withErrors($validator)
                 ->withInput();
         }
-//dd($request->all());
+
         //Calculamos ambos tipos de descuento a partir del import total:
         $budget_amount = $order->itemsBudgetOrderAmount(true);
 
