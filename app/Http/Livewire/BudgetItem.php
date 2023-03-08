@@ -113,6 +113,17 @@ class BudgetItem extends Component{
             ->orderByRaw('ISNULL(budget_sort), budget_sort ASC')
             ->get();
         //->orderBy('budget_sort', 'ASC')
+        
+        //Actualizamos el orden de items si no lo tiene:
+        $sort_num = '0';
+        foreach($this->items_selected as $it_se){
+            $sort_num = $it_se->budget_sort? $it_se->budget_sort:$sort_num+1;
+
+            if(!$it_se->budget_sort){
+                $it_se->budget_sort = $sort_num;
+                $it_se->save();
+            }
+        }
 
         //Importe total:
         $arr_amounts = $this->order->getAmount();
@@ -416,14 +427,19 @@ class BudgetItem extends Component{
 
             if ($prev) {
                 //Orden del elemento seleccionado:
+                if($new_order == $prev->budget_sort){
+                    $new_order = $new_order++; 
+                }
                 Item::where('id', $item['id'])
                     ->update(['budget_sort' => $prev->budget_sort]);
 
                 $prev->budget_sort = $new_order;
                 $prev->save();
-
-                $this->render();
+            }else{
+                Item::where('id', $item['id'])
+                    ->update(['budget_sort' => 1]);    
             }
+            $this->render();
         }
     }
 
@@ -444,14 +460,19 @@ class BudgetItem extends Component{
 
             //Orden del elemento seleccionado:
             if ($next) {
+                if($new_order == $next->budget_sort){
+                    $next->budget_sort = $next->budget_sort--; 
+                }
                 Item::where('id', $item['id'])
                     ->update(['budget_sort' => $next->budget_sort]);
 
                 $next->budget_sort = $new_order;
                 $next->save();
-
-                $this->render();
+            }else{
+                Item::where('id', $item['id'])
+                    ->update(['budget_sort' => 2]);
             }
+            $this->render();
         }
     }
 

@@ -26,6 +26,7 @@ use App\Models\BudgetPatterns;
 use App\Models\BudgetSettings;
 use App\Models\BusinessAreas;
 use App\Models\Company;
+use App\Models\CompanyAccounts;
 use App\Models\CompanySettings;
 use App\Models\CostCenters;
 use App\Models\CustomerProviders;
@@ -392,12 +393,16 @@ class BudgetController extends Controller{
             $byPercentItems = [];
 
             if($items->count()){
+                //Contador para la ordenación:
+                $i = 1;
+
                 foreach($items as $item){
                     $data = [
                         'product_id' => $item->product_id, 
                         'order_id' => $order->id, 
                         'budget_form_block_id' => $item->recid, 
                         'budget_form_item_id' => $item->id, 
+                        'budget_sort' => $i,
                         'concept' => $item->Product, 
                         'qty' => $item->qty_min, 
                         'price' => $item->calculated_by_percent? $item->calculated_by_percent:$item->price, 
@@ -417,6 +422,8 @@ class BudgetController extends Controller{
                     if($item->calculated_by_percent){
                         array_push($byPercentItems, $item);
                     }
+
+                    $i++;
                 }
             }
 
@@ -474,6 +481,11 @@ class BudgetController extends Controller{
 
         //PROVEEDOR:
         $provider = Company::select('id', 'name', 'tradename')->find($order->provider_id);
+
+        //Cuenta del proveedor:
+        $provider_account = CompanyAccounts::where('company_id', $provider->id)
+        ->where('status', 1)
+        ->first();
 
         //Managers: sólo con permisos de edición de presupuestos.
         $provider_managers_ = UserCompanies::getCompanyUsers($order->provider_id, 1);   
@@ -700,7 +712,7 @@ class BudgetController extends Controller{
         $module_products = $this->settedModule('products');
         $module_projects = $this->settedModule('projects');
 
-        return view('admin.budgets.edit')->with(compact('header', 'order', 'tab', 'invoiced', 'invoices', 'patterns', 'versions', 'order_amount', 'order_amount_without_discount', 'order_amount_without_discount_in_lines', 'provider', 'provider_managers', 'provider_settings', 'provider_workplaces', 'provider_workplace', 'provider_cost_centers', 'provider_business_areas', 'customer', 'final_customer', 'customer_managers', 'customer_workplaces', 'customer_cost_centers', 'customer_business_areas', 'final_customers', 'customers', 'customer_settings', 'forms', 'products', 'projects', 'project', 'blocks', 'currency', 'templates', 'budget_from', 'customer_budgets', 'first_provider', 'my_linked_budget', 'linkable_budgets', 'languages', 'permitted', 'module_orders', 'module_products', 'module_projects'));
+        return view('admin.budgets.edit')->with(compact('header', 'order', 'tab', 'invoiced', 'invoices', 'patterns', 'versions', 'order_amount', 'order_amount_without_discount', 'order_amount_without_discount_in_lines', 'provider', 'provider_account', 'provider_managers', 'provider_settings', 'provider_workplaces', 'provider_workplace', 'provider_cost_centers', 'provider_business_areas', 'customer', 'final_customer', 'customer_managers', 'customer_workplaces', 'customer_cost_centers', 'customer_business_areas', 'final_customers', 'customers', 'customer_settings', 'forms', 'products', 'projects', 'project', 'blocks', 'currency', 'templates', 'budget_from', 'customer_budgets', 'first_provider', 'my_linked_budget', 'linkable_budgets', 'languages', 'permitted', 'module_orders', 'module_products', 'module_projects'));
     }
 
     /**

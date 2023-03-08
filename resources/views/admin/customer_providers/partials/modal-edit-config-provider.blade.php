@@ -26,6 +26,14 @@
                         </div>
                     </div>
 
+                    {{-- Cuenta de gastos --}}
+                    <div class="form-group row">
+                        <label for="ea_id" class="col-lg-12">{!! ucfirst(trans('textos.cuenta_gastos')) !!}</label>
+                        <div class="col-lg-12">
+                            <x-select name="ea_id" class="select2" id="configExpenseAccount" :options="[]" label="cuenta_gastos_selec" disabled/>
+                        </div>
+                    </div>
+
                     {{-- Cuenta bancaria --}}
                     <div class="form-group row">
                         <label for="bank_account_id" class="col-lg-12">{!! ucfirst(trans('textos.cuenta_bancaria')) !!}</label>

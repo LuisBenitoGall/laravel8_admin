@@ -451,7 +451,7 @@ class CustomerProvidersController extends Controller{
      * 8. Obtener info de empresas por criterio.
      */
     private function getCompaniesData($join, $condition){
-        $data = CustomerProviders::select('customer_providers.id AS cp_id', 'customer_providers.ba_id', 'customer_providers.workplace_id', 'customer_providers.cc_id', 'customer_providers.discount', 'customer_providers.credit_risk', 'customer_providers.budget_access', 'customer_providers.syncro_invoice', 'customer_providers.status AS cp_status', 'customer_providers.accounting_concept_id', 'customer_providers.bank_account_id', 'companies.id', 'companies.name', 'companies.tradename', 'companies.logo', 'companies.nif', 'company_accounts.guardian', 'company_accounts.status')
+        $data = CustomerProviders::select('customer_providers.id AS cp_id', 'customer_providers.ba_id', 'customer_providers.workplace_id', 'customer_providers.cc_id', 'customer_providers.discount', 'customer_providers.credit_risk', 'customer_providers.budget_access', 'customer_providers.syncro_invoice', 'customer_providers.status AS cp_status', 'customer_providers.accounting_concept_id', 'customer_providers.expense_account_id', 'customer_providers.bank_account_id', 'companies.id', 'companies.name', 'companies.tradename', 'companies.logo', 'companies.nif', 'company_accounts.guardian', 'company_accounts.status')
         ->join('companies', 'customer_providers.'.$join, '=', 'companies.id')
         ->leftJoin('company_accounts', 'companies.id', '=', 'company_accounts.company_id')
         ->where('companies.id', '!=', session('currentCompany'))
@@ -850,7 +850,7 @@ class CustomerProvidersController extends Controller{
      * @param  obj $company
      * @return \Illuminate\Http\Response
      */
-    public function editCustomerConfig(Request $request, Company $company){
+    public function editCustomerConfig(Request $request, Company $company, $accounting_concept_id = false){
         if($request->ajax()){
             $areas = BusinessAreas::select('id', 'name')
             ->where('company_id', $company->id)
@@ -867,10 +867,20 @@ class CustomerProvidersController extends Controller{
             ->where('status', 1)
             ->get();
 
+            //Devolvemos las cuentas de gastos del concepto general:
+            $concepts = false;
+            if($accounting_concept_id){
+                $concepts = AccountingConcept::select('id', 'name')
+                ->where('main', $accounting_concept_id)
+                ->where('status', 1)
+                ->get();
+            }
+
             $data['company'] = $company->name;
             $data['areas'] = $areas;
             $data['workplaces'] = $workplaces;
             $data['centers'] = $centers;
+            $data['concepts'] = $concepts;
 
             return response()->json($data);
         }
@@ -926,6 +936,7 @@ class CustomerProvidersController extends Controller{
         ->first();
 
         $cp->accounting_concept_id = $request->ac_id;
+        $cp->expense_account_id = $request->ea_id;
         $cp->bank_account_id = $request->bank_account_id;
         $cp->save();
 

@@ -361,7 +361,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::get('customers/{cp}/show', 'CustomerProvidersController@show')->name('customers.show')->middleware('permission:customers.show');
     Route::get('customers/import', 'CustomerProvidersController@importForm')->name('customers.import')->middleware('permission:customers.edit');
     Route::post('customers/export', 'CustomerProvidersController@exportCustomers')->name('customers.export')->middleware('permission:customers.edit');
-    Route::get('customers/{company}/customer-config', 'CustomerProvidersController@editCustomerConfig')->name('customers.customer-config');
+    Route::get('customers/{company}/customer-config/{accounting_concept_id?}', 'CustomerProvidersController@editCustomerConfig')->name('customers.customer-config');
     Route::get('customers/{company}/pay-conditions', 'CustomerProvidersController@payConditions')->name('customers.pay-conditions')->middleware('permission:customers.edit');
     Route::put('customers/{cp}/update-conditions', 'CustomerProvidersController@updateConditions')->name('customers.update-conditions')->middleware('permission:customers.edit');
     Route::get('customers/own-budget-form/{customer_id}/{provider_id?}', 'CustomerProvidersController@ownBudgetForm')->name('customers.own-budget-form');
