@@ -308,6 +308,9 @@ class ItemController extends Controller{
             $ii->amount = $amount['amount'];
             $ii->iva = $item->iva;
             $ii->save();
+
+            //Actualizamos importe de la factura:
+            $invoice->calculateAmountByItems();
         }
 
         $msg = trans('textos.linea_creado_ok');
