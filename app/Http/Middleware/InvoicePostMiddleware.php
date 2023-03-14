@@ -18,7 +18,7 @@ class InvoicePostMiddleware{
      * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
      */
     public function handle(Request $request, Closure $next){
-        $company = Invoice::select('provider_id')
+        $company = Invoice::select('orders.provider_id', 'orders.customer_id')
         ->join('orders', 'invoices.order_id', '=', 'orders.id')
         ->where('invoices.id', $request->invoice_id)
         ->first();
@@ -29,7 +29,7 @@ class InvoicePostMiddleware{
             exit; 
         } 
 
-        if($company->provider_id != session('currentCompany')){
+        if($company->provider_id != session('currentCompany') && $company->customer_id != session('currentCompany')){
             $alert = trans('textos.no_permisos_accion');   
             return redirect()->route('invoices.index')->with(compact('alert'));
             exit; 

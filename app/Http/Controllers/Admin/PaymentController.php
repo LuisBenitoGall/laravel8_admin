@@ -94,6 +94,8 @@ class PaymentController extends Controller{
                 ->withInput();
         }
 
+        //dd($request->all());
+
         $payment_date = $request->payment_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->payment_date):$request->payment_date:NULL;
 
         $row = new Payment();
@@ -110,7 +112,7 @@ class PaymentController extends Controller{
         $row->save();
 
         $msg = trans('textos.cobro_guardado');
-        return redirect()->route('invoices.edit', [$request->invoice_id, 'payments'])->with(compact('msg'));
+        return redirect()->route('invoices.edit-purchase', [$request->invoice_id, 'payments'])->with(compact('msg'));
     }
 
     /**

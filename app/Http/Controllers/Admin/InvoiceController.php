@@ -963,9 +963,7 @@ class InvoiceController extends Controller{
         }
 
         //Pagos:
-        $payments = Payment::where('invoice_id', $invoice->id)
-        ->orderBy('created_at', 'DESC')
-        ->get();
+        $payments = Payment::paymentsByInvoice($invoice->id);
 
         //Templates:
         $templates = [];
@@ -1133,9 +1131,7 @@ class InvoiceController extends Controller{
         $patterns = false;
 
         //Pagos:
-        $payments = Payment::where('invoice_id', $invoice->id)
-        ->orderBy('created_at', 'DESC')
-        ->get();
+        $payments = Payment::paymentsByInvoice($invoice->id);
 
         //Templates:
         $templates = [];
@@ -1177,6 +1173,18 @@ class InvoiceController extends Controller{
         //Cuentas bancarias:
         $bank_accounts = [];
         $bank_featured = false;
+        $bank_accounts_data = BankAccounts::select('bank_accounts.id', 'bank_accounts.account', 'bank_accounts.featured', 'banks.name', 'banks.tradename')
+        ->join('banks', 'bank_accounts.bank_id', '=', 'banks.id')
+        ->where('bank_accounts.company_id', session('currentCompany'))
+        ->where('bank_accounts.status', 1)
+        ->orderBy('bank_accounts.featured', 'DESC')
+        ->get();
+        foreach($bank_accounts_data as $ba){
+            $bank = $ba->tradename? $ba->tradename:$ba->name;
+            $bank_accounts[$ba->id] = $bank.' - '.$ba->account;
+
+            if($ba->featured == 1) $bank_featured = $ba->id;
+        }
 
         return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'is_sale', 'order', 'invoiced', 'invoices', 'refund', 'customer', 'customer_account', 'provider', 'provider_account', 'provider_settings', 'structure_concepts', 'items', 'products', 'currency', 'languages', 'patterns', 'payments', 'templates', 'featuredTemplate', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'payment_methods', 'concepts', 'bank_accounts', 'bank_featured'));
     }

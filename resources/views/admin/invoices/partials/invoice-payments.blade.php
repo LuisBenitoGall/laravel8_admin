@@ -6,6 +6,8 @@
 					<th class="text-center wdt150">{!! ucfirst(trans('textos.fecha')) !!}</th>
 					<th class="text-center wdt100">{!! ucfirst(trans('textos.importe')) !!}</th>
 					<th class="wdt100">{!! ucfirst(trans('textos.modo')) !!}</th>
+					<th class="wdt100">{!! ucfirst(trans('textos.entidad')) !!}</th>
+					<th class="wdt100">{!! ucfirst(trans('textos.cuenta_bancaria')) !!}</th>
 					<th class="wdt250">{!! ucfirst(trans('textos.observaciones')) !!}</th>
 					<th class="text-center wdt100">{!! ucfirst(trans('textos.acciones')) !!}</th>
 				</tr>
@@ -33,7 +35,18 @@
 
 						{{-- Modo --}}
 						<td>
-							@if($pay->mode) {!! App\Helpers\helpers::paymentMethods($pay->mode) !!} @endif
+							{{-- @if($pay->mode) {!! App\Helpers\helpers::paymentMethods($pay->mode) !!} @endif --}}
+							{{ $pay->method }}
+						</td>
+
+						{{-- Banco --}}
+						<td>
+							{{ $pay->bank }}		
+						</td>
+
+						{{-- Cuenta bancaria --}}
+						<td>
+							{{ $pay->account }}	
 						</td>
 
 						{{-- Observaciones --}}
@@ -47,7 +60,7 @@
 							<a href="#" class="btn btn-xs btn-info btnEditPayment" rel="tooltip" title="{{ ucfirst(trans('textos.editar')) }}" data-toggle="modal" data-target="#modal-edit-payment" data-id="{{ $pay->id }}"><i class="fa fa-edit"></i></a>
 
 							{{-- Eliminar --}}
-							<form method="POST" action="{{ route('invoice-payments.destroy', $pay) }}" class="frm-inline" role="form" accept-charset="UTF-8">
+							<form method="POST" action="{{ route('payments.destroy', $pay) }}" class="frm-inline" role="form" accept-charset="UTF-8">
 	                            <input name="_method" type="hidden" value="DELETE">
 	                            {{ csrf_field() }}
 	                            <button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="{{ ucfirst(trans('textos.eliminar')) }}" data-msg="{{ trans('textos.cobro_confirm_eliminar') }}"><i class="fa fa-trash"></i></button>
@@ -66,7 +79,7 @@
 						<td class="text-right">
 							<b>{{ round($total_charged, 2) }}{{ $currency->symbol }}</b>	
 						</td>
-						<td colspan="3"></td>
+						<td colspan="5"></td>
 					</tr>
 					<tr>
 						<td class="text-right">
@@ -75,7 +88,7 @@
 						<td class="text-right">
 							<b>{{ round($invoice->amount_with_iva -  $total_charged, 2) }}{{ $currency->symbol }}</b>	
 						</td>
-						<td colspan="3"></td>
+						<td colspan="5"></td>
 					</tr>
 				</tfoot>
 			@endif
