@@ -48,6 +48,10 @@
 			  		<li class="nav-item @if($tab == 'banks') active @endif">
 			  			<a class="nav-link @if($tab == 'banks') active @endif" href="#tab-banks" role="tab" data-toggle="tab">{{ ucfirst(trans('textos.bancos_cuentas')) }}</a>
 			  		</li>
+
+			  		<li class="nav-item @if($tab == 'conditions') active @endif">
+			  			<a class="nav-link @if($tab == 'conditions') active @endif" href="#tab-conditions" role="tab" data-toggle="tab">@if($business_relationship == 'customers') {{ ucfirst(trans('textos.condiciones_cobro')) }} @else {{ ucfirst(trans('textos.condiciones_pago')) }} @endif</a>
+			  		</li>
 			  	</ul>
 
 			  	<div class="tab-content pt-4">
@@ -64,6 +68,11 @@
 					{{-- Datos bancarios --}}
 					<div class="tab-pane fade @if($tab == 'banks') show active @endif" role="tabpanel" id="tab-banks">
 						@include('admin.customer_providers.partials.customer-providers-banks')
+					</div>
+
+					{{-- Condiciones de pago --}}
+					<div class="tab-pane fade @if($tab == 'conditions') show active @endif" role="tabpanel" id="tab-conditions">
+						@include('admin.customer_providers.partials.customer-providers-pay-conditions')
 					</div>
 				</div>				
 			</div>
@@ -91,7 +100,6 @@ $(function(){
 		$('#accountNumber').val(account);
 		$('#accountBank').val(bank).trigger('change');
 	});
-
 });
 </script>
 @endpush

@@ -403,6 +403,28 @@ $(function(){
     	}
     });
 
+    //Cálculo fecha vencimiento:
+    $('#payAfterDays, #payDay').on('change', function(){
+    	var fiscal_date = $('#fiscalDate').val();
+    	var pay_after_days = $('#payAfterDays').val();
+    	var pay_day = $('#payDay').val();
+
+    	if(fiscal_date != ''){
+    		var f = new Date(fiscal_date);
+    		var f_ = f.setDate(f.getDate() + pay_after_days);	
+    		
+    		
+
+    		var fecha = new Date(f_);
+
+    		console.log(f_, fecha);
+
+    		//f_.getFullYear()+"-"+(f_.getMonth() + 1) + "-" +f_.getDate();
+    	}
+
+    	//console.log(pay_after_days, pay_day, new_date);
+    });
+
     //Selector conceptos contables:
 });
 </script>
