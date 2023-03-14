@@ -2753,6 +2753,8 @@ return array(
 	'gastos_add' => 'Adjuntar gastos',
 	'gastos_selec' => 'Selecciona gastos',
 	'gastos_vinculados' => 'Los gastos se han vinculado correctamente',
+	'pago_add' => 'Agregar pago',
+	'pago_confirm_eliminar' => 'Confirma que deseas eliminar este pago',
 	'pago_efectivo' => 'Pago en efectivo',
 	'pago_fecha' => 'Fecha del pago',
 	'pago_nuevo' => 'Nuevo pago',
@@ -2869,5 +2871,6 @@ return array(
 	'metodo_on_off' => 'Activar / desactivar método',
 	'metodo_updated' => 'El método ha sido actualizado correctamente',
 	'metodos_pago' => 'Métodos de pago',
+	'pagado_total' => 'Total pagado',
 
 );

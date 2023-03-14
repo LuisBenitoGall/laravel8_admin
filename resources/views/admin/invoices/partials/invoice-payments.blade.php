@@ -5,7 +5,7 @@
 				<tr>
 					<th class="text-center wdt150">{!! ucfirst(trans('textos.fecha')) !!}</th>
 					<th class="text-center wdt100">{!! ucfirst(trans('textos.importe')) !!}</th>
-					<th class="wdt100">{!! ucfirst(trans('textos.modo')) !!}</th>
+					<th class="wdt100">{!! ucfirst(trans('textos.metodo')) !!}</th>
 					<th class="wdt100">{!! ucfirst(trans('textos.entidad')) !!}</th>
 					<th class="wdt100">{!! ucfirst(trans('textos.cuenta_bancaria')) !!}</th>
 					<th class="wdt250">{!! ucfirst(trans('textos.observaciones')) !!}</th>
@@ -16,6 +16,7 @@
 			<tbody>
 				@php
 				$total_charged = 0;
+				$text_confirm = $is_sale? trans('textos.cobro_confirm_eliminar'):trans('textos.pago_confirm_eliminar');
 				@endphp
 
 				@foreach($payments as $pay)
@@ -63,7 +64,7 @@
 							<form method="POST" action="{{ route('payments.destroy', $pay) }}" class="frm-inline" role="form" accept-charset="UTF-8">
 	                            <input name="_method" type="hidden" value="DELETE">
 	                            {{ csrf_field() }}
-	                            <button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="{{ ucfirst(trans('textos.eliminar')) }}" data-msg="{{ trans('textos.cobro_confirm_eliminar') }}"><i class="fa fa-trash"></i></button>
+	                            <button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="{{ ucfirst(trans('textos.eliminar')) }}" data-msg="{{ $text_confirm }}"><i class="fa fa-trash"></i></button>
 	                        </form>
 						</td>
 					</tr>
@@ -74,7 +75,7 @@
 				<tfoot>
 					<tr>
 						<td class="text-right">
-							<b>{{ trans('textos.cobrado_total') }}</b>
+							<b>@if($is_sale) {{ trans('textos.cobrado_total') }} @else {{ trans('textos.pagado_total') }} @endif</b>
 						</td>		
 						<td class="text-right">
 							<b>{{ round($total_charged, 2) }}{{ $currency->symbol }}</b>	
