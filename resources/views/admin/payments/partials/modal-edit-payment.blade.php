@@ -23,10 +23,10 @@
                     </div>
 
                     <div class="form-group row">
-                        {{-- Modo --}}
-                        <label for="mode" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.modo')) !!}</label>
+                        {{-- Método de pago --}}
+                        <label for="payment_method" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.metodo')) !!}</label>
                         <div class="col-lg-10">
-                            <x-select name="mode" class="select2" id="paymentMode" label="metodo_selec" :options="$payment_methods"/>
+                            <x-select name="payment_method" class="select2" id="paymentMethod" label="metodo_selec" :options="$payment_methods"/>
                         </div>
                     </div>
 

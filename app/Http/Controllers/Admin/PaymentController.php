@@ -39,7 +39,7 @@ class PaymentController extends Controller{
 
         $this->middleware('module_setted:accounting');
         $this->middleware('invoice_post', ['only' => ['store', 'update']]);
-        $this->middleware('bank_accounts_post', ['only' => ['store']]);
+        //$this->middleware('bank_accounts_post', ['only' => ['store']]);
     }
 
     //0. Validator:
@@ -84,6 +84,7 @@ class PaymentController extends Controller{
      * 2. Guardar cobro.
      */
     public function store(Request $request){
+
         $validator = $this->validator($request->all());
         if($validator->fails()){
             //Indicamos el origen de la acción realizada para manejar el modal:
@@ -94,7 +95,7 @@ class PaymentController extends Controller{
                 ->withInput();
         }
 
-        //dd($request->all());
+        
 
         $payment_date = $request->payment_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->payment_date):$request->payment_date:NULL;
 
@@ -112,7 +113,13 @@ class PaymentController extends Controller{
         $row->save();
 
         $msg = trans('textos.cobro_guardado');
-        return redirect()->route('invoices.edit-purchase', [$request->invoice_id, 'payments'])->with(compact('msg'));
+        //Compra:
+        if($row->company_from == session('currentCompany')){
+            return redirect()->route('invoices.edit-purchase', [$request->invoice_id, 'payments'])->with(compact('msg'));
+        //Venta:
+        }else{
+            return redirect()->route('invoices.edit', [$request->invoice_id, 'payments'])->with(compact('msg'));
+        }
     }
 
     /**
@@ -131,13 +138,19 @@ class PaymentController extends Controller{
 
         $row = Payment::find($request->payment_id);
         $row->amount = $request->amount;
-        $row->payment_method_id = $request->payment_method_id;
+        $row->payment_method_id = $request->payment_method;
         $row->bank_account_id = $request->bank_account_id;
         $row->observations = $request->observations;
         $row->save();
 
         $msg = trans('textos.cobro_updated');
-        return redirect()->route('invoices.edit', [$request->invoice_id, 'payments'])->with(compact('msg')); 
+        //Compra:
+        if($row->company_from == session('currentCompany')){
+            return redirect()->route('invoices.edit-purchase', [$request->invoice_id, 'payments'])->with(compact('msg'));
+        //Venta:
+        }else{
+            return redirect()->route('invoices.edit', [$request->invoice_id, 'payments'])->with(compact('msg'));
+        }
     }
 
     /**
@@ -145,10 +158,17 @@ class PaymentController extends Controller{
      */
     public function destroy(Request $request, Payment $payment){
         $invoice_id = $payment->invoice_id;
+        $company_from = $payment->company_from;
 
         $payment->delete();
 
         $msg = trans('textos.cobro_deleted');
-        return redirect()->route('invoices.edit', [$invoice_id, 'payments'])->with(compact('msg'));
+        //Compra:
+        if($company_from == session('currentCompany')){
+            return redirect()->route('invoices.edit-purchase', [$invoice_id, 'payments'])->with(compact('msg'));
+        //Venta:
+        }else{
+            return redirect()->route('invoices.edit', [$invoice_id, 'payments'])->with(compact('msg'));
+        }
     }
 }
