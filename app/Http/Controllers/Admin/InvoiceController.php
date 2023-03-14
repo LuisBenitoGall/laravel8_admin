@@ -1029,7 +1029,7 @@ class InvoiceController extends Controller{
         $bank_featured = false;
         $bank_accounts_data = BankAccounts::select('bank_accounts.id', 'bank_accounts.account', 'bank_accounts.featured', 'banks.name', 'banks.tradename')
         ->join('banks', 'bank_accounts.bank_id', '=', 'banks.id')
-        ->where('bank_accounts.company_id', session('currentCompany'))
+        ->where('bank_accounts.company_id', $customer->id)
         ->where('bank_accounts.status', 1)
         ->orderBy('bank_accounts.featured', 'DESC')
         ->get();
@@ -1175,7 +1175,7 @@ class InvoiceController extends Controller{
         $bank_featured = false;
         $bank_accounts_data = BankAccounts::select('bank_accounts.id', 'bank_accounts.account', 'bank_accounts.featured', 'banks.name', 'banks.tradename')
         ->join('banks', 'bank_accounts.bank_id', '=', 'banks.id')
-        ->where('bank_accounts.company_id', session('currentCompany'))
+        ->where('bank_accounts.company_id', $customer->id)
         ->where('bank_accounts.status', 1)
         ->orderBy('bank_accounts.featured', 'DESC')
         ->get();

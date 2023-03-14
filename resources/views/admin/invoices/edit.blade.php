@@ -354,6 +354,7 @@ $readonly = $invoice->blocked && !$is_sale || ($order->customer_id == session('c
 <script>
 $(function(){
 	var payments = {!! json_encode($payments) !!}
+	console.log(payments);
 
 	//Activar - desactivar IVA en factura.
     $('.btnWithIva').on('click', function(){
@@ -392,9 +393,9 @@ $(function(){
     			$('#paymentAmount').val(payments[i].amount);
     			$('#paymentObservations').val(payments[i].observations);
 
-    			var arrMode = [payments[i].mode];
-                $('#paymentMode').val(arrMode);
-                $('#paymentMode').trigger('change');
+    			var arrMode = [payments[i].payment_method_id];
+                $('#paymentMethod').val(arrMode);
+                $('#paymentMethod').trigger('change');
 
                 var arrBankAccount = [payments[i].bank_account_id];
                 $('#paymentBankAccount').val(arrBankAccount);
