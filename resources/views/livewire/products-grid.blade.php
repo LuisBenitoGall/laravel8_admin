@@ -9,6 +9,9 @@
         <p class="col-12 mb-5 text-center text-warning"><b>{{ trans('textos.productos_no_mas') }}</b></p>
     @endif
 
+
+    <input type="hidden" id="last-record" value="">
+
     <script>
     const lastRecord = document.getElementById('last-record');
     const options = {

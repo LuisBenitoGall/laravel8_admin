@@ -20,38 +20,9 @@
 	<div class="col-12">
 		<div class="card mb-3">
 			<div class="card-body">	
-				<h3 class="mb-4">{{ trans('textos.condiciones_pago_de') }} <u>{{ $company->name }}</u></h3>	
+				<h3 class="mb-4">@if($environment == 'customers') {{ trans('textos.condiciones_cobro') }}  @else {{ trans('textos.condiciones_pago_de') }} @endif <u>{{ $company->name }}</u></h3>	
 
-				<form method="post" autocomplete="off" action="{{ route('customers.update-conditions', $conditions->id) }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
-					@method('PUT')
-					{{ csrf_field() }}
-					<input type="hidden" name="company_id" value="{{ $company->id }}">
-					<input type="hidden" name="environment" value="{{ $environment }}">
-
-					<div class="form-group row">
-						{{-- Días para vencimiento --}}
-						<label for="pay_after_days" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.dias_vencimiento')) !!}</label>
-						<div class="col-lg-1">
-							<x-input type="text" name="pay_after_days" class="text-right" autocomplete="off" maxlength="3" required info="pay-conditions-days" value="{{ $conditions->pay_after_days }}"/>
-						</div>
-
-						{{-- Fecha de pago --}}
-						<label for="payday" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.dia_mes')) !!}</label>
-						<div class="col-lg-1">
-							<x-input type="text" name="payday" class="text-right max-value" datas="maxvalue:31" autocomplete="off" maxlength="3" required info="pay-conditions-pay-day" value="{{ $conditions->payday }}"/>
-						</div>
-					</div>
-
-					<div class="form-group row">
-						{{-- Método envío de las facturas --}}
-						<label for="billing_comunication" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.envio_facturacion')) !!}</label>
-						<div class="col-lg-10">
-							<x-input-textarea name="billing_comunication" value="{{ $conditions->billing_comunication }}"/>
-						</div>
-					</div>
-
-					<x-btn-submit name="submit_update_conditions" label="{{ trans('textos.guardar') }}"/>
-				</form>
+				@include('admin.customer_providers.partials.form-pay-conditions', ['return' => 'conditions'])
 			</div>
 		</div>
 	</div>

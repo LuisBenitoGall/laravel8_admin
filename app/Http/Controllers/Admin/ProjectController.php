@@ -514,9 +514,10 @@ class ProjectController extends Controller{
         }
 
         //Compras:
-        $project_purchases = Order::select('orders.id', 'orders.order_num', 'orders.purchase_num', 'orders.purchase_old_num', 'orders.name', 'orders.delivery_date', 'orders.order_status', 'companies.name AS provider', 'project_purchases.id AS ppId')
+        $project_purchases = Order::select('orders.id', 'orders.order_num', 'orders.purchase_num', 'orders.purchase_old_num', 'orders.name', 'orders.delivery_date', 'orders.order_status', 'companies.name AS provider', 'project_purchases.id AS ppId', 'invoices.fiscal_date')
         ->join('project_purchases', 'orders.id', '=', 'project_purchases.order_id')
         ->join('companies', 'orders.provider_id', '=', 'companies.id')
+        ->leftJoin('invoices', 'orders.id', '=', 'invoices.order_id')
         ->where('project_purchases.project_id', $project->id)
         ->orderBy('orders.order_num', 'ASC')
         ->get();
