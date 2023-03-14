@@ -83,6 +83,8 @@
 			@endphp	
 
 			<x-date-picker name="fiscal_date" value="{{ $fiscal_date }}" :format="$languages[config('app.locale')][4]" disabled="{{ $disabled }}"/>
+
+			<input type="hidden" id="fiscalDate" value="{{ $invoice->fiscal_date }}">
 		</div>
 
 		{{-- Fecha vencimiento --}}
@@ -156,19 +158,23 @@
 			{{-- Días para vencimiento --}}
 			<label for="pay_after_days" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.dias_vencimiento')) !!}</label>
 			<div class="col-lg-1">
-				<x-input type="text" name="pay_after_days" class="text-right" autocomplete="off" maxlength="3" required info="pay-conditions-days" value="{{ $provider_settings->pay_after_days }}" readonly/>
+				<x-input type="text" name="pay_after_days" class="text-right" id="payAfterDays" autocomplete="off" maxlength="3" info="pay-conditions-days" value="{{ $provider_settings->pay_after_days }}" readonly="{{ $readonly }}"/>
 			</div>
 
 			{{-- Fecha de pago --}}
 			<label for="payday" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.dia_mes')) !!}</label>
 			<div class="col-lg-1">
-				<x-input type="text" name="payday" class="text-right max-value" datas="maxvalue:31" autocomplete="off" maxlength="3" required info="pay-conditions-pay-day" value="{{ $provider_settings->payday }}" readonly/>
+				<x-input type="text" name="payday" class="text-right max-value" id="payDay" datas="maxvalue:31" autocomplete="off" maxlength="2" info="pay-conditions-pay-day" value="{{ $provider_settings->payday }}" readonly="{{ $readonly }}"/>
 			</div>	
 
 			{{-- Métodos de pago --}}
 			<label for="payment_method" class="col-md-2 col-form-label">{!! ucfirst(trans('textos.metodos_pago')) !!}</label>
 			<div class="col-md-2">
-				<x-select name="payment_method" class="select2" id="paymentMethods" label="metodo_selec" :options="$payment_methods" value="{{ $invoice->payment_method_id }}" disabled="{{ $disabled }}"/>
+				@php
+				$pm = $invoice->payment_method_id? $invoice->payment_method_id:($provider_settings->payment_method_id? $provider_settings->payment_method_id:'');
+				@endphp
+
+				<x-select name="payment_method" class="select2" id="paymentMethods" label="metodo_selec" :options="$payment_methods" value="{{ $pm }}" disabled="{{ $disabled }}"/>
 			</div>
 		</div>
 	@endif

@@ -27,6 +27,7 @@ use App\Models\CompanySettings;
 use App\Models\CostCenters;
 use App\Models\CustomerProviders;
 use App\Models\Employee;
+use App\Models\PaymentMethod;
 use App\Models\TempImportCompanies;
 use App\Models\Town;
 use App\Models\User;
@@ -276,12 +277,12 @@ class CustomerProvidersController extends Controller{
 
         $areas = BusinessAreas::where('company_id', $company->id)->get();
 
-        $acronym = CustomerProviders::select('acronym')
-        ->where('customer_id', $company->id)
-        ->where('provider_id', session('currentCompany'))
+        $conditions = CustomerProviders::where('provider_id', $company->id)
+        ->where('customer_id', session('currentCompany'))
         ->first();
 
         $business_relationship = 'customers';
+        $environment = 'customers';
 
         //Cuenta de la empresa:
         $company_account = CompanyAccounts::where('company_id', $company->id)
@@ -294,7 +295,12 @@ class CustomerProvidersController extends Controller{
         //Cuentas bancarias de la empresa:
         $bank_accounts = BankAccounts::getBankAccounts($company->id);
 
-        return view('admin.customer_providers.edit')->with(compact('header', 'company', 'tab', 'workplaces', 'areas', 'acronym', 'business_relationship', 'company_account', 'banks', 'bank_accounts'));     
+        //Métodos de pago:
+        $payment_methods = PaymentMethod::where('company_id', $company->id)
+        ->pluck('name', 'id')
+        ->toArray();
+
+        return view('admin.customer_providers.edit')->with(compact('header', 'company', 'tab', 'workplaces', 'areas', 'conditions', 'business_relationship', 'environment', 'company_account', 'banks', 'bank_accounts', 'payment_methods'));     
     }
 
     /**
@@ -381,12 +387,12 @@ class CustomerProvidersController extends Controller{
 
         $areas = BusinessAreas::where('company_id', $company->id)->get();
 
-        $acronym = CustomerProviders::select('acronym')
-        ->where('provider_id', $company->id)
+        $conditions = CustomerProviders::where('provider_id', $company->id)
         ->where('customer_id', session('currentCompany'))
         ->first();
 
         $business_relationship = 'providers';
+        $environment = 'providers';
 
         //Cuenta de la empresa:
         $company_account = CompanyAccounts::where('company_id', $company->id)
@@ -399,7 +405,12 @@ class CustomerProvidersController extends Controller{
         //Cuentas bancarias de la empresa:
         $bank_accounts = BankAccounts::getBankAccounts($company->id);
 
-        return view('admin.customer_providers.edit')->with(compact('header', 'company', 'tab', 'workplaces', 'areas', 'acronym', 'business_relationship', 'company_account', 'banks', 'bank_accounts'));     
+        //Métodos de pago:
+        $payment_methods = PaymentMethod::where('company_id', session('currentCompany'))
+        ->pluck('name', 'id')
+        ->toArray();
+
+        return view('admin.customer_providers.edit')->with(compact('header', 'company', 'tab', 'workplaces', 'areas', 'conditions', 'business_relationship', 'environment', 'company_account', 'banks', 'bank_accounts', 'payment_methods'));     
     }
 
     /**
@@ -957,6 +968,11 @@ class CustomerProvidersController extends Controller{
 
         $environment = 'customers';
 
+        //Cuenta de la empresa:
+        $company_account = CompanyAccounts::where('company_id', $company->id)
+        ->where('status', 1)
+        ->first();
+
         $conditions = CustomerProviders::where('customer_id', $company->id)
         ->where('provider_id', session('currentCompany'))
         ->first();
@@ -964,7 +980,12 @@ class CustomerProvidersController extends Controller{
         //Areas de negocio:
         $areas = BusinessAreas::where('company_id', $company->id)->get();
 
-        return view('admin.customer_providers.pay-conditions')->with(compact('header', 'company', 'environment', 'conditions', 'areas')); 
+        //Métodos de pago:
+        $payment_methods = PaymentMethod::where('company_id', $company->id)
+        ->pluck('name', 'id')
+        ->toArray();
+
+        return view('admin.customer_providers.pay-conditions')->with(compact('header', 'company', 'environment', 'company_account', 'conditions', 'areas', 'payment_methods')); 
     }
 
     /**
@@ -980,6 +1001,11 @@ class CustomerProvidersController extends Controller{
 
         $environment = 'providers';
 
+        //Cuenta de la empresa:
+        $company_account = CompanyAccounts::where('company_id', $company->id)
+        ->where('status', 1)
+        ->first();
+
         $conditions = CustomerProviders::where('provider_id', $company->id)
         ->where('customer_id', session('currentCompany'))
         ->first();
@@ -987,7 +1013,12 @@ class CustomerProvidersController extends Controller{
         //Areas de negocio:
         $areas = BusinessAreas::where('company_id', $company->id)->get();
 
-        return view('admin.customer_providers.pay-conditions')->with(compact('header', 'company', 'environment', 'conditions', 'areas')); 
+        //Métodos de pago:
+        $payment_methods = PaymentMethod::where('company_id', session('currentCompany'))
+        ->pluck('name', 'id')
+        ->toArray();
+
+        return view('admin.customer_providers.pay-conditions')->with(compact('header', 'company', 'environment', 'company_account', 'conditions', 'areas', 'payment_methods')); 
     }
 
     /**
@@ -996,19 +1027,42 @@ class CustomerProvidersController extends Controller{
     public function updateConditions(Request $request, CustomerProviders $cp){
         $validator = $this->validator($request->all());
         if($validator->fails()){    
-            $segment = $request->environment == 'customers'? 'pay-conditions':' pay-conditions-provider';      
+            $segment = $request->environment == 'customers'? 'pay-conditions':'pay-conditions-provider';      
 
             return redirect('/admin/'.$request->environment.'/'.$request->company_id.'/'.$segment)
                 ->withErrors($validator)
                 ->withInput();
         }
 
-        $cp->pay_after_days = $request->pay_after_days;
-        $cp->payday = $request->payday;
-        $cp->billing_comunication = $request->billing_comunication;
+        if($request->pay_after_days){
+            $cp->pay_after_days = $request->pay_after_days;
+        }
+        if($request->payday){
+            $cp->payday = $request->payday;
+        }
+        if($request->billing_comunication){
+            $cp->billing_comunication = $request->billing_comunication;
+        }
+        if($request->payment_method){
+            $cp->payment_method_id = $request->payment_method;
+        }
         $cp->save();
 
-        $ruta = $request->environment == 'customers'? 'customers.pay-conditions':'providers.pay-conditions-provider';
+        if($request->environment == 'customers'){
+            if($request->return == 'edit'){
+                $ruta = 'customers.edit';
+            }else{
+                $ruta = 'customers.pay-conditions';
+            }
+        }else{
+            if($request->return == 'edit'){
+                $ruta = 'providers.edit';
+            }else{
+                $ruta = 'providers.pay-conditions-provider';
+            }
+        }
+
+        //$ruta = $request->environment == 'customers'? 'customers.pay-conditions':'providers.pay-conditions-provider';
 
         $msg = trans('textos.cliente_updated');
         return redirect()->route($ruta, $request->company_id)->with(compact('msg'));

@@ -686,7 +686,7 @@ $(window).on('load', function () {
     // 14. Valor máximo admitido en un campo.
     $('.max-value').on('change', function () {
         var value = $(this).val();
-        var max = $(this).data('maxvalue');
+        var max = $(this).data('maxvalue'); 
 
         if (value > max) {
             swal.fire({

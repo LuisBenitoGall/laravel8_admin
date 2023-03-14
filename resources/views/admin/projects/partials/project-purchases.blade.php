@@ -6,7 +6,7 @@
 					<th class="text-center">#</th>
 					<th>{!! ucfirst(trans('textos.proveedor')) !!}</th>
 					<th class="text-center">{!! ucfirst(trans('textos.importe')) !!}</th>
-					<th class="text-center">{!! ucfirst(trans('textos.fecha_entrega')) !!}</th>
+					<th class="text-center">{!! ucfirst(trans('textos.fecha_fiscal')) !!}</th>
 					<th class="text-center">{!! ucfirst(trans('textos.facturas')) !!}</th>
 					<th class="text-center">{!! ucfirst(trans('textos.estado')) !!}</th>
 					<th class="text-center">{!! ucfirst(trans('textos.acciones')) !!}</th>
@@ -47,10 +47,10 @@
 							{{ $purchase_amount['total_amount'] }}
 							{{ $currency->symbol }}
 						</td>
-						{{-- Fecha entrega --}}
+						{{-- Fecha fiscal --}}
 						<td class="text-right">
-							@if($pp->delivery_date)
-								{!! Carbon\Carbon::parse($pp->delivery_date)->format($languages[session()->get('locale')][4]) !!}
+							@if($pp->fiscal_date)
+								{!! Carbon\Carbon::parse($pp->fiscal_date)->format($languages[session()->get('locale')][4]) !!}
 							@endif
 						</td>
 						{{-- Factura --}}

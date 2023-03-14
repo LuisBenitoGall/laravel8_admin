@@ -1095,7 +1095,7 @@ class InvoiceController extends Controller{
         ->first();
 
         //Configuraciones de proveedor:
-        $provider_settings = CustomerProviders::select('accounting_concept_id', 'pay_after_days', 'payday', 'payment_method')
+        $provider_settings = CustomerProviders::select('accounting_concept_id', 'pay_after_days', 'payday', 'payment_method_id')
         ->where('customer_id', $customer->id)
         ->where('provider_id', $provider->id)
         ->first();

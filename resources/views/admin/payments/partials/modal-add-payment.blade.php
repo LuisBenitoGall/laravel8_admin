@@ -2,7 +2,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title" id="addPayment">{!! ucfirst(trans('textos.cobro_add')) !!}</h4>
+                <h4 class="modal-title" id="addPayment">@if($is_sale) {!! ucfirst(trans('textos.cobro_add')) !!} @else {!! ucfirst(trans('textos.pago_nuevo')) !!} @endif</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -14,6 +14,7 @@
                     <input type="hidden" name="invoice_id" value="{{ $invoice->id }}">
                     <input type="hidden" name="company_from" value="@if($is_sale) {{ $customer->id }} @else {{ $provider->id }}  @endif">
                     <input type="hidden" name="company_to" value="@if($is_sale) {{ $provider->id }} @else {{ $customer->id }}  @endif">
+                    <input type="hidden" name="is_ticket" value="false">
 
                     <div class="form-group row">
                         {{-- Importe --}}
@@ -24,10 +25,18 @@
                     </div>
 
                     <div class="form-group row">
-                        {{-- Modo --}}
-                        <label for="mode" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.modo')) !!}</label>
+                        {{-- Método de pago --}}
+                        <label for="payment_method_id" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.metodo')) !!}</label>
                         <div class="col-lg-10">
-                            <x-select name="mode" class="select2" label="metodo_selec" :options="$payment_methods"/>
+                            <x-select name="payment_method_id" class="select2" label="metodo_selec" :options="$payment_methods"/>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        {{-- Fecha pago --}}
+                        <label for="payment_date" class="col-lg-3 col-form-label">{!! ucfirst(trans('textos.pago_fecha')) !!}</label>
+                        <div class="col-lg-9">
+                            <x-date-picker name="fiscal_date" :format="$languages[config('app.locale')][4]"/>
                         </div>
                     </div>
 

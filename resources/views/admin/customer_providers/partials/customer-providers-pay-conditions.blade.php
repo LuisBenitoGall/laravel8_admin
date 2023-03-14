@@ -1,0 +1,1 @@
+@include('admin.customer_providers.partials.form-pay-conditions', ['return' => 'edit'])
