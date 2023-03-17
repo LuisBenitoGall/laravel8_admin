@@ -407,18 +407,22 @@ $(function(){
     //Cálculo fecha vencimiento:
     $('#payAfterDays, #payDay').on('change', function(){
     	var fiscal_date = $('#fiscalDate').val();
+    	var p = fiscal_date.split("-");
+    	var fd = new Date(p[0], p[1], p[2]);
+    	console.log(fiscal_date, fd);
+
     	var pay_after_days = $('#payAfterDays').val();
     	var pay_day = $('#payDay').val();
 
     	if(fiscal_date != ''){
-    		var f = new Date(fiscal_date);
-    		var f_ = f.setDate(f.getDate() + pay_after_days);	
+    		//var f = new Date(fiscal_date);
+    		//var f_ = fiscal_date.setDate(fiscal_date.getDate() + pay_after_days);	
     		
     		
 
-    		var fecha = new Date(f_);
+    		//var fecha = new Date(f_);
 
-    		console.log(f_, fecha);
+    		//console.log(fiscal_date,  f_);
 
     		//f_.getFullYear()+"-"+(f_.getMonth() + 1) + "-" +f_.getDate();
     	}

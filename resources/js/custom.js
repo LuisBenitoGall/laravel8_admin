@@ -153,6 +153,34 @@ function dayTypesOptions(data, num, elem, text){
     elem.append(html);
 }
 
+// Sumar - restar días a una fecha:
+function calculateDate(fecha, operacion, dias){
+    var date = fecha.split("-"),
+    hoy = new Date(date[0], date[1], date[2]),
+    dias = parseInt(dias),
+    calculado = new Date(),
+    dateResult = operacion == "s" ? hoy.getDate() + dias : hoy.getDate() - dias;
+    //calculado.setDate(dateResult);
+
+    return calculado.getFullYear() +
+        "-" +
+        (calculado.getMonth() + 1) +
+        "-" +
+        calculado.getDate();
+
+    //alert(calculado);
+    //return calculado;
+
+    // resultado.innerText =
+    //     calculado.getDate() +
+    //     "/" +
+    //     (calculado.getMonth() + 1) +
+    //     "/" +
+    //     calculado.getFullYear();
+
+    // return resultado;
+}
+
 // ************************************ DOCUMENT READY: ************************************
 $(document).ready(function () {
     /* ***************** INDICE DE MÉTODOS: *****************
@@ -328,6 +356,7 @@ $(window).on('load', function () {
     30. Selector cuenta de gastos por estructura.
     31. Desplegar bloque de permisos.
     32. Producto exento de IVA.
+    33. Cálculo fecha vencimiento de factura.
     */
 
     // 1. Eliminar preview imagen seleccionada:
@@ -1180,5 +1209,28 @@ $(window).on('load', function () {
                 
         }
     });
+
+    // 33. Cálculo fecha vencimiento de factura.
+    // $('#payAfterDays, #payDay').on('change', function(){
+    //     var fiscal_date = $('#fiscalDate').val();
+    //     var pay_after_days = $('#payAfterDays').val();
+    //     var pay_day = $('#payDay').val();
+
+    //     if(fiscal_date != ''){
+    //         var f = calculateDate(fiscal_date, 's', pay_after_days);
+    //         // var f = new Date(fiscal_date);
+    //         // var f_ = fiscal_date.setDate(fiscal_date.getDate() + pay_after_days);   
+            
+            
+
+    //         //var fecha = new Date(f_);
+
+    //         console.log(fiscal_date, pay_after_days, f);
+
+    //         //f_.getFullYear()+"-"+(f_.getMonth() + 1) + "-" +f_.getDate();
+    //     }
+
+    //     //console.log(pay_after_days, pay_day, new_date);
+    // });
 
 });
