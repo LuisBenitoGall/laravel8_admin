@@ -953,6 +953,12 @@ class InvoiceController extends Controller{
         ->where('status', 1)
         ->first();
 
+        //Configuraciones de proveedor:
+        $provider_settings = CustomerProviders::select('accounting_concept_id', 'pay_after_days', 'payday', 'payment_method_id')
+        ->where('customer_id', $customer->id)
+        ->where('provider_id', $provider->id)
+        ->first();
+
         //Líneas del pedido: 
         $items = Item::where('order_id', $order->id)
         ->orderBy('concept', 'ASC')
@@ -1048,7 +1054,7 @@ class InvoiceController extends Controller{
             if($ba->featured == 1) $bank_featured = $ba->id;
         }
 
-        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'is_sale', 'order', 'suborders', 'invoiced', 'invoices', 'refund', 'customer', 'customer_settings', 'provider', 'provider_account', 'items', 'products', 'patterns', 'payments', 'templates', 'featuredTemplate', 'currency', 'languages', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'payment_methods', 'bank_accounts', 'bank_featured'));
+        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'is_sale', 'order', 'suborders', 'invoiced', 'invoices', 'refund', 'customer', 'customer_settings', 'provider', 'provider_account', 'provider_settings', 'items', 'products', 'patterns', 'payments', 'templates', 'featuredTemplate', 'currency', 'languages', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'payment_methods', 'bank_accounts', 'bank_featured'));
     }
 
     /**
