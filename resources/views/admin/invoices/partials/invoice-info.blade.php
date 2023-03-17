@@ -91,10 +91,13 @@
 		<label for="expiration_date" class="col-md-2 col-form-label">{!! ucfirst(trans('textos.fecha_vencimiento')) !!}</label>
 		<div class="col-md-4 col-lg-2">
 			@php
-			$expiration_date = $invoice->expiration_date != ''? \Carbon\Carbon::parse($invoice->expiration_date)->format($languages[session()->get('locale')][4]):'';
+			//Calculamos la fecha de vencimiento por defecto a partir de los datos de días para vencimiento y día de pago existentes en la configuración entre cliente y proveedor:
+			$default_expiration_date = $invoice->fiscal_date && $provider_settings->pay_after_days && $provider_settings->payday? App\Helpers\helpers::calculateExpirationDate($invoice->fiscal_date, $provider_settings->pay_after_days, $provider_settings->payday):false;
+
+			$expiration_date = $invoice->expiration_date != ''? \Carbon\Carbon::parse($invoice->expiration_date)->format($languages[session()->get('locale')][4]):($default_expiration_date? \Carbon\Carbon::parse($default_expiration_date)->format($languages[session()->get('locale')][4]):'');
 			@endphp	
 
-			<x-date-picker name="expiration_date" value="{{ $expiration_date }}" :format="$languages[config('app.locale')][4]" disabled="{{ $disabled }}"/>
+			<x-date-picker name="expiration_date" id="expirationDate" value="{{ $expiration_date }}" :format="$languages[config('app.locale')][4]" disabled="{{ $disabled }}"/>
 		</div>
 
 		{{-- Estado --}}

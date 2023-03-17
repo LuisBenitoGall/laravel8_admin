@@ -28,6 +28,7 @@ class Helpers{
 	 *  2.9. Obtener último día de un mes por año.
 	 *  2.10. Calcular tiempo transcurrido entre horas.
 	 *  2.11. Sumar horas.
+	 *  2.12. Calcular fecha de vencimiento de factura.
 	 *
 	 * 3. Datos tipificados:
 	 * 	3.1. Idiomas.
@@ -571,6 +572,28 @@ class Helpers{
 		if(strlen($minutos) == 1) $minutos = '0'.$minutos; 
 
 		return $horas.':'.$minutos;
+	}
+
+	/**
+	 * 2.12. Calcular fecha de vencimiento de factura.
+	 */
+	public static function calculateExpirationDate($date, $after_days, $payday){
+		$f = date("Y-m-d", strtotime($date."+ ".$after_days." days"));
+		$p = explode('-', $f);
+
+		//Ajustando fecha de pago:
+		$month = $p[1];	
+		$year = $p[0];
+		if($p[2] > $payday){
+			$month = intval($month) + 1;
+			if($month == 13){
+				$month = 1;
+				$year = $year++;	
+			} 
+			$month = $month < 10? '0'.$month:$month;
+		}
+
+		return $year.'-'.$month.'-'.$payday;
 	}
 	
 	/**

@@ -886,6 +886,15 @@ class InvoiceController extends Controller{
      * 3. Editar factura.
      */
     public function edit(Invoice $invoice, $tab = false){
+        //Pedido:
+        $order = Order::find($invoice->order_id);
+
+        //Redirigiendo a factura de compra:
+        if($order->customer_id == session('currentCompany')){
+            return redirect()->route('invoices.edit-purchase', [$invoice, false]);  
+            exit;
+        }
+
         $header = [
             'option' => $this->option, 
             'suboption' => 'textos.factura_editar',
@@ -899,8 +908,7 @@ class InvoiceController extends Controller{
         //Entorno: venta.
         $is_sale = true;
 
-        //Pedido:
-        $order = Order::find($invoice->order_id);
+        
 
         //Si se trata de una agrupación, obtenemos los pedidos vinculados:
         $suborders = false;
@@ -1355,6 +1363,29 @@ class InvoiceController extends Controller{
         //}
 
         $invoice->save();
+
+        //Actualizando valores por defecto en la relación cliente-proveedor:
+        $provider_settings = CustomerProviders::select('id', 'accounting_concept_id', 'expense_account_id', 'pay_after_days', 'payday', 'payment_method_id')
+        ->where('customer_id', $order->customer_id)
+        ->where('provider_id', $order->provider_id)
+        ->first();
+
+        if(!$provider_settings->pay_after_days){
+            $provider_settings->pay_after_days = $request->pay_after_days;   
+        }
+        if(!$provider_settings->payday){
+            $provider_settings->payday = $request->payday;    
+        }
+        if(!$provider_settings->accounting_concept_id){
+            $provider_settings->accounting_concept_id = $request->accounting_structure;    
+        }
+        if(!$provider_settings->expense_account_id){
+            $provider_settings->expense_account_id = $request->accounting_concept;    
+        }
+        if(!$provider_settings->payment_method_id){
+            $provider_settings->payment_method_id = $request->payment_method;    
+        }
+        $provider_settings->save();
 
         $msg = trans('textos.factura_updated');
         $route = $is_sale? 'edit':'edit-purchase';
