@@ -407,27 +407,37 @@ $(function(){
     //Cálculo fecha vencimiento:
     $('#payAfterDays, #payDay').on('change', function(){
     	var fiscal_date = $('#fiscalDate').val();
-    	var p = fiscal_date.split("-");
-    	var fd = new Date(p[0], p[1], p[2]);
-    	console.log(fiscal_date, fd);
-
-    	var pay_after_days = $('#payAfterDays').val();
-    	var pay_day = $('#payDay').val();
 
     	if(fiscal_date != ''){
-    		//var f = new Date(fiscal_date);
-    		//var f_ = fiscal_date.setDate(fiscal_date.getDate() + pay_after_days);	
-    		
-    		
+    		var pay_after_days = parseInt($('#payAfterDays').val());
+    		var pay_day = $('#payDay').val();
 
-    		//var fecha = new Date(f_);
+    		//Fecha sumando los días para vencimiento:
+    		var f = new Date(fiscal_date);
+			f.setDate(f.getDate() + pay_after_days);
 
-    		//console.log(fiscal_date,  f_);
+			var month = f.getMonth() + 1;
 
-    		//f_.getFullYear()+"-"+(f_.getMonth() + 1) + "-" +f_.getDate();
+			var year = f.getFullYear();
+
+			//Ajustando fecha de pago:
+			var day = f.getDate();
+
+			if(day > pay_day){
+				month++;
+				if(month == 13){
+					month = '01';
+					year++;
+				}
+			}
+
+			month = parseInt(month) < 10? '0'+month:month;
+
+			if(pay_after_days != '' && pay_day != ''){
+				fecha = pay_day+"/"+month+"/"+year;
+				$('#expirationDate').val(fecha);
+			}
     	}
-
-    	//console.log(pay_after_days, pay_day, new_date);
     });
 
     //Selector conceptos contables:

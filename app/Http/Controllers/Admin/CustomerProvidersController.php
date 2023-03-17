@@ -1034,12 +1034,12 @@ class CustomerProvidersController extends Controller{
                 ->withInput();
         }
 
-        if($request->pay_after_days){
+        //if($request->pay_after_days){
             $cp->pay_after_days = $request->pay_after_days;
-        }
-        if($request->payday){
+        //}
+        //if($request->payday){
             $cp->payday = $request->payday;
-        }
+        //}
         if($request->billing_comunication){
             $cp->billing_comunication = $request->billing_comunication;
         }

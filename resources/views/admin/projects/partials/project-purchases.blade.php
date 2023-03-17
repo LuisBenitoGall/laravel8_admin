@@ -67,7 +67,7 @@
 									@endphp
 								@endif
 
-								<a target="_blank" href="{{ route('invoices.edit', $inv->id) }}">
+								<a target="_blank" href="{{ route('invoices.edit-purchase', $inv->id) }}">
 									@if($inv->invoice_num)
 										{{ $inv->invoice_num }}
 									@elseif($inv->invoice_old_num)
