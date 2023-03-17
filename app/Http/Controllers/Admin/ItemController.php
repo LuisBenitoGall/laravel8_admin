@@ -395,6 +395,10 @@ class ItemController extends Controller{
         ->first();
         if($invoice_item){
             InvoiceItems::updateInvoiceItem($item, $invoice_item->invoice_id);
+
+            //Actualizamos importe de la factura:
+            $invoice = Invoice::find($invoice_item->invoice_id);
+            $invoice->calculateAmountByItems();
         }
 
         $msg = trans('textos.linea_updated');

@@ -14,6 +14,13 @@
 {{-- Ver --}}
 <a href="{{ route('invoices.show', $row) }}" class="btn btn-xs btn-info" rel="tooltip" title="{{ ucfirst(trans('textos.ver')) }}"><i class="fa fa-eye"></i></a>
 
+{{-- Documento --}}
+@if($row->doc)
+	<a target="_blank" href="{{ asset('docs/invoices/'.$row->doc) }}" class="btn btn-xs btn-info" rel="tooltip" title="{{ trans('textos.documento_ver') }}">
+		<i class="fa fa-file"></i>
+	</a>
+@endif
+
 {{-- Eliminar - condiciones: 
 	1. Disponer de permisos.
 	2. Proveedores o clientes sobre proveedores tutelados.
