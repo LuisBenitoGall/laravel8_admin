@@ -22,58 +22,67 @@
 		</div>
 	</div>
 
-	<div class="row">
-		<div class="col-12 col-lg-8">
-			<div class="form-group row">
-				{{-- Nº de proyecto --}}
-				<label for="pattern_id" class="col-lg-3 col-form-label">{!! ucfirst(trans('textos.proyecto_num')) !!}</label>
-				<div class="col-lg-3">
-					{{-- Patrón de numeración - condiciones:
-					 	1. Si existen patrones.
-						...
-					--}}	
+	<div class="form-group row">
+		{{-- Nº de proyecto --}}
+		<label for="pattern_id" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.proyecto_num')) !!}</label>
+		<div class="col-lg-2">
+			{{-- Patrón de numeración - condiciones:
+			 	1. Si existen patrones.
+				...
+			--}}	
 
-					@if($patterns)
-						@if($patterns->count())
-							@php
-							$patterns_ = [];
-							foreach($patterns as $ptn){
-								$patterns_[$ptn->id] = $ptn->name;
-							}
-							@endphp
+			@if($patterns)
+				@if($patterns->count())
+					@php
+					$patterns_ = [];
+					foreach($patterns as $ptn){
+						$patterns_[$ptn->id] = $ptn->name;
+					}
+					@endphp
 
-							<x-select name="pattern_id" class="select2" label="patron_selecciona" :options="$patterns_" info="order-pattern-num"/>
-						@else
-							<label class="text-warning mt-2">{{ trans('textos.patrones_no_hay') }}</label>
-						@endif
+					<x-select name="pattern_id" class="select2" label="patron_selecciona" :options="$patterns_" info="order-pattern-num"/>
+				@else
+					<label class="text-warning mt-2">{{ trans('textos.patrones_no_hay') }}</label>
+				@endif
 
-					@else
-						<label class="text-warning mt-1" style="font-size: 16px;"><b><u>
-							@if($project->project_num)
-								{{ $project->project_num }}
-							@else
-								{{ $project->id }}
-							@endif
-						</u></b></label>
-					@endif
-
-					{{-- Reset de número - condiciones:
-						1. Debe existir el número de proyecto
-					--}}
+			@else
+				<label class="text-warning mt-1" style="font-size: 16px;"><b><u>
 					@if($project->project_num)
-						<a href="{{ route('projects.reset-num', $project->id) }}" class="ml-3 btn-confirm" rel="tooltip" title="{{ trans('textos.numero_reset') }}" data-msg="{{ trans('textos.proyecto_num_reset_confirm') }}">
-							<i class="fa fa-redo"></i>
-						</a>
+						{{ $project->project_num }}
+					@else
+						{{ $project->id }}
 					@endif
-				</div>
+				</u></b></label>
+			@endif
 
-				{{-- Proyecto nº manual --}}
-				<label for="project_old_num" class="col-lg-3 col-form-label">{!! ucfirst(trans('textos.proyecto_num_manual')) !!}</label>
-				<div class="col-lg-3">
-					<x-input type="text" name="project_old_num" value="{{ $project->project_old_num }}" autocomplete="off" maxlength="150" info="order-old-num"/>
-				</div>
-			</div>
+			{{-- Reset de número - condiciones:
+				1. Debe existir el número de proyecto
+			--}}
+			@if($project->project_num)
+				<a href="{{ route('projects.reset-num', $project->id) }}" class="ml-3 btn-confirm" rel="tooltip" title="{{ trans('textos.numero_reset') }}" data-msg="{{ trans('textos.proyecto_num_reset_confirm') }}">
+					<i class="fa fa-redo"></i>
+				</a>
+			@endif
+		</div>
 
+		{{-- Proyecto nº manual --}}
+		<label for="project_old_num" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.proyecto_num_manual')) !!}</label>
+		<div class="col-lg-2">
+			<x-input type="text" name="project_old_num" value="{{ $project->project_old_num }}" autocomplete="off" maxlength="150" info="order-old-num"/>
+		</div>
+
+		{{-- Gràfica destacada --}}
+		<label for="chart" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.grafico_principal')) !!}</label>
+		<div class="col-lg-2">
+			@php
+			$charts = App\Helpers\helpers::projectCharts();
+			@endphp
+			<x-select name="chart" class="select2" label="grafico_selec" :options="$charts" value="{{ $project->chart }}" info="project-chart"/>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-12 col-lg-8 pb-5">
 			<div class="form-group row">
 				{{-- Estado --}}
 				<label for="status" class="col-lg-3 col-form-label">{!! ucfirst(trans('textos.estado')) !!}</label>
@@ -174,18 +183,21 @@
 		</div>
 
 		{{-- Charts --}}
-		{{-- 18/03/2023. Se oculta este chart --}}
-		{{-- <div class="col-12 col-lg-4 text-center" style="height: 10vh;">
-			<div class="chart chart-mini" style="position: relative; height: 6vh; width: 13vw">
-				<canvas id="chartProjectPercent"></canvas>
-			</div>
-		</div> --}}
+		{{-- 18/03/2023: cada nuevo chart se agrega con un condicional, y debe declararse su id en helpers/projectCharts() --}}
+		@if($project->chart == 'pp')
+			<div class="col-12 col-lg-4 text-center" style="height: 9vh;">
+				<div class="chart chart-mini" style="position: relative; height: 5vh; width: 13vw">
+					<canvas id="chartProjectPercent"></canvas>
+				</div>
+			</div> 
 
-		<div class="col-12 col-lg-4 text-center">
-			<div class="chart" style="display:flex; justify-content: center; align-items: center; position: relative; height: 100%; width: 90%">
-				<canvas id="chartEconomicBalance_"></canvas>
+		@else
+			<div class="col-12 col-lg-4 text-center">
+				<div class="chart" style="display:flex; justify-content: center; align-items: center; position: relative; height: 100%; width: 90%">
+					<canvas id="chartEconomicBalance_"></canvas>
+				</div>
 			</div>
-		</div>
+		@endif
 	</div>
 	<br><br>
 

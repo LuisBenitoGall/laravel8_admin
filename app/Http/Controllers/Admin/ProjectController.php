@@ -652,6 +652,7 @@ class ProjectController extends Controller{
         $project->project_old_num = $request->project_old_num;
         $project->name = $request->name;
         $project->slug = $slug;
+        $project->chart = $request->chart;
         $project->short_description = $request->short_description;
         $project->description = $request->description;
         $project->briefing = $request->briefing;
