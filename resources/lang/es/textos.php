@@ -2879,5 +2879,7 @@ return array(
 	'metodo_updated' => 'El método ha sido actualizado correctamente',
 	'metodos_pago' => 'Métodos de pago',
 	'pagado_total' => 'Total pagado',
+	'grafico_principal' => 'Gráfico principal',
+	'grafico_selec' => 'Selecciona gráfico',
 
 );
