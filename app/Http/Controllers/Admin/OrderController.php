@@ -1347,6 +1347,9 @@ class OrderController extends Controller{
         ->where('status', 1)
         ->first();
 
+        //Factura:
+        $invoice = Invoice::select('id', 'blocked')->where('order_id', $order->id)->first();
+
         return DataTables::of($items)
         ->addColumn('price', function($item) use($currency){
             if($item->price > 0){
@@ -1402,8 +1405,8 @@ class OrderController extends Controller{
         ->addColumn('observations', function($item){
             return $item->observations;
         })
-        ->addColumn('acciones', function($item) use($estados, $order, $environment, $provider_account){
-            return view('admin.orders.partials.dt-item-actions', compact('item', 'estados', 'order', 'environment', 'provider_account'));    
+        ->addColumn('acciones', function($item) use($estados, $order, $environment, $provider_account, $invoice){
+            return view('admin.orders.partials.dt-item-actions', compact('item', 'estados', 'order', 'environment', 'provider_account', 'invoice'));    
         })
         ->rawColumns(['amount', 'observations'])
         ->make(true);

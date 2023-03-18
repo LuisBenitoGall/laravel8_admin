@@ -332,6 +332,9 @@
 
 <script>
 $(function(){
+	console.log(values);
+
+
 	// Ancho automático capa tasks.
 	if($('#tasks').length > 0){
         var w = $('.task-column').outerWidth();
@@ -446,26 +449,35 @@ $(function(){
         });
     });
 
-    // Porcentaje completado del proyecto.
-    var pending = 100 - {{ $project->completed }};
-	var chartProjectPercent = {
-    	labels: [txtHorasPrevistas+' {{ $project->hours_forecast }} ', txtCompletado+' {{ number_format($project->completed,2) }}%'],
-    	datasets: [{
-            data: [pending, {{ number_format($project->completed, 2) }}],
-            backgroundColor: [color_chart_danger, color_chart_success]
-        }]
-    }
+    // Porcentaje completado del proyecto:
+    // 18/03/2023: se sustituye esta gráfica por otra con el balance económico:
+    // var pending = 100 - {{ $project->completed }};
+	// var chartProjectPercent = {
+    // 	labels: [txtHorasPrevistas+' {{ $project->hours_forecast }} ', txtCompletado+' {{ number_format($project->completed,2) }}%'],
+    // 	datasets: [{
+    //         data: [pending, {{ number_format($project->completed, 2) }}],
+    //         backgroundColor: [color_chart_danger, color_chart_success]
+    //     }]
+    // }
 
-    var chartProjectPercentOptions = {
-        responsive: true,
-        //animateRotate: true
-    };
+    // var chartProjectPercentOptions = {
+    //     responsive: true,
+    //     //animateRotate: true
+    // };
 
-    var ProjectPercent = document.getElementById("chartProjectPercent").getContext("2d");
-    new Chart(ProjectPercent, {
-    	type: 'pie', 
-    	data: chartProjectPercent, 
-    	options: chartProjectPercentOptions
+    // var ProjectPercent = document.getElementById("chartProjectPercent").getContext("2d");
+    // new Chart(ProjectPercent, {
+    // 	type: 'pie', 
+    // 	data: chartProjectPercent, 
+    // 	options: chartProjectPercentOptions
+    // });
+
+    // Estadística ingresos y gastos. Tomamos los data y options del componente Livewire projects-economic-balance:
+    var economicBalance = document.getElementById("chartEconomicBalance_").getContext("2d");
+    new Chart(economicBalance, {
+        type: 'bar', 
+        data: barData, 
+        options:barOptions
     });
 });
 </script>

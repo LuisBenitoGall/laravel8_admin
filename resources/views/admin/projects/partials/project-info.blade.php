@@ -174,9 +174,16 @@
 		</div>
 
 		{{-- Charts --}}
-		<div class="col-12 col-lg-4 text-center" style="height: 10vh;">
+		{{-- 18/03/2023. Se oculta este chart --}}
+		{{-- <div class="col-12 col-lg-4 text-center" style="height: 10vh;">
 			<div class="chart chart-mini" style="position: relative; height: 6vh; width: 13vw">
 				<canvas id="chartProjectPercent"></canvas>
+			</div>
+		</div> --}}
+
+		<div class="col-12 col-lg-4 text-center">
+			<div class="chart" style="display:flex; justify-content: center; align-items: center; position: relative; height: 100%; width: 90%">
+				<canvas id="chartEconomicBalance_"></canvas>
 			</div>
 		</div>
 	</div>
