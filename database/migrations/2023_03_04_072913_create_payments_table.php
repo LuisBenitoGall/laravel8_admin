@@ -28,7 +28,7 @@ class CreatePaymentsTable extends Migration{
             $table->unsignedBigInteger('invoice_id')->nullable();
             $table->foreign('invoice_id')->references('id')->on('invoices');
             //FK:
-            $table->unsignedBigInteger('bank_account_id')->nullable();
+            $table->unsignedBigInteger('bank_account_id')->nullable();      //Cuenta bancaria del cliente.
             $table->foreign('bank_account_id')->references('id')->on('bank_accounts');
             $table->boolean('is_ticket')->default(false);       //Si existe factura, el ticket es siempre false;
             $table->longText('observations')->nullable();

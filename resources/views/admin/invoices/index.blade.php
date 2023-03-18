@@ -114,11 +114,13 @@
 							@endif
 						</th>
 						<th class="text-center wdt50">{!! ucfirst(trans('textos.pedido')) !!}</th>
-						<th class="text-center wdt100">{!! ucfirst(trans('textos.responsable')) !!}</th>
+						{{-- <th class="text-center wdt100">{!! ucfirst(trans('textos.responsable')) !!}</th> --}}
 						<th class="text-center wdt50">{!! ucfirst(trans('textos.fecha')) !!}</th>
 						<th class="text-center wdt100">{!! ucfirst(trans('textos.fecha_vencimiento')) !!}</th>
 						<th class="text-center wdt100">{!! trans('textos.importe') !!}</th>
-						<th class="wdt100">{!! trans('textos.mes') !!}</th>
+						<th class="text-center wdt100">{!! trans('textos.importe_iva') !!}</th>
+						<th class="text-center wdt100">{!! trans('textos.pago_metodo') !!}</th>
+						<th class="wdt50">{!! trans('textos.mes') !!}</th>
 						<th class="wdt100">{!! trans('textos.estado') !!}</th>
 						<th class="text-center wdt100">{!! ucfirst(trans('textos.acciones')) !!}</th>
 					</tr>
@@ -133,6 +135,7 @@
 						<td></td>
 						<td class="text-right"><b>{{ trans('textos.total') }}</b></td>
 						<td class="text-right">{{ $totalInvoicesAmount }}{{ $currency->symbol }}</td>
+						<td></td>
 						<td></td>
 						<td></td>
 						<td></td>

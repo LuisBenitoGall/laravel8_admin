@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
+use File;
 
 //Models:
 use App\Models\CompanySettings;
@@ -84,7 +85,6 @@ class PaymentController extends Controller{
      * 2. Guardar cobro.
      */
     public function store(Request $request){
-
         $validator = $this->validator($request->all());
         if($validator->fails()){
             //Indicamos el origen de la acción realizada para manejar el modal:
@@ -95,7 +95,8 @@ class PaymentController extends Controller{
                 ->withInput();
         }
 
-        
+        //Subir documento:
+        $doc = $this->loadFile($request, 'payments');        
 
         $payment_date = $request->payment_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->payment_date):$request->payment_date:NULL;
 
@@ -107,8 +108,10 @@ class PaymentController extends Controller{
         $row->payment_method_id = $request->payment_method_id;
         $row->invoice_id = $request->invoice_id;
         $row->bank_account_id = $request->bank_account_id;
+        $row->provider_bank_account_id = $request->provider_bank_account_id;
         $row->is_ticket = $request->is_ticket;
         $row->observations = $request->observations;
+        $row->doc = $doc;
         $row->user_id = Auth::user()->id;
         $row->save();
 
@@ -134,13 +137,27 @@ class PaymentController extends Controller{
             return redirect('/admin/invoices/'.$request->invoice_id.'/edit/payments')
                 ->withErrors($validator)
                 ->withInput();
-        }   
+        }  
 
         $row = Payment::find($request->payment_id);
+
+        //Eliminar documento:
+        if($request->remove_doc){
+            File::delete(public_path().'/docs/payments/'.$row->doc);
+
+            $doc = NULL;
+
+        //Subir documento:
+        }else{
+            $doc = $this->loadFile($request, 'payments'); 
+        }
+
         $row->amount = $request->amount;
         $row->payment_method_id = $request->payment_method;
         $row->bank_account_id = $request->bank_account_id;
+        $row->provider_bank_account_id = $request->provider_bank_account_id;
         $row->observations = $request->observations;
+        $row->doc = $doc;
         $row->save();
 
         $msg = trans('textos.cobro_updated');

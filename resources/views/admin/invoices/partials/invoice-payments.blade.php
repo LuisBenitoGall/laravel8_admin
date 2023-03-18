@@ -3,12 +3,14 @@
 		<table class="table table-hover dTable" id="tblInvoicePayments">
 			<thead>
 				<tr>
-					<th class="text-center wdt150">{!! ucfirst(trans('textos.fecha')) !!}</th>
-					<th class="text-center wdt100">{!! ucfirst(trans('textos.importe')) !!}</th>
+					<th class="text-center wdt100">{!! ucfirst(trans('textos.fecha')) !!}</th>
+					<th class="text-center wdt50">{!! ucfirst(trans('textos.importe')) !!}</th>
 					<th class="wdt100">{!! ucfirst(trans('textos.metodo')) !!}</th>
-					<th class="wdt100">{!! ucfirst(trans('textos.entidad')) !!}</th>
-					<th class="wdt100">{!! ucfirst(trans('textos.cuenta_bancaria')) !!}</th>
-					<th class="wdt250">{!! ucfirst(trans('textos.observaciones')) !!}</th>
+					<th class="wdt100">{!! ucfirst(trans('textos.entidad_cliente')) !!}</th>
+					<th class="wdt150">{!! ucfirst(trans('textos.cuenta_bancaria_cliente')) !!}</th>
+					<th class="wdt100">{!! ucfirst(trans('textos.entidad_proveedor')) !!}</th>
+					<th class="wdt150">{!! ucfirst(trans('textos.cuenta_bancaria_proveedor')) !!}</th>
+					<th class="wdt200">{!! ucfirst(trans('textos.observaciones')) !!}</th>
 					<th class="text-center wdt100">{!! ucfirst(trans('textos.acciones')) !!}</th>
 				</tr>
 			</thead>
@@ -40,14 +42,24 @@
 							{{ $pay->method }}
 						</td>
 
-						{{-- Banco --}}
+						{{-- Banco cliente --}}
 						<td>
 							{{ $pay->bank }}		
 						</td>
 
-						{{-- Cuenta bancaria --}}
+						{{-- Cuenta bancaria cliente --}}
 						<td>
 							{{ $pay->account }}	
+						</td>
+
+						{{-- Banco proveedor --}}
+						<td>
+							{{ $pay->provider_bank }}		
+						</td>
+
+						{{-- Cuenta bancaria proveedor --}}
+						<td>
+							{{ $pay->provider_account }}	
 						</td>
 
 						{{-- Observaciones --}}
@@ -57,6 +69,13 @@
 						
 						{{-- Acciones --}}
 						<td class="text-right">
+							{{-- Documento --}}
+							@if($pay->doc)
+								<a target="_blank" href="{{ asset('docs/payments/'.$pay->doc) }}" class="btn btn-xs btn-info" rel="tooltip" title="{{ ucfirst(trans('textos.documento_ver')) }}">
+									<i class="fa fa-file"></i>
+								</a>
+							@endif
+
 							{{-- Editar --}}
 							<a href="#" class="btn btn-xs btn-info btnEditPayment" rel="tooltip" title="{{ ucfirst(trans('textos.editar')) }}" data-toggle="modal" data-target="#modal-edit-payment" data-id="{{ $pay->id }}"><i class="fa fa-edit"></i></a>
 
@@ -80,7 +99,7 @@
 						<td class="text-right">
 							<b>{{ round($total_charged, 2) }}{{ $currency->symbol }}</b>	
 						</td>
-						<td colspan="5"></td>
+						<td colspan="7"></td>
 					</tr>
 					<tr>
 						<td class="text-right">
@@ -89,7 +108,7 @@
 						<td class="text-right">
 							<b>{{ round($invoice->amount_with_iva -  $total_charged, 2) }}{{ $currency->symbol }}</b>	
 						</td>
-						<td colspan="5"></td>
+						<td colspan="7"></td>
 					</tr>
 				</tfoot>
 			@endif
