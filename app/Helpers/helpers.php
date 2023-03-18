@@ -55,6 +55,7 @@ class Helpers{
 	 *  3.22. Tipos de almacén.
 	 *  3.23. Signo movimientos de stock.
 	 *  3.24. Tipos de gastos.
+	 *  3.25. Tipos de gráficos para proyectos.
 	 *
 	 * 4. Strings:
 	 * 	4.1. Truncar texto.
@@ -1040,6 +1041,22 @@ class Helpers{
 		];
 		if($type){
 			return $data[$type];
+		}else{
+			return $data;
+		}	
+	}
+
+	/**
+	 * 3.25. Tipos de gráficos para proyectos.
+	 * Permite seleccionar el gráfico principal que deseas visualizar en el proyecto.
+	 */
+	public static function projectCharts($chart = false){
+		$data = [
+			'be' => 'Balance económico',
+			'pp' => 'Progreso del proyecto'
+		];
+		if($chart){
+			return $data[$chart];
 		}else{
 			return $data;
 		}	
