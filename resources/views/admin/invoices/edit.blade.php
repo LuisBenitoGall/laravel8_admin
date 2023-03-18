@@ -389,6 +389,15 @@ $(function(){
     	var id = $(this).data('id');
     	for(let i in payments){
     		if(payments[i].id == id){
+    			//Documento:
+    			if(payments[i].doc){
+    				$('#addDoc').hide();
+    				$('#removeDoc').show();
+    			}else{
+    				$('#addDoc').show();
+    				$('#removeDoc').hide();
+    			}
+
     			$('#paymentId').val(payments[i].id);
     			$('#paymentAmount').val(payments[i].amount);
     			$('#paymentObservations').val(payments[i].observations);

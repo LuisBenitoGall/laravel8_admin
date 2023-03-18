@@ -1532,7 +1532,7 @@ $(document).ready(function(){
     //Tabla Customer Providers Users:
     if($('#tblCustomerProvidersUsers').length > 0){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
-        var company = $('#dtCompany').val();
+        var company = $('#dtCompanyId').val();
 
         var tableCustomerProvidersUsers = $('#tblCustomerProvidersUsers').DataTable({
             serverSide: true,
@@ -2499,7 +2499,7 @@ $(document).ready(function(){
         $('#tblInvoices thead tr').clone(true).appendTo('#tblInvoices thead');
         $('#tblInvoices thead tr:eq(1) th').each(function(i){
             var title = $(this).text();
-            if(i == 9){
+            if(i == 10){
                 $(this).html('');
             }else{
                 // Check field on json of localstorage
@@ -2549,10 +2549,12 @@ $(document).ready(function(){
                 {data: 'invoice_num', name: 'invoices.invoice_num', className: 'text-right'},
                 {data: 'company', name: 'companies.name'},
                 {data: 'order', name: 'orders.order_num', className: 'text-right'},
-                {data: 'manager', name: 'users.name'},
+                // {data: 'manager', name: 'users.name'},
                 {data: 'fiscal_date', className: 'text-right'},
                 {data: 'expiration_date', className: 'text-right'},
                 {data: 'amount', name: 'invoices.amount', className: 'text-right'},
+                {data: 'amount_with_iva', name: 'invoices.amount_with_iva', className: 'text-right'},
+                {data: 'payment_method', name: 'payment_methods.method'},
                 {data: 'month'},
                 //{data: 'workplace'},
                 {data: 'estado'},
@@ -2582,6 +2584,18 @@ $(document).ready(function(){
 
                     //Total:
                     total = api
+                    .column(5, { search: 'applied' })
+                    .data()
+                    .reduce(function(a, b){
+                        return intVal(a) + intVal(b);
+                    }, 0);
+
+                    $(api.column(5).footer()).html(
+                        total.toFixed(2)+currency   
+                    );
+
+                    //Total con IVA:
+                    total_iva = api
                     .column(6, { search: 'applied' })
                     .data()
                     .reduce(function(a, b){
@@ -2589,7 +2603,7 @@ $(document).ready(function(){
                     }, 0);
 
                     $(api.column(6).footer()).html(
-                        total.toFixed(2)+currency   
+                        total_iva.toFixed(2)+currency   
                     );
      
                     //Total por filtro aplicado:

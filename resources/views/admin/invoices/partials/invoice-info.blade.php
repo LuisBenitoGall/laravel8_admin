@@ -182,9 +182,9 @@
 		</div>
 	@endif
 
-	@if($is_sale)
+	@if(!$is_sale)
 		<div class="form-group row">
-			{{-- Cuenta bancaria --}}
+			{{-- Cuenta bancaria del cliente --}}
 			@php
             $bankAccount = $invoice->bank_account_id? $invoice->bank_account_id:$bank_featured;
             @endphp

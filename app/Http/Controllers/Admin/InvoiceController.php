@@ -318,11 +318,12 @@ class InvoiceController extends Controller{
         //Campo de búsqueda de la empresa: proveedor o cliente.
         $company_field = $provider == session('currentCompany') || $customer == 'all'? 'customer':'provider';
 
-        $data = Invoice::select('invoices.*', 'orders.id AS orderId', 'orders.order_num', 'orders.order_old_num', 'companies.id AS companyId', 'companies.name', 'companies.tradename', 'cost_centers.name AS costCenter', 'users.name AS Nombre', 'users.surname')
+        $data = Invoice::select('invoices.*', 'orders.id AS orderId', 'orders.order_num', 'orders.order_old_num', 'companies.id AS companyId', 'companies.name', 'companies.tradename', 'cost_centers.name AS costCenter', 'users.name AS Nombre', 'users.surname', 'payment_methods.name AS payment_method')
         ->leftJoin('orders', 'invoices.order_id', '=', 'orders.id')
         ->leftJoin('companies', 'orders.'.$company_field.'_id', '=', 'companies.id')
         ->leftJoin('cost_centers', 'orders.'.$company_field.'_cost_center_id', '=', 'cost_centers.id')
         ->leftJoin('users', 'orders.'.$company_field.'_manager_id', '=', 'users.id')
+        ->leftJoin('payment_methods', 'invoices.payment_method_id', '=', 'payment_methods.id')
         ->where(function ($query) use($year){
             $query->whereYear('invoices.fiscal_date', $year)
             ->orWhereNull('invoices.fiscal_date');
@@ -382,7 +383,14 @@ class InvoiceController extends Controller{
         })
         ->addColumn('amount', function($row) use($currency){
             $amount = $row->refund? $row->amount * -1:$row->amount;
-            return $amount;
+            return $amount;   
+        })
+        ->addColumn('amount_with_iva', function($row) use($currency){
+            $amount_with_iva = $row->refund? $row->amount_with_iva * -1:$row->amount_with_iva;
+            return $amount_with_iva;
+        })
+        ->addColumn('payment_method', function($row){
+            return $row->payment_method;
         })
         ->addColumn('month', function($row){
             $datestamp = strtotime($row->fiscal_date); 
@@ -853,7 +861,7 @@ class InvoiceController extends Controller{
             $invoice_amount = $invoice_amount - $desc_irpf;
         }
 
-        //Subir documento.
+        //Subir documento:
         $doc = $this->loadFile($request, 'invoices');
 
         //Creamos factura:
@@ -1038,15 +1046,10 @@ class InvoiceController extends Controller{
         ->pluck('name', 'id')
         ->toArray();
 
-        //Cuentas bancarias:
+        //Cuentas bancarias cliente:
         $bank_accounts = [];
         $bank_featured = false;
-        $bank_accounts_data = BankAccounts::select('bank_accounts.id', 'bank_accounts.account', 'bank_accounts.featured', 'banks.name', 'banks.tradename')
-        ->join('banks', 'bank_accounts.bank_id', '=', 'banks.id')
-        ->where('bank_accounts.company_id', $customer->id)
-        ->where('bank_accounts.status', 1)
-        ->orderBy('bank_accounts.featured', 'DESC')
-        ->get();
+        $bank_accounts_data = BankAccounts::getBankAccounts($customer->id);
         foreach($bank_accounts_data as $ba){
             $bank = $ba->tradename? $ba->tradename:$ba->name;
             $bank_accounts[$ba->id] = $bank.' - '.$ba->account;
@@ -1054,7 +1057,18 @@ class InvoiceController extends Controller{
             if($ba->featured == 1) $bank_featured = $ba->id;
         }
 
-        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'is_sale', 'order', 'suborders', 'invoiced', 'invoices', 'refund', 'customer', 'customer_settings', 'provider', 'provider_account', 'provider_settings', 'items', 'products', 'patterns', 'payments', 'templates', 'featuredTemplate', 'currency', 'languages', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'payment_methods', 'bank_accounts', 'bank_featured'));
+        //Cuentas bancarias proveedor:
+        $provider_bank_accounts = [];
+        $provider_bank_featured = false;
+        $provider_bank_accounts_data = BankAccounts::getBankAccounts($provider->id);
+        foreach($provider_bank_accounts_data as $pba){
+            $bank = $pba->tradename? $pba->tradename:$pba->name;
+            $provider_bank_accounts[$pba->id] = $bank.' - '.$pba->account;
+
+            if($pba->featured == 1) $provider_bank_featured = $pba->id;
+        }
+
+        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'is_sale', 'order', 'suborders', 'invoiced', 'invoices', 'refund', 'customer', 'customer_settings', 'provider', 'provider_account', 'provider_settings', 'items', 'products', 'patterns', 'payments', 'templates', 'featuredTemplate', 'currency', 'languages', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'payment_methods', 'bank_accounts', 'bank_featured', 'provider_bank_accounts', 'provider_bank_featured'));
     }
 
     /**
@@ -1187,12 +1201,7 @@ class InvoiceController extends Controller{
         //Cuentas bancarias:
         $bank_accounts = [];
         $bank_featured = false;
-        $bank_accounts_data = BankAccounts::select('bank_accounts.id', 'bank_accounts.account', 'bank_accounts.featured', 'banks.name', 'banks.tradename')
-        ->join('banks', 'bank_accounts.bank_id', '=', 'banks.id')
-        ->where('bank_accounts.company_id', $customer->id)
-        ->where('bank_accounts.status', 1)
-        ->orderBy('bank_accounts.featured', 'DESC')
-        ->get();
+        $bank_accounts_data = BankAccounts::getBankAccounts($customer->id);
         foreach($bank_accounts_data as $ba){
             $bank = $ba->tradename? $ba->tradename:$ba->name;
             $bank_accounts[$ba->id] = $bank.' - '.$ba->account;
@@ -1200,7 +1209,19 @@ class InvoiceController extends Controller{
             if($ba->featured == 1) $bank_featured = $ba->id;
         }
 
-        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'is_sale', 'order', 'invoiced', 'invoices', 'refund', 'customer', 'customer_account', 'provider', 'provider_account', 'provider_settings', 'structure_concepts', 'items', 'products', 'currency', 'languages', 'patterns', 'payments', 'templates', 'featuredTemplate', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'payment_methods', 'concepts', 'bank_accounts', 'bank_featured'));
+        //Cuentas bancarias proveedor:
+        $provider_bank_accounts = [];
+        $provider_bank_featured = false;
+        $provider_bank_accounts_data = BankAccounts::getBankAccounts($provider->id);
+        foreach($provider_bank_accounts_data as $pba){
+            $bank = $pba->tradename? $pba->tradename:$pba->name;
+            $provider_bank_accounts[$pba->id] = $bank.' - '.$pba->account;
+
+            if($pba->featured == 1) $provider_bank_featured = $pba->id;
+        }
+
+
+        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'is_sale', 'order', 'invoiced', 'invoices', 'refund', 'customer', 'customer_account', 'provider', 'provider_account', 'provider_settings', 'structure_concepts', 'items', 'products', 'currency', 'languages', 'patterns', 'payments', 'templates', 'featuredTemplate', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'payment_methods', 'concepts', 'bank_accounts', 'bank_featured', 'provider_bank_accounts', 'provider_bank_featured'));
     }
 
     /**

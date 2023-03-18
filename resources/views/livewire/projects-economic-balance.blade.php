@@ -8,7 +8,6 @@
     <script src="{{ asset('js/plugins/chartJs/Chart.min.js') }}"></script>
     <script>
     var values = {{ json_encode($list) }};
-    //console.log(values);
     var barData = {
         labels: ["{{ ucfirst(trans('textos.ingresos')) }}", "{{ ucfirst(trans('textos.pagos')) }}"],
         datasets: [
@@ -34,6 +33,7 @@
     };
 
     var barOptions = {
+        type: 'bar',
         responsive: true,
         scales: {
             x: {

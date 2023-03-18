@@ -356,7 +356,7 @@ $(window).on('load', function () {
     30. Selector cuenta de gastos por estructura.
     31. Desplegar bloque de permisos.
     32. Producto exento de IVA.
-    33. Cálculo fecha vencimiento de factura.
+    33. Vincular / desvincular sectores a empresa.
     */
 
     // 1. Eliminar preview imagen seleccionada:
@@ -1210,27 +1210,20 @@ $(window).on('load', function () {
         }
     });
 
-    // 33. Cálculo fecha vencimiento de factura.
-    // $('#payAfterDays, #payDay').on('change', function(){
-    //     var fiscal_date = $('#fiscalDate').val();
-    //     var pay_after_days = $('#payAfterDays').val();
-    //     var pay_day = $('#payDay').val();
-
-    //     if(fiscal_date != ''){
-    //         var f = calculateDate(fiscal_date, 's', pay_after_days);
-    //         // var f = new Date(fiscal_date);
-    //         // var f_ = fiscal_date.setDate(fiscal_date.getDate() + pay_after_days);   
-            
-            
-
-    //         //var fecha = new Date(f_);
-
-    //         console.log(fiscal_date, pay_after_days, f);
-
-    //         //f_.getFullYear()+"-"+(f_.getMonth() + 1) + "-" +f_.getDate();
-    //     }
-
-    //     //console.log(pay_after_days, pay_day, new_date);
-    // });
+    // 33. Vincular / desvincular sectores a empresa.
+    $(document).on('change', '.btnCompanySector', function(){
+        var elem = $(this);
+        var company_id = $('#dtCompanyId').val();
+        var category_id = elem.find('.chk').data('id');
+        $.get("/admin/company-sectors/store/"+company_id+"/"+category_id+"", function(response, state){
+            if(response){
+                $('.check-ko').remove();
+                elem.before('<i class="fa fa-check check-ok"></i>');
+                $('.check-ok').delay(1000).fadeOut();
+            }else{
+                elem.before('<i class="fa fa-exclamation-triangle check-ko"></i>');
+            }
+        });  
+    });
 
 });

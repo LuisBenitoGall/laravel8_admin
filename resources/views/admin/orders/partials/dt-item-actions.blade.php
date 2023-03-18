@@ -12,21 +12,29 @@
     {{-- Editar - condiciones 
 		1. Disponer de permisos.
 		2. Exclusivo proveedor o para cliente con facturas de proveedores sin cuenta en el ERP:
+		3. Facturas no bloqueadas.
     --}}
     {{-- 4/11/22: se omite la condición de pedido facturado. Se pueden añadir líneas incluso facturado el pedido. --}}
     {{-- @if(!$order->invoiced) --}}
     @can('invoices.edit')
     	@if($order->provider_id == session('currentCompany') || ($order->customer_id == session('currentCompany') && !$provider_account))
-			<a href="#" class="btn btn-xs btn-info btnEditItem" data-id="{{ $item->id }}" data-toggle="modal" data-target="#modal-edit-line" rel="tooltip" title="{{ ucfirst(trans('textos.editar')) }}"><i class="fa fa-edit"></i></a>
+    		@if(!$invoice->blocked)
+				<a href="#" class="btn btn-xs btn-info btnEditItem" data-id="{{ $item->id }}" data-toggle="modal" data-target="#modal-edit-line" rel="tooltip" title="{{ ucfirst(trans('textos.editar')) }}"><i class="fa fa-edit"></i></a>
+			@endif
 		@endif
 	@endcan
 	{{-- @endif --}}
 
-	{{-- Ronda de cambios --}}
+	{{-- Ronda de cambios - condiciones 
+		1. Exclusivo para proveedores.
+		2. Sólo accesible en pedidos.
+	--}}
 	@if($order->provider_id == session('currentCompany'))
-		<a href="#" class="btn btn-xs btn-info btnChangesRound" rel="tooltip" title="{!! ucfirst(trans('textos.ronda_cambios')) !!}" data-toggle="modal" data-target="#modal-changes-round" data-id="{{ $item->id }}" data-line="{{ $item->name }}">
-			<i class="fa fa-tasks"></i>
-		</a>
+		@if($environment == 'orders')
+			<a href="#" class="btn btn-xs btn-info btnChangesRound" rel="tooltip" title="{!! ucfirst(trans('textos.ronda_cambios')) !!}" data-toggle="modal" data-target="#modal-changes-round" data-id="{{ $item->id }}" data-line="{{ $item->name }}">
+				<i class="fa fa-tasks"></i>
+			</a>
+		@endif
 	@endif
 
 	{{-- Eliminar - condiciones:

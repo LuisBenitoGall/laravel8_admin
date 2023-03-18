@@ -113,20 +113,20 @@
 <script>
 $(function(){
 	//Vincular / desvincular sectores a empresa.
-    $(document).on('change', '.btnCompanySector', function(){
-    	var elem = $(this);
-        var company_id = $('#dtCompanyId').val();
-        var category_id = elem.find('.chk').data('id');
-        $.get("/admin/company-sectors/store/"+company_id+"/"+category_id+"", function(response, state){
-            if(response){
-                $('.check-ko').remove();
-                elem.before('<i class="fa fa-check check-ok"></i>');
-                $('.check-ok').delay(1000).fadeOut();
-            }else{
-                elem.before('<i class="fa fa-exclamation-triangle check-ko"></i>');
-            }
-        });  
-    });
+    // $(document).on('change', '.btnCompanySector', function(){
+    // 	var elem = $(this);
+    //     var company_id = $('#dtCompanyId').val();
+    //     var category_id = elem.find('.chk').data('id');
+    //     $.get("/admin/company-sectors/store/"+company_id+"/"+category_id+"", function(response, state){
+    //         if(response){
+    //             $('.check-ko').remove();
+    //             elem.before('<i class="fa fa-check check-ok"></i>');
+    //             $('.check-ok').delay(1000).fadeOut();
+    //         }else{
+    //             elem.before('<i class="fa fa-exclamation-triangle check-ko"></i>');
+    //         }
+    //     });  
+    // });
 });
 </script>
 @endpush
