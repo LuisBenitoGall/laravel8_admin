@@ -984,7 +984,6 @@ class OrderController extends Controller{
 
         //IVA:
         $iva = CompanySettings::co_iva();
-
         
 
         //Templates:
@@ -1347,8 +1346,8 @@ class OrderController extends Controller{
         ->where('status', 1)
         ->first();
 
-        //Factura:
-        $invoice = Invoice::select('id', 'blocked')->where('order_id', $order->id)->first();
+        //Facturas:
+        $invoices = Invoice::select('id', 'blocked')->where('order_id', $order->id)->get();
 
         return DataTables::of($items)
         ->addColumn('price', function($item) use($currency){
@@ -1405,8 +1404,8 @@ class OrderController extends Controller{
         ->addColumn('observations', function($item){
             return $item->observations;
         })
-        ->addColumn('acciones', function($item) use($estados, $order, $environment, $provider_account, $invoice){
-            return view('admin.orders.partials.dt-item-actions', compact('item', 'estados', 'order', 'environment', 'provider_account', 'invoice'));    
+        ->addColumn('acciones', function($item) use($estados, $order, $environment, $provider_account, $invoices){
+            return view('admin.orders.partials.dt-item-actions', compact('item', 'estados', 'order', 'environment', 'provider_account', 'invoices'));    
         })
         ->rawColumns(['amount', 'observations'])
         ->make(true);

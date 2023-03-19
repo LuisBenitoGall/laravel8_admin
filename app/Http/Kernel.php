@@ -194,6 +194,8 @@ class Kernel extends HttpKernel{
         'role_company' => \App\Http\Middleware\RoleCompanyMiddleware::class,
         'role_get' => \App\Http\Middleware\RoleGetMiddleware::class,
 
+        'sat_pattern_get' => \App\Http\Middleware\SatPatternGetMiddleware::class,
+
         'schedule_event_type_get' => \App\Http\Middleware\ScheduleEventTypeGetMiddleware::class,
 
         'schedule_get' => \App\Http\Middleware\ScheduleGetMiddleware::class,
