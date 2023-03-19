@@ -58,6 +58,7 @@ class CompanyController extends Controller{
      * 16. Desvincular de empresa matriz.
      * 17. Directorio por sectores.
      * 18. Roles por empresa.
+     * 19. Empresas para autocomplete.
      */
 
     private $option = 'empresas';
@@ -747,5 +748,26 @@ class CompanyController extends Controller{
 
             return response()->json($data);
         }
+    }
+
+    /**
+     * 19. Empresas para autocomplete.
+     */
+    public function searchCompanies(Request $request){
+        $search = $request->search;
+
+        $data = Company::select('id', 'name', 'tradename', 'nif', 'is_user')
+        ->where('status', 1)
+        ->where('id', '!=', session('currentCompany')) 
+        ->where(function($query) use ($search){  
+            $query->where('name', 'like', '%'.$search.'%') 
+            ->orWhere('tradename', 'like', '%'.$search.'%')   
+            ->orWhere('nif', 'like', '%'.$search.'%');
+        })
+        ->orderBy('name', 'ASC')
+        ->limit(15)
+        ->get();
+
+        return response()->json($data);
     }
 }

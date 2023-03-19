@@ -557,6 +557,9 @@ class InvoiceController extends Controller{
                 $prevision = OrderPrevisions::find($request->modality);
 
                 if($prevision){
+
+                    
+
                     //Si se trata de la última previsión de facturación y no queda porcentaje por establecer previsión, el importe debe ser todo el pendiente:
                     $more_previsions = OrderPrevisions::select('invoice_id')
                     ->where('order_id', $prevision->order_id)
@@ -567,13 +570,15 @@ class InvoiceController extends Controller{
                     //Porcentaje pendiente de facturación. Si el porcentaje de la previsión + los porcentajes ya facturados superan el 100%, entonces el porcentaje pendiente es la diferencia entre el total y lo ya facturado.
                     $percent_to_invoice = $previous_percent + $prevision->percent > 100? 100 - $previous_percent:$prevision->percent;
 
-                    //Importe de la factura:
+                    //Importe de la factura obteniendo el porcentaje indicado sobre el total del importe del pedido.
                     $total_amount = helpers::percent($order_amount['total_amount'], $percent_to_invoice);
                     //Porcentaje facturado:
                     $percentage_invoiced = $percent_to_invoice;
 
                     //Importe con IVA:
                     $amount_with_iva = helpers::percent($order_amount['invoice_amount'], $percent_to_invoice);
+
+                    //dd($total_amount, $amount_with_iva, $prevision, $request->all(), $order_amount, $previous_amount, $previous_percent, $outstanding_amount, $outstanding_percent);
                 }
             }
         }

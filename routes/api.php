@@ -123,6 +123,7 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
 
     //Companies:
     Route::get('companies', 'CompanyController@getCompaniesDT');
+    Route::post('companies-search', 'CompanyController@searchCompanies');
 
     //CompanyAccounts:
     Route::get('company-accounts', 'CompanyAccountsController@getCompanyAccountsDT');
@@ -313,6 +314,12 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
 
     //Roles:
     Route::get('roles', 'RoleController@getRolesDT');
+
+    //SAT:
+    Route::get('sats', 'SatController@getSatsDT');
+
+    //SATPatterns:
+    Route::get('sat-patterns', 'SatPatternsController@getPatternsDT');
 
     //ScheduleEventTypes:
     Route::get('schedule-event-types', 'ScheduleEventTypesController@getEventTypesDT');

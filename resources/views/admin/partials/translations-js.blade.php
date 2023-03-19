@@ -199,6 +199,7 @@ var txtPatronPresupuestoConfirmEliminar = "{!! trans("textos.patron_presupuesto_
 var txtPatronProcedimientoConfirmEliminar = "{!! trans("textos.procedimiento_patron_confirm_eliminar") !!}";
 var txtPatronProductoConfirmEliminar = "{!! trans("textos.patron_producto_confirm_eliminar") !!}";
 var txtPatronProyectoConfirmEliminar = "{!! trans("textos.patron_proyecto_confirm_eliminar") !!}";
+var txtPatronSatConfirmEliminar = "{!! trans("textos.patron_sat_confirm_eliminar") !!}";
 var txtPatronTrabajoOrdenConfirmEliminar = "{!! trans("textos.patron_orden_trabajo_confirm_eliminar") !!}";
 var txtPedidoConfirmEliminar = "{!! ucfirst(trans("textos.pedido_confirm_eliminar")) !!}";
 var txtPedidoFacturado = "{!! ucfirst(trans("textos.pedido_facturado")) !!}";

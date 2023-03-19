@@ -901,6 +901,20 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::get('roles/{role}/set-permission/{permission}/{action}/{module_on}/{remove_module}', 'RoleController@setPermission')->name('roles.set-permission')->middleware('permission:roles.edit');
     Route::get('roles/{role}/set-functionality-permissions/{functionality}/{action}/{module_on}/{remove_module}', 'RoleController@setFunctionalityPermissions')->name('roles.set-permission')->middleware('permission:roles.edit');
 
+    // SAT:
+    Route::get('sat', 'SatController@index')->name('sat.index')->middleware('permission:sat.index');
+    Route::get('sat/create', 'SatController@create')->name('sat.create')->middleware('permission:sat.create');
+    Route::post('sat/store', 'SatController@store')->name('sat.store')->middleware('permission:sat.create');
+
+    // SAT Patterns:
+    Route::get('sat-patterns', 'SatPatternsController@index')->name('sat-patterns.index')->middleware('permission:sat-patterns.index');
+    Route::get('sat-patterns/create', 'SatPatternsController@create')->name('sat-patterns.create')->middleware('permission:sat.edit');
+    Route::post('sat-patterns/store', 'SatPatternsController@store')->name('sat-patterns.store')->middleware('permission:sat.edit');
+    Route::get('sat-patterns/{pattern}/edit', 'SatPatternsController@edit')->name('sat-patterns.edit')->middleware('permission:sat.edit');
+    Route::delete('sat-patterns/{pattern}', 'SatPatternsController@destroy')->name('sat-patterns.destroy')->middleware('permission:sat.destroy');
+    Route::put('sat-patterns/{pattern}/update', 'SatPatternsController@update')->name('sat-patterns.update')->middleware('permission:sat.edit');
+    Route::get('sat-patterns/status/{id}/{status}', 'SatPatternsController@status')->name('sat-patterns.status')->middleware('permission:sat-patterns.edit');
+
     // Schedule Event Types:
     Route::get('schedule-event-types', 'ScheduleEventTypesController@index')->name('schedule-event-types.index')->middleware('permission:schedules.edit');
     Route::get('schedule-event-types/create', 'ScheduleEventTypesController@create')->name('schedule-event-types.create')->middleware('permission:schedules.edit');

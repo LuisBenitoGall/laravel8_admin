@@ -18,9 +18,9 @@
     {{-- @if(!$order->invoiced) --}}
     @can('invoices.edit')
     	@if($order->provider_id == session('currentCompany') || ($order->customer_id == session('currentCompany') && !$provider_account))
-    		@if(!$invoice->blocked)
+    		{{-- @if($invoice && !$invoice->blocked) --}}
 				<a href="#" class="btn btn-xs btn-info btnEditItem" data-id="{{ $item->id }}" data-toggle="modal" data-target="#modal-edit-line" rel="tooltip" title="{{ ucfirst(trans('textos.editar')) }}"><i class="fa fa-edit"></i></a>
-			@endif
+			{{-- @endif --}}
 		@endif
 	@endcan
 	{{-- @endif --}}
