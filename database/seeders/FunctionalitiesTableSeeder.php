@@ -311,6 +311,17 @@ class FunctionalitiesTableSeeder extends Seeder{
             'label' => 'pedidos_configuracion_',
             'module' => 'orders'
             ],
+
+            ['name' => 'sat',
+            'slug' => 'sat',
+            'label' => 'SAT',
+            'module' => 'sat'
+            ],
+            ['name' => 'sat patterns',
+            'slug' => 'sat-patterns',
+            'label' => 'patrones_sat',
+            'module' => 'sat'
+            ],
             
             ['name' => 'projects',
             'slug' => 'projects',

@@ -17,13 +17,11 @@ class OrderPatterns extends Model{
         'yearly_reset' => 'boolean',
     ];
 
-    public function orders()
-    {
+    public function orders(){
         return $this->hasMany(Order::class,'order_pattern_id');
     }
 
-    public function company()
-    {
+    public function company(){
         return $this->belongsTo(Company::class);
     }
 }

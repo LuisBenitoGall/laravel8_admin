@@ -184,6 +184,14 @@ if(session()->get('locale') == NULL){
                                                             </a> 
                                                         </li>  
                                                     @endif
+
+                                                    @if($func['slug'] == 'sat')
+                                                        <li @if(isset($header['slug']) && $header['slug'] == 'sat-create') class="active" @endif>
+                                                            <a href="{{ route('sat.create') }}">
+                                                                {{ ucfirst(trans('textos.sat_nuevo')) }}      
+                                                            </a> 
+                                                        </li>  
+                                                    @endif
                                                 @endforeach
                                             </ul>
                                         @endif

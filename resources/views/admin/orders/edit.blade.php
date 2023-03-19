@@ -367,10 +367,9 @@
 			{{-- Facturas del pedido - condiciones:
 				1. Permisos de listar facturas.
 				2. Existen facturas declaradas.
-				3. Pedido facturado.
 			--}}
 			@can('invoices.index')
-				@if($invoices->count() && $order->invoiced)
+				@if($invoices->count())
 					@php
 					$orderId = $order->order_parent && $order->order_parent > 0? $order->order_parent:$order->id;
 					@endphp

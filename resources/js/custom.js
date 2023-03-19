@@ -357,6 +357,7 @@ $(window).on('load', function () {
     31. Desplegar bloque de permisos.
     32. Producto exento de IVA.
     33. Vincular / desvincular sectores a empresa.
+    34. Búsqueda autocomplete de empresa.
     */
 
     // 1. Eliminar preview imagen seleccionada:
@@ -1224,6 +1225,54 @@ $(window).on('load', function () {
                 elem.before('<i class="fa fa-exclamation-triangle check-ko"></i>');
             }
         });  
+    });
+
+    // 34. Búsqueda autocomplete de empresa.
+    $('#search_company').autocomplete({
+        minLength: 0,
+        source: function(request,response){
+            // Fetch data
+            if(request.term.length > 1){
+                $.ajax({
+                    url: "/api/admin/companies-search",
+                    type: "post",
+                    dataType: "json",
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        search: request.term
+                    },
+                    success: function(data){
+                        response($.map(data, function (item){
+                            return {
+                                label: item.name,
+                                value: item.id,
+                                code: item.nif
+                            }
+                        }));
+                    }
+                });
+
+            //Limpiamos datos:
+            }else{
+                $('#company-nif').fadeOut();
+                $('#companyNif').val('');  
+                $('#companyId').val('');    
+            }
+        },
+        select: function(event,ui){
+            $('#search_company').val(ui.item.label);
+            $('#companyId').val(ui.item.value);
+            if(ui.item.code != ''){
+                $('#company-nif').fadeIn();
+                $('#companyNif').val(ui.item.code);
+            }else{
+                $('#company-nif').fadeOut();
+                $('#companyNif').val('');
+                $('#companyId').val('');    
+            }
+            
+            return false;
+        }
     });
 
 });
