@@ -835,6 +835,8 @@ class OrderController extends Controller{
             $order_amount_without_discount_in_lines = $arr_amounts['total_amount_without_discounts'];
         } 
 
+        //dd($arr_amounts);
+
         //Agrupaciones de pedidos:
         $order_groups = Order::select('orders.id', 'orders.order_num', 'orders.name')
         ->where('orders.provider_id', session('currentCompany'))
@@ -1862,7 +1864,7 @@ class OrderController extends Controller{
                 ->withInput();
         }
 
-        //Calculamos ambos tipos de descuento a partir del import total:
+        //Calculamos ambos tipos de descuento a partir del importe total:
         $budget_amount = $order->itemsBudgetOrderAmount(true);
 
         //Descuento neto
@@ -1875,8 +1877,8 @@ class OrderController extends Controller{
             $discount = $request->discount_percent;
         }
 
-        $order->discount = $discount;
-        $order->discount_amount = $discount_amount;
+        //$order->discount = $discount;
+        //$order->discount_amount = $discount_amount;
         $order->save();
 
         //Actualizamos el descuento en cada línea del presupuesto:

@@ -2113,17 +2113,14 @@ class Helpers{
 	            if($item->days_continue > 0 && $item->days_continue_discount){
 	                $jc_percentage = helpers::percent($amount, $item->days_continue_discount);
 	                $amount = $amount - $jc_percentage;
-
-	                //Sobre la línea sin descuento no se aplica ningún descuento.
 	            }
 	        }
 
 	        //Descuento sobre la línea:
-	        //22/03/23: por ahora se omite pues ya hace el descuento en el método Order / itemsAmount
-	        // if($item->discount){
-	        //     $discount = helpers::percent($amount, $item->discount);   
-	        //     $amount = $amount - $discount;  
-	        // }
+	        if($item->discount){
+	            $discount = helpers::percent($amount, $item->discount);   
+	            $amount = $amount - $discount;  
+	        }
 	    }
 
 	    //Guardamos el importe sin IVA (base imponible) para posteriores operaciones:
