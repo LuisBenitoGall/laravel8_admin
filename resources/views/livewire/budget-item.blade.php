@@ -78,17 +78,19 @@ $permitted = !$order || ($order && $add_items && !$order->parent)? true:false;
                                             <div class="row">
                                                 <div class="col-12 only-vertical-centered">
                                                     {{-- Item --}}
-                                                    <b class="concept">@if($item->concept)
+                                                    <b class="concept">
+                                                        @if($item->concept)
                                                             {{ ucfirst($item->concept) }}
                                                         @else
                                                             {{ ucfirst($item->name) }}
-                                                        @endif</b>
+                                                        @endif
+                                                    </b>
                                                 </div>
 
                                                 <div class="col-10 pt-2">
                                                     {{-- Precio --}}
                                                     @php
-                                                        $price = $item->priceForCustomer? $item->priceForCustomer:$item->price;
+                                                    $price = $item->priceForCustomer? $item->priceForCustomer:$item->price;
                                                     @endphp
                                                     <span
                                                         style="line-height: 20px;">{{ $price }}{{ $currency->symbol }}</span>
@@ -166,6 +168,11 @@ $permitted = !$order || ($order && $add_items && !$order->parent)? true:false;
         @endif
 
         {{-- Formulario --}}
+        @php
+        //Campos bloqueados para líneas ya facturadas:
+        $readonly = $item_invoiced? true:false;
+        @endphp
+
         <div wire:ignore.self class="new-budget-item mt-3" id="itemForm">
             <form wire:submit.prevent="store" autocomplete="off" id="frm-save-item" accept-charset="utf-8"
                   enctype="multipart/form-data" role="form">
@@ -204,7 +211,7 @@ $permitted = !$order || ($order && $add_items && !$order->parent)? true:false;
                     <div class="col-8 col-sm-4 col-lg-3 col-xl-2 mb-3">
                         <input type="number" class="form-control text-center" name="qty" min="0" step="0.01" value="1"
                                id="newItemQty" wire:model.defer="qty" wire:change="changeQty($event.target.value)"
-                               @if($field_readonly) readonly @endif>
+                               @if($field_readonly || $readonly) readonly @endif>
                     </div>
 
                     {{-- Precio: en caso de ser 0, se incluye opción para indicar el motivo de dejarlo sin precio --}}
@@ -224,7 +231,7 @@ $permitted = !$order || ($order && $add_items && !$order->parent)? true:false;
 
                             <input type="text" name="price" class="form-control text-right set-decimals"
                                    id="newItemPrice" autocomplete="off" maxlength="8" wire:model.defer="price" wire:keydown.debounce="changePrice($event.target.value)"
-                                   @if($field_readonly) readonly @endif>
+                                   @if($field_readonly || $readonly) readonly @endif>
                             <div class="input-group-append">
                                 <span class="input-group-addon">
                                     @if($field_readonly)
@@ -263,7 +270,7 @@ $permitted = !$order || ($order && $add_items && !$order->parent)? true:false;
                             <div class="input-group">
                                 <input type="text" name="discount" class="form-control text-right set-decimals"
                                        id="newItemDiscount" autocomplete="off" maxlength="5" wire:model.defer="discount" wire:change.debounce="changeDiscount($event.target.value)"
-                                       @if($field_readonly) readonly @endif>
+                                       @if($field_readonly || $readonly) readonly @endif>
                                 <div class="input-group-append">
                                     <span class="input-group-addon">%</span>
                                 </div>
@@ -277,18 +284,20 @@ $permitted = !$order || ($order && $add_items && !$order->parent)? true:false;
                     <div class="col-8 col-sm-4 col-lg-3 col-xl-2 mb-3">
                         <input type="number" class="form-control text-center set-decimals itemDays" name="days" min="0"
                                step="1" value="0" id="newItemDays" wire:model.defer="days" wire:change.debounce="changeDays($event.target.value)" maxlength="2"
-                               @if($field_readonly) readonly @endif>
+                               @if($field_readonly || $readonly) readonly @endif>
                     </div>
 
                     {{-- Jornadas continuas --}}
-                    <label for="days_continue"
-                           class="col-4 col-sm-2 col-form-label sinpadding-right">{!! ucfirst(trans('textos.jornadas_continuas')) !!}</label>
-                    <div class="col-8 col-sm-1 col-xl-1 mb-3">
-                        <label class="custom-chk-rdb">
-                            <input type="checkbox" wire:model.defer="days_continue" @if($days_continue) checked @endif>
-                            <span class="chk" style="top: 5px;"></span>
-                        </label>
-                    </div>
+                    @if(!$readonly)
+                        <label for="days_continue"
+                               class="col-4 col-sm-2 col-form-label sinpadding-right">{!! ucfirst(trans('textos.jornadas_continuas')) !!}</label>
+                        <div class="col-8 col-sm-1 col-xl-1 mb-3">
+                            <label class="custom-chk-rdb">
+                                <input type="checkbox" wire:model.defer="days_continue" @if($days_continue) checked @endif>
+                                <span class="chk" style="top: 5px;"></span>
+                            </label>
+                        </div>
+                    @endif
 
                     {{-- Imprimir --}}
                     <label for="print"

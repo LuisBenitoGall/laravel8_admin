@@ -11,6 +11,7 @@ class Item extends Model{
     /**
      * 1. Calcular importe de item.
      * 2. Ordenar items presupuestos de la migración desde Admin6.
+     * 3. Marcar líneas como facturadas.
      */
      
     use HasFactory;
@@ -82,6 +83,18 @@ class Item extends Model{
             $r->budget_sort = $i;
             $r->save();
         }
+    }
+
+    /**
+     * 3. Marcar líneas como facturadas.
+     *
+     * $action  true = línea factura; false = línea no facturada.
+     */
+    public static function itemsAsInvoiced($order_id, $action){
+        $val = $action? date('Y-m-d H:is'):NULL;
+
+        Item::where('order_id', $order_id)
+        ->update(['invoiced' => $val]);
     }
 
 }

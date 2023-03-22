@@ -613,6 +613,9 @@ class InvoiceController extends Controller{
         if($invoice && !$order->invoiced){
             $order->invoiced = true;
             $order->save();
+
+            //Marcamos las líneas del pedido como facturadas:
+            Item::itemsAsInvoiced($order->id, true);
         }
 
         //Actualizamos los valores de la siguiente previsión no facturada:
@@ -1793,6 +1796,8 @@ class InvoiceController extends Controller{
      * 11. Cancelar factura.
      */
     public function destroy(Request $request, Invoice $invoice){
+        $order_id = $invoice->order_id;
+
         //Comprobamos que reuna las condiciones para ser eliminada.
         /**
          * 1. La factura no debe estar bloqueda.
@@ -1803,7 +1808,7 @@ class InvoiceController extends Controller{
         }
 
         //Dejamos los pedidos como NO facturados:
-        Order::where('id', $invoice->order_id)
+        Order::where('id', $order_id)
         ->update(['orders.invoiced' => false]);
 
         //Eliminamos las previsiones de facturación asociadas a la factura:
@@ -1816,6 +1821,13 @@ class InvoiceController extends Controller{
         $invoice->save();
 
         $invoice->delete();
+
+        //Si no existen más facturas del mismo pedido, se dejan las líneas del pedido como no facturadas:
+        $other_invoices = Invoice::select('id')->where('order_id', $order_id)->get();
+        if(!$other_invoices->count()){
+            //Marcamos las líneas del pedido como facturadas:
+            Item::itemsAsInvoiced($order_id, false);    
+        }
 
         $msg = trans('textos.factura_deleted');
         if($request->return == 'by-order'){

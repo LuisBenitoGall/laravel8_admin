@@ -48,7 +48,12 @@
 						<label for="price" class="col-lg-2 col-form-label price-fixed_">{!! ucfirst(trans('textos.precio_unidad')) !!} </label>
 						<div class="col-lg-4 price-fixed_">
 							@php
-							$readonly = session('currentCompany') == $order->customer_id && $provider_account? true:false;
+							/**
+							 * Condiciones:
+							 * 1. Exclusivo proveedor o para cliente si el proveedor no tiene cuenta.
+							 * 2. Para pedidos no facturados
+							 */
+							$readonly = (session('currentCompany') == $order->customer_id && $provider_account) || $order->invoiced? true:false;
 							@endphp
 
 							<x-input type="text" name="price" class="text-right set-decimals" autocomplete="off" maxlength="10" id="itemPrice_" value="0.00" group="right" groupvalue="{{ $currency->symbol }}" readonly="{{ $readonly }}"/>
@@ -62,13 +67,15 @@
 							</div>
 
 							{{-- Exento IVA --}}
-							<label for="without_iva" class="col-lg-1 col-form-label sinpadding">{{ trans('textos.iva_sin') }}</label>
-							<div class="col-lg-1">
-								<label class="custom-chk-rdb" rel="tooltip">
-				                    <input type="checkbox" name="without_iva" class="withoutIva">
-				                    <span class="chk" style="top: 5px;"></span>
-				                </label>
-				            </div>
+							@if(!$readonly)
+								<label for="without_iva" class="col-lg-1 col-form-label sinpadding">{{ trans('textos.iva_sin') }}</label>
+								<div class="col-lg-1">
+									<label class="custom-chk-rdb" rel="tooltip">
+					                    <input type="checkbox" name="without_iva" class="withoutIva">
+					                    <span class="chk" style="top: 5px;"></span>
+					                </label>
+					            </div>
+					        @endif
 						@endif
 
 						{{-- Los inputs de precio por porcentaje se muestran en el siguiente bloque, por una cuestión de coherencia en la maquetación. --}}
