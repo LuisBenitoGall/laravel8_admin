@@ -5112,17 +5112,52 @@ $(document).ready(function(){
 
     //Tabla SAT:
     if($('#tblSats').length > 0){
+        function format(d){
+            // `d` is the original data object for the row
+            var obvs = d.description? d.description:txtObservacionesSin;
+            return '<table cellpadding="0" cellspacing="0" border="0">'+
+                '<tr>'+
+                    '<td colspan="8" class="no-border">'+obvs+'</td>'+
+                '</tr>'+
+            '</table>';
+        }
+
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
         
-        $('#tblSats').DataTable({
+        var tableSats =  $('#tblSats').DataTable({
             serverSide: true,
-            /*processing: true,*/
+            processing: true,
             ajax: {
                 "type": "GET",
                 "url": "/api/admin/sats",
                 "error": function(reason){
                     console.log(reason);
                 }
+            },
+            columns: [
+                {data: 'num', className: 'text-right'},
+                {data: 'customer'},
+                {data: 'provider'},
+                {data: 'alta', className: 'text-right'},
+                {data: 'delivery_date', className: 'text-right'},
+                {data: 'amount', className: 'text-right'},
+                {data: 'estado', className: 'text-right'},
+                {data: 'acciones', className: 'text-right'}
+            ]
+        });
+
+        $('#tblSats tbody').on('click', 'td .btnSeeItem', function () {
+            var tr = $(this).closest('tr');
+            var row = tableSats.row(tr);
+     
+            if(row.child.isShown()){
+                // This row is already open - close it
+                row.child.hide();
+                tr.removeClass('shown');
+            }else{
+                // Open this row
+                row.child(format(row.data())).show();
+                tr.addClass('shown');
             }
         });
     }

@@ -670,7 +670,6 @@ $order_amount_without_discount = $order_amount_without_discount_in_lines > $orde
 
 					{{-- Items --}}
 					@if(!$order->is_group)
-
 						<div class="tab-pane fade @if($tab == 'items') show active @endif" role="tabpanel" id="tab-items">
 							@include('admin.orders.partials.order-items', ['env' => 'orders'])
 						</div>
