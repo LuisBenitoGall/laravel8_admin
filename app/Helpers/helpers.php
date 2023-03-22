@@ -2119,10 +2119,11 @@ class Helpers{
 	        }
 
 	        //Descuento sobre la línea:
-	        if($item->discount){
-	            $discount = helpers::percent($amount, $item->discount);   
-	            $amount = $amount - $discount;  
-	        }
+	        //22/03/23: por ahora se omite pues ya hace el descuento en el método Order / itemsAmount
+	        // if($item->discount){
+	        //     $discount = helpers::percent($amount, $item->discount);   
+	        //     $amount = $amount - $discount;  
+	        // }
 	    }
 
 	    //Guardamos el importe sin IVA (base imponible) para posteriores operaciones:
