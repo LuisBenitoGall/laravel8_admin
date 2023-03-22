@@ -140,10 +140,11 @@ class Order extends Model{
                 $a = $arr_order_amount['amount'];
 
                 //Aplicando descuento del pedido:
-                if($order_discount && $order_discount > 0){
-                    $percentage_ = helpers::percent($arr_order_amount['amount'], $order_discount);    
-                    $arr_order_amount['amount'] = $arr_order_amount['amount'] - $percentage_;    
-                }
+                //22/03/2023: se bloquea este script pues los descuentos se aplican previamente sobre cada línea.
+                // if($order_discount && $order_discount > 0){
+                //     $percentage_ = helpers::percent($arr_order_amount['amount'], $order_discount);    
+                //     $arr_order_amount['amount'] = $arr_order_amount['amount'] - $percentage_;    
+                // }
 
                 
 

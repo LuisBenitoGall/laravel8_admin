@@ -1078,8 +1078,9 @@ $(window).on('load', function () {
         $('#frmEditItem').trigger("reset");
         $('#itemObservations_').trumbowyg('html', '');
         $.get("/admin/items/" + id + "/edit", function (response, state) {
-            if (response) {
-                console.log(response);
+            if(response){
+                var readonly = response.invoiced? true:false;
+
                 $('#itemId_').val(id);
                 $('#itemConcept_').val(response.concept);
                 $('#itemObservations_').trumbowyg('html', response.observations);
@@ -1089,20 +1090,20 @@ $(window).on('load', function () {
                     $('.price-fixed_').fadeOut(400, function () {
                         $('.price-by-percent_').fadeIn();
                     });
-                    $('#itemCalculatedByPercent_').val(response.calculated_by_percent);
-                    $('#itemPrice_').val('');
+                    $('#itemCalculatedByPercent_').val(response.calculated_by_percent).prop('readonly', readonly);
+                    $('#itemPrice_').val('').prop('readonly', readonly);
 
                 //Precio fijo:
                 } else {
                     $('.price-by-percent_').fadeOut(400, function () {
                         $('.price-fixed_').fadeIn();
                     });
-                    $('#itemQty_').val(response.qty);
-                    $('#itemDays_').val(response.days);
-                    $('#itemPrice_').val(response.price);
-                    $('#itemDiscount_').val(response.discount);
-                    $('#itemIva_').val(response.iva);
-                    $('#itemCalculatedByPercent_').val('');
+                    $('#itemQty_').val(response.qty).prop('readonly', readonly);
+                    $('#itemDays_').val(response.days).prop('readonly', readonly);
+                    $('#itemPrice_').val(response.price).prop('readonly', readonly);
+                    $('#itemDiscount_').val(response.discount).prop('readonly', readonly);
+                    $('#itemIva_').val(response.iva).prop('readonly', readonly);
+                    $('#itemCalculatedByPercent_').val('').prop('readonly', readonly);
 
                     if(response.iva == ''){
                         $('#frmEditItem .withoutIva').prop('checked', true);

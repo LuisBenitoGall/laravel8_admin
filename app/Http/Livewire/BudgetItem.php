@@ -45,6 +45,7 @@ class BudgetItem extends Component{
     public $field_readonly;
     public $form_on;
     public $item;
+    public $item_invoiced;
     public $items_order;
     public $items_no_price;
     public $items_selected;
@@ -76,6 +77,7 @@ class BudgetItem extends Component{
         $this->order = $order;
 
         $this->item = false;
+        $this->item_invoiced = false;
         $this->items_order = [];
         $this->items_selected = [];
 
@@ -348,6 +350,8 @@ class BudgetItem extends Component{
 
         $this->dispatchBrowserEvent('observations-value', ['observations' => '']);
 
+        $this->item_invoiced = false;
+
         //Estado del formulario:
         $this->form_on = true;
     }
@@ -368,6 +372,7 @@ class BudgetItem extends Component{
         $this->rowId = $item;
 
         $this->item = $item;
+        $this->item_invoiced = $item['invoiced']? true:false;
         $this->block = $item['budget_form_block_id'];
         $this->concept = $item['concept'];
         $this->observations = $item['observations'];
@@ -403,6 +408,7 @@ class BudgetItem extends Component{
      */
     public function resetForm(){
         $this->item = false;
+        $this->item_invoiced = false;
         $this->action = 'save';
         $this->field_readonly = false;
         $this->print = true;
