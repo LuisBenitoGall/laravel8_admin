@@ -11654,6 +11654,12 @@ ul{
     background-color: $grey-light;
 }
 
+.errors{
+    li{
+        color: $danger;
+    }
+}
+
 /************** JOKE ***********/
 #modal-joke{
     .joke-step{

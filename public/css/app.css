@@ -29520,6 +29520,10 @@ ul li.rev .fa {
   background-color: #F5F8FA;
 }
 
+.errors li {
+  color: #ed5565;
+}
+
 /************** JOKE ***********/
 #modal-joke .joke-step {
   display: none;

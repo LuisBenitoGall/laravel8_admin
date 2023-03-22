@@ -56,6 +56,7 @@ class Helpers{
 	 *  3.23. Signo movimientos de stock.
 	 *  3.24. Tipos de gastos.
 	 *  3.25. Tipos de gráficos para proyectos.
+	 *  3.26. Estados de SAT.
 	 *
 	 * 4. Strings:
 	 * 	4.1. Truncar texto.
@@ -1060,6 +1061,22 @@ class Helpers{
 		}else{
 			return $data;
 		}	
+	}
+
+	/**
+	 * 3.26. Estados de SAT.
+	 */
+	public static function satStatus($status = false){
+		$data = [
+			1 => trans('textos.pendiente'),
+			10 => trans('textos.en_curso'),
+			20 => trans('textos.terminada')			
+		];
+		if($status){
+			return ucfirst($data[$status]);
+		}else{
+			return $data;
+		}		
 	}
 
 	/**

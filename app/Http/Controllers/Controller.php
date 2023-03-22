@@ -339,6 +339,10 @@ class Controller extends BaseController{
                 $cardinal_ = 'order_num_cardinal';
                 $pattern_ = 'order_pattern_id';
                 break;
+            case 'sat':
+                $cardinal_ = 'sat_num_cardinal';
+                $pattern_ = 'sat_pattern_id';
+                break;
             default:
                 $cardinal_ = 'num_cardinal';
                 $pattern_ = 'pattern_id';
@@ -347,16 +351,19 @@ class Controller extends BaseController{
 
         // $cardinal_ = $change_again == 'purchase'? 'purchase_num_cardinal':'num_cardinal';
         // $pattern_ = $change_again == 'purchase'? 'purchase_pattern_id':'pattern_id';
+        
+        //Nombre de la tabla:
+        $tabla = $table.'s';
 
         if($pattern->yearly_reset == 1){
-            $last_num = DB::table($table.'s')->select($change_again.'_num', $cardinal_, $pattern_)
+            $last_num = DB::table($tabla)->select($change_again.'_num', $cardinal_, $pattern_)
             ->where($pattern_, $pattern->id)
             ->whereYear('created_at', date('Y'))
             ->orderBy($cardinal_, 'DESC')
             ->first();
 
         }else{
-            $last_num = DB::table($table.'s')->select($change_again.'_num', $cardinal_, $pattern_)
+            $last_num = DB::table($tabla)->select($change_again.'_num', $cardinal_, $pattern_)
             ->where($pattern_, $pattern->id)
             ->orderBy($cardinal_, 'DESC')
             ->first();
@@ -404,7 +411,7 @@ class Controller extends BaseController{
             }
 
             //Comprobamos que el número creado no exista previamente:
-            $exist = DB::table($table.'s')->where($change_again.'_num', $pattern_num)
+            $exist = DB::table($tabla)->where($change_again.'_num', $pattern_num)
             ->where($pattern_, $pattern_id)
             ->first();
 

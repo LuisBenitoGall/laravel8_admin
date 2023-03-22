@@ -905,6 +905,10 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::get('sat', 'SatController@index')->name('sat.index')->middleware('permission:sat.index');
     Route::get('sat/create', 'SatController@create')->name('sat.create')->middleware('permission:sat.create');
     Route::post('sat/store', 'SatController@store')->name('sat.store')->middleware('permission:sat.create');
+    Route::get('sat/{sat}/edit', 'SatController@edit')->name('sat.edit')->middleware('permission:sat.edit');
+    Route::put('sat/{sat}/update', 'SatController@update')->name('sat.update')->middleware('permission:sat.edit');
+    Route::delete('sat/{sat}', 'SatController@destroy')->name('sat.destroy')->middleware('permission:sat.destroy');
+    Route::get('sat/{sat}/status/{status}', 'SatController@status')->name('sat.status');
 
     // SAT Patterns:
     Route::get('sat-patterns', 'SatPatternsController@index')->name('sat-patterns.index')->middleware('permission:sat-patterns.index');

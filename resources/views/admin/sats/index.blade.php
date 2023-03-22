@@ -14,8 +14,6 @@
 				{!! ucfirst(trans('textos.sat_nuevo')) !!}
 			</a>
 		@endcan
-
-
 	</div>
 </div>
 
@@ -27,13 +25,13 @@
 					{{-- Num --}}
 					<th class="text-center wdt50">#</th>
 					{{-- Contratante --}}
-					<th class="text-center wdt100">{!! ucfirst(trans('textos.contratante')) !!}</th>
+					<th class="text-center wdt150">{!! ucfirst(trans('textos.contratante')) !!}</th>
 					{{-- Proveedor --}}
-					<th class="text-center wdt100">{!! ucfirst(trans('textos.proveedor')) !!}</th>
+					<th class="text-center wdt150">{!! ucfirst(trans('textos.proveedor')) !!}</th>
 					{{-- Fecha solicitado --}}
-					<th class="text-center">{!! ucfirst(trans('textos.fecha_inicio')) !!}</th>
+					<th class="text-center wdt100">{!! ucfirst(trans('textos.fecha_inicio')) !!}</th>
 					{{-- Fecha entrega --}}
-					<th class="text-center">{!! ucfirst(trans('textos.fecha_entrega')) !!}</th>
+					<th class="text-center wdt100">{!! ucfirst(trans('textos.fecha_entrega')) !!}</th>
 					{{-- Importe --}}
 					<th class="text-center wdt100 text-right">{!! ucfirst(trans('textos.importe')) !!}</th>
 					{{-- Status --}}
