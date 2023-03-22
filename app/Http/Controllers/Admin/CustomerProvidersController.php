@@ -277,8 +277,8 @@ class CustomerProvidersController extends Controller{
 
         $areas = BusinessAreas::where('company_id', $company->id)->get();
 
-        $conditions = CustomerProviders::where('provider_id', $company->id)
-        ->where('customer_id', session('currentCompany'))
+        $conditions = CustomerProviders::where('provider_id', session('currentCompany'))
+        ->where('customer_id', $company->id)
         ->first();
 
         $business_relationship = 'customers';
@@ -977,7 +977,7 @@ class CustomerProvidersController extends Controller{
         ->where('provider_id', session('currentCompany'))
         ->first();
 
-        //Areas de negocio:
+        //Áreas de negocio:
         $areas = BusinessAreas::where('company_id', $company->id)->get();
 
         //Métodos de pago:
