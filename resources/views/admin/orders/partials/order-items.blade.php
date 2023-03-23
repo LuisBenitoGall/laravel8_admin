@@ -27,14 +27,14 @@ $tbl = $env == 'invoices'? 'tblInvoiceItems':'tblOrderItems';
 			</thead>
 
 			<tfoot>
-				@if($order->discount)
+				{{-- @if($order->discount)
 					<tr>
 		                <td colspan="{{ $colspan }}" class="text-right"><b>{{ ucfirst(trans('textos.descuento')) }}</b></td>
 		                <td class="text-right">{{ $order->discount }}%</td>
 		                <td></td>
 		                <td></td>
 		            </tr>
-				@endif
+				@endif --}}
 
 	            <tr>
 	                <td colspan="{{ $colspan }}" class="text-right"><b>{{ trans('textos.importe_total') }} *</b></td>
