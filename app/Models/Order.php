@@ -200,8 +200,6 @@ class Order extends Model{
             'amounts_by_iva' => $amounts_by_iva
         ];
 
-        //dd('datos: ', $data);
-
         return $data;
     }
 
