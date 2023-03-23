@@ -1377,7 +1377,7 @@ class OrderController extends Controller{
 
             if($item->discount > 0){
                 if($other_discount){
-                    $discounts .= ' - ';
+                    $discounts .= ', ';
                 }
                 $discounts .= $item->discount.'%';
             }
