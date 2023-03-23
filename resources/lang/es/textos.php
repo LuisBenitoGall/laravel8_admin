@@ -1647,6 +1647,7 @@ return array(
 	'compras_de' => 'Compras de',
 	'compras_vinculadas' => 'Las compras se han vinculado correctamente',
 	'descuento' => 'descuento',
+	'descuentos' => 'descuentos',
 	'descuento_pedido' => 'Descuento sobre el pedido',
 	'descuento_pedido_texto' => 'Al aplicar un descuento general al pedido se cancelan los descuentos que se puedan haber aplicado parcialmente a cada línea del pedido. Para aplicar descuentos sobre cada línea debes eliminar primero el descuento general sobre el pedido.',
 	'descuento_pedidos' => 'Descuento sobre pedidos',

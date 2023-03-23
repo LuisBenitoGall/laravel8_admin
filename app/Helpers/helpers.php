@@ -2116,8 +2116,8 @@ class Helpers{
 	            }
 	        }
 
-	        //Descuento sobre la línea:
-	        if($item->discount){
+	        //Descuento sobre la línea, si el precio no es devolución:
+	        if($item->discount && $item->price > 0){
 	            $discount = helpers::percent($amount, $item->discount);   
 	            $amount = $amount - $discount;  
 	        }
