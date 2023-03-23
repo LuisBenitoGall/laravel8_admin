@@ -137,8 +137,6 @@ class Order extends Model{
                 //Base imponible de la línea:
                 $arr_order_amount = helpers::itemAmount($row, false);
 
-                $a = $arr_order_amount['amount'];
-
                 //Aplicando descuento del pedido:
                 //22/03/2023: se bloquea este script pues los descuentos se aplican previamente sobre cada línea.
                 // if($order_discount && $order_discount > 0){
@@ -201,6 +199,8 @@ class Order extends Model{
             'invoice_amount' => round($invoice_amount, 2),
             'amounts_by_iva' => $amounts_by_iva
         ];
+
+        //dd('datos: ', $data);
 
         return $data;
     }

@@ -19,7 +19,7 @@ $tbl = $env == 'invoices'? 'tblInvoiceItems':'tblOrderItems';
 						<th class="text-center">IVA</th>
 					@endif
 					<th class="text-center">{{ ucfirst(trans('textos.jornadas')) }}</th>
-					<th class="text-center">{{ ucfirst(trans('textos.descuento')) }}</th>
+					<th class="text-center">{{ ucfirst(trans('textos.descuentos')) }}</th>
 					<th class="text-center">{{ ucfirst(trans('textos.importe')) }}</th>
 					<th>{{ ucfirst(trans('textos.estado')) }}</th>
 					<th class="text-center">{{ ucfirst(trans('textos.acciones')) }}</th>

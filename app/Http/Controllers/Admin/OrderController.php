@@ -1367,11 +1367,22 @@ class OrderController extends Controller{
             }
         })
         ->addColumn('discount', function($item){
-            if($item->discount > 0){
-                return $item->discount.'%';
-            }else{
-                return '';
+            //Puede que la línea contenga 2 descuentos: el propio y el de días consecutivos por rodaje:
+            $discounts = '';
+            $other_discount = false;
+            if($item->days_continue_discount > 0){
+                $discounts .= $item->days_continue_discount.'%';
+                $other_discount = true;
             }
+
+            if($item->discount > 0){
+                if($other_discount){
+                    $discounts .= ' - ';
+                }
+                $discounts .= $item->discount.'%';
+            }
+
+            return $discounts;
         })
         ->addColumn('amount', function($item) use($currency, $order_amount, $environment){
             $amount = '';
@@ -1885,6 +1896,7 @@ class OrderController extends Controller{
         Item::leftJoin('products', 'items.product_id', '=', 'products.id')
         ->where('items.order_id', $order->id)
         ->whereNull('products.calculated_by_percent')
+        ->where('items.price', '>', 0)
         ->update(['items.discount' => $discount]);
 
         $msg = trans('textos.descuento_aplicado_ok');
