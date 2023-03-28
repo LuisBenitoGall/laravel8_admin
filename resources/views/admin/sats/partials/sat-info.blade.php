@@ -21,13 +21,17 @@
 				@endif
 
 			@else
-				<label class="text-warning mt-1" style="font-size: 16px;"><b><u>
+				<label class="text-warning mt-1" style="font-size: 16px;">
+					<b>
+					<u>
 					@if($sat->sat_num)
 						{{ $sat->sat_num }}
 					@else
 						{{ $sat->id }}
 					@endif
-				</u></b></label>
+					</u>
+					</b>
+				</label>
 			@endif
 		</div>
 

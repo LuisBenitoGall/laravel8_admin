@@ -59,6 +59,7 @@ class CompanyController extends Controller{
      * 17. Directorio por sectores.
      * 18. Roles por empresa.
      * 19. Empresas para autocomplete.
+     * 20. Proveedores para autocomplete.
      */
 
     private $option = 'empresas';
@@ -765,6 +766,29 @@ class CompanyController extends Controller{
             ->orWhere('nif', 'like', '%'.$search.'%');
         })
         ->orderBy('name', 'ASC')
+        ->limit(15)
+        ->get();
+
+        return response()->json($data);
+    }
+
+    /**
+     * 20. Proveedores para autocomplete.
+     */
+    public function searchProviders(Request $request){
+        $search = $request->search;
+
+        $data = Company::select('companies.id', 'companies.name', 'companies.tradename', 'companies.nif', 'companies.is_user')
+        ->join('customer_providers', 'companies.id', '=', 'customer_providers.provider_id')
+        ->where('customer_providers.customer_id', session('currentCompany'))
+        ->where('companies.status', 1)
+        ->where('companies.id', '!=', session('currentCompany')) 
+        ->where(function($query) use ($search){  
+            $query->where('companies.name', 'like', '%'.$search.'%') 
+            ->orWhere('companies.tradename', 'like', '%'.$search.'%')   
+            ->orWhere('companies.nif', 'like', '%'.$search.'%');
+        })
+        ->orderBy('companies.name', 'ASC')
         ->limit(15)
         ->get();
 

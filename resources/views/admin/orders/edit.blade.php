@@ -89,6 +89,17 @@
 				</a>
 			@endcan
 
+			{{-- SAT --}}
+			@if($sat)
+				@can('sat.edit')
+					<a href="{{ route('sat.edit', $sat) }}" class="btn btn-info">
+						<i class="fa fa-angle-left"></i>
+						{!! trans('textos.volver_sat') !!}
+						@if($sat->sat_num) {{ $sat_num}} @else {{ $sat->id }} @endif
+					</a>
+				@endcan
+			@endif
+
 			{{-- Nuevo pedido --}}
 			@can('orders.create')
 				<a href="{{ route('orders.create', $order_type) }}" class="btn btn-info btn-confirm"  data-msg="{!! trans('textos.pedido_venta_nuevo_confirm') !!}">

@@ -61,7 +61,7 @@ class SatController extends Controller{
                 'nif' => 'required_without:company_id|max:20',
                 'name' => 'required_if:type,==,u|max:150',
                 'surname' => 'required_if:type,==,u|max:150',
-                'email' => 'required_if:type,==,u|string|email|max:191|unique:users,email'
+                'email' => 'nullable|required_if:type,==,u|string|email|max:191|unique:users,email'
             ],[
                 'type.required_without' => trans('textos.tipo_cliente_obligatorio'),
                 'company.required_if' => trans('textos.empresa_obligatoria'),
@@ -261,11 +261,25 @@ class SatController extends Controller{
             'slug' => 'sat'
         ];  
 
+        //Pedido de venta:
         $order_sale = $sat->sale_id? Order::select('id', 'order_num', 'order_old_num', 'customer_id')->find($sat->sale_id):false;
+        //Importe del pedido de venta:
+        $sale_amount = $order_sale->getAmount();
+
+        //Pedido de compra:
         $order_purchase = $sat->purchase_id? Order::select('id', 'order_num', 'order_old_num', 'provider_id')->find($sat->purchase_id):false;
+        //Importe del pedido de compra:
+        $purchase_amount = $order_purchase? $order_purchase->getAmount():'0';
 
         $customer = Company::select('id', 'name', 'tradename', 'nif', 'is_user')->find($sat->contractor_id);
         $provider = $order_purchase? Company::select('id', 'name', 'tradename', 'nif', 'is_user')->find($order_purchase->provider_id):false;
+
+        //Items informativos:
+        $items = SatItem::select('sat_items.*', 'users.name', 'users.surname')
+        ->join('users', 'sat_items.user_id', '=', 'users.id')
+        ->where('sat_items.sat_id', '=', $sat->id)
+        ->orderBy('sat_items.created_at', 'DESC')
+        ->get();
 
         //Patrones de numeración del SAT:
         $patterns = false;
@@ -282,7 +296,10 @@ class SatController extends Controller{
 
         $languages = $this->languages;
 
-        return view('admin.sats.edit')->with(compact('header', 'sat', 'tab', 'order_sale', 'order_purchase', 'customer', 'provider', 'patterns', 'estados', 'author', 'languages'));    
+        //Moneda:
+        $currency = CompanySettings::co_currency(0);
+
+        return view('admin.sats.edit')->with(compact('header', 'sat', 'tab', 'order_sale', 'sale_amount', 'order_purchase', 'purchase_amount', 'customer', 'provider', 'items', 'patterns', 'estados', 'author', 'languages', 'currency'));    
     }
 
     /**

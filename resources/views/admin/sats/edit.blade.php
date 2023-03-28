@@ -18,14 +18,6 @@
 				{!! ucfirst(trans('textos.sat_nuevo')) !!}
 			</a>
 		@endcan
-
-		{{-- Pedido de compra --}}
-		@can('sat.edit')
-			<a href="" class="btn btn-info" data-toggle="modal" data-target="#modal-add-provider">
-				<i class="fa fa-plus"></i>
-				{!! ucfirst(trans('textos.pedido_proveedor')) !!}
-			</a>
-		@endcan
 	</div>
 </div>
 
@@ -126,7 +118,21 @@
 </div>
 
 {{-- Modals: --}}
-{{-- Add provider --}}
-@include('admin.sats.partials.modal-add-provider')
+{{-- Add purchase --}}
+@include('admin.sats.partials.modal-add-item')
+
+@push('scripts')
+<script>
+$(function(){
+	//Edición información tracking:
+	$('.btnEditInformation').on('click', function(){
+		var padre = $(this).closest('.timeline-item');
+		var info = padre.find('.content p').text();
+		padre.find('.content').append('<textarea class="form-control">'+info+'</textarea>');
+	});
+
+});
+</script>
+@endpush
 
 @endsection
