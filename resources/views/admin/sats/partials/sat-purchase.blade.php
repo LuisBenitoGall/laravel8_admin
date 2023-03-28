@@ -9,14 +9,14 @@
 	                <h1 class="m-xs text-center">{{ $purchase_amount['total_amount'] }}{{ $currency->symbol }}</h1>
 	            </div>
 	        </div>
-	    </div>
 
-	    <div class="col-md-8 pt-2">
-	    	{{-- Editar pedido --}}
-	    	<a href="{{ route('orders.edit', $sat->purchase_id) }}" class="btn btn-info">
-				<i class="fa fa-edit"></i>
-				{!! trans('textos.compra_editar') !!}
-			</a>
+	        <div class="text-right mt-4">
+	        	{{-- Editar pedido --}}
+		    	<a href="{{ route('orders.edit', $sat->purchase_id) }}" class="btn btn-info">
+					<i class="fa fa-edit"></i>
+					{!! trans('textos.compra_editar') !!}
+				</a>
+	        </div>
 	    </div>
 	</div>
 

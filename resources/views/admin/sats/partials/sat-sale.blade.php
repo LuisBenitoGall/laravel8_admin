@@ -46,9 +46,17 @@
 							</a>
 
 							{{-- Editar comentario --}}
-							<a href="#" class="btnEditInformation" rel="tooltip" title="{{ ucfirst(trans('textos.editar')) }}" style="right: 30px;">
+							{{-- rel="tooltip" title="{{ ucfirst(trans('textos.editar')) }}" --}}
+							<a href="#" class="btnEditInformation" style="right: 30px;" data-id="{{ $item->id }}">
 								<i class="fa fa-edit"></i>
 							</a>
+
+							{{-- Documento --}}
+							@if($item->doc)
+								<a target="_blank" href="{{ asset('docs/sat/'.$item->doc) }}" style="right: 60px;" rel="tooltip" title="{{ ucfirst(trans('textos.documento_ver')) }}">
+									<i class="fa fa-file"></i>
+								</a>
+							@endif
 
 							{{ $item->created_at->format($languages[session()->get('locale')][4].' H:i:s'); }}
 						</div>
