@@ -39,6 +39,7 @@ use App\Models\Project;
 use App\Models\ProjectOrders;
 use App\Models\ProjectPurchases;
 use App\Models\PurchasePatterns;
+use App\Models\Sat;
 use App\Models\TempExportOrders;
 use App\Models\User;
 use App\Models\UserCompanies;
@@ -589,7 +590,7 @@ class OrderController extends Controller{
         //Creamos pedido:
         $order = new Order();
         $order->is_order = true;
-        $order->name = $request->name;
+        $order->name = $request->name? $request->name:NULL;
         $order->slug = $slug;
         $order->is_group = $is_group;
         if($is_group){
@@ -645,8 +646,23 @@ class OrderController extends Controller{
             } 
         }
 
+        //SAT:
+        if($request->sat){
+            if($order->customer_id == session('currentCompany')){  
+                Sat::where('id', $request->sat)
+                ->update(['purchase_id' => $order->id]);
+            }else{
+                Sat::where('id', $request->sat)
+                ->update(['sale_id' => $order->id]);
+            }  
+        }
+
         $msg = trans('textos.pedido_creado');
-        return redirect()->route('orders.edit', $order)->with(compact('msg'));
+        if($request->sat){
+            return redirect()->route('sat.edit', $request->sat)->with(compact('msg'));
+        }else{
+            return redirect()->route('orders.edit', $order)->with(compact('msg'));
+        }
     }
 
     /**
@@ -986,8 +1002,12 @@ class OrderController extends Controller{
 
         //IVA:
         $iva = CompanySettings::co_iva();
-        
 
+        //Servicio de Asistencia Técnica (SAT), según sea la venta o la compra:
+        $sat = $order->provider_id == session('currentCompany')? Sat::select('id', 'sat_num')
+        ->where('sale_id', $order->id)->first():Sat::select('id', 'sat_num')
+        ->where('purchase_id', $order->id)->first();
+        
         //Templates:
         $templates = false;
         if($order->provider_id == session('currentCompany')){
@@ -1023,7 +1043,7 @@ class OrderController extends Controller{
         $module_projects = $this->settedModule('projects');
         $module_rrhh = $this->settedModule('rrhh');
         
-        return view('admin.orders.edit')->with(compact('header', 'order', 'tab', 'patterns', 'purchase_patterns', 'provider', 'provider_account', 'provider_managers', 'provider_business_areas', 'provider_cost_centers', 'provider_workplaces', 'default_workplace', 'customer', 'final_customer', 'customer_managers', 'customer_business_areas', 'customer_cost_centers', 'customer_workplaces', 'customer_products', 'customer_settings', 'confirmed_by', 'customers', 'order_amount', 'order_amount_without_discount', 'order_amount_without_discount_in_lines', 'order_groups', 'ordersInGroup', 'orders_off', 'group_amount', 'invoiced', 'invoices', 'previsions', 'products', 'projects', 'project', 'project_purchases', 'customer_projects', 'deliveries', 'receivings', 'currency', 'items', 'author', 'owner', 'iva', 'order_type', 'templates', 'languages', 'permitted', 'module_accounting', 'module_budgets', 'module_products', 'module_projects', 'module_rrhh', 'module_logistics'));
+        return view('admin.orders.edit')->with(compact('header', 'order', 'tab', 'patterns', 'purchase_patterns', 'provider', 'provider_account', 'provider_managers', 'provider_business_areas', 'provider_cost_centers', 'provider_workplaces', 'default_workplace', 'customer', 'final_customer', 'customer_managers', 'customer_business_areas', 'customer_cost_centers', 'customer_workplaces', 'customer_products', 'customer_settings', 'confirmed_by', 'customers', 'order_amount', 'order_amount_without_discount', 'order_amount_without_discount_in_lines', 'order_groups', 'ordersInGroup', 'orders_off', 'group_amount', 'invoiced', 'invoices', 'previsions', 'products', 'projects', 'project', 'project_purchases', 'customer_projects', 'deliveries', 'receivings', 'currency', 'items', 'author', 'owner', 'iva', 'sat', 'order_type', 'templates', 'languages', 'permitted', 'module_accounting', 'module_budgets', 'module_products', 'module_projects', 'module_rrhh', 'module_logistics'));
     }
 
     /**

@@ -6406,6 +6406,17 @@ ul.clear-list:first-child {
   border-top: 1px solid #e7eaec;
   padding-top: 10px;
   min-height: 100px;
+
+    textarea{
+        background-color: #F8F8F8;
+        height: 100%;
+        left: 0;
+        position: absolute;
+        resize: none;
+        top: 0;
+        width: 100%;
+        z-index: 5;
+    }
 }
 .timeline-item .content:hover {
   background: #f6f6f6;

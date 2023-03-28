@@ -173,6 +173,13 @@ on u.id = uc.user_id
 where uc.company_id in (3,4,8,202,227,275)
 group by u.id
 
+- Establecer líneas de pedido como facturadas:
+update items i
+inner join orders o
+on i.order_id = o.id
+set i.invoiced = true
+where o.invoiced = true;
+
 ### Instalación de Sentry
 
 - Puedes Consultar la configuración. [Ir A sentry](https://docs.sentry.io/platforms/php/guides/laravel/)

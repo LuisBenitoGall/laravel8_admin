@@ -1228,7 +1228,6 @@ class InvoiceController extends Controller{
             if($pba->featured == 1) $provider_bank_featured = $pba->id;
         }
 
-
         return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'is_sale', 'order', 'invoiced', 'invoices', 'refund', 'customer', 'customer_account', 'provider', 'provider_account', 'provider_settings', 'structure_concepts', 'items', 'products', 'currency', 'languages', 'patterns', 'payments', 'templates', 'featuredTemplate', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'payment_methods', 'concepts', 'bank_accounts', 'bank_featured', 'provider_bank_accounts', 'provider_bank_featured'));
     }
 
@@ -1382,6 +1381,10 @@ class InvoiceController extends Controller{
             if($doc){
                 $invoice->doc = $doc;
             }
+        }
+
+        if($request->status){
+            $invoice->status = $request->status;
         }
 
         //Recalculando descuento por IRPF:
