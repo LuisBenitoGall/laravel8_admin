@@ -358,6 +358,7 @@ $(window).on('load', function () {
     32. Producto exento de IVA.
     33. Vincular / desvincular sectores a empresa.
     34. Búsqueda autocomplete de empresa.
+    35. Búsqueda autocomplete de proveedor.
     */
 
     // 1. Eliminar preview imagen seleccionada:
@@ -1270,6 +1271,47 @@ $(window).on('load', function () {
                 $('#company-nif').fadeOut();
                 $('#companyNif').val('');
                 $('#companyId').val('');    
+            }
+            
+            return false;
+        }
+    });
+
+    // 35. Búsqueda autocomplete de proveedor.
+    $('#search_provider').autocomplete({
+        minLength: 0,
+        source: function(request,response){
+            // Fetch data
+            if(request.term.length > 1){
+                $.ajax({
+                    url: "/api/admin/providers-search",
+                    type: "post",
+                    dataType: "json",
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        search: request.term
+                    },
+                    success: function(data){
+                        response($.map(data, function (item){
+                            return {
+                                label: item.name,
+                                value: item.id,
+                                code: item.nif
+                            }
+                        }));
+                    }
+                });
+
+            //Limpiamos datos:
+            }else{
+                $('#providerId').val('');    
+            }
+        },
+        select: function(event,ui){
+            $('#search_provider').val(ui.item.label);
+            $('#providerId').val(ui.item.value);
+            if(ui.item.value == ''){
+                $('#providerId').val('');    
             }
             
             return false;

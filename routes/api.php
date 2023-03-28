@@ -284,6 +284,7 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
 
     //Providers:
     Route::get('providers', 'CustomerProvidersController@getProvidersDT');
+    Route::post('providers-search', 'CompanyController@searchProviders');
 
     //Provinces:
     Route::get('provinces/{country_id}', 'ProvinceController@getProvincesDT');
