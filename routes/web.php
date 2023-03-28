@@ -912,6 +912,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
 
     // SAT Items:
     Route::post('sat-items/store', 'SatItemController@store')->name('sat-items.store')->middleware('permission:sat.edit');
+    Route::get('sat-items/{id}/update-observations/{observations}', 'SatItemController@updateObservations')->name('sat-items.update-observations')->middleware('permission:sat.edit');
 
     // SAT Patterns:
     Route::get('sat-patterns', 'SatPatternsController@index')->name('sat-patterns.index')->middleware('permission:sat-patterns.index');

@@ -127,8 +127,27 @@ $(function(){
 	//Edición información tracking:
 	$('.btnEditInformation').on('click', function(){
 		var padre = $(this).closest('.timeline-item');
-		var info = padre.find('.content p').text();
-		padre.find('.content').append('<textarea class="form-control">'+info+'</textarea>');
+		if($(this).hasClass('saveInformation')){
+			$(this).removeClass('saveInformation');
+			var id = $(this).data('id');
+			var observations = padre.find('.content textarea').val();
+			$.get("/admin/sat-items/"+id+"/update-observations/"+observations, function (response, state) {
+            	if(response){
+            		padre.find('.content p').empty().text(observations);
+            		padre.find('.content textarea').remove();
+            	}
+            });
+			$(this).prop('title', txtEditar);
+			$(this).find('.fa').removeClass('fa-check').addClass('fa-edit');
+
+		}else{
+			var info = padre.find('.content p').text();
+			padre.find('.content').append('<textarea class="form-control">'+info+'</textarea>');
+			$(this).prop('title', txtGuardar);	
+			$(this).find('.fa').removeClass('fa-edit').addClass('fa-check');
+			//Activando opción para guardar:
+			$(this).addClass('saveInformation');
+		}
 	});
 
 });

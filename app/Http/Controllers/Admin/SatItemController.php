@@ -15,6 +15,7 @@ use App\Models\SatItem;
 class SatItemController extends Controller{
     /**
      * 1. Guardar item.
+     * 2. Actualizar observaciones por ajax.
      */
     
     private $module = 'sat';
@@ -71,5 +72,17 @@ class SatItemController extends Controller{
 
         $msg = trans('textos.informacion_guardada');
         return redirect()->route('sat.edit', [$request->sat_id, 'sale'])->with(compact('msg'));
+    }
+
+    /**
+     * 2. Actualizar observaciones por ajax.
+     */
+    public function updateObservations(Request $request, $id, $observations){
+        if($request->ajax()){
+            SatItem::where('id', $id)
+            ->update(['observations' => $observations]);
+
+            return response()->json(true);
+        }    
     }
 }
