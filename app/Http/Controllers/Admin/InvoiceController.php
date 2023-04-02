@@ -949,7 +949,6 @@ class InvoiceController extends Controller{
 
         //Entorno: venta.
         $is_sale = true;
-
         
 
         //Si se trata de una agrupación, obtenemos los pedidos vinculados:
@@ -1121,9 +1120,10 @@ class InvoiceController extends Controller{
         ->find($invoice->order_id);
 
         //Recalculando importe factura por sus líneas:
-        if($order->from_customer == 1){
-            $this->recalculateInvoiceAmount($invoice, $order);
-        }
+        //02/04/2023: revisar estas líneas para que no recalcule sobre facturas parciales.
+        // if($order->from_customer == 1){
+        //     $this->recalculateInvoiceAmount($invoice, $order);
+        // }
         
         //Entorno: compra.
         $is_sale = false;
