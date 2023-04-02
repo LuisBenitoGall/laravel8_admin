@@ -24,7 +24,11 @@
 						{{-- Proveedor --}}
 						<label for="provider_id" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.proveedor')) !!}*</label>
 						<div class="col-lg-3">
-							<x-select name="provider_id" id="expenseProvider" class="select2" label="proveedor_selec" :options="$providers" required info="invoice-provider"/>
+							@php
+							$providerId = $order && $order->provider_id? $order->provider_id:'';
+							@endphp
+
+							<x-select name="provider_id" id="expenseProvider" class="select2" label="proveedor_selec" :options="$providers" required info="invoice-provider" value="{{ $providerId }}"/>
 						</div>
 
 						{{-- Añadir nuevo proveedor --}}
@@ -37,7 +41,50 @@
 						{{-- Pedido --}}
 						<label for="order_id" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.pedido_compra')) !!}</label>
 						<div class="col-lg-4">
-							<x-select name="order_id" id="orderId" class="select2" label="pedido_selec" :options="[]" disabled/>
+							@php
+							$orderId = $order? $order->id:'';
+
+							$options_ = [];
+							if($provider_orders){
+								foreach($provider_orders as $po){
+									$n = $po->purchase_num? $po->purchase_num:($po->order_num? $po->order_num:$po->id);
+									$name = $po->name? ' - '.$po->name:'';
+									$options_[$po->id] = $n.$name;
+								}
+							}
+
+							$disabled = $orderId == ''? true:false;
+							@endphp
+
+							<x-select name="order_id" id="orderId" class="select2" label="pedido_selec" :options="$options_" disabled="{{ $disabled }}" value="{{ $orderId }}"/>
+						</div>
+					</div>
+
+					<div class="form-group row" id="allInvoiced">
+						{{-- Importe de factura coincidente con importe de pedido --}}
+						<label for="all_invoiced" class="col-lg-4 col-form-label">{{ trans('textos.factura_igual_pedido') }}*</label>
+						<div class="col-md-2">
+							<label class="custom-chk-rdb mr-5" style="margin-bottom: 0; margin-top: 9px;">
+						        <input type="radio" name="all_invoiced" value="t" required>
+						        <span class="rdb chksmall"></span>
+						        {{ ucfirst(trans('textos.total')) }}
+						    </label>
+
+						    <label class="custom-chk-rdb mr-4" style="margin-bottom: 0; margin-top: 9px;">
+						        <input type="radio" name="all_invoiced" value="p" required>
+						        <span class="rdb chksmall"></span>
+						        {{ ucfirst(trans('textos.parcial')) }}
+						    </label>
+						</div>
+
+						<label for="partial_invoice_amount" class="col-lg-2 col-form-label">{{ trans('textos.importe_factura_parcial') }}</label>
+						{{-- Importe neto --}}
+						<div class="col-lg-2">
+							<x-input type="text" name="partial_net_amount" class="text-right set-decimals partialInvoiceAmount" autocomplete="off" maxlength="10" group="right" groupvalue="{{ $currency->symbol }}" placeholder="{{ trans('textos.importe_neto') }}" disabled/>
+						</div>
+						{{-- Importe + IVA --}}
+						<div class="col-lg-2">
+							<x-input type="text" name="partial_iva_amount" class="text-right set-decimals partialInvoiceAmount" autocomplete="off" maxlength="10" group="right" groupvalue="{{ $currency->symbol }}" placeholder="{{ trans('textos.importe_iva') }}" disabled/>
 						</div>
 					</div>
 
@@ -137,7 +184,7 @@ $(function(){
         $('#town_id').html('');
         $('#expenseProvider option:selected').each(function (){
             var id = event.target.value;	
-            $("#orderId").empty();
+            //$("#orderId").empty();
 
             if (id == null || id == 0) {
                 $('#orderId').attr('disabled', 'disabled');
@@ -147,7 +194,7 @@ $(function(){
 	            	if(response.length > 0){
 		                $("#orderId").append('<option value="">' + txtPedidoSelec + '</option>');
 		                for (i = 0; i < response.length; i++){
-		                	var option = response[i].purchase_num? response[i].purchase_num:(response[i].purchase_old_num? response[i].purchase_old_num:'');
+		                	var option = response[i].purchase_num? response[i].purchase_num:(response[i].purchase_old_num? response[i].purchase_old_num:response[i].id);
 		                	option = option+' - '+response[i].name;
 	                    	$("#orderId").append('<option value="' + response[i].id + '">' + option + '</option>');
 		                }
@@ -173,6 +220,32 @@ $(function(){
     	var total = parseFloat(amount) + parseFloat(percent);
     	$('#invoiceTotalAmount').val(total.toFixed(2));
     });
+
+    //Facturar totalidad:
+    @if(!$order)
+    	$('#allInvoiced').hide();
+    	$("#allInvoiced input:radio").prop('required', false);
+    @endif
+
+    $('#orderId').on('change', function(){
+    	var val = $(this).val();
+    	if(val > 0){
+    		$('#allInvoiced').slideDown();	
+    		$("#allInvoiced input:radio").prop('required', true);
+    	}else{
+    		$('#allInvoiced').slideUp();	
+    		$("#allInvoiced input:radio").prop('required', false);
+    	}
+    });
+    $("#allInvoiced input:radio").on('change', function(){
+    	var option = $(this).val();
+    	if(option == 'p'){
+    		$('.partialInvoiceAmount').prop('disabled', false);
+    	}else{
+    		$('.partialInvoiceAmount').prop('disabled', true);
+    	}
+    });
+    
 });
 </script>
 @endpush
