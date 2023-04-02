@@ -912,7 +912,7 @@ class InvoiceController extends Controller{
         $inv->customer_observations = $request->customer_observations;
         $inv->doc = $doc;
         $inv->status = $request->status? $request->status:config('constants.INVOICE_OPEN_'); 
-        $inv->blocked = 0;      //Por defecto mantenemos desbloqueadas las facturas así generadas.  
+        $inv->blocked = $request->all_invoiced? 1:0;      //Se bloquean las facturas con pedido previo. 
         $inv->save();
 
         //Vinculamos pedido a proyecto:
@@ -1121,9 +1121,9 @@ class InvoiceController extends Controller{
 
         //Recalculando importe factura por sus líneas:
         //02/04/2023: revisar estas líneas para que no recalcule sobre facturas parciales.
-        // if($order->from_customer == 1){
-        //     $this->recalculateInvoiceAmount($invoice, $order);
-        // }
+        if($order->from_customer == 1){
+            $this->recalculateInvoiceAmount($invoice, $order);
+        }
         
         //Entorno: compra.
         $is_sale = false;
