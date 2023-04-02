@@ -368,6 +368,7 @@ class CompanyController extends Controller{
             $ca->start_date = $hoy;
             $ca->end_date = $end_date;
             $ca->price = $account->rate;
+            $ca->status = '0';
             $ca->save();
         }
 

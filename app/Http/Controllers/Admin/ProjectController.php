@@ -24,6 +24,7 @@ use App\Models\CustomerProviders;
 use App\Models\Employee;
 use App\Models\Expense;
 use App\Models\Group;
+use App\Models\Invoice;
 use App\Models\Order;
 use App\Models\Project;
 use App\Models\ProjectDocs;
@@ -514,12 +515,22 @@ class ProjectController extends Controller{
         }
 
         //Compras:
-        $project_purchases = Order::select('orders.id', 'orders.order_num', 'orders.purchase_num', 'orders.purchase_old_num', 'orders.name', 'orders.delivery_date', 'orders.order_status', 'companies.name AS provider', 'project_purchases.id AS ppId', 'invoices.fiscal_date')
-        ->join('project_purchases', 'orders.id', '=', 'project_purchases.order_id')
-        ->join('companies', 'orders.provider_id', '=', 'companies.id')
-        ->leftJoin('invoices', 'orders.id', '=', 'invoices.order_id')
+        // $project_purchases = Order::select('orders.id', 'orders.order_num', 'orders.purchase_num', 'orders.purchase_old_num', 'orders.name', 'orders.delivery_date', 'orders.order_status', 'companies.name AS provider', 'project_purchases.id AS ppId', 'invoices.fiscal_date')
+        // ->join('project_purchases', 'orders.id', '=', 'project_purchases.order_id')
+        // ->join('companies', 'orders.provider_id', '=', 'companies.id')
+        // ->leftJoin('invoices', 'orders.id', '=', 'invoices.order_id')
+        // ->where('project_purchases.project_id', $project->id)
+        // ->orderBy('orders.order_num', 'ASC')
+        // ->groupBy('orders.id')
+        // ->get();
+
+        $project_purchases = Invoice::select('orders.id', 'orders.order_num', 'orders.purchase_num', 'orders.purchase_old_num', 'orders.name', 'orders.delivery_date', 'orders.order_status', 'companies.name AS provider', 'project_purchases.id AS ppId', 'invoices.fiscal_date', 'invoices.id AS invoiceId', 'invoices.invoice_num', 'invoices.invoice_old_num', 'invoices.amount', 'invoices.amount_with_iva', 'invoices.irpf')
+        ->leftJoin('orders', 'invoices.order_id', '=', 'orders.id')
+        ->leftJoin('project_purchases', 'orders.id', '=', 'project_purchases.order_id')
+        ->leftJoin('companies', 'orders.provider_id', '=', 'companies.id')
         ->where('project_purchases.project_id', $project->id)
         ->orderBy('orders.order_num', 'ASC')
+        ->groupBy('invoiceId')
         ->get();
 
         //Pasamos las compras vinculadas a un array:
