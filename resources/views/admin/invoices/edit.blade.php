@@ -114,11 +114,11 @@ $readonly = $invoice->blocked && !$is_sale || ($order->customer_id == session('c
 			1. Permisos de cancelación de factura.
 			2. Acción permitida.
 			3. Factura no bloqueada.
-			4. Exclusivo proveedor.
+			4. Para proveedor o cliente sobre proveedor sin cuenta.
 			...
 		--}}
         @can('invoices.destroy')
-        	@if($permitted && !$invoice->blocked && $order->provider_id == session('currentCompany'))
+        	@if($permitted && !$invoice->blocked && ($order->provider_id == session('currentCompany') || !$provider_account))
 	        	<form method="POST" action="{{ route('invoices.destroy', $invoice) }}" class="frm-inline" role="form" accept-charset="UTF-8">
 	                <input name="_method" type="hidden" value="DELETE">
 	                {{ csrf_field() }}

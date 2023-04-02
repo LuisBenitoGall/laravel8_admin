@@ -392,6 +392,20 @@
 				@endif
 			@endcan
 
+			{{-- Introducir factura de proveedor - condiciones: 
+				1. Permisos de creación de facturas.
+				2. Compras.
+				3. Clientes sobre proveedores sin cuenta en el ERP.
+			--}}
+			@can('invoices.create')
+				@if($order->customer_id == session('currentCompany') && !$provider_account)
+					<a href="{{ route('invoices.create-from-provider', ['0', $order->id]) }}" class="btn btn-info">
+						<i class="fa fa-plus"></i>
+						{!! ucfirst(trans('textos.factura_compra_introducir')) !!}
+					</a>
+				@endif
+			@endcan
+
 			{{-- Recalcular previsiones de facturación. Cuando se ha modificado el importe del pedido y los porcentajes de previsión de facturación no se ajustan al planteamiento original - condiciones:
 				1. Exclusivo proveedores.
 				2. Permisos de edicion de facturas.

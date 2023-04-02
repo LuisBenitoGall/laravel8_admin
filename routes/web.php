@@ -504,7 +504,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::get('invoices/list/{year?}/{month?}/{company?}', 'InvoiceController@index')->name('invoices.index')->middleware('permission:invoices.index');
     Route::post('invoices', 'InvoiceController@getInvoicesBy')->name('invoices.list')->middleware('permission:invoices.index');
     Route::post('invoices/create-from-order', 'InvoiceController@createFromOrder')->name('invoices.create-from-order')->middleware('permission:invoices.create');
-    Route::get('invoices/create-from-provider/{project_id?}', 'InvoiceController@createFromProvider')->name('invoices.create-from-provider')->middleware('permission:invoices.create');
+    Route::get('invoices/create-from-provider/{project_id?}/{order_id?}', 'InvoiceController@createFromProvider')->name('invoices.create-from-provider')->middleware('permission:invoices.create');
     Route::post('invoices/store-from-provider', 'InvoiceController@storeFromProvider')->name('invoices.store-from-provider')->middleware('permission:invoices.create');
     Route::get('invoices/{invoice}/edit/{tab?}', 'InvoiceController@edit')->name('invoices.edit')->middleware('permission:invoices.edit');
     Route::get('invoices/{invoice}/edit-purchase/{tab?}', 'InvoiceController@editPurchase')->name('invoices.edit-purchase')->middleware('permission:invoices.edit');

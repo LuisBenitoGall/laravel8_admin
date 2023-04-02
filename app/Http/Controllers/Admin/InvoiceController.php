@@ -141,7 +141,12 @@ class InvoiceController extends Controller{
         }elseif(isset($data['submit_from_provider'])){
             return Validator::make($data, [
                 'provider_id' => 'required|numeric',
-                'invoice_old_num' => 'required'
+                'invoice_old_num' => 'required',
+                'partial_net_amount' => 'required_if:all_invoiced,==,p',
+                'partial_iva_amount' => 'required_if:all_invoiced,==,p'
+            ],[
+                'partial_net_amount.required_if' => trans('textos.importe_obligatorio_facturas_parciales'), 
+                'partial_iva_amount.required_if' => trans('textos.importe_obligatorio_facturas_parciales'),   
             ]);
         }
     }
@@ -768,7 +773,7 @@ class InvoiceController extends Controller{
     /**
      * 2.2. Introducir factura de proveedor.
      */
-    public function createFromProvider($project_id = false){
+    public function createFromProvider($project_id = false, $order_id = false){
         $header = [
             'option' => $this->option, 
             'suboption' => 'textos.factura_compra_introducir',
@@ -777,14 +782,30 @@ class InvoiceController extends Controller{
         ];  
 
         //Comprobamos que el proyecto pertenezca a la empresa en session:
-        if($project_id){
+        if($project_id && $project_id > 0){
             $project = Project::select('company_id')->find($project_id);
             if($project->company_id != session('currentCompany')){
                 $alert = trans('textos.no_permisos_accion');   
                 return redirect()->route('projects.index')->with(compact('alert'));
                 exit;
             }
-        } 
+        }else{
+            $project_id = false;
+        }
+
+        $order = false;
+        $provider_orders = false;
+        if($order_id){
+            $order = Order::select('id', 'provider_id', 'customer_id')->find($order_id);
+
+            $provider_orders = Order::select('id', 'order_num', 'purchase_num', 'name')
+            ->where('is_order', 1)
+            //->whereIn('order_status', config('constants.ORDER_STATUS_INVOICED_'))
+            ->where('provider_id', $order->provider_id)
+            ->where('customer_id', $order->customer_id)
+            ->orderBy('created_at', 'DESC')
+            ->get();
+        }
 
         $providers = Company::join('customer_providers', 'companies.id', '=', 'customer_providers.provider_id')
         ->where('customer_providers.customer_id', session('currentCompany'))
@@ -797,7 +818,7 @@ class InvoiceController extends Controller{
 
         $currency = CompanySettings::co_currency(0);
 
-        return view('admin.invoices.invoice-by-provider')->with(compact('header', 'project_id', 'providers', 'languages', 'currency'));          
+        return view('admin.invoices.invoice-by-provider')->with(compact('header', 'project_id', 'order', 'provider_orders', 'providers', 'languages', 'currency'));          
     }
 
     /**
@@ -806,7 +827,9 @@ class InvoiceController extends Controller{
     public function storeFromProvider(Request $request){
         $validator = $this->validator($request->all());
         if($validator->fails()){
-            return redirect('/admin/invoices/create-from-provider')
+            $route = $request->order_id? 'create-from-provider/0/'.$request->order_id:'create-from-provider';
+
+            return redirect('/admin/invoices/'.$route)
                 ->withErrors($validator)
                 ->withInput();
         }
@@ -847,24 +870,26 @@ class InvoiceController extends Controller{
             // $item->active = 1;
             // $item->user_id = Auth::user()->id;
             // $item->save();
-            
-
-            $order_amount = 0;
-            $invoice_amount = 0;
 
         }else{
             $order = Order::select('id', 'invoiced')->find($request->order_id);
             $order->invoiced = 1;
             $order->save();
+        }
 
-            //Si existe el pedido, incluimos importe en la factura:
+        //Si existe el pedido, incluimos importe en la factura, teniendo en cuenta si la factura es total o parcial:
+        if($request->all_invoiced && $request->all_invoiced == 'p'){
+            $order_amount = $request->partial_net_amount;
+            $invoice_amount = $request->partial_iva_amount;
+
+        }else{            
             $arr_amounts = $order->getAmount();    
             $order_amount = $arr_amounts['total_amount'];
             $invoice_amount = $arr_amounts['invoice_amount'];
         }
 
         //Descontando IRPF:
-        if($request->irpf > 0){
+        if($request->irpf > 0 && $order_amount > 0){
             $desc_irpf = ($request->irpf * $order_amount) / 100;
             $invoice_amount = $invoice_amount - $desc_irpf;
         }
@@ -876,6 +901,7 @@ class InvoiceController extends Controller{
         $inv = new Invoice();
         $inv->invoice_old_num = $request->invoice_old_num;
         $inv->order_id = $order->id;
+        //31/03/2023: se bloquea el campo de importe pues la factura puede ser parcial, no por la totalidad.
         $inv->amount = $order_amount;
         $inv->with_iva = config('constants.IVA_DEFAULT_');
         $inv->amount_with_iva = $invoice_amount;

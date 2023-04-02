@@ -3,11 +3,12 @@
 		<table class="table table-hover dTable" id="tblProjectPurchases">
 			<thead>
 				<tr>
-					<th class="text-center">#</th>
 					<th>{!! ucfirst(trans('textos.proveedor')) !!}</th>
-					<th class="text-center">{!! ucfirst(trans('textos.importe')) !!}</th>
+					<th class="text-center">{!! ucfirst(trans('textos.pedido')) !!}</th>
+					<th class="text-center">{!! ucfirst(trans('textos.importe_pedido')) !!}</th>
+					<th class="text-center">{!! ucfirst(trans('textos.factura')) !!}</th>
+					<th class="text-center">{!! ucfirst(trans('textos.importe_factura')) !!}</th>
 					<th class="text-center">{!! ucfirst(trans('textos.fecha_fiscal')) !!}</th>
-					<th class="text-center">{!! ucfirst(trans('textos.facturas')) !!}</th>
 					<th class="text-center">{!! ucfirst(trans('textos.estado')) !!}</th>
 					<th class="text-center">{!! ucfirst(trans('textos.acciones')) !!}</th>
 				</tr>
@@ -15,11 +16,16 @@
 
 			<tbody>
 				@php
-				$totalAmount = 0;
+				$ordersAmount = 0;
+				$invoicesAmount = 0;
 				@endphp
 
 				@foreach($project_purchases as $pp)
 					<tr>
+						{{-- Proveedor --}}
+						<td>
+							{{ $pp->provider }}
+						</td>
 						{{-- Número compra --}}
 						<td class="text-right">
 							@php
@@ -34,33 +40,28 @@
 								</a>
 							@endcan
 						</td>
-						{{-- Proveedor --}}
-						<td>
-							{{ $pp->provider }}
-						</td>
-						{{-- Importe --}}
+						
+						{{-- Importe pedido --}}
 						<td class="text-right">
 							@php
-							$purchase_amount = $pp->getAmount();
-							$totalAmount = $totalAmount + $purchase_amount['total_amount'];
+							$order_ = App\Models\Order::select('id')->find($pp->id);
+							$purchase_amount = $order_->getAmount();
+							//$totalAmount = $totalAmount + $purchase_amount['total_amount'];
+							$ordersAmount = $ordersAmount + $purchase_amount['total_amount'];
 							@endphp
+							{{-- {{ $purchase_amount['total_amount'] }} --}}
 							{{ $purchase_amount['total_amount'] }}
 							{{ $currency->symbol }}
 						</td>
-						{{-- Fecha fiscal --}}
-						<td class="text-right">
-							@if($pp->fiscal_date)
-								{!! Carbon\Carbon::parse($pp->fiscal_date)->format($languages[session()->get('locale')][4]) !!}
-							@endif
-						</td>
+
 						{{-- Factura --}}
 						<td class="text-right">
 							@php
-							$invoices = $pp->invoices;
-							$invoices_docs = [];
+							//$invoices = $pp->invoices;
+							//$invoices_docs = [];
 							@endphp
 
-							@foreach($invoices as $inv)
+							{{-- @foreach($invoices as $inv)
 								@if($inv->doc)
 									@php
 									array_push($invoices_docs, $inv->doc);
@@ -76,14 +77,45 @@
 										{{ $inv->id }}
 									@endif
 								</a>
-							@endforeach
+							@endforeach --}}
+
+							<a target="_blank" href="{{ route('invoices.edit-purchase', $pp->invoiceId) }}">
+								@if($pp->invoice_num)
+									{{ $pp->invoice_num }}
+								@elseif($pp->invoice_old_num)
+									{{ $pp->invoice_old_num }}
+								@else
+									{{ $pp->invoiceId }}
+								@endif
+							</a>
 						</td>
+
+						{{-- Importe factura --}}
+						<td class="text-right">
+							@php
+							//$purchase_amount = $pp->getAmount();
+							//$totalAmount = $totalAmount + $purchase_amount['total_amount'];
+							$invoicesAmount = $invoicesAmount + $pp->amount_with_iva;
+							@endphp
+							{{-- {{ $purchase_amount['total_amount'] }} --}}
+							{{ $pp->amount_with_iva }}
+							{{ $currency->symbol }}
+						</td>
+
+						{{-- Fecha fiscal --}}
+						<td class="text-right">
+							@if($pp->fiscal_date)
+								{!! Carbon\Carbon::parse($pp->fiscal_date)->format($languages[session()->get('locale')][4]) !!}
+							@endif
+						</td>
+						
 						{{-- Estado --}}
 						<td>
 							@if($pp->status > 0)
 								{!! ucfirst(App\Helpers\helpers::orderStatus($pp->order_status)) !!}
 							@endif
 						</td>
+
 						{{-- Acciones --}}
 						<td class="text-right">
 							@can('orders.edit')
@@ -113,12 +145,18 @@
 			<tfoot>
 				<tr>
 					<td colspan="2" class="text-right">
-						<b>{{ ucfirst(trans('textos.importe_total')) }}</b>
+						<b>{{ ucfirst(trans('textos.importe_pedidos')) }}</b>
 					</td>
 					<td class="text-right">
-						{{ $totalAmount }}{{ $currency->symbol }}
+						{{ $ordersAmount }}{{ $currency->symbol }}
 					</td>
-					<td colspan="4" class="text-right">
+					<td class="text-right">
+						<b>{{ ucfirst(trans('textos.importe_facturas')) }}</b>
+					</td>
+					<td class="text-right">
+						{{ $invoicesAmount }}{{ $currency->symbol }}
+					</td>
+					<td colspan="3" class="text-right">
 				</tr>	
 			</tfoot>
 		</table>
