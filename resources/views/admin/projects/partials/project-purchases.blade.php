@@ -95,10 +95,10 @@
 							@php
 							//$purchase_amount = $pp->getAmount();
 							//$totalAmount = $totalAmount + $purchase_amount['total_amount'];
-							$invoicesAmount = $invoicesAmount + $pp->amount_with_iva;
+							$invoicesAmount = $invoicesAmount + $pp->amount;
 							@endphp
 							{{-- {{ $purchase_amount['total_amount'] }} --}}
-							{{ $pp->amount_with_iva }}
+							{{ $pp->amount }}
 							{{ $currency->symbol }}
 						</td>
 
