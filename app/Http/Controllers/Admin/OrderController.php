@@ -1772,14 +1772,15 @@ class OrderController extends Controller{
         ->where('customer_id', session('currentCompany'))
         ->first();
 
+        //Eliminamos compra del proyecto:
+        $purchase->delete();
+
         if(!$project || !$purchase_){
             $alert = trans('textos.compra_proyecto_no_valida');
             return redirect()->route('orders.index')->with(compact('alert'));    
         }else{
             $order_id = $purchase->order_id;
             $project_id = $purchase->project_id;
-
-            $purchase->delete();
 
             $msg = trans('textos.compra_desvinculada');
             if($request->return == 'order'){

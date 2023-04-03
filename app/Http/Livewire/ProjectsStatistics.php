@@ -4,7 +4,7 @@ namespace App\Http\Livewire;
 
 use Livewire\Component;
 use Illuminate\Support\Facades\Session;
-use App\Helpers\Helpers;
+use App\Helpers\helpers;
 
 //Models:
 use App\Models\Project;
@@ -15,7 +15,6 @@ class ProjectsStatistics extends Component{
      * 2. Proyectos por estado.
      */
 
-
     public $project_status;
     public $projects_by_status;
     public $list = [];
@@ -24,7 +23,7 @@ class ProjectsStatistics extends Component{
      * @return void
      */
     public function mount(){
-        $this->project_status = Helpers::projectStatus();
+        $this->project_status = helpers::projectStatus();
         $this->projects_by_status = $this->projectsByStatus();
 
         //Pasamos al array list el número de proyectos por cada status, incluyendo los que tengan 0 proyectos.

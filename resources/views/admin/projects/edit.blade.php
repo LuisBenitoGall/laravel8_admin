@@ -332,9 +332,6 @@
 
 <script>
 $(function(){
-	console.log(values);
-
-
 	// Ancho automático capa tasks.
 	if($('#tasks').length > 0){
         var w = $('.task-column').outerWidth();
