@@ -8,6 +8,7 @@ use App\Helpers\Helpers;
 
 //Models:
 use App\Models\Expense;
+use App\Models\Invoice;
 use App\Models\Order;
 use App\Models\Project;
 
@@ -37,14 +38,21 @@ class ProjectsEconomicBalance extends Component{
         }
 
         //Compras:
-        $purchases = Order::select('orders.id')
-        ->join('project_purchases', 'orders.id', '=', 'project_purchases.order_id')
+        // $purchases = Order::select('orders.id')
+        // ->join('project_purchases', 'orders.id', '=', 'project_purchases.order_id')
+        // ->where('project_purchases.project_id', $project->id)
+        // ->get();
+        //03/04/2023: se modifica el cálculo de compras para obtenerlo por el importe neto de las facturas.
+        $purchases = Invoice::select('invoices.id', 'invoices.amount', 'invoices.amount_with_iva')
+        ->leftJoin('orders', 'invoices.order_id', '=', 'orders.id')
+        ->leftJoin('project_purchases', 'orders.id', '=', 'project_purchases.order_id')
         ->where('project_purchases.project_id', $project->id)
         ->get();
 
         foreach($purchases as $purchase){
-            $amount = $purchase->getAmount();
-            $this->purchases_amount = $this->purchases_amount + $amount['total_amount'];   
+            //$amount = $purchase->getAmount();
+            //$this->purchases_amount = $this->purchases_amount + $amount['total_amount'];
+            $this->purchases_amount = $this->purchases_amount + $purchase->amount;   
         }
 
         //Gastos:
