@@ -222,7 +222,8 @@ $discount_in_lines = false;
 				@endif
 
 				{{-- Importe sin descuento --}}
-				@if($order->final_customer_id || $discount_in_lines)
+				{{-- 05/04/2023: se oculta el importe sin descuentos en el documento a petición de Victor Sánchez --}}
+				{{-- @if($order->final_customer_id || $discount_in_lines)
 					<tr>
 						<td colspan="2" style="background-color: #FFF;"></td>
 						<td style="background-color: {{ $bg_color }}; color: #FFF; text-align: left;">{{ strtoupper(trans('textos.importe_sin_descuentos')) }}</td>	
@@ -230,7 +231,7 @@ $discount_in_lines = false;
 							{{ $arr_amounts['total_amount_without_discounts'] }}{{ $currency->symbol }}
 						</td>	
 					</tr>
-				@endif
+				@endif --}}
 			</tfoot>
 		</table>
 
