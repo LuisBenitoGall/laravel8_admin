@@ -852,7 +852,8 @@ class UserController extends Controller{
         $user->save();
 
         //Guardamos rol:
-        $user->assignRole(config('constants.ROLE_BASICO_'));
+        $basic_role = session('currentCompany').'/basic';
+        $user->assignRole($basic_role);
 
         //Vinculamos usuario a empresa:
         $uc = new UserCompanies();
