@@ -347,7 +347,7 @@ class Timetable extends Model{
                         $arr['edit_timetable'] = false;
                         $arr['flag'] = false;
                         $arr['revision'] = false;
-                        $arr['authorized'] = false;
+                        $arr['authorized'] = true;
 
                         //if($arr['valid']) {
                             array_push($data, $arr);
