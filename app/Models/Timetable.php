@@ -63,7 +63,13 @@ class Timetable extends Model{
         foreach($employees as $e){
             $inicio = $e->start_date < $from? $from:$e->start_date;
             $fin = $e->end_date > $to? $to:$e->end_date;
-            $arr = Timetable::setRankDatesArr($inicio, $fin);
+            //$arr = Timetable::setRankDatesArr($inicio, $fin);
+            
+            $arr = Timetable::where('user_id', $user_id)
+            ->whereBetween('date', [$inicio, $fin])
+            ->pluck('date')
+            ->toArray();
+            $arr = array_unique($arr);
 
             //Merge con el array $arrEmployeeWorkingDays:
             $arrEmployeeWorkingDays = array_merge($arrEmployeeWorkingDays, $arr);
@@ -105,11 +111,6 @@ class Timetable extends Model{
         //Quitamos valores duplicados:
         $arrWorkedDays = array_unique($arrWorkedDays);
 
-
-
-
-        
-        //dd($user_calendar, $arrEmployeeWorkingDays, $arrWorkedDays);
         //Guardamos en array las fechas del calendario del usuario:
         $arrUserCalendar = [];
         //Guardamos en array las horas de trabajo propias en días concretos:
@@ -172,8 +173,6 @@ class Timetable extends Model{
             ->whereDate('to', '>=', $from)
             ->get(); 
 
-            //dd($arrFromTo, $arrWorkCalendar, $custom_timetables);
-
             //Permisos:
             $edit_timetable = Auth::user()->can('employees-timetable.edit');
 
@@ -189,6 +188,7 @@ class Timetable extends Model{
 
                 $acumuladoDia = 0;          //Tiempo de trabajo acumulado por el empleado.
                 $arr['valid'] = true;
+                $arr['fecha'] = $date? Carbon::parse($date)->format($languages[session()->get('locale')][4]) : '';
                 $customTimetableDay = false;
                 $isWorkedDay = true;
 
@@ -232,111 +232,129 @@ class Timetable extends Model{
                 $fixedTime = false;
                 $priority = false;
 
-                //Si es fecha trabajada y carece de tratamiento especial como fecha personalizada:
-                //if(in_array($date, $arrWorkedDays)){
-                if(in_array($date, $arrEmployeeWorkingDays)){
-                    //Recorremos las fechas trabajadas por el usuario buscando coincidencia con la fecha del array:
-                    foreach ($timetables as $row) {
-                        //Enviamos las fechas ya formateadas:
-                        $arr['fecha'] = $row->date ? Carbon::parse($row->date)->format($languages[session()->get('locale')][4]) : '';
-                        $arr['date_order'] = $row->date;
-                        $arr['id'] = $row->id;
+                //Si es jornada laborable:
+                if(in_array($date, $arrWorkCalendar)){
+                //if(in_array($date, $arrEmployeeWorkingDays)){
+                //if($isWorkedDay){
 
-                        //Fecha con registros:
-                        if ($row->date == $date) {
+                    //Si se encuentra entre las jornadas trabajadas por el empleado:
+                    if(in_array($date, $arrWorkedDays)){
+                        //Recorremos las fechas trabajadas por el usuario buscando coincidencia con la fecha del array:
+                        foreach ($timetables as $row) {
+                            $arr['id'] = $row->id;
 
-                            //dd('entra', $date, $arrEmployeeWorkingDays);
+                            //Fecha con registros:
+                            if($row->date == $date){
+                                //Enviamos las fechas ya formateadas:
+                                //$arr['fecha'] = $row->date? Carbon::parse($row->date)->format($languages[session()->get('locale')][4]) : '';
+                                $arr['date_order'] = $row->date;
+                                $arr['hour'] = $row->hour;
+                                $arr['name'] = $row->name;
+                                $arr['comments'] = $row->comments;
+                                $arr['hoursOfWork'] = '0';
+                                $arr['diferencia'] = false;
+                                $arr['sign'] = false;
+                                $arr['warning'] = false;
+                                $arr['icon'] = $row->icon;
+                                $arr['add_timetable'] = false;
+                                $arr['edit_timetable'] = $edit_timetable;
+                                $arr['flag'] = $row->flag;
+                                $arr['revision'] = $row->revision;
+                                $arr['authorized'] = $row->authorized;
 
-                            $arr['hour'] = $row->hour;
-                            $arr['name'] = $row->name;
-                            $arr['comments'] = $row->comments;
-                            $arr['hoursOfWork'] = '0';
-                            $arr['diferencia'] = false;
-                            $arr['sign'] = false;
-                            $arr['warning'] = false;
-                            $arr['icon'] = $row->icon;
-                            $arr['add_timetable'] = false;
-                            $arr['edit_timetable'] = $edit_timetable;
-                            $arr['flag'] = $row->flag;
-                            $arr['revision'] = $row->revision;
-                            $arr['authorized'] = $row->authorized;
+                                // ******** CAMPOS CALCULADOS: *********
+                                //Guardamos el siguiente índice para posteriores consultas:
+                                $idx = $k + 1;
 
-                            // ******** CAMPOS CALCULADOS: *********
-                            //Guardamos el siguiente índice para posteriores consultas:
-                            $idx = $k + 1;
+                                //Comprobamos si la hora tiene un valor horario mínimo:
+                                $hora = ($row->min_hour && $row->min_hour > $row->hour) ? $row->min_hour : $row->hour;
 
-                            //Comprobamos si la hora tiene un valor horario mínimo:
-                            $hora = ($row->min_hour && $row->min_hour > $row->hour) ? $row->min_hour : $row->hour;
+                                //Calculamos el tiempo trabajado sumando los intervalos de tiempo de cada par de Entrada y Salida:
+                                if ($row->flag == 1) {
+                                    //Tomamos la hora de salida obteniendo el siguiente registro y comprobando si existe en el array de días trabajados.
+                                    if (isset($timetables[$idx]) && in_array($timetables[$idx]->date, $arrWorkedDays)) {
+                                        //Si tiene un período fijo de tiempo, y el usuario no tiene horarios personalizados, se lo sumamos a la hora de salida:
+                                        if ($row->fixed > 0 && !$customTimetableDay) {
+                                            $hasta = helpers::sumaHoras($hora, helpers::getTimeFromMinutes($row->fixed));
+                                            $fixedTime = true;
+                                            $priority = $row->fixed_priority? true:false;
 
-                            //Calculamos el tiempo trabajado sumando los intervalos de tiempo de cada par de Entrada y Salida:
-                            if ($row->flag == 1) {
-                                //Tomamos la hora de salida obteniendo el siguiente registro y comprobando si existe en el array de días trabajados.
-                                if (isset($timetables[$idx]) && in_array($timetables[$idx]->date, $arrWorkedDays)) {
-                                    //Si tiene un período fijo de tiempo, y el usuario no tiene horarios personalizados, se lo sumamos a la hora de salida:
-                                    if ($row->fixed > 0 && !$customTimetableDay) {
-                                        $hasta = helpers::sumaHoras($hora, helpers::getTimeFromMinutes($row->fixed));
-                                        $fixedTime = true;
-                                        $priority = $row->fixed_priority? true:false;
+                                        //Si el usuario tiene horarios personalizados, se sustituye el valor de hora fija que tenga la empresa por el valor del horario personalizado, esto es, la prevalencia la marca el horario personalizado sobre el horario fijo:
+                                        }elseif($row->fixed > 0 && $customTimetableDay){
+                                            $hasta = helpers::sumaHoras($hora, $hoursOfWork);
+                                            $fixedTime = true;
+                                            $priority = $row->fixed_priority? true:false;
 
-                                    //Si el usuario tiene horarios personalizados, se sustituye el valor de hora fija que tenga la empresa por el valor del horario personalizado, esto es, la prevalencia la marca el horario personalizado sobre el horario fijo:
-                                    }elseif($row->fixed > 0 && $customTimetableDay){
-                                        $hasta = helpers::sumaHoras($hora, $hoursOfWork);
-                                        $fixedTime = true;
-                                        $priority = $row->fixed_priority? true:false;
+                                        } else {
+                                            $hasta = $timetables[$idx]->hour;
+                                            $fixedTime = false;
+
+                                        }
+                                        if ($hasta) $tiempo = helpers::getTimeBetweenHours($hora, $hasta);
 
                                     } else {
-                                        $hasta = $timetables[$idx]->hour;
+                                        $tiempo = helpers::getTimeBetweenHours($hora, date('H:i:s'));
                                         $fixedTime = false;
 
                                     }
-                                    if ($hasta) $tiempo = helpers::getTimeBetweenHours($hora, $hasta);
-
-                                } else {
-                                    $tiempo = helpers::getTimeBetweenHours($hora, date('H:i:s'));
-                                    $fixedTime = false;
-
-                                }
-                                $totalTime = helpers::sumaHoras($totalTime, $tiempo);
-                                $acumuladoDia = helpers::sumaHoras($acumuladoDia, $tiempo);
-                                $arr['accumulated'] = '';
-                                $setCustomTimetables = false;
-                            }
-
-                            //Para jornadas trabajadas sin horario de trabajo preestablecido (ej.: festivos o fines de semana):
-                            $hoursOfWork = !$hoursOfWork && $acumuladoDia > 0 ? '0' : $hoursOfWork;
-
-                            //Si el concepto tiene una duración máxima, se suman los minutos de esa duración al tiempo trabajado:
-                            if ($row->max > 0) {
-                                $totalTime = helpers::sumaHoras($totalTime, helpers::getTimeFromMinutes($row->max));
-                                $acumuladoDia = helpers::sumaHoras($acumuladoDia, helpers::getTimeFromMinutes($row->max));
-                            }
-
-                            //El acumulado se muestra sólo en el último registro del día:
-                            if ($row->flag == 2 && ((isset($timetables[$idx]) && $timetables[$idx]->date != $date) || !isset($timetables[$idx]))){
-                                //Si el horario fijo es inferior al personalizado, se toma el horario fijo:
-                                $real_hours = $fixedTime && $hoursOfWork < $acumuladoDia? $hoursOfWork:$acumuladoDia;
-
-                                //Criterio de prioridad:
-                                if($priority){
-                                    $real_hours = $acumuladoDia;
+                                    $totalTime = helpers::sumaHoras($totalTime, $tiempo);
+                                    $acumuladoDia = helpers::sumaHoras($acumuladoDia, $tiempo);
+                                    $arr['accumulated'] = '';
+                                    $setCustomTimetables = false;
                                 }
 
-                                $arr['accumulated'] = $real_hours;
-                                $arr['diferencia'] = helpers::getTimeBetweenHours($real_hours, $hoursOfWork);
-                                $arr['sign'] = $acumuladoDia >= $hoursOfWork ? '+' : '-';
-                                $arr['hoursOfWork'] = $hoursOfWork;
+                                //Para jornadas trabajadas sin horario de trabajo preestablecido (ej.: festivos o fines de semana):
+                                $hoursOfWork = !$hoursOfWork && $acumuladoDia > 0 ? '0' : $hoursOfWork;
+
+                                //Si el concepto tiene una duración máxima, se suman los minutos de esa duración al tiempo trabajado:
+                                if ($row->max > 0) {
+                                    $totalTime = helpers::sumaHoras($totalTime, helpers::getTimeFromMinutes($row->max));
+                                    $acumuladoDia = helpers::sumaHoras($acumuladoDia, helpers::getTimeFromMinutes($row->max));
+                                }
+
+                                //El acumulado se muestra sólo en el último registro del día:
+                                if ($row->flag == 2 && ((isset($timetables[$idx]) && $timetables[$idx]->date != $date) || !isset($timetables[$idx]))){
+                                    //Si el horario fijo es inferior al personalizado, se toma el horario fijo:
+                                    $real_hours = $fixedTime && $hoursOfWork < $acumuladoDia? $hoursOfWork:$acumuladoDia;
+
+                                    //Criterio de prioridad:
+                                    if($priority){
+                                        $real_hours = $acumuladoDia;
+                                    }
+
+                                    $arr['accumulated'] = $real_hours;
+                                    $arr['diferencia'] = helpers::getTimeBetweenHours($real_hours, $hoursOfWork);
+                                    $arr['sign'] = $acumuladoDia >= $hoursOfWork ? '+' : '-';
+                                    $arr['hoursOfWork'] = $hoursOfWork;
+                                }
+                                array_push($data, $arr);
+                                $k++;
                             }
-                            array_push($data, $arr);
-                            $k++;
-
-                        //Fecha sin registros:
-                        }else{
-                                                                          
-
                         }
+
+                    //Jornada laborable sin registros del empleado:
+                    }else{
+                        $arr['date_order'] = $date;
+                        $arr['hour'] = '';
+                        $arr['name'] = trans('textos.registro_falta'); 
+                        $arr['comments'] = '';
+                        $arr['accumulated'] = '0';
+                        $arr['hoursOfWork'] = $hoursOfWork;
+                        $arr['diferencia'] = $hoursOfWork;
+                        $arr['sign'] = '-';
+                        $arr['warning'] = true;
+                        $arr['add_timetable'] = true;
+                        $arr['edit_timetable'] = false;
+                        $arr['flag'] = false;
+                        $arr['revision'] = false;
+                        $arr['authorized'] = false;
+
+                        //if($arr['valid']) {
+                            array_push($data, $arr);
+                        //}
                     }
 
-                //Si NO es fecha trabajada:
+                //Si NO es jornada laborable:
                 } else {
                     $arr['fecha'] = Carbon::parse($date)->format($languages[session()->get('locale')][4]);
                     $arr['date_order'] = $date;
@@ -349,11 +367,11 @@ class Timetable extends Model{
                     $arr['sign'] = false;
                     $arr['warning'] = false;
                     $arr['icon'] = '';
-                    $arr['add_timetable'] = $edit_timetable;
+                    $arr['add_timetable'] = false;
                     $arr['edit_timetable'] = false;
                     $arr['flag'] = false;
                     $arr['revision'] = false;
-                    $arr['authorized'] = $row->authorized;
+                    $arr['authorized'] = 1;
 
                     //Comprobamos que la fecha no aparezca en el calendario personal del usuario. Si el valor es true debe tener horas trabajadas o las debe si la jornada era de trabajo.
                     $workday = in_array($date, $arrUserCalendar) || in_array($date, $arrEmployeeWorkingDays)? true:false;
@@ -418,37 +436,8 @@ class Timetable extends Model{
             $arrEmployeeWorkingDays = array_merge($arrEmployeeWorkingDays, $arr);
         }
 
-
-
-
-        dd($arrEmployeeWorkingDays, $user_calendar);
-
-
-
-
-
-
-
-
-
-
         //Los datos se entregan en un array:
         $data = [];
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
         return $data;
     }
