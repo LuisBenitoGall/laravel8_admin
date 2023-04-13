@@ -180,6 +180,12 @@ on i.order_id = o.id
 set i.invoiced = true
 where o.invoiced = true;
 
+- Seleccionar registros repetidos:
+SELECT field, count(*) FROM table
+    GROUP BY field
+    HAVING COUNT(*)>1;
+    
+
 ### Instalación de Sentry
 
 - Puedes Consultar la configuración. [Ir A sentry](https://docs.sentry.io/platforms/php/guides/laravel/)
