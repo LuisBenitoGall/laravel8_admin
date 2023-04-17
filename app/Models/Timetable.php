@@ -164,7 +164,7 @@ class Timetable extends Model{
             }
             //Quitamos valores duplicados:
             $arrWorkCalendar = array_unique($arrWorkCalendar);
-
+//dd($arrWorkCalendar, $arrUserCalendar, $arrWorkedDays);
             //Horarios personalizados:
             $custom_timetables = UserTimetables::select('id', 'from', 'to', 'daily_hours')
             ->where('user_id', $user_id)
@@ -332,6 +332,25 @@ class Timetable extends Model{
                             }
                         }
 
+                    //Jornada festiva del usuario:
+                    }elseif(in_array($date, $arrUserCalendar)){
+                        $arr['date_order'] = $date;
+                        $arr['hour'] = '';
+                        $arr['name'] = isset($arrUserCalendarDayType[strval($date)])? ucfirst($arrUserCalendarDayType[strval($date)]):''; 
+                        $arr['comments'] = '';
+                        $arr['accumulated'] = '';
+                        $arr['hoursOfWork'] = false;
+                        $arr['diferencia'] = false;
+                        $arr['sign'] = '-';
+                        $arr['warning'] = true;
+                        $arr['add_timetable'] = false;
+                        $arr['edit_timetable'] = false;
+                        $arr['flag'] = false;
+                        $arr['revision'] = false;
+                        $arr['authorized'] = true;
+
+                        array_push($data, $arr);
+
                     //Jornada laborable sin registros del empleado:
                     }else{
                         $arr['date_order'] = $date;
@@ -392,7 +411,7 @@ class Timetable extends Model{
                             $arr['valid'] = false;
                         }
 
-                        //Si es jornada laboral de la empresa, no del usuario:
+                    //Si es jornada laboral de la empresa, no del usuario:
                     } elseif ($workday && !$isWorkedDay) {
                         $arr['name'] = trans('textos.laborable_no');
 
