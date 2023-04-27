@@ -126,6 +126,13 @@ En el archivo config/constants.php se definen constantes personalizadas.
 	- https://github.com/fruitcake/laravel-cors
 	- instalar: composer require fruitcake/laravel-cors
 
+- Emails:
+	- SMTP ADN: erp@weareadn.com
+	- mail host: smtp.gmail.com
+	- pwd email: ERPADN2020
+	- pwd app (password que utiliza la app para el SMTP): rukjilbsjmylwxzj
+	- tlf. doble verificación: 600 578 602 (Lluis Benito)
+
 ## HELPERS:
 Desde la versión 5.8 desaparece por defecto el fichero app/Helpers/helpers.php, por lo que hay que crearlo manualmente incorporándolo en el fichero composer.json:
 

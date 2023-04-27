@@ -57,6 +57,7 @@ class Helpers{
 	 *  3.24. Tipos de gastos.
 	 *  3.25. Tipos de gráficos para proyectos.
 	 *  3.26. Estados de SAT.
+	 *  3.27. Estados de envíos.
 	 *
 	 * 4. Strings:
 	 * 	4.1. Truncar texto.
@@ -1071,6 +1072,22 @@ class Helpers{
 			1 => trans('textos.pendiente'),
 			10 => trans('textos.en_curso'),
 			20 => trans('textos.terminada')			
+		];
+		if($status){
+			return ucfirst($data[$status]);
+		}else{
+			return $data;
+		}		
+	}
+
+	/**
+	 * 3.27. Estados de envíos.
+	 */
+	public static function shipmentStatus($status = false){
+		$data = [
+			1 => trans('textos.abierto'),
+			10 => trans('textos.en_ruta'),
+			20 => trans('textos.cerrado')			
 		];
 		if($status){
 			return ucfirst($data[$status]);

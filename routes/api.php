@@ -328,6 +328,9 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     //ShipmentPatterns:
     Route::get('shipment-patterns', 'ShipmentPatternsController@getPatternsDT');
 
+    //Shipments:
+    Route::get('shipments', 'ShipmentController@getShipmentsDT');
+
     //StaffPickCandidates:
     Route::get('staff-pick-candidates/{process}', 'StaffPickCandidatesController@getCandidatesDT');
 

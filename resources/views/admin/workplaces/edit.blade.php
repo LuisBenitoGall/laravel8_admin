@@ -99,7 +99,7 @@
 						{{-- Código Postal --}}
 						<label for="cp" class="col-lg-2 col-form-label">CP</label>	
 						<div class="col-lg-2">
-							<x-input type="text" name="cp" id="cp" autocomplete="off" maxlength="5" value="{{ $workplace->cp }}"/>
+							<x-input type="text" name="cp" id="cp" autocomplete="off" maxlength="10" value="{{ $workplace->cp }}"/>
 						</div>
 				    </div>
 

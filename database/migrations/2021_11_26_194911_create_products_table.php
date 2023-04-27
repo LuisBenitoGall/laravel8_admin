@@ -31,7 +31,7 @@ class CreateProductsTable extends Migration{
             $table->unsignedBigInteger('user_id')->nullable();
             $table->foreign('user_id')->references('id')->on('users');
             $table->string('type',1)->nullable();       //p = producto: s = servicio.
-            $table->float('price')->default(0);
+            $table->float('price', 10, 2)->default(0);
             $table->float('calculated_by_percent', 5, 2)->nullable();
             $table->float('iva', 4, 2)->nullable();
             $table->boolean('batch')->default(0);
