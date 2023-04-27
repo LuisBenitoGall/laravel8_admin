@@ -55,7 +55,7 @@ class WorkUserCalendarController extends Controller{
         $this->middleware('user_companies_post2', ['only' => ['validateAll']]);
     }
 
-     //0. Validator:
+    //0. Validator:
     protected function validator(array $data){
         //Validación validate:
         if(isset($data['submit_validate'])){

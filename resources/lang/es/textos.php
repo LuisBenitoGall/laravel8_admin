@@ -2919,4 +2919,6 @@ return array(
 	'particular' => 'Particular',
 	'factura_igual_pedido' => '¿La factura corresponde al 100% del importe del pedido?',
 	'parcial' => 'parcial',
+	'en_ruta' => 'En ruta',
+	
 );

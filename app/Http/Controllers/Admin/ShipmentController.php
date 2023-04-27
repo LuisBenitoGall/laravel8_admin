@@ -47,4 +47,11 @@ class ShipmentController extends Controller{
 
         return view('admin.incidences.index')->with(compact('header'));
     }
+
+    /**
+     * 1.1. Listado de envíos para DataTable.
+     */
+    public function getShipmentsDT(){
+        $data = Shipment::
+    }
 }
