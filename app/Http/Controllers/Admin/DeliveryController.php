@@ -212,9 +212,8 @@ class DeliveryController extends Controller{
         //Pedidos del cliente:
         //1. Sólo pedidos validados para entregar (prepare_delivery = true)
         $orders = Order::select('orders.id', 'orders.order_num', 'orders.name')
-        ->join('budget_order_shared_fields', 'orders.id', '=', 'budget_order_shared_fields.order_id')
-        ->where('budget_order_shared_fields.provider_id', session('currentCompany'))
-        ->where('budget_order_shared_fields.customer_id', $delivery->customer_id)
+        ->where('orders.provider_id', session('currentCompany'))
+        ->where('orders.customer_id', $delivery->customer_id)
         ->where('orders.prepare_delivery', true)
         ->get();
 
