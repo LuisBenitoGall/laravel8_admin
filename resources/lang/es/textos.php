@@ -2220,6 +2220,7 @@ return array(
 	'horario_cerrado_automaticamente' => 'Horario cerrado automáticamente',
 	'horario_cerrado_automaticamente_aviso' => 'Tu horario laboral se ha cerrado automáticamente en fecha',
 	'horario_cerrado_automaticamente_texto' => 'Tu horario laboral de esta jornada se ha cerrado automáticamente. Contacta por favor con RRHH para confirmar tu hora de salida, gracias.',
+	'horario_concepto_no_permitido' => 'Concepto horario no permitido en este momento',
 	'horario_incompatible_jornada' => 'Tienes asignado un tipo de jornada no laborable que impide que puedas fichar. Consulta con RRHH.',
 	'horario_texto_comida_retorno' => 'Recuerda que debes fichar a la vuelta de la comida',
 	'horario_texto_comida' => 'Recuerda que debes fichar la comida',

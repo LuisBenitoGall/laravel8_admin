@@ -521,39 +521,35 @@ class Helpers{
 	 * 2.10. Calcular tiempo transcurrido entre horas.
 	 */
 	public static function getTimeBetweenHours($from, $to){
-		if($to > 0){
-			if($from == 0) $from = '00:00';
+		if($from == 0) $from = '00:00';
+		if($to == 0) $to = '00:00';
 
-			if($from > 24){
-				$p = explode(':', $from);
-				$dias = intdiv($p[0], 24);
-				$horas = $p[0] - (24*$dias);
-				//$minutos = $p[1] < 10? '0'.$p[1]:$p[1];
-				$minutos = $p[1];
-				//if($minutos < 10) $minutos = '0'.$minutos;
-				$from = $dias.':'.$horas.':'.$minutos;
-			}
-
-			if($to > 24){
-				$p = explode(':', $to);
-				$dias = intdiv($p[0], 24);
-				$horas = $p[0] - (24*$dias);
-				//$minutos = $p[1] < 10? '0'.$p[1]:$p[1];
-				$minutos = $p[1];
-				//if($minutos < 10) $minutos = '0'.$minutos;
-				$to = $dias.':'.$horas.':'.$minutos;
-			}
-			
-			$f = new DateTime($from);
-			$i = new DateTime($to);
-
-			$tiempo = $f->diff($i);
-
-			return $tiempo->format('%H:%I'); 
-
-		}else{
-			return 0;
+		if($from > 24){
+			$p = explode(':', $from);
+			$dias = intdiv($p[0], 24);
+			$horas = $p[0] - (24*$dias);
+			//$minutos = $p[1] < 10? '0'.$p[1]:$p[1];
+			$minutos = $p[1];
+			//if($minutos < 10) $minutos = '0'.$minutos;
+			$from = $dias.':'.$horas.':'.$minutos;
 		}
+
+		if($to > 24){
+			$p = explode(':', $to);
+			$dias = intdiv($p[0], 24);
+			$horas = $p[0] - (24*$dias);
+			//$minutos = $p[1] < 10? '0'.$p[1]:$p[1];
+			$minutos = $p[1];
+			//if($minutos < 10) $minutos = '0'.$minutos;
+			$to = $dias.':'.$horas.':'.$minutos;
+		}
+		
+		$f = new DateTime($from);
+		$i = new DateTime($to);
+
+		$tiempo = $f->diff($i);
+
+		return $tiempo->format('%H:%I'); 
 	}
 
 	/**
