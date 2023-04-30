@@ -5928,9 +5928,12 @@ $(document).ready(function(){
                     api.rows().every(function(){
                         var data = this.data();
 
+
+                        console.log(data);
+
                         //Horas trabajadas:
-                        if(data.accumulated != '' && data.accumulated != '0'){
-                            var pHT = data.accumulated? data.accumulated.split(':'):[0,0];
+                        if(data.accumulated != '' && data.accumulated_value > '0'){
+                            var pHT = data.accumulated_value? data.accumulated_value.split(':'):[0,0];
                             var minutesHT = parseInt(pHT[0]) * 60;
                             minutesHT = parseInt(minutesHT) + parseInt(pHT[1]);
                             var secondsHT = parseInt(minutesHT) * 60;
@@ -5938,7 +5941,7 @@ $(document).ready(function(){
                         }
 
                         //Horas a trabajar:
-                        if(data.hoursOfWork!= '' && data.hoursOfWork != '0'){
+                        if(data.hoursOfWork != '' && data.hoursOfWork != '0'){
                             var pAT = data.hoursOfWork.split(':');
                             var minutesAT = parseInt(pAT[0]) * 60;
                             minutesAT = parseInt(minutesAT) + parseInt(pAT[1]);
