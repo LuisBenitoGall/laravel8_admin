@@ -224,8 +224,10 @@ class TimetableController extends Controller{
             }
 
             $dia = date('Y-m-d');
+            //Autorización para jornada no laborable (festivos, fines de semana,...):
+            $no_working_day_authorized = true;
 
-            //Verificamos que el usuario no tenga asignada previamente alguna jornada de tipo no laborable:
+            //Verificamos que el usuario no tenga asignada previamente alguna jornada de tipo no laborable. En caso de tratarse de jornada NO laborable, el horario queda pendiente de autorización:
             $is_working_day = WorkUserCalendar::select('day_types.working_day')
             ->join('day_types', 'work_user_calendars.day_type_id', '=', 'day_types.id')
             ->where('work_user_calendars.user_id', Auth::user()->id)
@@ -233,9 +235,20 @@ class TimetableController extends Controller{
             ->first();
 
             if($is_working_day && $is_working_day->working_day == '0'){
-                $alert = trans('textos.horario_incompatible_jornada');
-                return redirect()->route('dashboard')->with(compact('alert'));
-                exit;
+                $no_working_day_authorized = false;
+                // $alert = trans('textos.horario_incompatible_jornada');
+                // return redirect()->route('dashboard')->with(compact('alert'));
+                // exit;
+            }
+
+            //30/04/2023: Implementar script de configuración de calendario de empresa para determinar días de la semana que son laborables. Provisionalmente se pasa array con la semana laborable por defecto
+            $weekly_working_days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+            //Verificamos si el día se encuentra entre la semana laborable de la empresa:
+            $day_timestamp = strtotime($dia);
+            $day_ = date('l', $day_timestamp);
+            $day_ = strtolower($day_);
+            if(!in_array($day_, $weekly_working_days)){
+                $no_working_day_authorized = false;    
             }
 
             //Formato hora:
@@ -252,12 +265,14 @@ class TimetableController extends Controller{
 
             //Evitar repetir flag:
             if($prevRecord && $prevRecord->flag == $item->type){
-                return back();
+                $alert = trans('textos.horario_concepto_no_permitido');
+                return redirect()->route('dashboard')->with(compact('alert'));
                 exit;
             }
 
-            //Item con autorización:
+            //Item con autorización. Considera también si la jornada es o no laborable y está o no autorizada:
             $authorized = $item->with_authorization? false:true;
+            if(!$no_working_day_authorized) $authorized = false;
 
             //Comprobaciones registros anteriores:
             if($prevRecord){

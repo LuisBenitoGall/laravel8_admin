@@ -789,6 +789,8 @@ class UserController extends Controller{
 
             $data = Timetable::listUserTimetables($from, $to, $user_id, $workplace->id, $see_authorized);
 
+            //dd($data);
+
             return DataTables::of($data)
             ->addColumn('fecha', function($row){
                 return '<span style="display: none">'.$row['date_order'].'</span>'.$row['fecha'];
@@ -798,17 +800,21 @@ class UserController extends Controller{
             })
             ->addColumn('name', function($row){
                 $concept = '';
-                if($row['flag'] == 1){
-                    $concept .= '<i class="fa fa-sign-in-alt text-success"></i> ';
+                if($row['flag']){
+                    if($row['flag'] == 1){
+                        $concept .= '<i class="fa fa-sign-in-alt text-success"></i> ';
+                    }else{
+                        $concept .= '<i class="fa fa-sign-out-alt text-danger"></i> ';    
+                    }
                 }else{
-                    $concept .= '<i class="fa fa-sign-out-alt text-danger"></i> ';    
+                    $concept .= '<i class="fa fa-'.$row['icon'].' text-info"></i> ';    
                 }
                 $concept .= ucfirst($row['name']);
                 return $concept; 
             })
             ->addColumn('accumulated', function($row){
                 $accumulated = isset($row['accumulated'])? $row['accumulated']:'';
-                if($row['accumulated'] != '' && $row['hoursOfWork']){
+                if($accumulated != '' && $row['hoursOfWork']){
                     $accumulated .= ' / '.$row['hoursOfWork'];
                 }
                 if($row['diferencia']){
