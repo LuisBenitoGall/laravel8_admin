@@ -5928,9 +5928,6 @@ $(document).ready(function(){
                     api.rows().every(function(){
                         var data = this.data();
 
-
-                        console.log(data);
-
                         //Horas trabajadas:
                         if(data.accumulated != '' && data.accumulated_value > '0'){
                             var pHT = data.accumulated_value? data.accumulated_value.split(':'):[0,0];
