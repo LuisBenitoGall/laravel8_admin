@@ -243,6 +243,9 @@ class Timetable extends Model{
                     foreach($timetables as $row){ 
                         $arr['id'] = $row->id;
 
+                        //Si la fecha no se encuentra entre las fechas de la empresa y no se halla autorizada, se le pasa valor false:
+                        $authorized = !in_array($date,  $arrCompanyWorkCalendar) && !$row->authorized? false:$row->authorized;
+
                         //Fecha con registros:
                         if($row->date == $date){
                             $arr['hour'] = $row->hour;
@@ -259,7 +262,7 @@ class Timetable extends Model{
                             $arr['edit_timetable'] = $edit_timetable;
                             $arr['flag'] = $row->flag;
                             $arr['revision'] = $row->reviewable;
-                            $arr['authorized'] = $row->authorized;
+                            $arr['authorized'] = $authorized;
 
                             // ******** CAMPOS CALCULADOS: *********
                             //Guardamos el siguiente índice para posteriores consultas:
