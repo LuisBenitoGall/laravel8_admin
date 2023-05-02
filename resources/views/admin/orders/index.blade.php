@@ -104,7 +104,7 @@
 						<th class="wdt200">{!! ucfirst(trans('textos.pedido_titulo')) !!}</th>
 						<!-- <th class="text-center">{!! ucfirst(trans('textos.fecha')) !!}</th> -->
 						<th class="text-center wdt50">{!! ucfirst(trans('textos.importe')) !!}</th>
-						<th class="text-center wdt100">{!! ucfirst(trans('textos.entrega_prevista')) !!}</th>
+						<th class="text-center wdt100">{!! ucfirst(trans('textos.fecha_entrega')) !!}</th>
 						{{-- <th>{!! trans('textos.area_negocio') !!}</th> --}}
 						{{-- <th class="wdt100">{!! trans('textos.area') !!}</th> --}}
 						<th class="wdt100">{!! trans('textos.centro_coste') !!}</th>

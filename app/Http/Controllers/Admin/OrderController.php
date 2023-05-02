@@ -481,13 +481,21 @@ class OrderController extends Controller{
             $amount = $row->getAmount();  
             return $amount['total_amount'].$currency->symbol;
         })
-        ->addColumn('fechaEntregaPrevista', function($row){
-            if($row->estimated_delivery_date){
-                return Carbon::parse($row->estimated_delivery_date)->format($this->languages[session()->get('locale')][4]);   
+        //02/05/2023: se sustituye la columna de fecha prevista por fecha de entrega a petición de Marcelo. Además la fecha de entrega se actualizará en el momento que el estado de un pedido cambie a Finalizado.
+        ->addColumn('fechaEntrega', function($row){
+            if($row->delivery_date){
+                return Carbon::parse($row->delivery_date)->format($this->languages[session()->get('locale')][4]);   
             }else{
                 return '';
             }
         })
+        // ->addColumn('fechaEntregaPrevista', function($row){
+        //     if($row->estimated_delivery_date){
+        //         return Carbon::parse($row->estimated_delivery_date)->format($this->languages[session()->get('locale')][4]);   
+        //     }else{
+        //         return '';
+        //     }
+        // })
         ->addColumn('cost_center', function($row){
             return $row->costCenter;    
         })
@@ -1147,6 +1155,10 @@ class OrderController extends Controller{
         }
         if($request->status){
             $order->order_status = $request->status;
+            //02/05/2023: la fecha de entrega se actualiza automáticamente si el pedido se encuentra en algunos de los estados de finalizado:
+            if(in_array($request->status, config('constants.ORDER_STATUS_FINISHED'))){
+                $order->delivery_date = Carbon::today('Europe/Madrid');
+            }
         }
         if($request->hours){
             $order->hours = $request->hours;
@@ -1450,6 +1462,11 @@ class OrderController extends Controller{
     public function status(Request $request, Order $order, $status){
         if($request->ajax()){    
             $order->order_status = $status;
+
+            if(in_array($status, config('constants.ORDER_STATUS_FINISHED'))){
+                $order->delivery_date = Carbon::today('Europe/Madrid');
+            }
+
             $order->save();
 
             return response()->json(true);

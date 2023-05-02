@@ -10,7 +10,7 @@
     @endcan
 
     {{-- Revisión --}}
-    @if($row['revision'])
+    @if($row['reviewable'])
         <label class="custom-chk-rdb" rel="tooltip" title="{{ ucfirst(trans('textos.solicitar_revision')) }}">
             <input type="checkbox" name="revision" @if($row['revision'] == 1) checked @endif><span class="chk chkRev" data-id="{{ $row['id'] }}"></span>
         </label>
