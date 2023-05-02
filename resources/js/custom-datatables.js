@@ -3456,7 +3456,7 @@ $(document).ready(function(){
         $('#tblOrders thead tr').clone(true).appendTo('#tblOrders thead');
         $('#tblOrders thead tr:eq(1) th').each(function(i){
             var title = $(this).text(); 
-            if(i == 10){
+            if(i == 11){
                 $(this).html('');
             }else{
                 // Check field on json of localstorage
@@ -3503,7 +3503,8 @@ $(document).ready(function(){
                 {data: 'purchase_num', name: 'orders.purchase_num', className: 'text-right'},
                 {data: 'name', name: 'orders.name'},
                 {data: 'amount', className: 'text-right'},
-                {data: 'fechaEntregaPrevista', className: 'text-right'},
+                {data: 'fechaEntrega', className: 'text-right'},
+                //{data: 'fechaEntregaPrevista', className: 'text-right'},
                 {data: 'cost_center', name: 'cost_centers.name'},
                 {data: 'estado', name: 'estado'},
                 {data: 'acciones', orderable: false, searchable: false, className: 'text-right'}
@@ -5927,9 +5928,6 @@ $(document).ready(function(){
 
                     api.rows().every(function(){
                         var data = this.data();
-
-
-                        console.log(data);
 
                         //Horas trabajadas:
                         if(data.accumulated != '' && data.accumulated_value > '0'){
