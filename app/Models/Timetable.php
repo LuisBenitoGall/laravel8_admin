@@ -261,7 +261,8 @@ class Timetable extends Model{
                             $arr['add_timetable'] = false;
                             $arr['edit_timetable'] = $edit_timetable;
                             $arr['flag'] = $row->flag;
-                            $arr['revision'] = $row->reviewable;
+                            $arr['reviewable'] = true;
+                            $arr['revision'] = $row->revision;
                             $arr['authorized'] = $authorized;
 
                             // ******** CAMPOS CALCULADOS: *********
@@ -358,6 +359,7 @@ class Timetable extends Model{
                         $arr['add_timetable'] = false;
                         $arr['edit_timetable'] = false;
                         $arr['flag'] = false;
+                        $arr['reviewable'] = false;
                         $arr['revision'] = false;
                         $arr['authorized'] = true;
                     }
@@ -377,12 +379,13 @@ class Timetable extends Model{
                         $arr['add_timetable'] = false;
                         $arr['edit_timetable'] = false;
                         $arr['flag'] = false;
+                        $arr['reviewable'] = $row->reviewable;
                         $arr['revision'] = false;
                         $arr['authorized'] = true;
 
                     //Comprobamos si es jornada laboral no trabajada por el usuario:
                     }elseif(in_array($date, $arrCompanyWorkCalendar)){
-                        $arr['hour'] = '0';
+                        $arr['hour'] = '';
                         $arr['name'] = trans('textos.registro_falta'); 
                         $arr['comments'] = '';
                         $arr['accumulated'] = '00:00';
@@ -395,6 +398,7 @@ class Timetable extends Model{
                         $arr['add_timetable'] = true;
                         $arr['edit_timetable'] = false;
                         $arr['flag'] = false;
+                        $arr['reviewable'] = $row->reviewable;
                         $arr['revision'] = false;
                         $arr['authorized'] = true;    
                     }
