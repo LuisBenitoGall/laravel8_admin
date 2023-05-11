@@ -287,7 +287,9 @@ class Timetable extends Model{
 
                                         //Si el usuario tiene horarios personalizados, se sustituye el valor de hora fija que tenga la empresa por el valor del horario personalizado, esto es, la prevalencia la marca el horario personalizado sobre el horario fijo:
                                         }elseif($row->fixed > 0 && $customTimetableDay){
-                                            $hasta = helpers::sumaHoras($hora, $hoursOfWork);
+                                            //$hasta = helpers::sumaHoras($hora, $hoursOfWork);
+                                            //11/05/2023: se modifica la lógica para que prevalezca el horario fijo.
+                                            $hasta = helpers::sumaHoras($hora, helpers::getTimeFromMinutes($row->fixed));
                                             $fixedTime = true;
                                             $priority = $row->fixed_priority? true:false;
 
