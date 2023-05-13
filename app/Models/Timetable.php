@@ -175,7 +175,6 @@ class Timetable extends Model{
             //Permisos:
             $edit_timetable = Auth::user()->can('employees-timetable.edit');
 
-            $k = 0;
             $totalTime = 0;
             $totalTiempoATrabajar = 0;
             $noWorkedDays = [];     //Array de fechas no trabajadas:
@@ -243,7 +242,7 @@ class Timetable extends Model{
                     //Jornada trabajada (se encuentra entre las fechas trabajadas por el empleado):
                     if(in_array($date, $arrUserWorkedDays)){
                         //Recorremos las fechas trabajadas por el usuario buscando coincidencia con la fecha del array:
-                        foreach($timetables as $row){ 
+                        foreach($timetables as $i => $row){ 
                             $arr['id'] = $row->id;
 
                             //Si la fecha no se encuentra entre las fechas de la empresa y no se halla autorizada, se le pasa valor false:
@@ -270,7 +269,7 @@ class Timetable extends Model{
 
                                 // ******** CAMPOS CALCULADOS: *********
                                 //Guardamos el siguiente índice para posteriores consultas:
-                                $idx = $k + 1;
+                                $idx = $i + 1;
 
                                 //Comprobamos si la hora tiene un valor horario mínimo:
                                 $hora = ($row->min_hour && $row->min_hour > $row->hour) ? $row->min_hour : $row->hour;
@@ -343,7 +342,6 @@ class Timetable extends Model{
                                 }
 
                                 array_push($data, $arr);
-                                $k++;
                             }
                         }
 

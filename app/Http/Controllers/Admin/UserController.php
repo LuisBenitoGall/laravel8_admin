@@ -789,8 +789,6 @@ class UserController extends Controller{
 
             $data = Timetable::listUserTimetables($from, $to, $user_id, $workplace->id, $see_authorized);
 
-            //dd($data);
-
             return DataTables::of($data)
             ->addColumn('fecha', function($row){
                 return '<span style="display: none">'.$row['date_order'].'</span>'.$row['fecha'];
