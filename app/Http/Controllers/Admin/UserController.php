@@ -745,6 +745,11 @@ class UserController extends Controller{
 
         $userId = $user_id? $user_id:$request->user_id;
 
+        //Verificamos que la sessión corresponda con el usuario si no tiene permisos:
+        if(!Auth::user()->can('users.edit') && $userId != Auth::user()->id){
+            $userId = Auth::user()->id;
+        }        
+
         //Centro de trabajo del empleado vinculado al contrato vigente. Debe existir al menos 1 para mostrar los horarios.
         $contract = Employee::select('workplaces.id', 'workplaces.name', 'employees.id')
         ->join('workplaces', 'employees.workplace_id', '=', 'workplaces.id')
