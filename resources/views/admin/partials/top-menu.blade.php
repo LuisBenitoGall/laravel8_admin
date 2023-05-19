@@ -563,7 +563,7 @@ if(!$initial_imports->value){
                     <a class="dropdown-toggle text-center" data-toggle="dropdown" href="#" role="button" aria-haspopup="false"
                        aria-expanded="false">
                         <img class="rounded-circle avatar"
-                             src=" {{ !is_null($avatar)  ? asset('img/users/'.$avatar->image) : asset('img/users/user.png') }}"
+                             src=" {{ !is_null($avatar) && file_exists('img/users/'.$avatar->image) ? asset('img/users/'.$avatar->image) : asset('img/users/user.png') }}"
                              alt="{{ Auth::user()->name }}"/>
                     </a>
 
