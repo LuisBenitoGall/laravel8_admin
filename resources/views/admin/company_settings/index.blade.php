@@ -97,7 +97,7 @@
 
 								@if($emails)
 									@foreach($emails as $email)
-										<div class="form-group row ip">
+										<div class="form-group row email">
 											<div class="col-lg-5">
 												<x-input type="text" name="emails[]" value="{{ $email }}"/>
 											</div>
