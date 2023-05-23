@@ -3124,7 +3124,8 @@ $(document).ready(function(){
             }
         });
 
-        $('#tblOrderItems tbody').on('click', 'td .btnSeeItem', function () {
+        $('#tblOrderItems tbody').on('click', 'td .btnSeeItem', function (e) {
+            e.preventDefault();
             var tr = $(this).closest('tr');
             var row = tableOrderItems.row(tr);
      
