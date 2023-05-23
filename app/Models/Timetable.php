@@ -382,7 +382,7 @@ class Timetable extends Model{
                             $arr['add_timetable'] = false;
                             $arr['edit_timetable'] = false;
                             $arr['flag'] = false;
-                            $arr['reviewable'] = $row->reviewable;
+                            $arr['reviewable'] = false;
                             $arr['revision'] = false;
                             $arr['authorized'] = true;
 
@@ -401,7 +401,7 @@ class Timetable extends Model{
                             $arr['add_timetable'] = true;
                             $arr['edit_timetable'] = false;
                             $arr['flag'] = false;
-                            $arr['reviewable'] = $row->reviewable;
+                            $arr['reviewable'] = true;
                             $arr['revision'] = false;
                             $arr['authorized'] = true;    
                         }
