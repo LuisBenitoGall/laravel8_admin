@@ -1178,6 +1178,7 @@ class OrderController extends Controller{
             $order->provider_workplace_id = $request->provider_workplace_id;
             $order->provider_cost_center_id = $request->provider_cost_center_id;
             $order->provider_business_area_id = $request->provider_business_area_id;
+            $order->commercial_id = $request->commercial_id;
         }
         $order->save();
 
