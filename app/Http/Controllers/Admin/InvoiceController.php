@@ -594,13 +594,21 @@ class InvoiceController extends Controller{
         //     $amount_with_iva = $total_amount + $iva_amount;
         // }
         
-        //Cuenta bancaria:
+        //Cuenta bancaria cliente:
         $bank_account_ = BankAccounts::select('id')
-        ->where('company_id', $order->provider_id)
+        ->where('company_id', $order->customer_id)
         ->where('featured', 1)
         ->where('status', 1)
         ->first();
         $bank_account = $bank_account_? $bank_account_->id:NULL;
+
+        //Cuenta bancaria proveedor:
+        $provider_bank_account_ = BankAccounts::select('id')
+        ->where('company_id', $order->provider_id)
+        ->where('featured', 1)
+        ->where('status', 1)
+        ->first();
+        $provider_bank_account = $provider_bank_account_? $provider_bank_account_->id:NULL;
 
         //Creamos cabecera de la factura, para poder utilizar su id:
         $invoice = new Invoice();
@@ -611,6 +619,7 @@ class InvoiceController extends Controller{
         $invoice->amount_with_iva = $amount_with_iva;
         $invoice->fiscal_date = date('Y-m-d');
         $invoice->bank_account_id = $bank_account;
+        $invoice->provider_bank_account_id = $provider_bank_account;
         $invoice->status = config('constants.INVOICE_OPEN_');
         $invoice->save();
 
@@ -1080,14 +1089,14 @@ class InvoiceController extends Controller{
         ->toArray();
 
         //Cuentas bancarias cliente:
-        $bank_accounts = [];
-        $bank_featured = false;
-        $bank_accounts_data = BankAccounts::getBankAccounts($customer->id);
-        foreach($bank_accounts_data as $ba){
+        $customer_bank_accounts = [];
+        $customer_bank_featured = false;
+        $customer_bank_accounts_data = BankAccounts::getBankAccounts($customer->id);
+        foreach($customer_bank_accounts_data as $ba){
             $bank = $ba->tradename? $ba->tradename:$ba->name;
-            $bank_accounts[$ba->id] = $bank.' - '.$ba->account;
+            $customer_bank_accounts[$ba->id] = $bank.' - '.$ba->account;
 
-            if($ba->featured == 1) $bank_featured = $ba->id;
+            if($ba->featured == 1) $customer_bank_featured = $ba->id;
         }
 
         //Cuentas bancarias proveedor:
@@ -1101,7 +1110,7 @@ class InvoiceController extends Controller{
             if($pba->featured == 1) $provider_bank_featured = $pba->id;
         }
 
-        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'is_sale', 'order', 'suborders', 'invoiced', 'invoices', 'refund', 'customer', 'customer_settings', 'provider', 'provider_account', 'provider_settings', 'items', 'products', 'patterns', 'payments', 'templates', 'featuredTemplate', 'currency', 'languages', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'payment_methods', 'bank_accounts', 'bank_featured', 'provider_bank_accounts', 'provider_bank_featured'));
+        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'is_sale', 'order', 'suborders', 'invoiced', 'invoices', 'refund', 'customer', 'customer_settings', 'provider', 'provider_account', 'provider_settings', 'items', 'products', 'patterns', 'payments', 'templates', 'featuredTemplate', 'currency', 'languages', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'payment_methods', 'customer_bank_accounts', 'customer_bank_featured', 'provider_bank_accounts', 'provider_bank_featured'));
     }
 
     /**
@@ -1232,15 +1241,15 @@ class InvoiceController extends Controller{
         ->pluck('name', 'id')
         ->toArray();
 
-        //Cuentas bancarias:
-        $bank_accounts = [];
-        $bank_featured = false;
-        $bank_accounts_data = BankAccounts::getBankAccounts($customer->id);
-        foreach($bank_accounts_data as $ba){
+        //Cuentas bancarias cliente:
+        $customer_bank_accounts = [];
+        $customer_bank_featured = false;
+        $customer_bank_accounts_data = BankAccounts::getBankAccounts($customer->id);
+        foreach($customer_bank_accounts_data as $ba){
             $bank = $ba->tradename? $ba->tradename:$ba->name;
-            $bank_accounts[$ba->id] = $bank.' - '.$ba->account;
+            $customer_bank_accounts[$ba->id] = $bank.' - '.$ba->account;
 
-            if($ba->featured == 1) $bank_featured = $ba->id;
+            if($ba->featured == 1) $customer_bank_featured = $ba->id;
         }
 
         //Cuentas bancarias proveedor:
@@ -1254,7 +1263,7 @@ class InvoiceController extends Controller{
             if($pba->featured == 1) $provider_bank_featured = $pba->id;
         }
 
-        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'is_sale', 'order', 'invoiced', 'invoices', 'refund', 'customer', 'customer_account', 'provider', 'provider_account', 'provider_settings', 'structure_concepts', 'items', 'products', 'currency', 'languages', 'patterns', 'payments', 'templates', 'featuredTemplate', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'payment_methods', 'concepts', 'bank_accounts', 'bank_featured', 'provider_bank_accounts', 'provider_bank_featured'));
+        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'is_sale', 'order', 'invoiced', 'invoices', 'refund', 'customer', 'customer_account', 'provider', 'provider_account', 'provider_settings', 'structure_concepts', 'items', 'products', 'currency', 'languages', 'patterns', 'payments', 'templates', 'featuredTemplate', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'payment_methods', 'concepts', 'customer_bank_accounts', 'customer_bank_featured', 'provider_bank_accounts', 'provider_bank_featured'));
     }
 
     /**
@@ -1387,7 +1396,6 @@ class InvoiceController extends Controller{
             if(!$invoice->blocked){
                 $invoice->invoice_old_num = $request->invoice_old_num;
                 $invoice->status = $request->status? $request->status:'0';
-                $invoice->bank_account_id = $request->bank_account_id;
             }
             $invoice->provider_observations = $request->observations;
 
@@ -1411,6 +1419,12 @@ class InvoiceController extends Controller{
 
         if($request->status){
             $invoice->status = $request->status;
+        }
+
+        //Campos que sólo se actualizan si la factura NO está bloqueada:
+        if(!$invoice->blocked){
+            $invoice->bank_account_id = $request->bank_account_id;
+            $invoice->provider_bank_account_id = $request->provider_bank_account_id;
         }
 
         //Recalculando descuento por IRPF:

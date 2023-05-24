@@ -8,6 +8,8 @@ class AddBankAccountToInvoices extends Migration{
     /**
      * Run the migrations.
      *
+     * Cuenta bancaria del cliente
+     *
      * @return void
      */
     public function up(){
