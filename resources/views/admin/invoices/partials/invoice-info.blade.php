@@ -187,18 +187,27 @@
 		</div>
 	@endif
 
-	@if(!$is_sale)
+	{{-- @if(!$is_sale) --}}
 		<div class="form-group row">
-			{{-- Cuenta bancaria del cliente --}}
+			{{-- Cuenta bancaria del proveedor --}}
 			@php
-            $bankAccount = $invoice->bank_account_id? $invoice->bank_account_id:$bank_featured;
+            $providerBankAccount = $invoice->provider_bank_account_id? $invoice->provider_bank_account_id:$provider_bank_featured;
             @endphp
-			<label for="bank_account_id" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.cuenta_bancaria')) !!}</label>
+			<label for="provider_bank_account_id" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.cuenta_bancaria_proveedor')) !!}</label>
             <div class="col-lg-4">
-                <x-select name="bank_account_id" class="select2" label="banco_selec" :options="$bank_accounts" value="{{ $bankAccount }}"/>
+                <x-select name="provider_bank_account_id" class="select2" label="banco_selec" :options="$provider_bank_accounts" value="{{ $providerBankAccount }}"/>
+            </div>
+
+            {{-- Cuenta bancaria del cliente --}}
+			@php
+            $customerBankAccount = $invoice->bank_account_id? $invoice->bank_account_id:$customer_bank_featured;
+            @endphp
+			<label for="bank_account_id" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.cuenta_bancaria_cliente')) !!}</label>
+            <div class="col-lg-4">
+                <x-select name="bank_account_id" class="select2" label="banco_selec" :options="$customer_bank_accounts" value="{{ $customerBankAccount }}"/>
             </div>
 		</div>
-	@endif
+	{{-- @endif --}}
 
 	<div class="form-group row">
 		{{-- Observaciones --}}

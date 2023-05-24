@@ -44,7 +44,7 @@
                         {{-- Cuenta bancaria cliente --}}
                         <label for="bank_account_id" class="col-lg-3 col-form-label">{!! ucfirst(trans('textos.cuenta_cliente')) !!}</label>
                         <div class="col-lg-9">
-                            <x-select name="bank_account_id" class="select2" label="banco_selec" :options="$bank_accounts" value="{{ $bank_featured }}"/>
+                            <x-select name="bank_account_id" class="select2" label="banco_selec" :options="$customer_bank_accounts" value="{{ $customer_bank_featured }}"/>
                         </div>
                     </div>
 
