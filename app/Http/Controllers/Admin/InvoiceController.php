@@ -1558,12 +1558,20 @@ class InvoiceController extends Controller{
         //Moneda:
         $currency = CompanySettings::co_currency(0);
 
-        //Datos bancarios:
+        //Datos bancarios cliente:
         $bank_account = false;
         if($invoice->bank_account_id){
             $bank_account = BankAccounts::select('banks.tradename', 'banks.swift', 'bank_accounts.account')
             ->join('banks', 'bank_accounts.bank_id', '=', 'banks.id')
             ->find($invoice->bank_account_id);
+        }
+
+        //Datos bancarios proveedor:
+        $provider_bank_account = false;
+        if($invoice->provider_bank_account_id){
+            $provider_bank_account = BankAccounts::select('banks.tradename', 'banks.swift', 'bank_accounts.account')
+            ->join('banks', 'bank_accounts.bank_id', '=', 'banks.id')
+            ->find($invoice->provider_bank_account_id);
         }
 
         //Actualizamos número de impresiones:
@@ -1576,7 +1584,7 @@ class InvoiceController extends Controller{
         //Template de factura. Se pasa por variable por si se incluyen más templates.
         $invoice_template = 'pdf/invoice';
 
-        $pdf = PDF::loadView($invoice_template, compact('invoice', 'bn', 'invoice_order', 'items', 'advance_invoices', 'provider', 'customer', 'template', 'fechaLiteral', 'company_settings', 'provider_workplace', 'provider_phones', 'customer_workplace', 'customer_manager', 'currency', 'bank_account'));
+        $pdf = PDF::loadView($invoice_template, compact('invoice', 'bn', 'invoice_order', 'items', 'advance_invoices', 'provider', 'customer', 'template', 'fechaLiteral', 'company_settings', 'provider_workplace', 'provider_phones', 'customer_workplace', 'customer_manager', 'currency', 'bank_account', 'provider_bank_account'));
         return $pdf->download($invoice_name_pdf.'.pdf'); 
     }
 

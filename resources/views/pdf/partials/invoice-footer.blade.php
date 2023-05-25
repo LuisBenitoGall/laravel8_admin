@@ -130,6 +130,16 @@
 					</tr>
 				@endif
 
+				{{-- Cuenta bancaria proveedor --}}
+				@if($provider_bank_account)
+					<tr>
+						<td>
+							{{ ucfirst(trans('textos.cuenta_bancaria')) }}:	
+							<b style="color: #FFF">{{ $provider_bank_account }}</b>
+						</td>
+					</tr>
+				@endif
+
 				@if($template)
 					<tr>
 						<td style="padding: 30px 0;">{!! $template['conditions'] !!}</td>
