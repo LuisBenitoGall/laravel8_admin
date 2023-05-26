@@ -135,7 +135,7 @@
 					<tr>
 						<td>
 							{{ ucfirst(trans('textos.cuenta_bancaria')) }}:	
-							<b style="color: #FFF">{{ $provider_bank_account->account }}</b>
+							<b style="color: #FFF">{{ $provider_bank_account->tradename }} - {{ $provider_bank_account->swift }} - {{ $provider_bank_account->account }}</b>
 						</td>
 					</tr>
 				@endif
