@@ -21,6 +21,7 @@ use Carbon\Carbon;
 use App\Models\AccountingConcept;
 use App\Models\AccountingOption;
 use App\Models\BankAccounts;
+use App\Models\Category;
 use App\Models\Company;
 use App\Models\CompanyAccounts;
 use App\Models\CompanySettings;
@@ -31,6 +32,7 @@ use App\Models\InvoiceOrders;
 use App\Models\InvoicePatterns;
 use App\Models\InvoiceSettings;
 use App\Models\Item;
+use App\Models\Module;
 use App\Models\Order;
 use App\Models\OrderPrevisions;
 use App\Models\Payment;
@@ -823,11 +825,15 @@ class InvoiceController extends Controller{
         ->pluck('companies.name', 'companies.id')
         ->toArray();
 
+        //Sectores de los proveedores:
+        $module = Module::select('id')->where('slug', 'companies')->first();
+        $categories = Category::getModuleCategories($module->id, session('currentCompany'));
+
         $languages = $this->languages;
 
         $currency = CompanySettings::co_currency(0);
 
-        return view('admin.invoices.invoice-by-provider')->with(compact('header', 'project_id', 'order', 'provider_orders', 'providers', 'languages', 'currency'));          
+        return view('admin.invoices.invoice-by-provider')->with(compact('header', 'project_id', 'order', 'provider_orders', 'providers', 'categories', 'languages', 'currency'));          
     }
 
     /**
@@ -906,6 +912,12 @@ class InvoiceController extends Controller{
         //Subir documento:
         $doc = $this->loadFile($request, 'invoices');
 
+        //Configuraciones con el proveedor:
+        $provider_settings = CustomerProviders::select('accounting_concept_id', 'pay_after_days', 'payday', 'payment_method_id')
+        ->where('customer_id', $order->customer_id)
+        ->where('provider_id', $order->provider_id)
+        ->first(); 
+
         //Creamos factura:
         $inv = new Invoice();
         $inv->invoice_old_num = $request->invoice_old_num;
@@ -919,6 +931,9 @@ class InvoiceController extends Controller{
         $inv->expiration_date = $expiration_date;
         $inv->user_id = Auth::user()->id;
         $inv->customer_observations = $request->customer_observations;
+        $inv->accounting_structure_id = $provider_settings->accounting_structure_id;
+        $inv->accounting_concept_id = $provider_settings->accounting_concept_id;
+        $inv->payment_method_id = $provider_settings->payment_method_id;
         $inv->doc = $doc;
         $inv->status = $request->status? $request->status:config('constants.INVOICE_OPEN_'); 
         $inv->blocked = $request->all_invoiced? 1:0;      //Se bloquean las facturas con pedido previo. 

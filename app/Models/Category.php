@@ -44,6 +44,19 @@ class Category extends Model{
     }
 
     /**
+     * 2.1. Todas las categorías por módulo y empresa.
+     */
+    public function getModuleCategories($module_id, $company_id){
+        $data = Category::where('company_id', $company_id)
+        ->where('module_id', $module_id)
+        ->orderBy('name', 'ASC')
+        ->pluck('name', 'id')
+        ->toArray();
+
+        return $data;    
+    }
+
+    /**
      * 3. Categoría padre de subcategoría.
      */
     public function sub_category(){

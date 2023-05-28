@@ -21,6 +21,7 @@ use App\Models\Category;
 use App\Models\Company;
 use App\Models\CompanyAccounts;
 use App\Models\CompanyModules;
+use App\Models\CompanySectors;
 use App\Models\CompanySettings;
 use App\Models\CustomerProviders;
 use App\Models\TempImportCompanies;
@@ -388,6 +389,9 @@ class CompanyController extends Controller{
             //     ->withErrors($validator)
             //     ->withInput();
             // }
+            
+            //dd($request->all()) ;
+            
 
             //Comprobamos por NIF si la empresa ya existe:
             $company = Company::select('id', 'name')->where('nif', $request->nif)->first();
@@ -410,6 +414,16 @@ class CompanyController extends Controller{
             //Si no existe, la creamos:
             }else{
                 $company = $this->saveCompany($request);
+            }
+
+            //Categorías:
+            if($request->categories){
+                foreach($request->categories as $c){
+                    CompanySectors::firstOrCreate(
+                        ['company_id' => $company->id, 'category_id' => $c],
+                        ['company_id' => $company->id, 'category_id' => $c]
+                    );
+                }
             }
 
             return response()->json($company);

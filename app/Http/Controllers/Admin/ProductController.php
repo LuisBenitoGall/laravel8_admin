@@ -19,6 +19,7 @@ use App\Models\BudgetFormItems;
 use App\Models\Category;
 use App\Models\Company;
 use App\Models\CompanySettings;
+use App\Models\CostCenters;
 use App\Models\CustomerProducts;
 use App\Models\CustomerProviders;
 use App\Models\Product;
@@ -271,6 +272,12 @@ class ProductController extends Controller{
         ->orderBy('id', 'DESC')
         ->get();
 
+        //Centros de coste:
+        $cost_centers = CostCenters::where('company_id', session('currentCompany'))
+        ->where('status', 1)
+        ->pluck('name', 'id')
+        ->toArray();
+
         //Moneda:
         $currency = CompanySettings::co_currency(0);
 
@@ -282,7 +289,7 @@ class ProductController extends Controller{
         //Módulos activos:
         $module_production = $this->settedModule('production');
 
-        return view('admin.products.edit', compact('header', 'product', 'tab', 'productions', 'patterns', 'data_types', 'attributes', 'prices', 'currency', 'iva', 'languages', 'module_production'));
+        return view('admin.products.edit', compact('header', 'product', 'tab', 'productions', 'patterns', 'data_types', 'attributes', 'prices', 'cost_centers', 'currency', 'iva', 'languages', 'module_production'));
     }
 
     /**
@@ -405,6 +412,7 @@ class ProductController extends Controller{
         $product->stock_management = $stock_management;
         $product->iva = $request->iva;
         $product->on_sale = $request->input('on_sale')? true:false;
+        $product->cost_center_id = $request->cost_center;
         $product->status = $status;
         $product->save();
 

@@ -627,7 +627,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::get('order-settings/{template}/featured', 'OrderSettingsController@featured')->name('order-settings.featured')->middleware('permission:order-settings.edit');
 
     // Orders:
-    Route::get('orders/list/{year?}/{customer_id?}/{provider_id?}/{owner?}/{status?}', 'OrderController@index')->name('orders.index')->middleware('permission:orders.index');
+    Route::get('orders/list/{year?}/{customer_id?}/{provider_id?}/{owner?}/{status?}/{from?}/{to?}/{order_buy?}', 'OrderController@index')->name('orders.index')->middleware('permission:orders.index');
     Route::post('orders', 'OrderController@getOrdersBy')->name('orders.list')->middleware('permission:orders.index');
     Route::get('orders/control-panel-sales/{year?}/{workplace_id?}', 'OrderController@controlPanelSales')->name('orders.control-panel-sales')->middleware('permission:orders.index');
     Route::get('orders/control-panel-purchases/{year?}', 'OrderController@controlPanelPurchases')->name('orders.control-panel-purchases')->middleware('permission:orders.index');

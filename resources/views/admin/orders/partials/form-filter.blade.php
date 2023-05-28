@@ -23,6 +23,28 @@
 						@endphp
 						@include('admin.partials.selector-year', ['selected_year' => $selected_year])
 
+						{{-- Desde --}}
+						<label for="from" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.desde')) !!}</label>
+						<div class="col-lg-2">
+							@php
+							$from_ = $from != ''? \Carbon\Carbon::parse($from)->format($languages[session()->get('locale')][4]):'';
+							@endphp
+
+							<x-date-picker name="from" value="{{ $from_ }}" :format="$languages[config('app.locale')][4]"/>	
+						</div>
+
+						{{-- Hasta --}}
+						<label for="to" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.hasta')) !!}</label>
+						<div class="col-lg-2">
+							@php
+							$to_ = $to != ''? \Carbon\Carbon::parse($to)->format($languages[session()->get('locale')][4]):'';
+							@endphp
+
+							<x-date-picker name="to" value="{{ $to_ }}" :format="$languages[config('app.locale')][4]"/>	
+						</div>
+					</div>
+
+					<div class="form-group row">
 						{{-- Pedido --}}
 						<label for="order_id" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.pedido_num')) !!} </label>
 						<div class="col-lg-2">
@@ -34,12 +56,10 @@
 						<div class="col-lg-2">
 							<input class="form-control" type="text" name="order_buy" maxlength="25">
 						</div>
-					</div>
 
-					<div class="form-group row">
 						{{-- Propietario --}}
 						@if(isset($owners))
-							<label for="owner" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.propietario')) !!} </label>
+							<label for="owner" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.manager')) !!} </label>
 							<div class="col-lg-2">
 								@php
 								$owners_['0'] = trans('textos.todos');
@@ -51,6 +71,22 @@
 								<x-select name="owner" class="select2" :options="$owners_" value="{{ $owner }}"/>
 							</div>
 						@endif
+					</div>
+
+					<div class="form-group row">
+						{{-- Estado --}}
+						<label for="status" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.estado')) !!} </label>
+						<div class="col-lg-2">
+							@php
+							//Rehacemos el array de estados para incluir en primer lugar la opción de Todos. Descartamos el uso de la función array_unshift pues resetea los índices del resto de opciones, lo cual no interesa.
+							$order_status_[0] = trans('textos.todos');
+							foreach($order_status as $k => $os){
+								$order_status_[$k] = $os;
+							}
+							@endphp
+
+							<x-select name="status" class="select2" :options="$order_status_" label="estado_selec" value="{{ $status }}"/>
+						</div>
 					</div>
 
 					<x-btn-submit name="submit_filter" label="{{ trans('textos.buscar') }}"/>

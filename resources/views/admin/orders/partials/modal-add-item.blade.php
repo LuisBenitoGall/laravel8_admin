@@ -181,6 +181,14 @@
 								<x-input type="text" name="calculated_by_percent" class="text-right set-decimals" autocomplete="off" maxlength="8" id="productPriceByPercent" value="0.00" group="right" groupvalue="%" readonly="{{ $readonly }}" info="item-price-by-percent"/>
 							</div>
 						</div>
+
+						<div class="form-group row">
+							{{-- Centro de coste --}}
+							<label for="provider_cost_center" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.centro_coste')) !!}</label>
+							<div class="col-lg-4">
+								<x-select name="provider_cost_center" class="select2" id="productCostCenter" label="centro_coste_selec" :options="$provider_cost_centers"/>
+							</div>
+						</div>
 					@endif
 
 					<div class="form-group row">
@@ -216,6 +224,12 @@ $(function(){
 	    //Buscamos precio:
 	    products.forEach(function(i){
 	        if(i.id == product_id){
+	        	console.log(i);
+	        	//Centro de coste:
+	        	var arr = [i.cost_center_id];
+	        	$('#productCostCenter').val(arr);
+	        	$('#productCostCenter').trigger('change');
+
 	        	//Precio por porcentaje:	
 	        	if(i.price == '0' && i.calculated_by_percent > 0){
 	        		$('#productPriceByPercent').val(i.calculated_by_percent);
