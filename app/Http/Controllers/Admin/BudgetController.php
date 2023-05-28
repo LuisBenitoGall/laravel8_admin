@@ -271,7 +271,7 @@ class BudgetController extends Controller{
         })
         ->addColumn('final_customer', function($budget){
             if($budget->finalCustomer){
-                return $budget->finalCustomer;
+                return $budget->finalCustomer->tradename;
             }else{
                 return '';
             }
@@ -1250,6 +1250,7 @@ class BudgetController extends Controller{
             $vit->days = $row->days;
             $vit->days_continue = $row->days_continue;
             $vit->days_continue_discount = $row->days_continue_discount;
+            $vit->provider_cost_center_id = $row->provider_cost_center_id;
             $vit->active = $row->active;
             $vit->status = $row->status;
             $vit->print = $row->print;
@@ -1390,6 +1391,7 @@ class BudgetController extends Controller{
             $it->days = $i->days;
             $it->days_continue = $i->days_continue;
             $it->days_continue_discount = $i->days_continue_discount;
+            $it->provider_cost_center_id = $i->provider_cost_center_id;
             $it->active = $i->active;
             $it->status = $i->status;
             $it->print = $i->print;

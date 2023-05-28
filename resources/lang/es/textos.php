@@ -1034,7 +1034,7 @@ return array(
 	'tiempo_acumulado' => 'tiempo acumulado',
 	'solicitar_revision' => 'solicitar revisión',
 	'solicitud_revision_guardada' => 'La solicitud de revisión de horario se ha guardado correctamente',
-	'fecha_final_inferior_aviso' => 'La fecha final no puede ser inferior a la fecha inicial',
+	'fecha_final_inferior_aviso' => 'La fecha final no puede ser anterior a la fecha inicial.',
 	'add_nuevo_responsable' => 'Añadir nuevo responsable de cliente',
 	'nuevo_responsable_de' => 'Nuevo responsable de',
 	'responsable_cliente_agregado' => 'El responsable de cliente se ha agregado correctamente',

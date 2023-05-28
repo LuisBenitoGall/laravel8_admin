@@ -63,6 +63,8 @@
 	<input type="hidden" id="myStatus" value="@if($status){{ $status }}@else{{ 0 }}@endif">
 	<input type="hidden" id="myModuleAccounting" value="{{ $module_accounting }}">
 	<input type="hidden" id="myOrderBuy" value="{{ $order_buy }}">
+	<input type="hidden" id="myFrom" value="{{ $from }}">
+	<input type="hidden" id="myTo" value="{{ $to }}">
 
 	{{-- Tabla --}}
 	<div class="row">

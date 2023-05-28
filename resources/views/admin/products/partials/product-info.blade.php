@@ -79,6 +79,14 @@
 		<div class="col-lg-2">
 			<x-input type="text" name="manual_ref" value="{{ $product->manual_ref }}" autocomplete="off" maxlength="255" info="product-referencia-manual"/>
 		</div>
+
+		{{-- Centros de coste --}}
+		@if(count($cost_centers))
+			<label for="cost_center" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.centro_coste')) !!}</label>
+			<div class="col-lg-2">
+				<x-select name="cost_center" class="select2" label="centro_coste_selec" :options="$cost_centers" value="{{ $product->cost_center_id }}" info=""/>
+			</div>
+		@endif
 	</div>
 
 	<div class="form-group row">

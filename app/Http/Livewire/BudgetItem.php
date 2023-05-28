@@ -52,6 +52,7 @@ class BudgetItem extends Component{
     public $observations;
     public $price;
     public $print;
+    public $provider_cost_center_id;
     public $qty;
     public $total_amount;
     public $sub_total;
@@ -289,6 +290,7 @@ class BudgetItem extends Component{
                 $item->days = $this->days ? $this->days : 0;
                 $item->days_continue = $this->days_continue ? true : false;
                 $item->days_continue_discount = $days_continue_discount;
+                $item->provider_cost_center_id = $this->item ? $this->item['cost_center_id']:NULL;
                 $item->print = $this->print ? true : false;
                 $item->user_id = Auth::user()->id;
                 $item->save();

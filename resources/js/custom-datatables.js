@@ -3445,6 +3445,8 @@ $(document).ready(function(){
         var owner = $('#myOwner').val() && $('#myOwner').val() != ''? $('#myOwner').val():false;
         var year = $('#myYear').val();
         var status = $('#myStatus').val() && $('#myStatus').val() != ''? $('#myStatus').val():false;
+        var from = $('#myFrom').val() && $('#myFrom').val() != ''? $('#myFrom').val():'0';
+        var to = $('#myTo').val() && $('#myTo').val() != ''? $('#myTo').val():'0';
         var accounting_on = $('#myModuleAccounting').val() == 1? true:false;
 
         var orderbuy = $('#myOrderBuy').val() && $('#myOrderBuy').val() != '' ? $('#myOrderBuy').val():false;
@@ -3524,7 +3526,7 @@ $(document).ready(function(){
             // },
             ajax: {
                 "type": "GET",
-                "url": `/api/admin/orders/${year}/${customer}/${provider}/${owner}/${orderbuy}/${status}`,
+                "url": `/api/admin/orders/${year}/${customer}/${provider}/${owner}/${status}/${from}/${to}/${orderbuy}`,
                 /* "url": "/api/admin/orders/"+year+"/"+customer+"/"+provider+"/"+owner+"/"+status, */
                 "error": function(reason){
                     console.log(reason);

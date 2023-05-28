@@ -9,4 +9,6 @@ class CompanySectors extends Model{
     use HasFactory;
 
     protected $table = 'company_sectors';
+
+    protected $fillable = ['company_id', 'category_id'];
 }

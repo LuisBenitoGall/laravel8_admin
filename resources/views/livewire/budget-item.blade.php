@@ -68,8 +68,8 @@ $permitted = !$order || ($order && $add_items && !$order->parent)? true:false;
                                  aria-labelledby="heading{{ $i }}" data-parent="#accordion" style="">
                                 <div class="card-body">
                                     @php
-                                        $items = $block->getItems($block->id, $order->customer_id);
-                                        $k = 1;
+                                    $items = $block->getItems($block->id, $order->customer_id);
+                                    $k = 1;
                                     @endphp
 
                                     {{-- Items de la plantilla del formulario --}}
