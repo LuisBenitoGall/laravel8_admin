@@ -114,6 +114,14 @@
 								<x-input type="text" name="calculated_by_percent" class="text-right set-decimals" autocomplete="off" maxlength="8" id="itemCalculatedByPercent_" value="0.00" group="right" groupvalue="%" readonly="{{ $readonly }}" info="item-price-by-percent_"/>
 							</div>
 						</div>
+
+						<div class="form-group row">
+							{{-- Centro de coste --}}
+							<label for="provider_cost_center" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.centro_coste')) !!}</label>
+							<div class="col-lg-4">
+								<x-select name="provider_cost_center" class="select2" id="itemCostCenter_" label="centro_coste_selec" :options="$provider_cost_centers"/>
+							</div>
+						</div>
 					@endif
 
 					<div class="form-group row">

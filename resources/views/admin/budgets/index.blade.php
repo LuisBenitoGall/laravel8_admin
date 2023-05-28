@@ -40,13 +40,15 @@
 						@endif
 					</th>
 					<th class="text-center wdt100">{!! ucfirst(trans('textos.fecha_alta')) !!}</th>
-					<th class="wdt100">{!! ucfirst(trans('textos.empresa')) !!}</th>
-					<th class="wdt200">
+					<th class="wdt100">
 						@if($budget_from == 'customers')
 							{!! ucfirst(trans('textos.cliente')) !!}
 						@else
 							{!! ucfirst(trans('textos.proveedor')) !!}
 						@endif
+					</th>
+					<th class="wdt200">
+						{!! ucfirst(trans('textos.cliente_final')) !!}
 					</th>
 					<th class="wdt100">{!! ucfirst(trans('textos.estado')) !!}</th>
 					<th class="text-center wdt100">{!! ucfirst(trans('textos.acciones')) !!}</th>

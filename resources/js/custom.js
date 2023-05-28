@@ -1086,6 +1086,11 @@ $(window).on('load', function () {
                 $('#itemConcept_').val(response.concept);
                 $('#itemObservations_').trumbowyg('html', response.observations);
 
+                //Centro de coste:
+                var arr = [response.provider_cost_center_id];
+                $('#itemCostCenter_').val(arr);
+                $('#itemCostCenter_').trigger('change');
+
                 //Precio por porcentaje:
                 if (response.price == '0' && response.calculated_by_percent > 0) {
                     $('.price-fixed_').fadeOut(400, function () {

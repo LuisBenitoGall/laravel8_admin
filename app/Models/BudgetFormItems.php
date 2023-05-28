@@ -29,6 +29,7 @@ class BudgetFormItems extends Model{
         $items = BudgetFormItems::select('products.name', 
             'products.price', 
             'products.iva', 
+            'products.cost_center_id',
             'budget_form_items.id', 
             'budget_form_items.name AS concept', 
             'budget_form_items.form_id', 

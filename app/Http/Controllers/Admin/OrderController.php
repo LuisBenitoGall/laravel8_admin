@@ -220,7 +220,7 @@ class OrderController extends Controller{
     /**
      * 1. Pedidos por cliente o proveedor.
      */
-    public function index($year = false, $customer_id = false, $provider_id = false, $owner = false, $order_buy = false, $status = false){
+    public function index($year = false, $customer_id = false, $provider_id = false, $owner = false, $status = false, $from = '', $to = '', $order_buy = false){
         //Si se cambia la empresa en sesión se toman los pedidos relativos a ésta:
         if($customer_id 
             && $customer_id != session('currentCompany') 
@@ -268,30 +268,30 @@ class OrderController extends Controller{
         $owners = UserCompanies::getCompanyUsers(session('currentCompany'), 1);
 
         //Estados de pedido:
-        $arrStatus = helpers::orderStatus();
+        $order_status = helpers::orderStatus();
 
-        //Pasamos el índice del status de pedido:
-        if($status && $status != ''){
-            foreach($arrStatus as $i => $os){
-                if($status == $os){
-                    $status = $i;
-                    break;
-                }
-            }
-        }
+        // //Pasamos el índice del status de pedido:
+        // if($status && $status != ''){
+        //     foreach($arrStatus as $i => $os){
+        //         if($status == $os){
+        //             $status = $i;
+        //             break;
+        //         }
+        //     }
+        // }
 
-        //Status de pedidos:
-        $order_status = '';
-        foreach($arrStatus as $i => $os){
-            $order_status .= '<options value="'.$i.'">'.$os.'</option>';
-        }
+        // //Status de pedidos:
+        // $order_status = '';
+        // foreach($arrStatus as $i => $os){
+        //     $order_status .= '<options value="'.$i.'">'.$os.'</option>';
+        // }
 
         //Módulos activos:
         $module_accounting = $this->settedModule('accounting');
 
         $languages = $this->languages;
 
-        return view('admin.orders.index')->with(compact('header', 'year', 'owner', 'status', 'customer_id', 'provider_id', 'customer', 'provider', 'ordersType', 'customers', 'providers', 'owners', 'order_status', 'module_accounting', 'order_buy', 'languages'));
+        return view('admin.orders.index')->with(compact('header', 'year', 'owner', 'status', 'from', 'to', 'customer_id', 'provider_id', 'customer', 'provider', 'ordersType', 'customers', 'providers', 'owners', 'order_status', 'module_accounting', 'order_buy', 'languages'));
     }
 
     /**
@@ -312,8 +312,8 @@ class OrderController extends Controller{
             //Comprobamos si el valor recibido corresponde a id, order_num o old_order:
             $order = Order::select('id')
             ->where('provider_id', session('currentCompany'))
-            ->where(function($query) use ($orderNum){
-                $query->where('id', $orderNum)
+            ->where(function($q) use ($orderNum){
+                $q->where('id', $orderNum)
                 ->orWhere('order_num', $orderNum)
                 ->orWhere('order_old_num', $orderNum);
             })
@@ -335,8 +335,8 @@ class OrderController extends Controller{
 
             $orders_of_order_buy = Order::select('id')
             ->where('customer_id', session('currentCompany'))
-            ->where(function($query) use ($orderBuy){
-                $query->where('id', $orderBuy)
+            ->where(function($q) use ($orderBuy){
+                $q->where('id', $orderBuy)
                 ->orWhere('purchase_num', 'like', "%$orderBuy%")
                 ->orWhere('purchase_old_num', 'like', "%$orderBuy%");
             })
@@ -369,20 +369,33 @@ class OrderController extends Controller{
             }
         }
 
-        // Si no cumple con ningun requisito, se asigna la empresa actual como proveedor
+        //Formateando fechas:
+        $from = $request->from != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->from):$request->from:false;
+        $to = $request->to != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->to):$request->to:false;
+        //La fecha fin no puede ser anterior a la fecha inicio:
+        if($from && $to && strtotime($from) > strtotime($to)){
+            $alert = trans('textos.fecha_final_inferior_aviso');
+            return redirect()->route('orders.index')->with(compact('alert'));
+            exit;
+        }
+
+        // Si no cumple con ningun requisito, se asigna la empresa actual como proveedor:
         if (!$request->provider_id && !$request->customer_id) {
             $customer_id = 'all';
             $provider_id =  session('currentCompany');
             session(['orderCompanySelected' => ['customer', $request->customer_id]]);
         }
 
-        return redirect()->route('orders.index', [$request->year, $customer_id, $provider_id, $request->owner, $request->order_buy]);
+        //Estado:
+        $status = $request->status? $request->status:'0';
+        
+        return redirect()->route('orders.index', [$request->year, $customer_id, $provider_id, $request->owner, $status, $from, $to, $request->order_buy]);
     }
 
     /**
      * 1.2. Listado de pedidos por cliente y proveedor para DataTable.
      */
-    public function getOrdersDT($year = false, $customer = false, $provider = false, $owner = false, $order_buy = false, $status = false){
+    public function getOrdersDT($year = false, $customer = false, $provider = false, $owner = false, $status = false, $from = false, $to = false, $order_buy = false){
         //La empresa en sesión debe ser cliente o proveedor del pedido.
         if($customer && $customer != session('currentCompany') && $provider && $provider != session('currentCompany')){
             return false;
@@ -404,15 +417,27 @@ class OrderController extends Controller{
         //->leftJoin('workplaces', 'orders.workplace_id', '=', 'workplaces.id')
         ->where('orders.is_order', true)
         ->where('orders.is_group', false)
-        ->whereYear('orders.created_at', $year)
-        // Consulta para comprobar el numero de orden de compra
-        ->when($order_buy, function($query) use($order_buy) {
-            return $query->where(function($query) use($order_buy) {
-                $query->orWhere('orders.purchase_num', 'like', "%$order_buy%")
+        //Por año, si no viene declarado el intervalo de fechas:
+        ->when(!$from || !$to, function($q) use($year){
+            return $q->whereYear('orders.created_at', $year);
+        })
+        //Por estado:
+        ->when($status && $status > 0, function($q) use($status){
+            return $q->where('orders.order_status', $status);
+        })
+        // Consulta para comprobar el numero de orden de compra:
+        ->when($order_buy, function($q) use($order_buy) {
+            return $q->where(function($q) use($order_buy) {
+                $q->orWhere('orders.purchase_num', 'like', "%$order_buy%")
                 ->orWhere('orders.purchase_old_num', 'like', "%$order_buy%");
             });
         })
-        ->when($owner, function($q) use($owner){
+        // Intervalo fechas:
+        ->when($from && $to, function($q) use($from, $to){
+            return $q->whereBetween('orders.created_at', [$from, $to]);
+        })
+        // Por manager:
+        ->when($owner && $owner > 0, function($q) use($owner){
             return $q->where('orders.provider_manager_id', $owner);
         })
         ->when($customer && $provider, function($q) use($customer, $provider){
@@ -431,7 +456,7 @@ class OrderController extends Controller{
         //->orderBy('orders.id', 'ASC')
         //->get();
         //Filtro status:
-        /*$query->when($status && $status != '', function($q) use($status){
+        /*$q->when($status && $status != '', function($q) use($status){
             return $q->where('orders.status', $status);
         });*/
 
@@ -1158,6 +1183,8 @@ class OrderController extends Controller{
             //02/05/2023: la fecha de entrega se actualiza automáticamente si el pedido se encuentra en algunos de los estados de finalizado:
             if(in_array($request->status, config('constants.ORDER_STATUS_FINISHED'))){
                 $order->delivery_date = Carbon::today('Europe/Madrid');
+                $order->finished_at = now();
+                $order->finished_by = Auth::user()->id;
             }
         }
         if($request->hours){
@@ -1466,6 +1493,8 @@ class OrderController extends Controller{
 
             if(in_array($status, config('constants.ORDER_STATUS_FINISHED'))){
                 $order->delivery_date = Carbon::today('Europe/Madrid');
+                $order->finished_at = now();
+                $order->finished_by = Auth::user()->id;
             }
 
             $order->save();
@@ -1551,9 +1580,9 @@ class OrderController extends Controller{
             $month = $row->month? helpers::yearMonths($row->month):'';
             return '<span style="display: none">'.strtotime($row->year.'-'.$row->month.'-01').'</span>'.$month.' '.$row->year;
         })
-        ->filterColumn('fecha', function($query, $keyword){
+        ->filterColumn('fecha', function($q, $keyword){
             $sql = "order_previsions.year like ?";
-            $query->whereRaw($sql, ["%$keyword%"]);
+            $q->whereRaw($sql, ["%$keyword%"]);
         })
         ->addColumn('customer', function($row){
             return $row->Customer;
@@ -1687,9 +1716,9 @@ class OrderController extends Controller{
             $month = $row->month? helpers::yearMonths($row->month):'';
             return '<span style="display: none">'.strtotime($row->year.'-'.$row->month.'-01').'</span>'.$month.' '.$row->year;
         })
-        ->filterColumn('fecha', function($query, $keyword){
+        ->filterColumn('fecha', function($q, $keyword){
             $sql = "order_previsions.year like ?";
-            $query->whereRaw($sql, ["%$keyword%"]);
+            $q->whereRaw($sql, ["%$keyword%"]);
         })
         ->addColumn('provider', function($row){
             return $row->Provider;

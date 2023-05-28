@@ -285,6 +285,7 @@ class ItemController extends Controller{
         $item->equivalence_surcharge = $equivalence_surcharge;
         $item->discount = $request->discount > 0? $request->discount:NULL;
         $item->calculated_by_percent = $request->price? NULL:$request->calculated_by_percent;
+        $item->provider_cost_center_id = $request->provider_cost_center;
         $item->user_id = Auth::user()->id;
         $item->save();
 
@@ -384,6 +385,9 @@ class ItemController extends Controller{
         $item->iva = $iva;
         $item->equivalence_surcharge = $equivalence_surcharge;
         $item->discount = $request->discount;
+        if($request->provider_cost_center && is_numeric($request->provider_cost_center)){
+            $item->provider_cost_center_id = $request->provider_cost_center;
+        }
         $item->observations = $request->observations;
         $item->save();
 

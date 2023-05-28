@@ -47,6 +47,16 @@
                         </div>
                     </div>
 
+                    {{-- Categorías del proveedor --}}
+                    @if(isset($categories) && count($categories))
+                        <div class="form-group row">
+                            <label for="categories" class="col-12">{!! ucfirst(trans('textos.categoria')) !!}</label>
+                            <div class="col-12">
+                                <x-select name="categories[]" class="select2" multiple="true" :options="$categories"/>
+                            </div>
+                        </div>
+                    @endif
+
                     <x-btn-submit name="submit_save_from_expense" label="{{ trans('textos.guardar') }}"/>
                 </form>
             </div>
