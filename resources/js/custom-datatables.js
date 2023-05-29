@@ -875,7 +875,7 @@ $(document).ready(function(){
         $('#tblBudgets thead tr').clone(true).appendTo('#tblBudgets thead');
         $('#tblBudgets thead tr:eq(1) th').each(function(i){
             var title = $(this).text();
-            if(i == 3 || i == 9){
+            if(i == 3 || i == 10){
                 $(this).html('');
             }else{
                 // Check field on json of localstorage
@@ -884,9 +884,42 @@ $(document).ready(function(){
                 $(this).html(htmlRaw);
 
                 // $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
+            
+                //Búsqueda por nombre y apellidos.
+                if (i == 4) {
+                    $('input', element).on('keyup change', function(){
+                        // Diferenciamos si es nombre o apellido
+                        let fullname = this.value.split(' ');
+
+                        // Si es un solo nombre, se busca en el campo nombre dejando el campo apellido vacío
+                        // caso contrario se busca en ambos campos
+                        if(fullname.length == 1) {
+                            // La busqueda se hace en el campo nombre
+                            tableBudgets
+                                .column(4)
+                                .search(fullname[0])
+                                .column(5)
+                                .search('')
+                                .draw();
+                        }else{
+                            // La busqueda se hace en ambos campos (nombre y apellido)
+                            tableBudgets
+                                .column(4)
+                                .search(fullname[0])
+                                .column(5)
+                                .search(fullname[1])
+                                .draw();
+                        }
+                    });
+                }
             }
      
             $('input', this).on('keyup change', function(){
+                // Ignoramos la busqueda del campo de nombres
+                if (i == 1) {
+                    return
+                }
+
                 if(tableBudgets.column(i).search() !== this.value){
                     tableBudgets
                         .column(i)
@@ -916,11 +949,18 @@ $(document).ready(function(){
                 {data: 'amount', name: 'amount', className: 'text-right'},
                 // {data: 'modalidad', name: 'modalidad'},
                 {data: 'manager', name: 'users.name'},
+                {data: 'surname', name: 'users.surname', className: 'd-none'},  //Columna oculta
                 {data: 'alta', name: 'orders.created_at', className: 'text-right'},
                 {data: 'company', name: 'companies.name', "defaultContent": ""},
                 {data: 'final_customer', name: 'c_.name', "defaultContent": ""},
                 {data: 'estado', name: 'orders.budget_status'},
                 {data: 'acciones', name: 'acciones', orderable: false, searchable: false, className: 'text-right'}
+            ],
+            // Indicamos que columnas se tienen que ocultar
+            columnDefs: [
+                {targets: 5,
+                visible: false,
+                searchable: true}
             ]
         });
     }
