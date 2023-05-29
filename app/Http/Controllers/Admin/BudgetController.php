@@ -254,7 +254,6 @@ class BudgetController extends Controller{
             }else{
                 return '';
             }
-            return $budget->Nombre.' '.$budget->surname;
         })
         ->filterColumn('manager', function($query, $keyword){
             $sql = "CONCAT(users.name, ' ', users.surname) like ?";
