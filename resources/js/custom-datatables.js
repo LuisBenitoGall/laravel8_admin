@@ -881,7 +881,7 @@ $(document).ready(function(){
                 // Check field on json of localstorage
                 let value = jsonData && jsonData.columns[i].search.search ? jsonData.columns[i].search.search : '';
                 let htmlRaw = `<input type="text" class="DTsearch" placeholder="${txtBuscar+' '+title}" value="${value}" />`
-                $(this).html(htmlRaw);
+                let element = $(this).html(htmlRaw);
 
                 // $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
             
