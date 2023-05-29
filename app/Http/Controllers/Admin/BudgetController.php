@@ -249,6 +249,11 @@ class BudgetController extends Controller{
         //     return ucfirst($abrev[$budget->modality]);
         // })
         ->addColumn('manager', function($budget){
+            if($budget->Nombre){
+                return $budget->Nombre.' '.$budget->surname;
+            }else{
+                return '';
+            }
             return $budget->Nombre.' '.$budget->surname;
         })
         ->filterColumn('manager', function($query, $keyword){
