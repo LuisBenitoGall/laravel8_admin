@@ -115,13 +115,15 @@
 							</div>
 						</div>
 
-						<div class="form-group row">
-							{{-- Centro de coste --}}
-							<label for="provider_cost_center" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.centro_coste')) !!}</label>
-							<div class="col-lg-4">
-								<x-select name="provider_cost_center" class="select2" id="itemCostCenter_" label="centro_coste_selec" :options="$provider_cost_centers"/>
+						@if(isset($provider_cost_centers) && is_array($provider_cost_centers))
+							<div class="form-group row">
+								{{-- Centro de coste --}}
+								<label for="provider_cost_center" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.centro_coste')) !!}</label>
+								<div class="col-lg-4">
+									<x-select name="provider_cost_center" class="select2" id="itemCostCenter_" label="centro_coste_selec" :options="$provider_cost_centers"/>
+								</div>
 							</div>
-						</div>
+						@endif
 					@endif
 
 					<div class="form-group row">
