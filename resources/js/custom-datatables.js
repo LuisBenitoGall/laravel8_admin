@@ -881,6 +881,7 @@ $(document).ready(function(){
                 // Check field on json of localstorage
                 let value = jsonData && jsonData.columns[i].search.search ? jsonData.columns[i].search.search : '';
                 let htmlRaw = `<input type="text" class="DTsearch" placeholder="${txtBuscar+' '+title}" value="${value}" />`
+                $(this).html(htmlRaw);
                 let element = $(this).html(htmlRaw);
 
                 // $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
@@ -974,7 +975,7 @@ $(document).ready(function(){
         
         $('#tblBusinessAreas').DataTable({
             serverSide: true,
-            /*processing: true,*/
+            processing: true,
             ajax: {
                 "type": "GET",
                 "url": "/api/admin/business-areas/"+company_id+"/"+business_relationship,
@@ -3630,6 +3631,7 @@ $(document).ready(function(){
                 {data: 'amount', name: 'amount', className: 'text-right'},
                 {data: 'a_facturar', name: 'a_facturar', className: 'text-right'},
                 {data: 'invoice_amount', name: 'invoice_amount', className: 'text-right'},
+                {data: 'estado', name: 'estado'},
                 {data: 'acciones', name: 'action', orderable: false, searchable: false, className: 'text-right'}
             ],
             "footerCallback": function(row, data, start, end, display){
@@ -3735,10 +3737,11 @@ $(document).ready(function(){
                 {data: 'name', name: 'companies.name'},
                 {data: 'Nombre', name: 'users.name'},
                 {data: 'workplace', name: 'workplaces.name'},
-                {data: 'finalCustomer', name: 'companies.name'},
+                // {data: 'finalCustomer', name: 'companies.name'},
                 {data: 'amount', name: 'amount', className: 'text-right'},
                 {data: 'a_facturar', name: 'a_facturar', className: 'text-right'},
                 {data: 'invoice_amount', name: 'invoice_amount', className: 'text-right'},
+                {data: 'estado', name: 'estado'},
                 {data: 'acciones', name: 'action', orderable: false, searchable: false, className: 'text-right'}
             ],
             "footerCallback": function(row, data, start, end, display){

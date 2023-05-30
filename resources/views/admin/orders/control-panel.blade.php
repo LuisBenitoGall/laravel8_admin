@@ -77,11 +77,12 @@
 					<th class="wdt150">{!! ucfirst(trans('textos.responsable')) !!}</th>
 					@if($order_type != 'compras')
 						<th class="wdt150">{!! ucfirst(trans('textos.centro_trabajo')) !!}</th>
-						<th class="text-center wdt150">{!! ucfirst(trans('textos.cliente_final')) !!}</th>
+						{{-- <th class="text-center wdt150">{!! ucfirst(trans('textos.cliente_final')) !!}</th> --}}
 					@endif
 					<th class="text-center wdt50">{!! ucfirst(trans('textos.importe')) !!}</th>
 					<th class="text-center wdt100">{!! ucfirst(trans('textos.a_facturar')) !!}</th>
 					<th class="text-center wdt100">{!! ucfirst(trans('textos.facturado')) !!}</th>
+					<th class="text-center wdt50">{!! ucfirst(trans('textos.estado')) !!}</th>
 					<th class="text-center wdt100">{!! ucfirst(trans('textos.acciones')) !!}</th>
 				</tr>
 			</thead>
