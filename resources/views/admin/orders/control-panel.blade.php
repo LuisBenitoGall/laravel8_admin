@@ -98,14 +98,14 @@
 					@endif
 					<td></td>
 					<td></td>
-					<td></td>
+					{{-- <td></td> --}}
 					{{-- <td></td> --}}
 					<td class="text-right"><b>{{ trans('textos.total') }}</b></td>
 					<td class="text-right"></td>
 					{{-- <td></td> --}}
 					<td class="text-right"><b>{{ trans('textos.a_facturar') }}</b></td>
 					<td class="text-right"></td>
-					{{-- <td></td> --}}
+					<td></td>
 					<td></td>
 				</tr>	
 			</tfoot>
