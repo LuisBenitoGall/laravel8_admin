@@ -432,9 +432,9 @@ class OrderController extends Controller{
                 ->orWhere('orders.purchase_old_num', 'like', "%$order_buy%");
             });
         })
-        // Intervalo fechas:
+        // Intervalo fechas (por fecha de finalización):
         ->when($from && $to, function($q) use($from, $to){
-            return $q->whereBetween('orders.created_at', [$from, $to]);
+            return $q->whereBetween('orders.finished_at', [$from, $to]);
         })
         // Por manager:
         ->when($owner && $owner > 0, function($q) use($owner){
@@ -1643,6 +1643,13 @@ class OrderController extends Controller{
         ->addColumn('invoice_amount', function($row){ 
             return Invoice::amountByOrder($row->id);
         })
+        ->addColumn('estado', function($row) use($estados){ 
+            if(isset($estados[$row->order_status])){
+                return ucfirst($estados[$row->order_status]);
+            }else{
+                return '';
+            }
+        })
         ->addColumn('acciones', function($row) use($estados){
             $manage_status = false;
             return view('admin.orders.partials.dt-actions', compact('row', 'estados', 'manage_status'));    
@@ -1758,6 +1765,13 @@ class OrderController extends Controller{
         })
         ->addColumn('invoice_amount', function($row){ 
             return Invoice::amountByOrder($row->id);
+        })
+        ->addColumn('estado', function($row) use($estados){ 
+            if(isset($estados[$row->order_status])){
+                return ucfirst($estados[$row->order_status]);
+            }else{
+                return '';
+            }
         })
         ->addColumn('acciones', function($row) use($estados){
             $manage_status = false;
