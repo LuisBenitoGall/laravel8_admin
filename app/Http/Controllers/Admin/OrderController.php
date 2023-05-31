@@ -504,7 +504,7 @@ class OrderController extends Controller{
         })
         ->addColumn('amount', function($row) use($currency){
             $amount = $row->getAmount();  
-            return $amount['total_amount'].$currency->symbol;
+            return $amount['total_amount'];
         })
         //02/05/2023: se sustituye la columna de fecha prevista por fecha de entrega a petición de Marcelo. Además la fecha de entrega se actualizará en el momento que el estado de un pedido cambie a Finalizado.
         ->addColumn('fechaEntrega', function($row){
