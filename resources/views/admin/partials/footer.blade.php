@@ -64,6 +64,8 @@
     <script src="https://cdn.datatables.net/buttons/1.5.2/js/buttons.html5.min.js" defer></script>
     <script src="https://cdn.datatables.net/buttons/1.5.2/js/buttons.print.min.js " defer></script> 
     <script src="https://cdn.datatables.net/rowreorder/1.2.8/js/dataTables.rowReorder.min.js" defer></script>
+    <script src="https://cdn.datatables.net/plug-ins/1.13.4/api/sum().js" defer></script>
+
     <script src="{{ mix('js/custom-datatables.js') }}"></script>
 
     {{-- Select 2: --}}

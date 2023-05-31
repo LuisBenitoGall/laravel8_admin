@@ -883,8 +883,6 @@ $(document).ready(function(){
                 let htmlRaw = `<input type="text" class="DTsearch" placeholder="${txtBuscar+' '+title}" value="${value}" />`
                 $(this).html(htmlRaw);
                 let element = $(this).html(htmlRaw);
-
-                // $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
             
                 //Búsqueda por nombre y apellidos.
                 if (i == 4) {
@@ -3489,6 +3487,7 @@ $(document).ready(function(){
         var from = $('#myFrom').val() && $('#myFrom').val() != ''? $('#myFrom').val():'0';
         var to = $('#myTo').val() && $('#myTo').val() != ''? $('#myTo').val():'0';
         var accounting_on = $('#myModuleAccounting').val() == 1? true:false;
+        var recordsTotal;       //Variable número de registros
 
         var orderbuy = $('#myOrderBuy').val() && $('#myOrderBuy').val() != '' ? $('#myOrderBuy').val():false;
 
@@ -3559,11 +3558,33 @@ $(document).ready(function(){
         
         var tableOrders = $('#tblOrders').DataTable({
             order: [[ 0, "desc" ]],
-            serverSide: true,
+            serverSide: false,
             processing: true,
             stateSave: true,
             // drawCallback: function(){
-            //     $('.select2-dt').select2();
+            //     var api = this.api(), data;
+            //     var json = api.ajax.json();
+            //     var currency = '€';
+
+            //     var intVal = function (i) {
+            //         return typeof i === 'string' ? i.replace(/[\$,]/g, '') * 1 : typeof i === 'number' ? i : 0;
+            //     };
+
+            //     // Suma total todos los registros:
+            //     var total = api
+            //     .column(8)
+            //     .data()
+            //     .reduce(function (a, b) {
+            //         return intVal(a) + intVal(b);
+            //     }, 0);
+
+
+
+            //     // var total = api.column(8, {search: 'applied'}).data().sum();
+            //     $(api.column(8).footer()).html(
+            //         total.toFixed(2)+currency
+            //     );
+            //     //     $('.select2-dt').select2();
             // },
             ajax: {
                 "type": "GET",
@@ -3595,8 +3616,45 @@ $(document).ready(function(){
                 {targets: 2,
                 visible: false,
                 searchable: true}
-             ]
+            ],
+            footerCallback: function(row, data, start, end, display){
+                var api = this.api(), data;
+                var json = tableOrders.ajax.json();
+                var currency = '€';
+
+                //Separamos el importe de la moneda:
+                var intVal = function(i){
+                    return typeof i === 'string'? 
+                    i.replace(/[\'+currency+',]/g, '')*1 :
+                    typeof i === 'number' ?
+                        i : 0;
+                };
+
+                //Total:
+                total = api
+                .column(8, { search: 'applied' })
+                .data()
+                .reduce(function(a, b){
+                    return intVal(a) + intVal(b);
+                }, 0);
+
+                $(api.column(8).footer()).html(
+                    total.toFixed(2)+currency   
+                );
+
+                //$(api.column(8).footer()).html(json.amount);
+            }
+            // rowCallback: function( row, data, index ) {
+            //     var api = this.api(), data;
+            //     var sum = 0;
+            //     sum += data.amount;
+            //     $(api.column(8).footer()).html(sum);
+            // }
         });
+
+        //Suma importes:
+        var total_amount = tableOrders.column(8).data().sum();
+        $('#ordersAmount').text(total_amount);
     }
 
     //Tabla Orders Control Panel Purchases:
@@ -3662,28 +3720,28 @@ $(document).ready(function(){
                 // }, 0);
 
                 //Total:
-                total = api
-                .column(7, { search: 'applied' })
-                .data()
-                .reduce(function(a, b){
-                    return intVal(a) + intVal(b);
-                }, 0);
+                // total = api
+                // .column(7, { search: 'applied' })
+                // .data()
+                // .reduce(function(a, b){
+                //     return intVal(a) + intVal(b);
+                // }, 0);
 
-                $(api.column(7).footer()).html(
-                    total.toFixed(2)+currency   
-                );
+                // $(api.column(7).footer()).html(
+                //     total.toFixed(2)+currency   
+                // );
 
-                //Total por filtro aplicado:
-                a_facturar = api
-                .column(8, { search: 'applied' })
-                .data()
-                .reduce(function(a, b){
-                    return intVal(a) + intVal(b);
-                }, 0);
+                // //Total por filtro aplicado:
+                // a_facturar = api
+                // .column(8, { search: 'applied' })
+                // .data()
+                // .reduce(function(a, b){
+                //     return intVal(a) + intVal(b);
+                // }, 0);
 
-                $(api.column(8).footer()).html(
-                    a_facturar.toFixed(2)+currency    
-                );
+                // $(api.column(8).footer()).html(
+                //     a_facturar.toFixed(2)+currency    
+                // );
             }
         });
     }
