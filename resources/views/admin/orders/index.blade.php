@@ -115,6 +115,21 @@
 						<th class="text-center wdt100">{!! ucfirst(trans('textos.acciones')) !!}</th>
 					</tr>
 				</thead>
+
+				<tfoot>
+					<tr>
+						<td></td>
+						<td></td>
+						<td class="d-none"></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td class="text-right"><b>{{ trans('textos.total') }}</b></td>
+						<td class="text-right" id="ordersAmount"></td>
+						<td colspan="4"></td>
+					</tr>
+				</tfoot>
 			</table>
 		</div>
 	</div>
