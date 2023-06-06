@@ -181,7 +181,9 @@ class RoleController extends Controller{
 
         $functionalities = Functionality::permissionsJoinModule();
         $permissions = Permission::get();
-        $modules = Module::orderBy('label', 'ASC')->get();
+        $modules = Module::where('status', 1)
+        ->orderBy('label', 'ASC')
+        ->get();
 
         //Obtenemos permisos del rol:
         $data = $role->permissions;

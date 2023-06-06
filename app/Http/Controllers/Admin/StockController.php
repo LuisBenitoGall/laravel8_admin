@@ -28,7 +28,7 @@ use App\Models\Store;
 class StockController extends Controller{
     /**
      * 1. Stock de productos.
-     * 1.1. Stock por almacén para table.
+     * 1.1. Stock por almacén para DataTables.
      * 2. Histórico de movimientos de producto.
      * 2.1. Movimientos por producto para DataTable.
      * 3. Guardar movimiento de stock.
