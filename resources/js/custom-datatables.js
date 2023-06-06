@@ -3621,6 +3621,9 @@ $(document).ready(function(){
                 var api = this.api(), data;
                 var json = tableOrders.ajax.json();
                 var currency = '€';
+                api.rows().every(function(){
+                    var data = this.data();
+                });
 
                 //Separamos el importe de la moneda:
                 var intVal = function(i){
