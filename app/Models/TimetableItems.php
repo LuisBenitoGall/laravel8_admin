@@ -26,6 +26,7 @@ class TimetableItems extends Model{
         return TimetableItems::select('timetable_items.*')
         ->join('workplaces', 'timetable_items.company_id', '=', 'workplaces.company_id')
         ->where('workplaces.id', $workplace_id)
+        ->where('timetable_items.status', 1)
         ->get();
     }
 

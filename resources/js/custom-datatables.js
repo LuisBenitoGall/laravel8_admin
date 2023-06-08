@@ -5710,7 +5710,7 @@ $(document).ready(function(){
 
         $('#tblTimetableItems').DataTable({
             serverSide: true,
-            /*processing: true,*/
+            processing: true,
             ajax: {
                 "type": "GET",
                 "url": "/api/admin/timetable-items",
@@ -5729,108 +5729,7 @@ $(document).ready(function(){
                 {data: 'icon', className: 'text-center'},
                 {data: 'color'},
                 {data: 'reviewable', className: 'text-center'},
-                {data: 'id', className: 'text-right'}
-            ],
-            columnDefs: [
-                {"targets": 0,
-                "render": function(data, type, row){
-                    return row['name'].charAt(0).toUpperCase()+row['name'].slice(1);
-                }
-                },
-                {"targets": 1,
-                "render": function(data, type, row){
-                    if(row['type'] == 1){
-                        return txtEntrada;
-                    }else{
-                        return txtSalida;
-                    }
-                }
-                },
-                {"targets": 2,
-                "render": function(data, type, row){
-                    if(row['fixed']){ 
-                        var fixed = row['fixed']+'"';
-                        if(row['fixed_priority']){
-                            fixed += ' <i class="fa fa-asterisk text-warning" style="font-size: 9px;"></i>';
-                        }
-                        return fixed;
-                    }else{
-                        return '';
-                    } 
-                }
-                },
-                {"targets": 3,
-                "render": function(data, type, row){
-                    if(row['min_hour']){
-                        return row['min_hour'].substring(0, row['min_hour'].length-3)+'h';
-                    }else{
-                        return '';
-                    }
-                }
-                },
-                {"targets": 4,
-                "render": function(data, type, row){
-                    if(row['min']){ 
-                        return row['min']+'"';
-                    }else{
-                        return '';
-                    } 
-                }
-                },
-                {"targets": 5,
-                "render": function(data, type, row){
-                    if(row['max']){ 
-                        return row['max']+'"';
-                    }else{
-                        return '';
-                    } 
-                }
-                },
-                {"targets": 7,
-                "render": function(data, type, row){
-                    if(row['icon']){ 
-                        return '<span class="fa fa-'+row['icon']+'"></span>';
-                    }else{
-                        return '';
-                    }   
-                }
-                },
-                {"targets": 8,
-                "render": function(data, type, row){
-                    if(row['color']){
-                        return '<span class="colorEx mr-2" style="background-color: '+row['color']+'"></span> '+row['color'];   
-                    }else{
-                        return '';
-                    }
-                }
-                },
-                {"targets": 9,
-                "render": function(data, type, row){
-                    if(row['reviewable']){
-                        return '<i class="fa fa-check text-success"></i>';
-                    }else{
-                        return '';    
-                    }
-                }
-                },
-                {"targets": -1,
-                "render": function(data, type, row){
-                    //Editar:
-                    var editar = '<a href="/admin/timetable-items/'+row['id']+'/edit" class="btn btn-xs btn-info btn-module" rel="tooltip" title="'+txtEditar+'"><i class="fa fa-edit"></i></a>';
-
-                    //Eliminar:
-                    var eliminar = '';
-                    if(!row['basic_item']){
-                        eliminar += '<form method="POST" action="timetable-items/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
-                            eliminar += '<input name="_method" type="hidden" value="DELETE">';
-                            eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
-                            eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtEliminar+'" data-msg="'+txtConceptoConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
-                        eliminar += '</form>';
-                    }
-
-                    return editar+' '+eliminar;
-                }
-                }
+                {data: 'acciones', className: 'text-right'}
             ]
         });
     }
@@ -5842,7 +5741,7 @@ $(document).ready(function(){
         
         $('#tblTowns').DataTable({
             serverSide: true,
-            /*processing: true,*/
+            processing: true,
             ajax: {
                 "type": "GET",
                 "url": "/api/admin/towns/"+province_id,
@@ -5892,7 +5791,7 @@ $(document).ready(function(){
         
         $('#tblUnits').DataTable({
             serverSide: true,
-            /*processing: true,*/
+            processing: true,
             ajax: {
                 "type": "GET",
                 "url": "/api/admin/units/",
@@ -5948,7 +5847,7 @@ $(document).ready(function(){
         
         $('#tblUserCategories').DataTable({
             serverSide: true,
-            /*processing: true,*/
+            processing: true,
             ajax: {
                 "type": "GET",
                 "url": "/api/admin/user-categories",
@@ -6001,7 +5900,7 @@ $(document).ready(function(){
         
         $('#tblUserCompanies').DataTable({
             serverSide: true,
-            /*processing: true,*/
+            processing: true,
             ajax: {
                 "type": "GET",
                 "url": "/api/admin/user-companies/"+user,

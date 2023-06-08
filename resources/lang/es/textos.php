@@ -1096,6 +1096,7 @@ return array(
 	'tipo_jornada' => 'Tipo de jornada',
 	'tipo_jornada_condiciones_texto' => 'Establece la condición para que se aplique la obligatoriedad de este concepto.',
 	'tipo_jornada_nuevo' => 'Nuevo tipo de jornada',
+	'tipo_jornada_on_off' => 'Activar / desactivar tipo de jornada',
 	'tipo_jornada_selec' => 'Selecciona tipo de jornada',
 	'tipo_jornada_updated' => 'El tipo de jornada ha sido modificada correctamente',
 	'tipos_jornada_texto' => 'pincha sobre el cuadro de color para determinar el tipo de jornada en el calendario.',
