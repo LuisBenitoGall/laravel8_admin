@@ -27,6 +27,7 @@ class DayTypesController extends Controller{
      * 7. Exportar valores a otras empresas vinculadas.
      * 8. Obtener day types por empresa.
      * 9. Establecer criterios de calendario para tipo de jornada.
+     * 10. Estado de tipo de jornada.
      */
     
     private $option = 'calendario';
@@ -332,5 +333,19 @@ class DayTypesController extends Controller{
 
         $msg = trans('textos.criterio_establecido');
         return redirect()->route('day-types.index')->with(compact('msg'));
+    }
+
+    /**
+     * 10. Estado de tipo de jornada.
+     */
+    public function status(Request $request, $id, $status){
+        if($request->ajax()){
+            $type = DayTypes::find($id);
+            $type->status = $status;
+            $type->save();
+
+            $resp = ($type)? true:false;
+            return response()->json($resp);
+        }    
     }
 }

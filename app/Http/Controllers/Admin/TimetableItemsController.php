@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Yajra\DataTables\DataTables;
 
 //Models:
 use App\Models\DayTypes;
@@ -28,6 +29,7 @@ class TimetableItemsController extends Controller{
      * 6. Eliminar item.
      * 7. Exportar valores a otras empresas vinculadas.
      * 8. Guardar regla de concepto obligatorio.
+     * 9. Estado de concepto horario.
      */
 
     private $option = 'horarios';
@@ -111,20 +113,79 @@ class TimetableItemsController extends Controller{
      * 1.1. Listado de items para DataTable.
      */
     public function getTimetableItemsDT(){
-        $items = TimetableItems::where('company_id', session('currentCompany'))
-        ->get();
+        $data = TimetableItems::where('company_id', session('currentCompany'))
+        ->orderBy('name', 'ASC');
 
-        //Permisos del usuario:
-        $editar = Auth::user()->can('timetable-items.edit');
-        $eliminar = Auth::user()->can('timetable-items.destroy');
+        return DataTables::of($data)
+        ->addColumn('name', function($row){
+            return ucfirst($row->name); 
+        })
+        ->addColumn('type', function($row){
+            if($row->type == 1){
+                return ucfirst(trans('textos.entrada'));
+            }else{
+                return ucfirst(trans('textos.salida'));  
+            }
+        })
+        ->addColumn('fixed', function($row){
+            $fixed = $row->fixed? $row->fixed.'"':false;
+            if($row->fixed_priority && $fixed){
+                $fixed .= ' <i class="fa fa-asterisk text-warning" style="font-size: 9px;"></i>';
+            }
+            if($fixed){
+                return $fixed;
+            }else{
+                return '';
+            }
+        })
+        ->addColumn('min_hour', function($row){
+            if($row->min_hour){
+                return $row->min_hour.'h';
+            }else{
+                return '';
+            }
+        })
+        ->addColumn('min', function($row){
+            if($row->min){
+                return $row->min.'"';
+            }else{
+                return '';
+            }
+        })
+        ->addColumn('max', function($row){
+            if($row->max){
+                return $row->max.'"';
+            }else{
+                return '';
+            }
+        })
+        ->addColumn('icon', function($row){
+            if($row->icon){
+                return '<span class="fa fa-'.$row->icon.'"></span>';
+            }else{
+                return '';
+            }
 
-        foreach($items as $row){
-            //Permisos para las acciones:
-            $row->editar = $editar;
-            $row->eliminar = $eliminar;
-        }
-
-        return datatables($items)->toJson();
+        })
+        ->addColumn('color', function($row){
+            if($row->color){
+                return '<span class="colorEx mr-2" style="background-color: '.$row->color.'"></span> '.$row->color;   
+            }else{
+                return '';
+            }
+        })
+        ->addColumn('reviewable', function($row){
+            if($row->reviewable){
+                return '<i class="fa fa-check text-success"></i>';
+            }else{
+                return '';    
+            }
+        })
+        ->addColumn('acciones', function($row){
+            return view('admin.timetable_items.partials.dt-actions', compact('row')); 
+        })
+        ->rawColumns(['fixed', 'icon', 'color', 'reviewable'])
+        ->make(true);
     }
 
     /**
@@ -339,5 +400,19 @@ class TimetableItemsController extends Controller{
 
         $msg = trans('textos.condicion_updated');
         return redirect()->route('timetable-items.edit', $request->id)->with(compact('msg'));
+    }
+
+    /**
+     * 9. Estado de concepto horario.
+     */
+    public function status(Request $request, $id, $status){
+        if($request->ajax()){
+            $item = TimetableItems::find($id);
+            $item->status = $status;
+            $item->save();
+
+            $resp = ($item)? true:false;
+            return response()->json($resp);
+        }    
     }
 }

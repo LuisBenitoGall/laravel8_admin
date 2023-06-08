@@ -59,7 +59,7 @@ if(!$initial_imports->value){
                     if($user_workplace && $user_workplace->workplace_id){
                         $timetable_items = App\Models\TimetableItems::itemsByWorkplace($user_workplace->workplace_id);
                     }else{
-                        $timetable_items = App\Models\TimetableItems::where('company_id', session('currentCompany'))->get();    
+                        $timetable_items = App\Models\TimetableItems::where('company_id', session('currentCompany'))->where('status', 1)->get();    
                     }   
                     @endphp
 
@@ -96,7 +96,7 @@ if(!$initial_imports->value){
                         //Si el registro es de entrada comprobamos si tiene concepto de salida propio. En caso verdadero será esta la única opción de salida que se le muestre al usuario.
                         $own_output = false;
                         if($lastHour && $lastHour->flag == 1){
-                            $own_output = App\Models\TimetableItems::where('own_output', $lastHour->item_id)->first();
+                            $own_output = App\Models\TimetableItems::where('own_output', $lastHour->item_id)->where('status', 1)->first();
                         }
 
                         //Opciones de entrada bloqueadas para conceptos con un tiempo máximo o duración mínima:

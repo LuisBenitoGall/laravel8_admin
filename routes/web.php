@@ -384,6 +384,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::post('day-types/export', 'DayTypesController@export')->name('day-types.export');
     Route::get('day-types/{company_id}/get', 'DayTypesController@getCompanyDayTypes')->name('day-types.get');
     Route::post('day-types/set-criterions', 'DayTypesController@setCriterions')->name('day-types.set-criterions');
+    Route::get('day-types/status/{id}/{status}', 'DayTypesController@status')->name('day-types.status')->middleware('permission:day-types.edit');
 
     // Day Types Config:
     Route::get('day-types-config/{type}/index', 'DayTypesConfigController@index')->name('day-types-config.index');
@@ -1060,6 +1061,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::delete('timetable-items/{item}', 'TimetableItemsController@destroy')->name('timetable-items.destroy');
     Route::post('timetable-items/export', 'TimetableItemsController@export')->name('timetable-items.export');
     Route::post('timetable-items/store-rule', 'TimetableItemsController@storeRule')->name('timetable-items.store-rule');
+    Route::get('timetable-items/status/{id}/{status}', 'TimetableItemsController@status')->name('timetable-items.status')->middleware('permission:timetable-items.edit');
 
     // Timetable Signed:
     Route::get('timetable-signed/list/{year?}', 'TimetableSignedController@index')->name('timetable-signed.index');
