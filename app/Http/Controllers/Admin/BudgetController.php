@@ -198,7 +198,7 @@ class BudgetController extends Controller{
     public function getBudgetsDT($from = false){
         //Presupuestos para cliente:
         if($from == 'customers'){
-            $query = Order::select('orders.id', 'orders.is_order', 'orders.discount', 'orders.customer_id', 'orders.provider_id', 'orders.budget_num', 'orders.budget_old_num', 'orders.name', 'orders.budget_status', 'orders.modality', 'orders.created_at', 'companies.name AS company', 'companies.tradename', 'orders.id AS orderId', 'orders.order_num','orders.invoiced', 'users.name AS nombre', 'users.surname', 'u_.name AS CustomerManagerName', 'u_.surname AS CustomerManagerSurname', 'c_.name AS finalCustomer')
+            $query = Order::select('orders.id', 'orders.is_order', 'orders.discount', 'orders.customer_id', 'orders.provider_id', 'orders.budget_num', 'orders.budget_old_num', 'orders.name', 'orders.budget_status', 'orders.modality', 'orders.created_at', 'companies.name AS company', 'companies.tradename', 'orders.id AS orderId', 'orders.order_num','orders.invoiced', 'users.name AS nombre', 'users.surname', 'u_.name AS CustomerManagerName', 'u_.surname AS CustomerManagerSurname', 'c_.name AS final_customer')
             ->join('companies', 'orders.customer_id', '=', 'companies.id')
             ->leftJoin('companies AS c_', 'orders.final_customer_id', '=', 'c_.id')
             ->leftJoin('users', 'orders.provider_manager_id', '=', 'users.id')
@@ -207,9 +207,11 @@ class BudgetController extends Controller{
             ->where('orders.provider_id', session('currentCompany'));
 
         //Presupuestos de proveedor:
+        // 1. Sólo presupuestos compartidos por el proveedor.
         }elseif($from == 'providers'){
-            $query = Order::select('orders.*', 'companies.name AS company', 'users.name As Nombre', 'users.surname')
+            $query = Order::select('orders.*', 'companies.name AS company', 'users.name As Nombre', 'users.surname', 'c_.name AS final_customer')
             ->join('companies', 'orders.provider_id', '=', 'companies.id')
+            ->leftJoin('companies AS c_', 'orders.final_customer_id', '=', 'c_.id')
             ->leftJoin('users', 'orders.customer_manager_id', '=', 'users.id')
             ->where('orders.is_budget', true)
             ->where('orders.budget_shared', 1)
@@ -274,8 +276,8 @@ class BudgetController extends Controller{
             return $company;
         })
         ->addColumn('final_customer', function($budget){
-            if($budget->finalCustomer){
-                return $budget->finalCustomer;
+            if($budget->final_customer){
+                return $budget->final_customer;
             }else{
                 return '';
             }
@@ -454,6 +456,13 @@ class BudgetController extends Controller{
      * @return \Illuminate\Http\Response
      */
     public function edit(Order $order, $tab = false){
+        //Si no consta como presupuesto se redirige a order:
+        if(!$order->is_budget){
+            $alert = trans('textos.presupuesto_no_solicitado_warning');
+            return redirect()->route('orders.edit', $order)->with(compact('alert')); 
+            exit;   
+        }
+
         $suboption = $order->provider_id == session('currentCompany')? 'presupuesto_editar':'presupuesto_proveedor_editar';
 
         $header = [
@@ -543,6 +552,7 @@ class BudgetController extends Controller{
 
         //Centros de coste del cliente:
         $customer_cost_centers = CostCenters::where('company_id', $order->customer_id)
+        ->where('status', 1)
         ->get();
 
         //Áreas de negocio del cliente:
@@ -765,6 +775,11 @@ class BudgetController extends Controller{
             if($moved){
                 $purchase_doc = $fileName;
             }
+        }
+
+        //¿Pedido aprobado?
+        if(in_array($request->status, config('constants.BUDGET_STATUS_APPROVED_'))){
+            $order->is_order = true;
         }
 
         //Actualizando datos:
@@ -1634,22 +1649,38 @@ class BudgetController extends Controller{
             $i = 1;
 
             foreach($items as $item){
-                Item::create([
-                    'order_id' => $budget->id,
-                    'budget_sort' => $i,
-                    'concept' => $item->concept,
-                    'qty' => $item->qty,
-                    'price' => $item->price,
-                    'discount' => $item->discount,
-                    'calculated_by_percent' => $item->calculated_by_percent,
-                    //'batch_id' => $item->batch_id,
-                    'observations' => $item->observations,
-                    'days' => $item->days,
-                    'days_continue' => $item->days_continue,
-                    'days_continue_discount' => $item->days_continue_discount,
-                    'user_id' => Auth::user()->id
-                ]);
-                $i++;
+                //Comprobamos que no exista la línea previamente. Como los items se importan sin product_id, comprobamos mediante el order_id + concept:
+                $exist = Item::select('id', 'qty', 'price')
+                ->where('order_id', $budget->id)
+                ->where('concept', $item->concept)
+                ->first();
+
+                //Si existe actualizamos su precio y cantidad:
+                if($exist){
+                    $exist->qty = $item->qty;
+                    $exist->price = $item->price;
+                    $exist->save();
+
+                //Si no existe se crea nuevo:
+                }else{              
+                    Item::create([
+                        'order_id' => $budget->id,
+                        'budget_sort' => $i,
+                        'concept' => $item->concept,
+                        'qty' => $item->qty,
+                        'price' => $item->price,
+                        'discount' => $item->discount,
+                        'calculated_by_percent' => $item->calculated_by_percent,
+                        //'batch_id' => $item->batch_id,
+                        'observations' => $item->observations,
+                        'days' => $item->days,
+                        'days_continue' => $item->days_continue,
+                        'days_continue_discount' => $item->days_continue_discount,
+                        'provider_cost_center_id' => $request->cost_center,
+                        'user_id' => Auth::user()->id
+                    ]);
+                    $i++;
+                }
             }
         }
 

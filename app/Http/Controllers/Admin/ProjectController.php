@@ -465,11 +465,10 @@ class ProjectController extends Controller{
         ->toArray();
 
         //Presupuestos y pedidos de venta:
-        $project_orders = Order::select('orders.id', 'orders.is_budget', 'orders.customer_id', 'orders.budget_num', 'orders.budget_old_num', 'orders.name', 'orders.modality', 'orders.budget_status AS budget_status', 'orders.order_num', 'orders.order_old_num', 'orders.estimated_delivery_date', 'orders.delivery_date', 'orders.order_status', 'orders.created_at', 'users.name AS nombre', 'users.surname')
+        $project_orders = Order::select('orders.id', 'orders.is_order', 'orders.is_budget', 'orders.customer_id', 'orders.budget_num', 'orders.budget_old_num', 'orders.name', 'orders.modality', 'orders.budget_status AS budget_status', 'orders.order_num', 'orders.order_old_num', 'orders.estimated_delivery_date', 'orders.delivery_date', 'orders.order_status', 'orders.created_at', 'users.name AS nombre', 'users.surname')
         ->join('project_orders', 'orders.id', '=', 'project_orders.order_id')
         ->leftJoin('users', 'orders.provider_manager_id', '=', 'users.id')
         ->where('project_orders.project_id', $project->id)
-        ->where('orders.is_order', 1)
         ->get();
 
         //Pasamos las ventas vinculadas a un array:

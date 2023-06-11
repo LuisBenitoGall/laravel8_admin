@@ -467,7 +467,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 				</div>
 			</div>
 
-			{{-- Producto del proveedor --}}
+			{{-- Productos del cliente --}}
 			<div class="form-group row">
 				<label for="customer_products" class="col-lg-3 col-form-label">{!! ucfirst(trans('textos.cliente_producto')) !!}</label>
 				<div class="col-lg-9">

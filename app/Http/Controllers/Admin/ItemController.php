@@ -362,6 +362,8 @@ class ItemController extends Controller{
             exit;
         }
 
+        $item = Item::find($request->id);
+
         //IVA:
         $iva = $request->iva? $request->iva:($request->without_iva? '0':$item->iva);
 
@@ -377,7 +379,7 @@ class ItemController extends Controller{
             $equivalence_surcharge = $es? $es->equivalence_surcharge:NULL;
         }
 
-        $item = Item::find($request->id);
+        //Actualizando info:
         $item->concept = $request->concept;
         $item->qty = $request->qty;
         $item->price = $request->price;
