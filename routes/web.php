@@ -456,7 +456,10 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::delete('functionalities/{functionality}', 'FunctionalityController@destroy')->name('functionalities.destroy')->middleware('permission:functionalities.destroy');
 
     // Group Members:
-    Route::post('group_members/{group}/store', 'GroupMembersController@store')->name('group_members.store')->middleware('permission:groups.edit');
+    Route::post('group-members/store', 'GroupMembersController@store')->name('group-members.store')->middleware('permission:groups.edit');
+    Route::get('group-members/status/{id}/{status}', 'GroupMembersController@status')->name('group-members.status')->middleware('permission:groups.edit');
+    Route::put('group-members/update', 'GroupMembersController@update')->name('group-members.update')->middleware('permission:groups.edit');
+    Route::delete('group-members/{member}', 'GroupMembersController@destroy')->name('group-members.destroy')->middleware('permission:groups.destroy');
 
     // Groups:
     Route::get('groups', 'GroupController@index')->name('groups.index');
@@ -812,6 +815,29 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::post('projects/update-team', 'ProjectController@updateTeam')->name('projects.update-team')->middleware('permission:projects.edit');
     Route::post('projects/link-project', 'ProjectController@linkProjectToBudgetOrder')->name('projects.link-project');
     Route::get('projects/{project}/reset-num', 'ProjectController@resetNum')->name('projects.reset-num')->middleware('permission:projects.edit');
+
+    // Protocol Items:
+    Route::get('protocol-items/create/{protocol}', 'ProtocolItemController@create')->name('protocol-items.create');
+    Route::post('protocol-items/store', 'ProtocolItemController@store')->name('protocol-items.store')->middleware('permission:protocols.edit');
+    Route::get('protocol-items/{item}/edit', 'ProtocolItemController@edit')->name('protocol-items.edit');
+    Route::put('protocol-items/{item}/update', 'ProtocolItemController@update')->name('protocol-items.update');
+    Route::get('protocol-items/{item}/status/{status}', 'ProtocolItemController@status')->name('protocol-items.status');
+    Route::delete('protocol-items/{item}', 'ProtocolItemController@destroy')->name('protocol-items.destroy')->middleware('permission:protocols.edit');
+    Route::post('protocol-items/reorder-items', 'ProtocolItemController@reorderFilesDT')->name('protocol-items.reorder-items');
+
+    // Protocol Users:
+    Route::post('protocol-users/store', 'ProtocolUserController@store')->name('protocol-users.store')->middleware('permission:protocols.edit');
+    Route::delete('protocol-users/{user}', 'ProtocolUserController@destroy')->name('protocol-users.destroy')->middleware('permission:protocols.edit');
+
+    // Protocols:
+    Route::get('protocols', 'ProtocolController@index')->name('protocols.index')->middleware('permission:protocols.index');
+    Route::get('protocols/create', 'ProtocolController@create')->name('protocols.create');
+    Route::post('protocols/store', 'ProtocolController@store')->name('protocols.store')->middleware('permission:protocols.create');
+    Route::get('protocols/{protocol}/edit/{tab?}', 'ProtocolController@edit')->name('protocols.edit');
+    Route::put('protocols/{protocol}/update', 'ProtocolController@update')->name('protocols.update');
+    Route::get('protocols/{protocol}/status/{status}', 'ProtocolController@status')->name('protocols.status');
+    Route::delete('protocols/{protocol}', 'ProtocolController@destroy')->name('protocols.destroy')->middleware('permission:protocols.destroy');
+    Route::get('protocols/{protocol}/print', 'ProtocolController@print')->name('protocols.print');
 
     // Provider Products:
     Route::get('provider-products/{cp}', 'CustomerProductsController@providerCatalogue')->name('provider-products.index');

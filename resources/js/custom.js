@@ -583,7 +583,7 @@ $(window).on('load', function () {
     });
 
     // 7.1. Copiar a portapapeles desde link.
-    $('.copia2').on('click', function (e) {
+    $(document).on('click', '.copia2', function (e) {
         e.preventDefault();
         var elem = $(this);
         var text1 = elem.data('text');
@@ -603,7 +603,7 @@ $(window).on('load', function () {
         $('.warning-copy').delay(1000).fadeOut();
     });
 
-    $('.copia3').on('click', function (e) {
+    $(document).on('click', '.copia3', function (e) {
         e.preventDefault();
         var copyText = $(this).data('text');
 

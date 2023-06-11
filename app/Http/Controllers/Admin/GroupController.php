@@ -13,6 +13,7 @@ use Yajra\DataTables\DataTables;
 use File;
 
 //Models:
+use App\Models\Employee;
 use App\Models\Group;
 use App\Models\GroupMembers;
 
@@ -133,8 +134,18 @@ class GroupController extends Controller{
             'slug' => 'groups'
         ]; 
 
-        //$employees = Employee::companyEmployees(session('currentCompany'));
-        $employees = false;
+        $members_in = GroupMembers::where('group_id', $group->id)
+        ->pluck('user_id')
+        ->toArray();
+
+        $employees = Employee::select('users.id', 'users.name', 'users.surname')
+        ->join('users', 'employees.user_id', '=', 'users.id')
+        ->join('contracts', 'employees.contract_id', '=', 'contracts.id')
+        ->where('contracts.company_id', session('currentCompany'))
+        ->where('users.status', 1)
+        ->whereNotIn('users.id', $members_in)
+        ->groupBy('users.id')
+        ->get();
 
         return view('admin.groups.edit', compact('header', 'group', 'tab', 'employees'));   
     }

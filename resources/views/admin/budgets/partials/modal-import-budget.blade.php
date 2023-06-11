@@ -22,6 +22,22 @@
 	                    	<x-select name="budget_id" class="select2" label="presupuesto_selec" :options="$customer_budgets"/>
 	                    </div>
                     </div>
+
+                    {{-- Centros de coste del cliente --}}
+                    <p class="text-warning">{{ trans('textos.centro_coste_selec_items_proveedor') }}</p>
+
+                    <div class="form-group row">
+                    	<label for="cost_center" class="col-lg-12">{!! ucfirst(trans('textos.centro_coste')) !!}</label>
+						<div class="col-lg-12">
+							@php
+							$customer_cost_centers_ = [];
+							foreach($customer_cost_centers as $ccc){
+								$customer_cost_centers_[$ccc->id] = $ccc->name;	
+							}
+							@endphp
+							<x-select name="cost_center" class="select2" label="centro_coste_selec" :options="$customer_cost_centers_"/>
+						</div>
+					</div>
                     <hr>
 
                     <p class="text-warning">{!! trans('textos.presupuesto_importar_aviso2') !!}</p>

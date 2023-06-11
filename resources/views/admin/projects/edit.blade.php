@@ -13,7 +13,7 @@
 <div class="row mb-3">
 	{{-- Acciones: --}}
 	<div class="col-12">
-		{{-- Proyectos: --}}
+		{{-- Volver a proyectos: --}}
 		@can('projects.index')
 			<a href="{{ route('projects.index') }}" class="btn btn-info">
 				<i class="fa fa-angle-left"></i>
@@ -113,22 +113,26 @@
         	@php
         	$budgets_ = [];
         	$orders_ = [];
-        	foreach($project_orders as $bo){
-        		if($bo->budgetId){
-        			$budgets_[$bo->budgetId] = $bo->budget_num? $bo->budget_num:trans('textos.presupuesto').' '.$bo->budgetId;
+        	foreach($project_orders as $po){
+        		if($po->is_budget){
+        			//$budgets_[$bo->id] = $bo->budget_num? $bo->budget_num:trans('textos.presupuesto').' '.$bo->id;
+        			array_push($budgets_, $po->id);
         		}
-        		if($bo->orderId){
-        			$orders_[$bo->orderId] = $bo->order_num? $bo->order_num:trans('textos.pedido').' '.$bo->orderId;
+        		if($po->is_order){
+        			//$orders_[$bo->id] = $bo->order_num? $bo->order_num:trans('textos.pedido').' '.$bo->id;
+        			array_push($orders_, $po->id);
         		}
         	}
         	@endphp
 
-        	{{-- Presupuestos --}}
-        	@if(!empty($budgets))
+        	{{-- Presupuestos 
+        		09/06/23: se oculta pues ya se muestra una pestaña con el listado de pedidos.
+        	--}}
+        	{{-- @if(!empty($budgets_))
         		<div class="d-inline-block align-top">
         			<x-select name="status" class="select2" id="linkBudget" label="presupuesto_ir" :options="$budgets_"/>
         		</div>
-        	@endif
+        	@endif --}}
 
         	{{-- Pedidos 
 				26/07/22: se oculta pues ya se muestra una pestaña con el listado de pedidos.
@@ -210,12 +214,12 @@
 					<li class="nav-item @if(!$tab) active @endif">
 			    		<a class="nav-link @if(!$tab) active @endif" href="#tab-project-info" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.proyecto')) !!}</a>
 			  		</li>
-			  		@if(!empty($budgets))
+			  		@if(!empty($budgets_))
 				  		<li class="nav-item @if($tab == 'budgets') active @endif">
-				    		<a class="nav-link @if($tab == 'budgets') active @endif" href="#tab-project-budgets" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.presupuestos')) !!}</a>
+				    		<a class="nav-link @if($tab == 'budgets') active @endif" href="#tab-project-budgets" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.presupuestos_ventas')) !!}</a>
 				  		</li>
 				  	@endif
-				  	@if($project_orders->count())
+				  	@if(!empty($orders_))
 				  		<li class="nav-item @if($tab == 'orders') active @endif">
 				    		<a class="nav-link @if($tab == 'orders') active @endif" href="#tab-project-orders" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.pedidos_venta')) !!}</a>
 				  		</li>
@@ -248,14 +252,14 @@
 					</div>	
 
 					{{-- Presupuestos --}}
-					@if(!empty($budgets))
+					@if(!empty($budgets_))
 						<div class="tab-pane fade @if($tab == 'budgets') show active @endif" role="tabpanel" id="tab-project-budgets">
 							@include('admin.projects.partials.project-budgets')	
 						</div>
 					@endif
 
 					{{-- Pedidos de venta --}}
-					@if($project_orders->count())
+					@if(!empty($orders_))
 						<div class="tab-pane fade @if($tab == 'orders') show active @endif" role="tabpanel" id="tab-project-orders">
 							@include('admin.projects.partials.project-orders')	
 						</div>

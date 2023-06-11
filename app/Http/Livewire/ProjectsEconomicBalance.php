@@ -30,6 +30,7 @@ class ProjectsEconomicBalance extends Component{
         $orders = Order::select('orders.id')
         ->join('project_orders', 'orders.id', '=', 'project_orders.order_id')
         ->where('project_orders.project_id', $project->id)
+        ->where('orders.is_order', true)
         ->get();
 
         foreach($orders as $order){

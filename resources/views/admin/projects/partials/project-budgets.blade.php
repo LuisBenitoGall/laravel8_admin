@@ -21,8 +21,8 @@
 				$total_amount = 0;
 				@endphp
 
-				@foreach($budgets_orders as $bo)
-					@if($bo->budgetId)
+				@foreach($project_orders as $bo)
+					@if(in_array($bo->id, $budgets_))
 						@php
 						$total_amount = $total_amount + $bo->amount;
 						@endphp
@@ -30,23 +30,23 @@
 						<tr>
 							{{-- Presupuesto --}}
 							<td class="text-right">
-								<a target="_blank" href="{{ route('budgets.edit', $bo->budgetId) }}"> 
+								<a target="_blank" href="{{ route('budgets.edit', $bo->id) }}"> 
 									@if($bo->budget_num)
 										{{ $bo->budget_num }}	
 									@else
-										{{ $bo->budgetId }}
+										{{ $bo->id }}
 									@endif
 								</a>
 							</td>
 							<td class="text-right">{{ $bo->budget_old_num }}</td>
 							<td>{{ $bo->name }}</td>
 							<td class="text-right">
-								@if($bo->orderId)
-									<a target="_blank" href="{{ route('orders.edit', $bo->orderId) }}"> 
+								@if($bo->id)
+									<a target="_blank" href="{{ route('orders.edit', $bo->id) }}"> 
 										@if($bo->order_num)
 											{{ $bo->order_num }}	
 										@else
-											{{ $bo->orderId }}
+											{{ $bo->id }}
 										@endif
 									</a>
 								@endif
@@ -61,7 +61,7 @@
 							{{-- Acciones --}}
 							<td class="text-right">
 								{{-- Editar --}}
-								<a target="_blank" href="{{ route('budgets.edit', $bo->budgetId) }}" class="btn btn-xs btn-info btn-module" rel="tooltip" title="{{ ucfirst(trans('textos.editar')) }}"><i class="fa fa-edit"></i></a>
+								<a target="_blank" href="{{ route('budgets.edit', $bo->id) }}" class="btn btn-xs btn-info btn-module" rel="tooltip" title="{{ ucfirst(trans('textos.editar')) }}"><i class="fa fa-edit"></i></a>
 							</td>
 						</tr>
 					@endif

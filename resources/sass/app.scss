@@ -5307,6 +5307,9 @@ body.body-small .footer.fixed {
         min-width: 30px;
       }
     }
+    &.table-draggable tbody tr{
+        cursor: all-scroll !important;
+    }
 }
 
 .modal-table{

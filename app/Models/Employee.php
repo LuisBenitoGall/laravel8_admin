@@ -33,6 +33,7 @@ class Employee extends Model{
             ->join('users', 'employees.user_id', '=', 'users.id')
             ->join('contracts', 'employees.contract_id', '=', 'contracts.id')
             ->where('contracts.company_id', $company_id)
+            ->where('users.status', 1)
             ->when($status, function($q) use($status){
                 return $q->where('employees.status', $status);
             })

@@ -186,6 +186,11 @@ class FunctionalitiesTableSeeder extends Seeder{
             'label' => 'seleccion_personal',
             'module' => 'rrhh'
             ],
+            ['name' => 'protocols',
+            'slug' => 'protocols',
+            'label' => 'protocolos',
+            'module' => 'rrhh'
+            ],
 
             ['name' => 'products',
             'slug' => 'products',

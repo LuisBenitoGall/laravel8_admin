@@ -279,6 +279,15 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     //Projects:
     Route::get('projects/{status?}', 'ProjectController@getProjectsDT');
 
+    //Protocol Items:
+    Route::get('protocol-items/{protocol_id}', 'ProtocolItemController@getProtocolItemsDT');
+
+    //Protocol Users:
+    Route::get('protocol-users/{protocol_id}', 'ProtocolUserController@getProtocolUsersDT');
+
+    //Protocols:
+    Route::get('protocols', 'ProtocolController@getProtocolsDT');
+
     //ProviderProducts:
     Route::get('provider-products/{provider_id}', 'CustomerProductsController@getProviderProductsDT');
 
