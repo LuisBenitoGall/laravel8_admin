@@ -2197,38 +2197,38 @@ $(document).ready(function(){
             columns: [
                 {data: 'name'},
                 {data: 'rol'},
-                {data: 'alta'},
-                {data: 'id', className: 'text-right'}
-            ],
-            columnDefs: [
-                {"targets": 0,
-                "render": function(data, type, row){
-                    return row['name']+' '+row['surname'];
-                }
-                },
-                {"targets": -1,
-                "render": function(data, type, row){
-                    //Estado:
-                    var checked = (row['responsible'] == 1)? 'checked':'';
-                    var responsible = '<label class="custom-chk-rdb" rel="tooltip" title="'+txtGrupoResponsable+'">';
-                        responsible += '<input type="checkbox" name="responsible" '+checked+' ><span class="chk" data-id="'+row['id']+'" data-ctrl="/admin/group_members/responsible"></span>';
-                    responsible += '</label>';
-
-                    //Editar:
-                    var editar = '<a href="#" data-toggle="modal" data-target="#modal-edit-member" data-id="'+row['id']+'" data-member="'+row['name']+' '+row['surname']+'" data-rol="'+row['rol']+'" class="btn btn-xs btn-info btn-module btnEditMember" rel="tooltip" title="'+txtEditar+'"><i class="fa fa-edit"></i></a>';
-
-                    //Eliminar:
-                    var eliminar = '<form method="POST" action="/admin/group_members/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
-                        eliminar += '<input name="_method" type="hidden" value="DELETE">';
-                        eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
-                        eliminar += '<input type="hidden" name="group_id" value="'+row['group_id']+'">';
-                        eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtEliminar+'" data-msg="'+txtMiembroConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
-                    eliminar += '</form>';
-
-                    return responsible+' '+editar+' '+eliminar;
-                }
-                }
+                {data: 'alta', className: 'text-right'},
+                {data: 'acciones', className: 'text-right'}
             ]
+            // columnDefs: [
+            //     {"targets": 0,
+            //     "render": function(data, type, row){
+            //         return row['name']+' '+row['surname'];
+            //     }
+            //     },
+            //     {"targets": -1,
+            //     "render": function(data, type, row){
+            //         //Estado:
+            //         var checked = (row['responsible'] == 1)? 'checked':'';
+            //         var responsible = '<label class="custom-chk-rdb" rel="tooltip" title="'+txtGrupoResponsable+'">';
+            //             responsible += '<input type="checkbox" name="responsible" '+checked+' ><span class="chk" data-id="'+row['id']+'" data-ctrl="/admin/group_members/responsible"></span>';
+            //         responsible += '</label>';
+
+            //         //Editar:
+            //         var editar = '<a href="#" data-toggle="modal" data-target="#modal-edit-member" data-id="'+row['id']+'" data-member="'+row['name']+' '+row['surname']+'" data-rol="'+row['rol']+'" class="btn btn-xs btn-info btn-module btnEditMember" rel="tooltip" title="'+txtEditar+'"><i class="fa fa-edit"></i></a>';
+
+            //         //Eliminar:
+            //         var eliminar = '<form method="POST" action="/admin/group_members/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
+            //             eliminar += '<input name="_method" type="hidden" value="DELETE">';
+            //             eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
+            //             eliminar += '<input type="hidden" name="group_id" value="'+row['group_id']+'">';
+            //             eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtEliminar+'" data-msg="'+txtMiembroConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
+            //         eliminar += '</form>';
+
+            //         return responsible+' '+editar+' '+eliminar;
+            //     }
+            //     }
+            // ]
         });
     }
 
@@ -3091,6 +3091,7 @@ $(document).ready(function(){
                 {data: 'days', className: 'text-right'},
                 {data: 'discount', className: 'text-right'},
                 {data: 'amount', className: 'text-right'},
+                {data: 'cost_center'},
                 {data: 'estado'},
                 {data: 'acciones', className: 'text-right'}
             ],
@@ -4722,6 +4723,114 @@ $(document).ready(function(){
                     hours_forecast.toFixed(2)+' / '+pending.toFixed(2)
                 );
             }
+        });
+    }
+
+    //Tabla Protocol Items:
+    if($('#tblProtocolItems').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        var protocol_id = $('#dtProtocolId').val();
+        var collection = [];
+
+        var tableProtocolItems = $('#tblProtocolItems').DataTable({
+            serverSide: true,
+            processing: true,
+            stateSave: true,
+            retrieve: true,
+            rowReorder: {
+                rowOrder: true,
+                dataSrc: 'sort',
+                selector: 'tr'
+            },
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/protocol-items/"+protocol_id,
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'title', name: 'protocol_items.title'},
+                {data: 'created_at', className: 'text-right'},
+                {data: 'author', name: 'users.name'},
+                {data: 'sort', className: 'text-center'},
+                {data: 'estado', name: 'estado'},
+                {data: 'acciones', orderable: false, searchable: false, className: 'text-right'}
+            ]
+        });
+
+        //Reordenar filas:
+        tableProtocolItems.on('row-reordered', function (e, diff, edit){
+            for(var i=0; i<diff.length; i++){
+                var rowData = tableProtocolItems.row(diff[i].node).data();
+                collection.push({
+                    id: rowData['id'],
+                    pos: diff[i].newData    
+                });
+
+                $.ajax({
+                    url: "/admin/protocol-items/reorder-items", 
+                    type: "POST",
+                    data: {
+                        _token: tokenDT,
+                        collection: collection
+                    }, 
+                    cache: false,
+                    success: function(response){
+                        collection = [];
+                    }
+                });
+            }
+        });
+    }
+
+    //Tabla Protocol Users:
+    if($('#tblProtocolUsers').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        var protocol_id = $('#dtProtocolId').val();
+
+        var tableProtocolUsers = $('#tblProtocolUsers').DataTable({
+            serverSide: true,
+            processing: true,
+            stateSave: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/protocol-users/"+protocol_id,
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'user', name: 'users.name'},
+                {data: 'created_at', className: 'text-right'},
+                {data: 'signed_at', className: 'text-right'},
+                {data: 'acciones', orderable: false, searchable: false, className: 'text-right'}
+            ]
+        });
+    }
+
+    //Tabla Protocols:
+    if($('#tblProtocols').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+
+        var tableProtocols = $('#tblProtocols').DataTable({
+            serverSide: true,
+            processing: true,
+            stateSave: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/protocols",
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'name', name: 'protocols.name'},
+                {data: 'created_at', className: 'text-right'},
+                {data: 'author'},
+                {data: 'estado', name: 'estado'},
+                {data: 'acciones', orderable: false, searchable: false, className: 'text-right'}
+            ]
         });
     }
 

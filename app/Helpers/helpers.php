@@ -58,6 +58,7 @@ class Helpers{
 	 *  3.25. Tipos de gráficos para proyectos.
 	 *  3.26. Estados de SAT.
 	 *  3.27. Estados de envíos.
+	 *  3.28. Estados de protocolos.
 	 *
 	 * 4. Strings:
 	 * 	4.1. Truncar texto.
@@ -1084,6 +1085,22 @@ class Helpers{
 			1 => trans('textos.abierto'),
 			10 => trans('textos.en_ruta'),
 			20 => trans('textos.cerrado')			
+		];
+		if($status){
+			return ucfirst($data[$status]);
+		}else{
+			return $data;
+		}		
+	}
+
+	/**
+	 * 3.28. Estados de protocolos.
+	 */
+	public static function protocolStatus($status = false){
+		$data = [
+			1 => trans('textos.borrador'),
+			10 => trans('textos.activo'),
+			20 => trans('textos.inactivo')			
 		];
 		if($status){
 			return ucfirst($data[$status]);

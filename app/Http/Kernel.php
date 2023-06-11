@@ -178,6 +178,8 @@ class Kernel extends HttpKernel{
 
         'project_purchases' => \App\Http\Middleware\ProjectPurchasesMiddleware::class,
 
+        'protocol_get' => \App\Http\Middleware\ProtocolGetMiddleware::class,
+
         'purchase_pattern_get' => \App\Http\Middleware\PurchasePatternGetMiddleware::class,
 
         'question_get' => \App\Http\Middleware\QuestionGetMiddleware::class,

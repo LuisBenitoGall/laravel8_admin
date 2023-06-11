@@ -22742,6 +22742,9 @@ body.body-small .footer.fixed {
 .table tbody .btn {
   min-width: 30px;
 }
+.table.table-draggable tbody tr {
+  cursor: all-scroll !important;
+}
 
 .modal-table {
   width: 100%;

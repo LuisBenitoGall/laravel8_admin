@@ -21,6 +21,7 @@ $tbl = $env == 'invoices'? 'tblInvoiceItems':'tblOrderItems';
 					<th class="text-center">{{ ucfirst(trans('textos.jornadas')) }}</th>
 					<th class="text-center">{{ ucfirst(trans('textos.descuentos')) }}</th>
 					<th class="text-center">{{ ucfirst(trans('textos.importe')) }}</th>
+					<th>{{ ucfirst(trans('textos.centro_coste')) }}</th>
 					<th>{{ ucfirst(trans('textos.estado')) }}</th>
 					<th class="text-center">{{ ucfirst(trans('textos.acciones')) }}</th>
 				</tr>
@@ -41,6 +42,7 @@ $tbl = $env == 'invoices'? 'tblInvoiceItems':'tblOrderItems';
 	                <td class="text-right">{{ $order_amount }}{{ $currency->symbol }}</td>
 	                <td></td>
 	                <td></td>
+	                <td></td>
 	            </tr>
 
 	            @if(isset($invoice) && $invoice->with_iva > 0)
@@ -48,6 +50,7 @@ $tbl = $env == 'invoices'? 'tblInvoiceItems':'tblOrderItems';
 		                <td colspan="{{ $colspan }}" class="text-right"><b>{{ trans('textos.importe') }} + IVA</b></td>
 		                {{-- ({{ $invoice->with_iva }}%) --}}
 		                <td class="text-right">{{ round($invoice->amount_with_iva, 2) }}{{ $currency->symbol }}</td>
+		                <td></td>
 		                <td></td>
 		                <td></td>
 		            </tr>

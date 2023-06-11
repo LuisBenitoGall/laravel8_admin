@@ -717,6 +717,13 @@ class OrderController extends Controller{
      * 4. Editar pedido.
      */
     public function edit(Order $order, $tab = false){
+        //Si no consta como pedido se redirige a budget:
+        if(!$order->is_order){
+            $alert = trans('textos.presupuesto_no_pedido_warning');
+            return redirect()->route('budgets.edit', $order)->with(compact('alert')); 
+            exit;   
+        }
+
         if($order->is_group){
             $suboption = 'agrupacion_pedidos_editar';
             $slug = 'order-groups';
@@ -762,14 +769,13 @@ class OrderController extends Controller{
         ->where('status', 1)
         ->first();
 
-        $provider_managers = Employee::select(
+        // 09/06/2023: se modifica la consulta para traer usuarios vinculados a la empresa, aunque no sean empleados.
+        $provider_managers = UserCompanies::select(
             DB::raw("CONCAT(users.name,' ',users.surname) AS user"), 'users.id')
-        ->join('users', 'employees.user_id', '=', 'users.id')
-        ->join('contracts', 'employees.contract_id', '=', 'contracts.id')
+        ->join('users', 'user_companies.user_id', '=', 'users.id')
         ->where('users.status', 1)
         ->where('users.isAdmin', 1)
-        ->where('employees.status', 1)
-        ->where('contracts.company_id', $order->provider_id)
+        ->where('user_companies.company_id', $order->provider_id)
         ->orderBy('users.name')
         ->pluck('user', 'users.id')
         ->toArray();
@@ -836,11 +842,17 @@ class OrderController extends Controller{
         ->toArray();
 
         //Catálogo del cliente, para asociar producto:
-        $customer_products = Product::select(
-            DB::raw("CONCAT(ref,' ',name) AS product"), 'id')
+        $customer_products = [];
+        $customer_catalogue = Product::select('id', 'name', 'ref', 'manual_ref')
         ->where('company_id', $order->customer_id)
-        ->pluck('product', 'id')
-        ->toArray();
+        ->where('status', 1)
+        ->orderBy('name', 'ASC')
+        ->get();
+        foreach($customer_catalogue as $cc){
+            $ref = $cc->ref? $cc->ref:($cc->manual_ref? $cc->manual_ref:false);
+            $val = $ref? $cc->name.' ('.$ref.')':$cc->name; 
+            $customer_products[$cc->id] = $val;
+        }
 
         //Configuraciones de cliente. Es relación obligatoria, de modo que en caso de no existir debe crearse.
         $customer_settings = CustomerProviders::where('customer_id', $order->customer_id)
@@ -967,6 +979,11 @@ class OrderController extends Controller{
         //Proyectos:
         $projects = Project::select('id', 'code', 'name')
         ->where('company_id', session('currentCompany'))
+        ->where(function($q) use ($order){
+            $q->where('customer_id', $order->customer_id)
+            ->orWhereNull('customer_id');
+        })
+        ->orderBy('name')
         ->get();
 
         //Proyecto vinculado a ventas:
@@ -1193,7 +1210,7 @@ class OrderController extends Controller{
         if($request->hours_extra){
             $order->hours_extra = $request->hours_extra;
         }
-        $order->save();
+        //$order->save();
 
         //Actualizando registro compartido:
         $order->customer_manager_id = $request->customer_manager_id;
@@ -1208,6 +1225,14 @@ class OrderController extends Controller{
             $order->commercial_id = $request->commercial_id;
         }
         $order->save();
+
+        //Seteamos Centro de Coste para los items sin valor indicado:
+        //1. Exclusivo proveedor:
+        if($order->provider_id == session('currentCompany') && $request->provider_cost_center_id){
+            Item::where('order_id', $order->id)
+            ->whereNull('provider_cost_center_id')
+            ->update(['provider_cost_center_id' => $request->provider_cost_center_id]);
+        }
 
         //Guardamos previsiones:
         if($request->year){
@@ -1470,6 +1495,13 @@ class OrderController extends Controller{
             }else{
                 return trans('textos.precio_sin_definir');
             }              
+        })
+        ->addColumn('cost_center', function($item){
+            if($item->provider_cost_center_id){
+                return $item->cost_center_provider->name;    
+            }else{
+                return '';
+            }
         })
         ->addColumn('estado', function($item) use($estados){
             return view('admin.orders.partials.dt-item-status', compact('item', 'estados'));    
