@@ -41,6 +41,7 @@ class ProjectController extends Controller{
      * 1. Proyectos por empresa.
      * 1.1. Listado de proyectos por filtro.
      * 1.2. Listado de proyectos por empresa para DataTable.
+     * 1.3. Proyectos por empresa para selector.
      * 2. Formulario nuevo proyecto.
      * 3. Guardar nuevo proyecto.
      * 3.1. Generar proyecto desde presupuesto-pedido.
@@ -217,6 +218,18 @@ class ProjectController extends Controller{
         })
         ->rawColumns(['name', 'progress'])
         ->make(true);
+    }
+
+    /**
+     * 1.3. Proyectos por empresa para selector.
+     */
+    public function companyProjects(Request $request, $company_id){
+        if($request->ajax()){ 
+            return Project::select('id', 'name', DB::raw("CONCAT(name, ' - ', project_num) AS project"))
+            ->where('company_id', $company_id)
+            ->orderBy('name', 'ASC')
+            ->get();
+        }
     }
 
     /**
@@ -523,10 +536,11 @@ class ProjectController extends Controller{
         // ->groupBy('orders.id')
         // ->get();
 
-        $project_purchases = Invoice::select('orders.id', 'orders.order_num', 'orders.purchase_num', 'orders.purchase_old_num', 'orders.name', 'orders.delivery_date', 'orders.order_status', 'companies.name AS provider', 'project_purchases.id AS ppId', 'invoices.fiscal_date', 'invoices.id AS invoiceId', 'invoices.invoice_num', 'invoices.invoice_old_num', 'invoices.amount', 'invoices.amount_with_iva', 'invoices.irpf')
+        $project_purchases = Invoice::select('orders.id', 'orders.order_num', 'orders.purchase_num', 'orders.purchase_old_num', 'orders.name', 'orders.delivery_date', 'orders.order_status', 'companies.name AS provider', 'project_purchases.id AS ppId', 'invoices.fiscal_date', 'invoices.id AS invoiceId', 'invoices.invoice_num', 'invoices.invoice_old_num', 'invoices.amount', 'invoices.amount_with_iva', 'invoices.irpf', 'c.id AS customer_id', 'c.name AS customer')
         ->leftJoin('orders', 'invoices.order_id', '=', 'orders.id')
         ->leftJoin('project_purchases', 'orders.id', '=', 'project_purchases.order_id')
         ->leftJoin('companies', 'orders.provider_id', '=', 'companies.id')
+        ->leftJoin('companies AS c', 'orders.customer_id', '=', 'c.id')
         ->where('project_purchases.project_id', $project->id)
         ->orderBy('orders.order_num', 'ASC')
         ->groupBy('invoiceId')

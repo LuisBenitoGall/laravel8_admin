@@ -52,6 +52,6 @@ class ShipmentController extends Controller{
      * 1.1. Listado de envíos para DataTable.
      */
     public function getShipmentsDT(){
-        $data = Shipment::
+        //$data = Shipment::
     }
 }

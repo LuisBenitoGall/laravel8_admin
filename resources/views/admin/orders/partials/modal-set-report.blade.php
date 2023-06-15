@@ -12,7 +12,7 @@
             	<form method="post" autocomplete="off" action="{{ route('orders.export-by-range-dates') }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
                     {{ csrf_field() }}
                     <input type="hidden" name="customer_id" value="@if($customer_id && $customer_id != 'all') {{ $customer->id }} @endif">
-                    <input type="hidden" name="provider_id" value="@if($provider_id) {{ $provider->id }} @endif">
+                    <input type="hidden" name="provider_id" value="@if($provider) {{ $provider->id }} @endif">
 
                     <div class="row">
                     	<p class="col-12 text-warning">{!! trans('textos.informe_pedidos_rango_fechas') !!}</p>
