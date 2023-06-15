@@ -97,6 +97,21 @@ $readonly = $invoice->blocked && !$is_sale || ($order->customer_id == session('c
 			@endif
 		@endcan
 
+		{{-- Vincular compra a proyecto - condiciones: 
+			1. Estar activo el módulo de Proyectos.
+			2. Tratarse de una compra.
+			3. Disponer de permisos para editar proyectos.
+			...
+		--}}
+		@if($module_projects && !$is_sale)
+			@can('projects.edit')
+				<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-link-project">
+					<i class="fa fa-rocket"></i>
+					{{ ucfirst(trans('textos.factura_asociar_proyecto')) }}
+				</a>
+			@endcan	
+		@endif
+
 		{{-- Imprimir - condiciones 
 			1. Para facturas simples.
 		--}}
@@ -349,6 +364,9 @@ $readonly = $invoice->blocked && !$is_sale || ($order->customer_id == session('c
 
 {{-- Generate refund --}}
 @include('admin.invoices.partials.modal-generate-refund')
+
+{{-- Link project --}}
+@include('admin.invoices.partials.modal-link-project')
 
 @push('scripts')
 <script>

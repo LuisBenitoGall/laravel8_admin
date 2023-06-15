@@ -248,6 +248,7 @@ var txtProvinciaSelec = "{!! ucfirst(trans("textos.selec_provincia")) !!}";
 var txtProyectoConfirmEliminar = "{{ ucfirst(trans("textos.proyecto_confirm_eliminar")) }}";
 var txtProyectoEditar = "{!! ucfirst(trans("textos.proyecto_editar")) !!}";
 var txtProyectoEliminar = "{!! ucfirst(trans("textos.proyecto_eliminar")) !!}";
+var txtProyectoSelec = "{!! ucfirst(trans("textos.proyecto_selec")) !!}";
 var txtRegistroHorarioAdd = "{!! ucfirst(trans("textos.registro_horario_add")) !!}";
 var txtRegistroHorarioEditar = "{!! ucfirst(trans("textos.registro_horario_editar")) !!}";
 var txtRegistroHorarioEliminar = "{!! ucfirst(trans("textos.registro_horario_eliminar")) !!}";

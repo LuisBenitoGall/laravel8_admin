@@ -4,6 +4,7 @@
 			<thead>
 				<tr>
 					<th>{!! ucfirst(trans('textos.proveedor')) !!}</th>
+					<th>{!! ucfirst(trans('textos.cliente_primero')) !!}</th>
 					<th class="text-center">{!! ucfirst(trans('textos.pedido')) !!}</th>
 					<th class="text-center">{!! ucfirst(trans('textos.importe_pedido')) !!}</th>
 					<th class="text-center">{!! ucfirst(trans('textos.factura')) !!}</th>
@@ -21,10 +22,26 @@
 				@endphp
 
 				@foreach($project_purchases as $pp)
+					@php
+					//Método que permita ver pedidos y facturas ajenos a la empresa en session:
+					$method_order = 'edit';
+					$method_invoice = 'edit-purchase';
+					@endphp
+
 					<tr>
 						{{-- Proveedor --}}
 						<td>
 							{{ $pp->provider }}
+						</td>
+						{{-- Cliente primero --}}
+						<td>
+							@if($pp->customer_id != session('currentCompany'))
+								{{ $pp->customer }}	
+								@php
+								$method_order = 'show';
+								$method_invoice = 'show';
+								@endphp
+							@endif
 						</td>
 						{{-- Número compra --}}
 						<td class="text-right">
@@ -33,7 +50,7 @@
 							@endphp
 
 							@can('orders.edit')
-								<a target="_blank" href="{{ route('orders.edit', $pp->id) }}"> 
+								<a target="_blank" href="{{ route('orders.'.$method_order, $pp->id) }}"> 
 							@endcan
 								{{ $num }}
 							@can('orders.edit')
@@ -79,7 +96,7 @@
 								</a>
 							@endforeach --}}
 
-							<a target="_blank" href="{{ route('invoices.edit-purchase', $pp->invoiceId) }}">
+							<a target="_blank" href="{{ route('invoices.'.$method_invoice, $pp->invoiceId) }}">
 								@if($pp->invoice_num)
 									{{ $pp->invoice_num }}
 								@elseif($pp->invoice_old_num)
@@ -127,7 +144,9 @@
 								@endif
 
 								{{-- Editar --}}
-								<a target="_blank" href="{{ route('orders.edit', $pp->id) }}" class="btn btn-xs btn-info" rel="tooltip" title="{{ ucfirst(trans('textos.editar')) }}"><i class="fa fa-edit"></i></a>
+								@if($method_order == 'edit')
+									<a target="_blank" href="{{ route('orders.edit', $pp->id) }}" class="btn btn-xs btn-info" rel="tooltip" title="{{ ucfirst(trans('textos.editar')) }}"><i class="fa fa-edit"></i></a>
+								@endif
 
 								{{-- Desvincular --}}
 								<form method="POST" action="{{ route('purchase-from-project.destroy', $pp->ppId) }}" class="frm-inline" role="form" accept-charset="UTF-8">
@@ -144,7 +163,7 @@
 
 			<tfoot>
 				<tr>
-					<td colspan="2" class="text-right">
+					<td colspan="3" class="text-right">
 						<b>{{ ucfirst(trans('textos.importe_pedidos')) }}</b>
 					</td>
 					<td class="text-right">

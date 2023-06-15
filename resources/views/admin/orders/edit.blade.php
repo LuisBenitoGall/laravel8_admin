@@ -243,12 +243,21 @@
 								{!! ucfirst(trans('textos.proyecto')) !!}
 							</a>
 						@endforeach
-					@else
-						<a href="#" class="btn btn-warning" data-toggle="modal" data-target="#modal-add-purchase-to-project">
-							<i class="fa fa-rocket"></i>
-							{!! ucfirst(trans('textos.proyecto_vincular_compra')) !!}
-						</a>
 					@endif
+
+					{{-- <a href="#" class="btn btn-warning" data-toggle="modal" data-target="#modal-add-purchase-to-project">
+						<i class="fa fa-rocket"></i>
+						{!! ucfirst(trans('textos.proyecto_vincular_compra')) !!}
+					</a> --}}
+
+					@php
+					//Variable para el retorno:
+					$return_ = 'order';
+					@endphp
+					<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-link-project">
+						<i class="fa fa-rocket"></i>
+						{{ ucfirst(trans('textos.proyecto_vincular_compra')) }}
+					</a>
 				@endcan
 			@endif
 
@@ -828,6 +837,9 @@ $order_amount_without_discount = $order_amount_without_discount_in_lines > $orde
 
 {{-- Modal edit receivings --}}
 @include('admin.receivings.partials.modal-edit-receivings')
+
+{{-- Link project --}}
+@include('admin.invoices.partials.modal-link-project')
 
 {{-- Generate invoice --}}
 @php

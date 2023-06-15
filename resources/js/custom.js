@@ -359,6 +359,7 @@ $(window).on('load', function () {
     33. Vincular / desvincular sectores a empresa.
     34. Búsqueda autocomplete de empresa.
     35. Búsqueda autocomplete de proveedor.
+    36. Proyectos por empresa.
     */
 
     // 1. Eliminar preview imagen seleccionada:
@@ -1323,4 +1324,27 @@ $(window).on('load', function () {
         }
     });
 
+    // 36. Proyectos por empresa.
+    $('#companyId_').on('change', function (event) {
+        //Limpiamos posibles valores de proyecto:
+        $('#projectId_').val([]);
+        $('#projectId_').trigger('change');
+        $('#companyId_ option:selected').each(function () {
+            var id = event.target.value;
+
+            if (id == null || id == 0) {
+                $('#projectId_').attr('disabled', 'disabled');
+            } else {
+                $('#projectId_').removeAttr('disabled');
+                $.get("/admin/company-projects/" + id + "", function (response, state) {
+                    console.log(response);
+                    $("#projectId_").append('<option value="">' + txtProyectoSelec + '</option>');
+                    for (i = 0; i < response.length; i++) {
+                        var project = response[i].project? response[i].project:response[i].name;
+                        $("#projectId_").append('<option value="' + response[i].id + '">' + project + '</option>');
+                    }
+                });
+            }
+        });
+    });
 });

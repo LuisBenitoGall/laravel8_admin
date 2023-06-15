@@ -262,7 +262,9 @@ class WorkplaceController extends Controller{
         }
         $workplace->address = $request->input('address');
         $workplace->cp = $request->input('cp');
-        $workplace->town_id = $request->input('town_id');
+        if($request->input('town_id')){
+            $workplace->town_id = $request->input('town_id');
+        }
         //04/11/2020: se oculta el nif para los centros de trabajo, pues el nif sólo es por empresa:
         //$workplace->nif = $request->input('nif');
         $workplace->website = $request->input('website');

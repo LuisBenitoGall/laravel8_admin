@@ -533,7 +533,7 @@ if(!$initial_imports->value){
 
                                 @foreach(session('companies') as $c)
                                     @php
-                                        $selected = $c->id == session('currentCompany')? 'selected':'';
+                                    $selected = $c->id == session('currentCompany')? 'selected':'';
                                     @endphp
 
                                     <option value="{{ $c->id }}" {{ $selected }}>{{ $c->name }}</option>
