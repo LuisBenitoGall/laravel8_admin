@@ -43,7 +43,7 @@
 			1. Exclusivo proveedor.
 			2. Viene declarado el cliente.
 		--}}
-		@if($customer_id && $provider->id == session('currentCompany'))
+		@if($customer_id && $provider && $provider->id == session('currentCompany'))
 			<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-set-report">
 				<i class="fa fa-chart-bar"></i>
 				{!! ucfirst(trans('textos.informes')) !!}

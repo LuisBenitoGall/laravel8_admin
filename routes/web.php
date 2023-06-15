@@ -640,6 +640,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::post('orders/store', 'OrderController@store')->name('orders.store')->middleware('permission:orders.create');
     Route::get('orders/{order}/edit/{tab?}', 'OrderController@edit')->name('orders.edit')->middleware('permission:orders.edit');
     Route::get('orders/{order}/print', 'OrderController@print')->name('orders.print')->middleware('permission:orders.edit');
+    Route::get('orders/{order}/show', 'OrderController@show')->name('orders.show')->middleware('permission:orders.show');
     Route::put('orders/{order}/update', 'OrderController@update')->name('orders.update')->middleware('permission:orders.edit');
     Route::post('orders/export-by-range-dates', 'OrderController@exportOrdersByDateRange')->name('orders.export-by-range-dates');
     Route::get('orders/{order}/reset-num', 'OrderController@resetNum')->name('orders.reset-num')->middleware('permission:orders.edit');
@@ -815,6 +816,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::post('projects/update-team', 'ProjectController@updateTeam')->name('projects.update-team')->middleware('permission:projects.edit');
     Route::post('projects/link-project', 'ProjectController@linkProjectToBudgetOrder')->name('projects.link-project');
     Route::get('projects/{project}/reset-num', 'ProjectController@resetNum')->name('projects.reset-num')->middleware('permission:projects.edit');
+    Route::get('company-projects/{company_id}', 'ProjectController@companyProjects')->name('company-projects');
 
     // Protocol Items:
     Route::get('protocol-items/create/{protocol}', 'ProtocolItemController@create')->name('protocol-items.create');

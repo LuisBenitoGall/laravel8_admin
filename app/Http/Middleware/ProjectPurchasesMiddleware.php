@@ -19,31 +19,34 @@ class ProjectPurchasesMiddleware{
      * @return mixed
      */
     public function handle(Request $request, Closure $next){
-        $company = Project::select('company_id')->find($request->project_id);
+        //Si no es por integración de factura de compra, se valida que el proyecto pertenezca a la empresa en session:
+        if(!$request->invoice && !$request->return){
+            $company = Project::select('company_id')->find($request->project_id);
 
-        if(!$company){
-            $alert = trans('textos.registro_inexistente');
-            return redirect()->route('projects.index')->with(compact('alert'));
-            exit; 
-        } 
+            if(!$company){
+                $alert = trans('textos.registro_inexistente');
+                return redirect()->route('projects.index')->with(compact('alert'));
+                exit; 
+            } 
 
-        if($company->company_id != session('currentCompany')){
-            $alert = trans('textos.no_permisos_accion');   
-            return redirect()->route('projects.index')->with(compact('alert'));
-            exit; 
+            if($company->company_id != session('currentCompany')){
+                $alert = trans('textos.no_permisos_accion');   
+                return redirect()->route('projects.index')->with(compact('alert'));
+                exit; 
+            }
         }
 
         //La empresa debe ser cliente del pedido:
-        $company_ = Order::select('customer_id')
-        ->where('id', $request->order_id)
-        ->where('customer_id', session('currentCompany'))
-        ->first();
+        // $company_ = Order::select('customer_id')
+        // ->where('id', $request->order_id)
+        // ->where('customer_id', session('currentCompany'))
+        // ->first();
 
-        if(!$company_){
-            $alert = trans('textos.registro_inexistente');
-            return redirect()->route('orders.index')->with(compact('alert'));
-            exit; 
-        } 
+        // if(!$company_){
+        //     $alert = trans('textos.registro_inexistente');
+        //     return redirect()->route('orders.index')->with(compact('alert'));
+        //     exit; 
+        // } 
 
         return $next($request);
     }

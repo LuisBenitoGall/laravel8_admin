@@ -23,7 +23,7 @@ class ProjectPurchasesController extends Controller{
 
     public function __construct(){
         $this->middleware('module_setted:projects');
-        $this->middleware('project_post', ['only' => ['store']]);
+        $this->middleware('project_purchases', ['only' => ['store']]);
     }
 
     //0. Validator:
@@ -58,6 +58,12 @@ class ProjectPurchasesController extends Controller{
         }
 
         $msg = trans('textos.compras_vinculadas');
-        return redirect()->route('projects.edit', [$request->project_id, 'purchases'])->with(compact('msg'));
+        if($request->invoice){
+            return redirect()->route('invoices.edit-purchase', $request->invoice)->with(compact('msg'));
+        }elseif($request->return){
+            return redirect()->route('orders.edit', $request->return)->with(compact('msg'));    
+        }else{
+            return redirect()->route('projects.edit', [$request->project_id, 'purchases'])->with(compact('msg'));
+        }
     }
 }
