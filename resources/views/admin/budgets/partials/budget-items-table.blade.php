@@ -2,15 +2,16 @@
     <table class="table table-hover dtabla" id="tblOrderItems">
         <thead>
             <tr>
-                <td class="text-center">#</td>
-                <td>{{ ucfirst(trans('textos.producto')) }}</td>
-                <td class="text-center">{{ ucfirst(trans('textos.cantidad')) }}</td>
-                <td class="text-center">{{ ucfirst(trans('textos.precio_unidad')) }}</td>
-                <td class="text-center">{{ ucfirst(trans('textos.jornadas')) }}</td>
-                <td class="text-center">{{ ucfirst(trans('textos.descuento')) }}</td>
-                <td class="text-center">{{ ucfirst(trans('textos.importe')) }}</td>
+                <th class="text-center">#</th>
+                <th>{{ ucfirst(trans('textos.producto')) }}</th>
+                <th class="text-center">{{ ucfirst(trans('textos.cantidad')) }}</th>
+                <th class="text-center">{{ ucfirst(trans('textos.precio_unidad')) }}</th>
+                <th class="text-center">{{ ucfirst(trans('textos.jornadas')) }}</th>
+                <th class="text-center">{{ ucfirst(trans('textos.descuento')) }}</th>
+                <th class="text-center">{{ ucfirst(trans('textos.importe')) }}</th>
+                <th>{{ ucfirst(trans('textos.centro_coste')) }}</th>
                 <th>{{ ucfirst(trans('textos.estado')) }}</th>
-                <td class="text-center">{{ ucfirst(trans('textos.acciones')) }}</td>
+                <th class="text-center">{{ ucfirst(trans('textos.acciones')) }}</th>
             </tr>
         </thead>
 
