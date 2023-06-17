@@ -294,6 +294,8 @@ return array(
 	'proyectos_mis' => 'Mis proyectos',
 	'proyectos_no_mas' => 'No existen más proyectos',
 	'proyectos_patrones' => 'Proyectos patrones',
+	'proyectos_vinculados' => 'Proyectos vinculados',
+	'proyectos_vinculados_texto' => 'Vincula el proyecto a otros proyectos de tu entorno de empresas. Crea un nuevo grupo o vincúlalo a alguno de los ya existentes.',
 	'proyecto_nuevo' => 'nuevo proyecto',
 	'proyecto_nuevo_crea' => 'Crea un nuevo proyecto.',
 	'proyecto_num' => 'Número proyecto',
@@ -2949,5 +2951,8 @@ return array(
 	'protocolo_nuevo' => 'Nuevo protocolo',
 	'protocolo_updated' => 'El protocolo ha sido actualizado correctamente',
 	'protocolos' => 'Protocolos',
+	'conceptos_no_obligatorios' => 'Conceptos NO obligatorios',
+	'conceptos_obligatorios' => 'Conceptos obligatorios',
+	'descuenta_conceptos_obligatorios' => 'Descuenta conceptos obligatorios',
 	
 );

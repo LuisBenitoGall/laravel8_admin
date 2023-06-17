@@ -85,6 +85,12 @@
 			</a>
 		@endcan
 
+		{{-- Agrupaciones de proyectos --}}
+		<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-set-group">
+			<i class="fa fa-object-group"></i>
+			{!! ucfirst(trans('textos.proyectos_vinculados')) !!}
+		</a>
+
         {{-- Estados de tareas --}}
         @can('projects.edit')
 			<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-task-status">
@@ -327,8 +333,11 @@
 {{-- Member tasks: --}}
 @include('admin.projects.partials.modal-member-tasks')	
 
-{{-- Economic balance --}}
+{{-- Economic balance: --}}
 @include('admin.projects.partials.modal-economic-balance')	
+
+{{-- Set groups: --}}
+@include('admin.project_groups.partials.modal-set-group')
 
 @push('scripts')
 <script src="{{ asset('js/plugins/pace/pace.min.js') }}"></script>

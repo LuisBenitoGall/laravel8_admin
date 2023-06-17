@@ -11,7 +11,7 @@
 
     {{-- Color --}}
     <label for="color" class="col-lg-2 col-form-label">{{ ucfirst(trans('textos.color')) }}</label>
-    <div class="col-lg-3">
+    <div class="col-lg-2">
         <div class="input-group m-b">
             <div class="input-group-prepend">
                 <span class="input-group-addon" @if($day_type && $day_type->color) style="background-color: {{ $day_type->color }};" @endif>&nbsp;</span>
@@ -117,7 +117,9 @@
             {!! App\Helpers\Helpers::info('day-type-cumulative', true) !!}
         </label>
     </div>
+</div>
 
+<div class="form-group row">
     {{-- Rango de fechas --}}
     <label for="rank" class="col-lg-2 col-form-label">{{ ucfirst(trans('textos.rango_fechas')) }}</label>
     <div class="col-lg-1 sinpadding">
@@ -149,6 +151,46 @@
 
             {!! App\Helpers\Helpers::info('day-type-annual-repetition', true) !!}
         </label>
+    </div>
+</div>
+
+<div class="form-group row">
+    {{-- Descuento de conceptos horarios obligatorios --}}
+    <label for="subtract_required_concept" class="col-lg-2 col-form-label">{{ ucfirst(trans('textos.descuenta_conceptos_obligatorios')) }}</label>
+    <div class="col-lg-1 sinpadding">
+        {{-- Este dato no se puede editar --}}
+        @if($day_type)
+            <span class="d-inline-block align-top ml-2">
+                @if($day_type->subtract_required_concept)
+                    <i class="fa fa-check text-success" style="margin-top: 11px;"></i>
+                @else
+                    <i class="fa fa-times text-danger" style="margin-top: 12px;"></i>
+                @endif      
+            </span>
+
+            <span class="position-relative d-inline-block align-top ml-3">
+                {!! App\Helpers\helpers::info('subtract-required-concept-no-modifiable') !!}     
+            </span>
+
+        @else
+            <label class="custom-chk-rdb">
+                <input type="checkbox" name="subtract_required_concept" @if($day_type && $day_type->subtract_required_concept) checked @endif>
+                <span class="chk" style="margin-top: 6px;"></span>
+
+                {!! App\Helpers\Helpers::info('day-type-subtract-required-concept', true) !!}
+            </label>
+        @endif
+    </div>
+
+    {{-- Conceptos obligatorios que se aplican --}}
+    <label for="concepts_not_required" class="col-lg-2 col-form-label">{{ ucfirst(trans('textos.conceptos_no_obligatorios')) }}</label>
+    <div class="col-lg-2 sinpadding-left">
+        @if($day_type)
+            @php
+            $concepts_not_required = $day_type->concepts_not_required? unserialize($day_type->concepts_not_required):[];
+            @endphp
+        @endif
+        <x-select name="concepts_not_required[]" class="select2" :options="$required_concepts" info="day-types-no-required-concepts" :values="$concepts_not_required" multiple/>
     </div>
 </div>
 

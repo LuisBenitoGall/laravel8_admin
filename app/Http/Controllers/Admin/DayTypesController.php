@@ -14,6 +14,7 @@ use Yajra\DataTables\DataTables;
 use App\Models\Company;
 use App\Models\DayTypes;
 use App\Models\DayTypesCriterions;
+use App\Models\TimetableItems;
 
 class DayTypesController extends Controller{
     /**
@@ -155,7 +156,13 @@ class DayTypesController extends Controller{
             'slug' => 'day-types'
         ]; 
 
-        return view('admin.day_types.create')->with(compact('header'));      
+        //Conceptos horarios obligatorios:
+        $required_concepts = TimetableItems::where('company_id',  session('currentCompany'))
+        ->whereNotNull('required_condition')
+        ->pluck('name', 'id')
+        ->toArray();
+
+        return view('admin.day_types.create')->with(compact('header', 'required_concepts'));      
     }
 
     /**
@@ -176,6 +183,8 @@ class DayTypesController extends Controller{
         $rank = $request->input('rank')? 1:0;
         $modifiable = $request->input('modifiable')? 1:0;
         $annual_repetition = $request->input('annual_repetition')? 1:0;
+        $subtract_required_concept = $request->subtract_required_concept? 1:0;
+        $concepts_not_required = $request->concepts_not_required? serialize($request->concepts_not_required):NULL;
 
         $daytype = new DayTypes();
         $daytype->company_id = session('currentCompany');
@@ -188,6 +197,8 @@ class DayTypesController extends Controller{
         $daytype->rank = $rank;
         $daytype->modifiable = $modifiable;
         $daytype->annual_repetition = $annual_repetition;
+        $daytype->subtract_required_concept = $subtract_required_concept;
+        $daytype->concepts_not_required = $concepts_not_required;
         $daytype->save();
 
         $msg = trans('textos.jornada_ok');
@@ -208,7 +219,13 @@ class DayTypesController extends Controller{
         //Copiar tipo de jornada de un año a otro:
         $dt->copyYearToYear(date('Y', strtotime('-1 year')), date('Y'));
 
-        return view('admin.day_types.edit')->with(compact('header', 'dt'));    
+        //Conceptos horarios obligatorios:
+        $required_concepts = TimetableItems::where('company_id',  session('currentCompany'))
+        ->whereNotNull('required_condition')
+        ->pluck('name', 'id')
+        ->toArray();
+
+        return view('admin.day_types.edit')->with(compact('header', 'dt', 'required_concepts'));    
     }
 
     /**
@@ -226,6 +243,7 @@ class DayTypesController extends Controller{
         $rank = $request->input('rank')? 1:0;
         $modifiable = $request->input('modifiable')? 1:0;
         $annual_repetition = $request->input('annual_repetition')? 1:0;
+        $concepts_not_required = $request->concepts_not_required? serialize($request->concepts_not_required):NULL;
 
         $dt->name = $request->input('name');
         $dt->color = $request->input('color');
@@ -233,6 +251,7 @@ class DayTypesController extends Controller{
         $dt->rank = $rank;
         $dt->modifiable = $modifiable;
         $dt->annual_repetition = $annual_repetition;
+        $dt->concepts_not_required = $concepts_not_required;
         $dt->save();
 
         $msg = trans('textos.jornada_update');
