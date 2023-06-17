@@ -786,6 +786,9 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::get('project-favourites/status/{project}/{status}', 'ProjectFavouriteController@status')->name('project-favourites.status');
     Route::get('project-favourites/{project_id}/delete', 'ProjectFavouriteController@delete')->name('project-favourites.delete');
 
+    // Project Groups:
+    Route::post('project-groups/store', 'ProjectGroupController@store')->name('project-groups.store')->middleware('permission:projects.edit');
+
     // Project Orders:
     Route::post('project-orders/store', 'ProjectOrdersController@store')->name('project-orders.store')->middleware('permission:projects.edit');
 

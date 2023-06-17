@@ -8,6 +8,9 @@ $fields = [
     'work_calendars' => [
         'date' => ucfirst(trans('textos.fecha')),
         'hours' => ucfirst(trans('textos.horas')) 
+    ],
+    'day_types' => [
+    	'subtract_required_concept' => ucfirst(trans('textos.descuenta_conceptos_obligatorios'))	
     ]
 ];
 
@@ -71,6 +74,8 @@ $(function(){
     //Selector de tabla:
     $('#ruleTabla').on('change', function(e){
         var tabla = e.target.value;
+        $("#ruleCampo").empty();
+        $("#ruleCampo").append('<option value="">'+txtOpcionSelect+'</option>');
         for(var i in fields[tabla]){
             $("#ruleCampo").append('<option value="'+i+'">'+fields[tabla][i]+'</option>');
         }
