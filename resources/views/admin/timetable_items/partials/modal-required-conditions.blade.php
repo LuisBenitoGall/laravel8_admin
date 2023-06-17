@@ -23,7 +23,8 @@
 
 								@php
 								$tablas = [
-									'work_calendars' => 'calendario_empresa'
+									'work_calendars' => 'calendario_empresa',
+									'day_types' => 'tipos_jornada'
 								];
 								@endphp
 

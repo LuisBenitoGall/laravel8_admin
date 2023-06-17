@@ -132,6 +132,9 @@ class RequiredTimetableItemsTask extends Command{
                             //Si es jornada festiva del usuario:
                             $noWork = WorkUserCalendar::noWorkDay($user->id, Carbon::today());
 
+                            //Conceptos NO obligatorios:
+                            $concepts_not_required = $noWork->concepts_not_required? unserialize($noWork->concepts_not_required):[];
+
                             //Horarios reducidos del usuario:
                             $with_custom_hours = false;
                             $user_timetables = UserTimetables::select('daily_hours')
@@ -176,8 +179,8 @@ class RequiredTimetableItemsTask extends Command{
 
                                         //Insert de los registros obligatorios no hallados:
                                         foreach($required_timetable_items as $idx => $rti){
-                                            //Si el índice no está como valor en el array de items cumplidos:
-                                            if(!in_array($idx, $items_done)){
+                                            //Si el índice no está como valor en el array de items cumplidos + el tipo de jornada no tiene exento este concepto horario:
+                                            if(!in_array($idx, $items_done) && !in_array($idx, $concepts_not_required)){
                                                 //Hora de inicio del registro:
                                                 $hour_from = '10:00:00';
                                                 foreach($required_timetable_items_collection as $r_){

@@ -43,12 +43,13 @@ class WorkUserCalendar extends Model{
 
     /**
      * 2. Informar si es festivo del empleado.
+     * 16/06/2023: incluye si el tipo de jornada debe descontar tiempos por conceptos horarios obligatorios (desayuno, comida,...);
      * 
      * @param  $id   
      * @param  $date 
      */
     static function noWorkDay($id, $date){
-        $data = WorkUserCalendar::select('work_user_calendars.id', 'work_user_calendars.date', 'work_user_calendars.self_hours', 'day_types.is_working', 'day_types.working_day', 'day_types.in_office')
+        $data = WorkUserCalendar::select('work_user_calendars.id', 'work_user_calendars.date', 'work_user_calendars.self_hours', 'day_types.is_working', 'day_types.working_day', 'day_types.in_office', 'day_types.subtract_required_concept', 'concepts_not_required')
         ->leftJoin('day_types', 'work_user_calendars.day_type_id', '=', 'day_types.id')
         ->where('work_user_calendars.user_id', $id)
         ->whereDate('work_user_calendars.date', $date)

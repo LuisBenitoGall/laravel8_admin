@@ -29,6 +29,8 @@ use App\Models\Order;
 use App\Models\Project;
 use App\Models\ProjectDocs;
 use App\Models\ProjectFavourite;
+use App\Models\ProjectGroup;
+use App\Models\ProjectGroupItems;
 use App\Models\ProjectOrders;
 use App\Models\ProjectPatterns;
 use App\Models\ProjectPurchases;
@@ -576,13 +578,28 @@ class ProjectController extends Controller{
         ->where('company_id', session('currentCompany'))
         ->whereNull('expenses.project_id')
         ->get();
-         
+
+        //Agrupaciones a las que pertenece el proyecto presente:
+        $groups_in = ProjectGroupItems::where('project_id', $project->id)
+        ->pluck('group_id')
+        ->toArray();
+
+        //Agrupaciones de proyectos:
+        $arr_companies = [];
+        foreach(session('companies') as $c){
+            array_push($arr_companies, $c->id);
+        }
+        $project_groups = ProjectGroup::whereIn('company_id', $arr_companies)
+        ->orderBy('title', 'ASC')
+        ->pluck('title', 'id')
+        ->toArray();
+
         $languages = $this->languages;
 
         //Moneda:
         $currency = $this->co_currency;
 
-        return view('admin.projects.edit', compact('header', 'tab', 'project', 'patterns', 'author', 'owner', 'customer', 'customers', 'users', 'team', 'team_members', 'tasks', 'task_status', 'groups', 'project_orders', 'orders', 'project_purchases', 'purchases', 'project_expenses', 'expense_types', 'expenses', 'languages', 'currency'));
+        return view('admin.projects.edit', compact('header', 'tab', 'project', 'patterns', 'author', 'owner', 'customer', 'customers', 'users', 'team', 'team_members', 'tasks', 'task_status', 'groups', 'project_orders', 'orders', 'project_purchases', 'purchases', 'project_expenses', 'expense_types', 'expenses', 'project_groups', 'groups_in', 'languages', 'currency'));
     }
 
     /**
