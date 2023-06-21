@@ -81,6 +81,19 @@
 						{{-- Los inputs de precio por porcentaje se muestran en el siguiente bloque, por una cuestión de coherencia en la maquetación. --}}
 					</div>
 
+					@if($environment_ == 'invoices')
+						<div class="form-group row">
+							{{-- IRPF: se le pasa por valor el irpf asignado a la factura --}}
+							<label for="irpf" class="col-lg-2 offset-md-9 col-form-label sinpadding">{{ trans('textos.irpf_descontar') }}</label>
+							<div class="col-lg-1">
+								<label class="custom-chk-rdb" rel="tooltip">
+				                    <input type="checkbox" name="irpf" id="itemIrpf_" class="withoutIrpf" value="">
+				                    <span class="chk" style="top: 5px;"></span>
+				                </label>
+							</div>
+						</div>	
+					@endif
+
 					@if(session('currentCompany') == $order->provider_id)
 						<div class="form-group row">
 							{{-- Descuento --}}

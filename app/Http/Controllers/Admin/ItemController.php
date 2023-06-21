@@ -283,6 +283,7 @@ class ItemController extends Controller{
         $item->days = $request->days? $request->days:'0';
         $item->iva = $iva;
         $item->equivalence_surcharge = $equivalence_surcharge;
+        $item->irpf = $request->irpf? $request->irpf:NULL;
         $item->discount = $request->discount > 0? $request->discount:NULL;
         $item->calculated_by_percent = $request->price? NULL:$request->calculated_by_percent;
         $item->provider_cost_center_id = $request->provider_cost_center;
@@ -386,6 +387,9 @@ class ItemController extends Controller{
         $item->days = $request->days;
         $item->iva = $iva;
         $item->equivalence_surcharge = $equivalence_surcharge;
+        if($request->irpf){
+            $item->irpf = $request->irpf;
+        }
         $item->discount = $request->discount;
         if($request->provider_cost_center && is_numeric($request->provider_cost_center)){
             $item->provider_cost_center_id = $request->provider_cost_center;

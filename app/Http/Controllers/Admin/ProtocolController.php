@@ -33,6 +33,7 @@ class ProtocolController extends Controller{
      * 6. Actualizar estado de protocolo.
      * 7. Eliminar protocolo.
      * 8. Imprimir.
+     * 9. Mostrar protocolo.
      */
     
     private $option = 'protocolos';
@@ -44,7 +45,7 @@ class ProtocolController extends Controller{
         $this->languages = Helpers::languages();
 
         $this->middleware('module_setted:rrhh');
-        $this->middleware('protocol_get', ['only' => ['edit', 'show', 'update', 'destroy']]);
+        $this->middleware('protocol_get', ['only' => ['edit', 'show', 'update', 'destroy', 'show']]);
     }
 
     //0. Validator:
@@ -244,12 +245,31 @@ class ProtocolController extends Controller{
         ->orderBy('protocol_items.sort', 'ASC')
         ->get();
 
-
-
         //Título .pdf:
         $pdf_title = $protocol->slug;
 
         $pdf = PDF::loadView('pdf/protocol', compact('protocol', 'items'));
         return $pdf->download($pdf_title.'.pdf');
+    }
+
+    /**
+     * 9. Mostrar protocolo.
+     */
+    public function show(Protocol $protocol){
+        $header = [
+            'option' => $this->option, 
+            'suboption' => 'textos.protocolo_ver',
+            'module' => $this->module,
+            'slug' => 'protocols'
+        ]; 
+
+        $items = ProtocolItem::where('protocol_id', $protocol->id)
+        ->where('status', config('constants.PROTOCOL_STATUS_ACTIVE_'))
+        ->orderBy('sort', 'ASC')
+        ->get();
+
+        $languages = $this->languages;
+
+        return view('admin.protocols.show')->with(compact('header', 'protocol', 'items', 'languages')); 
     }
 }

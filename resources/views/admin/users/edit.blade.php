@@ -101,6 +101,26 @@
 					  		</li>
 					  	@endif
 
+					  	@if($protocols->count())
+					  		@php
+					  		//Protocolos pendientes de firma:
+					  		$without_sign = 0;
+					  		foreach($protocols as $p){
+					  			if(!$p->signed_at){
+					  				$without_sign++;
+					  			}
+					  		}
+					  		@endphp
+							<li class="nav-item @if($tab == 'protocols') active @endif">
+					    		<a class="nav-link @if($tab == 'protocols') active @endif" href="#tab-protocols" role="tab" data-toggle="tab">
+					    			{!! ucfirst(trans('textos.protocolos')) !!}
+					    			@if($without_sign > 0)
+					    				<span class="ml-2 badge badge-danger">{{ $without_sign }}</span>	
+					    			@endif
+					    		</a>
+					  		</li>
+					  	@endif
+
 				  		{{-- <li class="nav-item @if($tab == 'notificaciones') active @endif">
 				    		<a class="nav-link @if($tab == 'notificaciones') active @endif" href="#tab-notificaciones" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.notificaciones')) !!} @if($nNotifs > 0) <span class="tip">{{ $nNotifs }}</span> @endif</a>
 				  		</li> 
@@ -161,6 +181,13 @@
 								@include('admin.users.partials.stocks')	
 							</div>
 						@endif --}}
+
+						{{-- Protocolos --}}
+						@if($protocols->count())
+							<div class="tab-pane fade @if($tab == 'protocols') show active @endif" role="tabpanel" id="tab-protocols">
+								@include('admin.users.partials.user-protocols')	
+							</div>
+						@endif
 					</div>
 				</div>
 			</div>
@@ -221,6 +248,36 @@
 			</div>
 		</div>
 	</div> --}}
+
+	@push('scripts')
+	<script>
+	$(function(){
+		// Aceptación con contraseña:
+	    $(document).on('submit', '.frmAcceptWithPass', function(e){
+	        e.preventDefault();
+	        var data = $(this).serialize();
+	        var elem = $(this);
+
+	        $.ajax({
+	            url: "/admin/protocol-users/sign",
+	            type: "POST",
+	            data: data, 
+	            cache: false,
+	            datatype: "JSON",
+	            success: function(response){
+	                if(response){
+	                    var father = elem.parent();
+	                    father.addClass('text-right').html(response);
+
+	                }else{
+	                    elem.find('.hold-pwd').append('<small class="text-danger">'+txtPasswordIncorrecto+'</small>');
+	                }
+	            }
+	        });
+	    })
+	});
+	</script>
+	@endpush
 @endif
 
 @endsection
