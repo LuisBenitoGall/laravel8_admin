@@ -118,25 +118,7 @@ $str_status_values = $status_values? implode(',', $status_values):'';
 <script>
 $(function(){
 	//Agregar favorito.
-	$(document).on('click', '.btnFav', function(){
-		var project = $(this).data('project');
-		var elem = $(this);
-		if(elem.hasClass('selected')){
-			var status = 'off';
-		}else{
-			var status = 'on';
-		}
-
-		$.get('/admin/project-favourites/status/'+project+'/'+status, function (response, state){
-            if(response){
-            	if(status == 'on'){
-            		elem.addClass('selected');
-            	}else{
-            		elem.removeClass('selected');	
-            	}
-            }
-    	});
-	});
+	// 21/06/2023: se migra el método a custom.js pues va a ser utilizado también por projects/edit.blade.php
 
 	//Modal favoritos:
 	var favourites = {!! json_encode($favourites) !!};

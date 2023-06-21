@@ -38,6 +38,11 @@
 			</a> 	
         @endcan
 
+        {{-- Ver --}}
+        <a target="_blank" href="{{ route('protocols.show', $protocol) }}" class="btn btn-info" rel="tooltip" title="{!! ucfirst(trans('textos.protocolo_ver')) !!}">
+			<i class="fa fa-eye"></i>
+		</a>
+
         {{-- Imprimir --}}
 		<a href="{{ route('protocols.print', $protocol) }}" class="btn btn-info close-animation" rel="tooltip" title="{!! ucfirst(trans('textos.imprimir')) !!}">
 			<i class="fa fa-print"></i>

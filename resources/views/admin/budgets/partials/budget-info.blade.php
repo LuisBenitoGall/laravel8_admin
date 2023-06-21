@@ -201,6 +201,21 @@ $readonly = $order->customer_id == session('currentCompany')? true:false;
 		</div>
 	</div>
 
+	{{-- Comercial --}}
+	<div class="form-group row">
+		<label for="commercial_id" class="col-lg-2 col-form-label">{!! trans('textos.comercial') !!}</label>
+		<div class="col-lg-4">
+			@if($order->provider_id == session('currentCompany'))
+				<x-select name="commercial_id" class="select2" label="comercial_selec" :options="$provider_managers" value="{{ $order->commercial_id }}"/>
+			@else
+				@php
+				$commercial_id = $order->commercial_id && isset($provider_managers[$order->commercial_id])? $provider_managers[$order->commercial_id]:'';
+				@endphp
+				<x-input type="text" name="" value="{{ $commercial_id }}" autocomplete="off" maxlength="255" disabled/>
+			@endif
+		</div>
+	</div>
+
 	<div class="form-group row">
 		{{-- Sede del proveedor --}}
 		<label for="provider_workplace_id" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.empresa_facturacion')) !!}</label>

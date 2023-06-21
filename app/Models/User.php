@@ -151,7 +151,7 @@ class User extends Authenticatable{
      * 5. Usuarios por empresa.
      */
     public static function companyUsers($company_id, $status = false, $limit = false){
-        $q = User::select('users.*', 'user_companies.categories',
+        $q = User::select('users.id', 'users.name', 'users.surname', 'users.email', 'user_companies.categories',
             DB::raw('(SELECT image FROM user_images WHERE user_id = users.id AND featured = 1) AS Image')
         )
             ->join('user_companies', 'users.id', '=', 'user_companies.user_id')
@@ -162,7 +162,7 @@ class User extends Authenticatable{
         if ($limit) {
             $q->limit($limit);
         }
-        $users = $q->groupBy('users.id')->get();
+        $users = $q->orderBy('users.name')->groupBy('users.id')->get();
 
         return $users;
     }

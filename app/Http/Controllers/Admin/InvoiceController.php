@@ -25,6 +25,7 @@ use App\Models\Category;
 use App\Models\Company;
 use App\Models\CompanyAccounts;
 use App\Models\CompanySettings;
+use App\Models\CostCenters;
 use App\Models\CustomerProviders;
 use App\Models\Invoice;
 //use App\Models\InvoiceItems;
@@ -829,11 +830,16 @@ class InvoiceController extends Controller{
         $module = Module::select('id')->where('slug', 'companies')->first();
         $categories = Category::getModuleCategories($module->id, session('currentCompany'));
 
+        //Centros de coste:
+        $cost_centers = CostCenters::where('company_id', session('currentCompany'))
+        ->pluck('name', 'id')
+        ->toArray();
+
         $languages = $this->languages;
 
         $currency = CompanySettings::co_currency(0);
 
-        return view('admin.invoices.invoice-by-provider')->with(compact('header', 'project_id', 'order', 'provider_orders', 'providers', 'categories', 'languages', 'currency'));          
+        return view('admin.invoices.invoice-by-provider')->with(compact('header', 'project_id', 'order', 'provider_orders', 'providers', 'categories', 'cost_centers', 'languages', 'currency'));          
     }
 
     /**
@@ -870,6 +876,7 @@ class InvoiceController extends Controller{
             $order->customer_id = session('currentCompany');
             $order->provider_id = $request->provider_id;
             $order->order_status = config('constants.ORDER_FINISHED_');     //Damos el pedido por finalizado.
+            $order->customer_cost_center_id = $request->cost_center;
             $order->invoiced = 1;
             $order->save();
 
@@ -888,6 +895,7 @@ class InvoiceController extends Controller{
 
         }else{
             $order = Order::select('id', 'invoiced')->find($request->order_id);
+            $order->customer_cost_center_id = $request->cost_center;
             $order->invoiced = 1;
             $order->save();
         }
@@ -904,10 +912,11 @@ class InvoiceController extends Controller{
         }
 
         //Descontando IRPF:
-        if($request->irpf > 0 && $order_amount > 0){
-            $desc_irpf = ($request->irpf * $order_amount) / 100;
-            $invoice_amount = $invoice_amount - $desc_irpf;
-        }
+        //21/06/2023: debe descontarse sobre cada línea, no sobre el total del pedido:
+        // if($request->irpf > 0 && $order_amount > 0){
+        //     $desc_irpf = ($request->irpf * $order_amount) / 100;
+        //     $invoice_amount = $invoice_amount - $desc_irpf;
+        // }
 
         //Subir documento:
         $doc = $this->loadFile($request, 'invoices');
@@ -1344,10 +1353,10 @@ class InvoiceController extends Controller{
             //$arr_amount = InvoiceItems::setInvoiceAmount($invoice);
             
             //Descontando IRPF:
-            if($invoice->irpf > 0){
-                $desc_irpf = ($invoice->irpf * $base_amount) / 100;
-                $invoice_amount = $invoice_amount - $desc_irpf;
-            }
+            // if($invoice->irpf > 0){
+            //     $desc_irpf = ($invoice->irpf * $base_amount) / 100;
+            //     $invoice_amount = $invoice_amount - $desc_irpf;
+            // }
 
             $invoice->amount = $base_amount;
             $invoice->amount_with_iva = $invoice_amount;
@@ -1447,12 +1456,12 @@ class InvoiceController extends Controller{
             //$order_amount = $order->getAmount();
             //$invoice->amount = $order_amount['total_amount'];
 
-            if($request->irpf > 0){
-                $desc_irpf = ($request->irpf * $invoice->amount) / 100;
-                $invoice->amount_with_iva = $invoice->amount_with_iva - $desc_irpf;
+            // if($request->irpf > 0){
+            //     $desc_irpf = ($request->irpf * $invoice->amount) / 100;
+            //     $invoice->amount_with_iva = $invoice->amount_with_iva - $desc_irpf;
             //}else{
                 //$invoice->amount_with_iva = $order_amount['invoice_amount'];
-            }
+            // }
         //}
 
         $invoice->save();

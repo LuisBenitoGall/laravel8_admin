@@ -24,6 +24,8 @@ use App\Models\Company;
 use App\Models\CostCenters;
 use App\Models\Employee;
 use App\Models\Phone;
+use App\Models\Protocol;
+use App\Models\ProtocolUser;
 use App\Models\StaffPickCandidates;
 use App\Models\Stock;
 use App\Models\Timetable;
@@ -468,6 +470,13 @@ class UserController extends Controller{
 
         //Empleados:
         //$employees = Employee::companyEmployees(session('currentCompany'), 1);
+        
+        //Protocolos del usuario:
+        $protocols = ProtocolUser::select('protocols.id', 'protocols.name', 'protocols.description', 'protocols.created_at', 'protocol_users.id AS puId', 'protocol_users.signed_at')
+        ->join('protocols', 'protocol_users.protocol_id', '=', 'protocols.id')
+        ->where('protocol_users.user_id', $user->id)
+        ->orderBy('protocols.name', 'ASC')
+        ->get();
 
         //Módulos activos:
         $module_timetables = $this->settedModule('timetables');
@@ -479,7 +488,7 @@ class UserController extends Controller{
 
         //return view('admin.users.edit')->with(compact('header', 'user', 'tab', 'roles', 'user_roles', 'countries', 'images', 'business_areas', 'user_business_areas', 'cost_centers', 'user_cost_centers', 'workplaces', 'user_workplaces', 'categories', 'user_categories', 'phones', 'employees', 'timetables', 'calendar', 'stocks'));
         return view('admin.users.edit')->with(compact('header', 'user', 'tab', 'roles', 'user_roles', 'current_company', 'user_company', 'countries', 'images', 'languages', 'employee', 'business_areas', 'user_business_areas', 'cost_centers', 'user_cost_centers',
-            'workplaces', 'user_workplaces', 'categories', 'user_categories', 'phones', 'module_timetables', 'module_calendar', 'module_rrhh'));
+            'workplaces', 'user_workplaces', 'categories', 'user_categories', 'phones', 'protocols', 'module_timetables', 'module_calendar', 'module_rrhh'));
     }
 
     /**

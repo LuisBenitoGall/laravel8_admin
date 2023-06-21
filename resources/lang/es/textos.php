@@ -2950,9 +2950,12 @@ return array(
 	'protocolo_item_nuevo' => 'Nuevo item de protocolo',
 	'protocolo_nuevo' => 'Nuevo protocolo',
 	'protocolo_updated' => 'El protocolo ha sido actualizado correctamente',
+	'protocolo_ver' => 'Ver protocolo',
 	'protocolos' => 'Protocolos',
 	'conceptos_no_obligatorios' => 'Conceptos NO obligatorios',
 	'conceptos_obligatorios' => 'Conceptos obligatorios',
 	'descuenta_conceptos_obligatorios' => 'Descuenta conceptos obligatorios',
-	
+	'acepta_con_pwd' => 'Acepta con tu password',
+	'usuario_firma' => 'Firma usuario',
+	'irpf_descontar' => 'Descontar IRPF',
 );
