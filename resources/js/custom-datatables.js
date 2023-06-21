@@ -933,6 +933,7 @@ $(document).ready(function(){
             serverSide: true,
             processing: true,
             stateSave: true,
+            retrieve: true,
             ajax: {
                 "type": "GET",
                 "url": "/api/admin/budgets/"+from,
@@ -2317,8 +2318,8 @@ $(document).ready(function(){
                 {data: 'iva', className: 'text-right'},
                 {data: 'days', className: 'text-right'},
                 {data: 'discount', className: 'text-right'},
-                {data: 'cost_center'},
                 {data: 'amount', className: 'text-right'},
+                {data: 'cost_center'},
                 {data: 'estado'},
                 {data: 'acciones', className: 'text-right'}
             ],

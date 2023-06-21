@@ -594,12 +594,18 @@ class ProjectController extends Controller{
         ->pluck('title', 'id')
         ->toArray();
 
+        //Favorito:
+        $favourite = ProjectFavourite::select('id')
+        ->where('project_id', $project->id)
+        ->where('user_id', Auth::user()->id)
+        ->first();
+
         $languages = $this->languages;
 
         //Moneda:
         $currency = $this->co_currency;
 
-        return view('admin.projects.edit', compact('header', 'tab', 'project', 'patterns', 'author', 'owner', 'customer', 'customers', 'users', 'team', 'team_members', 'tasks', 'task_status', 'groups', 'project_orders', 'orders', 'project_purchases', 'purchases', 'project_expenses', 'expense_types', 'expenses', 'project_groups', 'groups_in', 'languages', 'currency'));
+        return view('admin.projects.edit', compact('header', 'tab', 'project', 'patterns', 'author', 'owner', 'customer', 'customers', 'users', 'team', 'team_members', 'tasks', 'task_status', 'groups', 'project_orders', 'orders', 'project_purchases', 'purchases', 'project_expenses', 'expense_types', 'expenses', 'project_groups', 'groups_in', 'project_groups', 'favourite', 'languages', 'currency'));
     }
 
     /**

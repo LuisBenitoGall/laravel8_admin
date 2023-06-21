@@ -833,12 +833,14 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     // Protocol Users:
     Route::post('protocol-users/store', 'ProtocolUserController@store')->name('protocol-users.store')->middleware('permission:protocols.edit');
     Route::delete('protocol-users/{user}', 'ProtocolUserController@destroy')->name('protocol-users.destroy')->middleware('permission:protocols.edit');
+    Route::post('protocol-users/sign', 'ProtocolUserController@sign')->name('protocol-users.sign');
 
     // Protocols:
     Route::get('protocols', 'ProtocolController@index')->name('protocols.index')->middleware('permission:protocols.index');
     Route::get('protocols/create', 'ProtocolController@create')->name('protocols.create');
     Route::post('protocols/store', 'ProtocolController@store')->name('protocols.store')->middleware('permission:protocols.create');
     Route::get('protocols/{protocol}/edit/{tab?}', 'ProtocolController@edit')->name('protocols.edit');
+    Route::get('protocols/{protocol}/show', 'ProtocolController@show')->name('protocols.show');
     Route::put('protocols/{protocol}/update', 'ProtocolController@update')->name('protocols.update');
     Route::get('protocols/{protocol}/status/{status}', 'ProtocolController@status')->name('protocols.status');
     Route::delete('protocols/{protocol}', 'ProtocolController@destroy')->name('protocols.destroy')->middleware('permission:protocols.destroy');

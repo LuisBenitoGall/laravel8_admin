@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Helpers\Helpers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -25,6 +26,7 @@ class ProtocolUserController extends Controller{
      * 1. Listado de usuarios por protocolo para DataTable.
      * 2. Guardar usuarios para protocolo.
      * 3. Desvincular usuario del protocolo.
+     * 4. Guardar firma de usuario.
      */
     
     private $option = 'protocolos';
@@ -72,7 +74,7 @@ class ProtocolUserController extends Controller{
         })
         ->addColumn('signed_at', function($row){
             if($row->signed_at){
-                return Carbon::parse($row->signed_at)->format($this->languages[session()->get('locale')][4]);
+                return Carbon::parse($row->signed_at)->format($this->languages[session()->get('locale')][4].' H:i:s');
             }else{
                 return '<span class="text-danger">'.ucfirst(trans('textos.pendiente')).'</span>';
             }
@@ -151,5 +153,28 @@ class ProtocolUserController extends Controller{
         
         $msg = trans('textos.usuario_deleted');
         return redirect()->route('protocols.edit', [$user->protocol_id, 'users'])->with(compact('msg'));       
+    }
+
+    /**
+     * 4. Guardar firma de usuario.
+     */
+    public function sign(Request $request){
+        if($request->ajax()){
+            //Chequeamos password:
+            $ok = Hash::check($request->password, Auth::user()->password);
+            $resp = false;
+
+            if($ok){
+                $protocol = ProtocolUser::where('id', $request->id)
+                ->update(['signed_at' => Carbon::now()]);
+
+                if($protocol){
+                    $fecha = Carbon::now();
+                    $resp = $fecha->format('d-m-Y H:i:s');
+                }
+            }
+
+            return response()->json($resp);
+        }
     }
 }

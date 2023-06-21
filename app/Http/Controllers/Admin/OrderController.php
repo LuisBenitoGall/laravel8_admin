@@ -1047,8 +1047,11 @@ class OrderController extends Controller{
         //Autor:
         $author = User::select('name', 'surname')->find($order->created_by);
 
-        //Propietario:
+        //Manager:
         $owner = User::select('name', 'surname')->find($order->provider_manager_id);
+
+        //Comercial:
+        $commercial = User::select('name', 'surname')->find($order->commercial_id);
 
         //IVA:
         $iva = CompanySettings::co_iva();
@@ -1093,7 +1096,7 @@ class OrderController extends Controller{
         $module_projects = $this->settedModule('projects');
         $module_rrhh = $this->settedModule('rrhh');
         
-        return view('admin.orders.edit')->with(compact('header', 'order', 'tab', 'patterns', 'purchase_patterns', 'provider', 'provider_account', 'provider_managers', 'provider_business_areas', 'provider_cost_centers', 'provider_workplaces', 'default_workplace', 'customer', 'final_customer', 'customer_managers', 'customer_business_areas', 'customer_cost_centers', 'customer_workplaces', 'customer_products', 'customer_settings', 'confirmed_by', 'customers', 'order_amount', 'order_amount_without_discount', 'order_amount_without_discount_in_lines', 'order_groups', 'ordersInGroup', 'orders_off', 'group_amount', 'invoiced', 'invoices', 'previsions', 'products', 'projects', 'project', 'project_purchases', 'customer_projects', 'deliveries', 'receivings', 'currency', 'items', 'author', 'owner', 'iva', 'sat', 'order_type', 'templates', 'languages', 'permitted', 'module_accounting', 'module_budgets', 'module_products', 'module_projects', 'module_rrhh', 'module_logistics'));
+        return view('admin.orders.edit')->with(compact('header', 'order', 'tab', 'patterns', 'purchase_patterns', 'provider', 'provider_account', 'provider_managers', 'provider_business_areas', 'provider_cost_centers', 'provider_workplaces', 'default_workplace', 'customer', 'final_customer', 'customer_managers', 'customer_business_areas', 'customer_cost_centers', 'customer_workplaces', 'customer_products', 'customer_settings', 'confirmed_by', 'customers', 'order_amount', 'order_amount_without_discount', 'order_amount_without_discount_in_lines', 'order_groups', 'ordersInGroup', 'orders_off', 'group_amount', 'invoiced', 'invoices', 'previsions', 'products', 'projects', 'project', 'project_purchases', 'customer_projects', 'deliveries', 'receivings', 'currency', 'items', 'author', 'owner', 'commercial', 'iva', 'sat', 'order_type', 'templates', 'languages', 'permitted', 'module_accounting', 'module_budgets', 'module_products', 'module_projects', 'module_rrhh', 'module_logistics'));
     }
 
     /**
@@ -1198,7 +1201,7 @@ class OrderController extends Controller{
         if($request->status){
             $order->order_status = $request->status;
             //02/05/2023: la fecha de entrega se actualiza automáticamente si el pedido se encuentra en algunos de los estados de finalizado:
-            if(in_array($request->status, config('constants.ORDER_STATUS_FINISHED'))){
+            if(in_array($request->status, config('constants.ORDER_STATUS_FINISHED_'))){
                 $order->delivery_date = Carbon::today('Europe/Madrid');
                 $order->finished_at = now();
                 $order->finished_by = Auth::user()->id;
@@ -1439,7 +1442,13 @@ class OrderController extends Controller{
         return DataTables::of($items)
         ->addColumn('price', function($item) use($currency){
             if($item->price > 0){
-                return round($item->price, 2).$currency->symbol;
+                $price = round($item->price, 2).$currency->symbol;
+                //IRPF:
+                if($item->irpf > 0){
+                    $price .= '<br><small>-'.$item->irpf.'% IRPF</small>';
+                }
+                return $price;
+
             }elseif(!$item->price && $item->calculated_by_percent > 0){
                 return trans('textos.por_porcentaje').' ('.$item->calculated_by_percent.'%)';
             }
@@ -1512,7 +1521,7 @@ class OrderController extends Controller{
         ->addColumn('acciones', function($item) use($estados, $order, $environment, $provider_account, $invoices){
             return view('admin.orders.partials.dt-item-actions', compact('item', 'estados', 'order', 'environment', 'provider_account', 'invoices'));    
         })
-        ->rawColumns(['amount', 'observations'])
+        ->rawColumns(['price', 'amount', 'observations'])
         ->make(true);
     }
 
@@ -1523,7 +1532,7 @@ class OrderController extends Controller{
         if($request->ajax()){    
             $order->order_status = $status;
 
-            if(in_array($status, config('constants.ORDER_STATUS_FINISHED'))){
+            if(in_array($status, config('constants.ORDER_STATUS_FINISHED_'))){
                 $order->delivery_date = Carbon::today('Europe/Madrid');
                 $order->finished_at = now();
                 $order->finished_by = Auth::user()->id;

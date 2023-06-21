@@ -50,6 +50,12 @@ class Item extends Model{
                 $amount = $amount - $percentage;
             }
 
+            //Descontando IRPF:
+            if($item->irpf > 0){
+                $irpf_percent = helpers::percent($amount, $item->irpf);
+                $amount = $amount - $irpf_percent;
+            }
+
             return $amount;
         }else{
             return 0;

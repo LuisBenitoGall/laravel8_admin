@@ -272,7 +272,6 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 					$totalPercent = 0;
 					$accumulatedAmount = 0;			//Importe acumulado de previsiones.
 					$k = 1;							//Contador de previsiones.
-					//dd($order_amount, $order_amount_without_discount, $previsions);
 					@endphp
 
 					@if($previsions->count())

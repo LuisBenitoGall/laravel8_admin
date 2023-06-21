@@ -360,6 +360,7 @@ $(window).on('load', function () {
     34. Búsqueda autocomplete de empresa.
     35. Búsqueda autocomplete de proveedor.
     36. Proyectos por empresa.
+    37. Marcar proyecto como favorito.
     */
 
     // 1. Eliminar preview imagen seleccionada:
@@ -1115,6 +1116,11 @@ $(window).on('load', function () {
                     if(response.iva == ''){
                         $('#frmEditItem .withoutIva').prop('checked', true);
                     }
+
+                    $('#itemIrpf_').val(response.irpf);
+                    if(response.irpf > 0){
+                        $('#frmEditItem .withoutIrpf').prop('checked', true);
+                    }
                 }
             }
         });
@@ -1344,6 +1350,27 @@ $(window).on('load', function () {
                         $("#projectId_").append('<option value="' + response[i].id + '">' + project + '</option>');
                     }
                 });
+            }
+        });
+    });
+
+    // 37. Marcar proyecto como favorito.
+    $(document).on('click', '.btnFav', function(){
+        var project = $(this).data('project');
+        var elem = $(this);
+        if(elem.hasClass('selected')){
+            var status = 'off';
+        }else{
+            var status = 'on';
+        }
+
+        $.get('/admin/project-favourites/status/'+project+'/'+status, function (response, state){
+            if(response){
+                if(status == 'on'){
+                    elem.addClass('selected');
+                }else{
+                    elem.removeClass('selected');   
+                }
             }
         });
     });

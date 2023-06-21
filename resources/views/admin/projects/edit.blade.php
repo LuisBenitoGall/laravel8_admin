@@ -105,6 +105,9 @@
 			{!! ucfirst(trans('textos.balance_economico')) !!}
 		</a>
 
+		{{-- Favorito --}}
+		<a href="#" class="btn btn-info btnFav @if($favourite)) selected @endif" rel="tooltip" title="{{ ucfirst(trans('textos.favorito')) }}" data-project="{{ $project->id }}"><i class="fa fa-star"></i></a>
+
         {{-- Eliminar proyecto --}}
         @can('projects.destroy')
         	<form method="POST" action="{{ route('projects.destroy', $project) }}" class="frm-inline" role="form" accept-charset="UTF-8">

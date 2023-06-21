@@ -107,6 +107,14 @@
 						</div>
 					</div>
 
+					<div class="form-group row">
+						{{-- Centros de coste --}}
+						<label for="cost_center" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.centros_coste')) !!}</label>
+						<div class="col-lg-3">
+							<x-select name="cost_center" class="select2" label="centro_coste_selec" :options="$cost_centers"/>	
+						</div>
+					</div>
+
 					{{-- <div class="form-group row"> --}}
 						{{-- Importe neto --}}
 						{{-- <label for="amount" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.importe_neto')) !!}</label>

@@ -11,6 +11,7 @@ return [
     'BUDGET_FORM_MODALITY_' => 10,
     'BUDGET_CATALOGUE_MODALITY_' => 20,
     'BUDGET_STATUS_APPROVED_' => [20],
+    'BUDGET_STATUS_APPROVED__' => 20,
     'BUDGET_STATUS_CANCELLED_' => 30,
     'BUDGET_STATUS_CLOSED_' => 40,
     'CHAT_ROLE_ADMIN_' => 10,
@@ -57,10 +58,14 @@ return [
     'ORDER_FINISHED_' => 70,
     'ORDER_GROUPS_DEFAULT_' => 10,
     'ORDER_GROUPS_OPENED_' => [10],
-    'ORDER_STATUS_FINISHED' => [40, 70],
+
+    'ORDER_STATUS_FINISHED_' => [40, 70],
     'ORDER_STATUS_INVOICED_' => [10, 40, 70],           //Status de pedidos facturables. 
     'ORDER_STATUS_NOT_DELETED_' => [15, 40, 50, 70],    //Status de pedidos no eliminables.
     'ORDER_STATUS_NOT_INVOICED_' => [30],               //Status de pedidos no facturables.
+    'ORDER_STATUS_PENDENT_' => 1,
+    'ORDER_STATUS_APPROVED_' => 10,
+
     'OTHER_PERMISSIONS_' => ['work-user-calendar'],     //Añadimos aquí los permisos sin funcionalidad asociada.
     'PERMISSIONS_OFF_' => ['accounts', 'modules', 'permissions', 'currencies', 'banks', 'countries', 'contents', 'units', 'stock-movements'],                  //Permisos exclusivos para los Super Admin.
     'PROTOCOL_STATUS_ACTIVE_' => 10,

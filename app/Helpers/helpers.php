@@ -777,15 +777,15 @@ class Helpers{
 			//0 => '',
 			1 => trans('textos.pendiente'),
 			10 => trans('textos.aprobado'),
-			15 => trans('textos.cliente_dudas'),
+			//15 => trans('textos.cliente_dudas'),
 			20 => trans('textos.trabajando'),
 			30 => trans('textos.cancelado'),
 			40 => trans('textos.entregado'),
 			50 => trans('textos.incidencia'),
-			60 => trans('textos.rondas_cambio'),
+			//60 => trans('textos.rondas_cambio'),
 			70 => trans('textos.finalizado'),
-			80 => trans('textos.pendiente_feedback'),
-			90 => trans('textos.preparacion_aaff')
+			//80 => trans('textos.pendiente_feedback'),
+			//90 => trans('textos.preparacion_aaff')
 		];
 		if($status){
 			return ucfirst($data[$status]);
@@ -2152,6 +2152,12 @@ class Helpers{
 	            $amount = $amount - $discount;  
 	        }
 	    }
+
+	    //Descontando IRPF:
+        if($item->irpf > 0){
+            $irpf_percent = helpers::percent($amount, $item->irpf);
+            $amount = $amount - $irpf_percent;
+        }
 
 	    //Guardamos el importe sin IVA (base imponible) para posteriores operaciones:
 	    $tax_base = $amount;

@@ -501,13 +501,23 @@ class BudgetController extends Controller{
         ->first();
 
         //Managers: sólo con permisos de edición de presupuestos.
-        $provider_managers_ = UserCompanies::getCompanyUsers($order->provider_id, 1);   
-        $provider_managers = [];
-        foreach($provider_managers_ as $pm){
-            if($pm->can('budgets.edit')){
-                $provider_managers[$pm->id] = $pm->name.' '.$pm->surname;
-            }
-        }
+        // $provider_managers_ = UserCompanies::getCompanyUsers($order->provider_id, 1);   
+        // $provider_managers = [];
+        // foreach($provider_managers_ as $pm){
+        //     if($pm->can('budgets.edit')){
+        //         $provider_managers[$pm->id] = $pm->name.' '.$pm->surname;
+        //     }
+        // }
+        // 09/06/2023: se modifica la consulta para traer usuarios vinculados a la empresa, aunque no sean empleados.
+        $provider_managers = UserCompanies::select(
+            DB::raw("CONCAT(users.name,' ',users.surname) AS user"), 'users.id')
+        ->join('users', 'user_companies.user_id', '=', 'users.id')
+        ->where('users.status', 1)
+        ->where('users.isAdmin', 1)
+        ->where('user_companies.company_id', $order->provider_id)
+        ->orderBy('users.name')
+        ->pluck('user', 'users.id')
+        ->toArray();
 
         //Configuraciones proveedor:
         $provider_settings = session('companySettings');
@@ -532,6 +542,12 @@ class BudgetController extends Controller{
         //Áreas de negocio del proveedor:
         $provider_business_areas = BusinessAreas::where('company_id', $order->provider_id)
         ->get();
+
+        //Manager:
+        $owner = User::select('name', 'surname')->find($order->provider_manager_id);
+
+        //Comercial:
+        $commercial = User::select('name', 'surname')->find($order->commercial_id);
 
         //CLIENTE:
         $customer = Company::select('id', 'name', 'tradename')->find($order->customer_id);
@@ -691,10 +707,18 @@ class BudgetController extends Controller{
         }
 
         //Info del proveedor primero:
-        $first_provider = $order->first_provider_order? Order::select('orders.id', 'companies.name')
+        $first_provider = $order->first_provider_order? Order::select('orders.id', 'companies.name', 'orders.budget_status', 'orders.order_status', 'orders.is_order')
         ->join('companies', 'orders.provider_id', '=', 'companies.id')
         ->where('orders.id', $order->first_provider_order)
         ->first():false;
+
+        //Modificar estado del presupuesto vinculado en base al presupuesto padre:
+        if($first_provider && $first_provider->order_status == config('constants.ORDER_STATUS_PENDENT_') && $order->order_status >= config('constants.ORDER_STATUS_APPROVED_')){
+            $first_provider->budget_status = config('constants.BUDGET_STATUS_APPROVED__');
+            $first_provider->order_status = config('constants.ORDER_STATUS_APPROVED_');
+            $first_provider->is_order = true;
+            $first_provider->save();    
+        }
 
         //Presupuesto vinculado del cliente:
         $my_linked_budget = false;
@@ -726,7 +750,7 @@ class BudgetController extends Controller{
         $module_products = $this->settedModule('products');
         $module_projects = $this->settedModule('projects');
 
-        return view('admin.budgets.edit')->with(compact('header', 'order', 'tab', 'invoiced', 'invoices', 'patterns', 'versions', 'order_amount', 'order_amount_without_discount', 'order_amount_without_discount_in_lines', 'provider', 'provider_account', 'provider_managers', 'provider_settings', 'provider_workplaces', 'provider_workplace', 'provider_cost_centers', 'provider_business_areas', 'customer', 'final_customer', 'customer_managers', 'customer_workplaces', 'customer_cost_centers', 'customer_business_areas', 'final_customers', 'customers', 'customer_settings', 'forms', 'products', 'projects', 'project', 'blocks', 'currency', 'templates', 'budget_from', 'customer_budgets', 'first_provider', 'my_linked_budget', 'linkable_budgets', 'languages', 'permitted', 'module_orders', 'module_products', 'module_projects'));
+        return view('admin.budgets.edit')->with(compact('header', 'order', 'tab', 'invoiced', 'invoices', 'patterns', 'versions', 'order_amount', 'order_amount_without_discount', 'order_amount_without_discount_in_lines', 'provider', 'provider_account', 'provider_managers', 'provider_settings', 'provider_workplaces', 'provider_workplace', 'provider_cost_centers', 'provider_business_areas', 'owner', 'commercial', 'customer', 'final_customer', 'customer_managers', 'customer_workplaces', 'customer_cost_centers', 'customer_business_areas', 'final_customers', 'customers', 'customer_settings', 'forms', 'products', 'projects', 'project', 'blocks', 'currency', 'templates', 'budget_from', 'customer_budgets', 'first_provider', 'my_linked_budget', 'linkable_budgets', 'languages', 'permitted', 'module_orders', 'module_products', 'module_projects'));
     }
 
     /**
@@ -809,6 +833,9 @@ class BudgetController extends Controller{
         }*/
         if($request->provider_manager_id){
             $order->provider_manager_id = $request->provider_manager_id;
+        }
+        if($request->commercial_id){
+            $order->commercial_id = $request->commercial_id;
         }
         if($request->provider_workplace_id){
             $order->provider_workplace_id = $request->provider_workplace_id;

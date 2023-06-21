@@ -594,12 +594,22 @@ $order_amount_without_discount = $order_amount_without_discount_in_lines > $orde
 						</b>
 					</label> --}}
 
-					{{-- Propietario --}}
+					{{-- Manager --}}
 					<label class="mr-5">
 						{!! ucfirst(trans('textos.manager')) !!}:
 						<b>
 							@if($owner)
 								{{ ucfirst($owner->name) }} {{ ucfirst($owner->surname) }}
+							@endif
+						</b>
+					</label>
+
+					{{-- Comercial --}}
+					<label class="mr-5">
+						{!! ucfirst(trans('textos.comercial')) !!}:
+						<b>
+							@if($commercial)
+								{{ ucfirst($commercial->name) }} {{ ucfirst($commercial->surname) }}
 							@endif
 						</b>
 					</label>

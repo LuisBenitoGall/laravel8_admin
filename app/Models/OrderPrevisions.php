@@ -92,10 +92,26 @@ class OrderPrevisions extends Model{
      * 3. Previsiones de facturación por pedido.
      */
     public static function previsions($order_id){
+        //Suma de porcentaje de las previsiones:
+        $sum_percent = OrderPrevisions::where('order_previsions.order_id', $order_id)
+        ->sum('percent');
+
+        //Añadimos nueva previsión si el porcentaje previsto es inferior a 100:
+        if($sum_percent < 100){
+            $diff = 100 - $sum_percent;
+
+            $op = new OrderPrevisions();
+            $op->order_id = $order_id;
+            $op->year = date('Y');
+            $op->percent = round($diff, 2);
+            $op->save();
+        }
+
         return OrderPrevisions::select('order_previsions.*', 'invoices.id AS invoiceId', 'invoices.invoice_num', 'invoices.amount', 'invoices.amount_with_iva')
         ->leftJoin('invoices', 'order_previsions.invoice_id', '=', 'invoices.id')
         ->where('order_previsions.order_id', $order_id)
         ->orderBy('order_previsions.year', 'ASC')
+        ->orderBy('order_previsions.id', 'ASC')
         ->orderBy('order_previsions.month', 'ASC')
         ->get();    
     }
