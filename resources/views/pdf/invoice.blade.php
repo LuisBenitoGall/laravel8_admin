@@ -129,7 +129,7 @@ $bg_color = $bn? '#000':($company_settings->base_color_invoices? $company_settin
 							@endif
 						</td>
 
-						<td style="text-align: right;">{{ $row->iva }}%</td>
+						<td style="text-align: right;">@if($invoice->with_iva > 0) {{ $row->iva }}% @endif</td>
 
 						<td style="text-align: right;">
 							@php
