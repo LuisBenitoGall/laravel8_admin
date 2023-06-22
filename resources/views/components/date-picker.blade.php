@@ -7,6 +7,7 @@
     <input type="text" 
         name="{{ $name }}" 
         class="form-control {{ $class }}" 
+        autocomplete="off" 
         @if($id) id="{{ $id }}" @endif
         @if($disabled) disabled @endif
         @if($required) required @endif
