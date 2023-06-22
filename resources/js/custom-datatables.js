@@ -3560,8 +3560,8 @@ $(document).ready(function(){
         });
         
         var tableOrders = $('#tblOrders').DataTable({
-            order: [[ 0, "desc" ]],
-            serverSide: false,
+            order: [[ 'orders.created_at', "desc" ]], // Ordenar siempre por esta sección, no hacerlo desde el controlador.
+            serverSide: true,
             processing: true,
             stateSave: true,
             // drawCallback: function(){
@@ -3624,29 +3624,35 @@ $(document).ready(function(){
                 var api = this.api(), data;
                 var json = tableOrders.ajax.json();
                 var currency = '€';
-                api.rows().every(function(){
-                    var data = this.data();
-                });
+
+                // Total de la columna importe:
+                $(api.column(8).footer()).html(
+                    `${json.total}${currency}`
+                );
+
+                // -- DATOS INSERVIBLES --
+                // api.rows().every(function(){
+                //     var data = this.data();
+                // });
 
                 //Separamos el importe de la moneda:
-                var intVal = function(i){
-                    return typeof i === 'string'? 
-                    i.replace(/[\'+currency+',]/g, '')*1 :
-                    typeof i === 'number' ?
-                        i : 0;
-                };
+                // var intVal = function(i){
+                //     return typeof i === 'string'? 
+                //     i.replace(/[\'+currency+',]/g, '')*1 :
+                //     typeof i === 'number' ?
+                //         i : 0;
+                // };
 
                 //Total:
-                total = api
-                .column(8, { search: 'applied' })
-                .data()
-                .reduce(function(a, b){
-                    return intVal(a) + intVal(b);
-                }, 0);
-
-                $(api.column(8).footer()).html(
-                    total.toFixed(2)+currency   
-                );
+                // total = api
+                //     .column(8, { search: 'applied' })
+                //     .data()
+                //     .reduce(function(a, b){
+                //         return intVal(a) + intVal(b);
+                //     }, 0);
+                // $(api.column(8).footer()).html(
+                //      total.toFixed(2)+currency   
+                // );
 
                 //$(api.column(8).footer()).html(json.amount);
             }
@@ -3659,8 +3665,8 @@ $(document).ready(function(){
         });
 
         //Suma importes:
-        var total_amount = tableOrders.column(8).data().sum();
-        $('#ordersAmount').text(total_amount);
+        // var total_amount = tableOrders.column(8).data().sum();
+        // $('#ordersAmount').text(total_amount);
     }
 
     //Tabla Orders Control Panel Purchases:
