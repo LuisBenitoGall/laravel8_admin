@@ -55,6 +55,8 @@ class OrderController extends Controller{
      * 1. Pedidos por cliente o proveedor.
      * 1.1. Lista de pedidos por cliente o proveedor.
      * 1.2. Listado de pedidos por cliente y proveedor para DataTable.
+     * 1.3 - Query - Obtiene el total de pedidos.
+     * 1.4 - Obtiene el total de pedidos para el datatable
      * 2. Formulario nuevo pedido.
      * 3. Guardar nuevo pedido.
      * 3.1. Generar pedido desde presupuesto.
@@ -394,8 +396,20 @@ class OrderController extends Controller{
 
     /**
      * 1.2. Listado de pedidos por cliente y proveedor para DataTable.
+     * 
+     * @param Request $request *Nuevo*
+     * @param int $year
+     * @param int $customer
+     * @param int $provider
+     * @param int $owner
+     * @param int $status
+     * @param date $from
+     * @param date $to
+     * @param string $order_buy
+     * 
+     * @return json
      */
-    public function getOrdersDT($year = false, $customer = false, $provider = false, $owner = false, $status = false, $from = false, $to = false, $order_buy = false){
+    public function getOrdersDT(Request $request, $year = false, $customer = false, $provider = false, $owner = false, $status = false, $from = false, $to = false, $order_buy = false){
         //La empresa en sesión debe ser cliente o proveedor del pedido.
         if($customer && $customer != session('currentCompany') && $provider && $provider != session('currentCompany')){
             return false;
@@ -409,62 +423,38 @@ class OrderController extends Controller{
         $order_buy = $order_buy == 'false' ? false : $order_buy;
 
         //Obtenemos pedidos simples, no agrupaciones:
-        $data = Order::select('orders.id', 'orders.is_budget', 'orders.budget_num', 'orders.discount', 'orders.order_parent', 'orders.name', 'orders.order_num', 'orders.order_old_num', 'orders.estimated_delivery_date', 'orders.purchase_num', 'orders.purchase_old_num', 'orders.delivery_date', 'orders.provider_id', 'orders.order_status', 'orders.invoiced', 'orders.created_at', 'companies.name AS company', 'business_areas.name AS businessArea', 'cost_centers.name AS costCenter', 'users.name AS nombre', 'users.surname')
-        ->join('companies', 'orders.'.$company_field.'_id', '=', 'companies.id')
-        ->leftJoin('business_areas', 'orders.customer_business_area_id', '=', 'business_areas.id')
-        ->leftJoin('cost_centers', 'orders.customer_cost_center_id', '=', 'cost_centers.id')
-        ->leftJoin('users', 'orders.provider_manager_id', '=', 'users.id')
-        //->leftJoin('workplaces', 'orders.workplace_id', '=', 'workplaces.id')
-        ->where('orders.is_order', true)
-        ->where('orders.is_group', false)
-        //Por año, si no viene declarado el intervalo de fechas:
-        ->when(!$from || !$to, function($q) use($year){
-            return $q->whereYear('orders.created_at', $year);
-        })
-        //Por estado:
-        ->when($status && $status > 0, function($q) use($status){
-            return $q->where('orders.order_status', $status);
-        })
-        // Consulta para comprobar el numero de orden de compra:
-        ->when($order_buy, function($q) use($order_buy) {
-            return $q->where(function($q) use($order_buy) {
-                $q->orWhere('orders.purchase_num', 'like', "%$order_buy%")
-                ->orWhere('orders.purchase_old_num', 'like', "%$order_buy%");
-            });
-        })
-        // Intervalo fechas (por fecha de finalización):
-        ->when($from && $to, function($q) use($from, $to){
-            return $q->whereBetween('orders.finished_at', [$from, $to]);
-        })
-        // Por manager:
-        ->when($owner && $owner > 0, function($q) use($owner){
-            return $q->where('orders.provider_manager_id', $owner);
-        })
-        ->when($customer && $provider, function($q) use($customer, $provider){
-            if(is_numeric($customer) && is_numeric($provider)){
-                return $q->where('orders.customer_id', $customer)
-                ->where('orders.provider_id', $provider);
-
-            }elseif($customer == 'all'){
-                return $q->where('orders.provider_id', $provider);
-
-            }elseif($provider == 'all'){
-                return $q->where('orders.customer_id', $customer);
-            }
-        })
-        ->orderBy('orders.created_at', 'DESC');
-        //->orderBy('orders.id', 'ASC')
-        //->get();
-        //Filtro status:
-        /*$q->when($status && $status != '', function($q) use($status){
-            return $q->where('orders.status', $status);
-        });*/
+        $fields_order = [
+            'orders.id',
+            'orders.is_budget',
+            'orders.budget_num',
+            'orders.discount',
+            'orders.order_parent',
+            'orders.name',
+            'orders.order_num',
+            'orders.order_old_num',
+            'orders.estimated_delivery_date',
+            'orders.purchase_num',
+            'orders.purchase_old_num',
+            'orders.delivery_date',
+            'orders.provider_id',
+            'orders.order_status',
+            'orders.invoiced',
+            'orders.created_at',
+            'companies.name AS company', 
+            'business_areas.name AS businessArea', 
+            'cost_centers.name AS costCenter', 
+            'users.name AS nombre', 
+            'users.surname'
+        ];
+        $data = $this->buildOrdersQuery($company_field, $from, $to, $status, $order_buy, $owner, $customer, $provider, $year, $fields_order);
 
         // $arrIds = [];
         // foreach($data as $r){
         //     array_push($arrIds, $r->id);
         //     //$arrIds .= $r->id.',';
         // }
+
+        $total = $this->getOrdersTotal($company_field, $from, $to, $status, $order_buy, $owner, $customer, $provider, $year, $request->all());
 
         $estados = helpers::orderStatus();
 
@@ -531,8 +521,156 @@ class OrderController extends Controller{
             $manage_status = true;
             return view('admin.orders.partials.dt-actions', compact('row', 'estados', 'manage_status'));    
         })
+        ->with('total', $total)
         ->rawColumns(['order_parent'])
         ->make(true);
+    }
+
+    /**
+     * 1.3 - Query - Obtiene el total de pedidos.
+     * 
+     * @param string $company_field
+     * @param string $from
+     * @param string $to
+     * @param string $status
+     * @param string $order_buy
+     * @param string $owner
+     * @param string $customer
+     * @param string $provider
+     * @param string $year
+     * @param array $fields - Listado de campos a obtener.
+     * 
+     * @return Eloquent<Order> Query de eloquent para obtener los pedidos.
+     */
+    function buildOrdersQuery($company_field, $from, $to, $status, $order_buy, $owner, $customer, $provider, $year, $fields)
+    {
+        //Obtenemos pedidos simples, no agrupaciones:
+        $data = Order::select($fields)
+        ->join('companies', 'orders.'.$company_field.'_id', '=', 'companies.id')
+        ->leftJoin('business_areas', 'orders.customer_business_area_id', '=', 'business_areas.id')
+        ->leftJoin('cost_centers', 'orders.customer_cost_center_id', '=', 'cost_centers.id')
+        ->leftJoin('users', 'orders.provider_manager_id', '=', 'users.id')
+        //->leftJoin('workplaces', 'orders.workplace_id', '=', 'workplaces.id')
+        ->where('orders.is_order', true)
+        ->where('orders.is_group', false)
+        //Por año, si no viene declarado el intervalo de fechas:
+        ->when(!$from || !$to, function($q) use($year){
+            return $q->whereYear('orders.created_at', $year);
+        })
+        //Por estado:
+        ->when($status && $status > 0, function($q) use($status){
+            return $q->where('orders.order_status', $status);
+        })
+        // Consulta para comprobar el numero de orden de compra:
+        ->when($order_buy, function($q) use($order_buy) {
+            return $q->where(function($q) use($order_buy) {
+                $q->orWhere('orders.purchase_num', 'like', "%$order_buy%")
+                ->orWhere('orders.purchase_old_num', 'like', "%$order_buy%");
+            });
+        })
+        // Intervalo fechas (por fecha de finalización):
+        ->when($from && $to, function($q) use($from, $to){
+            return $q->whereBetween('orders.finished_at', [$from, $to]);
+        })
+        // Por manager:
+        ->when($owner && $owner > 0, function($q) use($owner){
+            return $q->where('orders.provider_manager_id', $owner);
+        })
+        ->when($customer && $provider, function($q) use($customer, $provider){
+            if(is_numeric($customer) && is_numeric($provider)){
+                return $q->where('orders.customer_id', $customer)
+                ->where('orders.provider_id', $provider);
+
+            }elseif($customer == 'all'){
+                return $q->where('orders.provider_id', $provider);
+
+            }elseif($provider == 'all'){
+                return $q->where('orders.customer_id', $customer);
+            }
+        });
+
+        // IMPORTANTE! Si ordenamos desde el controlador, no se ordena desde la vista:
+        //->orderBy('orders.created_at', 'DESC');
+
+        //->orderBy('orders.id', 'ASC')
+        //->get();
+        //Filtro status:
+        /*$q->when($status && $status != '', function($q) use($status){
+            return $q->where('orders.status', $status);
+        });*/
+
+        return $data;
+    }
+
+    /**
+     * 1.4 - Obtiene el total de pedidos para el datatable
+     * 
+     * @param string $company_field
+     * @param string $from
+     * @param string $to
+     * @param int $status
+     * @param string $order_buy
+     * @param int $owner
+     * @param int $customer
+     * @param int $provider
+     * @param int $year
+     * @param array $request_all_data
+     * 
+     * @return array
+     */
+    function getOrdersTotal($company_field, $from, $to, $status, $order_buy, $owner, $customer, $provider, $year, $request_all_data)
+    {
+
+        // Filtro de campos explicitos:
+        $filter_data_raw = [];
+        foreach($request_all_data['columns'] as $item) {
+            if ($item['search']['value'] != null && $item['search']['value'] != '' ) {
+                $filter_data_raw[$item['name']] = "%".$item['search']['value']."%";
+            }
+        }
+
+        // Filtro de campos global:
+        $filter_data_raw_or = [];
+        foreach($request_all_data['columns'] as $item) {
+            if ( $item['searchable'] == "true" && $item['name'] != '') {
+                $filter_data_raw_or[$item['name']] = "%".$request_all_data['search']['value']."%";
+            }
+        }
+
+        // Campos minimos para que la consulta funcione:
+        $fields = ['orders.id', 'orders.discount'];
+
+        // Obtenemos la consulta:
+        $data = $this->buildOrdersQuery($company_field, $from, $to, $status, $order_buy, $owner, $customer, $provider, $year, $fields);
+
+        // Filtro global:
+        $data->where(function($q) use ($filter_data_raw_or) {
+            foreach ($filter_data_raw_or as $key => $item) {
+                if($item != '' && $key != 'estado'){
+                    $q->orWhere($key, 'like', $item);
+                }
+            }
+        });
+
+        // Filtro explicito:
+        foreach ($filter_data_raw as $key => $item) {
+            if($item != ''){
+                $data->where($key, 'like', $item);
+            }
+        }
+
+        $all_data = $data->get();
+        
+        // Obtenemos el total:
+        $total = 0;
+
+        foreach ($all_data as $key => $item) {
+            $total += $item->getAmount()['total_amount'];
+        }
+
+        // Formateamos el total, con dos decimales y punto como separador de miles:
+        $total = number_format($total, 2, '.', '');
+        return $total;
     }
 
     /**
