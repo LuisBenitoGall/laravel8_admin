@@ -580,9 +580,10 @@ class ProjectController extends Controller{
         ->get();
 
         //Agrupaciones a las que pertenece el proyecto presente:
-        $groups_in = ProjectGroupItems::where('project_id', $project->id)
-        ->pluck('group_id')
-        ->toArray();
+        $groups_in = ProjectGroup::select('project_groups.id', 'project_groups.title')
+        ->join('project_group_items', 'project_groups.id', '=', 'project_group_items.group_id')
+        ->where('project_group_items.project_id', $project->id)
+        ->get();
 
         //Agrupaciones de proyectos:
         $arr_companies = [];

@@ -36,7 +36,7 @@ class ProjectGroupController extends Controller{
         if(isset($data['submit_save'])){
             return Validator::make($data, [
                 'project_id' => 'required|integer',
-                'title' => 'required|string|max:255'
+                'title' => 'required_without:group|max:255'
             ]);
         }
     }
@@ -71,6 +71,6 @@ class ProjectGroupController extends Controller{
         );
 
         $msg = trans('textos.proyecto_vinculado');
-        return redirect()->route('projects.edit', $request->project_id)->with(compact('msg'));
+        return redirect()->route('projects.edit', [$request->project_id, 'groups'])->with(compact('msg'));
     }
 }

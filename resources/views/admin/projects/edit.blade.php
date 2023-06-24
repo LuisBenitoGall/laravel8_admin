@@ -252,6 +252,12 @@
 				    		<a class="nav-link @if($tab == 'expenses') active @endif" href="#tab-project-expenses" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.gastos')) !!}</a>
 				  		</li>
 				  	@endif
+
+				  	@if($groups_in->count())
+				  		<li class="nav-item @if($tab == 'groups') active @endif">
+				    		<a class="nav-link @if($tab == 'groups') active @endif" href="#tab-project-groups" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.proyectos_grupos')) !!}</a>
+				  		</li>
+				  	@endif
 				</ul>
 
 				<div class="tab-content pt-4">
@@ -300,6 +306,13 @@
 					@if($project_expenses->count())
 						<div class="tab-pane fade @if($tab == 'expenses') show active @endif" role="tabpanel" id="tab-project-expenses">
 							@include('admin.projects.partials.project-expenses')	
+						</div>
+					@endif
+
+					{{-- Grupos de proyectos --}}
+					@if($groups_in->count())
+						<div class="tab-pane fade @if($tab == 'groups') show active @endif" role="tabpanel" id="tab-project-groups">
+							@include('admin.projects.partials.project-groups')	
 						</div>
 					@endif
 				</div>
