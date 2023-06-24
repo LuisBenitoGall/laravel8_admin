@@ -20,8 +20,6 @@
                         <label for="title" class="col-12">{{ ucfirst(trans('textos.grupo_nuevo')) }}</label>
                         <div class="col-12">
                             <x-input type="text" name="title" placeholder="{!! ucfirst(trans('textos.grupo_nuevo')) !!}" autocomplete="off" maxlength="150" info=""/>      
-
-                            
                         </div>
                     </div>
                     <hr>
@@ -30,7 +28,7 @@
                         @if(count($project_groups))
                             <label for="group" class="col-12">{{ ucfirst(trans('textos.grupo_selecciona')) }}</label>
                             <div class="col-12">
-                                <x-select name="group" class="select2" :options="$project_groups"/>
+                                <x-select name="group" class="select2" :options="$project_groups" label="grupo_selecciona"/>
                             </div>
                         @else
                             <div class="col-12 text-center py-4">
