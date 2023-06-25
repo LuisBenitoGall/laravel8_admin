@@ -19,7 +19,7 @@
 		<div class="col-12">
 			<div class="card mb-3">
 				<div class="card-body">
-					<h3 class="mb-4">
+					<h3 class="mb-3">
 						{!! ucfirst(trans('textos.producto')) !!}
 						<u>
 							<b>{{ $product->name }}</b> - 
@@ -27,6 +27,25 @@
 							<b>{{ $serial->serial }}</b>
 						</u>
 					</h3>	
+
+					{{-- Info --}}
+					<div class="mb-3">
+						{{-- Fecha alta --}}
+						<label class="mr-5">
+							{!! ucfirst(trans('textos.fecha_alta')) !!}: 
+							<b>
+								{{ $serial->created_at->format($languages[session()->get('locale')][4].' H:i:s') }}
+							</b>
+						</label>
+
+						{{-- Fecha última actualización --}}
+						<label class="mr-5">
+							{!! ucfirst(trans('textos.ultima_edicion')) !!}: 
+							<b>
+								{{ $serial->updated_at->format($languages[session()->get('locale')][4].' H:i:s') }}
+							</b>
+						</label>
+					</div>
 
 					<div class="row">
 						{{-- Column left --}}

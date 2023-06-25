@@ -74,11 +74,10 @@
 					<th class="text-center wdt100">{!! ucfirst(trans('textos.pedido_num_abrv')) !!}</th>
 					<th class="text-center wdt150">{!! ucfirst(trans('textos.orden_compra')) !!}</th>
 					<th class="wdt200">{!! ucfirst(trans('textos.pedido_titulo')) !!}</th>
-					<th class="wdt150">{!! ucfirst(trans('textos.responsable')) !!}</th>
-					@if($order_type != 'compras')
-						<th class="wdt150">{!! ucfirst(trans('textos.centro_trabajo')) !!}</th>
+					<th class="wdt150">{!! ucfirst(trans('textos.manager')) !!}</th>
+					<th class="d-none">&nbsp;</th>
+					<th class="wdt150">{!! ucfirst(trans('textos.centro_trabajo')) !!}</th>
 						{{-- <th class="text-center wdt150">{!! ucfirst(trans('textos.cliente_final')) !!}</th> --}}
-					@endif
 					<th class="text-center wdt50">{!! ucfirst(trans('textos.importe')) !!}</th>
 					<th class="text-center wdt100">{!! ucfirst(trans('textos.a_facturar')) !!}</th>
 					<th class="text-center wdt100">{!! ucfirst(trans('textos.facturado')) !!}</th>
@@ -91,20 +90,18 @@
 				<tr>
 					<td></td>
 					<td></td>
-					{{-- <td></td> --}}
-					@if($order_type != 'compras')
-						<td></td>
-						<td></td>
-					@endif
 					<td></td>
 					<td></td>
-					{{-- <td></td> --}}
-					{{-- <td></td> --}}
+					<td></td>
+					<td></td>
+					<td></td>
+						{{-- <td></td> --}}
 					<td class="text-right"><b>{{ trans('textos.total') }}</b></td>
 					<td class="text-right"></td>
 					{{-- <td></td> --}}
-					<td class="text-right"><b>{{ trans('textos.a_facturar') }}</b></td>
+					{{-- <td class="text-right"><b>{{ trans('textos.a_facturar') }}</b></td> --}}
 					<td class="text-right"></td>
+					<td></td>
 					<td></td>
 					<td></td>
 				</tr>	
