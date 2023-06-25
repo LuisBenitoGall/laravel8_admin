@@ -3680,7 +3680,64 @@ $(document).ready(function(){
     if($('#tblOrdersControlPanelPurchases').length > 0){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
         var year = $('#dtYear').val();
+        var workplace = $('#dtWorkplace').val();
         var currency = $('#dtCurrency').val();
+
+        //Filters:
+        // Load data from localstorage
+        var jsonData = JSON.parse(localStorage.getItem('DataTables_tblOrdersControlPanelPurchases_'+window.location.pathname));
+
+        $('#tblOrdersControlPanelPurchases thead tr').clone(true).appendTo('#tblOrdersControlPanelPurchases thead');
+        $('#tblOrdersControlPanelPurchases thead tr:eq(1) th').each(function(i){
+            var title = $(this).text(); 
+
+            if(i == 12){
+                $(this).html('');
+            }else{
+                // Check field on json of localstorage
+                let value = jsonData && jsonData.columns[i].search.search ? jsonData.columns[i].search.search : '';
+                let htmlRaw = `<input type="text" class="DTsearch" placeholder="${txtBuscar+' '+title}" value="${value}" />`
+                $(this).html(htmlRaw);
+                let element = $(this).html(htmlRaw);
+
+                //Búsqueda por nombre y apellidos.
+                if (i == 5) {
+                    $('input', element).on('keyup change', function(){
+                        // Diferenciamos si es nombre o apellido
+                        let fullname = this.value.split(' ');
+
+                        // Si es un solo nombre, se busca en el campo nombre dejando el campo apellido vacio
+                        // caso contrario se busca en ambos campos
+                        if(fullname.length == 1) {
+                            // La busqueda se hace en el campo nombre
+                            tableOrdersCPPurchases
+                                .column(5)
+                                .search(fullname[0])
+                                .column(6)
+                                .search('')
+                                .draw();
+                        }else{
+                            // La busqueda se hace en ambos campos (nombre y apellido)
+                            tableOrdersCPPurchases
+                                .column(5)
+                                .search(fullname[0])
+                                .column(6)
+                                .search(fullname[1])
+                                .draw();
+                        }
+                    });
+                }
+            }
+         
+            $('input', this).on('keyup change', function(){
+                if(tableOrdersCPPurchases.column(i).search() !== this.value){
+                    tableOrdersCPPurchases
+                        .column(i)
+                        .search(this.value)
+                        .draw();
+                }
+            });
+        });
 
         var tableOrdersCPPurchases = $('#tblOrdersControlPanelPurchases').DataTable({
             order: [[ 0, "desc" ]],
@@ -3704,7 +3761,9 @@ $(document).ready(function(){
                 {data: 'order_num', name: 'orders.order_num', className: 'text-right'},
                 {data: 'purchase_num', name: 'orders.purchase_num', className: 'text-right'},
                 {data: 'name', name: 'companies.name'},
-                {data: 'Nombre', name: 'users.name'},
+                {data: 'manager', name: 'users.name'},
+                {data: 'surname', name: 'users.surname', className: 'd-none' },
+                {data: 'workplace', name: 'workplaces.name'},
                 {data: 'amount', name: 'amount', className: 'text-right'},
                 {data: 'a_facturar', name: 'a_facturar', className: 'text-right'},
                 {data: 'invoice_amount', name: 'invoice_amount', className: 'text-right'},
@@ -3739,28 +3798,28 @@ $(document).ready(function(){
                 // }, 0);
 
                 //Total:
-                // total = api
-                // .column(7, { search: 'applied' })
-                // .data()
-                // .reduce(function(a, b){
-                //     return intVal(a) + intVal(b);
-                // }, 0);
+                total = api
+                .column(8, { search: 'applied' })
+                .data()
+                .reduce(function(a, b){
+                    return intVal(a) + intVal(b);
+                }, 0);
 
-                // $(api.column(7).footer()).html(
-                //     total.toFixed(2)+currency   
-                // );
+                $(api.column(8).footer()).html(
+                    total.toFixed(2)+currency   
+                );
 
-                // //Total por filtro aplicado:
-                // a_facturar = api
-                // .column(8, { search: 'applied' })
-                // .data()
-                // .reduce(function(a, b){
-                //     return intVal(a) + intVal(b);
-                // }, 0);
+                //Total por filtro aplicado:
+                a_facturar = api
+                .column(9, { search: 'applied' })
+                .data()
+                .reduce(function(a, b){
+                    return intVal(a) + intVal(b);
+                }, 0);
 
-                // $(api.column(8).footer()).html(
-                //     a_facturar.toFixed(2)+currency    
-                // );
+                $(api.column(9).footer()).html(
+                    a_facturar.toFixed(2)+currency    
+                );
             }
         });
     }
@@ -3773,13 +3832,51 @@ $(document).ready(function(){
         var currency = $('#dtCurrency').val();
 
         //Filters:
+        // Load data from localstorage
+        var jsonData = JSON.parse(localStorage.getItem('DataTables_tblOrdersControlPanelSales_'+window.location.pathname));
+
         $('#tblOrdersControlPanelSales thead tr').clone(true).appendTo('#tblOrdersControlPanelSales thead');
         $('#tblOrdersControlPanelSales thead tr:eq(1) th').each(function(i){
             var title = $(this).text(); 
 
-            //Filtros de texto, salvo para las columnas con filtro por select:
-            $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
-     
+            if(i == 12){
+                $(this).html('');
+            }else{
+                // Check field on json of localstorage
+                let value = jsonData && jsonData.columns[i].search.search ? jsonData.columns[i].search.search : '';
+                let htmlRaw = `<input type="text" class="DTsearch" placeholder="${txtBuscar+' '+title}" value="${value}" />`
+                $(this).html(htmlRaw);
+                let element = $(this).html(htmlRaw);
+
+                //Búsqueda por nombre y apellidos.
+                if (i == 5) {
+                    $('input', element).on('keyup change', function(){
+                        // Diferenciamos si es nombre o apellido
+                        let fullname = this.value.split(' ');
+
+                        // Si es un solo nombre, se busca en el campo nombre dejando el campo apellido vacio
+                        // caso contrario se busca en ambos campos
+                        if(fullname.length == 1) {
+                            // La busqueda se hace en el campo nombre
+                            tableOrdersCPSales
+                                .column(5)
+                                .search(fullname[0])
+                                .column(6)
+                                .search('')
+                                .draw();
+                        }else{
+                            // La busqueda se hace en ambos campos (nombre y apellido)
+                            tableOrdersCPSales
+                                .column(5)
+                                .search(fullname[0])
+                                .column(6)
+                                .search(fullname[1])
+                                .draw();
+                        }
+                    });
+                }
+            }
+         
             $('input', this).on('keyup change', function(){
                 if(tableOrdersCPSales.column(i).search() !== this.value){
                     tableOrdersCPSales
@@ -3812,7 +3909,8 @@ $(document).ready(function(){
                 {data: 'order_num', name: 'orders.order_num', className: 'text-right'},
                 {data: 'purchase_num', name: 'orders.purchase_num', className: 'text-right'},
                 {data: 'name', name: 'companies.name'},
-                {data: 'Nombre', name: 'users.name'},
+                {data: 'manager', name: 'users.name'},
+                {data: 'surname', name: 'users.surname', className: 'd-none' },
                 {data: 'workplace', name: 'workplaces.name'},
                 // {data: 'finalCustomer', name: 'companies.name'},
                 {data: 'amount', name: 'amount', className: 'text-right'},
@@ -3850,18 +3948,6 @@ $(document).ready(function(){
 
                 //Total:
                 total = api
-                .column(7, { search: 'applied' })
-                .data()
-                .reduce(function(a, b){
-                    return intVal(a) + intVal(b);
-                }, 0);
-
-                $(api.column(7).footer()).html(
-                    total.toFixed(2)+currency   
-                );
-
-                //Total por filtro aplicado:
-                a_facturar = api
                 .column(8, { search: 'applied' })
                 .data()
                 .reduce(function(a, b){
@@ -3869,6 +3955,18 @@ $(document).ready(function(){
                 }, 0);
 
                 $(api.column(8).footer()).html(
+                    total.toFixed(2)+currency   
+                );
+
+                //Total por filtro aplicado:
+                a_facturar = api
+                .column(9, { search: 'applied' })
+                .data()
+                .reduce(function(a, b){
+                    return intVal(a) + intVal(b);
+                }, 0);
+
+                $(api.column(9).footer()).html(
                     a_facturar.toFixed(2)+currency    
                 );
             }
@@ -4108,8 +4206,8 @@ $(document).ready(function(){
 
         $('#tblProductCategories').DataTable({
             order: [[ 2, "desc" ]],
-            serverSide: true,
-            processing: true,
+            serverSide: false,
+            processing: false,
             ajax: {
                 "type": "GET",
                 "url": "/api/admin/product-categories/"+product_id,
