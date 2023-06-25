@@ -875,7 +875,7 @@ $(document).ready(function(){
         $('#tblBudgets thead tr').clone(true).appendTo('#tblBudgets thead');
         $('#tblBudgets thead tr:eq(1) th').each(function(i){
             var title = $(this).text();
-            if(i == 3 || i == 10){
+            if(i == 5 || i == 10){
                 $(this).html('');
             }else{
                 // Check field on json of localstorage
@@ -885,7 +885,7 @@ $(document).ready(function(){
                 let element = $(this).html(htmlRaw);
             
                 //Búsqueda por nombre y apellidos.
-                if (i == 4) {
+                if (i == 2) {
                     $('input', element).on('keyup change', function(){
                         // Diferenciamos si es nombre o apellido
                         let fullname = this.value.split(' ');
@@ -895,19 +895,19 @@ $(document).ready(function(){
                         if(fullname.length == 1) {
                             // La busqueda se hace en el campo nombre
                             tableBudgets
-                                .column(4)
+                                .column(2)
                                 .search(fullname[0])
-                                .column(5)
+                                .column(3)
                                 .search('')
                                 .draw();
                         }else{
                             // La busqueda se hace en ambos campos (nombre y apellido)
                             tableBudgets
-                                .column(4)
+                                .column(2)
                                 .search(fullname[0])
-                                .column(5)
+                                .column(3)
                                 .search(fullname[1])
-                                .draw();
+                                .draw()
                         }
                     });
                 }
@@ -915,8 +915,8 @@ $(document).ready(function(){
      
             $('input', this).on('keyup change', function(){
                 // Ignoramos la busqueda del campo de nombres
-                if (i == 1) {
-                    return
+                if (i == 2) {
+                    return;
                 }
 
                 if(tableBudgets.column(i).search() !== this.value){
@@ -933,7 +933,7 @@ $(document).ready(function(){
             serverSide: true,
             processing: true,
             stateSave: true,
-            retrieve: true,
+            //retrieve: true,
             ajax: {
                 "type": "GET",
                 "url": "/api/admin/budgets/"+from,
@@ -943,13 +943,13 @@ $(document).ready(function(){
             },
             columns: [
                 {data: 'num', name: 'orders.budget_num', className: 'text-right'},
+                {data: 'budget_title', name: 'orders.name'},
+                {data: 'manager', name: 'users.name'},
+                {data: 'surname', name: 'users.surname', className: 'd-none'},  //Columna oculta
                 // {data: 'budget_old_num', name: 'orders.budget_old_num', className: 'text-right'},
-                {data: 'name', name: 'orders.name'},
                 {data: 'order_num', name: 'orders.order_num'},
                 {data: 'amount', name: 'amount', className: 'text-right'},
                 // {data: 'modalidad', name: 'modalidad'},
-                {data: 'manager', name: 'users.name'},
-                {data: 'surname', name: 'users.surname', className: 'd-none'},  //Columna oculta
                 {data: 'alta', name: 'orders.created_at', className: 'text-right'},
                 {data: 'company', name: 'companies.name', "defaultContent": ""},
                 {data: 'final_customer', name: 'c_.name', "defaultContent": ""},
@@ -958,7 +958,7 @@ $(document).ready(function(){
             ],
             // Indicamos que columnas se tienen que ocultar
             columnDefs: [
-                {targets: 5,
+                {targets: 3,
                 visible: false,
                 searchable: true}
             ]
