@@ -462,6 +462,9 @@ class OrderController extends Controller{
         $currency = CompanySettings::co_currency(0);
 
         return DataTables::of($data)
+        ->addColumn('created_at', function($row){
+            return $row->created_at; 
+        })
         ->addColumn('num', function($row){
             return view('admin.orders.partials.dt-num', compact('row')); 
         })
@@ -542,8 +545,7 @@ class OrderController extends Controller{
      * 
      * @return Eloquent<Order> Query de eloquent para obtener los pedidos.
      */
-    function buildOrdersQuery($company_field, $from, $to, $status, $order_buy, $owner, $customer, $provider, $year, $fields)
-    {
+    public function buildOrdersQuery($company_field, $from, $to, $status, $order_buy, $owner, $customer, $provider, $year, $fields){
         //Obtenemos pedidos simples, no agrupaciones:
         $data = Order::select($fields)
         ->join('companies', 'orders.'.$company_field.'_id', '=', 'companies.id')
@@ -603,7 +605,7 @@ class OrderController extends Controller{
     }
 
     /**
-     * 1.4 - Obtiene el total de pedidos para el datatable
+     * 1.4 - Obtiene el total de pedidos para el datatable.
      * 
      * @param string $company_field
      * @param string $from
@@ -618,8 +620,7 @@ class OrderController extends Controller{
      * 
      * @return array
      */
-    function getOrdersTotal($company_field, $from, $to, $status, $order_buy, $owner, $customer, $provider, $year, $request_all_data)
-    {
+    public function getOrdersTotal($company_field, $from, $to, $status, $order_buy, $owner, $customer, $provider, $year, $request_all_data){
 
         // Filtro de campos explicitos:
         $filter_data_raw = [];

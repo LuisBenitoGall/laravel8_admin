@@ -90,10 +90,11 @@
 			<table class="table table-hover dtabla" id="tblOrders">
 				<thead>
 					<tr>
+						<th class="d-none">&nbsp;</th>
 						<th class="text-center wdt50">#</th>
 						{{-- <th class="text-center wdt100">{!! ucfirst(trans('textos.n_manual')) !!}</th> --}}
 						<th class="wdt100">{!! ucfirst(trans('textos.responsable')) !!}</th>
-						<th class="d-none"></th>
+						<th class="d-none">&nbsp;</th>
 						<th class="wdt150">
 							@if($ordersType == 'compras')
 								{!! ucfirst(trans('textos.proveedor')) !!}
@@ -118,6 +119,7 @@
 
 				<tfoot>
 					<tr>
+						<td class="d-none"></td>
 						<td></td>
 						<td></td>
 						<td class="d-none"></td>
