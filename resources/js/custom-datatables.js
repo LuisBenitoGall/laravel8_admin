@@ -3502,7 +3502,7 @@ $(document).ready(function(){
         $('#tblOrders thead tr').clone(true).appendTo('#tblOrders thead');
         $('#tblOrders thead tr:eq(1) th').each(function(i){
             var title = $(this).text(); 
-            if(i == 12){
+            if(i == 13){
                 $(this).html('');
             }else{
                 // Check field on json of localstorage
@@ -3512,8 +3512,7 @@ $(document).ready(function(){
                 let element = $(this).html(htmlRaw);
 
                 //Búsqueda por nombre y apellidos.
-                if (i == 1) {
-                    console.log(element);
+                if (i == 2) {
                     $('input', element).on('keyup change', function(){
                         // Diferenciamos si es nombre o apellido
                         let fullname = this.value.split(' ');
@@ -3524,18 +3523,18 @@ $(document).ready(function(){
                             // La busqueda se hace en el campo nombre
                             console.log(`El nombre es ${fullname[0]}`);
                             tableOrders
-                                .column(1)
-                                .search(fullname[0])
                                 .column(2)
+                                .search(fullname[0])
+                                .column(3)
                                 .search('')
                                 .draw();
                         }else{
                             // La busqueda se hace en ambos campos (nombre y apellido)
                             console.log(`El nombre es ${fullname[0]} y el apellido es ${fullname[1]}`);
                             tableOrders
-                                .column(1)
-                                .search(fullname[0])
                                 .column(2)
+                                .search(fullname[0])
+                                .column(3)
                                 .search(fullname[1])
                                 .draw();
                         }
@@ -3546,8 +3545,8 @@ $(document).ready(function(){
             }
             $('input', this).on('keyup change', function(){
                 // Ignoramos la busqueda del campo de nombres
-                if (i == 1) {
-                    return
+                if (i == 2) {
+                    return;
                 }
 
                 if(tableOrders.column(i).search() !== this.value){
@@ -3560,8 +3559,8 @@ $(document).ready(function(){
         });
         
         var tableOrders = $('#tblOrders').DataTable({
-            order: [[ 0, "desc" ]],
-            serverSide: false,
+            order: [[ 0, "desc" ]], // Ordenar siempre por esta sección, no hacerlo desde el controlador.
+            serverSide: true,
             processing: true,
             stateSave: true,
             // drawCallback: function(){
@@ -3598,6 +3597,7 @@ $(document).ready(function(){
                 }
             },
             columns: [
+                {data: 'created_at', name: 'orders.created_at', className: 'd-none' },     //Columna oculta
                 {data: 'num', name: 'orders.order_num', className: 'text-right'},
                 // {data: 'order_old_num', name: 'orders.order_old_num', className: 'text-right'},
                 {data: 'manager', name: 'users.name'},
@@ -3616,37 +3616,50 @@ $(document).ready(function(){
             ],
             // Indicamos que columnas se tienen que ocultar
             columnDefs: [
-                {targets: 2,
-                visible: false,
-                searchable: true}
+                {
+                    targets: 0,
+                    visible: false,
+                    searchable: false
+                },
+                {
+                    targets: 3,
+                    visible: false,
+                    searchable: true
+                }
             ],
             footerCallback: function(row, data, start, end, display){
                 var api = this.api(), data;
                 var json = tableOrders.ajax.json();
                 var currency = '€';
-                api.rows().every(function(){
-                    var data = this.data();
-                });
+
+                // Total de la columna importe:
+                $(api.column(9).footer()).html(
+                    `${json.total}${currency}`
+                );
+
+                // -- DATOS INSERVIBLES --
+                // api.rows().every(function(){
+                //     var data = this.data();
+                // });
 
                 //Separamos el importe de la moneda:
-                var intVal = function(i){
-                    return typeof i === 'string'? 
-                    i.replace(/[\'+currency+',]/g, '')*1 :
-                    typeof i === 'number' ?
-                        i : 0;
-                };
+                // var intVal = function(i){
+                //     return typeof i === 'string'? 
+                //     i.replace(/[\'+currency+',]/g, '')*1 :
+                //     typeof i === 'number' ?
+                //         i : 0;
+                // };
 
                 //Total:
-                total = api
-                .column(8, { search: 'applied' })
-                .data()
-                .reduce(function(a, b){
-                    return intVal(a) + intVal(b);
-                }, 0);
-
-                $(api.column(8).footer()).html(
-                    total.toFixed(2)+currency   
-                );
+                // total = api
+                //     .column(8, { search: 'applied' })
+                //     .data()
+                //     .reduce(function(a, b){
+                //         return intVal(a) + intVal(b);
+                //     }, 0);
+                // $(api.column(8).footer()).html(
+                //      total.toFixed(2)+currency   
+                // );
 
                 //$(api.column(8).footer()).html(json.amount);
             }
@@ -3659,8 +3672,8 @@ $(document).ready(function(){
         });
 
         //Suma importes:
-        var total_amount = tableOrders.column(8).data().sum();
-        $('#ordersAmount').text(total_amount);
+        // var total_amount = tableOrders.column(8).data().sum();
+        // $('#ordersAmount').text(total_amount);
     }
 
     //Tabla Orders Control Panel Purchases:
