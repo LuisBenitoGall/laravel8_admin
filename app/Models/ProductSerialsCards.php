@@ -9,4 +9,6 @@ class ProductSerialsCards extends Model{
     use HasFactory;
 
     protected $table = 'product_serials_cards';
+
+    protected $fillable = ['product_serial_id', 'attribute_id', 'value'];
 }

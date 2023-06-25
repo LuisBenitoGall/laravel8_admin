@@ -1733,7 +1733,7 @@ class OrderController extends Controller{
 
         $currency = CompanySettings::co_currency(0);
 
-        $data = Order::select('orders.id', 'orders.name', 'orders.order_num', 'orders.order_old_num', 'orders.purchase_num', 'orders.purchase_old_num', 'orders.is_group', 'orders.estimated_delivery_date', 'orders.delivery_date', 'orders.order_status', 'orders.invoiced', 'orders.discount', 'orders.bag_amount', 'order_previsions.year', 'order_previsions.month', 'order_previsions.percent', 'orders.created_at', 'companies.name AS Customer', 'users.name AS Nombre', 'users.surname', 'cc.name AS finalCustomer', 'u_.name AS CustomerManagerName', 'u_.surname AS CustomerManagerSurname', 'business_areas.name AS businessArea', 'workplaces.name AS workplace')
+        $data = Order::select('orders.id', 'orders.name', 'orders.order_num', 'orders.order_old_num', 'orders.purchase_num', 'orders.purchase_old_num', 'orders.is_group', 'orders.estimated_delivery_date', 'orders.delivery_date', 'orders.order_status', 'orders.invoiced', 'orders.discount', 'orders.bag_amount', 'order_previsions.year', 'order_previsions.month', 'order_previsions.percent', 'orders.created_at', 'companies.name AS Customer', 'users.name AS nombre', 'users.surname', 'cc.name AS finalCustomer', 'u_.name AS CustomerManagerName', 'u_.surname AS CustomerManagerSurname', 'business_areas.name AS businessArea', 'workplaces.name AS workplace')
         ->join('order_previsions', 'orders.id', '=', 'order_previsions.order_id')
         ->join('companies', 'orders.customer_id', '=', 'companies.id')
         ->leftJoin('companies AS cc', 'orders.final_customer_id', '=', 'cc.id')
@@ -1781,8 +1781,12 @@ class OrderController extends Controller{
         ->addColumn('name', function($row){
             return $row->name;
         })
-        ->addColumn('Nombre', function($row){
-            return $row->Nombre;
+        ->addColumn('manager', function($row){
+            if($row->nombre){
+                return $row->nombre.' '.$row->surname;
+            }else{
+                return '';
+            }
         })
         ->addColumn('workplace', function($row){
             return $row->workplace;
@@ -1842,7 +1846,7 @@ class OrderController extends Controller{
     /**
      * 12. Panel control de compras.
      */
-    public function controlPanelPurchases($year = false){
+    public function controlPanelPurchases($year = false, $workplace_id = false){
         $header = [
             'option' => $this->option, 
             'suboption' => 'textos.panel_control_compras',
@@ -1857,16 +1861,25 @@ class OrderController extends Controller{
 
         $order_type = 'compras';
 
+        //Centros de trabajo:
+        $workplaces = Workplace::where('company_id', session('currentCompany'))
+        ->where('status', 1)
+        ->pluck('name', 'id')
+        ->toArray();
+
+        $workplaces[''] = trans('textos.todos');
+        ksort($workplaces);     //Reordenamos array.
+
         $currency = CompanySettings::co_currency(0);
 
-        return view('admin.orders.control-panel')->with(compact('header', 'year', 'min_year', 'max_year', 'order_type', 'currency'));
+        return view('admin.orders.control-panel')->with(compact('header', 'year', 'min_year', 'max_year', 'order_type', 'workplaces', 'workplace_id', 'currency'));
     }
 
     /**
      * 12.1. Filtrar año para panel de control de compras.
      */
     public function controlPanelPurchasesPost(Request $request){
-        return redirect()->route('orders.control-panel-purchases', $request->year);
+        return redirect()->route('orders.control-panel-purchases', [$request->year, $request->workplace]);
     }
 
     /**
@@ -1880,13 +1893,14 @@ class OrderController extends Controller{
 
         $currency = CompanySettings::co_currency(0);
 
-        $data = Order::select('orders.id', 'orders.name', 'orders.order_num', 'orders.order_old_num', 'orders.purchase_num', 'orders.purchase_old_num', 'orders.estimated_delivery_date', 'orders.delivery_date', 'orders.order_status', 'orders.invoiced', 'orders.discount', 'order_previsions.year', 'order_previsions.month', 'order_previsions.percent', 'orders.created_at', 'companies.name AS Provider', 'users.name AS Nombre', 'users.surname', 'cc.name AS finalCustomer', 'u_.name AS CustomerManagerName', 'u_.surname AS CustomerManagerSurname', 'business_areas.name AS businessArea')
+        $data = Order::select('orders.id', 'orders.name', 'orders.order_num', 'orders.order_old_num', 'orders.purchase_num', 'orders.purchase_old_num', 'orders.estimated_delivery_date', 'orders.delivery_date', 'orders.order_status', 'orders.invoiced', 'orders.discount', 'order_previsions.year', 'order_previsions.month', 'order_previsions.percent', 'orders.created_at', 'companies.name AS Provider', 'users.name AS nombre', 'users.surname', 'cc.name AS finalCustomer', 'u_.name AS CustomerManagerName', 'u_.surname AS CustomerManagerSurname', 'business_areas.name AS businessArea', 'workplaces.name AS workplace')
         ->join('order_previsions', 'orders.id', '=', 'order_previsions.order_id')
         ->join('companies', 'orders.provider_id', '=', 'companies.id')
         ->leftJoin('companies AS cc', 'orders.final_customer_id', '=', 'cc.id')
         ->leftJoin('users', 'orders.provider_manager_id', '=', 'users.id')
         ->leftJoin('users AS u_', 'orders.customer_manager_id', '=', 'u_.id')
         ->leftJoin('business_areas', 'orders.customer_business_area_id', '=', 'business_areas.id')
+        ->leftJoin('workplaces', 'orders.customer_workplace_id', '=', 'workplaces.id')
         ->where('orders.customer_id', session('currentCompany'))
         ->where('orders.is_order', 1)
         ->where('orders.invoiced', 0)
@@ -1924,8 +1938,15 @@ class OrderController extends Controller{
         ->addColumn('name', function($row){
             return $row->name;
         })
-        ->addColumn('Nombre', function($row){
-            return $row->Nombre;
+        ->addColumn('manager', function($row){
+            if($row->nombre){
+                return $row->nombre.' '.$row->surname;
+            }else{
+                return '';
+            }
+        })
+        ->addColumn('workplace', function($row){
+            return $row->workplace;
         })
         ->addColumn('finalCustomer', function($row){
             return $row->finalCustomer;
