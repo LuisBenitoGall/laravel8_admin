@@ -29,9 +29,6 @@
 					{{-- 07/12/22: se oculta esta columna a petición de Cuentas --}}
 					{{-- <th class="text-center wdt100">{!! ucfirst(trans('textos.numero_antiguo')) !!}</th> --}}
 					<th class="wdt150">{!! ucfirst(trans('textos.presupuesto')) !!}</th>
-					<th class="wdt100">{!! ucfirst(trans('textos.pedido')) !!}</th>
-					<th class="text-center wdt100">{!! ucfirst(trans('textos.importe')) !!}</th>
-					{{-- <th class="wdt100">{!! ucfirst(trans('textos.modalidad')) !!}</th> --}}
 					{{-- Manager --}}
 					<th class="wdt200">
 						@if($budget_from == 'customers')
@@ -40,7 +37,10 @@
 							{!! ucfirst(trans('textos.comprador')) !!}
 						@endif
 					</th>
-					<th class="d-none"></th>
+					<th class="d-none">&nbsp;</th>
+					<th class="wdt100">{!! ucfirst(trans('textos.pedido')) !!}</th>
+					<th class="text-center wdt100">{!! ucfirst(trans('textos.importe')) !!}</th>
+					{{-- <th class="wdt100">{!! ucfirst(trans('textos.modalidad')) !!}</th> --}}
 					<th class="text-center wdt100">{!! ucfirst(trans('textos.fecha_alta')) !!}</th>
 					<th class="wdt100">
 						@if($budget_from == 'customers')

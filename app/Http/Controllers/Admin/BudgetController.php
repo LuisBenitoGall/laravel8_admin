@@ -217,7 +217,7 @@ class BudgetController extends Controller{
             ->where('orders.budget_shared', 1)
             ->where('orders.customer_id', session('currentCompany'));
         }
-        $budgets = $query->orderBy('orders.created_at', 'DESC');
+        $data = $query->orderBy('orders.created_at', 'DESC');
 
         $estados = helpers::budgetStatus();
 
@@ -231,60 +231,63 @@ class BudgetController extends Controller{
             20 => trans('textos.catalogo')
         ];
 
-        return DataTables::of($budgets)
-        ->addColumn('num', function($budget) use($from){
-            return view('admin.budgets.partials.dt-num', compact('budget', 'from')); 
+        return DataTables::of($data)
+        ->addColumn('num', function($row) use($from){
+            return view('admin.budgets.partials.dt-num', compact('row', 'from')); 
         })
-        ->addColumn('order_num', function($budget){
-            if($budget->is_order){
-                $order_num = $budget->order_num? $budget->order_num:($budget->order_old_num? $budget->order_old_num:$budget->id);
-                return '<a target="_blank" href="'.route('orders.edit', $budget->id).'">'.$order_num.'</a>';
+        ->addColumn('budget_title', function($row){
+            return $row->name; 
+        })
+        ->addColumn('manager', function($row){
+            if($row->nombre){
+                return $row->nombre.' '.$row->surname;
             }else{
                 return '';
             }
         })
-        ->addColumn('amount', function($budget) use($currency){
-            $amount = $budget->getAmount();    
+        ->addColumn('order_num', function($row){
+            if($row->is_order){
+                $order_num = $row->order_num? $row->order_num:($row->order_old_num? $row->order_old_num:$row->id);
+                return '<a target="_blank" href="'.route('orders.edit', $row->id).'">'.$order_num.'</a>';
+            }else{
+                return '';
+            }
+        })
+        ->addColumn('amount', function($row) use($currency){
+            $amount = $row->getAmount();    
             return $amount['total_amount'].$currency->symbol;
         })
-        // ->addColumn('modalidad', function($budget) use($abrev){
-        //     return ucfirst($abrev[$budget->modality]);
+        // ->addColumn('modalidad', function($row) use($abrev){
+        //     return ucfirst($abrev[$row->modality]);
         // })
-        ->addColumn('manager', function($budget){
-            if($budget->nombre){
-                return $budget->nombre.' '.$budget->surname;
-            }else{
-                return '';
-            }
+        
+        // ->filterColumn('manager', function($query, $keyword){
+        //     $sql = "CONCAT(users.name, ' ', users.surname) like ?";
+        //     $query->whereRaw($sql, ["%$keyword%"]);
+        // })
+        ->addColumn('alta', function($row){
+            return $row->created_at->format($this->languages[session()->get('locale')][4]);    
         })
-        ->filterColumn('manager', function($query, $keyword){
-            $sql = "CONCAT(users.name, ' ', users.surname) like ?";
-            $query->whereRaw($sql, ["%$keyword%"]);
-        })
-        ->addColumn('alta', function($budget){
-            return $budget->created_at->format($this->languages[session()->get('locale')][4]);    
-        })
-        ->addColumn('company', function($budget){
-            $company = $budget->company;
-            if($budget->CustomerManagerName){
-                $company .= ' ('.$budget->CustomerManagerName;
-                if($budget->CustomerManagerSurname){
-                    $company .= ' '.$budget->CustomerManagerSurname;
+        ->addColumn('company', function($row){
+            $company = $row->company;
+            if($row->CustomerManagerName){
+                $company .= ' ('.$row->CustomerManagerName;
+                if($row->CustomerManagerSurname){
+                    $company .= ' '.$row->CustomerManagerSurname;
                 }
                 $company .= ')';
             }
             return $company;
         })
-        ->addColumn('final_customer', function($budget){
-            if($budget->final_customer){
-                return $budget->final_customer;
+        ->addColumn('final_customer', function($row){
+            if($row->final_customer){
+                return $row->final_customer;
             }else{
                 return '';
             }
-
         })
-        ->addColumn('estado', function($budget) use($estados){
-            return view('admin.budgets.partials.dt-status', compact('budget', 'estados'));    
+        ->addColumn('estado', function($row) use($estados){
+            return view('admin.budgets.partials.dt-status', compact('row', 'estados'));    
         })
         ->filterColumn('estado', function($query, $keyword) use($estados){
             //01/09/22: no filtra. Corregir código.
@@ -293,8 +296,8 @@ class BudgetController extends Controller{
                 $query->where("orders.budget_status", $idx);
             }
         })
-        ->addColumn('acciones', function($budget) use($estados){
-            return view('admin.budgets.partials.dt-actions', compact('budget', 'estados'));    
+        ->addColumn('acciones', function($row) use($estados){
+            return view('admin.budgets.partials.dt-actions', compact('row', 'estados'));    
         })
         ->rawColumns(['order_num'])
         ->make(true);

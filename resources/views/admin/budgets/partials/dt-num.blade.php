@@ -1,9 +1,9 @@
 @php
-$num = $budget->budget_num? $budget->budget_num:$budget->id;
+$num = $row->budget_num? $row->budget_num:$row->id;
 @endphp
 
 @if($from == 'customers')
-	<a href="{{ route('budgets.edit', $budget) }}">{{ $num }}</a>
+	<a href="{{ route('budgets.edit', $row) }}">{{ $num }}</a>
 @else
-	<a href="{{ route('budgets.show', $budget) }}">{{ $num }}</a>
+	<a href="{{ route('budgets.show', $row) }}">{{ $num }}</a>
 @endif
