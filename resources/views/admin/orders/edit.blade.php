@@ -301,6 +301,17 @@
 				@endif
 			@endcan
 
+			{{-- Generar albarán - condiciones: 
+				1. Disponer de permisos para generar albaranes.
+				...
+			--}}
+			@can('deliveries.create')
+				<a href="{{ route('deliveries.delivery-from-order', $order->id) }}" class="btn btn-warning btn-confirm" data-msg="{{ trans('textos.albaran_confirm') }}">
+					<i class="fa fa-file-export"></i>
+					{!! ucfirst(trans('textos.albaran_generar')) !!}
+				</a>
+			@endcan
+
 			{{-- Preparar entrega - condiciones:
 				1. Estar activo el módulo de Logística.
 				2. Pedido sin preparar.

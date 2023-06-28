@@ -29,6 +29,7 @@ return [
     'CURRENCY_' => '€',
     'CURRENCY_NAME_' => 'EUR',
     'DATE_NULL_' => '0000-00-00',
+    'DELIVERY_STATUS_PREPARATION_' => 1,
     'EMAIL_' => 'lbenito@weareadn.com',
     'EMPLOYEE_ACTIVED_' => 1,
     'EMPLOYEE_EXPIRED_' => 2,

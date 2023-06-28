@@ -13,4 +13,6 @@ class DeliveryOrders extends Model{
     protected $table = 'delivery_orders';
 
     protected $dates = ['deleted_at'];
+
+    protected $fillable = ['delivery_id', 'order_id'];
 }
