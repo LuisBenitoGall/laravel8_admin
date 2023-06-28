@@ -471,7 +471,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 				<label for="customer_products" class="col-lg-3 col-form-label">{!! ucfirst(trans('textos.cliente_producto')) !!}</label>
 				<div class="col-lg-9">
 					@php
-					$customerProducts = $order->customer_products? unserialize($order->customer_products):[];
+					$customerProducts = $order->customer_products && $order->customer_products != ''? unserialize($order->customer_products):[];
 
 					// if(!is_array($customerProducts)){
 					// 	$customerProducts = [$customerProducts];
