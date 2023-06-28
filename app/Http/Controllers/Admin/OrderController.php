@@ -53,10 +53,10 @@ use Maatwebsite\Excel\Facades\Excel;
 class OrderController extends Controller{
     /**
      * 1. Pedidos por cliente o proveedor.
-     * 1.1. Lista de pedidos por cliente o proveedor.
+     * 1.1. Filtro de pedidos por cliente o proveedor.
      * 1.2. Listado de pedidos por cliente y proveedor para DataTable.
-     * 1.3 - Query - Obtiene el total de pedidos.
-     * 1.4 - Obtiene el total de pedidos para el datatable
+     * 1.3. Query - Obtiene el total de pedidos.
+     * 1.4. Obtiene el total de pedidos para el datatable
      * 2. Formulario nuevo pedido.
      * 3. Guardar nuevo pedido.
      * 3.1. Generar pedido desde presupuesto.
@@ -297,7 +297,7 @@ class OrderController extends Controller{
     }
 
     /**
-     * 1.1. Lista de pedidos por cliente o proveedor.
+     * 1.1. Filtro de pedidos por cliente o proveedor.
      */
     public function getOrdersBy(Request $request){
         $validator = $this->validator($request->all());
@@ -530,7 +530,7 @@ class OrderController extends Controller{
     }
 
     /**
-     * 1.3 - Query - Obtiene el total de pedidos.
+     * 1.3. Query - Obtiene el total de pedidos.
      * 
      * @param string $company_field
      * @param string $from
@@ -605,7 +605,7 @@ class OrderController extends Controller{
     }
 
     /**
-     * 1.4 - Obtiene el total de pedidos para el datatable.
+     * 1.4. Obtiene el total de pedidos para el datatable.
      * 
      * @param string $company_field
      * @param string $from
@@ -2060,7 +2060,7 @@ class OrderController extends Controller{
         $order->prepare_delivery = $order->prepare_delivery == '0'? 1:'0';
         $order->save();
 
-        //09/04/22: aquí se debería incluir la inicialización de picking para pedidos lo requieran y si el módulo respectivo se encuentra activo.
+        //09/04/22: aquí se debería incluir la inicialización de picking para pedidos que lo requieran y si el módulo respectivo se encuentra activo.
 
         $msg = trans('textos.pedido_entrega_activada');
         return redirect()->route('orders.edit', $order)->with(compact('msg'));

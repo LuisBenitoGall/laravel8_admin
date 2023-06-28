@@ -4,6 +4,7 @@
 			<tr>
 				<th class="text-center">#</th>
 				<th>{!! ucfirst(trans('textos.cliente')) !!}</th>
+				<th class="text-center">{!! ucfirst(trans('textos.importe')) !!}</th>
 				<th class="text-center">{!! ucfirst(trans('textos.fecha_alta')) !!}</th>
 				<th>{!! ucfirst(trans('textos.estado')) !!}</th>
 				<th class="text-center">{!! ucfirst(trans('textos.acciones')) !!}</th>
