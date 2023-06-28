@@ -473,9 +473,9 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 					@php
 					$customerProducts = $order->customer_products? unserialize($order->customer_products):[];
 
-					if(!is_array($customerProducts)){
-						$customerProducts = [$customerProducts];
-					}
+					// if(!is_array($customerProducts)){
+					// 	$customerProducts = [$customerProducts];
+					// }
 					@endphp
 
 					<x-select name="customer_products[]" class="select2" :options="$customer_products" :values="$customerProducts" multiple/>
