@@ -260,6 +260,13 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 				<small class="text-warning">{!! ucfirst(trans('textos.facturacion_prevista_texto')) !!}</small> --}}
 			</label>
 
+
+
+		</div>
+	@elseif($order->provider_id == session('currentCompany') && $order->order_parent)
+		<div class="form-group row">
+			<label class="col-12 text-center text-warning">{!! ucfirst(trans('textos.facturacion_prevista_aviso')) !!}</label>	
+
 			<div class="col-lg-1 pt-1">
 				<button class="btn btn-warning btn-circle btnAddPrevision" rel="tooltip" title="{{ trans('textos.agregar_prevision') }}">
 					<i class="fa fa-plus"></i>
@@ -276,7 +283,6 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 
 					@if($previsions->count())
 						{{-- La sumas de los porcentajes de las previsiones de facturación no puede superar el 100% --}}
-
 						@foreach($previsions as $prev)
 							@php
 							$totalPercent = $totalPercent + $prev->percent;
@@ -393,8 +399,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 									</div>
 								@endif
 							</div>
-
-							@php
+						@php
 							$k++;
 							@endphp
 						@endforeach
@@ -408,11 +413,6 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 					@endif
 				</div>
 			</div>
-		</div>
-
-	@elseif($order->provider_id == session('currentCompany') && $order->order_parent)
-		<div class="form-group row">
-			<label class="col-12 text-center text-warning">{!! ucfirst(trans('textos.facturacion_prevista_aviso')) !!}</label>	
 		</div>	
 	@endif
 	<hr><br>
@@ -473,9 +473,9 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 					@php
 					$customerProducts = $order->customer_products && $order->customer_products != ''? unserialize($order->customer_products):[];
 
-					// if(!is_array($customerProducts)){
-					// 	$customerProducts = [$customerProducts];
-					// }
+					if(!is_array($customerProducts)){
+						$customerProducts = [$customerProducts];
+					}
 					@endphp
 
 					<x-select name="customer_products[]" class="select2" :options="$customer_products" :values="$customerProducts" multiple/>
@@ -637,4 +637,40 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 	@endif
 
 	<x-btn-submit name="submit_update" label="{{ trans('textos.guardar') }}"/>
-</form>
+</form>			
+
+							
+					
+
+					
+				
+		
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
