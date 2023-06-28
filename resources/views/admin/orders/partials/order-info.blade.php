@@ -260,13 +260,6 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 				<small class="text-warning">{!! ucfirst(trans('textos.facturacion_prevista_texto')) !!}</small> --}}
 			</label>
 
-
-
-		</div>
-	@elseif($order->provider_id == session('currentCompany') && $order->order_parent)
-		<div class="form-group row">
-			<label class="col-12 text-center text-warning">{!! ucfirst(trans('textos.facturacion_prevista_aviso')) !!}</label>	
-
 			<div class="col-lg-1 pt-1">
 				<button class="btn btn-warning btn-circle btnAddPrevision" rel="tooltip" title="{{ trans('textos.agregar_prevision') }}">
 					<i class="fa fa-plus"></i>
@@ -352,12 +345,12 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 									$percent = $totalPercent > 100? '':$prev->percent;
 
 									// Porcentaje del monto total:
-									$orden_w = $prev->amount? $prev->amount:($percent != ''? ($percent * $order_amount) / 100:'');
-									$orden_wo = $prev->amount && $order_amount_without_discount == $order_amount? $prev->amount:($percent != ''? ($percent * $order_amount_without_discount) / 100:'');
+									$orden_w = $prev->amount? $prev->amount:($percent != ''? ($percent * $order_amount) / 100:0);
+									$orden_wo = $prev->amount && $order_amount_without_discount == $order_amount? $prev->amount:($percent != ''? ($percent * $order_amount_without_discount) / 100:0);
 
 									//Si se trata de la última previsión y el porcentaje es igual o superior a 100, el importe es el restante hasta completar el total del pedido:
 									if($k = $previsions->count() && $totalPercent >= 100){
-										$orden_w = $order_amount - $accumulatedAmount;
+										$orden_w = abs($order_amount - $accumulatedAmount);
 									}
 
 									$accumulatedAmount = $accumulatedAmount + $orden_w;
@@ -377,6 +370,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 						            @endif
 								</div>
 
+								{{-- Eliminar previsión --}}
 								@if($previsions->count() > 1 && !$disabled_)
 									<div class="col-md-1 col-lg-1 pt-2">
 										<a href="{{ route('order-prevision.delete', $prev->id) }}" class="btn btn-danger btn-circle btn-circle-mini btn-confirm" rel="tooltip" title="{{ trans('textos.prevision_eliminar') }}" data-msg="{{ trans('textos.prevision_eliminar_aviso') }}">
@@ -399,7 +393,8 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 									</div>
 								@endif
 							</div>
-						@php
+							
+							@php
 							$k++;
 							@endphp
 						@endforeach
@@ -410,9 +405,14 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 					--}}
 					@if($totalPercent < 100 && (100 - $totalPercent) > 0.02)
 						<p class="text-warning">{!! trans('textos.facturacion_prevision_pendiente') !!}: <b>{{ round(100 - $totalPercent, 2) }}%</b></p>
-					@endif
+					@endif		
 				</div>
 			</div>
+		</div>
+
+	@elseif($order->provider_id == session('currentCompany') && $order->order_parent)
+		<div class="form-group row">
+			<label class="col-12 text-center text-warning">{!! ucfirst(trans('textos.facturacion_prevista_aviso')) !!}</label>	
 		</div>	
 	@endif
 	<hr><br>
