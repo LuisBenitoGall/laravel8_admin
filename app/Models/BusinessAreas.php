@@ -18,17 +18,16 @@ class BusinessAreas extends Model
     use HasFactory;
     use SoftDeletes;
 
+    protected $dates = ['deleted_at']; 
+
     protected $table = 'business_areas';
 
     protected $fillable = ['name', 'slug'];
 
-    protected $dates = ['deleted_at']; //Columna de borrado lógico
-
     /**
      * 1. Configuraciones del área de negocio.
      */
-    public function settings($provider_id)
-    {
+    public function settings($provider_id){
         return BusinessAreaSettings::where('ba_id', $this->id)
             ->where('provider_id', $provider_id)
             ->first();

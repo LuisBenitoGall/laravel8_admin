@@ -156,7 +156,7 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     Route::get('customers', 'CustomerProvidersController@getCustomersDT');
 
     //Deliveries:
-    Route::get('deliveries', 'DeliveryController@getDeliveriesDT');
+    Route::get('deliveries/{year?}/{customer?}/{status?}', 'DeliveryController@getDeliveriesDT');
 
     //DeliveriesOrders:
     Route::get('deliveries-orders', 'DeliveryController@getDeliveriesOrdersDT');

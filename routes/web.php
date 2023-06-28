@@ -397,8 +397,10 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::get('day-types-users-config/{user_id}/{day_type}/{year}/destroy', 'DayTypesUsersConfigController@destroy')->name('day-types-users-config.destroy')->middleware('permission:work-calendar.edit');
 
     // Deliveries:
-    Route::get('deliveries/{tab?}', 'DeliveryController@index')->name('deliveries.index');
+    Route::get('deliveries/list/{year?}/{customer_id?}/{status?}/{tab?}', 'DeliveryController@index')->name('deliveries.index');
+    Route::post('deliveries', 'DeliveryController@getDeliveriesBy')->name('deliveries.list')->middleware('permission:deliveries.index');
     Route::get('deliveries/create', 'DeliveryController@create')->name('deliveries.create')->middleware('permission:deliveries.create');
+    Route::get('deliveries/{order}/delivery-from-order', 'DeliveryController@deliveryFromOrder')->name('deliveries.delivery-from-order')->middleware('permission:deliveries.create');
     Route::post('deliveries/store', 'DeliveryController@store')->name('deliveries.store')->middleware('permission:deliveries.create');
     Route::get('deliveries/{delivery}/edit/{tab?}', 'DeliveryController@edit')->name('deliveries.edit')->middleware('permission:deliveries.edit');
     Route::put('deliveries/{delivery}/update', 'DeliveryController@update')->name('deliveries.update')->middleware('permission:deliveries.edit');

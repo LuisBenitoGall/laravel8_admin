@@ -1678,12 +1678,15 @@ $(document).ready(function(){
     //Tabla Deliveries:
     if($('#tblDeliveries').length > 0){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        var customer = $('#myCustomer').val() != ''? $('#myCustomer').val():false;
+        var year = $('#myYear').val();
+        var status = $('#myStatus').val() && $('#myStatus').val() != ''? $('#myStatus').val():false;
 
         //Filters:
         $('#tblDeliveries thead tr').clone(true).appendTo('#tblDeliveries thead');
         $('#tblDeliveries thead tr:eq(1) th').each(function(i){
             var title = $(this).text(); 
-            if(i == 4){
+            if(i == 2 || i == 5){
                 $(this).html('');
             }else{
                 $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
@@ -1705,68 +1708,69 @@ $(document).ready(function(){
             processing: true,
             ajax: {
                 "type": "GET",
-                "url": "/api/admin/deliveries",
+                "url": "/api/admin/deliveries/"+year+"/"+customer+"/"+status,
                 "error": function(reason){
                     console.log(reason);
                 }
             },
             columns: [
-                {data: 'id', className: 'text-right'},
+                {data: 'num', className: 'text-right'},
                 {data: 'name'},
-                {data: 'alta', className: 'text-right'},
-                {data: 'estado'},
-                {data: 'id', className: 'text-right'}
-            ],
-            columnDefs: [
-                {"targets": 0,
-                "render": function(data, type, row){
-                    var num = row['id'];
-                    if(row['delivery_num']){
-                        num = row['delivery_num'];
-                    }else if(row['delivery_old_num']){
-                        num = row['delivery_old_num'];
-                    }
-
-                    var html = '';
-                    if(row['editar']){
-                        html += '<a href="/admin/deliveries/'+row['id']+'/edit">';
-                    }
-                    html += num;
-                    if(row['editar']){
-                        html += '</a>';
-                    }
-                    return html;
-                }
-                },
-                {"targets": -2,
-                "render": function(data, type, row){
-                    return '<span class="xoption-'+row['id']+'">'+row['estado']+'</span>'; 
-                }
-                }, 
-                {"targets": -1,
-                "render": function(data, type, row){
-                    var estado = '';
-                    var editar = '';
-                    var eliminar = '';
-                    if(row['editar']){
-                        //Estado múltiple:
-                        estado = multipleStatus(row['estados'], row['status'], row['id']);
-
-                        //Editar:
-                        editar = '<a href="/admin/deliveries/'+row['id']+'/edit" class="btn btn-xs btn-info" rel="tooltip" title="'+txtEditar+'"><i class="fa fa-edit"></i></a>';
-
-                        //Eliminar:
-                        eliminar = '<form method="POST" action="/admin/deliveries/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
-                            eliminar += '<input name="_method" type="hidden" value="DELETE">';
-                            eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
-                            eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtEliminar+'" data-msg="'+txtEntregaConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
-                        eliminar += '</form>';
-
-                        return estado+' '+editar+' '+eliminar;
-                    }
-                }
-                }
+                {data: 'amount', className: 'text-right'},
+                {data: 'date', className: 'text-right'},
+                {data: 'status'},
+                {data: 'acciones', className: 'text-right'}
             ]
+            // columnDefs: [
+            //     {"targets": 0,
+            //     "render": function(data, type, row){
+            //         var num = row['id'];
+            //         if(row['delivery_num']){
+            //             num = row['delivery_num'];
+            //         }else if(row['delivery_old_num']){
+            //             num = row['delivery_old_num'];
+            //         }
+
+            //         var html = '';
+            //         if(row['editar']){
+            //             html += '<a href="/admin/deliveries/'+row['id']+'/edit">';
+            //         }
+            //         html += num;
+            //         if(row['editar']){
+            //             html += '</a>';
+            //         }
+            //         return html;
+            //     }
+            //     },
+            //     {"targets": -2,
+            //     "render": function(data, type, row){
+            //         return '<span class="xoption-'+row['id']+'">'+row['estado']+'</span>'; 
+            //     }
+            //     }, 
+            //     {"targets": -1,
+            //     "render": function(data, type, row){
+            //         var estado = '';
+            //         var editar = '';
+            //         var eliminar = '';
+            //         if(row['editar']){
+            //             //Estado múltiple:
+            //             estado = multipleStatus(row['estados'], row['status'], row['id']);
+
+            //             //Editar:
+            //             editar = '<a href="/admin/deliveries/'+row['id']+'/edit" class="btn btn-xs btn-info" rel="tooltip" title="'+txtEditar+'"><i class="fa fa-edit"></i></a>';
+
+            //             //Eliminar:
+            //             eliminar = '<form method="POST" action="/admin/deliveries/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
+            //                 eliminar += '<input name="_method" type="hidden" value="DELETE">';
+            //                 eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
+            //                 eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtEliminar+'" data-msg="'+txtEntregaConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
+            //             eliminar += '</form>';
+
+            //             return estado+' '+editar+' '+eliminar;
+            //         }
+            //     }
+            //     }
+            // ]
         });
     }
 
@@ -6244,24 +6248,56 @@ $(document).ready(function(){
         var method = all? '/all':'';
 
         //Filters:
-
         // Load data from localstorage
         var jsonData = JSON.parse(localStorage.getItem('DataTables_tblUsers_'+window.location.pathname));
 
         $('#tblUsers thead tr').clone(true).appendTo('#tblUsers thead');
         $('#tblUsers thead tr:eq(1) th').each(function(i){
             var title = $(this).text();
-            if(i == 6){
+            if(i == 6 || i == 7){
                 $(this).html('');
             }else{
                 // Check field on json of localstorage
                 let value = jsonData && jsonData.columns[i].search.search ? jsonData.columns[i].search.search : '';
                 let htmlRaw = `<input type="text" class="DTsearch" placeholder="${txtBuscar+' '+title}" value="${value}" />`
                 $(this).html(htmlRaw);
+                let element = $(this).html(htmlRaw);
 
-                // $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
+                //Búsqueda por nombre y apellidos.
+                if (i == 0) {
+                    $('input', element).on('keyup change', function(){
+                        // Diferenciamos si es nombre o apellido
+                        let fullname = this.value.split(' ');
+
+                        // Si es un solo nombre, se busca en el campo nombre dejando el campo apellido vacio
+                        // caso contrario se busca en ambos campos
+                        if(fullname.length == 1) {
+                            // La busqueda se hace en el campo nombre
+                            tableUsers
+                                .column(0)
+                                .search(fullname[0])
+                                .column(1)
+                                .search('')
+                                .draw();
+                        }else{
+                            // La busqueda se hace en ambos campos (nombre y apellido)
+                            tableUsers
+                                .column(0)
+                                .search(fullname[0])
+                                .column(1)
+                                .search(fullname[1])
+                                .draw();
+                        }
+                    });
+                }
             }
+
             $('input', this).on('keyup change', function(){
+                // Ignoramos la busqueda del campo de nombres
+                if (i == 0) {
+                    return;
+                }
+
                 if(tableUsers.column(i).search() !== this.value){
                     tableUsers
                         .column(i)
@@ -6287,12 +6323,21 @@ $(document).ready(function(){
             },
             columns: [
                 {data: 'user', name: "users.name"},
+                {data: 'surname', name: 'users.surname', className: 'd-none' },     //Columna oculta
                 {data: 'alta', name: "users.created_at", className: 'text-right'},
                 {data: 'email', name: "users.email"},
                 {data: 'phones', name: "phones.phone_number"},
                 {data: 'categories'},
                 {data: 'image', className: 'text-center'},
                 {data: 'acciones', name: "users.id", className: 'text-right'}
+            ],
+            // Indicamos que columnas se tienen que ocultar
+            columnDefs: [
+                {
+                    targets: 1,
+                    visible: false,
+                    searchable: true
+                }
             ]
         });
     }
