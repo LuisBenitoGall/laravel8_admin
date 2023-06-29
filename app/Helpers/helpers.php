@@ -779,6 +779,7 @@ class Helpers{
 			10 => trans('textos.aprobado'),
 			//15 => trans('textos.cliente_dudas'),
 			20 => trans('textos.trabajando'),
+			25 => trans('textos.porcentaje'),
 			30 => trans('textos.cancelado'),
 			40 => trans('textos.entregado'),
 			50 => trans('textos.incidencia'),

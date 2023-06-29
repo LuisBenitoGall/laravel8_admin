@@ -1140,9 +1140,9 @@ class BudgetController extends Controller{
             ->where('workplaces.id', $order->provider_workplace_id)
             ->first();  
 
-            $provider_phones = Phone::select('phone_number')
+            $provider_phones = $provider_workplace->id? Phone::select('phone_number')
             ->where('workplace_id', $provider_workplace->id)
-            ->get();
+            ->get():false;
 
             $web = parse_url($provider_workplace->website);
         }
