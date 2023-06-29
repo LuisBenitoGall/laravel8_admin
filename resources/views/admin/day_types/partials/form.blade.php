@@ -185,6 +185,10 @@
     {{-- Conceptos obligatorios que se aplican --}}
     <label for="concepts_not_required" class="col-lg-2 col-form-label">{{ ucfirst(trans('textos.conceptos_no_obligatorios')) }}</label>
     <div class="col-lg-2 sinpadding-left">
+        @php
+        $concepts_not_required = [];
+        @endphp
+        
         @if($day_type)
             @php
             $concepts_not_required = $day_type->concepts_not_required? unserialize($day_type->concepts_not_required):[];
