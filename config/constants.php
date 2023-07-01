@@ -66,6 +66,12 @@ return [
     'ORDER_STATUS_NOT_INVOICED_' => [30],               //Status de pedidos no facturables.
     'ORDER_STATUS_PENDENT_' => 1,
     'ORDER_STATUS_APPROVED_' => 10,
+    'ORDER_STATUS_WORKING_' => 20,
+    'ORDER_STATUS_PERCENTAGE_' => 25,
+    'ORDER_STATUS_CANCELLED_' => 30,
+    'ORDER_STATUS_DELIVERED_' => 40,
+    'ORDER_STATUS_INCIDENCE_' => 50,
+    'ORDER_STATUS_WITH_INVOICE_' => 70,
 
     'OTHER_PERMISSIONS_' => ['work-user-calendar'],     //Añadimos aquí los permisos sin funcionalidad asociada.
     'PERMISSIONS_OFF_' => ['accounts', 'modules', 'permissions', 'currencies', 'banks', 'countries', 'contents', 'units', 'stock-movements'],                  //Permisos exclusivos para los Super Admin.

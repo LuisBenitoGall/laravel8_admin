@@ -1118,7 +1118,7 @@ $(window).on('load', function () {
                         $('#frmEditItem .withoutIva').prop('checked', true);
                     }
 
-                    $('#itemIrpf_').val(response.irpf);
+                    //$('#itemIrpf_').val(response.irpf);
                     if(response.irpf > 0){
                         $('#frmEditItem .withoutIrpf').prop('checked', true);
                     }

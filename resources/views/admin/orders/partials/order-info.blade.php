@@ -228,19 +228,28 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 			2. Pedido no facturado
 		--}}
 		@if($order->provider_id == session('currentCompany'))
-			<label for="order_status" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.estado')) !!}</label>
+			<label for="status" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.estado')) !!}</label>
 			<div class="col-lg-2">
 				@php
 				//Los estados se obtienen en función de si el pedido es simple o agrupación:
 				$estados = $order->is_group? App\Helpers\helpers::orderGroupStatus():App\Helpers\helpers::orderStatus();
-				$disabled = $order->invoiced? true:false;
-				$name = !$disabled? 'status':'';	//En pedidos facturados no se modifica el status.
+
+				//01/07/2023: los estados se limitan si el pedido está ya facturado.
+				if($order->invoiced){
+					$status_after_invoice = [config('constants.ORDER_STATUS_WITH_INVOICE_')];
+
+					foreach($estados as $ix => $e){
+						if(!in_array($ix, $status_after_invoice) && $ix != $order->order_status){
+							unset($estados[$ix]);
+						}
+					}
+				}
 				@endphp
 
 				{{-- 18/10/22: resolver estado de pedido para que quede disabled cuando estén todas las previsiones de facturación facturadas --}}
 				{{-- disabled="{{ $disabled }}" --}}
 
-				<x-select name="{{ $name }}" class="select2" label="indica_estado" :options="$estados" value="{{ $order->order_status }}" />
+				<x-select name="status" class="select2" label="indica_estado" :options="$estados" value="{{ $order->order_status }}" />
 			</div>
 		@else
 			<input type="hidden" name="order_status" value="{{ $order->order_status }}">
