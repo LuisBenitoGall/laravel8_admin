@@ -707,7 +707,8 @@ $(document).ready(function(){
             }
         });
 
-        $('#tblBudgetItems tbody').on('click', 'td .btnSeeItem', function () {
+        $('#tblBudgetItems tbody').on('click', 'td .btnSeeItem', function (e) {
+            e.preventDefault();
             var tr = $(this).closest('tr');
             var row = tableBudgetItems.row(tr);
      
@@ -2396,7 +2397,8 @@ $(document).ready(function(){
             }
         });
 
-        $('#tblInvoiceItems tbody').on('click', 'td .btnSeeItem', function () {
+        $('#tblInvoiceItems tbody').on('click', 'td .btnSeeItem', function (e) {
+            e.preventDefault();
             var tr = $(this).closest('tr');
             var row = tableInvoiceItems.row(tr);
      
@@ -3294,7 +3296,8 @@ $(document).ready(function(){
             }
         });
 
-        $('#tblOrderItemsShow tbody').on('click', 'td .btnSeeItem', function () {
+        $('#tblOrderItemsShow tbody').on('click', 'td .btnSeeItem', function (e) {
+            e.preventDefault();
             var tr = $(this).closest('tr');
             var row = tableOrderItemsShow.row(tr);
      
@@ -4464,7 +4467,8 @@ $(document).ready(function(){
             ]
         });
 
-        $('#tblProductStockMovements').on('click', 'td .btnSeeItem', function () {
+        $('#tblProductStockMovements').on('click', 'td .btnSeeItem', function (e) {
+            e.preventDefault();
             var tr = $(this).closest('tr');
             var row = tableProductStockMovements.row(tr);
      
@@ -5449,7 +5453,8 @@ $(document).ready(function(){
             ]
         });
 
-        $('#tblReceivings tbody').on('click', 'td .btnSeeItem', function () {
+        $('#tblReceivings tbody').on('click', 'td .btnSeeItem', function (e) {
+            e.preventDefault();
             var tr = $(this).closest('tr');
             var row = tableReceivings.row(tr);
      
@@ -5523,7 +5528,8 @@ $(document).ready(function(){
             ]
         });
 
-        $('#tblSats tbody').on('click', 'td .btnSeeItem', function () {
+        $('#tblSats tbody').on('click', 'td .btnSeeItem', function (e) {
+            e.preventDefault();
             var tr = $(this).closest('tr');
             var row = tableSats.row(tr);
      
