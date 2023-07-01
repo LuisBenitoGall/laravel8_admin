@@ -15,6 +15,9 @@
                     @if($order->is_order || $environment_ == 'invoices')
                     	<input type="hidden" name="order_id" value="{{ $order->id }}">
                     @endif
+                    @if(isset($invoice))
+                    	<input type="hidden" name="irpf_from_invoice" value="{{ $invoice->irpf }}">
+                    @endif
                     @if($order->is_budget)
                     	<input type="hidden" name="budget_id" value="{{ $order->id }}">
                     @endif
@@ -87,7 +90,7 @@
 							<label for="irpf" class="col-lg-2 offset-md-9 col-form-label sinpadding">{{ trans('textos.irpf_descontar') }}</label>
 							<div class="col-lg-1">
 								<label class="custom-chk-rdb" rel="tooltip">
-				                    <input type="checkbox" name="irpf" id="itemIrpf_" class="withoutIrpf" value="">
+				                    <input type="checkbox" name="irpf" id="itemIrpf_" class="withoutIrpf">
 				                    <span class="chk" style="top: 5px;"></span>
 				                </label>
 							</div>

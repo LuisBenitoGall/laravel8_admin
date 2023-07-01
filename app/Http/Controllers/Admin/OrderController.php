@@ -1248,7 +1248,7 @@ class OrderController extends Controller{
                 ->withErrors($validator)
                 ->withInput();
         }  
-        
+
         //Número de pedido:
         $order_num = NULL;
         if($request->pattern_id){

@@ -966,7 +966,7 @@ class InvoiceController extends Controller{
 
         //Redirigiendo a factura de compra:
         if($order->customer_id == session('currentCompany')){
-            return redirect()->route('invoices.edit-purchase', [$invoice, false]);  
+            return redirect()->route('invoices.edit-purchase', [$invoice, $tab]);  
             exit;
         }
 
@@ -1438,6 +1438,16 @@ class InvoiceController extends Controller{
             $invoice->check_in_date = $check_in_date;
             if($doc){
                 $invoice->doc = $doc;
+            }
+
+            //Gestión de las líneas con IRPF:
+            if(!$invoice->irpf || $invoice->irpf == ''){
+                Item::where('order_id', $order->id)
+                ->update(['irpf' => NULL]);
+            }else{
+                Item::where('order_id', $order->id)
+                ->where('irpf', '>', '')
+                ->update(['irpf' => $invoice->irpf]);    
             }
         }
 

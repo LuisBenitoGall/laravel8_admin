@@ -387,9 +387,7 @@ class ItemController extends Controller{
         $item->days = $request->days;
         $item->iva = $iva;
         $item->equivalence_surcharge = $equivalence_surcharge;
-        if($request->irpf){
-            $item->irpf = $request->irpf;
-        }
+        $item->irpf = $request->irpf && $request->irpf_from_invoice? $request->irpf_from_invoice:NULL;
         $item->discount = $request->discount;
         if($request->provider_cost_center && is_numeric($request->provider_cost_center)){
             $item->provider_cost_center_id = $request->provider_cost_center;
