@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 
 //Models:
+use App\Models\Cash;
 use App\Models\Item;
 
 class ItemGetMiddleware{
@@ -22,6 +23,14 @@ class ItemGetMiddleware{
         ->join('orders', 'items.order_id', '=', 'orders.id')
         ->where('items.id', $request->segments()[2])
         ->first();
+
+        //Comprobando empresa por Cash:
+        if(!$company){
+            $company = Item::select('workplaces.company_id AS provider_id')
+            ->join('cashes', 'items.cash_id', '=', 'cashes.id')
+            ->join('workplaces', 'cashes.workplace_id', '=', 'workplaces.id')
+            ->find($request->segments()[2]);
+        }
 
         if(!$company){
             $alert = trans('textos.registro_inexistente');

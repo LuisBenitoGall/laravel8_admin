@@ -192,6 +192,14 @@ if(session()->get('locale') == NULL){
                                                             </a> 
                                                         </li>  
                                                     @endif
+
+                                                    @if($func['slug'] == 'cash')
+                                                        <li @if(isset($header['slug']) && $header['slug'] == 'cash-create') class="active" @endif>
+                                                            <a href="{{ route('cash.create') }}">
+                                                                {{ ucfirst(trans('textos.caja')) }}      
+                                                            </a> 
+                                                        </li>  
+                                                    @endif
                                                 @endforeach
                                             </ul>
                                         @endif

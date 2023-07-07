@@ -126,6 +126,16 @@ class ModulesTableSeeder extends Seeder{
             'status' => 0,
             'active' => true
             ],
+            ['name' => 'cash',
+            'slug' => 'cash',
+            'label' => 'caja',
+            'color' => '#124271',
+            'icon' => 'cash-register',
+            'level' => '3',
+            'translations' => serialize(['es' => 'Caja']),
+            'status' => 0,
+            'active' => true
+            ],
             ['name' => 'sat',
             'slug' => 'sat',
             'label' => 'SAT',

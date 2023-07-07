@@ -2,6 +2,9 @@
 
 @section('content')
 
+<input type="hidden" id="dtController" value="items">
+<input type="hidden" id="myEnvironment" value="budgets">
+
 @php
 //Comprobamos que las líneas de presupuesto tipo formulario pertenezcan a algún bloque:
 $setBlock = true;
@@ -263,9 +266,6 @@ $order_amount_without_discount = $order_amount_without_discount_in_lines > $orde
         @endcan
 	</div>
 </div>
-
-<input type="hidden" id="dtController" value="items">
-<input type="hidden" id="myEnvironment" value="budgets">
 
 <div class="row">
 	<div class="col-12">						

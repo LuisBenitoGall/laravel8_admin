@@ -25,7 +25,7 @@ class CompanySettings extends Model{
     public static function co_currency($index = false, $company_id = false){
         $companyId = $company_id? $company_id:session('currentCompany');
 
-        $data = CompanySettings::select('currencies.name', 'currencies.code', 'currencies.number', 'currencies.symbol')
+        $data = CompanySettings::select('currencies.id', 'currencies.name', 'currencies.code', 'currencies.number', 'currencies.symbol')
         ->join('currencies', 'company_settings.currency_id', '=', 'currencies.id')
         ->where('company_settings.company_id', $companyId)
         ->first();

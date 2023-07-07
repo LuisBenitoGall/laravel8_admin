@@ -99,6 +99,8 @@ class Kernel extends HttpKernel{
         'business_area_get' => \App\Http\Middleware\BusinessAreaGetMiddleware::class,
         'business_area_post' => \App\Http\Middleware\BusinessAreaPostMiddleware::class,
 
+        'cash_get' => \App\Http\Middleware\CashGetMiddleware::class,
+
         'category_get' => \App\Http\Middleware\CategoryGetMiddleware::class,
 
         'company_account' => \App\Http\Middleware\CompanyAccountMiddleware::class,

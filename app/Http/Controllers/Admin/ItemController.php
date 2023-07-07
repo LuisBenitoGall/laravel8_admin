@@ -89,6 +89,8 @@ class ItemController extends Controller{
             $msg = trans('textos.linea_deleted');
             if($request->environment == 'budgets'){
                 return redirect()->route('budgets.edit', [$item->order_id, 'items'])->with(compact('msg'));
+            }elseif($request->environment == 'cash'){
+                return redirect()->route('cash.edit', $item->cash_id)->with(compact('msg'));
             }else{
                 return redirect()->route('orders.edit', [$item->order_id, 'items'])->with(compact('msg')); 
             }   
@@ -96,6 +98,8 @@ class ItemController extends Controller{
             $alert = trans('textos.linea_facturada_alert');
             if($request->environment == 'budgets'){
                 return redirect()->route('budgets.edit', [$item->order_id, 'items'])->with(compact('alert'));
+            }elseif($request->environment == 'cash'){
+                return redirect()->route('cash.edit', $item->cash_id)->with(compact('alert'));    
             }else{
                 return redirect()->route('orders.edit', [$item->order_id, 'items'])->with(compact('alert')); 
             }       

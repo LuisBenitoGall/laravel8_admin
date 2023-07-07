@@ -23,6 +23,7 @@ use App\Models\Module;
 use App\Models\Preference;
 use App\Models\Timetable;
 use App\Models\TimetableItems;
+use App\Models\User;
 use App\Models\WorkCalendar;
 use App\Models\WorkUserCalendar;
 
@@ -31,6 +32,7 @@ class AdminController extends Controller{
      * 1. Admin dashboard.
      * 2. Obtener provincias por país.
      * 3. Obtener poblaciones por provincia.
+     * 4. Ejecutar sentencias sql.
      */
                
     private $option = 'dashboard';
@@ -98,6 +100,62 @@ class AdminController extends Controller{
             return response()->json($data);  
         }
         return $data;
+    }
+
+    /**
+     * 4. Ejecutar sentencias sql.
+     */
+    public function sql(){
+        //1. Añadir horarios en grupo.
+        $this->teletrabajoColonias();   
+    }
+
+    /**
+     * 4.1. Añadir jornadas de teletrabajo en grupo.
+     */
+    public function teletrabajoColonias(){
+        $companies = [4,8,202,227,275,];
+        $date = '2023-07-06';
+
+        foreach($companies as $co){
+            $users = User::select('users.id')
+            ->join('user_companies', 'users.id', '=', 'user_companies.user_id')
+            ->where('users.status', 1)
+            ->where('user_companies.company_id', $co)
+            ->get();   
+
+            $timetable_items = TimetableItems::select('id', 'type')
+            ->whereIn('slug', ['inicio-teletrabajo', 'fin-teletrabajo'])
+            ->where('company_id', $co)
+            ->orderBy('id', 'ASC')
+            ->get(); 
+
+            $hours = ['08:00:00', '17:00:00'];
+
+            foreach($users as $u){
+                //Comprobamos que no existan registros previos:
+                $exist = Timetable::select('id')
+                ->where('date', $date)
+                ->where('user_id', $u->id)
+                ->first();
+
+                $k = 0;
+
+                if(!$exist){
+                    foreach($timetable_items as $t){
+                        $ti = new Timetable();
+                        $ti->date = $date;
+                        $ti->hour = $hours[$k];
+                        $ti->user_id = $u->id;
+                        $ti->item_id = $t->id;
+                        $ti->flag = $t->type;
+                        $ti->save();
+
+                        $k++;
+                    }
+                }
+            }
+        }     
     }
 
     public function test(){
