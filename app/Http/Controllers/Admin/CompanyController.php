@@ -227,9 +227,12 @@ class CompanyController extends Controller{
             $cp->provider_id = $provider_id;
             $cp->save();
 
+            $company_id = $request->company_id;
+
         //Nueva empresa:
         }else{
-            $this->saveCompany($request);
+            $company = $this->saveCompany($request);
+            $company_id = $company->id;
         }
 
         //Rehacemos session de empresas vinculadas al usuario.
@@ -254,8 +257,14 @@ class CompanyController extends Controller{
         // }else{
         //     return redirect()->route('companies.index')->with(compact('msg'));
         // }
-
-        return redirect()->route($request->business_relationship.'.index')->with(compact('msg'));
+        
+        if($request->return){
+            if($request->return == 'cash'){
+                return redirect()->route('cash.set-customer', [$request->return_id, $company_id])->with(compact('msg'));   
+            }
+        }else{
+            return redirect()->route($request->business_relationship.'.index')->with(compact('msg'));
+        }
     }
 
     /**
@@ -335,8 +344,32 @@ class CompanyController extends Controller{
                 session(['currentCompany' => $company->id]);
             }
 
-        //Vinculamos como cliente o proveedor de la empresa con sesión, y no se vincula usuario:
+        //Vinculamos como cliente o proveedor de la empresa con sesión:
         }else{
+            //Creando usuario:
+            if($request->email){
+                //Comprobamos email:
+                $user = User::select('id')
+                ->where('email', $request->email)
+                ->first();
+
+                if(!$user){
+                    $user = new User();
+                    $user->name = $request->name;
+                    $user->surname = $request->surname;
+                    $user->email = $request->email;
+                    $user->save();
+                }
+
+                //¿GUARDAR ROL?
+
+                //Vinculamos usuario con empresa:
+                UserCompanies::firstOrCreate(
+                    ['user_id' => $user->id, 'company_id' => $company->id,],
+                    ['user_id' => $user->id, 'company_id' => $company->id, 'categories' => $request->job_title]
+                );
+            }
+
             if($request->business_relationship == 'customers'){
                 $customer_id = $company->id;
                 $provider_id = session('currentCompany');

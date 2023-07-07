@@ -191,7 +191,7 @@ where o.invoiced = true;
 SELECT field, count(*) FROM table
     GROUP BY field
     HAVING COUNT(*)>1;
-    
+   
 
 ### Instalación de Sentry
 

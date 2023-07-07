@@ -59,6 +59,7 @@ class Helpers{
 	 *  3.26. Estados de SAT.
 	 *  3.27. Estados de envíos.
 	 *  3.28. Estados de protocolos.
+	 *  3.29. Estados de venta por caja.
 	 *
 	 * 4. Strings:
 	 * 	4.1. Truncar texto.
@@ -67,6 +68,7 @@ class Helpers{
 	 *  4.3.1. Setear NIF.
 	 *  4.4. Formato numérico para decimales.
 	 *  4.5. Customizar strings.
+	 *  4.6. Cadena serializada.
 	 *
 	 * 5. Archivos:
 	 *  5.1. Allowed Image Mime Types.
@@ -1111,6 +1113,22 @@ class Helpers{
 	}
 
 	/**
+	 * 3.29. Estados de venta por caja.
+	 */
+	public static function cashStatus($status = false){
+		$data = [
+			1 => ucfirst(trans('textos.en_curso')),
+			10 => ucfirst(trans('textos.abonado')),
+			20 => ucfirst(trans('textos.devuelto'))
+		];
+		if($status){
+			return $data[$status];
+		}else{
+			return $data;
+		}	
+	}
+
+	/**
 	 * 4.1. Truncar texto.
 	 */
 	public static function truncate($text, $chars = 120){
@@ -1242,6 +1260,13 @@ class Helpers{
 	public static function customString($string, $num, $character){
 		$arr = str_split($string, $num);
 		return implode($character, $arr);
+	}
+
+	/**
+	 * 4.6. Cadena serializada.
+	 */
+	public static function isSerialized($string) {
+    	return (@unserialize($string) !== false || $string == 'b:0;');
 	}
 
 	/**

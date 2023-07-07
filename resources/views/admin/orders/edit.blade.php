@@ -2,6 +2,10 @@
 
 @section('content')
 
+<input type="hidden" id="dtController" value="items">
+<input type="hidden" id="myEnvironment" value="orders">
+<input type="hidden" id="myOrder" value="{{ $order->id }}">
+
 {{-- Avisos --}}
 {{-- Riesgo crediticio --}}
 @if($customer_settings->credit_risk && $order_amount > $customer_settings->credit_risk)
@@ -475,9 +479,6 @@
 	</div>
 </div>
 
-<input type="hidden" id="dtController" value="items">
-<input type="hidden" id="myEnvironment" value="orders">
-<input type="hidden" id="myOrder" value="{{ $order->id }}">
 @php
 //Indica si es vista de vendedor o comprador:
 $perspective = session('currentCompany') == $order->provider_id? 'sale':'purchase';

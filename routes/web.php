@@ -56,6 +56,9 @@ Route::get('authorized-clients', 'HomeController@getAuthorizedClients')->name('a
 // ADMIN:   'company_session',
 Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_account'])->prefix('admin')->namespace('Admin')->group(function () {
 
+    // Sentencias SQL
+    Route::get('sql_', 'AdminController@sql')->name('sql_');
+
     // Accounting:
     Route::get('accounting', 'AccountingController@index')->name('accounting.index');
     Route::post('get/device/id', [\App\Http\Controllers\Admin\DevicePushController::class, 'store'])->name('save.push');
@@ -223,6 +226,15 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::get('calendar-criterions', 'DayTypesCriterionsController@index')->name('calendar-criterions.index')->middleware('permission:work-calendar.edit');
     Route::post('calendar-criterions/store', 'DayTypesCriterionsController@store')->name('calendar-criterions.store')->middleware('permission:work-calendar.edit');
     Route::post('calendar-criterions.update', 'DayTypesCriterionsController@update')->name('calendar-criterions.update')->middleware('permission:work-calendar.edit');
+
+    // Cash:
+    Route::get('cash', 'CashController@index')->name('cash.index')->middleware('permission:cash.index');
+    Route::get('cash/create', 'CashController@create')->name('cash.create')->middleware('permission:cash.create');
+    Route::get('cash/{cash}/edit', 'CashController@edit')->name('cash.edit')->middleware('permission:cash.edit');
+    Route::put('cash/{cash}/update', 'CashController@update')->name('cash.update')->middleware('permission:cash.edit');
+    Route::delete('cash/{cash}', 'CashController@destroy')->name('cash.destroy')->middleware('permission:cash.destroy');
+    Route::get('cash/{cash}/set-customer/{company_id}', 'CashController@setCustomer')->name('cash.set-customer');
+     Route::get('cash/{cash}/status/{status}', 'CashController@status')->name('cash.status');
 
     // Categories. Tienen un index propio por cada módulo que utiliza esta funcionalidad:
     Route::get('categories', 'CategoryController@index')->name('categories.index');
@@ -660,6 +672,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::delete('orders/{order}/remove-member', 'OrderController@removeTeamMember')->name('orders.remove-member')->middleware('permission:orders.edit');
     Route::get('orders/{order}/remove-purchase-doc', 'OrderController@removePurchaseDoc')->name('orders.remove-purchase-doc')->middleware('permission:orders.edit');
     Route::get('orders/{provider_id}/orders-about-providers', 'OrderController@aboutProviders')->name('orders.orders-about-providers');
+    Route::get('orders/{cash}/order-from-cash', 'OrderController@orderFromCash')->name('orders.order-from-cash')->middleware('permission:orders.create');
 
     Route::get('control-panel', 'OrderController@index')->name('control-panel.index')->middleware('permission:orders.index');
     Route::post('orders/control-panel-sales-year', 'OrderController@controlPanelSalesPost')->name('orders.control-panel-sales-year')->middleware('permission:orders.index');
