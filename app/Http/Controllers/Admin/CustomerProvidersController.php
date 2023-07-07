@@ -823,17 +823,10 @@ class CustomerProvidersController extends Controller{
         }
 
         //Vinculamos usuario a empresa, comprobando primero si existe:
-        $exist = UserCompanies::select('id')
-        ->where('user_id', $user->id)
-        ->where('company_id', $request->company_id)
-        ->first();
-        
-        if(!$exist){
-            $uc = new UserCompanies();
-            $uc->user_id = $user->id;
-            $uc->company_id = $request->company_id;
-            $uc->save(); 
-        }
+        UserCompanies::firstOrCreate(
+            ['user_id' => $user->id, 'company_id' => $request->company_id,],
+            ['user_id' => $user->id, 'company_id' => $request->company_id, 'categories' => $request->job_title]
+        );
 
         //Envío de password:
         if($request->role_id){

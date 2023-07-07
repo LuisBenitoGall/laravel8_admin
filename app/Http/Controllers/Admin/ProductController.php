@@ -42,6 +42,7 @@ class ProductController extends Controller{
      * 6. Activar / desactivar producto.
      * 7. Eliminar producto.
      * 8. Mostrar producto.
+     * 9. Productos para autocomplete.
      */  
     
     private $option = 'catalogo';  
@@ -507,5 +508,34 @@ class ProductController extends Controller{
         $languages = $this->languages;
 
         return view('admin.products.show', compact('header', 'product', 'customer_product', 'docs', 'units', 'favorite', 'currency', 'iva', 'languages'));  
+    }
+
+    /**
+     * 9. Productos para autocomplete.
+     */
+    public function searchProducts(Request $request){
+        $search = $request->search;  
+        $type = $request->type? $request->type:false;
+        $on_sale = $request->on_sale? $request->on_sale:false; 
+        
+        $data = Product::select('id', 'name', 'ref', 'manual_ref', 'price', 'iva')
+        ->where('status', 1)
+        ->where('company_id', session('currentCompany')) 
+        ->where(function($q) use ($search){  
+            $q->where('name', 'like', '%'.$search.'%') 
+            ->orWhere('ref', 'like', '%'.$search.'%')   
+            ->orWhere('manual_ref', 'like', '%'.$search.'%');
+        })
+        ->when($type, function($q) use($type){
+            $q->where('type', $type);
+        })
+        ->when($on_sale, function($q) use($on_sale){
+            $q->where('on_sale', $on_sale);
+        })
+        ->orderBy('name', 'ASC')
+        ->limit(15)
+        ->get();
+
+        return response()->json($data); 
     }
 }

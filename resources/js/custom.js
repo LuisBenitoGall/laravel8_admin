@@ -1331,6 +1331,62 @@ $(window).on('load', function () {
         }
     });
 
+    // 35.1. Búsqueda autocomplete de productos.
+    $('#search_product').autocomplete({
+        minLength: 0,
+        source: function(request,response){
+            // Fetch data
+            if(request.term.length > 1){
+                $.ajax({
+                    url: "/api/admin/products-search",
+                    type: "post",
+                    dataType: "json",
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        search: request.term,
+                        type: $('#productType').val(),
+                        on_sale: $('#productOnSale').val()
+                    },
+                    success: function(data){
+                        response($.map(data, function (item){
+                            return {
+                                label: item.name,
+                                value: item.id,
+                                ref: item.ref,
+                                manual_ref: item.manual_ref,
+                                price: item.price,
+                                iva: item.iva
+                            }
+                        }));
+                    }
+                });
+
+            //Limpiamos datos:
+            }else{
+                $('#productId').val('');  
+                $('#productPrice').val('');
+                $('#productIva').val('');   
+                $('#productRef').val('');
+            }
+        },
+        select: function(event,ui){
+            $('#search_product').val(ui.item.label);
+            $('#productId').val(ui.item.value);
+            $('#productPrice').val(ui.item.price);
+            $('#productIva').val(ui.item.iva);
+
+            ref_drawn = ui.item.ref? ui.item.ref:(ui.item.manual_ref? ui.item.manual_ref:'');
+            $('#productRef').val(ref_drawn);
+            if(ui.item.value == ''){
+                $('#productId').val('');
+                $('#productPrice').val('');
+                $('#productIva').val('');    
+            }
+            
+            return false;
+        }
+    });
+
     // 36. Proyectos por empresa.
     $('#companyId_').on('change', function (event) {
         //Limpiamos posibles valores de proyecto:

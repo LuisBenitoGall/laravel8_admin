@@ -118,6 +118,9 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     //BusinessAreas:
     Route::get('business-areas/{company}/{business_relationship}', 'BusinessAreasController@getBusinessAreasDT');
 
+    //Cash:
+    Route::get('cash', 'CashController@getCashDT');
+
     //Categories:
     Route::get('categories/{module_id}', 'CategoryController@getCategoriesDT');
 
@@ -269,6 +272,7 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
 
     //Products:
     Route::get('products/{company_id?}', 'ProductController@getProductsDT');
+    Route::post('products-search', 'ProductController@searchProducts');
 
     //ProjectExpenses:
     Route::get('project-expenses/{project_id}', 'ProjectController@getProjectExpensesDT');
