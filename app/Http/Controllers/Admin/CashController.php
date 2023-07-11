@@ -33,6 +33,9 @@ class CashController extends Controller{
      * 4. Actualizar movimiento de caja.
      * 5. Eliminar movimiento de caja.
      * 6. Importe de items.
+     * 7. Actualizar cliente de la venta.
+     * 8. Actualizar estado de movimiento de caja.
+     * 9. Imprimir ticket de caja.
      */
     
     private $option = 'caja';
@@ -44,7 +47,7 @@ class CashController extends Controller{
         $this->languages = helpers::languages();
 
         $this->middleware('module_setted:cash');
-        $this->middleware('cash_get', ['only' => ['edit', 'update', 'destroy']]);
+        $this->middleware('cash_get', ['only' => ['edit', 'update', 'destroy', 'print']]);
     }
 
     //0. Validator:
@@ -312,5 +315,17 @@ class CashController extends Controller{
 
             return response()->json(true);
         }    
+    }
+
+    /**
+     * 9. Imprimir ticket de caja.
+     */
+    public function print(Cash $cash){
+        //Cliente:
+        $customer = $cash->customer_id? Company::select('id', 'name', 'tradename')->find($cash->customer_id):false;
+
+
+        //IMPLEMENTAR SCRIPTS PARA IMPRESION POR IMPRESORA TÉRMICA:
+        //Tutorial: https://parzibyte.me/blog/2020/03/04/laravel-imprimir-ticket-impresora-termica/
     }
 }

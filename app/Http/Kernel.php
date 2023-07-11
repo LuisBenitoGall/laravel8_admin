@@ -80,6 +80,8 @@ class Kernel extends HttpKernel{
         'bank_accounts_get' => \App\Http\Middleware\BankAccountsGetMiddleware::class,
         'bank_accounts_post' => \App\Http\Middleware\BankAccountsPostMiddleware::class,
 
+        'batch_get' => \App\Http\Middleware\BatchGetMiddleware::class,
+
         'batch_pattern_get' => \App\Http\Middleware\BatchPatternGetMiddleware::class,
 
         'budget_get' => \App\Http\Middleware\BudgetGetMiddleware::class,
@@ -231,6 +233,8 @@ class Kernel extends HttpKernel{
         'user_post' => \App\Http\Middleware\UserPostMiddleware::class,
 
         'vehicle_get' => \App\Http\Middleware\VehicleGetMiddleware::class,
+
+        'work_order_component_get' => \App\Http\Middleware\WorkOrderComponentGetMiddleware::class,
 
         'work_order_get' => \App\Http\Middleware\WorkOrderGetMiddleware::class,
         'work_order_post' => \App\Http\Middleware\WorkOrderPostMiddleware::class,

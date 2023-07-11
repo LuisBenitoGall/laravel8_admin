@@ -30,12 +30,21 @@ class Store extends Model{
      * 2. Almacenes por empresa.
      */
     public static function storesByType($company_id, $type){
-        $data = Store::where('company_id', $company_id)
+        return Store::where('company_id', $company_id)
         ->where('type', $type)  
         ->where('status', 1)
         ->orderBy('name', 'ASC')
         ->get();
+    }
 
-        return $data;
+    /**
+     * 3. Array almacenes por empresa.
+     */
+    public static function storesCompanyArray($company_id){
+        return Store::where('company_id', $company_id)
+        ->where('status', 1)
+        ->orderBy('name', 'ASC')
+        ->pluck('name', 'id')
+        ->toArray();
     }
 }

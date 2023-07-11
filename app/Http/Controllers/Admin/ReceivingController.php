@@ -265,7 +265,7 @@ class ReceivingController extends Controller{
                     //Si el producto tiene gestión de stock:
                     if($oi->stock_management){
                         //Obtenemos correspondencia de referencia del proveedor:
-                        $my_ref = 
+                        $my_ref = '';
 
                         $data = [
                             'product_id' => $request->input('product_id'),

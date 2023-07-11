@@ -273,7 +273,7 @@ class StockController extends Controller{
             if($row->operation == 'r'){
                 return '-'.$row->qty;
             }else{
-                return $row->qty;    
+                return '+'.$row->qty;    
             }
         })
         ->addColumn('stock', function($row){
@@ -317,6 +317,8 @@ class StockController extends Controller{
                 ->withInput();
         }
 
+        //dd($request->all());
+
         //Producto:
         $product = Product::select('id', 'price', 'batch', 'stock_management')->find($request->product_id);
 
@@ -339,42 +341,74 @@ class StockController extends Controller{
             ->first();
             $result = $last_row? $last_row->result:0;
         }
-
+//dd($result, $request->batch, $request->new_batch, $request->expiry_date);
         //Actualizando result:
         if($stock_mov->sign == 's'){
             $result = $result + $request->qty;  
             $operation = 's'; 
+
         }elseif($stock_mov->sign == 'r' || $stock_mov->sign == 'x'){
             $result = $result - $request->qty;
+
+            //NO se pueden dar resultados negativos:
+            if($result < 0){
+                $alert = trans('textos.stock_negativo_warning');
+                return redirect()->route('stocks.index', $request->product_id)->with(compact('alert'));
+                exit;
+            }
+
             $operation = 'r';
         }
 
-        //Con gestión de lotes:
-        if($product->batch){
-            $batch_id = $request->batch? $request->batch:false;
+        //Si no viene el lote, recuperamos el último lote existente:
+        if(!$request->batch){
+            $batch_id = NULL;
 
-        //Sin gestión de lotes. Recuperamos el último lote existente:
+            //Si viene nuevo lote customizado:
+            if($request->new_batch){
+                if($operation == 's'){
+                    //Formateando fechas:
+                    $expiry_date = $request->expiry_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->expiry_date):$request->expiry_date:config('constants.UNDEFINED_DATE_');
+
+                    $b = new Batch();
+                    $b->product_id = $product->id;
+                    $b->batch_num = $request->new_batch;
+                    $b->expiry_date = $expiry_date;
+                    $b->initial_qty = $request->qty;
+                    $b->created_by = Auth::user()->id;
+                    $b->save();
+
+                    $batch_id = $b->id;
+                }
+
+            //Buscando lote previo:
+            }else{
+                $batch = Batch::select('id')
+                ->where('product_id', $product->id)
+                ->orderBy('id', 'DESC')
+                ->first();
+
+                if($batch){
+                    $batch_id = $batch->id;
+
+                //Nuevo lote:
+                }else{
+                    if($operation == 's'){
+                        $b = new Batch();
+                        $b->product_id = $product->id;
+                        $b->batch_num = config('constants.NOBATCH_');
+                        $b->initial_qty = $request->qty;
+                        $b->created_by = Auth::user()->id;
+                        $b->save();
+
+                        $batch_id = $b->id;
+                    }
+                }
+            }
+
         }else{
-            $batch = Batch::select('id')
-            ->where('product_id', $product->id)
-            ->orderBy('id', 'DESC')
-            ->first();
-
-            $batch_id = $batch? $batch->id:false;
-        }
-        //Creamos lote en caso de no existir:
-        if(!$batch_id){
-            $expiry_date = $request->expiry_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->expiry_date):$request->expiry_date:NULL;
-
-            $batch = new Batch();
-            $batch->product_id = $request->product_id;
-            $batch->name = $request->new_batch? $request->new_batch:config('constants.NOBATCH_');
-            $batch->expiry_date = $expiry_date;
-            $batch->initial_qty = $request->qty;
-            $batch->save();
-
-            $batch_id = $batch->id;
-        }
+            $batch_id = $request->batch;
+        }  
 
         //Documento:
         $fileName = NULL;

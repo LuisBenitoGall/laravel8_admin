@@ -31,6 +31,15 @@
 				</a>
 			@endif
 		@endcan
+
+		{{-- Nuevo componente --}}
+		@can('work-orders.edit')
+			@if($permitted)
+				<a href="#" class="btn btn-info btnAddComponent" data-toggle="modal" data-target="#modal-new-component">
+					<i class="fa fa-plus"></i> {!! ucfirst(trans('textos.componente_add')) !!}
+				</a>
+			@endif
+		@endcan
 	</div>
 </div>
 
@@ -82,8 +91,16 @@
 			    		<a class="nav-link @if(!$tab) active @endif" href="#tab-info" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.informacion')) !!}</a>
 			  		</li>
 
+			  		<li class="nav-item @if($tab == 'phases') active @endif">
+			  			<a class="nav-link @if($tab == 'phases') active @endif" href="#tab-phases" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.fases')) !!}</a>	
+			  		</li>
+
 			  		<li class="nav-item @if($tab == 'products') active @endif">
 			  			<a class="nav-link @if($tab == 'products') active @endif" href="#tab-products" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.productos')) !!}</a>	
+			  		</li>
+
+			  		<li class="nav-item @if($tab == 'components') active @endif">
+			  			<a class="nav-link @if($tab == 'components') active @endif" href="#tab-components" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.componentes')) !!}</a>	
 			  		</li>
 			  	</ul>
 
@@ -93,9 +110,19 @@
 						@include('admin.work_orders.partials.work-order-info')	
 					</div>
 
+					{{-- Fases --}}
+					<div class="tab-pane fade @if($tab == 'phases') show active @endif" role="tabpanel" id="tab-phases">
+						@include('admin.work_orders.partials.work-order-phases')	
+					</div>
+
 					{{-- Productos --}}
 					<div class="tab-pane fade @if($tab == 'products') show active @endif" role="tabpanel" id="tab-products">
 						@include('admin.work_orders.partials.work-order-products')	
+					</div>
+
+					{{-- Componentes --}}
+					<div class="tab-pane fade @if($tab == 'components') show active @endif" role="tabpanel" id="tab-components">
+						@include('admin.work_orders.partials.work-order-components')	
 					</div>
 				</div>
 			</div>
@@ -112,5 +139,8 @@
 
 {{-- See catalogue --}}
 @include('admin.orders.partials.modal-see-catalogue')
+
+{{-- Add component --}}
+@include('admin.work_orders.partials.modal-add-component')
 
 @endsection

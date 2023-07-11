@@ -19,7 +19,7 @@ class CreateBatchesTable extends Migration{
             //FK:
             $table->unsignedBigInteger('work_order_id')->nullable();
             $table->foreign('work_order_id')->references('id')->on('work_orders');
-            $table->string('name')->nullable();
+            $table->string('batch_num')->nullable();
             $table->date('deadline')->nullable();        //Fecha cierre de lote
             $table->date('expiry_date')->nullable();     //Fecha caducidad del lote
             $table->float('initial_qty',11,2)->default(0);
