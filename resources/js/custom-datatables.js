@@ -258,12 +258,14 @@ $(document).ready(function(){
 
     //Tabla Batches:
     if($('#tblBatches').length > 0){
+        var product_id = $('#myProduct').val();
+
         $('#tblBatches').DataTable({
             serverSide: true,
             processing: true,
             ajax: {
                 "type": "GET",
-                "url": "/api/admin/batches",
+                "url": "/api/admin/batches/"+product_id,
                 "error": function(reason){
                     console.log(reason);
                 }
@@ -6472,6 +6474,32 @@ $(document).ready(function(){
         });
     }
 
+    //Tabla Work Order Components:
+    if($('#tblWorkOrderComponents').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        var work_order = $('#workOrderId').val();
+
+         $('#tblWorkOrderComponents').DataTable({
+            serverSide: false,
+            processing: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/work-order-components/"+work_order,
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'product', className: 'capitalize'},
+                {data: 'supplied_qty', className: 'text-right'},
+                {data: 'used_qty', className: 'text-right'},
+                {data: 'returned_qty', className: 'text-right'}, 
+                {data: 'estado'},
+                {data: 'acciones', className: 'text-right'}
+            ]
+        });
+    }
+
     //Tabla Work Order Patterns:
     if($('#tblWorkOrderPatterns').length > 0){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
@@ -6544,7 +6572,7 @@ $(document).ready(function(){
 
          $('#tblWorkOrderProducts').DataTable({
             serverSide: false,
-            /*processing: true,*/
+            processing: true,
             ajax: {
                 "type": "GET",
                 "url": "/api/admin/work-order-products/"+work_order,
@@ -6553,50 +6581,12 @@ $(document).ready(function(){
                 }
             },
             columns: [
-                {data: 'id', className: 'text-right'},
-                {data: 'name', className: 'capitalize'},
+                {data: 'product', className: 'capitalize'},
                 {data: 'planned_qty', className: 'text-right'},
                 {data: 'produced_qty', className: 'text-right'},
-                {data: 'id', className: 'text-center'}, 
+                {data: 'batches'}, 
                 {data: 'estado'},
-                {data: 'id', className: 'text-right'}
-            ],
-            columnDefs: [
-                {"targets": -2,
-                "render": function(data, type, row){
-                    return '<span class="xoption-'+row['id']+'">'+row['estado']+'</span>'; 
-                }
-                }, 
-                {"targets": -1,
-                "render": function(data, type, row){
-                    //Estado múltiple:
-                    var estado = '';
-                    if(row['editar']){
-                        estado = multipleStatus(row['estados'], row['status'], row['id']);
-                    }
-
-                    //Editar:
-                    var editar = '';
-                    if(row['editar']){
-                        editar = '<a href="#" class="btn btn-xs btn-info btnEditWorkOrderProduct" rel="tooltip" title="'+txtEditar+'" data-toggle="modal" data-target="#modal-edit-product" data-id="'+row['id']+'" data-product="'+row['productId']+'" data-plannedqty="'+row['planned_qty']+'" data-observations="'+row['observations']+'"><i class="fa fa-edit"></i></a>';
-                    }
-
-                    //Eliminar:
-                    var eliminar = '';
-                    if(row['editar']){
-                        //Si el status de la orden permite eliminarla:
-                        if(row['allow_delete']){
-                            eliminar = '<form method="POST" action="/admin/work-order-products/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
-                                eliminar += '<input name="_method" type="hidden" value="DELETE">';
-                                eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
-                                eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtEliminar+'" data-msg="'+txtTrabajoOrdenProductoConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
-                            eliminar += '</form>';
-                        }
-                    }
-
-                    return estado+' '+editar+' '+eliminar;
-                }
-                }
+                {data: 'acciones', className: 'text-right'}
             ]
         });
     }

@@ -78,12 +78,21 @@
 		{{-- Simulación --}}
 		<label for="simulation" class="col-md-2 col-lg-2 col-form-label">{!! ucfirst(trans('textos.simulacion')) !!}</label>
 		<div class="col-md-4 col-lg-2">
-			<label class="custom-chk-rdb" rel="tooltip">
-	            <input type="checkbox" name="simulation" @if($work_order->simulation) checked @endif>
-	            <span class="chk" style="top: 5px;"></span>
+			@if($work_order->simulation)
+				<label style="padding-top: 7px;">
+					<i class="fa fa-check text-success" rel="tooltip" title="{{ ucfirst(trans('textos.trabajo_orden_simulada')) }}"></i>
+				</label>
+				<span class="position-relative" style="display: inline-block; margin-left: 15px; vertical-align: top;">
+					{!! App\Helpers\helpers::info('work-order-simulation', true) !!}	
+				</span>
+			@else	
+				<label class="custom-chk-rdb" rel="tooltip">
+		            <input type="checkbox" name="simulation">
+		            <span class="chk" style="top: 5px;"></span>
 
-	        	{!! App\Helpers\helpers::info('work-order-simulation', true) !!}
-	        </label>
+		        	{!! App\Helpers\helpers::info('work-order-simulation', true) !!}
+		        </label>
+		    @endif
 		</div>
 	</div>
 

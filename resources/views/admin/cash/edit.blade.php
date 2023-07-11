@@ -28,6 +28,11 @@
 			</a>	
 		@endcan
 
+		{{-- Imprimir --}}
+		<a href="{{ route('cash.print', $cash) }}" class="btn btn-info" rel="tooltip" title="{!! ucfirst(trans('textos.ticket_imprimir')) !!}">
+			<i class="fa fa-print"></i>
+		</a>
+
 		{{-- Eliminar caja --}}
 		@can('cash.destroy')
         	<form method="POST" action="{{ route('cash.destroy', $cash) }}" class="frm-inline" role="form" accept-charset="UTF-8">
@@ -160,7 +165,7 @@
 						{{-- Descuento --}}
 						<label for="discount" class="col-lg-1 col-form-label">{!! ucfirst(trans('textos.descuento')) !!}</label>
 						<div class="col-lg-2 position-relative">
-							<x-input type="text" name="discount[]" class="text-right set-decimals" id="productDiscount" value="" autocomplete="off" maxlength="6" group="right" groupvalue="%"/>
+							<x-input type="text" name="discount" class="text-right set-decimals" id="productDiscount" value="" autocomplete="off" maxlength="6" group="right" groupvalue="%"/>
 						</div>
 
 						{{-- IVA --}}
@@ -197,9 +202,9 @@
 						<th class="text-center">{{ ucfirst(trans('textos.cantidad')) }}</th>
 						<th class="text-center">{{ ucfirst(trans('textos.precio_unidad')) }}</th>
 						<th class="text-center">IVA</th>
-						<th class="text-center">{{ ucfirst(trans('textos.descuentos')) }}</th>
+						<th class="text-center">{{ ucfirst(trans('textos.descuento')) }}</th>
 						<th class="text-center">{{ ucfirst(trans('textos.importe')) }}</th>
-						<th>{{ ucfirst(trans('textos.estado')) }}</th>
+						{{-- <th>{{ ucfirst(trans('textos.estado')) }}</th> --}}
 						<th class="text-center">{{ ucfirst(trans('textos.acciones')) }}</th>
 					</tr>
 				</thead>
@@ -236,11 +241,11 @@
 								{{ $item_amount['amount'] }}{{ $currency->symbol }}
 							</td>
 							{{-- Estado --}}
-							<td></td>
+							{{-- <td></td> --}}
 							{{-- Acciones --}}
 							<td class="text-right">
 								{{-- Editar --}}
-								<a href="#" class="btn btn-xs btn-info" rel="tooltip" title="{{ ucfirst(trans('textos.editar')) }}"><i class="fa fa-edit"></i></a>
+								<a href="#" data-toggle="modal" data-target="#modal-edit-cash-item" class="btn btn-xs btn-info btnEditCashItem" data-id="{{ $i->id }}" rel="tooltip" title="{{ ucfirst(trans('textos.editar')) }}"><i class="fa fa-edit"></i></a>
 
 								{{-- Eliminar --}}
 								@can('cash.edit')
@@ -265,6 +270,35 @@
 @endif
 
 {{-- Modals: --}}
+{{-- Add company --}}
 @include('admin.companies.partials.modal-add-company', ['business_relationship' => 'customers', 'return' => 'cash', 'return_id' => $cash->id])
+
+{{-- Edit item --}}
+@include('admin.cash.partials.modal-edit-cash-item');
+
+@push('scripts')
+<script>
+$(function(){
+	var items = {!! json_encode($items) !!};
+	console.log(items);
+	//Edición línea de caja.
+	$('.btnEditCashItem').on('click', function(e){
+		e.preventDefault();
+		var id = $(this).data('id');
+		$.each(items, function(i, item){
+            if(item.id == id){
+            	$('#productId_').val(id);
+            	$('#productConcept_').val(item.concept);
+            	$('#productQty_').val(item.qty);
+            	$('#productPrice_').val(item.price);
+            	$('#productDiscount_').val(item.discount);
+            	$('#productIva_').val(item.iva);
+            	$('#productObservations_').trumbowyg('html', item.observations);
+            }
+        })
+	});
+});
+</script>
+@endpush
 
 @endsection

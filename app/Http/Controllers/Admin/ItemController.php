@@ -350,7 +350,7 @@ class ItemController extends Controller{
                 ->withInput();
         }   
 
-        $order = Order::select('id', 'invoiced')->find($request->order_id);
+        $order = $request->order_id? Order::select('id', 'invoiced')->find($request->order_id):false;
 
         //Comprobamos si el proveedor dispone de cuenta, esto es, que pueda generar directamente sus facturas:
         $provider_account = false;
@@ -360,8 +360,8 @@ class ItemController extends Controller{
             ->first();
         }
 
-        //Si pedido no existe o está facturado y proveedor gestiona sus propios pedidos y facturas:
-        if(!$order || ($order->invoiced && $provider_account)){
+        //Si no es movimiento de caja, el pedido no existe o está facturado y proveedor gestiona sus propios pedidos y facturas:
+        if($request->environment != 'cash' && (!$order || ($order->invoiced && $provider_account))){
             $alert = trans('textos.pedido_facturado_aviso');
             return redirect()->route('orders.edit', [$request->order_id, 'items'])->with(compact('alert'));
             exit;
@@ -374,7 +374,7 @@ class ItemController extends Controller{
 
         //Recargo de equivalencia:
         $equivalence_surcharge = NULL;
-        if($iva > 0){
+        if($iva > 0 && $request->environment != 'cash'){
             $es = IvaType::select('equivalence_surcharge')
             ->where('iva', $iva)
             ->where('status', 1)
@@ -400,17 +400,19 @@ class ItemController extends Controller{
         $item->save();
 
         //Actualizamos la línea en líneas de factura, si ésta no está bloqueada:
-        $invoice_item = InvoiceItems::select('invoice_items.*')
-        ->join('invoices', 'invoice_items.invoice_id', '=', 'invoices.id')
-        ->where('invoice_items.item_id', $item->id)
-        ->where('invoices.blocked', '0')
-        ->first();
-        if($invoice_item){
-            InvoiceItems::updateInvoiceItem($item, $invoice_item->invoice_id);
+        if($request->environment != 'cash'){
+            $invoice_item = InvoiceItems::select('invoice_items.*')
+            ->join('invoices', 'invoice_items.invoice_id', '=', 'invoices.id')
+            ->where('invoice_items.item_id', $item->id)
+            ->where('invoices.blocked', '0')
+            ->first();
+            if($invoice_item){
+                InvoiceItems::updateInvoiceItem($item, $invoice_item->invoice_id);
 
-            //Actualizamos importe de la factura:
-            $invoice = Invoice::find($invoice_item->invoice_id);
-            $invoice->calculateAmountByItems();
+                //Actualizamos importe de la factura:
+                $invoice = Invoice::find($invoice_item->invoice_id);
+                $invoice->calculateAmountByItems();
+            }
         }
 
         $msg = trans('textos.linea_updated');
@@ -418,6 +420,8 @@ class ItemController extends Controller{
             return redirect()->route('orders.edit', [$order->id, 'items'])->with(compact('msg'));
         }elseif($request->environment == 'invoices'){
             return redirect()->route('invoices.edit', [$request->invoice_id, 'items'])->with(compact('msg'));
+        }elseif($request->environment == 'cash'){
+            return redirect()->route('cash.edit', $request->cash_id)->with(compact('msg'));
         }else{
             return redirect()->route('budgets.edit', [$request->budget_id, 'items'])->with(compact('msg'));    
         }

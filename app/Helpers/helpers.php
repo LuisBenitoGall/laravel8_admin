@@ -49,6 +49,8 @@ class Helpers{
 	 *  3.16. Marcas de vehículo.
 	 *  3.17. Estados de orden de trabajo.
 	 *  3.18. Estados de productos de orden de trabajo.
+	 *  3.18.1. Estados de producción para productos.
+	 *  3.18.2. Estados de productos de orden de trabajo.
 	 *  3.19. Modalidades de factura.
 	 *  3.20. Estados de factura.
 	 *  3.21. Métodos de pago.
@@ -947,6 +949,40 @@ class Helpers{
 			20 => trans('textos.en_revision'),
 			30 => trans('textos.completado'),
 			40 => trans('textos.en_stock')
+		];
+		if($status){
+			return ucfirst($data[$status]);
+		}else{
+			return $data;
+		}		
+	}
+
+	/**
+	 * 3.18.1. Estados de producción para productos.
+	 */
+	public static function productionProductStatus($status = false){
+		$data = [
+			1 => trans('textos.materia_prima'),
+			10 => trans('textos.semielaborado'),
+			40 => trans('textos.producto_acabado')
+		];
+		if($status){
+			return ucfirst($data[$status]);
+		}else{
+			return $data;
+		}		
+	}
+
+	/**
+	 * 3.18.2. Estados de componentes de orden de trabajo.
+	 */
+	public static function workOrderComponentStatus($status = false){
+		$data = [
+			1 => trans('textos.pendiente'),
+			10 => trans('textos.en_preparacion'),
+			20 => trans('textos.en_produccion'),
+			30 => trans('textos.completado'),
+			40 => trans('textos.incidencia')
 		];
 		if($status){
 			return ucfirst($data[$status]);

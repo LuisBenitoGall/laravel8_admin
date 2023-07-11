@@ -25,6 +25,7 @@ return [
     'COLOR_CHART_WARNING_' => "#e1d4a3",
     'COLOR_CHART_DANGER_' => "#f16688",
     'COLOR_CHART_GREY_' => "#dedede",
+    'COMPONENTS_PRODUCTION_' => [1, 10],
     'CONTRATO_INDEFINIDO_DURACION_' => 100000,
     'CURRENCY_' => '€',
     'CURRENCY_NAME_' => 'EUR',

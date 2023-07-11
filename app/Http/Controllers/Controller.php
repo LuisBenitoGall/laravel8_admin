@@ -322,6 +322,9 @@ class Controller extends BaseController{
         }elseif($table == 'delivery'){
             $table = 'deliverie';
             $change_again = 'delivery';
+        }elseif($table == 'batch'){
+            $table = 'batche';
+            $change_again = 'batch';
         }else{
             $change_again = $table;
         }
@@ -343,6 +346,9 @@ class Controller extends BaseController{
                 $cardinal_ = 'sat_num_cardinal';
                 $pattern_ = 'sat_pattern_id';
                 break;
+            case 'batch':
+                $cardinal_ = 'num_cardinal';
+                $pattern_ = 'batch_pattern_id';
             default:
                 $cardinal_ = 'num_cardinal';
                 $pattern_ = 'pattern_id';

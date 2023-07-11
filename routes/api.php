@@ -92,7 +92,7 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     Route::get('batch-patterns', 'BatchPatternsController@getPatternsDT');
 
     //Batches:
-    Route::get('batches', 'BatchController@getBatchesDT');
+    Route::get('batches/{product_id?}', 'BatchController@getBatchesDT');
 
     //BudgetFormCustomers:
     Route::get('budget-form-customers/{form}', 'BudgetFormsController@getBudgetFormCustomersDT');
@@ -385,6 +385,9 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
 
     //Vehicles:
     Route::get('vehicles', 'VehicleController@getVehiclesDT');
+
+    //Work Order Components:
+    Route::get('work-order-components/{work_order}', 'WorkOrderComponentController@getComponentsDT');
 
     //Work Order Patterns:
     Route::get('work-order-patterns', 'WorkOrderPatternsController@getPatternsDT');

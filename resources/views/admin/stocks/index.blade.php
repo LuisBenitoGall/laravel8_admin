@@ -198,6 +198,8 @@
                         </div>     
                     </div>
 
+                    <h3 id="storeName" class="mt-3"><u></u></h3>
+
                     <form method="post" autocomplete="off" action="{{ route('stocks.store') }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
                         {{ csrf_field() }}
                         <input type="hidden" name="stock_id" id="stockId">
@@ -311,15 +313,24 @@ function selectProduct(products, currency, product_id){
         if(response){
             var total_stock = 0;
             response.forEach(function (item, index, arr){
+                console.log(item);
                 total_stock = parseFloat(total_stock) + parseFloat(item.stock);
                 var batch_ = item.batch == 'lote_0'? '':item.batch;
-                var batch_id_ = batch_ != ''? item.batch_id:'';     //Si el producto no tiene gestión de lotes, no se pasa el batch_id.
+                var batch_id_ = item.batch != ''? item.batch_id:'';     //Si el producto no tiene gestión de lotes, no se pasa el batch_id.
                 var tr = '<tr>';
                     tr += '<td>'+item.store+'</td>';
-                    tr += '<td>'+batch_+'</td>';
+                    tr += '<td>';
+                        if(item.batch != 'lote_0' && batch_id_ != ''){
+                            tr += '<a target="_blank" href="/admin/batches/'+batch_id_+'/edit">';
+                        }
+                            tr += batch_;
+                        if(item.batch != 'lote_0' && batch_id_ != ''){
+                            tr += '</a>';
+                        }
+                    tr += '</td>';
                     tr += '<td class="text-right">'+item.stock+'</td>';
                     tr += '<td class="text-right">';
-                        tr += '<a href="#" class="btn btn-xs btn-info btnSelectBatch" data-stockid="'+item.stock_id+'" data-stock="'+item.stock+'" data-store="'+item.store_id+'" data-batch="'+batch_id_+'" rel="tooltip" title="'+txtLoteSelec+'"><i class="fa fa-filter"></i></a>';
+                        tr += '<a href="#" class="btn btn-xs btn-info btnSelectBatch" data-stockid="'+item.stock_id+'" data-stock="'+item.stock+'" data-store="'+item.store+'" data-storeid="'+item.store_id+'" data-batchid="'+batch_id_+'" rel="tooltip" title="'+txtLoteSelec+'"><i class="fa fa-filter"></i></a>';
                     tr += '</td>';
                 tr += '</tr>';
                 $('#tblStoresStock tbody').append(tr);           
@@ -401,8 +412,9 @@ $(function(){
         var elem = $(this);
         var stock_id = elem.data('stockid');
         var stock = elem.data('stock');
+        var store_id = elem.data('storeid');
         var store = elem.data('store');
-        var batch = elem.data('batch');
+        var batch_id = elem.data('batchid');
 
         //Activamos inputs disabled:
         $('.desactivado').prop('disabled', false);
@@ -411,7 +423,8 @@ $(function(){
         elem.closest('tr').find('td').siblings().addClass('bg-warning');
 
         $('#stockId').val(stock_id);
-        $('#stockStoreId').val(store);
+        $('#stockStoreId').val(store_id);
+        $('#storeName u').text(store);
 
         //Reseteamos las opciones de almacén de destino sin el almacén de origen:
         if(store > 0){
@@ -426,20 +439,11 @@ $(function(){
         }
 
         //Seteando opciones de lote:
-        //if(batch != ''){
-            var arr_batches = [batch];
+        //if(batch_id != ''){
+            var arr_batches = [batch_id];
             $('#batches').val(arr_batches);
             $('#batches').trigger('change');
         //}
-    });
-
-    //Fecha caducidad nuevo lote:
-    $('#newBatch').on('change', function(){
-        if($(this).val() != ''){
-            $('#expiryDate').prop('disabled', false);
-        }else{
-            $('#expiryDate').val('').prop('disabled', true);
-        }
     });
 
     //Seleccionar tipo de movimiento:
@@ -457,6 +461,26 @@ $(function(){
                 }
             }
         });
+    });
+
+    //Toggle de lotes: si seleccionamos uno existente no puede haber lote nuevo y viceversa.
+    $('#batches').on('change', function(){
+        var b = $(this).val();
+        if(b > 0){
+            $('#newBatch').val('');
+            $('#expiryDate').val('').prop('disabled', true);
+        }
+    });
+    $('#newBatch').on('change', function(){
+        var b_ = $(this).val();
+        if(b_ != ''){
+            $('#batches').val([]);
+            $('#batches').trigger('change'); 
+            //Fecha caducidad nuevo lote:
+            $('#expiryDate').prop('disabled', false);   
+        }else{
+            $('#expiryDate').val('').prop('disabled', true);    
+        }
     });
 });
 </script>

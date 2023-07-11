@@ -104,7 +104,7 @@ class OrderController extends Controller{
 
     //0. Validator:
     protected function validator(array $data){
-        //Validación index:
+        //Validación filtro:
         if(isset($data['submit_filter'])){
 
             // Si viene el orden_buy realizar la validación de los campos necesarios

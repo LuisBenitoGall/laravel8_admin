@@ -13,9 +13,12 @@ use File;
 use Carbon\Carbon;
 
 //Models:
+use App\Models\BatchPatterns;
 use App\Models\Company;
 use App\Models\CompanySettings;
 use App\Models\Product;
+use App\Models\Store;
+use App\Models\Unit;
 use App\Models\User;
 use App\Models\WorkOrder;
 use App\Models\WorkOrderPatterns;
@@ -140,7 +143,29 @@ class WorkOrderController extends Controller{
         //Productos. Activos y aptos para venta:
         $products = Product::companyProducts($work_order->company_id, $work_order->company_id);
 
+        //Componentes. Activos, producto físico y se excluyen los productos acabados:
+        $components = Product::where('company_id', session('currentCompany'))
+        ->where('status', 1)
+        ->where('type', 'p')
+        ->whereIn('production_status', config('constants.COMPONENTS_PRODUCTION_'))
+        ->pluck('name', 'id')
+        ->toArray();
+
+        //Unidades de suministro:
+        $units = Unit::where('status', 1)
+        ->pluck('symbol', 'id')
+        ->toArray();
+
         $provider = Company::find($work_order->company_id);
+
+        //Almacenes:
+        $stores = Store::storesCompanyArray(session('currentCompany'));
+
+        //Patrones de lotes:
+        $batch_patterns = BatchPatterns::where('company_id', session('currentCompany'))
+        ->where('status', 1)
+        ->pluck('name', 'id')
+        ->toArray();
 
         //Cambios bloqueados: establecer las condiciones por las que se pueden realizar ciertas acciones o no.
         $permitted = true;
@@ -150,7 +175,7 @@ class WorkOrderController extends Controller{
 
         $languages = $this->languages;
 
-        return view('admin.work_orders.edit')->with(compact('header', 'work_order', 'tab', 'patterns', 'author', 'products', 'provider', 'permitted', 'currency', 'languages'));
+        return view('admin.work_orders.edit')->with(compact('header', 'work_order', 'tab', 'patterns', 'author', 'products', 'components', 'units', 'provider', 'stores', 'batch_patterns', 'permitted', 'currency', 'languages'));
     }
 
     /**

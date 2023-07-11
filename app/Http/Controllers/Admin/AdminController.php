@@ -107,7 +107,7 @@ class AdminController extends Controller{
      */
     public function sql(){
         //1. Añadir horarios en grupo.
-        $this->teletrabajoColonias();   
+        //$this->teletrabajoColonias();   
     }
 
     /**
