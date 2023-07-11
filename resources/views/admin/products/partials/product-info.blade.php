@@ -8,6 +8,12 @@
 		<div class="col-lg-6">
 			<x-input type="text" name="name" id="name" value="{{ $product->name }}" autocomplete="off" maxlength="255" required/>
 		</div>
+
+		{{-- Tipo de producto --}}
+		<label for="production_status" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.producto_tipo')) !!}</label>
+		<div class="col-lg-2">
+			<x-select name="production_status" class="select2" label="tipo_selec" :options="$production_status" value="{{ $product->production_status }}"/>
+		</div>
 	</div>
 
 	<div class="form-group row">

@@ -152,17 +152,17 @@
 @include('admin.orders.partials.modal-set-report')
 
 @push('scripts')
-    <script>
-        $(function(){
-            //Toggle selector clientes o proveedores:
-            $('#customerId').on('change', function(e){
-                $('#providerId').val(['']).trigger('change.select2');
-            });
-            $('#providerId').on('change', function(e){
-                $('select#customerId').val(['']).trigger('change.select2');
-            });
-        });
-    </script>
+<script>
+$(function(){
+    //Toggle selector clientes o proveedores:
+    $('#customerId').on('change', function(e){
+        $('#providerId').val(['']).trigger('change.select2');
+    });
+    $('#providerId').on('change', function(e){
+        $('select#customerId').val(['']).trigger('change.select2');
+    });
+});
+</script>
 @endpush
 
 @endsection

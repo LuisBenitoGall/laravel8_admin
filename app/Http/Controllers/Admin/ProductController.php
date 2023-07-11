@@ -285,12 +285,15 @@ class ProductController extends Controller{
         //IVA:
         $iva = CompanySettings::co_iva();
 
+        //Estados de producción:
+        $production_status = helpers::productionProductStatus();
+
         $languages = $this->languages;
 
         //Módulos activos:
         $module_production = $this->settedModule('production');
 
-        return view('admin.products.edit', compact('header', 'product', 'tab', 'productions', 'patterns', 'data_types', 'attributes', 'prices', 'cost_centers', 'currency', 'iva', 'languages', 'module_production'));
+        return view('admin.products.edit', compact('header', 'product', 'tab', 'productions', 'patterns', 'data_types', 'attributes', 'prices', 'cost_centers', 'currency', 'iva', 'production_status', 'languages', 'module_production'));
     }
 
     /**
@@ -414,6 +417,7 @@ class ProductController extends Controller{
         $product->iva = $request->iva;
         $product->on_sale = $request->input('on_sale')? true:false;
         $product->cost_center_id = $request->cost_center;
+        $product->production_status = $request->production_status;
         $product->status = $status;
         $product->save();
 

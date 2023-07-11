@@ -2,6 +2,8 @@
 
 @section('content')
 
+<input type="hidden" id="myProduct" value="@if($product) {{ $product->id }} @endif">
+
 <div class="row mb-3">
 	{{-- Acciones --}}
 	<div class="col-12">
@@ -11,7 +13,40 @@
 	</div>
 </div>
 
+{{-- Filtros --}}
 <div class="row">
+	<div class="col-12">						
+		<div class="card mb-3">
+			<div class="card-body">
+				<form method="post" autocomplete="off" action="{{ route('batches.list') }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
+					{{ csrf_field() }}
+
+					<div class="form-group row">
+						{{-- Producto --}}
+						<label for="product_" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.producto')) !!}</label>
+						<div class="col-lg-5 position-relative">
+							<x-input type="text" name="product_" id="search_product" placeholder="{!! ucfirst(trans('textos.producto')) !!}" maxlength="150"/>
+						</div>
+
+						<input type="hidden" name="product_id" id="productId">
+					</div>
+
+					<x-btn-submit name="submit_filter" label="{{ trans('textos.buscar') }}"/>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="row">
+	@if($product)
+		<div class="col-12 mb-3">
+			<h3>
+				{!! trans('textos.prooucto_lotes') !!} <u>{{ $product->name }}</u>
+			</h3>
+		</div>
+	@endif
+
 	<div class="table-responsive">
 		<table class="table table-hover dtabla" id="tblBatches">
 			<thead>

@@ -15,33 +15,27 @@
 
 					<div class="form-group row">
 						{{-- Producto --}}
-                    	<label for="product_id" class="col-md-2 col-form-label">{!! ucfirst(trans('textos.producto')) !!} *</label>
-						<div class="col-8 col-lg-9">
-							@php
-							$products_ = [];
-							foreach($products as $product){
-								$products_[$product->id] = $product->name;
-							}
-							@endphp
-
-							<x-select name="product_id" id="wopProduct" class="select2" label="producto_selec" :options="$products_" required/>
+                    	<label for="product_id" class="col-md-2 col-form-label">{!! ucfirst(trans('textos.producto')) !!}</label>
+						<div class="col-10">
+							<x-input type="text" name="_" id="wopProduct" disabled/>	
 						</div>
-
-						{{-- Ver catálogo --}}
-						{{-- <div class="col-2 col-md-1">
-							<button class="btn btn-warning btnSeeCatalogue" title="{!! ucfirst(trans('textos.catalogo')) !!}" data-toggle="modal" data-target="#modal-see-catalogue">
-								<i class="fa fa-th"></i>
-							</button>
-						</div> --}}
 					</div>
 
 					<div class="form-group row">
 						{{-- Cantidad --}}
                     	<label for="planned_qty" class="col-lg-3 col-form-label">{!! ucfirst(trans('textos.cantidad_producir')) !!} *</label>
-						<div class="col-lg-2">
+						<div class="col-lg-3">
 							<x-input type="text" name="planned_qty" id="wopPlannedQty" class="text-right set-decimals" autocomplete="off" maxlength="10" value="1" required info="work-order-product-qty"/>
 						</div>
 
+						{{-- Cantidad producida --}}
+						<label for="produced_qty" class="col-lg-3 col-form-label">{!! ucfirst(trans('textos.cantidad_producida')) !!}</label>
+						<div class="col-lg-3">
+							<x-input type="text" name="produced_qty" id="wopProducedQty" class="text-right set-decimals" autocomplete="off" maxlength="10" required info="work-order-product-qty-produced"/>
+						</div>
+					</div>
+
+					<div class="form-group row" id="setBatch">
 						{{-- Generar número de lote --}}
 						<label for="with_batch" class="col-lg-3 col-form-label">{!! ucfirst(trans('textos.lote_num_generar')) !!}</label>
 						<div class="col-md-4 col-lg-2">
@@ -52,6 +46,14 @@
 					        	{!! App\Helpers\helpers::info('work-order-product-batch', true) !!}
 					        </label>
 						</div>
+
+						{{-- Patrones --}}
+						@if(count($batch_patterns))
+							<label for="pattern_id" class="col-lg-3 col-form-label">{!! ucfirst(trans('textos.patron')) !!}</label>
+							<div class="col-md-4">
+								<x-select name="pattern_id" class="select2" label="patron_selec" :options="$batch_patterns" info="batch-pattern"/>
+							</div>
+						@endif
 					</div>
 
 					<div class="form-group row">
@@ -72,28 +74,27 @@
 @push('scripts')
 <script>
 $(function(){
-	var products_ = {!! json_encode($products) !!}
-
-	// Limpiar formulario nuevo item.
-	$('.btnAddItem').on('click', function(){
-	    $('#frmAddItem').trigger("reset");
-	});
+	//Opciones de lote van ocultas por defecto.
+	$('#setBatch').hide();
 
 	// Obtener gestión de lote del producto:
 	$(document).on('click', '.btnEditWorkOrderProduct', function(e){
-	    var id = $(this).data('id');
-	    var product = $(this).data('product');
-	    var plannedqty = $(this).data('plannedqty');
-	    var observations = $(this).data('observations');
+	    $('#wopId').val($(this).data('id'));
+	    $('#wopProduct').val($(this).data('product'));
+	    $('#wopPlannedQty').val($(this).data('plannedqty'));
+	    $('#wopProducedQty').val($(this).data('producedqty'));
+	    $('#wopObservations').trumbowyg('html', $(this).data('observations'));
 
-	    $('#wopId').val(id);
-	    $('#wopPlannedQty').val(plannedqty);
-	    $('#wopObservations').trumbowyg('html', observations);
+	    if($(this).data('batch') == 1){
+	    	$('#setBatch').hide();	
+	    }else{
+	    	$('#setBatch').fadeIn();
+	    }
 
-	    var arr = [product];
+	    //var arr = [product];
         //Atención al modo de marcar como selected las opciones en un Select2:
-        $('#wopProduct').val(arr);
-        $('#wopProduct').trigger('change');
+        // $('#wopProduct').val(arr);
+        // $('#wopProduct').trigger('change');
 	});
 });
 </script>

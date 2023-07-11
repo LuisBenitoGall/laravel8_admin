@@ -129,12 +129,15 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::get('batch-patterns/status/{id}/{status}', 'BatchPatternsController@status')->name('batch-patterns.status')->middleware('permission:batch-patterns.edit');
 
     // Batches:
-    Route::get('batches', 'BatchController@index')->name('batches.index');
+    Route::get('batches/list/{product_id?}', 'BatchController@index')->name('batches.index');
+    Route::post('batches', 'BatchController@getBatchesBy')->name('batches.list')->middleware('permission:batches.index');
     Route::get('batches/create', 'BatchController@create')->name('batches.create')->middleware('permission:batches.create');
     Route::post('batches/store', 'BatchController@store')->name('batches.store')->middleware('permission:batches.create');
     Route::get('batches/{batch}/edit', 'BatchController@edit')->name('batches.edit')->middleware('permission:batches.edit');
     Route::get('batches/{product_id}/product-batches', 'BatchController@productBatches')->name('batches.product-batches')->middleware('permission:products.edit');
     Route::put('batches/{batch}/update', 'BatchController@update')->name('batches.update')->middleware('permission:batches.edit');
+    Route::get('batches/{batch}/remove-doc', 'BatchController@removeDoc')->name('batches.remove-doc')->middleware('permission:batches.edit');
+    Route::delete('batches/{batch}', 'BatchController@destroy')->name('batches.destroy')->middleware('permission:batches.destroy');
 
     // Budget Form Items:
     Route::post('budget-form-items/store', 'BudgetFormItemsController@store')->name('budget-form-items.store')->middleware('permission:budget-forms.edit');
@@ -234,7 +237,8 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::put('cash/{cash}/update', 'CashController@update')->name('cash.update')->middleware('permission:cash.edit');
     Route::delete('cash/{cash}', 'CashController@destroy')->name('cash.destroy')->middleware('permission:cash.destroy');
     Route::get('cash/{cash}/set-customer/{company_id}', 'CashController@setCustomer')->name('cash.set-customer');
-     Route::get('cash/{cash}/status/{status}', 'CashController@status')->name('cash.status');
+    Route::get('cash/{cash}/status/{status}', 'CashController@status')->name('cash.status');
+    Route::get('cash/{cash}/print', 'CashController@print')->name('cash.print');
 
     // Categories. Tienen un index propio por cada módulo que utiliza esta funcionalidad:
     Route::get('categories', 'CategoryController@index')->name('categories.index');
@@ -459,6 +463,10 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::post('expenses/{expense}/unlink-project', 'ExpenseController@unlinkProject')->name('expenses.unlink-project')->middleware('permission:expenses.edit');
     Route::post('expenses.link-projects', 'ExpenseController@linkToProject')->name('expenses.link-projects')->middleware('permission:projects.edit');
     Route::delete('expenses/{expense}', 'ExpenseController@destroy')->name('expenses.destroy')->middleware('permission:expenses.destroy');
+
+    // Phases:
+    Route::get('phases/list/{product_id?}', 'WorkOrderPhaseController@index')->name('phases.index');
+    Route::post('phases', 'WorkOrderPhaseController@getPhasesBy')->name('phases.list')->middleware('permission:phases.index');
 
     // Files:
     Route::get('files', 'FileController@index')->name('files.index');
@@ -1213,6 +1221,11 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::post('work-calendar/store-intervals', 'WorkCalendarController@storeIntervals')->name('work-calendar.store-intervals');
     Route::post('work-calendar/copy', 'WorkCalendarController@copy')->name('work-calendar.copy');
     Route::post('work-calendar/set-ranks', 'WorkCalendarController@setRanks')->name('work-calendar.set-ranks');
+
+    // Work Order Components:
+    Route::post('work-order-components/store', 'WorkOrderComponentController@store')->name('work-order-components.store')->middleware('permission:work-orders.edit');
+    Route::post('work-order-components/update', 'WorkOrderComponentController@update')->name('work-order-components.update')->middleware('permission:work-orders.edit');
+    Route::delete('work-order-components/{component}', 'WorkOrderComponentController@destroy')->name('work-order-components.destroy')->middleware('permission:work-orders.edit');
 
     // Work Order Patterns:
     Route::get('work-order-patterns', 'WorkOrderPatternsController@index')->name('work-order-patterns.index');
