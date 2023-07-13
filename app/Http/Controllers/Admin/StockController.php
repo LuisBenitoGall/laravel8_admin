@@ -147,7 +147,7 @@ class StockController extends Controller{
             $data = [];
 
             //Lotes del producto:
-            $batches = Batch::select('id', 'name')->where('product_id', $product_id)->get();
+            $batches = Batch::select('id', 'batch_num')->where('product_id', $product_id)->get();
 
             //Almacenes de la empresa, que obtenemos de los guardados en session:
             if(session('currentCompanyStores') && !empty(session('currentCompanyStores'))){
@@ -175,7 +175,7 @@ class StockController extends Controller{
                         ->orderBy('result', 'DESC')
                         ->first();
 
-                        $batch = $stock && $stock->result > 0? $b->name:'';
+                        $batch = $stock && $stock->result > 0? $b->batch_num:'';
 
                         //Si el almacén no aparece:
                         if(!$store_in){
@@ -243,7 +243,7 @@ class StockController extends Controller{
      * 2.1. Movimientos por producto para DataTable.
      */
     public function getProductStockMovementsDT($product_id){
-        $data = Stock::select('stocks.qty', 'stocks.result', 'stocks.operation', 'stocks.doc', 'stocks.doc_num', 'stocks.observations', 'stocks.created_at', 'products.id', 'products.name', 'stock_movements.name AS movement', 'stores.name AS store', 'batches.name AS batch', 'users.name AS Nombre', 'users.surname')
+        $data = Stock::select('stocks.qty', 'stocks.result', 'stocks.operation', 'stocks.doc', 'stocks.doc_num', 'stocks.observations', 'stocks.created_at', 'products.id', 'products.name', 'stock_movements.name AS movement', 'stores.name AS store', 'batches.batch_num AS batch', 'users.name AS Nombre', 'users.surname')
         ->join('products', 'stocks.product_id', '=', 'products.id')
         ->join('stock_movements', 'stocks.stock_mov_id', '=', 'stock_movements.id')
         ->join('stores', 'stocks.store_id', '=', 'stores.id')
@@ -329,7 +329,7 @@ class StockController extends Controller{
         }
 
         //Tipo de movimiento:
-        $stock_mov = StockMovements::select('sign')->find($request->movement);
+        $stock_mov = StockMovements::select('acronym', 'sign')->find($request->movement);
 
         //Recuperamos última línea del producto, almacén y lote:
         $result = 0;
@@ -341,7 +341,7 @@ class StockController extends Controller{
             ->first();
             $result = $last_row? $last_row->result:0;
         }
-//dd($result, $request->batch, $request->new_batch, $request->expiry_date);
+        //dd($result, $request->batch, $request->new_batch, $request->expiry_date);
         //Actualizando result:
         if($stock_mov->sign == 's'){
             $result = $result + $request->qty;  
@@ -472,6 +472,9 @@ class StockController extends Controller{
             $stock2->observations = $request->observations;
             $stock2->save();
         }
+
+        //Acciones adicionales en función del tipo de movimiento:
+        
 
         $msg = trans('textos.movimiento_ok');
         return redirect()->route('stocks.index', $request->product_id)->with(compact('msg'));
