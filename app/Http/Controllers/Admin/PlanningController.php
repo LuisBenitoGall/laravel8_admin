@@ -19,6 +19,7 @@ use App\Models\Planning;
 class PlanningController extends Controller{
     /**
      * 1. Planificación.
+     * 2. Formulario nueva planificación.
      */
     
     private $option = 'planning';
@@ -45,5 +46,19 @@ class PlanningController extends Controller{
         ];    
 
         return view('admin.planning.index')->with(compact('header'));
+    }
+
+    /**
+     * 2. Formulario nueva planificación.
+     */
+    public function create(){
+        $header = [
+            'option' => $this->option, 
+            'suboption' => 'textos.planificacion_nueva',
+            'module' => $this->module,
+            'slug' => 'planning'
+        ];    
+
+        return view('admin.planning.create')->with(compact('header'));    
     }
 }

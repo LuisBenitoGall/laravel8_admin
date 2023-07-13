@@ -76,6 +76,7 @@
                                         <th>{{ trans('textos.fecha') }}</th>
                                         <th>{{ ucfirst(trans('textos.producto')) }}</th>
                                         <th class="text-center">{{ trans('textos.cantidad') }}</th>
+                                        <th class="text-center"></th>
                                     </tr>    
                                 </thead>
 
@@ -86,6 +87,13 @@
                                             <td>{{ $lm->name }}</td>
                                             <td class="text-right">
                                                 @if($lm->operation == 'r') - @endif {{ $lm->qty }}
+                                            </td>
+                                            {{-- Acciones --}}
+                                            <td class="text-right">
+                                                {{-- Utilizar mismo producto --}}
+                                                <a href="{{ route('stocks.index', $lm->id) }}" class="text-warning" rel="tooltip" title="{{ trans('textos.movimiento_nuevo') }}">
+                                                    <i class="fa fa-redo"></i>
+                                                </a>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -240,6 +248,14 @@
                             </div>
                         </div>
 
+                        <div class="form-group row" id="withOrder_">
+                            {{-- Pedidos --}}
+                            <label for="order" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.pedido')) !!}</label>
+                            <div class="col-lg-4">
+                                <x-select name="order" class="select2 desactivado" id="orders" label="pedido_selec" :options="[]"/>    
+                            </div>
+                        </div>
+
                         <div class="form-group row" >
                             {{-- Almacén destino --}}
                             <label for="to_store" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.almacen_destino')) !!}</label>
@@ -369,7 +385,7 @@ function selectProduct(products, currency, product_id){
             if(response){
                 $('#batches').empty(); //.append('<option value="">Selecciona lote</option>');
                 response.forEach(function (item, index, arr){
-                    var option = '<option value="'+item.id+'">'+item.name+'</option>';
+                    var option = '<option value="'+item.id+'">'+item.batch_num+'</option>';
                     $('#batches').append(option);
                 });
             }
@@ -387,6 +403,7 @@ $(function(){
     var stores = {!! json_encode($stores_) !!};
     var product_id = @if($product_id) {{ $product_id }} @else false @endif;
 	var product = '';
+    $('#withOrder').hide();
 
     //Inputs inactivos por defecto:
     $('.desactivado').prop('disabled', true);
