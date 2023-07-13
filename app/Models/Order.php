@@ -221,7 +221,7 @@ class Order extends Model{
      *
      */
     public function getAmount($discount_ = true, $with_iva = false, $with_percentage_items = true){
-        $items = Item::select('id', 'concept', 'qty', 'price', 'item_no_price', 'iva', 'equivalence_surcharge', 'discount', 'calculated_by_percent', 'days', 'days_continue', 'days_continue_discount')
+        $items = Item::select('id', 'concept', 'qty', 'price', 'item_no_price', 'iva', 'equivalence_surcharge', 'irpf', 'discount', 'calculated_by_percent', 'days', 'days_continue', 'days_continue_discount')
             ->where('order_id', $this->id)
             ->get();
 

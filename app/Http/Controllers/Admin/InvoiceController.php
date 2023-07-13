@@ -978,7 +978,7 @@ class InvoiceController extends Controller{
         ]; 
 
         //Recalculando importe factura por sus líneas:
-        //$this->recalculateInvoiceAmount($invoice);
+        //$this->recalculateInvoiceAmount($invoice, $order);
 
         //Entorno: venta.
         $is_sale = true;
@@ -1300,9 +1300,6 @@ class InvoiceController extends Controller{
             'module' => $this->module,
             'slug' => 'invoices'
         ];  
-
-        //Recalculando importe factura por sus líneas:
-        //$this->recalculateInvoiceAmount($invoice);
 
         //Pedido:
         $order = Order::find($invoice->order_id); 
