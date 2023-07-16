@@ -25,6 +25,12 @@
     			{!! ucfirst(trans('textos.cuestion_nueva')) !!}
     		</a>
 
+    		{{-- Añadir empresas --}}
+    		<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-add-company">
+    			<i class="fa fa-building"></i>
+    			{!! ucfirst(trans('textos.empresas_add')) !!}
+    		</a>
+
     		{{-- Añadir equipo --}}
     		<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-add-team">
     			<i class="fa fa-users"></i>
@@ -49,6 +55,10 @@
 			    		<a class="nav-link @if(!$tab) active @endif" href="#tab-edition-info" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.info_general')) !!}</a>
 			  		</li>
 
+			  		<li class="nav-item @if($tab == 'companies') active @endif">
+			    		<a class="nav-link @if($tab == 'companies') active @endif" href="#tab-edition-companies" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.empresas_participantes')) !!}</a>
+			  		</li>
+
 			  		<li class="nav-item @if($tab == 'teams') active @endif">
 			    		<a class="nav-link @if($tab == 'teams') active @endif" href="#tab-edition-teams" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.equipos_participantes')) !!}</a>
 			  		</li>
@@ -63,6 +73,11 @@
 			  		<div class="tab-pane fade @if(!$tab) show active @endif" role="tabpanel" id="tab-edition-info">
 						@include('admin.quiz_editions.partials.edition-info')
 					</div>	
+
+					{{-- Empresas participantes --}}
+					<div class="tab-pane fade @if($tab == 'companies') show active @endif" role="tabpanel" id="tab-edition-companies">
+						@include('admin.quiz_editions.partials.edition-companies')
+					</div>
 
 					{{-- Equipos participantes --}}
 					<div class="tab-pane fade @if($tab == 'teams') show active @endif" role="tabpanel" id="tab-edition-teams">
@@ -80,53 +95,10 @@
 </div>
 
 {{-- Modals --}}
-{{-- Añadir equipo --}}
-<div class="modal fade modal-add-team" id="modal-add-team" tabindex="-1" role="dialog" aria-labelledby="addTeam" aria-hidden="true">
-	<div class="modal-dialog modal-lg" role="document">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h4 class="modal-title" id="addTeam">{{ trans('textos.equipo_add') }} <u></u></h4>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-					<span aria-hidden="true">&times;</span>
-				</button>
-			</div>
+{{-- Add company --}}
+@include('admin.quiz_editions.partials.modal-add-company')
 
-			<div class="modal-body">
-				<form method="post" autocomplete="off" action="{{ route('quiz-edition-teams.store') }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
-					{{ csrf_field() }}	
-					<input type="hidden" name="quiz_edition_id" value="{{ $edition->id }}">
-
-					<div class="form-group row">
-						<label class="col-12">{{ ucfirst(trans('textos.equipos')) }} *
-							</label>
-						<div class="col-12">
-							@php
-							$options = [];
-							@endphp
-
-							@foreach($teams as $team)
-								@php
-								$options[$team->id] = $team->name;
-								@endphp
-							@endforeach
-
-							<x-select name="teams[]" class="select2" multiple="true" :options="$options" required info="quiz-edition-teams"/>
-						</div>
-					</div>
-
-					<x-btn-submit name="submit_save" label="{{ trans('textos.guardar') }}"/>
-				</form>
-			</div>
-		</div>
-	</div>
-</div>
-
-@push('styles')
-<link rel="stylesheet" href="https://cdn.datatables.net/rowreorder/1.2.8/css/rowReorder.dataTables.min.css">
-@endpush
-
-@push('scripts')
-<script src="https://cdn.datatables.net/rowreorder/1.2.8/js/dataTables.rowReorder.min.js"></script>
-@endpush
+{{-- Add team --}}
+@include('admin.quiz_editions.partials.modal-add-team')
 
 @endsection

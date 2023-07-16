@@ -1,6 +1,27 @@
 @extends('admin.partials.layout')
 
 @section('content')
+    {{-- Quizzes --}}
+    @if($quizzes->count())
+        <div class="row mb-3">
+            <div class="col-12 mb-3">
+                <h3>{{ ucfirst(trans('textos.concursos')) }}</h3>
+            </div>   
+
+            @foreach($quizzes as $q)
+                <div class="col-6 col-sm-4 col-md-3 col-lg-2 mb-3 preference">
+                    <div class="widget p-lg text-center bg-info">
+                        <div class="m-b-md">
+                            <a href="{{ route('quiz-editions.show', $q) }}" class="preference-link"> 
+                                <h3>{{ $q->name }}</h3>  
+                            </a>
+                        </div>  
+                    </div>
+                </div>
+            @endforeach
+        </div> 
+    @endif
+
     {{-- Notas --}}
     @livewire('notes-by-user')
 

@@ -96,6 +96,12 @@ class WorkUserCalendarController extends Controller{
         ->whereNull('user_workplaces.deleted_at')
         ->first();
 
+        if(!$workplace){
+            $alert = trans('textos.centro_trabajo_usuario_alerta');
+            return redirect()->route('users.edit', [$user->id, 'company'])->with(compact('alert'));
+            exit;
+        }
+
         //Tipos de jornada para usuario:
         $day_types = DayTypes::where('company_id', session('currentCompany'))
         ->where('user_enabled', 1)

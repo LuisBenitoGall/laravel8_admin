@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use File;
 
 //Models:
+use App\Models\Company;
 use App\Models\Quiz;
 use App\Models\QuizEditionQuestions;
 use App\Models\QuizEditions;
@@ -29,6 +30,7 @@ class QuizEditionsController extends Controller{
      * 5. Eliminar edición.
      * 6. Activar - desactivar edición.
      * 7. Eliminar logo.
+     * 8. Interfaz del concurso para el usuario.
      */
     
     private $option = 'concursos_ediciones';
@@ -66,7 +68,7 @@ class QuizEditionsController extends Controller{
             'slug' => 'quiz-editions'
         ];   
 
-        return view('admin.quiz-editions.index')->with(compact('header'));    
+        return view('admin.quiz_editions.index')->with(compact('header'));    
     }
 
     /**
@@ -146,9 +148,17 @@ class QuizEditionsController extends Controller{
         ->orderBy('name', 'ASC')
         ->get();
 
+        //Empresas:
+        $companies = Company::where('status', 1)
+        ->where('is_user', 0)
+        ->where('is_ute', 0)
+        ->orderBy('name', 'ASC')
+        ->pluck('name', 'id')
+        ->toArray();
+
         $languages = $this->languages;
 
-        return view('admin.quiz_editions.edit')->with(compact('header', 'edition', 'quiz', 'tab', 'teams', 'languages'));
+        return view('admin.quiz_editions.edit')->with(compact('header', 'edition', 'quiz', 'tab', 'teams', 'companies', 'languages'));
     }
 
     /**
@@ -236,5 +246,22 @@ class QuizEditionsController extends Controller{
 
         $msg = trans('textos.imagen_deleted');
         return redirect()->route('quiz-editions.edit', $edition)->with(compact('msg'));
+    }
+
+    /**
+     * 8. Interfaz del concurso para el usuario.
+     */
+    public function show(QuizEditions $edition){
+        $header = [
+            'option' => $this->option, 
+            'suboption' => 'textos.concurso_ediciones_editar',
+            'module' => $this->module,
+            'slug' => 'quiz-editions'
+        ];   
+    
+        // debe incluir middleware para garantizar que el usuario está invitado.
+
+
+        return view('admin.quiz_editions.show')->with(compact('header', 'edition'));    
     }
 }

@@ -14,6 +14,7 @@ use Yajra\DataTables\DataTables;
 //Models:
 use App\Models\Quiz;
 use App\Models\QuizEditions;
+use App\Models\QuizManager;
 use App\Models\User;
 
 class QuizController extends Controller{

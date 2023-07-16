@@ -3,11 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Helpers\Helpers;
+use App\Helpers\helpers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
+use Yajra\DataTables\DataTables;
 
 //Models:
 use App\Models\QuizEditions;
@@ -26,7 +27,7 @@ class QuizEditionTeamsController extends Controller{
 
     public function __construct(){
         //Idiomas:
-        $this->languages = Helpers::languages();
+        $this->languages = helpers::languages();
 
         $this->middleware('module_setted:quizzes');
         $this->middleware('quiz_edition_post', ['only' => ['store']]);
@@ -48,21 +49,29 @@ class QuizEditionTeamsController extends Controller{
      * 1. Listado de equipos de la edición para DataTable.
      */
     public function getQuizEditionTeamsDT(QuizEditions $edition){
-        $teams = QuizEditionTeams::select('quiz_edition_teams.*', 'teams.name', 'teams.logo')
+        $data = QuizEditionTeams::select('quiz_edition_teams.*', 'teams.name', 'teams.logo')
         ->join('teams', 'quiz_edition_teams.team_id', '=', 'teams.id')
-        ->where('quiz_edition_teams.quiz_edition_id', $edition->id)
-        ->get();
+        ->where('quiz_edition_teams.quiz_edition_id', $edition->id);
 
-        //Permisos del usuario:
-        $editar = Auth::user()->can('quiz-editions.edit');
-
-        //Ampliación de información de los objetos:
-        foreach($teams as $row){
-            //Permisos para las acciones:
-            $row->editar = $editar;
-        }
-
-        return datatables($teams)->toJson();
+        return DataTables::of($data)
+        ->addColumn('logo', function($row){
+            if($row->logo){
+                return '<img src="/img/teams/'.$row->logo.'" with="50">'; 
+            }else{
+                return '';
+            }
+        })
+        ->addColumn('points', function($row){
+            return '';
+        })
+        ->addColumn('time', function($row){
+            return '';
+        })
+        ->addColumn('acciones', function($row){
+            return view('admin.quiz_edition_teams.partials.dt-actions', compact('row'));    
+        })
+        ->rawColumns(['logo'])
+        ->make(true);
     }
 
     /**
@@ -74,7 +83,7 @@ class QuizEditionTeamsController extends Controller{
             //Indicamos el origen de la acción realizada para manejar el modal:
             $validator->getMessageBag()->add('accion', 'modal-add-team');
 
-            return redirect('admin/quiz-editions/'.$request->quiz_edition_id.'/edit')
+            return redirect('admin/quiz-editions/'.$request->quiz_edition_id.'/edit/teams')
             ->withErrors($validator)
             ->withInput();    
         }
