@@ -42,6 +42,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('push:send')->everyFifteenMinutes()->between('9:00','17:00');
 
         //Test Commands
+        //$schedule->command('required_timetable_items:task')->everyMinute();
         //$schedule->command('check_timetable:task')->everyMinute();
         //$schedule->command('closed:signed')->everyMinute();
         //$schedule->command('required_timetable_items:task')->everyMinute();

@@ -311,6 +311,9 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     //Questions:
     Route::get('questions', 'QuestionController@getQuestionsDT');
 
+    //QuizEditionCompanies:
+    Route::get('quiz-edition-companies/{edition}', 'QuizEditionCompanyController@getQuizEditionCompaniesDT');
+
     //QuizEditionQuestions:
     Route::get('quiz-edition-questions/{edition}', 'QuizEditionQuestionsController@getQuizEditionQuestionsDT');
 

@@ -62,9 +62,16 @@ class WorkUserCalendar extends Model{
      * 3. Eliminar registros por fecha y usuario.
      */
     static function deleteRowsByUserDate($user_id, $date){
-        WorkUserCalendar::where('user_id', $user_id)
-        ->where('date', $date)
-        ->delete(); 
+        //Comprobamos previamente que el tipo de jornada no sea compatible con jornada laboral:
+        $day = WorkUserCalendar::select('work_user_calendars.*', 'day_types.id AS dtId', 'day_types.is_working', 'day_types.working_day')
+        ->leftJoin('day_types', 'work_user_calendars.day_type_id', '=', 'day_types')
+        ->where('work_user_calendars.user_id', $user_id)
+        ->where('work_user_calendars.date', $date)
+        ->first();
+
+        if($day && $day->dtId && !$day->working_day){
+            $day->delete();
+        }
     }
 
     /**

@@ -43,17 +43,17 @@
 		</div>
 	</div>
 
-	<div class="form-group row">
-		{{-- Opciones de respuesta --}}
-		<label for="options" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.opciones_respuesta')) !!}*</label>
-		<div class="col-lg-10">
-			<div class="row">
-				@php
-				$options = $question->options? unserialize($question->options):[];
-				$i = 0;
-				@endphp
+	@php
+	$options = $question->options? unserialize($question->options):[];
+	$i = 0;
+	@endphp
 
-				@if(!empty($options))
+	@if(!empty($options))
+		<div class="form-group row">
+			{{-- Opciones de respuesta --}}
+			<label for="options" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.opciones_respuesta')) !!}*</label>
+			<div class="col-lg-10">
+				<div class="row">
 					@foreach($options[config('constants.IDM_')] as $op)
 						<div class="col-lg-10 mb-3">
 							<x-input type="text" name="options_{{ config('constants.IDM_') }}[]" value="{!! $op !!}" autocomplete="off" maxlength="255"/>
@@ -69,10 +69,10 @@
 						$i++;
 						@endphp
 					@endforeach
-				@endif
+				</div>
 			</div>
 		</div>
-	</div>
+	@endif
 
 	{{-- Palabras clave para las cuestiones tipo texto libre: --}}
 	@if($question->type == config('constants.QUESTION_FREE_TEXT_'))

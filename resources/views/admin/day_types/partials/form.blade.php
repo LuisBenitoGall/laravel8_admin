@@ -54,6 +54,33 @@
         @endif
     </div>
 
+    {{-- Jornada laborable para el empleado --}}
+    <label for="working_day" class="col-lg-2 col-form-label">{{ ucfirst(trans('textos.jornada_laborable')) }}</label>
+    <div class="col-lg-1 sinpadding">
+        {{-- Este dato no se puede editar --}}
+        @if($day_type)
+            <span class="d-inline-block align-top ml-2">
+                @if($day_type->working_day)
+                    <i class="fa fa-check text-success" style="margin-top: 11px;"></i>   
+                @else
+                    <i class="fa fa-times text-danger" style="margin-top: 12px;"></i>
+                @endif  
+            </span>
+
+            <span class="position-relative d-inline-block align-top ml-3">
+                {!! App\Helpers\Helpers::info('day-type-is-working-no-modifiable') !!}     
+            </span>
+
+        @else
+            <label class="custom-chk-rdb">
+                <input type="checkbox" name="working_day">
+                <span class="chk" style="margin-top: 6px;"></span>
+
+                {!! App\Helpers\helpers::info('day-type-working-day', true) !!}
+            </label>
+        @endif
+    </div>
+
     {{-- Trabajo presencial en oficina --}}
     <label for="in_office" class="col-lg-2 col-form-label">{{ ucfirst(trans('textos.trabajo_presencial')) }}</label>
     <div class="col-lg-1 sinpadding">
@@ -106,7 +133,9 @@
             </label>
         @endif
     </div>
+</div>
 
+<div class="form-group row">
     {{-- Acumulable --}}
     <label for="cumulative" class="col-lg-2 col-form-label">{{ ucfirst(trans('textos.acumulable')) }}</label>
     <div class="col-lg-1 sinpadding">
@@ -117,9 +146,7 @@
             {!! App\Helpers\Helpers::info('day-type-cumulative', true) !!}
         </label>
     </div>
-</div>
 
-<div class="form-group row">
     {{-- Rango de fechas --}}
     <label for="rank" class="col-lg-2 col-form-label">{{ ucfirst(trans('textos.rango_fechas')) }}</label>
     <div class="col-lg-1 sinpadding">
