@@ -79,7 +79,7 @@ class RequiredTimetableItemsTask extends Command{
 
                 foreach($workplaces as $wp){
                     //Comprobamos si el centro de trabajo tiene festivo:
-                    $calendar = WorkCalendar::select('work_calendars.id', 'work_calendars.hours', 'work_calendars.day_type_id', 'day_types.is_working')
+                    $calendar = WorkCalendar::select('work_calendars.id', 'work_calendars.hours', 'work_calendars.hours', 'work_calendars.day_type_id', 'day_types.is_working')
                     ->leftJoin('day_types', 'work_calendars.day_type_id', '=', 'day_types.id')
                     ->where('work_calendars.workplace_id', $wp->id)
                     ->where('work_calendars.date', $date)
