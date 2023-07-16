@@ -5,11 +5,13 @@
 <div class="row mb-3">
 	<div class="col-12">
 		{{-- Acciones: --}}
+		{{-- Volver a concursos --}}
 		<a href="{{ route('quizzes.index') }}" class="btn btn-info">
 			<i class="fa fa-angle-left"></i>
 			{!! trans('textos.volver_concursos') !!}
 		</a>
 
+		{{-- Nuevo concurso --}}
 		@can('quizzes.create')
     		<a href="{{ route('quizzes.create') }}" class="btn btn-info">
     			<i class="fa fa-plus"></i>
@@ -17,6 +19,7 @@
     		</a>
         @endcan
 
+        {{-- Nueva edición --}}
         @can('quizzes.edit')
     		<a href="{{ route('quiz-editions.create', $quiz) }}" class="btn btn-info">
     			<i class="fa fa-plus"></i>
@@ -24,9 +27,18 @@
     		</a>
         @endcan
 
+        {{-- Nueva cuestión --}}
         @can('questions.create')
-			<a class="btn btn-info" href="{{ route('questions.create', $quiz) }}"><i class="fa fa-plus"></i> {!! ucfirst(trans('textos.pregunta_nueva')) !!}</a>
+			<a class="btn btn-info" href="{{ route('questions.create', $quiz) }}"><i class="fa fa-plus"></i> {!! ucfirst(trans('textos.cuestion_nueva')) !!}</a>
 		@endcan
+
+		{{-- Nuevo manager --}}
+		@can('quizzes.edit')
+    		<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-add-managers">
+    			<i class="fa fa-plus"></i>
+    			{!! ucfirst(trans('textos.manager_nuevo')) !!}
+    		</a>
+        @endcan
 	</div>
 </div>
 		
@@ -93,5 +105,9 @@
 		</div>	
 	</div>
 </div>
+
+{{-- Modals --}}
+{{-- Add managers --}}
+@include('admin.quizzes.partials.modal-add-managers')
 
 @endsection

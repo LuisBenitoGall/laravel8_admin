@@ -913,6 +913,11 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::get('questions/status/{id}/{status}', 'QuestionController@status')->name('questions.status')->middleware('permission:questions.edit');
     Route::post('questions/{question}/store-images', 'QuestionController@storeImages')->name('questions.store-images');
 
+    // Quiz Edition Companies:
+    Route::post('quiz-edition-companies/store', 'QuizEditionCompanyController@store')->name('quiz-edition-companies.store')->middleware('permission:quiz-editions.edit');
+    Route::delete('quiz-edition-companies/{company}', 'QuizEditionCompanyController@destroy')->name('quiz-edition-companies.destroy')->middleware('permission:quiz-editions.edit');
+    Route::get('quiz-edition-companies/status/{id}/{status}', 'QuizEditionCompanyController@status')->name('quiz-edition-companies.status')->middleware('permission:quizzes.edit');
+
     // Quiz Edition Questions:
     Route::delete('quiz-edition-questions/{edition_question}', 'QuizEditionQuestionsController@destroy')->name('quiz-edition-questions.destroy')->middleware('permission:quiz-editions.edit');
 
@@ -924,6 +929,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::get('quiz-editions', 'QuizEditionsController@index')->name('quiz-editions.index')->middleware('permission:quiz-editions.index');
     Route::get('quiz-editions/{quiz}/create', 'QuizEditionsController@create')->name('quiz-editions.create')->middleware('permission:quiz-editions.create');
     Route::get('quiz-editions/{edition}/edit/{tab?}', 'QuizEditionsController@edit')->name('quiz-editions.edit')->middleware('permission:quiz-editions.edit');
+    Route::get('quiz-editions/{edition}/show', 'QuizEditionsController@show')->name('quiz-editions.show');
     Route::get('quiz-editions/{edition}/status', 'QuizEditionsController@status')->name('quiz-editions.status')->middleware('permission:quiz-editions.edit');
     Route::put('quiz-editions/{edition}', 'QuizEditionsController@update')->name('quiz-editions.update')->middleware('permission:quiz-editions.edit');
     Route::delete('quiz-editions/{edition}', 'QuizEditionsController@destroy')->name('quiz-editions.destroy')->middleware('permission:quiz-editions.destroy');

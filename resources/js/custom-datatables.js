@@ -1972,67 +1972,91 @@ $(document).ready(function(){
         });
     }
 
-    //Tabla Edition Questions:
-    if($('#tblEditionQuestions').length > 0){
+    //Tabla Edition Companies:
+    if($('#tblEditionCompanies').length > 0){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
         var edition_id = $('#editionId').val();
         
-        var tableEditionQuestions = $('#tblEditionQuestions').DataTable({
-            order: [[ 0, "asc" ]],
+        $('#tblEditionCompanies').DataTable({
             serverSide: true,
             processing: true,
             ajax: {
                 "type": "GET",
-                "url": "/api/admin/quiz-edition-questions/"+edition_id,
+                "url": "/api/admin/quiz-edition-companies/"+edition_id,
                 "error": function(reason){
                     console.log(reason);
                 }
             },
             columns: [
-                {data: 'order', className: 'text-right reorder'},
-                {data: 'name'},
-                {data: 'tipo'},
-                {data: 'tipo_respuesta'},
-                {data: 'time', className: 'text-right'},
-                {data: 'id', className: 'text-right'}
-            ],
-            columnDefs: [
-                {"targets": 4,
-                "render": function(data, type, row){
-                    if(row['time']){
-                        return row['time'] / 60;
-                    }else{
-                        return '';
-                    }
-                }
-                },
-                {"targets": -1,
-                "render": function(data, type, row){
-                    var editar = '';
-                    var eliminar = '';
-                    if(row['editar']){
-                        //Editar:
-                        editar = '<a target="_blank" href="/admin/questions/'+row['id']+'/edit" class="btn btn-xs btn-info" rel="tooltip" title="'+txtCuestionEditar+'"><i class="fa fa-edit"></i></a>';
-
-                        //Eliminar:
-                        eliminar = '<form method="POST" action="/admin/quiz-edition-questions/'+row['qeq_id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
-                            eliminar += '<input name="_method" type="hidden" value="DELETE">';
-                            eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
-                            eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtEliminar+'" data-msg="'+txtEdicionCuestionConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
-                        eliminar += '</form>';
-
-                        return editar+' '+eliminar;
-                    }
-                }
-                }
-            ],
-            "rowReorder": {
-                dataSrc: 'order',
-                selector: 'tr'
-            },
-            "responsive": true      
+                {data: 'name', className: 'capitalize'},
+                {data: 'created_at', className: 'text-right'},
+                {data: 'competitors', className: 'text-right'},
+                {data: 'acciones', className: 'text-right'}
+            ]  
         });
     }
+
+    //Tabla Edition Questions:
+    // if($('#tblEditionQuestions').length > 0){
+    //     var tokenDT = $('meta[name="csrf-token"]').attr('content');
+    //     var edition_id = $('#editionId').val();
+        
+    //     var tableEditionQuestions = $('#tblEditionQuestions').DataTable({
+    //         order: [[ 0, "asc" ]],
+    //         serverSide: true,
+    //         processing: true,
+    //         ajax: {
+    //             "type": "GET",
+    //             "url": "/api/admin/quiz-edition-questions/"+edition_id,
+    //             "error": function(reason){
+    //                 console.log(reason);
+    //             }
+    //         },
+    //         columns: [
+    //             {data: 'order', className: 'text-right reorder'},
+    //             {data: 'name'},
+    //             {data: 'tipo'},
+    //             {data: 'tipo_respuesta'},
+    //             {data: 'time', className: 'text-right'},
+    //             {data: 'id', className: 'text-right'}
+    //         ],
+    //         columnDefs: [
+    //             {"targets": 4,
+    //             "render": function(data, type, row){
+    //                 if(row['time']){
+    //                     return row['time'] / 60;
+    //                 }else{
+    //                     return '';
+    //                 }
+    //             }
+    //             },
+    //             {"targets": -1,
+    //             "render": function(data, type, row){
+    //                 var editar = '';
+    //                 var eliminar = '';
+    //                 if(row['editar']){
+    //                     //Editar:
+    //                     editar = '<a target="_blank" href="/admin/questions/'+row['id']+'/edit" class="btn btn-xs btn-info" rel="tooltip" title="'+txtCuestionEditar+'"><i class="fa fa-edit"></i></a>';
+
+    //                     //Eliminar:
+    //                     eliminar = '<form method="POST" action="/admin/quiz-edition-questions/'+row['qeq_id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
+    //                         eliminar += '<input name="_method" type="hidden" value="DELETE">';
+    //                         eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
+    //                         eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtEliminar+'" data-msg="'+txtEdicionCuestionConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
+    //                     eliminar += '</form>';
+
+    //                     return editar+' '+eliminar;
+    //                 }
+    //             }
+    //             }
+    //         ],
+    //         "rowReorder": {
+    //             dataSrc: 'order',
+    //             selector: 'tr'
+    //         },
+    //         "responsive": true      
+    //     });
+    // }
 
     //Tabla Edition Teams:
     if($('#tblEditionTeams').length > 0){
@@ -2051,42 +2075,11 @@ $(document).ready(function(){
             },
             columns: [
                 {data: 'name', className: 'capitalize'},
-                {data: 'id', className: 'text-center'},
+                {data: 'logo', className: 'text-center'},
                 {data: 'points', className: 'text-right'},
                 {data: 'time', className: 'text-right'},
-                {data: 'id', className: 'text-right'}
-            ],
-            columnDefs: [
-                {"targets": 1,
-                "render": function(data, type, row){
-                    if(row['logo']){
-                        var logo = '<img src="/img/teams/'+row['logo']+'" width="50">';
-                    }else{
-                        var logo = '<i class="fa fa-users icono"></i>';
-                    }   
-                    return logo;
-                }
-                },
-                {"targets": -1,
-                "render": function(data, type, row){
-                    var editar = '';
-                    var eliminar = '';
-                    if(row['editar']){
-                        //Editar:
-                        editar = '<a target="_blank" href="/admin/teams/'+row['team_id']+'/edit" class="btn btn-xs btn-info" rel="tooltip" title="'+txtEquipoEditar+'"><i class="fa fa-edit"></i></a>';
-
-                        //Eliminar:
-                        eliminar = '<form method="POST" action="/admin/quiz-edition-teams/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
-                            eliminar += '<input name="_method" type="hidden" value="DELETE">';
-                            eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
-                            eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtEliminar+'" data-msg="'+txtEdicionEquipoConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
-                        eliminar += '</form>';
-
-                        return editar+' '+eliminar;
-                    }
-                }
-                }
-            ]            
+                {data: 'acciones', className: 'text-right'}
+            ]
         });
     }
 

@@ -190,8 +190,9 @@ class DayTypesController extends Controller{
         $daytype->company_id = session('currentCompany');
         $daytype->name = ucfirst($request->input('name'));
         $daytype->color = $request->input('color');
-        $daytype->is_working = $is_working;
+        $daytype->is_working = $is_working;     //Especifica si es laborable para la empresa.
         $daytype->in_office = $in_office;
+        $daytype->working_day =                 //Especifica si es jornada laborable para el usuario pero en condiciones particulares (ej: teletrabajo)
         $daytype->user_enabled = $user_enabled;
         $daytype->cumulative = $cumulative;
         $daytype->rank = $rank;

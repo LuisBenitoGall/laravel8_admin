@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use App\Models\Company;
 use App\Models\CompanyModules;
 use App\Models\CompanySettings;
+use App\Models\DayTypes;
 use App\Models\Employee;
 use App\Models\Timetable;
 use App\Models\TimetableItems;
@@ -49,6 +50,7 @@ class RequiredTimetableItemsTask extends Command{
      */
     public function handle(){
         $slug = 'timetables';
+        $date = Carbon::today();
 
         //Obtenemos empresas con control de horarios activo:
         $companies = Company::select('companies.*')
@@ -77,143 +79,157 @@ class RequiredTimetableItemsTask extends Command{
 
                 foreach($workplaces as $wp){
                     //Comprobamos si el centro de trabajo tiene festivo:
-                    $calendar = WorkCalendar::select('work_calendars.id', 'work_calendars.hours', 'day_types.is_working')
+                    $calendar = WorkCalendar::select('work_calendars.id', 'work_calendars.hours', 'work_calendars.day_type_id', 'day_types.is_working')
                     ->leftJoin('day_types', 'work_calendars.day_type_id', '=', 'day_types.id')
                     ->where('work_calendars.workplace_id', $wp->id)
-                    ->where('work_calendars.date', Carbon::today())
+                    ->where('work_calendars.date', $date)
                     ->first();
 
                     //Si la jornada es laborable (que esté declarada como tal o no tenga declarado day_type_id):
-                    if($calendar && ($calendar->is_working || $calendar->hours > 0)){
-                        //Pasamos items obligatorios a un array y comprobamos por cada centro de trabajo:
-                        $required_timetable_items = [];
-                        foreach($required_timetable_items_collection as $r){
-                            //Comprobamos si el item tiene alguna condición restrictiva:
-                            if($r->required_condition){
-                                $arr = unserialize($r->required_condition);
-                                $condition = false;
-
-                                //Aplicando condición:
-                                if(isset($arr['tabla']) &&
-                                    isset($arr['campo']) &&    
-                                    isset($arr['regla']) &&
-                                    isset($arr['valor'])
-                                ){
-                                    $condition = DB::table($arr['tabla'])
-                                    ->where('workplace_id', $wp->id)
-                                    ->where('date', Carbon::today())
-                                    ->where($arr['campo'], $arr['regla'], $arr['valor'])
-                                    ->first();
-                                }    
-
-                                //Se guarda si cumple la condición:
-                                if($condition){
-                                    $required_timetable_items[$r->id] = $r->required;    
-                                }
-                            }else{
-                                $required_timetable_items[$r->id] = $r->required;   
-                            }
+                    //&& ($calendar->is_working || $calendar->hours > 0)
+                    if($calendar){
+                        //Verificamos que el tipo de jornada sea laborable.
+                        $dayType = false;
+                        if($calendar->day_type_id){
+                            $day_type = DayTypes::select('is_working', 'subtract_required_concept', 'concepts_not_required')->find($calendar->day_type_id);
+                            $dayType = $day_type && $day_type->is_working? true:false;
                         }
 
-                        //Empleados por cada centro de trabajo:     
-                        $users = Employee::select('users.id', 'employees.workplace_id')
-                        ->join('users', 'employees.user_id', '=', 'users.id')
-                        ->join('user_companies', 'users.id', '=', 'user_companies.user_id')
-                        ->join('contracts', 'employees.contract_id', '=', 'contracts.id')
-                        ->where('users.status', 1)
-                        ->where('employees.status', 1)
-                        ->where('employees.time_control', 1)
-                        ->where('employees.workplace_id', $wp->id)
-                        ->where('contracts.company_id', $co->id)
-                        ->get();
+                        $isWorkingDay = !$calendar->day_type_id || $dayType? true:false;
 
-                        //Comprobamos que cada usuario tenga su horario laboral cerrado si no tenía festivo o jornada no presencial:
-                        foreach($users as $user){
-                            //Si es jornada festiva del usuario:
-                            $noWork = WorkUserCalendar::noWorkDay($user->id, Carbon::today());
+                        //Si la jornada es laborable:
+                        if($isWorkingDay){
+                            //Pasamos items obligatorios a un array y comprobamos por cada centro de trabajo:
+                            $required_timetable_items = [];
+                            foreach($required_timetable_items_collection as $r){
+                                //Comprobamos si el item tiene alguna condición restrictiva:
+                                if($r->required_condition){
+                                    $arr = unserialize($r->required_condition);
+                                    $condition = false;
 
-                            //Conceptos NO obligatorios:
-                            $concepts_not_required = $noWork->concepts_not_required? unserialize($noWork->concepts_not_required):[];
+                                    //Aplicando condición:
+                                    if(isset($arr['tabla']) &&
+                                        isset($arr['campo']) &&    
+                                        isset($arr['regla']) &&
+                                        isset($arr['valor'])
+                                    ){
+                                        $condition = DB::table($arr['tabla'])
+                                        ->where('workplace_id', $wp->id)
+                                        ->where('date', $date)
+                                        ->where($arr['campo'], $arr['regla'], $arr['valor'])
+                                        ->first();
+                                    }    
 
-                            //Horarios reducidos del usuario:
-                            $with_custom_hours = false;
-                            $user_timetables = UserTimetables::select('daily_hours')
-                            ->where('user_id', $user->id)
-                            ->where('from', '<=', Carbon::today())
-                            ->where('to', '>=', Carbon::today())
-                            ->first();
-                            if($user_timetables){
-                                //Día de la semana:
-                                $dia_semana = date('N', strtotime(Carbon::today()));
-
-                                $user_hours = unserialize($user_timetables->daily_hours);
-
-                                //Si el número de horas a trabajar por el usuario es inferior al número de horas de empresa, se omite la acción de añadir los conceptos horarios faltantes.
-                                if($user_hours[$dia_semana] > 0 && $calendar->hours > $user_hours[$dia_semana]){
-                                    $with_custom_hours = true;
+                                    //Se guarda si cumple la condición:
+                                    if($condition){
+                                        $required_timetable_items[$r->id] = $r->required;    
+                                    }
+                                }else{
+                                    $required_timetable_items[$r->id] = $r->required;   
                                 }
                             }
 
-                            //Si el usuario no tiene horarios personalizados:
-                            if(!$with_custom_hours){
-                                //Si no ha tomado festivo o es jornada laborable tipo 'teletrabajo':
-                                if(!$noWork || ($noWork && $noWork->is_working && $noWork->in_office)){
+                            //Empleados por cada centro de trabajo:     
+                            $users = Employee::select('users.id', 'employees.workplace_id')
+                            ->join('users', 'employees.user_id', '=', 'users.id')
+                            ->join('user_companies', 'users.id', '=', 'user_companies.user_id')
+                            ->join('contracts', 'employees.contract_id', '=', 'contracts.id')
+                            ->where('users.status', 1)
+                            ->where('employees.status', 1)
+                            ->where('employees.time_control', 1)
+                            ->where('employees.workplace_id', $wp->id)
+                            ->where('contracts.company_id', $co->id)
+                            ->groupBy('users.id')
+                            ->get();
+
+                            //Comprobamos que cada usuario tenga su horario laboral cerrado si no tenía festivo o jornada no presencial:
+                            foreach($users as $user){
+                                //Si es jornada festiva del usuario:
+                                $noWork = WorkUserCalendar::noWorkDay($user->id, $date);
+
+                                if(!$noWork || ($noWork->is_working && $noWork->subtract_required_concept)){
+                                    //Array donde guardamos los items ya revisados:
                                     $items_done = [];
 
-                                    //Registros de la jornada del usuario:
-                                    $user_required_items = Timetable::select('timetables.id', 'timetables.date', 'timetables.hour', 'timetables.item_id', 'timetables.flag', 'timetable_items.basic_item')
-                                    ->join('timetable_items', 'timetables.item_id', '=', 'timetable_items.id')
-                                    ->where('timetables.user_id', $user->id)
-                                    ->where('date', Carbon::today())
-                                    ->orderBy('timetables.id', 'ASC')
-                                    ->get();
+                                    //Conceptos NO obligatorios:
+                                    $concepts_not_required = $noWork && $noWork->concepts_not_required? unserialize($noWork->concepts_not_required):[];
 
-                                    //El primer registro debe ser entrada ordinaria, pues sólo incluye a los conceptos por trabajo en oficina:
-                                    if($user_required_items->count() && $user_required_items[0]->basic_item){
-                                        foreach($user_required_items as $uri){
-                                            //Los items requeridos existentes se guardan en nuevo array:
-                                            if(array_key_exists($uri->item_id, $required_timetable_items)){
-                                                array_push($items_done, $uri->item_id);
-                                            }
+                                    //Horarios reducidos del usuario:
+                                    $with_custom_hours = false;
+                                    $user_timetables = UserTimetables::select('daily_hours')
+                                    ->where('user_id', $user->id)
+                                    ->where('from', '<=', $date)
+                                    ->where('to', '>=', $date)
+                                    ->first();
+                                    if($user_timetables){
+                                        //Día de la semana:
+                                        $dia_semana = date('N', strtotime($date));
+
+                                        $user_hours = unserialize($user_timetables->daily_hours);
+
+                                        //Si el número de horas a trabajar por el usuario es inferior al número de horas de empresa, se omite la acción de añadir los conceptos horarios faltantes.
+                                        if($user_hours[$dia_semana] > 0 && $calendar->hours > $user_hours[$dia_semana]){
+                                            $with_custom_hours = true;
                                         }
-
-                                        //Insert de los registros obligatorios no hallados:
-                                        foreach($required_timetable_items as $idx => $rti){
-                                            //Si el índice no está como valor en el array de items cumplidos + el tipo de jornada no tiene exento este concepto horario:
-                                            if(!in_array($idx, $items_done) && !in_array($idx, $concepts_not_required)){
-                                                //Hora de inicio del registro:
-                                                $hour_from = '10:00:00';
-                                                foreach($required_timetable_items_collection as $r_){
-                                                    if($r_->id == $idx){
-                                                        $hour_from = $r_->required_warning;
-                                                        break;
-                                                    }
-                                                }
-
-                                                //Registro de salida:
-                                                $t_out = new Timetable();
-                                                $t_out->date = Carbon::today();
-                                                $t_out->hour = $hour_from.':00:00';
-                                                $t_out->user_id = $user->id;
-                                                $t_out->item_id = $idx;
-                                                $t_out->flag = 2;
-                                                $t_out->save();
-
-                                                $minutes = helpers::getMinutes($t_out->hour) + $rti;
-                                                $hora_entrada = date('H:i:s', mktime(0,$minutes,0));
-
-                                                //Registro de entrada:
-                                                $t_in = new Timetable();
-                                                $t_in->date = Carbon::today();
-                                                $t_in->hour = $hora_entrada;
-                                                $t_in->user_id = $user->id;
-                                                $t_in->item_id = $entrada->id;
-                                                $t_in->flag = 1;
-                                                $t_in->save();
-                                            }    
-                                        } 
                                     }
-                                }     
+
+                                    //Si el usuario no tiene horarios personalizados:
+                                    if(!$with_custom_hours){
+                                        //Registros de la jornada del usuario:
+                                        $user_required_items = Timetable::select('timetables.id', 'timetables.date', 'timetables.hour', 'timetables.item_id', 'timetables.flag', 'timetable_items.basic_item')
+                                        ->join('timetable_items', 'timetables.item_id', '=', 'timetable_items.id')
+                                        ->where('timetables.user_id', $user->id)
+                                        ->where('date', $date)
+                                        ->orderBy('timetables.id', 'ASC')
+                                        ->get();
+
+                                        //El primer registro debe ser entrada ordinaria, pues sólo incluye a los conceptos por trabajo en oficina:
+                                        if($user_required_items->count() && $user_required_items[0]->basic_item){
+                                            foreach($user_required_items as $uri){
+                                                //Los items requeridos existentes se guardan en nuevo array:
+                                                if(array_key_exists($uri->item_id, $required_timetable_items)){
+                                                    array_push($items_done, $uri->item_id);
+                                                }
+                                            }
+
+                                            //Insert de los registros obligatorios no hallados:
+                                            foreach($required_timetable_items as $idx => $rti){
+                                                //Si el índice no está como valor en el array de items cumplidos + el tipo de jornada no tiene exento este concepto horario:
+                                                if(!in_array($idx, $items_done) && !in_array($idx, $concepts_not_required)){
+                                                    //Hora de inicio del registro:
+                                                    $hour_from = '10:00:00';
+                                                    foreach($required_timetable_items_collection as $r_){
+                                                        if($r_->id == $idx){
+                                                            $hour_from = $r_->required_warning;
+                                                            break;
+                                                        }
+                                                    }
+
+                                                    //Registro de salida:
+                                                    $t_out = new Timetable();
+                                                    $t_out->date = $date;
+                                                    $t_out->hour = $hour_from.':00:00';
+                                                    $t_out->user_id = $user->id;
+                                                    $t_out->item_id = $idx;
+                                                    $t_out->flag = 2;
+                                                    $t_out->save();
+
+                                                    $minutes = helpers::getMinutes($t_out->hour) + $rti;
+                                                    $hora_entrada = date('H:i:s', mktime(0,$minutes,0));
+
+                                                    //Registro de entrada:
+                                                    $t_in = new Timetable();
+                                                    $t_in->date = $date;
+                                                    $t_in->hour = $hora_entrada;
+                                                    $t_in->user_id = $user->id;
+                                                    $t_in->item_id = $entrada->id;
+                                                    $t_in->flag = 1;
+                                                    $t_in->save();
+                                                }    
+                                            } 
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
