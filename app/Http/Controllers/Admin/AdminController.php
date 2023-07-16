@@ -171,11 +171,13 @@ class AdminController extends Controller{
 
     /**
      * Ajuste horarios registros sin conceptos obligatorios.
+     *
+     * 16/07/23: REPENSAR LA LÓGICA PARA LOS CONCEPTOS OBLIGADOS CUANDO EL USUARIO TIENE HORARIOS PERSONALIZADOS.  IMPLICA AL CRON DE RequiredTimetableItemsTask
      */
     public function adjustRequiredTimetables(){
         $slug = 'timetables';
         $from = strtotime('2023-07-10');
-        $to = strtotime('2023-07-15');
+        $to = strtotime('2023-07-14');
 
         //Obtenemos empresas con control de horarios activo:
         $companies = Company::select('companies.*')
@@ -187,6 +189,9 @@ class AdminController extends Controller{
         ->get(); 
 
         foreach($companies as $co){
+            //if($co->id == 275){
+
+
             //Conceptos horarios obligatorios para la empresa:
             $required_timetable_items_collection = TimetableItems::where('company_id', $co->id)
             ->whereNotNull('required')
@@ -205,7 +210,7 @@ class AdminController extends Controller{
 
                 foreach($workplaces as $wp){
                     //Empleados por cada centro de trabajo:     
-                    $users = Employee::select('users.id', 'employees.workplace_id')
+                    $users = Employee::select('users.id', 'users.name', 'employees.workplace_id')
                     ->join('users', 'employees.user_id', '=', 'users.id')
                     ->join('user_companies', 'users.id', '=', 'user_companies.user_id')
                     ->join('contracts', 'employees.contract_id', '=', 'contracts.id')
@@ -221,7 +226,7 @@ class AdminController extends Controller{
                         $date = date('Y-m-d', $i);
 
                         //Comprobamos si el centro de trabajo tiene festivo:
-                        $calendar = WorkCalendar::select('work_calendars.id', 'work_calendars.day_type_id')
+                        $calendar = WorkCalendar::select('work_calendars.id', 'work_calendars.hours', 'work_calendars.day_type_id')
                         ->where('work_calendars.workplace_id', $wp->id)
                         ->where('work_calendars.date', $date)
                         ->first();
@@ -270,6 +275,9 @@ class AdminController extends Controller{
 
                                 //Comprobamos que cada usuario tenga su horario laboral cerrado si no tenía festivo o jornada no presencial:
                                 foreach($users as $user){
+                                    //if($user->id = 1466){
+                                        
+
                                     //Si es jornada festiva del usuario:
                                     $noWork = WorkUserCalendar::noWorkDay($user->id, $date);
                                     //Si no ha tomado festivo o es jornada laborable tipo 'teletrabajo':   && $noWork->in_office
@@ -296,7 +304,14 @@ class AdminController extends Controller{
                                             if($user_hours[$dia_semana] > 0 && $calendar->hours > $user_hours[$dia_semana]){
                                                 $with_custom_hours = true;
                                             }
+
+                                            //dd($user_hours, $calendar->hours, $with_custom_hours,  $required_timetable_items, $concepts_not_required);
                                         }
+
+
+// if($user_timetables){
+//     dd($user, $user_timetables,  $required_timetable_items);
+// }
 
                                         //Si el usuario no tiene horarios personalizados:
                                         if(!$with_custom_hours){
@@ -316,6 +331,8 @@ class AdminController extends Controller{
                                                         array_push($items_done, $uri->item_id);
                                                     }
                                                 }
+
+                                               
 
                                                 //Insert de los registros obligatorios no hallados:
                                                 foreach($required_timetable_items as $idx => $rti){
@@ -354,12 +371,17 @@ class AdminController extends Controller{
                                                 } 
                                             }
                                         }
-                                    }     
+                                    }    
+                                    //} 
                                 }
                             }  
                         }              
                     }
                 }
+            //}
+
+
+
             }
         }   
     }
