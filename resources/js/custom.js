@@ -1506,4 +1506,46 @@ $(window).on('load', function () {
         //  $("#paValueSelect").select2({width: '100%', data: arr}).val(value);
         // }
     });
+
+    // 39. Búsqueda autocomplete de usuarios.
+    $('#search_user').autocomplete({
+        minLength: 0,
+        source: function(request,response){
+            // Fetch data
+            if(request.term.length > 1){
+                $.ajax({
+                    url: "/api/admin/users-search",
+                    type: "post",
+                    dataType: "json",
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        search: request.term
+                    },
+                    success: function(data){
+                        response($.map(data, function (item){
+                            return {
+                                label: item.name+' '+item.surname,
+                                value: item.id
+                            }
+                        }));
+                    }
+                });
+
+            //Limpiamos datos:
+            }else{
+                $('#userId').val('');  
+            }
+        },
+        select: function(event,ui){
+            $('#search_user').val(ui.item.label);
+            $('#userId').val(ui.item.value);
+
+            if(ui.item.value == ''){
+                $('#userId').val('');
+            }
+            
+            return false;
+        }
+    });
+    $("#search_user").autocomplete( "option", "appendTo", ".eventInsForm" );
 });

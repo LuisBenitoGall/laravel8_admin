@@ -190,6 +190,7 @@ class Kernel extends HttpKernel{
 
         'quiz_edition_get' => \App\Http\Middleware\QuizEditionGetMiddleware::class,
         'quiz_edition_post' => \App\Http\Middleware\QuizEditionPostMiddleware::class,
+        'quiz_edition_show' => \App\Http\Middleware\QuizEditionShowMiddleware::class,
 
         'quiz_edition_team_get' => \App\Http\Middleware\QuizEditionTeamGetMiddleware::class,
 

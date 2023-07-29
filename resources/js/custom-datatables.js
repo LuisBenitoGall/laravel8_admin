@@ -1996,68 +1996,6 @@ $(document).ready(function(){
         });
     }
 
-    //Tabla Edition Questions:
-    // if($('#tblEditionQuestions').length > 0){
-    //     var tokenDT = $('meta[name="csrf-token"]').attr('content');
-    //     var edition_id = $('#editionId').val();
-        
-    //     var tableEditionQuestions = $('#tblEditionQuestions').DataTable({
-    //         order: [[ 0, "asc" ]],
-    //         serverSide: true,
-    //         processing: true,
-    //         ajax: {
-    //             "type": "GET",
-    //             "url": "/api/admin/quiz-edition-questions/"+edition_id,
-    //             "error": function(reason){
-    //                 console.log(reason);
-    //             }
-    //         },
-    //         columns: [
-    //             {data: 'order', className: 'text-right reorder'},
-    //             {data: 'name'},
-    //             {data: 'tipo'},
-    //             {data: 'tipo_respuesta'},
-    //             {data: 'time', className: 'text-right'},
-    //             {data: 'id', className: 'text-right'}
-    //         ],
-    //         columnDefs: [
-    //             {"targets": 4,
-    //             "render": function(data, type, row){
-    //                 if(row['time']){
-    //                     return row['time'] / 60;
-    //                 }else{
-    //                     return '';
-    //                 }
-    //             }
-    //             },
-    //             {"targets": -1,
-    //             "render": function(data, type, row){
-    //                 var editar = '';
-    //                 var eliminar = '';
-    //                 if(row['editar']){
-    //                     //Editar:
-    //                     editar = '<a target="_blank" href="/admin/questions/'+row['id']+'/edit" class="btn btn-xs btn-info" rel="tooltip" title="'+txtCuestionEditar+'"><i class="fa fa-edit"></i></a>';
-
-    //                     //Eliminar:
-    //                     eliminar = '<form method="POST" action="/admin/quiz-edition-questions/'+row['qeq_id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
-    //                         eliminar += '<input name="_method" type="hidden" value="DELETE">';
-    //                         eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
-    //                         eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtEliminar+'" data-msg="'+txtEdicionCuestionConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
-    //                     eliminar += '</form>';
-
-    //                     return editar+' '+eliminar;
-    //                 }
-    //             }
-    //             }
-    //         ],
-    //         "rowReorder": {
-    //             dataSrc: 'order',
-    //             selector: 'tr'
-    //         },
-    //         "responsive": true      
-    //     });
-    // }
-
     //Tabla Edition Teams:
     if($('#tblEditionTeams').length > 0){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
@@ -5252,13 +5190,14 @@ $(document).ready(function(){
     //Tabla Questions:
     if($('#tblQuestions').length > 0){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        var quiz_id = $('#quizId').val();
         
         $('#tblQuestions').DataTable({
             serverSide: true,
             processing: true,
             ajax: {
                 "type": "GET",
-                "url": "/api/admin/questions",
+                "url": "/api/admin/questions/"+quiz_id,
                 "error": function(reason){
                     console.log(reason);
                 }
@@ -5267,6 +5206,33 @@ $(document).ready(function(){
                 {data: 'name'},
                 {data: 'question'},
                 {data: 'type'},
+                {data: 'acciones', className: 'text-right'}
+            ]
+        });
+    }
+
+    //Tabla Quiz Edition Questions:
+    if($('#tblQuizEditionQuestions').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        var edition_id = $('#editionId').val();
+        var disabled = $('#editionDisabled').val();
+        
+        $('#tblQuizEditionQuestions').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/quiz-edition-questions/"+edition_id+"/"+disabled,
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'sort', className: 'text-right'},
+                {data: 'name'},
+                {data: 'question'},
+                {data: 'type'},
+                {data: 'points', className: 'text-right'},
                 {data: 'acciones', className: 'text-right'}
             ]
         });
@@ -6256,7 +6222,7 @@ $(document).ready(function(){
                     var classDif = hoursHT >= hoursAT? 'text-success':'text-danger';
                     horasDiferencia = secondsToString(hoursD);
 
-                    //convertimos segundos a hora con minutos:
+                    //Convertimos segundos a hora con minutos:
                     horasTrabajadas = secondsToString(hoursHT);
                     horasATrabajar = secondsToString(hoursAT);
 

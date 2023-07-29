@@ -65,6 +65,7 @@ class UserController extends Controller{
      * 13.1. Horarios de usuario para DataTable.
      * 14. Eliminar usuario.
      * 15. Incorporar candidato como usuario.
+     * 16. Usuarios para autocomplete.
      */
 
     private $option = 'usuarios';
@@ -887,6 +888,25 @@ class UserController extends Controller{
 
         $msg = trans('textos.usuario_incorporado');
         return redirect()->route('users.edit', $user->id)->with(compact('msg'));
+    }
+
+    /**
+     * 16. Usuarios para autocomplete.
+     */
+    public function searchUsers(Request $request){
+        $search = $request->search;   
+        
+        $data = User::select('id', 'name', 'surname') 
+        ->where('status', 1)
+        ->where(function($q) use ($search){  
+            $q->where('name', 'like', '%'.$search.'%') 
+            ->orWhere('surname', 'like', '%'.$search.'%');   
+        })
+        ->orderBy('name', 'ASC')
+        ->limit(15)
+        ->get();
+
+        return response()->json($data);
     }
 
     /**

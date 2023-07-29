@@ -34,45 +34,65 @@
 	        </label>
 		</div>
 	</div>
+	<br>
 
-	<div class="form-group row">
-		{{-- Pregunta --}}
-		<label for="question" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.cuestion')) !!}*</label>
-		<div class="col-lg-10">
-			<x-input-textarea name="question" class="editor" value="{!! $question->question !!}" required/>
-		</div>
+	{{-- Tabs idiomas: --}}
+	<x-tabs-languages :languages="$languages" />
+
+	<div class="tab-content pt-5">
+		@php
+		$i = 0;
+
+		$arrQuestions = $question->question? unserialize($question->question):false;
+		@endphp
+
+		@foreach($languages as $lang)	
+			<div class="tab-pane fade show @if($i == 0) active @endif" role="tabpanel" id="tab-{{ $lang[0] }}">
+				<div class="form-group row">
+					{{-- Pregunta --}}
+					<label for="question" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.cuestion')) !!} {{ $lang[3] }}*</label>
+					<div class="col-lg-10">
+						@php
+						$q = isset($arrQuestions[$lang[0]])? $arrQuestions[$lang[0]]:'';
+						@endphp
+						<x-input-textarea name="question_{{ $lang[0] }}" class="editor" value="{!! $q !!}"/>
+					</div>
+				</div>
+			</div>
+
+			@php
+			$i++;
+			@endphp
+		@endforeach
 	</div>
 
 	@php
-	$options = $question->options? unserialize($question->options):[];
-	$i = 0;
+	$arrOptions = $question->options? unserialize($question->options):[];
 	@endphp
 
-	@if(!empty($options))
-		<div class="form-group row">
-			{{-- Opciones de respuesta --}}
-			<label for="options" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.opciones_respuesta')) !!}*</label>
-			<div class="col-lg-10">
-				<div class="row">
-					@foreach($options[config('constants.IDM_')] as $op)
-						<div class="col-lg-10 mb-3">
-							<x-input type="text" name="options_{{ config('constants.IDM_') }}[]" value="{!! $op !!}" autocomplete="off" maxlength="255"/>
-						</div>	
-						<div class="col-lg-2 mb-3">
-							<label class="custom-chk-rdb mr-4" style="margin-bottom: 10px;">
-						        <input type="radio" name="right_option" value="{{ $i }}" @if($question->right_option == $i) checked @endif required>
-						        <span class="rdb chk"></span>
-						    </label>   
-						</div>
-
+	<div class="form-group row">
+		{{-- Opciones de respuesta --}}
+		<label for="options" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.opciones_respuesta')) !!}*</label>
+		<div class="col-lg-10">
+			<div class="row">
+				{{-- @foreach($arrOptions[config('constants.IDM_')] as $op) --}}
+				@for($j = 0; $j < $quiz->num_options; $j++)
+					<div class="col-lg-8 mb-3">
 						@php
-						$i++;
+						$op = $arrOptions[config('constants.IDM_')][$j]?? '';
 						@endphp
-					@endforeach
-				</div>
+						<x-input type="text" name="options_{{ config('constants.IDM_') }}[]" value="{!! $op !!}" autocomplete="off" maxlength="255"/>
+					</div>	
+					<div class="col-lg-2 mb-3">
+						<label class="custom-chk-rdb mr-4" style="margin-bottom: 10px;">
+					        <input type="radio" name="right_option" value="{{ $j }}" @if($question->right_option == $j) checked @endif required>
+					        <span class="rdb chk"></span>
+					    </label>   
+					</div>
+				@endfor
 			</div>
 		</div>
-	@endif
+	</div>
 
 	{{-- Palabras clave para las cuestiones tipo texto libre: --}}
 	@if($question->type == config('constants.QUESTION_FREE_TEXT_'))

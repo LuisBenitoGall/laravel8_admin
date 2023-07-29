@@ -309,13 +309,13 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     Route::get('question-answers/{question}', 'AnswerController@getQuestionAnswersDT');
 
     //Questions:
-    Route::get('questions', 'QuestionController@getQuestionsDT');
+    Route::get('questions/{quiz_id}', 'QuestionController@getQuestionsDT');
 
     //QuizEditionCompanies:
     Route::get('quiz-edition-companies/{edition}', 'QuizEditionCompanyController@getQuizEditionCompaniesDT');
 
     //QuizEditionQuestions:
-    Route::get('quiz-edition-questions/{edition}', 'QuizEditionQuestionsController@getQuizEditionQuestionsDT');
+    Route::get('quiz-edition-questions/{edition}/{disabled?}', 'QuizEditionQuestionsController@getQuizEditionQuestionsDT');
 
     //QuizEditions:
     Route::get('quiz-editions', 'QuizEditionsController@getQuizEditionsDT');
@@ -379,6 +379,7 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
 
     //Users:
     Route::get('users/{all?}', 'UserController@getUsersDT');
+    Route::post('users-search', 'UserController@searchUsers');
 
     //Users All:
     //Route::get('users-all', 'UserController@getUsersAllDT');

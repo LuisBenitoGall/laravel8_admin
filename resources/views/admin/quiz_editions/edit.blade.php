@@ -2,7 +2,13 @@
 
 @section('content')
 
+@php
+//Durante el período activo del concurso, no se pueden modificar algunos datos:
+$disabled = $edition->start && Carbon\Carbon::now()->format('Y-m-d H:i:s') >= $edition->start && Carbon\Carbon::now()->format('Y-m-d H:i:s') <= $edition->finish? 1:0;
+@endphp
+
 <input type="hidden" id="editionId" value="{{ $edition->id }}">
+<input type="hidden" id="editionDisabled" value="{{ $disabled }}">
 
 <div class="row mb-3">
 	<div class="col-12">
@@ -100,5 +106,60 @@
 
 {{-- Add team --}}
 @include('admin.quiz_editions.partials.modal-add-team')
+
+@push('scripts')
+<script>
+$(function(){
+	//Marcar / desmarcar pregunta en edición.
+	$(document).on('click', '.chkSetQuestion', function(){
+		var elem = $(this);
+		var edition_id = $('#editionId').val();
+		var question_id = $(this).data('id');
+
+		$.get("/admin/quiz-edition-questions/"+edition_id+"/store/"+question_id, function(response, state){
+            if(response){ 
+            	$('.check-ko').remove();
+                elem.parent('label').before('<i class="fa fa-check check-ok"></i>');
+                $('.check-ok').delay(1000).fadeOut();
+            } else {
+                elem.parent('label').before('<i class="fa fa-exclamation-triangle check-ko"></i>');
+			}
+		});
+	});
+
+	//Marcar / desmarcar todas las preguntas.
+	$('.btnSetEditionQuestions').on('click', function(){
+		var edition_id = $('#editionId').val();
+		var status = $(this).is(':checked')? 1:0;
+
+		window.location.href = '/admin/quiz-edition-questions/'+edition_id+'/all-questions/'+status;
+	});
+
+	//Setear puntos de la pregunta:
+	$(document).on('change', '.setPoints', function(){
+		var points = $(this).val();
+		var q = $(this).data('id');
+
+		$.get("/admin/quiz-edition-questions/"+q+"/set-points/"+points, function(response, state){
+            if(response){ 
+
+            }
+		});
+	});
+
+	//Setear puntos para todas las preguntas:
+	$('.setPointsAll').on('change', function(){
+		var points = $(this).val();
+		var edition_id = $('#editionId').val();
+
+		$.get("/admin/quiz-edition-questions/"+edition_id+"/set-points-all/"+points, function(response, state){
+            if(response){ 
+            	window.location.href = '/admin/quiz-editions/'+edition_id+'/edit/questions';
+            }
+		});	
+	});
+});
+</script>
+@endpush
 
 @endsection

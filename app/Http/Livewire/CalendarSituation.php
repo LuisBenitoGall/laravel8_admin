@@ -104,6 +104,7 @@ class CalendarSituation extends Component{
         ->whereNull('work_user_calendars.self_hours')
         ->orderBy('dayType', 'ASC')
         ->orderBy('users.name', 'ASC')
+        ->groupBy('users.id')
         ->get();
     }
 
@@ -122,6 +123,7 @@ class CalendarSituation extends Component{
         ->where('user_workplaces.workplace_id', $this->workplace->id)
         ->whereMonth('work_user_calendars.date', $month)
         ->whereNull('work_user_calendars.self_hours')
+        ->whereNull('user_workplaces.deleted_at')
         ->orderBy('dayType', 'ASC')
         ->orderBy('users.name', 'ASC')
         ->get();

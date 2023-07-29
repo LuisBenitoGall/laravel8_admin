@@ -20,6 +20,14 @@
 	</div>
 
 	<div class="form-group row">
+		{{-- Número opciones --}}
+		<label for="num_options" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.numero_opciones')) !!}*</label>
+		<div class="col-lg-2">
+			<x-input type="text" class="text-right" name="num_options" value="{!! $quiz->num_options !!}" autocomplete="off" maxlength="9" required info="quiz-num-options"/>
+		</div>
+	</div>
+
+	<div class="form-group row">
 		{{-- Descripción --}}
 		<label for="description" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.descripcion')) !!}</label>
 		<div class="col-lg-10">	
@@ -27,5 +35,5 @@
 		</div>
 	</div>
 	
-	<x-btn-submit name="submit_save" label="{{ trans('textos.guardar') }}"/>
+	<x-btn-submit name="submit_update" label="{{ trans('textos.guardar') }}"/>
 </form>

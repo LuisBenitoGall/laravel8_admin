@@ -157,6 +157,9 @@ class FunctionalityController extends Controller{
 
         $functionality->delete();
 
+        //Guardar .json de módulos opcionales:
+        $this->jsonOptionalModules();
+
         //Generar .json de funcionalidades:
         $this->jsonFunctionalities();
 
