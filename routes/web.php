@@ -913,6 +913,9 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::get('questions/status/{id}/{status}', 'QuestionController@status')->name('questions.status')->middleware('permission:questions.edit');
     Route::post('questions/{question}/store-images', 'QuestionController@storeImages')->name('questions.store-images');
 
+    // Quiz Edition Answers:
+    Route::post('quiz-edition-answers/store', 'QuizEditionAnswerController@store')->name('quiz-edition-answers.store');
+
     // Quiz Edition Companies:
     Route::post('quiz-edition-companies/store', 'QuizEditionCompanyController@store')->name('quiz-edition-companies.store')->middleware('permission:quiz-editions.edit');
     Route::delete('quiz-edition-companies/{company}', 'QuizEditionCompanyController@destroy')->name('quiz-edition-companies.destroy')->middleware('permission:quiz-editions.edit');
@@ -920,6 +923,10 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
 
     // Quiz Edition Questions:
     Route::delete('quiz-edition-questions/{edition_question}', 'QuizEditionQuestionsController@destroy')->name('quiz-edition-questions.destroy')->middleware('permission:quiz-editions.edit');
+    Route::get('quiz-edition-questions/{edition_id}/store/{question_id}', 'QuizEditionQuestionsController@store')->name('quiz-edition-questions.store');
+    Route::get('quiz-edition-questions/{edition}/all-questions/{status}', 'QuizEditionQuestionsController@allQuestions')->name('quiz-edition-questions.all-questions');
+    Route::get('quiz-edition-questions/{edition_question}/set-points/{points}', 'QuizEditionQuestionsController@setPoints')->name('quiz-edition-questions.set-points');
+    Route::get('quiz-edition-questions/{edition_id}/set-points-all/{points}', 'QuizEditionQuestionsController@setPointsAll')->name('quiz-edition-questions.set-points-all');
 
     // Quiz Edition Teams:
     Route::post('quiz-edition-teams/store', 'QuizEditionTeamsController@store')->name('quiz-edition-teams.store')->middleware('permission:quiz-editions.edit');
@@ -930,6 +937,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::get('quiz-editions/{quiz}/create', 'QuizEditionsController@create')->name('quiz-editions.create')->middleware('permission:quiz-editions.create');
     Route::get('quiz-editions/{edition}/edit/{tab?}', 'QuizEditionsController@edit')->name('quiz-editions.edit')->middleware('permission:quiz-editions.edit');
     Route::get('quiz-editions/{edition}/show', 'QuizEditionsController@show')->name('quiz-editions.show');
+    Route::get('quiz-editions/{edition}/ranking', 'QuizEditionsController@ranking')->name('quiz-editions.ranking');
     Route::get('quiz-editions/{edition}/status', 'QuizEditionsController@status')->name('quiz-editions.status')->middleware('permission:quiz-editions.edit');
     Route::put('quiz-editions/{edition}', 'QuizEditionsController@update')->name('quiz-editions.update')->middleware('permission:quiz-editions.edit');
     Route::delete('quiz-editions/{edition}', 'QuizEditionsController@destroy')->name('quiz-editions.destroy')->middleware('permission:quiz-editions.destroy');
@@ -943,6 +951,8 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::put('quizzes/{quiz}', 'QuizController@update')->name('quizzes.update')->middleware('permission:quizzes.edit');
     Route::delete('quizzes/{quiz}', 'QuizController@destroy')->name('quizzes.destroy')->middleware('permission:quizzes.destroy');
     Route::get('quizzes/status/{id}/{status}', 'QuizController@status')->name('quizzes.status')->middleware('permission:quizzes.edit');
+    Route::put('quizzes/{quiz}/add-managers', 'QuizController@addManagers')->name('quizzes.add-managers')->middleware('permission:quizzes.edit');
+    Route::get('quizzes/{quiz}/delete-manager/{manager}', 'QuizController@deleteManager')->name('quizzes.delete-manager')->middleware('permission:quizzes.edit');
 
     // Receiving:
     Route::get('receiving', 'ReceivingController@index')->name('receiving.index');

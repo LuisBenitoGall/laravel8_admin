@@ -29563,6 +29563,87 @@ ul li.rev .fa {
   display: none;
 }
 
+ul.ui-autocomplete {
+  z-index: 1100;
+}
+
+#quiz .question-image {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  position: relative;
+  text-align: center;
+}
+#quiz .question-image img {
+  max-width: 100%;
+}
+#quiz .question-text h4 {
+  font-size: 22px;
+}
+#quiz .question-text .question-answers .option {
+  background-color: #F5F8FA;
+  color: #9561e2;
+  cursor: pointer;
+  font-size: 18px;
+  margin-bottom: 3px;
+  padding: 10px 20px;
+  transition: 0.4s;
+}
+#quiz .question-text .question-answers .option:hover {
+  background-color: #E8E8E8;
+}
+#quiz .question-text .question-answers .option.selected {
+  background-color: #9561e2;
+  color: #FFF;
+}
+#quiz .question-text .question-link .text-danger {
+  font-size: 16px;
+  margin-bottom: 0;
+  text-align: center;
+}
+#quiz .question-text .text-center .btn {
+  display: inline-block;
+}
+#quiz .question-text .btnNextQuestion,
+#quiz .question-text .btnSalir {
+  display: none;
+}
+
+.spin {
+  background-color: rgba(225, 144, 153, 0.8);
+  border-radius: 100%;
+  bottom: 12px;
+  box-shadow: none;
+  height: 100px;
+  left: 0;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0;
+  position: absolute;
+  right: 0;
+  width: 100px;
+  z-index: 10;
+}
+.spin svg {
+  left: -30px;
+  position: absolute;
+  top: -50px;
+  transform: rotate(-90deg);
+  z-index: 20;
+}
+.spin .circle_animation {
+  stroke-dasharray: 440; /* this value is the pixel circumference of the circle */
+  stroke-dashoffset: 440;
+  transition: all 1s linear;
+}
+
+#countdown {
+  color: #FFF;
+  font-size: 40px;
+  font-weight: bold;
+  line-height: 90px;
+}
+
 /**
  * RESPONSIVE MEDIA QUERIES
  */
