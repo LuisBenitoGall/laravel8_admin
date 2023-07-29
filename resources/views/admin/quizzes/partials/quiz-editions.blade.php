@@ -3,12 +3,12 @@
 		<table class="table table-hover dTable" id="tblQuizEditions_">
 			<thead>
 				<tr>
-					<td>{{ ucfirst(trans('textos.edicion')) }}</td>
-					<td class="text-center">{{ ucfirst(trans('textos.logo')) }}</td>
-					<td class="text-center">{{ ucfirst(trans('textos.inicio')) }}</td>
-					<td class="text-center">{{ ucfirst(trans('textos.fin')) }}</td>
-					<td class="text-center">{{ ucfirst(trans('textos.duracion')) }}</td>
-					<td class="text-center">{{ ucfirst(trans('textos.acciones')) }}</td>
+					<th>{{ ucfirst(trans('textos.edicion')) }}</th>
+					<th class="text-center">{{ ucfirst(trans('textos.logo')) }}</th>
+					<th class="text-center">{{ ucfirst(trans('textos.inicio')) }}</th>
+					<th class="text-center">{{ ucfirst(trans('textos.fin')) }}</th>
+					<th class="text-center">{{ ucfirst(trans('textos.duracion')) }}</th>
+					<th class="text-center">{{ ucfirst(trans('textos.acciones')) }}</th>
 				</tr>
 			</thead>
 

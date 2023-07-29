@@ -16,9 +16,7 @@ class CreateQuizEditionAnswersTable extends Migration{
             //FK:
             $table->unsignedBigInteger('quiz_edition_question_id')->nullable();
             $table->foreign('quiz_edition_question_id')->references('id')->on('quiz_edition_questions');
-            //FK:
-            $table->unsignedBigInteger('answer_id')->nullable();
-            $table->foreign('answer_id')->references('id')->on('answers');
+            $table->integer('answer')->nullable();
             //FK:
             $table->unsignedBigInteger('team_id')->nullable();
             $table->foreign('team_id')->references('id')->on('teams');

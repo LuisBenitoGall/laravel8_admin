@@ -4,9 +4,11 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 
 //Models:
+use App\Models\Quiz;
 use App\Models\QuizEditions;
 
 class QuizEditionGetMiddleware{
@@ -18,7 +20,7 @@ class QuizEditionGetMiddleware{
      * @return mixed
      */
     public function handle(Request $request, Closure $next){
-        $company = QuizEditions::select('quizzes.company_id')
+        $company = QuizEditions::select('quizzes.company_id', 'quizzes.owner', 'quizzes.managers')
         ->join('quizzes', 'quiz_editions.quiz_id', '=', 'quizzes.id')
         ->where('quiz_editions.id', $request->segments()[2])
         ->first();
@@ -33,6 +35,14 @@ class QuizEditionGetMiddleware{
             $alert = trans('textos.no_permisos_accion');   
             return redirect()->route('quizzes.index')->with(compact('alert'));
             exit; 
+        }
+
+        //Sólo acceso para propietario o managers:
+        $managers = $company->managers? explode(',', $company->managers):[];
+        if($company->owner != Auth::user()->id && !in_array(Auth::user()->id, $managers)){
+            $alert = trans('textos.no_permisos_accion');   
+            return redirect()->route('quizzes.index')->with(compact('alert'));
+            exit;     
         }
 
         return $next($request);

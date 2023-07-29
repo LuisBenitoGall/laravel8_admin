@@ -27,6 +27,8 @@ class QuizController extends Controller{
      * 5. Actualizar quiz.
      * 6. Eliminar quiz.
      * 7. Actualizar estado de quiz.
+     * 8. Añadir managers.
+     * 9. Eliminar manager.
      */
     
     private $option = 'concursos';
@@ -38,7 +40,7 @@ class QuizController extends Controller{
         $this->languages = helpers::languages();
 
         $this->middleware('module_setted:quizzes');
-        $this->middleware('quiz_get', ['only' => ['edit', 'update', 'destroy']]);
+        $this->middleware('quiz_get', ['only' => ['edit', 'update', 'destroy', 'addManagers', 'deleteManager']]);
     }
 
     //0. Validator:
@@ -52,8 +54,17 @@ class QuizController extends Controller{
         //Validación update:
         }elseif(isset($data['submit_update'])){
             return Validator::make($data, [
-                'name' => "required|string|max:255"
+                'name' => "required|string|max:255",
+                'num_options' => "required|integer|min:2"
+            ],[
+                'num_options.min' => trans('textos.numero_opciones_aviso')
             ]);
+
+        //Validación add managers:
+        }elseif(isset($data['submit_add_managers'])){
+            return Validator::make($data, [
+                'managers' => "required"
+            ]);    
         }
     } 
 
@@ -166,9 +177,15 @@ class QuizController extends Controller{
 
         $owner = User::select('id', 'name', 'surname')->find($quiz->owner);
 
+        $managers_ = $quiz->managers? explode(',', $quiz->managers):[];
+        $managers = User::select('id', 'name', 'surname')
+        ->whereIn('id', $managers_)
+        ->orderBy('name', 'ASC')
+        ->get();
+
         $languages = $this->languages;
 
-        return view('admin.quizzes.edit')->with(compact('header', 'quiz', 'tab', 'editions', 'owner', 'languages')); 
+        return view('admin.quizzes.edit')->with(compact('header', 'quiz', 'tab', 'editions', 'owner', 'managers', 'languages')); 
     }
 
     /**
@@ -190,6 +207,7 @@ class QuizController extends Controller{
         $quiz->name = $request->name;
         $quiz->slug = $slug;
         $quiz->description = $request->description;
+        $quiz->num_options = $request->num_options;
         $quiz->status = $status;
         $quiz->save();
 
@@ -219,5 +237,49 @@ class QuizController extends Controller{
             $resp = ($quiz)? true:false;
             return response()->json($resp);
         }    
+    }
+
+    /**
+     * 8. Añadir managers.
+     */
+    public function addManagers(Request $request, Quiz $quiz){
+        $validator = $this->validator($request->all());
+        if($validator->fails()){
+            //Indicamos el origen de la acción realizada para manejar el modal:
+            $validator->getMessageBag()->add('accion', 'modal-add-managers');
+
+            return redirect('admin/quizzes/'.$quiz->id.'/edit')
+            ->withErrors($validator)
+            ->withInput();    
+        }
+
+        $managers = $quiz->managers? explode(',', $quiz->managers):[];
+        array_push($managers, $request->manager_);
+
+        $quiz->managers = implode(',', $managers);
+        $quiz->save();
+
+        $msg = trans('textos.manager_vinculado');
+        return redirect()->route('quizzes.edit', [$quiz, 'managers'])->with(compact('msg'));
+    }
+
+    /**
+     * 9. Eliminar manager.
+     */
+    public function deleteManager(Quiz $quiz, $manager){
+        $managers = $quiz->managers? explode(',', $quiz->managers):[];
+
+        $new_managers = [];
+        foreach($managers as $m){
+            if($m != $manager){
+                array_push($new_managers, $m);
+            }
+        }
+
+        $quiz->managers = implode(',', $new_managers);
+        $quiz->save();
+
+        $msg = trans('textos.manager_desvinculado');
+        return redirect()->route('quizzes.edit', [$quiz, 'managers'])->with(compact('msg'));
     }
 }

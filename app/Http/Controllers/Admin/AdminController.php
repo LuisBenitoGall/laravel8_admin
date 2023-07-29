@@ -71,7 +71,9 @@ class AdminController extends Controller{
         //Quizzes activos:
         $quizzes = QuizEditions::select('quiz_editions.id', 'quiz_editions.name', 'quiz_editions.description', 'quiz_editions.start', 'quiz_editions.finish')
         ->join('quiz_edition_companies', 'quiz_editions.id', '=', 'quiz_edition_companies.quiz_edition_id')
+        ->join('quizzes', 'quiz_editions.quiz_id', '=', 'quizzes.id')
         ->where('quiz_editions.status', 1)
+        ->where('quizzes.status', 1)
         ->where('quiz_edition_companies.company_id', session('currentCompany'))
         ->get();
 
@@ -117,7 +119,7 @@ class AdminController extends Controller{
         //$this->teletrabajoColonias();   
         
         //2. Ajuste horarios registros sin conceptos obligatorios.
-        $this->adjustRequiredTimetables();
+        //$this->adjustRequiredTimetables();
     }
 
     /**

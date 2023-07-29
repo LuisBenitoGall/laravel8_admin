@@ -2,6 +2,8 @@
 
 @section('content')
 
+<input type="hidden" id="quizId" value="{{ $quiz->id }}">
+
 <div class="row mb-3">
 	<div class="col-12">
 		{{-- Acciones: --}}
@@ -83,6 +85,10 @@
 			  		<li class="nav-item @if($tab == 'questions') active @endif">
 			    		<a class="nav-link @if($tab == 'questions') active @endif" href="#tab-quiz-questions" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.preguntas')) !!}</a>
 			  		</li>
+
+			  		<li class="nav-item @if($tab == 'managers') active @endif">
+			    		<a class="nav-link @if($tab == 'managers') active @endif" href="#tab-quiz-managers" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.managers')) !!}</a>
+			  		</li>
 			  	</ul>
 
 			  	<div class="tab-content pt-5">
@@ -99,6 +105,11 @@
 					{{-- Preguntas --}}
 					<div class="tab-pane fade @if($tab == 'questions') show active @endif" role="tabpanel" id="tab-quiz-questions">
 						@include('admin.quizzes.partials.quiz-questions')	
+					</div>
+
+					{{-- Managers --}}
+					<div class="tab-pane fade @if($tab == 'managers') show active @endif" role="tabpanel" id="tab-quiz-managers">
+						@include('admin.quizzes.partials.quiz-managers')	
 					</div>
 			  	</div>
 			</div>

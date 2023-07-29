@@ -20,6 +20,13 @@
 	</div>
 
 	<div class="form-group row">
+		<div class="col-8 offset-md-2">
+			<h4>{{ trans('textos.concurso_configurar') }}</h4>	
+			<p class="text-warning">{{ trans('textos.concurso_configurar_texto') }}</p>
+		</div>
+	</div>
+
+	<div class="form-group row">
 		{{-- Inicio --}}
 		<label for="start" class="col-lg-2 col-xl-2 col-form-label">{!! ucfirst(trans('textos.inicio')) !!}</label>
 		<div class="col-lg-3 col-xl-2">
@@ -27,7 +34,7 @@
 			$start = $edition->start != ''? Carbon\Carbon::parse($edition->start)->format($languages[session()->get('locale')][4]):'';
 			@endphp
 
-			<x-date-picker name="start" id="start" value="{{ $start }}" :format="$languages[config('app.locale')][4]"/>
+			<x-date-picker name="start" id="start" value="{{ $start }}" :format="$languages[config('app.locale')][4]" disabled="{{ $disabled }}"/>
 		</div>
 
 		{{-- Finalización --}}
@@ -37,17 +44,31 @@
 			$finish = $edition->finish != ''? Carbon\Carbon::parse($edition->finish)->format($languages[session()->get('locale')][4]):'';
 			@endphp
 
-			<x-date-picker name="finish" id="finish" value="{{ $finish }}" :format="$languages[config('app.locale')][4]"/>
+			<x-date-picker name="finish" id="finish" value="{{ $finish }}" :format="$languages[config('app.locale')][4]" disabled="{{ $disabled }}"/>
 		</div>
 
 		{{-- Duración --}}
-		<label for="time" class="col-lg-2 col-xl-2 col-form-label">{!! ucfirst(trans('textos.duracion')) !!} <small class="text-warning">({{ trans('textos.minutos') }})</small></label>
+		<label for="time" class="col-lg-2 col-xl-2 col-form-label">{!! ucfirst(trans('textos.duracion')) !!} <small class="text-warning">({{ trans('textos.segundos') }})</small></label>
 		<div class="col-lg-3 col-xl-2">
 			@php
 			//Convertimos segundos en minutos
-			$minutes = $edition->time? $edition->time / 60:'';
+			//$minutes = $edition->time? $edition->time / 60:'';
 			@endphp
-			<x-input type="text" name="time" id="time" class="text-right set-decimals" value="{!! $minutes !!}" autocomplete="off" maxlength="8"/>
+			<x-input type="text" name="time" id="time" class="text-right set-decimals" value="{!! $edition->time !!}" autocomplete="off" maxlength="8" disabled="{{ $disabled }}"/>
+		</div>
+	</div>
+
+	<div class="form-group row">
+		{{-- Número de preguntas --}}
+		<label for="num_questions" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.numero_preguntas')) !!}</label>	
+		<div class="col-lg-2">	
+			<x-input type="text" name="num_questions" value="{{ $edition->num_questions }}" autocomplete="off" maxlength="5" disabled="{{ $disabled }}"/>
+		</div>
+
+		{{-- Número de días --}}
+		<label for="num_days" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.numero_dias')) !!}</label>	
+		<div class="col-lg-2">	
+			<x-input type="text" name="num_days" value="{{ $edition->num_days }}" autocomplete="off" maxlength="5" disabled="{{ $disabled }}"/>
 		</div>
 	</div>
 

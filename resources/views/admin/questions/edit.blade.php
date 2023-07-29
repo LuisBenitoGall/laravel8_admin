@@ -7,7 +7,7 @@
 <div class="row mb-3">
 	<div class="col-12">
 		{{-- Acciones: --}}
-		<a href="{{ route('questions.index') }}" class="btn btn-info">
+		<a href="{{ route('quizzes.edit', [$question->quiz_id, 'questions']) }}" class="btn btn-info">
 			<i class="fa fa-angle-left"></i>
 			{!! trans('textos.volver_cuestiones') !!}
 		</a>

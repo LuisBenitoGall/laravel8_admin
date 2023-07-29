@@ -11711,6 +11711,101 @@ ul{
     }
 }
 
+ul.ui-autocomplete {
+    z-index: 1100;
+}
+
+#quiz{
+    .question-image{
+        align-items: center;
+        display:flex;
+        justify-content: center;
+        position: relative;
+        text-align: center;
+        img{
+            max-width: 100%;
+        }
+    }
+
+    .question-text{
+        h4{
+            font-size: 22px;
+        }
+        .question-answers{
+            .option{
+                background-color: $grey-light;
+                color: $purple;
+                cursor: pointer;
+                font-size: 18px;
+                margin-bottom: 3px;
+                padding: 10px 20px;
+                transition: .4s;
+                &:hover{
+                    background-color: $grey-light2;
+                }
+                &.selected{
+                    background-color: $purple;
+                    color: #FFF;
+                }
+            }
+        }
+        .question-link{
+            .text-danger{
+                font-size: 16px;
+                margin-bottom: 0;
+                text-align: center;
+            }    
+        }
+        .text-center{
+            .btn{
+                display: inline-block;
+            }
+        }
+
+        .btnNextQuestion,
+        .btnSalir{
+            display: none;
+        }
+    }
+}
+
+.spin{
+    background-color: rgba(225,144,153,.8);
+    border-radius: 100%;
+    bottom: 12px;
+    box-shadow: none;
+    height: 100px;
+    left: 0;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0;
+    position: absolute;
+    right: 0;
+    width: 100px;
+    z-index: 10;
+
+    svg{
+        left: -30px;
+        position: absolute;
+        top: -50px;
+       -webkit-transform: rotate(-90deg);
+        transform: rotate(-90deg);
+        z-index: 20;
+    }   
+
+    .circle_animation{
+        stroke-dasharray: 440; /* this value is the pixel circumference of the circle */
+        stroke-dashoffset: 440;
+        transition: all 1s linear;
+    }
+}
+
+#countdown{
+    color: #FFF;
+    font-size: 40px;
+    font-weight: $bold;
+    line-height: 90px;
+}
 
 /**
  * RESPONSIVE MEDIA QUERIES

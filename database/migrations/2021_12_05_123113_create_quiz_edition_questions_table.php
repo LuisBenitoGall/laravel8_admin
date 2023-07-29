@@ -19,7 +19,7 @@ class CreateQuizEditionQuestionsTable extends Migration{
             //FK:
             $table->unsignedBigInteger('question_id')->nullable();
             $table->foreign('question_id')->references('id')->on('questions');
-            $table->integer('order')->nullable();
+            $table->integer('sort')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

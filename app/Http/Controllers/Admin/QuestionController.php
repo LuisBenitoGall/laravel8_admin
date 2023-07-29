@@ -15,6 +15,7 @@ use Yajra\DataTables\DataTables;
 //Models:
 use App\Models\Question;
 use App\Models\QuestionImages;
+use App\Models\Quiz;
 use App\Models\QuizEditionAnswers;
 use App\Models\QuizEditionQuestions;
 
@@ -57,8 +58,7 @@ class QuestionController extends Controller{
         //Validación update:
         }elseif(isset($data['submit_update'])){
             return Validator::make($data, [
-                'name' => 'required|string|max:255',
-                'question' => 'required|string'
+                'name' => 'required|string|max:255'
             ]);
         }
     } 
@@ -75,7 +75,7 @@ class QuestionController extends Controller{
         ];   
 
         //Importación Mucibo DB:
-        //$this->importMuciboQuiz();
+        $this->importMuciboQuiz();
 
         return view('admin.questions.index')->with(compact('header'));  
     }
@@ -83,8 +83,8 @@ class QuestionController extends Controller{
     /**
      * 1.1. Listado de cuestiones para DataTable.
      */
-    public function getQuestionsDT(){
-        $data = Question::where('company_id', session('currentCompany'))->get();
+    public function getQuestionsDT($quiz_id){
+        $data = Question::where('quiz_id', $quiz_id);
 
         return DataTables::of($data)
         ->addColumn('name', function($row){
@@ -167,11 +167,13 @@ class QuestionController extends Controller{
             'slug' => 'questions'
         ];   
 
+        $quiz = Quiz::find($question->quiz_id);
+
         $images = $question->images()->get();
 
         $languages = $this->languages;
 
-        return view('admin.questions.edit')->with(compact('header', 'question', 'tab', 'images', 'languages'));
+        return view('admin.questions.edit')->with(compact('header', 'question', 'tab', 'quiz', 'images', 'languages'));
     }
 
     /**
@@ -185,24 +187,27 @@ class QuestionController extends Controller{
             ->withInput();    
         }
 
-        //dd($request->all());
-
-        //Slug:
-        $slug = Str::slug($request->name);
+        //dd($question, $request->all());
 
         $status = $request->status? 1:0;
 
-        $arrQuestion = [];
+        $arrQuestions = [];
+        $strQuestions = NULL;
+        foreach($this->languages as $lang){
+            $q = 'question_'.$lang[0];
+            if($request->input($q)){
+                $arrQuestions[$lang[0]] = $request->input($q);
+            }
+        }
+        $strQuestions = serialize($arrQuestions);
+
         $arrOptions = [];
         $strOptions = NULL;
-        
-        foreach($this->languages as $lang){
-            $options = 'options_'.$lang[0];
-            if($request->input($options)){
-                $arrOptions[$lang[0]] = $request->input($options);
+        $option = 'options_'.config('constants.IDM_');
+        if($request->input($option)){
+            $arrOptions[config('constants.IDM_')] = $request->input($option);
 
-                $strOptions = serialize($arrOptions);
-            }
+            $strOptions = serialize($arrOptions);
         }
 
         $keywords = isset($request->keywords)? $request->keywords:NULL;
@@ -211,8 +216,8 @@ class QuestionController extends Controller{
         $time = $request->time? $request->time * 60:NULL;
 
         $question->name = $request->name;
-        $question->slug = $slug;
-        $question->question = $request->question;
+        $question->slug = Str::slug($request->name);
+        $question->question = $strQuestions;
         $question->options = $strOptions;
         $question->right_option = $request->right_option;
         $question->videos = $request->videos;
@@ -262,30 +267,40 @@ class QuestionController extends Controller{
 
         $data = DB::connection('mysql_mucibo')->table('questions')->get();   
 
-        foreach($data as $r){
-            $q = new Question();
-            $q->company_id = session('currentCompany');
-            $q->name = $r->name;
-            $q->slug = Str::slug($r->name);
-            $q->question = $r->description;
-            $q->options = $r->answers;
-            $q->right_option = $r->correct_answer;
-            $q->videos = $r->video;
-            $q->type = 10;
-            //$q->answer_type = 
-            //$q->keywords = 
-            //$q->keywords_min = 
-            //$q->time = 
-            $q->status = 1;
-            $q->deleted_at = $r->deleted_at;
-            $q->save();
+        $quiz = Quiz::select('id')->where('slug', 'quiz-boomers')->first();
 
-            //Imágenes:
-            $i = new QuestionImages();
-            $i->image = $r->image;
-            $i->question_id = $q->id;
-            $i->featured = 1;
-            $i->save();
+        if($quiz){
+            foreach($data as $r){
+                $translations = $r->translations? unserialize($r->translations):false;
+                $description = $r->description? unserialize($r->description):false;
+                $answers = $r->answers? unserialize($r->answers):false;
+
+                $q = new Question();
+                $q->company_id = session('currentCompany');
+                $q->quiz_id = $quiz->id;
+                $q->name = $r->name;
+                $q->slug = Str::slug($r->name);
+                $q->translations = $translations? serialize($translations):NULL;
+                $q->question = $description? serialize($description):NULL;
+                $q->options = $answers? serialize($answers):NULL;
+                $q->right_option = $r->correct_answer;
+                $q->videos = $r->video;
+                $q->type = 10;
+                //$q->answer_type = 
+                //$q->keywords = 
+                //$q->keywords_min = 
+                //$q->time = 
+                $q->status = 1;
+                $q->deleted_at = $r->deleted_at;
+                $q->save();
+
+                //Imágenes:
+                $i = new QuestionImages();
+                $i->image = $r->image;
+                $i->question_id = $q->id;
+                $i->featured = 1;
+                $i->save();
+            }
         }
     }
 
