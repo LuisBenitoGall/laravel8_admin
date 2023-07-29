@@ -16,7 +16,7 @@ class AddUserIdToQuizEditionAnswers extends Migration{
             $table->unsignedBigInteger('quiz_edition_id')->nullable()->after('id');
             $table->foreign('quiz_edition_id')->references('id')->on('quiz_editions');
             //FK:
-            $table->unsignedBigInteger('user_id')->nullable()->after('answer_id');
+            $table->unsignedBigInteger('user_id')->nullable()->after('answer');
             $table->foreign('user_id')->references('id')->on('users');
         });
     }
