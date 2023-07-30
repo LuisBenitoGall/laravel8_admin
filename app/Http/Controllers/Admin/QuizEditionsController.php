@@ -311,7 +311,7 @@ class QuizEditionsController extends Controller{
         ->where('quiz_edition_questions.quiz_edition_id', $edition->id)
         ->where('quiz_edition_questions.date_from', '<=', Carbon::today())
         ->where('questions.status', 1)
-        ->whereNotIn('id', $arr_answered)
+        ->whereNotIn('quiz_edition_questions.id', $arr_answered)
         ->inRandomOrder()
         ->get();
 
@@ -338,7 +338,24 @@ class QuizEditionsController extends Controller{
             'slug' => 'quiz-editions'
         ];  
 
-        return view('admin.quiz_editions.ranking')->with(compact('header', 'edition'));     
+        //Resultados del día por usuario:
+        $day_user_results = QuizEditionAnswers::select('answer', 'answer_value')
+        ->where('quiz_edition_id', $edition->id)
+        ->where('user_id', Auth::user()->id)
+        ->whereDate('created_at', Carbon::today())
+        ->get();
+
+        //Ranking general:
+        $general_ranking = QuizEditionAnswers::select('quiz_edition_answers.answer', 'quiz_edition_answers.answer_value', 'users.name', 'users.surname',
+            DB::raw('(SELECT SUM(qea.answer_value) FROM quiz_edition_answers AS qea WHERE quiz_edition_answers.user_id = qea.user_id) AS Points'),
+            DB::raw('(SELECT COUNT(qea1.quiz_edition_question_id) FROM quiz_edition_answers AS qea1 WHERE quiz_edition_answers.user_id = qea1.user_id) AS Answers'))
+        ->join('users', 'quiz_edition_answers.user_id', '=', 'users.id')
+        ->where('quiz_edition_answers.quiz_edition_id', $edition->id)
+        ->groupBy('users.id')
+        ->orderBy('Points', 'DESC')
+        ->get();
+
+        return view('admin.quiz_editions.ranking')->with(compact('header', 'edition', 'day_user_results', 'general_ranking'));     
     }
 
 }

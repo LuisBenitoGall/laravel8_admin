@@ -41,8 +41,7 @@ class QuizEditionAnswerController extends Controller{
             ->first();
 
             $points = (int)$qeq->right_option == (int)$request->answer? $qeq->points:'0';
-
-            //dd($points, $qeq);
+            $answer = $request->answer == ''? '0':$request->answer;
 
             $qea = QuizEditionAnswers::firstOrCreate(
                 ['quiz_edition_id' => $request->edition,   
@@ -52,7 +51,7 @@ class QuizEditionAnswerController extends Controller{
                 ['quiz_edition_id' => $request->edition,
                 'quiz_edition_question_id' => $request->question,
                 'user_id' => Auth::user()->id, 
-                'answer' => $request->answer, 
+                'answer' => $answer, 
                 'answer_value' => $points
                 ]);
             return $qea;

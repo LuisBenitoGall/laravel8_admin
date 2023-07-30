@@ -525,6 +525,10 @@ class InvoiceController extends Controller{
             //Factura íntrega deja 0% por facturar:
             $outstanding_percent = 0;
 
+            //Bloqueo de pedido y presupuesto:
+            $order->blocked = true;
+            $order->save();
+
         //Facturas parciales:
         }else{
             //Si viene declarado el porcentaje, se convierte a importe neto:
@@ -565,8 +569,7 @@ class InvoiceController extends Controller{
                 $prevision = OrderPrevisions::find($request->modality);
 
                 if($prevision){
-
-                    
+                
 
                     //Si se trata de la última previsión de facturación y no queda porcentaje por establecer previsión, el importe debe ser todo el pendiente:
                     $more_previsions = OrderPrevisions::select('invoice_id')
@@ -698,10 +701,14 @@ class InvoiceController extends Controller{
         $orders_amount = 0;
         $invoices_amount = 0;
         foreach($request->orders as $o){
-            $ord = Order::select('id', 'discount', 'invoiced')->find($o);
+            $ord = Order::select('id', 'discount', 'invoiced', 'blocked')->find($o);
             $o_amount = $ord->getAmount();
             $orders_amount = $orders_amount + $o_amount['total_amount'];
             $invoices_amount = $invoices_amount + $o_amount['invoice_amount'];
+
+            //Bloque de los pedidos:
+            $ord->blocked = true;
+            $ord->save();
         }
 
         //Importe total de la agrupación:
@@ -878,6 +885,7 @@ class InvoiceController extends Controller{
             $order->order_status = config('constants.ORDER_FINISHED_');     //Damos el pedido por finalizado.
             $order->customer_cost_center_id = $request->cost_center;
             $order->invoiced = 1;
+            $order->blocked = true;
             $order->save();
 
             //Generamos una línea de pedido por el importe de la factura:
@@ -897,6 +905,7 @@ class InvoiceController extends Controller{
             $order = Order::select('id', 'invoiced')->find($request->order_id);
             $order->customer_cost_center_id = $request->cost_center;
             $order->invoiced = 1;
+            $order->blocked = true;
             $order->save();
         }
 
@@ -977,12 +986,19 @@ class InvoiceController extends Controller{
             'slug' => 'invoices'
         ]; 
 
+        //Bloqueando pedidos ya facturados de una agrupación:
+        if($order->is_group){
+            Order::where('order_parent', $order->id)
+            ->where('invoiced', 1)
+            ->where('blocked', false)
+            ->update(['blocked' => 1]);
+        }        
+
         //Recalculando importe factura por sus líneas:
         //$this->recalculateInvoiceAmount($invoice, $order);
 
         //Entorno: venta.
         $is_sale = true;
-        
 
         //Si se trata de una agrupación, obtenemos los pedidos vinculados:
         $suborders = false;
@@ -1852,6 +1868,14 @@ class InvoiceController extends Controller{
             'slug' => 'invoices'
         ]; 
 
+        //Bloqueando pedidos ya facturados:
+        if($order->is_group){
+            Order::where('order_parent', $order->id)
+            ->where('invoiced', 1)
+            ->whereNull('blocked')
+            ->update(['blocked' => true]);
+        }
+
         $customer = Company::select('name')->where('id', $order->customer_id)->first();
         $provider = Company::select('name')->where('id', $order->provider_id)->first();
 
@@ -2078,8 +2102,9 @@ class InvoiceController extends Controller{
         ->where('order_id', $order->id)
         ->delete();
 
-        //Desmarcamos el pedido como facturado.
+        //Desmarcamos el pedido como facturado y lo desbloqueamos:
         $order->invoiced = false;
+        $order->blocked = false;
         $order->save();
 
         //Recalculando importe total de la agrupación, con los pedidos restantes en la factura:
