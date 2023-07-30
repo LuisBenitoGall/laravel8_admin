@@ -10,7 +10,7 @@ const questions = @json($questions);
 
 //render question:
 function renderHtml(obj, idm = 'es'){
-	console.log(obj);
+	//console.log(obj);
 	var html = '<div class="col-lg-5 question-image mb-5">';
 		html += '<img src="/img/questions/'+obj.image+'">';
 		html += '<div class="spin">';

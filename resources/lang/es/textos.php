@@ -769,6 +769,7 @@ return array(
 	'preguntas_actualizadas' => 'Las preguntas se han actualizado correctamente',
 	'preguntas_on_off_todas' => 'Marcar / desmarcar todas las preguntas',
 	'preguntas_puntos_todas' => 'Puntos para todas las preguntas',
+	'preguntas_respondidas' => 'Preguntas respondidas',
 	'respuesta' => 'respuesta',
 	'respuestas' => 'respuestas',
 	'respuesta_nueva' => 'nueva respuesta',
