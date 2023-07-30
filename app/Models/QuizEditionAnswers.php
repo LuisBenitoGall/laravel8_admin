@@ -11,6 +11,6 @@ class QuizEditionAnswers extends Model{
     protected $table = 'quiz_edition_answers';
 
     protected $fillable = [
-        'quiz_edition_id', 'quiz_edition_question_id', 'answer_id', 'user_id', 'team_id', 'answer_value'
+        'quiz_edition_id', 'quiz_edition_question_id', 'answer', 'user_id', 'team_id', 'answer_value'
     ];
 }

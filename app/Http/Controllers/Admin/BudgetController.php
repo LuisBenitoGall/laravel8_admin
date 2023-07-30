@@ -552,10 +552,10 @@ class BudgetController extends Controller{
         //Comercial:
         $commercial = User::select('name', 'surname')->find($order->commercial_id);
 
-        //CLIENTE:
+        //Cliente:
         $customer = Company::select('id', 'name', 'tradename')->find($order->customer_id);
 
-        //CLIENTE FINAL:
+        //Cliente final:
         $final_customer = $order->final_customer_id? Company::select('id', 'name', 'tradename')->find($order->final_customer_id):false;
 
         //Managers:

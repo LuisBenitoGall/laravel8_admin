@@ -5,8 +5,12 @@ $statusBudgetLinesNoPrice = App\Helpers\helpers::statusBudgetLinesWithoutPrice()
 //Comprobamos que las líneas de presupuesto tipo formulario pertenezcan a algún bloque:
 $setBlock = 1;
 
-//Bloqueo de modificación de items:
-$permitted = !$order || ($order && $add_items && !$order->parent)? true:false;
+/**
+ * Bloqueo de modificación de items - condiciones:
+ * 1. No existe pedido.
+ * 2. Existe pedido, se permite agregar líneas y no depende de otro pedido, y no está bloqueado.
+ */
+$permitted = !$order || ($order && $add_items && !$order->parent && !$order->blocked)? true:false;
 @endphp
 
 <div class="row">
@@ -123,7 +127,7 @@ $permitted = !$order || ($order && $add_items && !$order->parent)? true:false;
                                         </div>
 
                                         @php
-                                            $k++;
+                                        $k++;
                                         @endphp
                                     @endforeach
                                 </div>
