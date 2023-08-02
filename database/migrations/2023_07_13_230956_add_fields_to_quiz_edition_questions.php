@@ -12,7 +12,7 @@ class AddFieldsToQuizEditionQuestions extends Migration{
      */
     public function up(){
         Schema::table('quiz_edition_questions', function (Blueprint $table) {
-            $table->dateTime('date_from')->nullable()->after('order');
+            $table->dateTime('date_from')->nullable();
             $table->dateTime('date_to')->nullable()->after('date_from');
         });
     }
