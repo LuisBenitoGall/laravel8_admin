@@ -36,9 +36,15 @@
 							{{ $finish }}
 						</td>
 						<td class="text-right">
-							{{ $row->time / 60 }} {{ trans('textos.minutos') }}
+							{{-- {{ $row->time / 60 }} {{ trans('textos.minutos') }} --}}
+							{{ $row->time }} {{ trans('textos.segundos') }}
 						</td>
 						<td class="text-right">
+							{{-- Jugar --}}
+							<a target="_blank" href="{{ route('quiz-editions.show', $row) }}" class="btn btn-xs btn-info">
+								<i class="fa fa-play"></i>
+							</a>
+
 							@can('quizzes.edit')
 								{{-- Edición activa --}}
 								@if($row->status == 1)

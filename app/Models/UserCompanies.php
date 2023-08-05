@@ -18,7 +18,7 @@ class UserCompanies extends Model
 
     protected $table = 'user_companies';
 
-    protected $fillable = ['user_id', 'company_id'];
+    protected $fillable = ['user_id', 'company_id', 'categories'];
 
     /**
      * 1. Empleados por empresa.

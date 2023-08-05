@@ -2184,6 +2184,13 @@ fieldset[disabled] .btn-white:active,
 fieldset[disabled] .btn-white.active {
   color: #cacaca;
 }
+
+.btn-gray{
+    background-color: $grey-light2;
+    border: 1px solid $grey-light2;
+    color: #FFF;
+}
+
 .form-control,
 .form-control:focus,
 .has-error .form-control:focus,
@@ -11747,13 +11754,19 @@ ul.ui-autocomplete {
                     background-color: $purple;
                     color: #FFF;
                 }
+                &.ok-answer{
+                    background-color: $green;
+                    color: #FFF;
+                }
             }
         }
         .question-link{
+            font-size: 16px;
+            margin-top: 6px;
+            text-align: center;
+
             .text-danger{
-                font-size: 16px;
                 margin-bottom: 0;
-                text-align: center;
             }    
         }
         .text-center{
@@ -11805,6 +11818,31 @@ ul.ui-autocomplete {
     font-size: 40px;
     font-weight: $bold;
     line-height: 90px;
+}
+
+#dashboard-recommendation{
+    background-color: #FFF;
+    -webkit-box-shadow: 2px 4px 6px 0 rgba(0, 0, 0, 0.1);
+    box-shadow: 2px 4px 6px 0 rgba(0, 0, 0, 0.1);
+    display: none;
+    position: absolute;
+    width: 96%;
+    z-index: 999;
+}
+
+.video-yt{
+    /* Establecemos una relación de aspecto de 16:9 para el video */
+    padding-bottom: 56.25%; /* (9 / 16) * 100 */
+    position: relative;
+    width: 100%;
+
+    iframe{
+        height: 100%;
+        left: 0;
+        position: absolute;
+        top: 0;
+        width: 100%;
+    }
 }
 
 /**

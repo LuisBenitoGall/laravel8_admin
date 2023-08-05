@@ -149,7 +149,6 @@ $(function(){
 			$(this).addClass('saveInformation');
 		}
 	});
-
 });
 </script>
 @endpush

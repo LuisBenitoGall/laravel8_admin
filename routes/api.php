@@ -329,6 +329,15 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     //Receivings:
     Route::get('receivings', 'ReceivingController@getReceivingsDT');
 
+    //Recommendation Companies:
+    Route::get('recommendation-companies', 'UserRecommendationController@getCompaniesDT');
+
+    //Recommendations:
+    Route::get('recommendations/{environment}', 'UserRecommendationController@getRecommendationsDT');
+
+    //Recommendations Ranking:
+    Route::get('recommendations-ranking/{item}', 'UserRecommendationController@getItemRankingDT');
+
     //Roles:
     Route::get('roles', 'RoleController@getRolesDT');
 

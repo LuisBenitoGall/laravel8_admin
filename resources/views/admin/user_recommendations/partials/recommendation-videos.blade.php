@@ -1,0 +1,1 @@
+@include('admin.user_recommendations.partials.tbl-ranking', ['table' => 'Scenes'])
