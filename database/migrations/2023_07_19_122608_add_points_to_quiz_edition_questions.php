@@ -12,7 +12,7 @@ class AddPointsToQuizEditionQuestions extends Migration{
      */
     public function up(){
         Schema::table('quiz_edition_questions', function (Blueprint $table) {
-            $table->integer('points')->default(1)->after('sort');
+            $table->integer('points')->default(1);
         });
     }
 

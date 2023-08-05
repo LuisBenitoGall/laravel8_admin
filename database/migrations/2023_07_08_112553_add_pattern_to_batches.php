@@ -12,7 +12,7 @@ class AddPatternToBatches extends Migration{
      */
     public function up(){
         Schema::table('batches', function (Blueprint $table) {
-            $table->string('num_cardinal')->nullable()->after('batch_num');
+            $table->string('num_cardinal')->nullable();
             //FK:
             $table->unsignedBigInteger('pattern_id')->nullable()->after('num_cardinal');
             $table->foreign('pattern_id')->references('id')->on('batch_patterns');
