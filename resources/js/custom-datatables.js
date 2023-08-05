@@ -5192,9 +5192,10 @@ $(document).ready(function(){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
         var quiz_id = $('#quizId').val();
         
-        $('#tblQuestions').DataTable({
+        var tableQuestions = $('#tblQuestions').DataTable({
             serverSide: true,
             processing: true,
+            stateSave: true,
             ajax: {
                 "type": "GET",
                 "url": "/api/admin/questions/"+quiz_id,
@@ -5203,8 +5204,8 @@ $(document).ready(function(){
                 }
             },
             columns: [
-                {data: 'name'},
-                {data: 'question'},
+                {data: 'name', name: "questions.name"},
+                {data: 'question', name: "questions.question"},
                 {data: 'type'},
                 {data: 'acciones', className: 'text-right'}
             ]
