@@ -2,7 +2,13 @@
 
 @section('content')
 
-<div class="row justify-content-md-center mb-3 pt-5" id="quiz"></div>
+@if($questions->count())
+	<div class="row justify-content-md-center mb-3 pt-5" id="quiz"></div>
+@else
+	<div class="row justify-content-md-center mb-3 pt-5">
+		<h2 class="text-warning text-center"><b>{{ trans('textos.preguntas_sin_nuevas') }}</b></h2>
+	</div>	
+@endif
 
 @push('scripts')
 <script>
@@ -10,9 +16,11 @@ const questions = @json($questions);
 
 //render question:
 function renderHtml(obj, idm = 'es'){
-	//console.log(obj);
+	var ed = {{ $edition->id }};
+	var img = obj.image? obj.image:'q-default.jpg';
+	
 	var html = '<div class="col-lg-5 question-image mb-5">';
-		html += '<img src="/img/questions/'+obj.image+'">';
+		html += '<img src="/img/questions/'+img+'">';
 		html += '<div class="spin">';
 			html += '<svg width="180" height="180" xmlns="https://www.w3.org/2000/svg"><g><title>spin</title>';
 				html += '<circle id="circle" class="circle_animation" r="69.85699" cy="81" cx="81" stroke-width="5" stroke="#FFF" fill="none"/></g>';
@@ -38,7 +46,7 @@ function renderHtml(obj, idm = 'es'){
 		html += '<div class="text-center mt-5">';
 			html += '<button class="btn btn-info btn-lg mx-2 btnCheck" data-questionid="'+obj.id+'">'+txtComprobar+' <i class="fa fa-check"></i></button>';
 			html += '<button class="btn btn-warning btn-lg mx-2 btnNextQuestion">'+txtSiguiente+' <i class="fa fa-chevron-right"></i></button>';
-			html += '<a class="btn btn-danger btn-lg mx-2 btnSalir" href="/quiz/resultados/'+obj.quiz_id+'">'+txtSalir+'  <i class="fa fa-sign-out-alt"></i></a>';
+			html += '<a class="btn btn-danger btn-lg mx-2 btnSalir" href="/admin/quiz-editions/'+ed+'/ranking">'+txtSalir+'  <i class="fa fa-sign-out-alt"></i></a>';
 		html += '</div>';
 	html += '</div>';
 
@@ -67,39 +75,22 @@ function saveAnswer(question, answer, points){
             points: points
         },
         success: function(response){
-        	$('.option[data-id="'+response.ok_answer+'"]').addClass('ok-answer');
+        	console.log(response);
+        	$('.option[data-id="'+response.right_option+'"]').addClass('ok-answer');
 	   		//Respuesta del usuario:
-	   		if(response.ok_answer == response.your_answer){
-	   			var icono = '<span class="fa fa-check"></span>';
+	   		if(response.answer == response.right_option){
+	   			var icono = '<span class="fa fa-check float-right mt-1"></span>';
 	   		}else{
-	   			var icono = '<span class="fa fa-times"></span>';
+	   			var icono = '<span class="fa fa-times float-right mt-1"></span>';
 	   		}
-	   		$('.option[data-id="'+response.your_answer+'"]').append(icono);
+	   		$('.option[data-id="'+response.answer+'"]').append(icono);
 
 	   		//Video:
-	   		if(response.video != null){
+	   		if(response.video){
 	   			$('.question-link').html('<a target="_blank" href="'+response.video+'">'+txtVerVideoAqui+'</a>');	
 	   		}
         }
     });
-
-
-	// $.get("/quiz/"+question+"/"+answer+"/solve", function(response, state){
-   	// 	//Marcamos respuesta correcta:
-   	// 	$('.option[data-id="'+response.ok_answer+'"]').addClass('ok-answer');
-   	// 	//Respuesta del usuario:
-   	// 	if(response.ok_answer == response.your_answer){
-   	// 		var icono = '<span class="fa fa-check"></span>';
-   	// 	}else{
-   	// 		var icono = '<span class="fa fa-times"></span>';
-   	// 	}
-   	// 	$('.option[data-id="'+response.your_answer+'"]').append(icono);
-
-   	// 	//Video:
-   	// 	if(response.video != null){
-   	// 		$('.question-link').html('<a target="_blank" href="'+response.video+'">'+txtVerVideoAqui+'</a>');	
-   	// 	}
-	// });
 }
 
 //Countdown:
@@ -111,7 +102,7 @@ function updateClock(){
 		if(totalTime<1){
 			var question = $('.btnCheck').data('questionid');
 			var points = 0;
-			var answer = 999999;
+			var answer = 99999999;
 
 			$('.btnCheck').fadeOut(function(){
 				$('.btnNextQuestion, .btnSalir').fadeIn();	
@@ -185,11 +176,13 @@ $(document).ready(function(){
 
 		if(typeof question != 'undefined'){
 			var html = renderHtml(question);
-			$('#question').html(html);
+			$('#quiz').html(html);
 			$('.btnCheck').prop('disabled', true);
+			$('.btnNextQuestion, .btnSalir').fadeOut();
 			updateClock();
 			respondidas.push(question.id);	
 			contador++;
+			checkQuestion = true;
 
 		//Preguntas acabadas:
 		}else{

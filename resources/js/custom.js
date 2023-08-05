@@ -362,6 +362,8 @@ $(window).on('load', function () {
     36. Proyectos por empresa.
     37. Marcar proyecto como favorito.
     38. Modal editar atributo de producto o unidad de producto.
+    39. Búsqueda autocomplete de usuarios.
+    40. Guardar Me Gusta.
     */
 
     // 1. Eliminar preview imagen seleccionada:
@@ -1548,4 +1550,35 @@ $(window).on('load', function () {
         }
     });
     $("#search_user").autocomplete( "option", "appendTo", ".eventInsForm" );
+
+    // 40. Guardar Me Gusta.
+    $('.btnLike').on('click', function(e){
+        e.preventDefault();
+        var elem = $(this);
+        var prev_ = elem.prev();
+        var likes = prev_.text() != ''? prev_.text():'0';
+        var id = $('#recommendationId').val();
+        var item = elem.data('item');
+        var like_ = elem.hasClass('btn-gray')? 1:2;
+        $.ajax({
+            url: "/admin/user-recommendation-votes/store",
+            type: "post",
+            dataType: "json",
+            data: {
+                _token: $('meta[name="csrf-token"]').attr('content'),
+                id: id,
+                item: item,
+                like_: like_
+            },
+            success: function(data){
+                if(data){
+                    elem.removeClass('btn-gray').addClass('btn-success');
+                    prev_.text(parseInt(likes) + 1);
+                }else{
+                    elem.removeClass('btn-success').addClass('btn-gray');
+                    prev_.text(parseInt(likes) - 1);
+                }
+            }
+        });
+    });
 });

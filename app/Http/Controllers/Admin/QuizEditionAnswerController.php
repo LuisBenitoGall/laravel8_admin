@@ -27,7 +27,7 @@ class QuizEditionAnswerController extends Controller{
         //Idiomas:
         $this->languages = helpers::languages();
 
-        $this->middleware('module_setted:quizzes');
+        //$this->middleware('module_setted:quizzes');
     }
 
     /**
@@ -35,10 +35,12 @@ class QuizEditionAnswerController extends Controller{
      */
     public function store(Request $request){
         if($request->ajax()){ 
-            $qeq = QuizEditionQuestions::select('quiz_edition_questions.points', 'questions.right_option')
+            $qeq = QuizEditionQuestions::select('quiz_edition_questions.points', 'questions.right_option', 'questions.videos')
             ->join('questions', 'quiz_edition_questions.question_id', '=', 'questions.id')
             ->where('quiz_edition_questions.id', $request->question)
             ->first();
+
+            $videos = $qeq->videos? explode(',', $qeq->videos):false;
 
             $points = (int)$qeq->right_option == (int)$request->answer? $qeq->points:'0';
             $answer = $request->answer == ''? '0':$request->answer;
@@ -54,7 +56,13 @@ class QuizEditionAnswerController extends Controller{
                 'answer' => $answer, 
                 'answer_value' => $points
                 ]);
-            return $qea;
+
+            $data = [
+                'answer' => $answer,
+                'right_option' => $qeq->right_option,
+                'video' => $videos? $videos[0]:false,
+            ];
+            return $data;
         }   
     }
 }

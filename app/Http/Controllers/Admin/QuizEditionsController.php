@@ -46,7 +46,7 @@ class QuizEditionsController extends Controller{
         //Idiomas:
         $this->languages = helpers::languages();
 
-        $this->middleware('module_setted:quizzes');
+        //$this->middleware('module_setted:quizzes');
         $this->middleware('quiz_get', ['only' => ['create']]);
         $this->middleware('quiz_edition_get', ['only' => ['edit', 'update', 'destroy', 'status', 'deleteLogo']]);
         $this->middleware('quiz_edition_show', ['only' => ['show']]);
@@ -179,7 +179,7 @@ class QuizEditionsController extends Controller{
         $finish = $request->input('finish') != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->input('finish')):$request->input('finish'):$edition->finish;
 
         //Convertimos el time (en minutos) a segundos:
-        $time = $request->time? $request->time * 60:NULL;
+        //$time = $request->time? $request->time * 60:NULL;
 
         //Subir logo:
         $fileName = false;
@@ -198,7 +198,9 @@ class QuizEditionsController extends Controller{
         }
         $edition->start = $start;
         $edition->finish = $finish;
-        $edition->time = $time;
+        if($request->time > 0){
+            $edition->time = $time;
+        }
         if($request->num_questions){
             $edition->num_questions = $request->num_questions;
         }
@@ -296,7 +298,7 @@ class QuizEditionsController extends Controller{
             'module' => $this->module,
             'slug' => 'quiz-editions'
         ];   
-    
+
         // debe incluir middleware para garantizar que el usuario está invitado.
         
         //Preguntas ya respondidas por el usuario:
@@ -339,18 +341,31 @@ class QuizEditionsController extends Controller{
         ];  
 
         //Resultados del día por usuario:
-        $day_user_results = QuizEditionAnswers::select('answer', 'answer_value')
+        $day_user_results = QuizEditionAnswers::select('answer', 'answer_value',
+            DB::raw('(SELECT SUM(qea.answer_value) FROM quiz_edition_answers AS qea WHERE quiz_edition_answers.user_id = qea.user_id) AS Points'),
+            DB::raw('(SELECT COUNT(qea1.quiz_edition_question_id) FROM quiz_edition_answers AS qea1 WHERE quiz_edition_answers.user_id = qea1.user_id) AS Answers')
+            )
         ->where('quiz_edition_id', $edition->id)
         ->where('user_id', Auth::user()->id)
         ->whereDate('created_at', Carbon::today())
-        ->get();
+        ->first();
+
+        //Usuarios excluidos del ranking general:
+        $quiz_users = Quiz::select('owner', 'managers')->find($edition->quiz_id);
+        $excluded = [];
+        if($quiz_users->managers){
+            $excluded = explode(',', $quiz_users->managers); 
+        }
+        array_push($excluded, $quiz_users->owner);
+        $excluded = [];
 
         //Ranking general:
-        $general_ranking = QuizEditionAnswers::select('quiz_edition_answers.answer', 'quiz_edition_answers.answer_value', 'users.name', 'users.surname',
+        $general_ranking = QuizEditionAnswers::select('quiz_edition_answers.answer', 'quiz_edition_answers.answer_value', 'users.id', 'users.name', 'users.surname',
             DB::raw('(SELECT SUM(qea.answer_value) FROM quiz_edition_answers AS qea WHERE quiz_edition_answers.user_id = qea.user_id) AS Points'),
             DB::raw('(SELECT COUNT(qea1.quiz_edition_question_id) FROM quiz_edition_answers AS qea1 WHERE quiz_edition_answers.user_id = qea1.user_id) AS Answers'))
         ->join('users', 'quiz_edition_answers.user_id', '=', 'users.id')
         ->where('quiz_edition_answers.quiz_edition_id', $edition->id)
+        ->whereNotIn('users.id', $excluded)
         ->groupBy('users.id')
         ->orderBy('Points', 'DESC')
         ->get();

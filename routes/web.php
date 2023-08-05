@@ -1188,6 +1188,22 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     // User Docs:
     Route::get('user-docs/{doc}/destroy/{return?}', 'UserDocsController@destroy')->name('user-docs.destroy');
 
+    // User Recommendations:
+    Route::get('user-recommendations', 'UserRecommendationController@index')->name('user-recommendations.index');
+    Route::get('user-recommendations/by-user', 'UserRecommendationController@byUser')->name('user-recommendations.by-user');
+    Route::get('user-recommendations/create', 'UserRecommendationController@create')->name('user-recommendations.create');
+    Route::post('user-recommendations/store', 'UserRecommendationController@store')->name('user-recommendations.store');
+    Route::get('user-recommendations/{recommendation}/edit', 'UserRecommendationController@edit')->name('user-recommendations.edit');
+    Route::put('user-recommendations/{recommendation}/update', 'UserRecommendationController@update')->name('user-recommendations.update');
+    Route::get('user-recommendations/{recommendation}/deleteImage', 'UserRecommendationController@deleteImage')->name('user-recommendations.delete-image');
+    Route::get('user-recommendations/{recommendation}/show', 'UserRecommendationController@show')->name('user-recommendations.show');
+    Route::get('user-recommendations/companies', 'UserRecommendationController@companies')->name('user-recommendations.companies');
+    Route::get('user-recommendations/set-company/{cs}/{status}', 'UserRecommendationController@setCompany')->name('user-recommendations.set-company');
+    Route::get('user-recommendations/ranking/{tab?}', 'UserRecommendationController@ranking')->name('user-recommendations.ranking');
+
+    // User Recommendation Votes:
+    Route::post('user-recommendation-votes/store', 'UserRecommendationVoteController@store')->name('user-recommendation-votes.store');
+
     // User Timetables:
     Route::get('user-timetables/{user_id}/show/{employee}', 'UserTimetablesController@show')->name('user-timetables.show');
     Route::post('user-timetables/store', 'UserTimetablesController@store')->name('user-timetables.store');

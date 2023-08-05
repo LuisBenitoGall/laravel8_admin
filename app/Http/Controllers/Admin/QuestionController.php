@@ -75,7 +75,7 @@ class QuestionController extends Controller{
         ];   
 
         //Importación Mucibo DB:
-        $this->importMuciboQuiz();
+        //$this->importMuciboQuiz();
 
         return view('admin.questions.index')->with(compact('header'));  
     }
@@ -267,7 +267,7 @@ class QuestionController extends Controller{
 
         $data = DB::connection('mysql_mucibo')->table('questions')->get();   
 
-        $quiz = Quiz::select('id')->where('slug', 'quiz-boomers')->first();
+        $quiz = Quiz::select('id')->where('slug', 'test-quiz')->first();
 
         if($quiz){
             foreach($data as $r){

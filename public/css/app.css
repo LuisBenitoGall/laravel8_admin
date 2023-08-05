@@ -19128,6 +19128,12 @@ fieldset[disabled] .btn-white.active {
   color: #cacaca;
 }
 
+.btn-gray {
+  background-color: #E8E8E8;
+  border: 1px solid #E8E8E8;
+  color: #FFF;
+}
+
 .form-control,
 .form-control:focus,
 .has-error .form-control:focus,
@@ -29596,10 +29602,17 @@ ul.ui-autocomplete {
   background-color: #9561e2;
   color: #FFF;
 }
-#quiz .question-text .question-link .text-danger {
+#quiz .question-text .question-answers .option.ok-answer {
+  background-color: #38c172;
+  color: #FFF;
+}
+#quiz .question-text .question-link {
   font-size: 16px;
-  margin-bottom: 0;
+  margin-top: 6px;
   text-align: center;
+}
+#quiz .question-text .question-link .text-danger {
+  margin-bottom: 0;
 }
 #quiz .question-text .text-center .btn {
   display: inline-block;
@@ -29642,6 +29655,29 @@ ul.ui-autocomplete {
   font-size: 40px;
   font-weight: bold;
   line-height: 90px;
+}
+
+#dashboard-recommendation {
+  background-color: #FFF;
+  box-shadow: 2px 4px 6px 0 rgba(0, 0, 0, 0.1);
+  display: none;
+  position: absolute;
+  width: 96%;
+  z-index: 999;
+}
+
+.video-yt {
+  /* Establecemos una relación de aspecto de 16:9 para el video */
+  padding-bottom: 56.25%; /* (9 / 16) * 100 */
+  position: relative;
+  width: 100%;
+}
+.video-yt iframe {
+  height: 100%;
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 100%;
 }
 
 /**

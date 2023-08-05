@@ -2,10 +2,11 @@
 
 namespace App\Providers;
 
+use App\Rules\EmailNotUnique;       //Regla validación personalizada.
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\ServiceProvider;
 use Validator;
-use App\Helpers;
+use App\helpers;
 
 class AppServiceProvider extends ServiceProvider{
     /**
@@ -43,6 +44,13 @@ class AppServiceProvider extends ServiceProvider{
 
         Validator::replacer('greater_than_field', function($message, $attribute, $rule, $parameters){
             return str_replace(':field', $parameters[0], $message);
+        });
+
+        //Validate email único con condiciones:
+        Validator::extend('email_not_unique', function ($attribute, $value, $parameters, $validator) {
+            $confirm_email = isset($validator->getData()[$parameters[0]]) ? $validator->getData()[$parameters[0]] : false;
+            $rule = new EmailNotUnique($confirm_email);
+            return $rule->passes($attribute, $value);
         });
     }
 

@@ -233,6 +233,8 @@ class Kernel extends HttpKernel{
         'user_get' => \App\Http\Middleware\UserGetMiddleware::class,
         'user_post' => \App\Http\Middleware\UserPostMiddleware::class,
 
+        'user_recommendation_get' => \App\Http\Middleware\UserRecommendationGetMiddleware::class,
+
         'vehicle_get' => \App\Http\Middleware\VehicleGetMiddleware::class,
 
         'work_order_component_get' => \App\Http\Middleware\WorkOrderComponentGetMiddleware::class,
