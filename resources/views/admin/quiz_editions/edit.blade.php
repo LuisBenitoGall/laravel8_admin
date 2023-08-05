@@ -18,6 +18,11 @@ $disabled = $edition->start && Carbon\Carbon::now()->format('Y-m-d H:i:s') >= $e
 			{!! trans('textos.volver_concurso') !!} <b>{{ $quiz->name }}</b>
 		</a>
 
+		{{-- Jugar --}}
+		<a target="_blank" href="{{ route('quiz-editions.show', $edition->id) }}" class="btn btn-info" rel="tooltip" title="{{ ucfirst(trans('textos.jugar')) }}">
+			<i class="fa fa-play"></i>
+		</a>
+
 		@can('quizzes.edit')
 			{{-- Crear edición --}}
     		<a href="{{ route('quiz-editions.create', $quiz) }}" class="btn btn-info">
