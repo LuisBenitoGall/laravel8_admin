@@ -8,6 +8,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Helpers\helpers;
+use App\Rules\EmailNotUnique;       //Regla validación personalizada.
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -117,9 +118,11 @@ class BudgetController extends Controller{
                 'order_id' => 'required|integer',
                 'name' => 'required',
                 'surname' => 'required',
-                'email' => 'required|string|email|max:191|unique:users,email,NULL,id,deleted_at,NULL'
+                'email' => 'required|string|email|email_not_unique:confirm_email'
+                //'email' => 'required|string|email|max:191|unique:users,email,NULL,id,deleted_at,NULL'
             ],[
-                'email.unique' => trans('textos.email_existe')
+                //'email.unique' => trans('textos.email_existe'),
+                'email.email_not_unique' => trans('textos.email_existe')
             ]);
 
         //Validación template:
@@ -909,25 +912,31 @@ class BudgetController extends Controller{
         $validator = $this->validator($request->all());
         if($validator->fails()){
             //Indicamos el origen de la acción realizada para manejar el modal:
-            $validator->getMessageBag()->add('accion', 'modal-new-manager');
+            $validator->getMessageBag()->add('accion', 'modal-new-customer-manager');
 
             return redirect('admin/budgets/'.$request->order_id.'/'.$request->return_view)
                 ->withErrors($validator)
                 ->withInput();
         }
 
-        //Guardamos datos de usuario:
-        $user = new User();
-        $user->name = $request->input('name');
-        $user->surname = $request->input('surname');
-        $user->email = $request->input('email');
-        $user->isAdmin = 1;
-        $user->status = 1;
-        $user->remember_token = $request->input('_token');
-        $user->save();
+        //Si se utiliza un usuario ya existente:
+        if($request->confirm_email){
+            $user = User::select('id')->where('email', $request->input('email'))->first();
 
-        //Guardamos rol:
-        $user->assignRole(config('constants.ROLE_ID_'));
+        }else{
+            //Guardamos datos de usuario:
+            $user = new User();
+            $user->name = $request->input('name');
+            $user->surname = $request->input('surname');
+            $user->email = $request->input('email');
+            $user->isAdmin = 1;
+            $user->status = 1;
+            $user->remember_token = $request->input('_token');
+            $user->save();
+
+            //Guardamos rol:
+            $user->assignRole(config('constants.ROLE_ID_'));
+        }
 
         //Actualizamos responsable de cliente en el proyecto:
         $order = Order::select('id', 'customer_id', 'customer_manager_id')->find($request->order_id);
@@ -935,10 +944,10 @@ class BudgetController extends Controller{
         $order->save(); 
 
         //Vinculamos usuario a empresa:
-        $uc = new UserCompanies();
-        $uc->user_id = $user->id;
-        $uc->company_id = $order->customer_id;
-        $uc->save();       
+        UserCompanies::firstOrCreate(
+            ['user_id' => $user->id, 'company_id' => $order->customer_id,],
+            ['user_id' => $user->id, 'company_id' => $order->customer_id, 'categories' => $request->job_title]
+        );
 
         $msg = trans('textos.responsable_cliente_agregado');
         return redirect()->route('budgets.'.$request->return_view, $order->id)->with(compact('msg'));

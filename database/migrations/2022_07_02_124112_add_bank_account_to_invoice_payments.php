@@ -11,11 +11,11 @@ class AddBankAccountToInvoicePayments extends Migration{
      * @return void
      */
     public function up(){
-        Schema::table('invoice_payments', function (Blueprint $table){
-            //FK:
-            $table->unsignedBigInteger('bank_account_id')->nullable()->after('mode');
-            $table->foreign('bank_account_id')->references('id')->on('bank_accounts');
-        });
+        // Schema::table('invoice_payments', function (Blueprint $table){
+        //     //FK:
+        //     $table->unsignedBigInteger('bank_account_id')->nullable()->after('mode');
+        //     $table->foreign('bank_account_id')->references('id')->on('bank_accounts');
+        // });
     }
 
     /**

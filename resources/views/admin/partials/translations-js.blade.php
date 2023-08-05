@@ -302,6 +302,7 @@ var txtVehiculoConfirmEliminar = "{{ ucfirst(trans("textos.vehiculo_confirm_elim
 var txtVehiculoOnOff = "{!! trans("textos.vehiculo_on_off") !!}";
 var txtVentaNueva = "{!! trans("textos.venta_nueva") !!}";
 var txtVer = "{!! ucfirst(trans("textos.ver")) !!}";
+var txtVerVideoAqui = '{!! trans("textos.ver_video_aqui") !!}';
 
 var _lunes = "{!! trans("textos.lunes") !!}";
 var _martes = "{!! trans("textos.martes") !!}";

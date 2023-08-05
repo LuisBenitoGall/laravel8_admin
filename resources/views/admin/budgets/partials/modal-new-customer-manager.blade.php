@@ -36,6 +36,17 @@
                         <div class="col-lg-12">
                             <x-input type="email" name="email" autocomplete="off" maxlength="150" required/>
                         </div>
+
+                        {{-- Confirmar email ya existente --}}
+                        @error('email')
+                            <div class="col-lg-12 mt-1">
+                                <label class="custom-chk-rdb" rel="tooltip">
+                                    <input type="checkbox" name="confirm_email">
+                                    <span class="chk chksmall" style="margin-top: 1px;"></span>
+                                    <span class="text-warning">{{ trans('textos.email_existe_confirm') }}</span>
+                                </label>
+                            </div>    
+                        @enderror
                     </div>
 
 					<div class="form-group row">

@@ -26,6 +26,8 @@ use App\Models\QuizEditions;
 use App\Models\Timetable;
 use App\Models\TimetableItems;
 use App\Models\User;
+use App\Models\UserRecommendation;
+use App\Models\UserRecommendationVote;
 use App\Models\UserTimetables;
 use App\Models\WorkCalendar;
 use App\Models\WorkUserCalendar;
@@ -77,7 +79,23 @@ class AdminController extends Controller{
         ->where('quiz_edition_companies.company_id', session('currentCompany'))
         ->get();
 
-        return view('admin.dashboard', compact('header', 'preferences', 'quizzes'));
+        //Recomendaciones:
+        $recommendation = UserRecommendation::select('user_recommendations.*', 'users.name', 'users.surname')
+        ->join('users', 'user_recommendations.user_id', '=', 'users.id')
+        ->where('user_recommendations.status', 1)
+        ->where('user_recommendations.published_at', '>=', Carbon::today()->format('Y-m-d 00:00:00'))
+        ->where('user_recommendations.published_end', '<=', Carbon::today()->format('Y-m-d 23:59:59'))
+        ->first();
+
+        //Votos de las recomendaciones:
+        $votes = false;
+        if($recommendation){
+            $votes = UserRecommendationVote::where('user_id', Auth::user()->id)
+            ->where('recommendation_id', $recommendation->id)
+            ->first();
+        }
+
+        return view('admin.dashboard', compact('header', 'preferences', 'quizzes', 'recommendation', 'votes'));
     }
 
     /**

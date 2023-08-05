@@ -27,6 +27,8 @@
 !/public/img/questions/
 /public/img/quizzes/*
 !/public/img/quizzes/
+/public/img/recommendations/*
+!/public/img/recommendations/
 /public/img/signatures/*
 !/public/img/signatures/
 /public/img/tasks/*

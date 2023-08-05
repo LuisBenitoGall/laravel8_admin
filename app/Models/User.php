@@ -213,12 +213,11 @@ class User extends Authenticatable{
 
     /**
      * 10. Validación usuario para middleware.
+     * 05/08/2023. Obsoleto. Se pasa el código al mismo middleware: UserGetMiddleware.
      */
     public static function userMiddleware($user_id){
         //Si el usuario es distinto de la sesión:
         if (Auth::user()->id != $user_id) {
-            $alert = trans('textos.no_permisos_edicion');
-
             $user = User::find($user_id);
 
             //El usuario debe pertenecer a la empresa en sesión:
@@ -230,26 +229,31 @@ class User extends Authenticatable{
                     break;
                 }
             }
-            if (!$exist) {
+            if(!$exist){
+                $alert = trans('textos.no_permisos_edicion');
                 return redirect()->route('users.index')->with(compact('alert'));
+                exit;
             }
 
             //Si es Super Admin:
             if (Auth::user()->hasRole(config('constants.SUPER_ADMIN_'))) {
                 //Para editar a otro Super Admin, comprobamos que tenga permisos de Omni User:
                 if ($user->hasRole(config('constants.SUPER_ADMIN_')) && !in_array(Auth::user()->id, config('constants.OMNI_USERS_'))) {
+                    $alert = trans('textos.no_permisos_edicion');
                     return redirect()->route('users.index')->with(compact('alert'));
                 }
 
-                //No es Super Admin:
+            //No es Super Admin:
             } else {
                 //Un rol NO Super Admin no puede editar a un Super Admin
                 if ($user->hasRole(config('constants.SUPER_ADMIN_'))) {
+                    $alert = trans('textos.no_permisos_edicion');
                     return redirect()->route('users.index')->with(compact('alert'));
                 }
 
                 //Comprobamos que tenga permiso de edición de usuarios:
                 if (!Auth::user()->hasPermissionTo('users.edit')) {
+                    $alert = trans('textos.no_permisos_edicion');
                     return redirect()->route('users.index')->with(compact('alert'));
                 }
             }
