@@ -199,7 +199,7 @@ class QuizEditionsController extends Controller{
         $edition->start = $start;
         $edition->finish = $finish;
         if($request->time > 0){
-            $edition->time = $time;
+            $edition->time = $request->time;
         }
         if($request->num_questions){
             $edition->num_questions = $request->num_questions;
