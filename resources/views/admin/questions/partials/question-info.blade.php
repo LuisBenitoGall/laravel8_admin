@@ -120,7 +120,9 @@
 			@endif
 
 			{{-- Dropzone --}}
-			<x-dropzone url="/admin/question-images/{{ $question->id }}/store"/>
+			{{-- <x-dropzone url="/admin/question-images/{{ $question->id }}/store"/> --}}
+
+			@include('admin.partials.dropzone', ['id' => false, 'icon' => 'camera-retro', 'msg' => 'arrastra_fotos', 'url' => '/admin/question-images/'.$question->id.'/store'])
 		</div>
 	</div>
 
