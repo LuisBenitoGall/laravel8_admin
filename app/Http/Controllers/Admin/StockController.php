@@ -16,7 +16,10 @@ use File;
 
 //Models:
 use App\Models\Batch;
+use App\Models\BatchPatterns;
 use App\Models\CompanySettings;
+use App\Models\Delivery;
+use App\Models\DeliveryItems;
 use App\Models\Employee;
 use App\Models\Inventory;
 use App\Models\Product;
@@ -121,6 +124,12 @@ class StockController extends Controller{
         ->take(10)
         ->get();
 
+        //Patrones para lotes:
+        $batch_patterns = BatchPatterns::where('company_id', session('currentCompany'))
+        ->where('status', 1)
+        ->pluck('name', 'id')
+        ->toArray();
+
         //Employees:
         $employees = Employee::companyEmployees(session('currentCompany'));
 
@@ -136,7 +145,7 @@ class StockController extends Controller{
 
         $languages = $this->languages;
 
-        return view('admin.stocks.index')->with(compact('header', 'product_id', 'stockMovId', 'productSelected', 'stockResultante', 'products', 'stores', 'movements', 'movements_arr', 'last_movements', 'employees', 'currency', 'employees', 'languages'));
+        return view('admin.stocks.index')->with(compact('header', 'product_id', 'stockMovId', 'productSelected', 'stockResultante', 'products', 'stores', 'movements', 'movements_arr', 'last_movements', 'batch_patterns', 'employees', 'currency', 'languages'));
     }
 
     /**
@@ -148,6 +157,17 @@ class StockController extends Controller{
 
             //Lotes del producto:
             $batches = Batch::select('id', 'batch_num')->where('product_id', $product_id)->get();
+            //06/08/2023: todo producto debe tener al menos 1 lote, incluso los productos sin gestión de lotes:
+            if(!$batches->count()){
+                $b_ = new Batch();
+                $b_->product_id = $product_id;
+                $b_->batch_num = config('constants.NOBATCH_');
+                $b_->expiry_date = config('constants.UNDEFINED_DATE_');
+                $b_->created_by = Auth::user()->id;
+                $b_->save();
+
+                $batches = Batch::select('id', 'batch_num')->where('product_id', $product_id)->get();
+            }
 
             //Almacenes de la empresa, que obtenemos de los guardados en session:
             if(session('currentCompanyStores') && !empty(session('currentCompanyStores'))){
@@ -218,8 +238,6 @@ class StockController extends Controller{
                     array_push($data, $row);  
                 }
             }
-
-            //dd($data);
 
             return response()->json($data);
         }
@@ -317,31 +335,87 @@ class StockController extends Controller{
                 ->withInput();
         }
 
-        //dd($request->all());
-
         //Producto:
         $product = Product::select('id', 'price', 'batch', 'stock_management')->find($request->product_id);
-
+        // ¿Tiene gestión de stock?
         if(!$product->stock_management){
             $alert = trans('textos.producto_sin_gestion_stock');
             return redirect()->route('stocks.index', $request->product_id)->with(compact('alert'));   
             exit; 
         }
 
+        //Fecha de caducidad:
+        $expiry_date = $request->expiry_date? (session()->get('locale') != 'en')? helpers::convertFecha($request->expiry_date):$request->expiry_date:config('constants.UNDEFINED_DATE_'); 
+
+        //Lote:
+        //1. Producto sin lotes: siempre toma lote único.
+        if(!$product->batch){
+            $batch = Batch::firstOrCreate(
+                ['product_id' => $product->id],
+                ['product_id' => $product->id, 'batch_num' => config('constants.NOBATCH_'), 'expiry_date' => config('constants.UNDEFINED_DATE_'), 'created_by' => Auth::user()->id]
+            );
+
+        //2. Producto con gestión de lotes:
+        }else{
+            //Viene declarado el lote:
+            if($request->batch_id){
+                $batch = Batch::find($request->batch_id);     
+            
+            //No viene declarado el lote:
+            }else{
+                $batch_num = NULL;
+                $num_cardinal = NULL;
+                $pattern_id = NULL;
+
+                //Número de lote manual:
+                if($request->new_batch){
+                    $batch_num = $request->new_batch;
+
+                //Número por patrón:
+                }elseif($request->pattern_id){
+                    $patternNum = $this->setPatternNumber('batch', $request->pattern_id);
+
+                    $batch_num = $patternNum['pattern_num'];
+                    $num_cardinal = $patternNum['num'];
+                    $pattern_id = $request->pattern_id;
+                }
+
+                $data_batch = [
+                    'product_id' => $product->id,
+                    'work_order_id' => NULL,
+                    'batch_num' => $batch_num,
+                    'num_cardinal' => $num_cardinal,
+                    'pattern_id' => $pattern_id,
+                    'deadline' => NULL,
+                    'expiry_date' => $expiry_date,
+                    'initial_qty' => 0,
+                    'doc_num' => NULL,
+                    'doc' => NULL
+                ];
+                $batch = Batch::saveBatch($data_batch);
+            }
+        }
+
         //Tipo de movimiento:
         $stock_mov = StockMovements::select('acronym', 'sign')->find($request->movement);
+        if(!$stock_mov){
+            $alert = trans('textos.movimiento_no_existe');
+            return redirect()->route('stocks.index', $request->product_id)->with(compact('alert'));   
+            exit; 
+        }
 
         //Recuperamos última línea del producto, almacén y lote:
         $result = 0;
         if($request->stock_id){
-            $last_row = Stock::where('batch_id', $request->batch)
-            ->where('product_id', $request->product_id)
+            //request no trae lote en el traspaso entre almacenes
+            $last_row = Stock::where('batch_id', $batch->id)
+            ->where('product_id', $product->id)
             ->where('store_id', $request->store_id)
             ->orderBy('id', 'DESC')
             ->first();
             $result = $last_row? $last_row->result:0;
         }
-        //dd($result, $request->batch, $request->new_batch, $request->expiry_date);
+        //dd($request->all(), $result, $batch, $request->new_batch, $expiry_date);
         //Actualizando result:
         if($stock_mov->sign == 's'){
             $result = $result + $request->qty;  
@@ -360,56 +434,6 @@ class StockController extends Controller{
             $operation = 'r';
         }
 
-        //Si no viene el lote, recuperamos el último lote existente:
-        if(!$request->batch){
-            $batch_id = NULL;
-
-            //Si viene nuevo lote customizado:
-            if($request->new_batch){
-                if($operation == 's'){
-                    //Formateando fechas:
-                    $expiry_date = $request->expiry_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->expiry_date):$request->expiry_date:config('constants.UNDEFINED_DATE_');
-
-                    $b = new Batch();
-                    $b->product_id = $product->id;
-                    $b->batch_num = $request->new_batch;
-                    $b->expiry_date = $expiry_date;
-                    $b->initial_qty = $request->qty;
-                    $b->created_by = Auth::user()->id;
-                    $b->save();
-
-                    $batch_id = $b->id;
-                }
-
-            //Buscando lote previo:
-            }else{
-                $batch = Batch::select('id')
-                ->where('product_id', $product->id)
-                ->orderBy('id', 'DESC')
-                ->first();
-
-                if($batch){
-                    $batch_id = $batch->id;
-
-                //Nuevo lote:
-                }else{
-                    if($operation == 's'){
-                        $b = new Batch();
-                        $b->product_id = $product->id;
-                        $b->batch_num = config('constants.NOBATCH_');
-                        $b->initial_qty = $request->qty;
-                        $b->created_by = Auth::user()->id;
-                        $b->save();
-
-                        $batch_id = $b->id;
-                    }
-                }
-            }
-
-        }else{
-            $batch_id = $request->batch;
-        }  
-
         //Documento:
         $fileName = NULL;
         if($request->hasFile('doc')){
@@ -419,7 +443,7 @@ class StockController extends Controller{
             $ext = helpers::mimeExtension($file->getClientMimeType());
 
             $path = public_path().'/docs/stock-docs';
-            $prefix = ($request->doc_num != '')? $request->doc_num:$file->getClientOriginalName();
+            $prefix = ($request->doc_num && $request->doc_num != '')? $request->doc_num:$file->getClientOriginalName();
             $fileName = $prefix.'-'.uniqid().$ext;
             $moved = $file->move($path, $fileName);
 
@@ -431,9 +455,10 @@ class StockController extends Controller{
         }  
 
         $stock = new Stock();
-        $stock->product_id = $request->product_id;
+        $stock->product_id = $product->id;
         $stock->stock_mov_id = $request->movement;
-        $stock->batch_id = $batch_id;
+        $stock->order_id = $request->order? $request->order:NULL;
+        $stock->batch_id = $batch->id;
         $stock->store_id = $request->store_id;
         $stock->user_id = Auth::user()->id;
         $stock->qty = $request->qty;
@@ -458,9 +483,9 @@ class StockController extends Controller{
             $result2 = $last_result? $last_result->result + $request->qty:$request->qty;
 
             $stock2 = new Stock();
-            $stock2->product_id = $request->product_id;
+            $stock2->product_id = $product->id;
             $stock2->stock_mov_id = $request->movement;
-            $stock2->batch_id = $batch_id;
+            $stock2->batch_id = $batch->id;
             $stock2->store_id = $request->to_store;         //Almacén de destino.
             $stock2->user_id = Auth::user()->id;
             $stock2->qty = $request->qty;
@@ -474,7 +499,20 @@ class StockController extends Controller{
         }
 
         //Acciones adicionales en función del tipo de movimiento:
-        
+        //1. Si existe pedido:
+        if($request->order){
+            //Gestión de albaranes:
+            $deliveries = Delivery::join('delivery_orders', 'deliveries.id', '=', 'delivery_orders.delivery_id')
+            ->where('delivery_orders.order_id', $request->order)
+            ->pluck('deliveries.id')
+            ->toArray();
+
+            //Líneas de albarán del producto:
+            $delivery_items = DeliveryItems::whereIn('delivery_id', $deliveries)
+            ->get();
+
+            //11/08/2023: queda por revisar esta lógica.
+        }        
 
         $msg = trans('textos.movimiento_ok');
         return redirect()->route('stocks.index', $request->product_id)->with(compact('msg'));

@@ -4294,6 +4294,64 @@ $(document).ready(function(){
         });
     }
 
+    //Tabla Product Purchases:
+    if($('#tblProductPurchases').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        var product_id = $('#productId').val();
+
+        $('#tblProductPurchases').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/product-purchases/"+product_id,
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'date', className: 'text-right'},
+                {data: 'provider'},
+                {data: 'order', className: 'text-right'},
+                {data: 'qty', className: 'text-right'},
+                {data: 'price', className: 'text-right'},
+                {data: 'discounts', className: 'text-right'},
+                {data: 'iva', className: 'text-right'},
+                {data: 'amount', className: 'text-right'},
+                {data: 'acciones', className: 'text-right'}
+            ]
+        });
+    }
+
+    //Tabla Product Sales:
+    if($('#tblProductSales').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        var product_id = $('#productId').val();
+
+        $('#tblProductSales').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/product-sales/"+product_id,
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'date', className: 'text-right'},
+                {data: 'customer'},
+                {data: 'order', className: 'text-right'},
+                {data: 'qty', className: 'text-right'},
+                {data: 'price', className: 'text-right'},
+                {data: 'discounts', className: 'text-right'},
+                {data: 'iva', className: 'text-right'},
+                {data: 'amount', className: 'text-right'},
+                {data: 'acciones', className: 'text-right'}
+            ]
+        });
+    }
+
     //Tabla Product Serial Attributes:
     if($('#tblProductSerialAttributes').length > 0){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
@@ -4417,7 +4475,7 @@ $(document).ready(function(){
                 {data: 'fecha', className: 'text-right'},
                 {data: 'movement', name: 'stock_movements.name'},
                 {data: 'store', name: 'stores.name'},
-                {data: 'batch', name: 'batches.name'},
+                {data: 'batch', name: 'batches.batch_num'},
                 {data: 'qty', className: 'text-right'},
                 {data: 'stock', className: 'text-right'},
                 {data: 'doc', className: 'text-center'},
@@ -4522,87 +4580,14 @@ $(document).ready(function(){
                 }
             },
             columns: [
-                {data: 'producto'},
-                {data: 'descripcion'},
-                {data: 'price', className: 'text-right'},
-                {data: 'id', className: 'text-center'},
-                {data: 'id', className: 'text-center'},
-                {data: 'id', className: 'text-right'}
-            ],
-            columnDefs: [
-                {"targets": 2,
-                "render": function(data, type, row){
-                    return row['price']+'€';    
-                }
-                }, 
-                {"targets": 3,
-                "render": function(data, type, row){
-                    if(row['Image']){
-                        return '<img src="/img/products/'+row['Image']+'" width="50"><span style="display: none">1</span>';      
-                    }else{
-                        return '<i class="fa fa-gift icono"></i><span style="display: none">0</span>';    
-                    }                   
-                }
-                }, 
-                {"targets": 4,
-                "render": function(data, type, row){
-                    if(row['on_sale']){
-                        return '<i class="fa fa-check text-success"></i><span style="display: none">1</span>';
-                    }else{
-                        return '<i class="fa fa-ban text-danger"></i><span style="display: none">0</span>';
-                    }
-                }
-                },
-                {"targets": -1,
-                "render": function(data, type, row){
-                    //Estado:
-                    var estado = '';
-                    if(row['editar']){
-                        var checked = (row['status'] == 1)? 'checked':'';
-                        var estado = '<label class="custom-chk-rdb" rel="tooltip" title="'+txtProductoOnOff+'">';
-                            estado += '<input type="checkbox" name="status" '+checked+' ><span class="chk chk-action" data-id="'+row['id']+'" data-ctrl="products/status"></span>';
-                        estado += '</label>';
-                    }
-
-                    //Ver:
-                    var ver = '<a href="/admin/products/'+row['id']+'/show" class="btn btn-xs btn-info btn-module" rel="tooltip" title="'+txtProductoVer+'"><i class="fa fa-eye"></i></a>';
-
-                    //Translations:
-                    // if(row['editar']){
-                    //     var trans = linkTranslations(row['id'], 'products', txtTraducciones);
-                    // }else{
-                        //var trans = '';
-                    //}
-
-                    //Configuraciones de venta:
-                    // var setups = '';
-                    // if(row['on_sale']){
-                    //     setups = '<a href="/admin/product-sales-setups/'+row['id']+'/edit" class="btn btn-xs btn-info" rel="tooltip" title="'+txtConfiguracionesVenta+'"><i class="fa fa-cogs"></i></a>';
-                    // }
-
-                    //Solicitar:
-                    /*var solicita = '<a href="#" class="btn btn-xs btn-info btn-module btnOrderProduct" rel="tooltip" title="'+txtProductoPedir+'" data-toggle="modal" data-target="#modal-order-product" data-id="'+row['id']+'" data-product="'+row['name']+'"><i class="fa fa-shopping-basket"></i></a>';*/
-
-                    //Editar:
-                    var editar = '';
-                    if(row['editar']){
-                        var editar = '<a href="/admin/products/'+row['id']+'/edit" class="btn btn-xs btn-info btn-module" rel="tooltip" title="'+txtProductoEditar+'"><i class="fa fa-edit"></i></a>';
-                    }
-
-                    //Eliminar:
-                    var eliminar = '';
-                    if(row['eliminar']){
-                        var eliminar = '<form method="POST" action="/admin/products/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
-                            eliminar += '<input name="_method" type="hidden" value="DELETE">';
-                            eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
-                            eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtProductoEliminar+'" data-msg="'+txtProductoConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
-                        eliminar += '</form>';
-                    }
-
-                    return estado+' '+ver+' '+editar+' '+eliminar; //+' '+trans+' '+setups
-                }
-                } 
-            ] 
+                {data: 'product', name: 'products.name'},
+                {data: 'ref', name: 'products.ref'},
+                {data: 'description'},
+                {data: 'price', className: 'text-right', name: 'products.price'},
+                {data: 'image', className: 'text-center'},
+                {data: 'on_sale', className: 'text-center'},
+                {data: 'acciones', className: 'text-right'}
+            ]
         });
     }
 

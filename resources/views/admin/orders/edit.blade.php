@@ -336,7 +336,7 @@
 
 				{{-- Pedido en preparación para entregar --}}
 				@if($order->prepare_delivery == 1)
-					<a target="_blank" href="" class="btn btn-warning btn-confirm" data-msg="{{ trans('textos.entrega_preparar_confirm') }}">
+					<a target="_blank" href="" class="btn btn-warning" data-msg="{{ trans('textos.entrega_preparar_confirm') }}">
 						<i class="fa fa-tasks"></i>
 						{!! ucfirst(trans('textos.entrega_en_preparacion')) !!}
 					</a>

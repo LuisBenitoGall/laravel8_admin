@@ -162,7 +162,7 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     Route::get('deliveries/{year?}/{customer?}/{status?}', 'DeliveryController@getDeliveriesDT');
 
     //DeliveriesOrders:
-    Route::get('deliveries-orders', 'DeliveryController@getDeliveriesOrdersDT');
+    Route::get('deliveries-orders/{year?}/{customer?}', 'DeliveryController@getDeliveriesOrdersDT');
 
     //DeliveryPatterns:
     Route::get('delivery-patterns', 'DeliveryPatternsController@getPatternsDT');
@@ -257,6 +257,12 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
 
     //ProductProviders:
     Route::get('product-providers-correspondences/{product_id}/{provider_id}', 'ProductProvidersController@getProvidersCorrespondencesDT');
+
+    //ProductPurchases:
+    Route::get('product-purchases/{product_id}', 'ProductController@getPurchasesDT');
+
+    //ProductSales:
+    Route::get('product-sales/{product_id}', 'ProductController@getSalesDT');
 
     //ProductSerials:
     Route::get('product-serials/{product_id}', 'ProductSerialsController@getSerialsDT');

@@ -16,13 +16,14 @@
 		{{-- Formulario nuevo producto - condiciones: 
 			1. Disponer de permisos de creación de producto.
 			2. Si viene declarado el proveedor.
-			3. El proveedor está tutelado por la empresa en sesión.
+			3. El proveedor no tiene cuenta 
+			4. El proveedor tiene cuenta pero tutelada por el cliente.
 		--}}
 		@can('products.create')
-			@if($provider && $account && $account->guardian == session('currentCompany'))
+			@if($provider && (!$account || ($account && $account->guardian == session('currentCompany'))))
 				<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-add-product">
 					<i class="fa fa-plus"></i>
-					{!! ucfirst(trans('textos.producto_nuevo')) !!}
+					{!! ucfirst(trans('textos.producto_nuevo_vinculado')) !!}
 				</a>
 			@endif
 		@endcan
@@ -30,15 +31,13 @@
 </div>
 
 <div class="row mb-3">
-	<div class="col-12 mb-3">
-		<h3>
-			{{ trans('textos.proveedor_correspondencia_producto') }} <u>{{ $product->name }}</u>
-		</h3>
-	</div>
-
 	<div class="col-12">						
 		<div class="card mb-3">
 			<div class="card-body">
+				<h3 class="mb-4">
+					{{ trans('textos.proveedor_correspondencia_producto') }} <u>{{ $product->name }}</u>
+				</h3>
+
 				{{-- Condiciones necesarias --}}
 				{{-- 1. Activada gestión de proveedores: --}}
 				@if(!$providers)

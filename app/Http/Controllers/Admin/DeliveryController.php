@@ -76,9 +76,6 @@ class DeliveryController extends Controller{
         if($customer_id 
             && $customer_id != session('currentCompany') 
             && $customer_id != 'all'
-            && $provider_id 
-            && $provider_id != session('currentCompany')
-            && $provider_id != 'all'
         ){
             return redirect()->route('deliveries.index');
         }
@@ -136,7 +133,16 @@ class DeliveryController extends Controller{
     public function getDeliveriesDT(Request $request, $year = false, $customer = false, $status = false){
         $data = Delivery::select('deliveries.id', 'deliveries.delivery_num', 'deliveries.delivery_old_num', 'deliveries.status', 'companies.name', 'deliveries.created_at')
         ->join('companies', 'deliveries.customer_id', '=', 'companies.id')
-        ->where('provider_id', session('currentCompany'));
+        ->where('provider_id', session('currentCompany'))
+        ->when($year, function($q) use($year){
+            return $q->whereYear('deliveries.created_at', $year);
+        })
+        ->when($customer, function($q) use($customer){
+            return $q->where('deliveries.customer_id', $customer);
+        })
+        ->when($status && $status != '', function($q) use($status){
+            return $q->where('deliveries.status', $status);
+        });
 
         $estados = helpers::deliveryStatus();
 
@@ -168,7 +174,7 @@ class DeliveryController extends Controller{
     /**
      * 1.3. Listado de pedidos para incluir en entregas para DataTable.
      */
-    public function getDeliveriesOrdersDT(){
+    public function getDeliveriesOrdersDT(Request $request, $year = false, $customer = false){
         $orders = Order::select('orders.id', 'orders.order_num', 'orders.order_old_num', 'orders.name', 'companies.name AS company', 'orders.customer_id') 
         ->join('companies', 'orders.customer_id', '=', 'companies.id')
         ->where('orders.provider_id', session('currentCompany')) 
@@ -274,6 +280,7 @@ class DeliveryController extends Controller{
         $dlv->provider_id = session('currentCompany');
         $dlv->customer_id = $request->company_id;
         $dlv->user_id = Auth::user()->id;
+        $dlv->status = config('constants.DELIVERY_STATUS_PREPARATION_');
         $dlv->save();
 
         $msg = trans('textos.entrega_creada');
@@ -304,7 +311,7 @@ class DeliveryController extends Controller{
         }
 
         //Estados de entrega:
-        $status = Helpers::deliveryStatus();
+        $status = helpers::deliveryStatus();
 
         //Pedidos del cliente:
         //1. Sólo pedidos validados para entregar (prepare_delivery = true)

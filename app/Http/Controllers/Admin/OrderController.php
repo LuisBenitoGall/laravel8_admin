@@ -35,6 +35,7 @@ use App\Models\OrderPrevisions;
 use App\Models\OrderSettings;
 use App\Models\Phone;
 use App\Models\Product;
+use App\Models\ProductProviders;
 use App\Models\Project;
 use App\Models\ProjectOrders;
 use App\Models\ProjectPurchases;
@@ -60,7 +61,9 @@ class OrderController extends Controller{
      * 2. Formulario nuevo pedido.
      * 3. Guardar nuevo pedido.
      * 3.1. Generar pedido desde presupuesto.
+     * 3.2. Generar pedido desde producto.
      * 4. Editar pedido.
+     * 4.1. Mostrar pedido.
      * 5. Actualizar pedido.
      * 6. Eliminar pedido.
      * 7. Resetear numeración del pedido.
@@ -853,6 +856,47 @@ class OrderController extends Controller{
     }
 
     /**
+     * 3.2. Generar pedido desde producto.
+     */
+    public function orderFromProduct(ProductProviders $product_provider){
+        //Creamos pedido:
+        $order = new Order();
+        $order->is_order = true;
+        $order->name = NULL;
+        $order->slug = NULL;
+        $order->is_group = false;
+        $order->created_by = Auth::user()->id;
+        $order->customer_id = session('currentCompany');
+        $order->customer_manager_id = Auth::user()->id;
+        $order->provider_id = $product_provider->provider_id;
+        $order->order_status = config('constants.ORDER_STATUS_PENDENT_');
+        $order->save();
+
+        //Guardamos previsión de facturación por defecto:
+        OrderPrevisions::store($order->id);
+
+        //Descuento por defecto:
+        $order->setDefaultDiscount();
+
+        //Producto del proveedor:
+        $product = Product::select('id', 'name', 'ref', 'price', 'iva')->find($product_provider->provider_product_id);
+
+        //Generamos el item del producto.
+        $item = new Item();
+        $item->product_id = $product->id;
+        $item->order_id = $order->id;
+        $item->concept = $product->name? $product->name:$product_provider->provider_product;
+        $item->qty = '0';
+        $item->price = $product->price;
+        $item->iva = $product->iva;
+        $item->user_id = Auth::user()->id;
+        $item->save();
+
+        $msg = trans('textos.pedido_creado');
+        return redirect()->route('orders.edit', $order)->with(compact('msg'));
+    }
+
+    /**
      * 4. Editar pedido.
      */
     public function edit(Order $order, $tab = false){
@@ -1034,8 +1078,6 @@ class OrderController extends Controller{
             //$order_amount_without_discount_in_lines = $arr_amounts['amount_without_discount_in_lines'];
             $order_amount_without_discount_in_lines = $arr_amounts['total_amount_without_discounts'];
         } 
-
-        //dd($arr_amounts);
 
         //Agrupaciones de pedidos:
         $order_groups = Order::select('orders.id', 'orders.order_num', 'orders.name')
@@ -1236,6 +1278,83 @@ class OrderController extends Controller{
         $module_rrhh = $this->settedModule('rrhh');
         
         return view('admin.orders.edit')->with(compact('header', 'order', 'tab', 'patterns', 'purchase_patterns', 'provider', 'provider_account', 'provider_managers', 'provider_business_areas', 'provider_cost_centers', 'provider_workplaces', 'default_workplace', 'customer', 'final_customer', 'customer_managers', 'customer_business_areas', 'customer_cost_centers', 'customer_workplaces', 'customer_products', 'customer_settings', 'confirmed_by', 'customers', 'order_amount', 'order_amount_without_discount', 'order_amount_without_discount_in_lines', 'order_groups', 'ordersInGroup', 'orders_off', 'group_amount', 'invoiced', 'invoices', 'previsions', 'products', 'projects', 'project', 'project_purchases', 'customer_projects', 'deliveries', 'receivings', 'currency', 'items', 'author', 'owner', 'commercial', 'iva', 'sat', 'order_type', 'templates', 'languages', 'permitted', 'module_accounting', 'module_budgets', 'module_products', 'module_projects', 'module_rrhh', 'module_logistics'));
+    }
+
+    /**
+     * 4.1. Mostrar pedido.
+     */
+    public function show(Order $order){
+        //Si no consta como pedido se redirige a budget:
+        if(!$order->is_order){
+            $alert = trans('textos.presupuesto_no_pedido_warning');
+            return redirect()->route('budgets.edit', $order)->with(compact('alert')); 
+            exit;   
+        }
+
+        if($order->is_group){
+            $slug = 'order-groups';
+        }else{
+            $slug = 'orders';    
+        }
+
+        $header = [
+            'option' => $this->option, 
+            'suboption' => 'textos.pedido_detalle',
+            'module' => $this->module,
+            'slug' => $slug
+        ];   
+
+        $order_type = $order->customer_id == session('currentCompany')? 'purchase':'sale';
+
+        //PROVEEDOR:
+        $provider = Company::select('id', 'name', 'tradename')->find($order->provider_id);
+
+        //CLIENTE:
+        $customer = Company::select('id', 'name', 'tradename')->find($order->customer_id);
+
+        //CLIENTE FINAL:
+        $final_customer = $order->final_customer_id? Company::select('id', 'name', 'tradename')->find($order->final_customer_id):false;
+        
+        $customer_managers_ = UserCompanies::getCompanyUsers($order->customer_id, 1); 
+        $customer_managers = [];
+        foreach($customer_managers_ as $cm){
+            $customer_managers[$cm->id] = $cm->name.' '.$cm->surname;
+        }
+
+        $customer_business_areas = BusinessAreas::where('company_id', $order->customer_id)
+        ->pluck('name', 'id')
+        ->toArray();
+
+        $customer_cost_centers = CostCenters::where('company_id', $order->customer_id)
+        ->pluck('name', 'id')
+        ->toArray();
+
+        $customer_workplaces = Workplace::where('company_id', $order->customer_id)
+        ->pluck('name', 'id')
+        ->toArray();
+
+        //Importe del pedido:
+        if($order->bag_amount){
+            $order_amount = $order->bag_amount;
+            $order_amount_without_discount = false;
+            $order_amount_without_discount_in_lines = false;
+
+        }else{
+            $items = $order->items();
+            $arr_amounts = $order->getAmount();    
+
+            $order_amount = $arr_amounts['total_amount'];
+            $order_amount_without_discount = $arr_amounts['total_amount_without_discounts'];
+            //$order_amount_without_discount_in_lines = $arr_amounts['amount_without_discount_in_lines'];
+            $order_amount_without_discount_in_lines = $arr_amounts['total_amount_without_discounts'];
+        } 
+
+        //Moneda:
+        $currency = CompanySettings::co_currency(0);
+
+        $languages = $this->languages;
+
+        return view('admin.orders.show')->with(compact('header', 'order', 'order_type', 'provider', 'customer', 'final_customer', 'customer_managers', 'customer_business_areas', 'customer_cost_centers', 'customer_workplaces', 'order_amount', 'order_amount_without_discount', 'order_amount_without_discount_in_lines', 'currency', 'languages'));  
     }
 
     /**

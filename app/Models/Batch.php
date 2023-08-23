@@ -20,6 +20,8 @@ class Batch extends Model{
 
     protected $dates = ['deleted_at'];
 
+    protected $fillable = ['product_id', 'work_order_id', 'batch_num', 'num_cardinal', 'pattern_id', 'deadline', 'expiry_date', 'initial_qty', 'doc_num', 'doc', 'created_by', 'updated_by']; 
+
     /**
      * 1. Crear nuevo lote.
      */
