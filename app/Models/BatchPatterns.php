@@ -8,8 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class BatchPatterns extends Model
-{
+class BatchPatterns extends Model{
     use HasFactory;
     use SoftDeletes;
 
@@ -17,13 +16,11 @@ class BatchPatterns extends Model
 
     protected $table = 'batch_patterns';
 
-    public function orders(): HasMany
-    {
+    public function orders(): HasMany{
         return $this->hasMany(Order::class);
     }
 
-    public function company(): BelongsTo
-    {
+    public function company(): BelongsTo{
         return $this->belongsTo(Company::class);
     }
 }

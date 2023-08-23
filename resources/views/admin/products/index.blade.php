@@ -40,6 +40,7 @@
 			<thead>
 				<tr>
 					<th>{!! ucfirst(trans('textos.producto')) !!}</th>
+					<th>{!! ucfirst(trans('textos.referencia')) !!}</th>
 					<th>{!! ucfirst(trans('textos.descripcion')) !!}</th>
 					<th class="text-center">{!! ucfirst(trans('textos.precio')) !!}</th>
 					<th>{!! ucfirst(trans('textos.imagen')) !!}</th>

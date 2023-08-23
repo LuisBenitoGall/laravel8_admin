@@ -2,7 +2,7 @@
 
 @section('content')
 
-@if($quizzes->count() || $recommendation)
+@if($quizzes->count() || isset($recommendation))
     <div class="row mb-3">
         {{-- Quizzes --}}
         @if($quizzes->count())
@@ -28,7 +28,7 @@
         @endif
 
         {{-- Recomendaciones --}}
-        @if(session('companySettings')->recommendations)
+        @if(session('companySettings') && session('companySettings')->recommendations)
             <div class="col-12 col-lg-6">
                 <div class="row">
                     <div class="col-12 mb-3">

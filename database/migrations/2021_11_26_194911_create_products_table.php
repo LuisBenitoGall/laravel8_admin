@@ -13,8 +13,8 @@ class CreateProductsTable extends Migration{
     public function up(){
         Schema::create('products', function (Blueprint $table){
             $table->id();
-            $table->string('name');
-            $table->string('slug');
+            $table->string('name')->nullable();
+            $table->string('slug')->nullable();
             $table->string('ref')->nullable();
             //FK:
             $table->unsignedBigInteger('product_pattern_id')->nullable();

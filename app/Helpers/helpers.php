@@ -548,6 +548,9 @@ class Helpers{
 			//if($minutos < 10) $minutos = '0'.$minutos;
 			$to = $dias.':'.$horas.':'.$minutos;
 		}
+
+		if(strlen($from) > 2 && substr($from, 0, 2) == '00') $from = substr($from, 1);
+		if(strlen($to) > 2 && substr($to, 0, 2) == '00') $to = substr($to, 1);
 		
 		$f = new DateTime($from);
 		$i = new DateTime($to);
@@ -2237,7 +2240,6 @@ class Helpers{
         }
 
         $arr = ['amount' => $amount, 'amount_without_discount' => $amount_without_discount];
-
         return $arr;
 	}
 

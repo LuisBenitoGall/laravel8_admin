@@ -124,6 +124,16 @@
 			    		<a class="nav-link @if($tab == 'docs') active @endif" href="#tab-docs" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.imagenes')) !!}</a>
 			  		</li>
 
+			  		@if($product->on_sale)
+				  		<li class="nav-item @if($tab == 'sales') active @endif">
+				    		<a class="nav-link @if($tab == 'sales') active @endif" href="#tab-sales" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.ventas')) !!}</a>
+				  		</li>
+				  	@endif
+
+			  		<li class="nav-item @if($tab == 'purchases') active @endif">
+			    		<a class="nav-link @if($tab == 'purchases') active @endif" href="#tab-purchases" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.compras')) !!}</a>
+			  		</li>
+
 			  		<li class="nav-item @if($tab == 'units') active @endif">
 			    		<a class="nav-link @if($tab == 'units') active @endif" href="#tab-units" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.unidades_venta_medicion')) !!}</a>
 			  		</li>
@@ -162,6 +172,18 @@
 					{{-- Imágenes: --}}
 					<div class="tab-pane fade @if($tab == 'docs') show active @endif" role="tabpanel" id="tab-docs">
 						@include('admin.products.partials.product-docs')	
+					</div>
+
+					{{-- Ventas --}}
+					@if($product->on_sale)
+						<div class="tab-pane fade @if($tab == 'sales') show active @endif" role="tabpanel" id="tab-sales">
+							@include('admin.products.partials.product-sales')	
+						</div>
+					@endif
+
+					{{-- Compras --}}
+					<div class="tab-pane fade @if($tab == 'purchases') show active @endif" role="tabpanel" id="tab-purchases">
+						@include('admin.products.partials.product-purchases')	
 					</div>
 
 					{{-- Unidades de venta --}}

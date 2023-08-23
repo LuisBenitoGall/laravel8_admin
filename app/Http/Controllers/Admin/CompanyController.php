@@ -700,6 +700,7 @@ class CompanyController extends Controller{
 
         //Configuración de la empresa:
         $settings = CompanySettings::where('company_id', $request->company)->first();
+
         session(['companySettings' => $settings]);
 
         return redirect()->route('dashboard');

@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Yajra\DataTables\DataTables;
 use File;
+use Carbon\Carbon;
 
 //Models:
 use App\Models\Attribute;
@@ -22,6 +23,8 @@ use App\Models\CompanySettings;
 use App\Models\CostCenters;
 use App\Models\CustomerProducts;
 use App\Models\CustomerProviders;
+use App\Models\Item;
+use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductAttributes;
 use App\Models\ProductDocs;
@@ -43,6 +46,9 @@ class ProductController extends Controller{
      * 7. Eliminar producto.
      * 8. Mostrar producto.
      * 9. Productos para autocomplete.
+     * 10. Listado de ventas por producto para DataTable.
+     * 11. Listado de compras por producto para DataTable.
+     * 12. Pedidos de compra del producto.
      */  
     
     private $option = 'catalogo';  
@@ -104,30 +110,64 @@ class ProductController extends Controller{
     public function getProductsDT($company_id = false){
         $company = $company_id? $company_id:session('currentCompany'); 
 
-        $products = Product::companyProducts($company, $company, false, false);
+        //Moneda:
+        $currency = CompanySettings::co_currency(0);
 
-        //Permisos del usuario:
-        $editar = Auth::user()->can('products.edit');
-        $eliminar = Auth::user()->can('products.destroy');
+        $data = Product::companyProducts($company, $company, false, false, false, true);
 
-        //Ampliación de información de los objetos:
-        foreach($products as $row){
+        return DataTables::of($data)
+        ->addColumn('product', function($row){
             //Enviamos el nombre del producto ya traducido:
-            $trans = unserialize($row->translations);
-            $producto = (isset($trans[session()->get('locale')]) && $trans[session()->get('locale')] != '' && $trans != '')? $trans[session()->get('locale')]:$row->name;
-            $row->producto = ucfirst($producto);
-
-            //Descripción:
-            $description = unserialize($row->description);
-            $descripcion = (isset($description[session()->get('locale')]) && $description[session()->get('locale')] != '' && $description != '')? $description[session()->get('locale')]:$row->name;
-            $row->descripcion = ucfirst($descripcion);
-
-            //Permisos para las acciones:
-            $row->editar = $editar;
-            $row->eliminar = $eliminar; 
-        }
-
-        return datatables($products)->toJson();
+            $trans = $row->translations? unserialize($row->translations):false;
+            if($trans){
+                $product_name = (isset($trans[session()->get('locale')]) && $trans[session()->get('locale')] != '' && $trans != '')? $trans[session()->get('locale')]:$row->name;
+                return $product_name;
+            }else{
+                return $row->name;
+            }
+        })
+        ->addColumn('ref', function($row){
+            if($row->ref){
+                return $row->ref;
+            }else{
+                return '';
+            }
+        })
+        ->addColumn('description', function($row){
+            $arr = $row->description? unserialize($row->description):false;
+            if($arr){
+                $description = (isset($arr[session()->get('locale')]) && $arr[session()->get('locale')] != '' && $arr != '')? $arr[session()->get('locale')]:'';
+                return ucfirst($description); 
+            }else{
+                return '';
+            }
+        })
+        ->addColumn('price', function($row) use($currency){
+            if($row->price){
+                return $row->price.$currency->symbol;
+            }else{
+                return '';
+            }
+        })  
+        ->addColumn('image', function($row){
+            if($row->Image){
+                return '<img src="/img/products/'.$row->Image.'" width="50"><span style="display: none">1</span>';  
+            }else{
+                return '<i class="fa fa-gift icono"></i><span style="display: none">0</span>';
+            }
+        })
+        ->addColumn('on_sale', function($row){
+            if($row->on_sale){
+                return '<i class="fa fa-check text-success"></i><span style="display: none">1</span>';
+            }else{
+                return '<i class="fa fa-ban text-danger"></i><span style="display: none">0</span>';    
+            }
+        })
+        ->addColumn('acciones', function($row){
+            return view('admin.products.partials.dt-actions', compact('row'));    
+        })
+        ->rawColumns(['image', 'on_sale'])
+        ->make(true);
     }
 
     /**
@@ -164,11 +204,11 @@ class ProductController extends Controller{
                 ->withInput();
         }
 
-        //Slug:
-        $slug = Str::slug($request->name);
+        //Slug. Si se trata de un producto tutelado, no guarda nombre ni slug.
+        $slug = !$request->tutored? Str::slug($request->name):NULL;
 
         $product = new Product();
-        $product->name = $request->name;
+        $product->name = !$request->tutored? $request->name:NULL;
         $product->slug = $slug;
         $product->company_id = $request->tutored? $request->tutored:session('currentCompany');
         $product->user_id = Auth::user()->id;
@@ -541,5 +581,145 @@ class ProductController extends Controller{
         ->get();
 
         return response()->json($data); 
+    }
+
+    /**
+     * 10. Listado de ventas por producto para DataTable.
+     */
+    public function getSalesDT($product_id){
+        $data = Item::select('orders.id', 'orders.order_num', 'orders.order_old_num', 'orders.delivery_date', 'orders.created_at', 'companies.name', 'companies.tradename', 'items.price', 'items.qty', 'items.iva', 'items.discount', 'items.irpf', 'items.days', 'items.days_continue', 'items.days_continue_discount')
+        ->join('orders', 'items.order_id', '=', 'orders.id')
+        ->join('companies', 'orders.customer_id', '=', 'companies.id')
+        ->where('items.product_id', $product_id)
+        ->where('orders.provider_id', session('currentCompany'))
+        ->orderBy('orders.delivery_date', 'DESC');
+
+        //Moneda:
+        $currency = CompanySettings::co_currency(0);
+
+        return DataTables::of($data)
+        ->addColumn('date', function($row){
+            if($row->delivery_date){
+                return Carbon::parse($row->delivery_date)->format($this->languages[session()->get('locale')][4]);   
+            }else{
+                return $row->created_at->format($this->languages[session()->get('locale')][4]);;
+            }
+        })
+        ->addColumn('customer', function($row){
+            return $row->name;
+        })
+        ->addColumn('order', function($row){
+            $order_num = $row->order_num? $row->order_num:($row->order_old_num? $row->order_old_num:$row->id);
+            if(Auth::user()->can('products.edit')){
+                return '<a target="_blank" href="/admin/orders/'.$row->id.'/edit">'.$order_num.'</a>';
+            }else{
+                return $order_num;
+            }
+        })
+        ->addColumn('qty', function($row){
+            return $row->qty;
+        })
+        ->addColumn('price', function($row) use($currency){
+            return $row->price.$currency->symbol;
+        })
+        ->addColumn('discounts', function($row){
+            if($row->discount > 0){
+                return $row->discount.'%';
+            }else{
+                return '';
+            }            
+        })
+        ->addColumn('iva', function($row){
+            return $row->iva.'%';
+        })
+        ->addColumn('amount', function($row) use($currency){
+            $amount = helpers::itemAmount($row, true);
+            return $amount['amount_without_discount'].$currency->symbol;
+        })
+        ->addColumn('acciones', function($row){
+            return view('admin.products.partials.dt-actions-sales', compact('row'));    
+        })
+        ->rawColumns(['order'])
+        ->make(true);
+    }
+    
+    /**
+     * 11. Listado de compras por producto para DataTable.
+     */
+    public function getPurchasesDT($product_id){
+        $data = Item::select('orders.id', 'orders.order_num', 'orders.order_old_num', 'orders.delivery_date', 'orders.created_at', 'companies.name', 'companies.tradename', 'items.price', 'items.qty', 'items.iva', 'items.discount', 'items.irpf', 'items.days', 'items.days_continue', 'items.days_continue_discount')
+        ->join('orders', 'items.order_id', '=', 'orders.id')
+        ->join('companies', 'orders.provider_id', '=', 'companies.id')
+        ->join('product_providers', 'items.product_id', '=', 'product_providers.provider_product_id')
+        ->where('product_providers.customer_product_id', $product_id)
+        ->where('orders.customer_id', session('currentCompany'))
+        ->orderBy('orders.delivery_date', 'DESC');
+
+        //Moneda:
+        $currency = CompanySettings::co_currency(0);
+
+        return DataTables::of($data)
+        ->addColumn('date', function($row){
+            if($row->delivery_date){
+                return Carbon::parse($row->delivery_date)->format($this->languages[session()->get('locale')][4]);   
+            }else{
+                return $row->created_at->format($this->languages[session()->get('locale')][4]);;
+            }
+        })
+        ->addColumn('provider', function($row){
+            return $row->name;
+        })
+        ->addColumn('order', function($row){
+            $order_num = $row->order_num? $row->order_num:($row->order_old_num? $row->order_old_num:$row->id);
+            if(Auth::user()->can('products.edit')){
+                return '<a target="_blank" href="/admin/orders/'.$row->id.'/edit">'.$order_num.'</a>';
+            }else{
+                return $order_num;
+            }
+        })
+        ->addColumn('qty', function($row){
+            return $row->qty;
+        })
+        ->addColumn('price', function($row) use($currency){
+            return $row->price.$currency->symbol;
+        })
+        ->addColumn('discounts', function($row){
+            if($row->discount > 0){
+                return $row->discount.'%';
+            }else{
+                return '';
+            }            
+        })
+        ->addColumn('iva', function($row){
+            return $row->iva.'%';
+        })
+        ->addColumn('amount', function($row) use($currency){
+            $amount = helpers::itemAmount($row, true);
+            return $amount['amount_without_discount'].$currency->symbol;
+        })
+        ->addColumn('acciones', function($row){
+            return view('admin.products.partials.dt-actions-sales', compact('row'));    
+        })
+        ->rawColumns(['order'])
+        ->make(true);
+    }
+
+    /**
+     * 12. Pedidos de compra del producto.
+     */
+    public function purchaseOrders(Request $request, $product_id){
+        if($request->ajax()){ 
+            $data = Order::select('orders.id', 'orders.name', 'orders.order_num', 'orders.order_old_num', 'companies.name AS company')
+            ->join('items', 'orders.id', '=', 'items.order_id')
+            ->join('product_providers', 'items.product_id', '=', 'product_providers.provider_product_id')
+            ->join('companies', 'orders.provider_id', '=', 'companies.id')
+            ->where('product_providers.customer_product_id', $product_id)
+            ->where('orders.customer_id', session('currentCompany'))
+            ->whereIn('orders.order_status', [1,10,20,70])
+            ->orderBy('orders.created_at', 'ASC')
+            ->get();
+
+            return response()->json($data);
+        }    
     }
 }
