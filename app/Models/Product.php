@@ -47,7 +47,7 @@ class Product extends Model{
      * $for_dt -> indica si es para DataTables.
      */
     public static function companyProducts($company_id, $customer_id, $sale = true, $status = true, $limit = false, $for_dt = false){
-        $q = Product::select('id', 'name', 'price', 'iva', 'calculated_by_percent', 'translations', 'description', 'on_sale', 'cost_center_id', 'batch', 'status', 
+        $q = Product::select('id', 'name', 'ref', 'price', 'iva', 'calculated_by_percent', 'translations', 'description', 'on_sale', 'cost_center_id', 'batch', 'status', 
             DB::raw('(SELECT doc FROM product_docs WHERE product_id = products.id AND featured = 1 LIMIT 1) AS Image'),
             DB::raw('(SELECT price FROM customer_products WHERE product_id = products.id AND provider_id = '.$company_id.' AND customer_id = '.$customer_id.') AS priceForCustomer')
         )

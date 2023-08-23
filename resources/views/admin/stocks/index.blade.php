@@ -213,6 +213,7 @@
                         <input type="hidden" name="stock_id" id="stockId">
                         <input type="hidden" name="product_id" id="stockProductId">
                         <input type="hidden" name="store_id" id="stockStoreId">
+                        <input type="hidden" name="batch_id" id="stockBatchId">
 
                         <div class="form-group row mt-4">
                             {{-- Movimiento stock --}}
@@ -231,19 +232,27 @@
                         <div class="form-group row" id="withBatch">
                             {{-- Lotes --}}
                             <label for="batch" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.lote')) !!}</label>
-                            <div class="col-lg-2">
-                                <x-select name="batch" class="select2 desactivado" id="batches" label="lote_selec" :options="[]"/>
+                            <div class="col-lg-4">
+                                <x-select name="batch" class="select2 aboutBatch" id="batches" label="lote_selec" :options="[]"/>
                             </div>
 
                             {{-- Nuevo lote --}}
                             <label for="new_batch" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.lote_nuevo')) !!}</label>
-                            <div class="col-lg-2">
-                                <x-input type="text" class="desactivado" id="newBatch" name="new_batch" autocomplete="off" maxlength="25"/>
+                            <div class="col-lg-4 mb-3">
+                                <x-input type="text" class="aboutBatch" id="newBatch" name="new_batch" autocomplete="off" maxlength="25"/>
                             </div>
+
+                            {{-- Patrones de lotes --}}
+                            @if(count($batch_patterns))
+                                <label for="pattern_id" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.patrones')) !!}</label>
+                                <div class="col-lg-4">
+                                    <x-select name="pattern_id" class="select2 aboutBatch" id="batchPattern" label="lotes_patrones" :options="$batch_patterns"/>    
+                                </div>
+                            @endif
 
                             {{-- Fecha caducidad --}}
                             <label for="expiry_date" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.lote_caducidad')) !!}</label>
-                            <div class="col-lg-2">
+                            <div class="col-lg-4">
                                 <x-date-picker name="expiry_date" id="expiryDate" :format="$languages[config('app.locale')][4]" disabled/>
                             </div>
                         </div>
@@ -252,7 +261,7 @@
                             {{-- Pedidos --}}
                             <label for="order" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.pedido')) !!}</label>
                             <div class="col-lg-4">
-                                <x-select name="order" class="select2 desactivado" id="orders" label="pedido_selec" :options="[]"/>    
+                                <x-select name="order" class="select2" id="productOrders" label="pedido_selec" :options="[]"/>    
                             </div>
                         </div>
 
@@ -321,7 +330,7 @@
 //Acciones al seleccionar producto:
 function selectProduct(products, currency, product_id){
     $('#stockProductId').val(product_id);
-    $('#stockMov, #stockQty, #batches, #newBatch').prop('disabled', true);
+    $('#stockMov, #stockQty, #batches, #newBatch', '#batchPattern').prop('disabled', true);
     $('#tblStoresStock tbody').empty();
 
     //Stock por almacenes:
@@ -385,8 +394,10 @@ function selectProduct(products, currency, product_id){
             if(response){
                 $('#batches').empty(); //.append('<option value="">Selecciona lote</option>');
                 response.forEach(function (item, index, arr){
-                    var option = '<option value="'+item.id+'">'+item.batch_num+'</option>';
-                    $('#batches').append(option);
+                    if(item.batch_num != '{{ config('constants.NOBATCH_') }}'){
+                        var option = '<option value="'+item.id+'">'+item.batch_num+'</option>';
+                        $('#batches').append(option);
+                    }
                 });
             }
         });
@@ -396,17 +407,17 @@ function selectProduct(products, currency, product_id){
     }
 }
 
-$(function(){
+$(document).ready(function () {
 	var currency = '{!! $currency->symbol !!}';
 	var products = {!! json_encode($products) !!};
     var movements = {!! json_encode($movements) !!};
     var stores = {!! json_encode($stores_) !!};
     var product_id = @if($product_id) {{ $product_id }} @else false @endif;
 	var product = '';
-    $('#withOrder').hide();
+    $('#withOrder_').hide();
 
     //Inputs inactivos por defecto:
-    $('.desactivado').prop('disabled', true);
+    $('.desactivado, .aboutBatch').prop('disabled', true);
 
     //Producto recibido por parámetro:
     if(product_id){
@@ -433,8 +444,11 @@ $(function(){
         var store = elem.data('store');
         var batch_id = elem.data('batchid');
 
-        //Activamos inputs disabled:
+        //Activamos inputs disabled si no viene declarado el lote:
         $('.desactivado').prop('disabled', false);
+        if(batch_id == ''){
+            $('.aboutBatch').prop('disabled', false);
+        }
 
         $('#tblStoresStock td').removeClass('bg-warning');
         elem.closest('tr').find('td').siblings().addClass('bg-warning');
@@ -442,6 +456,7 @@ $(function(){
         $('#stockId').val(stock_id);
         $('#stockStoreId').val(store_id);
         $('#storeName u').text(store);
+        $('#stockBatchId').val(batch_id);
 
         //Reseteamos las opciones de almacén de destino sin el almacén de origen:
         if(store > 0){
@@ -456,11 +471,11 @@ $(function(){
         }
 
         //Seteando opciones de lote:
-        //if(batch_id != ''){
-            var arr_batches = [batch_id];
-            $('#batches').val(arr_batches);
-            $('#batches').trigger('change');
-        //}
+        // if(batch_id != ''){
+        //     var arr_batches = [batch_id];
+        //     $('#batches').val(arr_batches);
+        //     $('#batches').trigger('change');
+        // }
     });
 
     //Seleccionar tipo de movimiento:
@@ -476,6 +491,33 @@ $(function(){
                 }else{
                     $('.typeX').prop('disabled', true);    
                 }
+
+                //Pedidos de compra del producto:
+                if(item.acronym == 'ep'){
+                    $('#withOrder_').slideDown();
+                    $.get('/admin/products/'+product_id+'/purchase-orders', function (response, state){
+                        if(response){
+                            $('#productOrders').empty();
+                            $('#productOrders').append('<option value="">'+txtPedidoSelec+'</option>');
+                            response.forEach(function (item, index, arr){
+                                var order_num = item.order_num? item.order_num:(item.order_old_num? item.order_old_num:item.id);
+                                var order = item.company+' - '+order_num;
+                                var option_ = '<option value="'+item.id+'">'+order+'</option>';
+                                $('#productOrders').append(option_);
+                            });   
+
+                            $('#productOrders').select2(); 
+                        }
+                    });
+
+                //Pedidos de venta:
+                }else if(item.acronym == 'sp'){
+                    $('#productOrders').empty();
+                    $('#withOrder_').slideDown();
+
+                }else{
+                    $('#withOrder_').slideUp();    
+                }
             }
         });
     });
@@ -485,16 +527,35 @@ $(function(){
         var b = $(this).val();
         if(b > 0){
             $('#newBatch').val('');
+            // $('#batchPattern').val([]);
+            // $('#batchPattern').trigger('change');
+            $('#batchPattern').val(null).trigger('change.select2');
             $('#expiryDate').val('').prop('disabled', true);
         }
     });
     $('#newBatch').on('change', function(){
         var b_ = $(this).val();
         if(b_ != ''){
+            // $('#batches').val([]);
+            // $('#batches').trigger('change'); 
+            $('#batches').val(null).trigger('change.select2');
+            //Fecha caducidad nuevo lote:
+            $('#expiryDate').prop('disabled', false);   
+            // $('#batchPattern').val([]);
+            // $('#batchPattern').trigger('change');
+            $('#batchPattern').val(null).trigger('change.select2');
+        }else{
+            $('#expiryDate').val('').prop('disabled', true);    
+        }
+    });
+    $('#batchPattern').on('change', function(){
+        var b__ = $(this).val();
+        if(b__ != ''){
             $('#batches').val([]);
             $('#batches').trigger('change'); 
             //Fecha caducidad nuevo lote:
-            $('#expiryDate').prop('disabled', false);   
+            $('#expiryDate').prop('disabled', false);  
+            $('#newBatch').val(''); 
         }else{
             $('#expiryDate').val('').prop('disabled', true);    
         }

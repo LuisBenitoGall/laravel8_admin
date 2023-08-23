@@ -11,16 +11,16 @@
 			<div class="modal-body">
 				<p class="text-warning">{!! ucfirst(trans('textos.pedido_adjuntar_aviso')) !!}</p>
 
-				<form method="post" autocomplete="off" action="{{ route('delivery-orders.store') }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
-                    {{ csrf_field() }}
-                    <input type="hidden" name="delivery_id" value="{{ $delivery->id }}">
-                    <input type="hidden" name="return" value="delivery">
-					
-                    <div class="form-group row">
-                    	{{-- Pedidos --}}
-                        <label for="orders" class="col-lg-12">{!! ucfirst(trans('textos.pedidos')) !!}</label>
-                        <div class="col-lg-12">
-                        	@if($orders->count())
+				@if($orders->count())
+					<form method="post" autocomplete="off" action="{{ route('delivery-orders.store') }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
+	                    {{ csrf_field() }}
+	                    <input type="hidden" name="delivery_id" value="{{ $delivery->id }}">
+	                    <input type="hidden" name="return" value="delivery">
+						
+	                    <div class="form-group row">
+	                    	{{-- Pedidos --}}
+	                        <label for="orders" class="col-lg-12">{!! ucfirst(trans('textos.pedidos')) !!}</label>
+	                        <div class="col-lg-12">
 	                        	@php
 								$orders_ = [];
 								foreach($orders as $order){
@@ -34,14 +34,14 @@
 								@endphp
 
 								<x-select name="orders[]" class="select2" :options="$orders_" multiple/>
-							@else
-								<p class="text-center text-warning mt-4">{{ trans('textos.usuarios_no_mas') }}</p>
-							@endif
-                        </div>
-                    </div>
+							</div>
+                    	</div>
 
-                    <x-btn-submit name="submit_save" label="{{ trans('textos.guardar') }}"/>
-                </form>    
+                    	<x-btn-submit name="submit_save" label="{{ trans('textos.guardar') }}"/>
+               		</form>   
+               	@else
+					<h3 class="text-center text-warning mt-4">{{ trans('textos.pedidos_no_existen') }}</h3>
+				@endif 
 			</div>
         </div>
     </div>

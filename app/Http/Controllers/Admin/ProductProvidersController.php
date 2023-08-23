@@ -32,6 +32,7 @@ class ProductProvidersController extends Controller{
      * 3. Guardar correspondencia de producto de proveedor.
      * 3.1. Guardar correspondencia de producto de proveedor desde catálogo de proveedor.
      * 4. Obtener correspondencia de referencia de producto.
+     * 5. Desvincular proveedor.
      */
 
     private $option = 'catalogo';  
@@ -52,6 +53,8 @@ class ProductProvidersController extends Controller{
 
     /**
      * 1. Listado de proveedores por producto.
+     *
+     * Acceden los clientes para listar los proveedores de su producto.
      */
     public function index(Product $product){
         $header = [
@@ -171,7 +174,7 @@ class ProductProvidersController extends Controller{
         //Moneda:
         $currency = $this->currency;
 
-        $data = Product::select('products.id', 'product_providers.provider_product_id', 'product_providers.provider_id', 'product_providers.provider_ref', 'product_providers.provider_product', 'products.name', 'products.ref', 'products.price', 'products.company_id',
+        $data = Product::select('products.id', 'product_providers.id AS ppId', 'product_providers.provider_product_id', 'product_providers.provider_id', 'product_providers.provider_ref', 'product_providers.provider_product', 'products.name', 'products.ref', 'products.price', 'products.company_id',
             DB::raw('(SELECT doc FROM product_docs WHERE product_id = products.id AND featured = 1 LIMIT 1) AS Image'),
             DB::raw('(SELECT price FROM customer_products WHERE product_id = products.id AND provider_id = '.$provider_id.' AND customer_id = '.session('currentCompany').') AS priceForCustomer')
         )
@@ -179,16 +182,17 @@ class ProductProvidersController extends Controller{
         ->where('products.status', 1)
         ->where('products.on_sale', 1)
         ->where('products.company_id', $provider_id)
+        ->whereNull('product_providers.deleted_at')
         ->orderBy('product_providers.provider_product_id', 'DESC')
         ->orderBy('products.name', 'ASC')
         ->groupBy('products.id');
 
         return DataTables::of($data)
         ->editColumn('name', function($row){
-            return $row->name;
+            return $row->name? $row->name:$row->provider_product;
         })
         ->editColumn('ref', function($row){
-            return $row->ref;
+            return $row->ref? $row->ref:$row->provider_ref;
         })
         ->addColumn('image', function($row){
             if($row->Image){
@@ -232,10 +236,14 @@ class ProductProvidersController extends Controller{
             $exist = $this->existRefProviderCustomer($request->customer_product_id, $request->provider_product_id, $request->provider_id);
 
             if(!$exist){
+                $provider_product = Product::select('name', 'ref')->find($request->provider_product_id);
+
                 $row = new ProductProviders();
                 $row->customer_product_id = $request->customer_product_id;
                 $row->provider_product_id = $request->provider_product_id;
                 $row->provider_id = $request->provider_id;
+                $row->provider_ref = $provider_product? $provider_product->name:NULL;
+                $row->provider_product = $provider_product? $provider_product->ref:NULL;
                 $row->save();
 
             }else{
@@ -303,5 +311,17 @@ class ProductProvidersController extends Controller{
 
             return response()->json($data);
         }    
+    }
+
+    /**
+     * 5. Desvincular proveedor.
+     */
+    public function destroy(ProductProviders $provider){
+        $product_id = $provider->customer_product_id;
+
+        $provider->delete();
+
+        $msg = trans('textos.proveedor_desvinculado');
+        return redirect()->route('product-providers.index', $product_id)->with(compact('msg'));  
     }
 }
