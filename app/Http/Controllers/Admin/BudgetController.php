@@ -601,7 +601,7 @@ class BudgetController extends Controller{
         $customers = Company::where('companies.status', 1)
         ->join('customer_providers', 'companies.id', '=', 'customer_providers.customer_id')
         ->where('companies.id', '!=', $order->provider_id)
-        ->where('companies.id', '!=', $order->customer_id)
+        //->where('companies.id', '!=', $order->customer_id)
         ->where('customer_providers.provider_id', $order->provider_id)
         ->orderBy('companies.name', 'ASC')
         ->pluck('companies.name', 'companies.id')
