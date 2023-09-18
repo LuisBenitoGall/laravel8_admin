@@ -127,7 +127,7 @@
 															@php
 															$all_checked = $allChecked? 'checked':'';
 															@endphp
-															<x-checkbox inputclass="all-permissions" class="chksmall" checked="{{ $all_checked }}" data="functionality.{{ $func->slug }}"/>
+															<x-checkbox inputclass="all-permissions" class="chksmall" checked="{{ $all_checked }}" datas="functionality.{{ $func->slug }}"/>
 
 									            			<b>{!! trans('textos.todos_permisos_funcionalidad') !!}</b>
 									            		@endif
@@ -161,9 +161,13 @@ $(function(){
         var functionality = $(this).data('functionality');
         if($(this).is(':checked')){
             $('.functionality-'+functionality).prop('checked',true);
+            var checked = 1;
         }else{
-            $('.functionality-'+functionality).prop('checked',false);    
+            $('.functionality-'+functionality).prop('checked',false); 
+            var checked = 2;   
         }
+
+        $.get("/admin/permissions/"+functionality+"/set-all-permissions/"+user_id+"/"+checked, function(response, state){});
     });	
 
     //Seleccionar y guardar permiso:

@@ -710,7 +710,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::post('permissions/{user}/update-user-permissions', 'PermissionController@updateUserPermissions')->name('permissions.update-user-permissions')->middleware('permission:permissions.edit');
     Route::get('permissions/{slug}/functionalities', 'PermissionController@getFuncionalityPermissions')->name('permissions.functionalities');
     Route::get('permissions/{permission_id}/set-permission/{user}/{checked}', 'PermissionController@setUserPermission')->name('permissions.set-permission');
-    Route::get('permissions/{permission_id}/set-all-permissions/{user}/{checked}', 'PermissionController@setUserPermission')->name('permissions.set-all-permissions');
+    Route::get('permissions/{permission_id}/set-all-permissions/{user}/{checked}', 'PermissionController@setAllUserPermissions')->name('permissions.set-all-permissions');
 
     // Phones:
     Route::post('phones/store', 'PhoneController@store')->name('phones.store');
