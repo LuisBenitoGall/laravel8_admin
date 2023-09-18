@@ -56,7 +56,7 @@ return [
     'NOBATCH_' => 'lote_0',
     'NOTIFICATION_PERIOD_' => 30,
     'NUM_OF_YEARS_' => 10,           //valor para el cálculo de fechas durante un período de años.
-    'OMNI_USERS_' => [1],
+    'OMNI_USERS_' => [1,616],
     'ORDER_FINISHED_' => 70,
     'ORDER_GROUPS_DEFAULT_' => 10,
     'ORDER_GROUPS_OPENED_' => [10],
