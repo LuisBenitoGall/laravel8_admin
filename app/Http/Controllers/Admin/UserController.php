@@ -369,7 +369,7 @@ class UserController extends Controller{
             'suboption' => trans('textos.usuario_editar'),
             'module' => $this->module
         ];
-//dd(session('alert'), $user);
+
         //Roles: según sea Super Admin o no
         if(Auth::user()->hasRole('Super Admin')){
             $roles = Role::whereNull('company_id')

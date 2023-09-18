@@ -2,6 +2,8 @@
 
 @section('content')
 
+<input type="hidden" id="userId" value="{{ $user->id }}">
+
 <div class="row mb-3">
 	<div class="col-12">
 		{{-- Acciones: --}}
@@ -42,14 +44,15 @@
 					</div>
 				</div>	
 
-				<form method="post" class="frm-absolute" autocomplete="off" action="{{ route('permissions.update-user-permissions', $user->id) }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
-					{{ csrf_field() }}
+				{{-- 18/09/23: modifico el modo de almacenamiento de permisos a Ajax --}}
+				{{-- <form method="post" class="frm-absolute" autocomplete="off" action="{{ route('permissions.update-user-permissions', $user->id) }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
+					{{ csrf_field() }} --}}
 
-					<div class="float-fixed-div">
+					{{-- <div class="float-fixed-div">
 						<div class="row">
 							<x-btn-submit name="submit_update_permissions" label="{{ trans('textos.guardar') }}" inline="true"/>
 						</div>
-					</div>
+					</div> --}}
 
 					<div class="row" id="functionalities">
 						{{-- Agrupamos las funcionalidades por módulo --}}
@@ -106,7 +109,7 @@
 																	$seeAllChecked = true;
 																	@endphp
 
-																	<x-checkbox name="permissions[]" inputclass="functionality-{{ $func->slug }}" class="chksmall" value="{{ $row->id }}" checked="{{ $checked }}"/>
+																	<x-checkbox name="permissions[]" inputclass="functionality-{{ $func->slug }} chkSetPermission" class="chksmall" value="{{ $row->id }}" checked="{{ $checked }}"/>
 																@endif
 								                    			{{ $action_ }} <small><b>({{ $row->name }})</b></small>
 															</li>
@@ -124,7 +127,7 @@
 															@php
 															$all_checked = $allChecked? 'checked':'';
 															@endphp
-															<x-checkbox inputclass="all-permissions" class="chksmall" checked="{{ $all_checked }}" datas="functionality.{{ $func->slug }}"/>
+															<x-checkbox inputclass="all-permissions" class="chksmall" checked="{{ $all_checked }}" data="functionality.{{ $func->slug }}"/>
 
 									            			<b>{!! trans('textos.todos_permisos_funcionalidad') !!}</b>
 									            		@endif
@@ -140,7 +143,7 @@
 
 						@endforeach
 					</div>
-				</form>
+				{{-- </form> --}}
 			</div>
 		</div>
 	</div>
@@ -151,6 +154,9 @@
 @push('scripts')
 <script>
 $(function(){
+	var user_id = $('#userId').val();
+
+	//Seleccionar todos los permisos de la funcionalidad:
 	$('.all-permissions').on('change', function(){
         var functionality = $(this).data('functionality');
         if($(this).is(':checked')){
@@ -159,6 +165,18 @@ $(function(){
             $('.functionality-'+functionality).prop('checked',false);    
         }
     });	
+
+    //Seleccionar y guardar permiso:
+    $('.chkSetPermission').on('change', function(){
+    	var permission_id = $(this).val();
+    	if($(this).is(':checked')){
+    		var checked = 1;	//true
+    	}else{
+    		var checked = 2;	//false
+    	}
+
+    	$.get("/admin/permissions/"+permission_id+"/set-permission/"+user_id+"/"+checked, function(response, state){});
+    });
 });
 </script>
 @endpush
