@@ -238,7 +238,7 @@ class PermissionController extends Controller{
         if($request->ajax()){ 
             //Guardar o...
             if($checked == 1){
-                $permission = Permission::find($permission_id);
+                $user->givePermissionTo($permission_id);
 
             //... Eliminar:    
             }else{
@@ -252,8 +252,25 @@ class PermissionController extends Controller{
      */
     public function setAllUserPermissions(Request $request, $functionality, User $user, $checked){
         if($request->ajax()){ 
+            $permissions = Permission::select('id')
+            ->where('name', 'LIKE', $functionality.'.%')
+            ->get();
 
+            //Guardar o...
+            if($checked == 1){  
+                foreach($permissions as $p){
+                    //Comprobamos que el usuario no tenga ya el permiso:
+                    if(!$user->hasDirectPermission($p->id)){
+                        $user->givePermissionTo($p->id);    
+                    }     
+                }
 
+            //... Eliminar:    
+            }else{
+                foreach($permissions as $p){
+                    $user->revokePermissionTo($p->id);
+                }
+            }
         }
     }
 
