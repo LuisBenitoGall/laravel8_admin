@@ -27,6 +27,7 @@ class PermissionController extends Controller{
      * 3. Eliminar permiso.
      * 4. Permisos por usuario.
      * 5. Actualizar permisos de usuario.
+     * 5.1. Setear permiso por usuario.
      * 6. Permisos por funcionalidad.
      */
     
@@ -176,6 +177,7 @@ class PermissionController extends Controller{
      * @return \Illuminate\Http\Response
      */
     public function updateUserPermissions(Request $request, User $user){
+
         //Borramos los permisos anteriores:
         $user_permissions = $user->permissions;
         foreach($user_permissions as $p){
@@ -227,6 +229,32 @@ class PermissionController extends Controller{
 
         $msg = trans('textos.permiso_updated');
         return redirect()->route('permissions.user', [$user->id])->with(compact('msg'));
+    }
+
+    /**
+     * 5.1. Setear permiso por usuario.
+     */
+    public function setUserPermission(Request $request, $permission_id, User $user, $checked){
+        if($request->ajax()){ 
+            //Guardar o...
+            if($checked == 1){
+                $permission = Permission::find($permission_id);
+
+            //... Eliminar:    
+            }else{
+                $user->revokePermissionTo($permission_id);      
+            }
+        }    
+    }
+
+    /**
+     * 5.2. Setear permisos de funcionalidad por usuario.
+     */
+    public function setAllUserPermissions(Request $request, $functionality, User $user, $checked){
+        if($request->ajax()){ 
+
+
+        }
     }
 
     /**

@@ -75,6 +75,7 @@ class User extends Authenticatable{
         'birthday' => 'date',
         'isAdmin' => 'boolean',
     ];
+
     /**
      * The accessors to append to the model's array form.
      *
@@ -83,6 +84,27 @@ class User extends Authenticatable{
     protected $appends = [
         'profile_photo_url',
     ];
+
+    /**
+     * Accessor nombre completo.
+     */
+    public function getFullNameAttribute(){
+        return $this->name.' '.$this->surname;
+    }
+
+    /**
+     * Mutator custom nombre.
+     */
+    public function setNameAttribute($value){
+        $this->attributes['name'] = ucfirst(strtolower($value));
+    }
+
+    /**
+     * Mutator custom apellidos.
+     */
+    public function setSurnameAttribute($value){
+        $this->attributes['surname'] = ucfirst(strtolower($value));
+    }
 
     /**
      * 1. Empresas del usuario.
