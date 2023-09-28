@@ -126,8 +126,9 @@
 														@if($seeAllChecked && Auth::user()->hasRole('Super Admin'))
 															@php
 															$all_checked = $allChecked? 'checked':'';
+															$datas = 'functionality.'.$func->slug;
 															@endphp
-															<x-checkbox inputclass="all-permissions" class="chksmall" checked="{{ $all_checked }}" datas="functionality.{{ $func->slug }}"/>
+															<x-checkbox inputclass="all-permissions" class="chksmall" checked="{{ $all_checked }}" datas="{{ $datas }}"/>
 
 									            			<b>{!! trans('textos.todos_permisos_funcionalidad') !!}</b>
 									            		@endif

@@ -1300,7 +1300,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::get('workplaces/{workplace}/{business_relationship}/featured', 'WorkplaceController@featured')->name('workplaces.featured')->middleware('permission:workplaces.edit');
 
     // Work User Calendar:
-    Route::get('work-user-calendar/{user}/{year?}', 'WorkUserCalendarController@index')->name('work-user-calendar.index')->where('year', '[0-9]+');
+    Route::get('work-user-calendar/{user?}/{year?}', 'WorkUserCalendarController@index')->name('work-user-calendar.index')->where('year', '[0-9]+');
     Route::post('work-user-calendar', 'WorkUserCalendarController@calendarBy')->name('work-user-calendar.calendar-by');
     Route::get('work-user-calendar-notify/{user}/notify-days', 'WorkUserCalendarController@notify')->name('work-user-calendar-notify.notify-days');
     Route::post('work-user-calendar/validate-all', 'WorkUserCalendarController@validateAll')->name('work-user-calendar.validate-all');
