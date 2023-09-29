@@ -2221,18 +2221,20 @@ class Helpers{
 	    //Guardamos el importe sin IVA (base imponible) para posteriores operaciones:
 	    $tax_base = $amount;
 
+	    //Descontando IRPF:
+        //29/09/23: se modifica la fórmula a base - irpf
+        $irpf_amount = 0;
+        if($item->irpf > 0){
+            $irpf_amount = helpers::percent($amount, $item->irpf);
+        }
+
         //IVA:	
         if($item->iva > 0 && $with_iva){
         	$percent = ($amount * $item->iva) / 100;
         	$amount = round($amount + $percent, 2);
         }
 
-        //Descontando IRPF:
-        //29/09/23: se modifica la fórmula a (base + iva) - irpf:
-        if($item->irpf > 0){
-            $irpf_percent = helpers::percent($amount, $item->irpf);
-            $amount = $amount - $irpf_percent;
-        }
+        $amount = $amount - $irpf_amount;
 
         //Recargo de equivalencia. Se obtiene sobre la base imponible y se suma al importe total añadido ya el IVA u otros impuestos que pueda haber.
         if($with_equivalence_surcharge && $with_iva && $item->equivalence_surcharge > 0){
