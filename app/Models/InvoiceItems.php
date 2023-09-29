@@ -108,7 +108,9 @@ class InvoiceItems extends Model{
         ->first();
 
         if($row){
-            $amount = helpers::itemAmount($item);
+            $with_iva = $row->iva > 0? true:false;
+
+            $amount = helpers::itemAmount($item, $with_iva);
             
             $row->qty = $item->qty;
             $row->price = $item->price;
