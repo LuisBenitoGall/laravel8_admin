@@ -129,7 +129,7 @@ En el archivo config/constants.php se definen constantes personalizadas.
 - Emails:
 	- SMTP ADN: erp@weareadn.com
 	- mail host: smtp.gmail.com
-	- pwd email: ERPADN2020
+	- pwd email: bwducgbggazgiolz
 	- pwd app (password que utiliza la app para el SMTP): rukjilbsjmylwxzj
 	- tlf. doble verificación: 600 578 602 (Lluis Benito)
 
