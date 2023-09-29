@@ -41,11 +41,6 @@ class InvoiceItems extends Model{
 
         //En caso de que la factura tenga importe y no se encuentren líneas de factura, se recuperan del pedido hasta cuadrar el importe de la factura.
         if(!$items->count() && $invoice->amount > 0){
-
-
-            //dd('dentro', $items->count(), $invoice->amount);
-
-
             $order_items = Item::select('id', 'qty', 'price', 'item_no_price', 'iva', 'discount', 'calculated_by_percent', 'days', 'days_continue', 'days_continue_discount')
             ->where('order_id', $invoice->order_id)
             //->whereNotNull('invoiced')
