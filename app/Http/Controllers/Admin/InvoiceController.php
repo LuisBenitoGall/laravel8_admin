@@ -862,6 +862,22 @@ class InvoiceController extends Controller{
                 ->withInput();
         }
 
+        //Comprobando que no exista la factura previamente:
+        $invoiceNum = $request->invoice_old_num;
+        $exist = Invoice::select('invoices.id')
+        ->join('orders', 'invoices.order_id', '=', 'orders.id')
+        ->where('orders.provider_id', $request->provider_id)
+        ->where(function($query) use ($invoiceNum){  
+            $query->where('invoice_num', '=', $invoiceNum) 
+            ->orWhere('invoice_old_num', '=', $invoiceNum);
+        })
+        ->first();
+        if($exist){
+            $alert = trans('textos.factura_existe');
+            return redirect()->route('invoices.store-from-provider')->with(compact('alert'));   
+            exit;  
+        }
+
         //Formateando fechas:
         $fiscal_date = $request->fiscal_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->fiscal_date):$request->fiscal_date:NULL;
         $expiration_date = $request->expiration_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->expiration_date):$request->expiration_date:NULL;
