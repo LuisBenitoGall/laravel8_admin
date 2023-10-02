@@ -205,7 +205,13 @@ $bg_color = $bn? '#000':($company_settings->base_color_invoices? $company_settin
 						{{ ucfirst(trans('textos.pedido_num')) }}	
 					</th>
 					<th style="background-color: {{ $bg_color }}; text-align: center;">
+						{{ ucfirst(trans('textos.orden_compra_num')) }}	
+					</th>
+					<th style="background-color: {{ $bg_color }};">
 						{{ ucfirst(trans('textos.pedido')) }}	
+					</th>
+					<th style="background-color: {{ $bg_color }}; text-align: center;">
+						{{ ucfirst(trans('textos.importe')) }}	
 					</th>
 				</tr>
 			</thead>
@@ -213,11 +219,23 @@ $bg_color = $bn? '#000':($company_settings->base_color_invoices? $company_settin
 			<tbody>
 				@foreach($suborders as $row)
 					<tr>	
-						<td class="text-right">
+						<td style="text-align: right">
 							<b>{{ $row->order_num }}</b>
+						</td>
+						<td style="text-align: right">
+							@php
+							$purchaseNum = $row->purchase_num? $row->purchase_num:($row->purchase_old_num? $row->purchase_old_num:'');
+							@endphp
+							{{ $purchaseNum }}
 						</td>
 						<td>
 							{{ $row->name }}
+						</td>
+						<td style="text-align: right">
+							@php
+							$amount = $row->getAmount();
+							@endphp
+							{{ $amount['total_amount'] }}{{ $currency->symbol }}
 						</td>
 					</tr>
 				@endforeach
