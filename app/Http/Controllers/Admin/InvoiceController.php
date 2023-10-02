@@ -1556,7 +1556,7 @@ class InvoiceController extends Controller{
         if($invoice_order->is_group){
             $items = false;
 
-            $suborders = Order::select('orders.id', 'orders.order_num', 'orders.name', 'orders.purchase_num', 'orders.budget_num', 'orders.discount', 'orders.invoiced', 'orders.order_status')
+            $suborders = Order::select('orders.id', 'orders.order_num', 'orders.name', 'orders.purchase_num', 'orders.purchase_old_num', 'orders.budget_num', 'orders.discount', 'orders.invoiced', 'orders.order_status')
             ->where('orders.order_parent', $invoice_order->id)
             ->get();
 
