@@ -29,6 +29,7 @@ class PermissionController extends Controller{
      * 5. Actualizar permisos de usuario.
      * 5.1. Setear permiso por usuario.
      * 6. Permisos por funcionalidad.
+     * 7. Activar permiso módulo.
      */
     
     private $option = 'configuracion';
@@ -238,6 +239,9 @@ class PermissionController extends Controller{
         if($request->ajax()){ 
             //Guardar o...
             if($checked == 1){
+                //Verificamos que tenga habilitado el módulo:
+                $this->setModulePermission($user, $permission_id);
+
                 $user->givePermissionTo($permission_id);
 
             //... Eliminar:    
@@ -259,6 +263,9 @@ class PermissionController extends Controller{
             //Guardar o...
             if($checked == 1){  
                 foreach($permissions as $p){
+                    //Verificamos que tenga habilitado el módulo:
+                    $this->setModulePermission($user, $p->id);
+
                     //Comprobamos que el usuario no tenga ya el permiso:
                     if(!$user->hasDirectPermission($p->id)){
                         $user->givePermissionTo($p->id);    
@@ -284,5 +291,29 @@ class PermissionController extends Controller{
         ->get();
 
         return response()->json($data);
+    }
+
+    /**
+     * 7. Activar permiso módulo.
+     */
+    public function setModulePermission($user, $permission_id){
+        $permission = Permission::select('id', 'name')->find($permission_id);
+
+        if($permission){
+            //Partes:
+            $p = explode('.', $permission->name);
+
+            $func = Functionality::select('id', 'module_id')
+            ->where('slug', $p[0])
+            ->first();
+
+            $module = Module::select('slug')->find($func->module_id);
+
+            $permission = 'module_'.$module->slug;
+
+            if(!$user->hasDirectPermission($permission)){
+                $user->givePermissionTo($permission);    
+            }
+        }
     }
 }
