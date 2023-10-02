@@ -4,10 +4,12 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 
 //Models:
 use App\Models\Project;
+use App\Models\GroupMembers;
 
 class ProjectGetMiddleware{
     /**
@@ -18,18 +20,37 @@ class ProjectGetMiddleware{
      * @return mixed
      */
     public function handle(Request $request, Closure $next){
-        $company = Project::select('company_id')->find($request->segments()[2]);
+        $project = Project::select('id', 'company_id', 'owner', 'team', 'groups')->find($request->segments()[2]);
 
-        if(!$company){
+        if(!$project){
             $alert = trans('textos.registro_inexistente');
             return redirect()->route('projects.index')->with(compact('alert'));
             exit; 
         } 
 
-        if($company->company_id != session('currentCompany')){
+        if($project->company_id != session('currentCompany')){
             $alert = trans('textos.no_permisos_accion');   
             return redirect()->route('projects.index')->with(compact('alert'));
             exit; 
+        }
+
+        //Permisos del usuario:
+        $members = $project->team? explode(',', $project->team):[];
+        array_push($members, $project->owner);
+
+        //Equipos:
+        $groups = $project->groups? explode(',', $project->groups):[];
+
+        $group_members = GroupMembers::join('users', 'group_members.user_id', '=', 'users.id')
+        ->where('users.status', 1)
+        ->whereIn('group_members.group_id', $groups)
+        ->pluck('group_members.user_id')
+        ->toArray();
+
+        if(!in_array(Auth::user()->id, $members) && !in_array(Auth::user()->id, $group_members)){
+            $alert = trans('textos.no_permisos_accion');   
+            return redirect()->route('projects.index')->with(compact('alert'));
+            exit;     
         }
 
         return $next($request);

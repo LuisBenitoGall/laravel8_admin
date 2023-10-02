@@ -54,7 +54,7 @@
 		@endcan
 
 		{{-- Adjuntar venta --}}
-		@can('projects.edit')
+		@can(['projects.edit', 'orders.edit'])
         	<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-add-order">
 				<i class="fa fa-plus"></i>
 				{!! ucfirst(trans('textos.venta_add')) !!}
@@ -62,7 +62,7 @@
         @endcan
 
 		{{-- Adjuntar compra --}}
-		@can('projects.edit')
+		@can(['projects.edit', 'orders.edit'])
         	<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-add-purchase">
 				<i class="fa fa-plus"></i>
 				{!! ucfirst(trans('textos.compra_add')) !!}
@@ -70,7 +70,7 @@
         @endcan
 
         {{-- Adjuntar gasto --}}
-        @can('projects.edit')
+        @can(['projects.edit', 'orders.edit'])
         	<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-add-expense">
 				<i class="fa fa-plus"></i>
 				{!! ucfirst(trans('textos.gastos_add')) !!}
@@ -86,10 +86,12 @@
 		@endcan
 
 		{{-- Agrupaciones de proyectos --}}
-		<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-set-group">
-			<i class="fa fa-object-group"></i>
-			{!! ucfirst(trans('textos.proyectos_vinculados')) !!}
-		</a>
+		@can('projects.create')
+			<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-set-group">
+				<i class="fa fa-object-group"></i>
+				{!! ucfirst(trans('textos.proyectos_vinculados')) !!}
+			</a>
+		@endcan
 
         {{-- Estados de tareas --}}
         @can('projects.edit')
@@ -100,10 +102,12 @@
 		@endcan
 
 		{{-- Balance económico --}}
-		<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-economic-balance">
-			<i class="fa fa-chart-bar"></i>
-			{!! ucfirst(trans('textos.balance_economico')) !!}
-		</a>
+		@can('orders.edit')
+			<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-economic-balance">
+				<i class="fa fa-chart-bar"></i>
+				{!! ucfirst(trans('textos.balance_economico')) !!}
+			</a>
+		@endcan
 
 		{{-- Favorito --}}
 		<a href="#" class="btn btn-info btnFav @if($favourite)) selected @endif" rel="tooltip" title="{{ ucfirst(trans('textos.favorito')) }}" data-project="{{ $project->id }}"><i class="fa fa-star"></i></a>

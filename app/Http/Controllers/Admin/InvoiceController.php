@@ -1553,9 +1553,20 @@ class InvoiceController extends Controller{
         ->where('orders.id', $invoice->order_id)
         ->first();
 
-        $items = Item::where('order_id', $invoice_order->id)
-        ->orderBy('concept', 'ASC')
-        ->get();
+        if($invoice_order->is_group){
+            $items = false;
+
+            $suborders = Order::select('orders.id', 'orders.order_num', 'orders.name', 'orders.purchase_num', 'orders.budget_num', 'orders.discount', 'orders.invoiced', 'orders.order_status')
+            ->where('orders.order_parent', $invoice_order->id)
+            ->get();
+
+        }else{
+            $items = Item::where('order_id', $invoice_order->id)
+            ->orderBy('concept', 'ASC')
+            ->get();
+
+            $suborders = false;
+        }
 
         //Anticipos:
         //16/10/2022: revisar el campo order_id de las facturas migradas, pues es posible que no esté coincidiendo correctamente.
@@ -1647,7 +1658,7 @@ class InvoiceController extends Controller{
         //Template de factura. Se pasa por variable por si se incluyen más templates.
         $invoice_template = 'pdf/invoice';
 
-        $pdf = PDF::loadView($invoice_template, compact('invoice', 'bn', 'invoice_order', 'items', 'advance_invoices', 'provider', 'customer', 'template', 'fechaLiteral', 'company_settings', 'provider_workplace', 'provider_phones', 'customer_workplace', 'customer_manager', 'currency', 'bank_account', 'provider_bank_account'));
+        $pdf = PDF::loadView($invoice_template, compact('invoice', 'bn', 'invoice_order', 'items', 'suborders', 'advance_invoices', 'provider', 'customer', 'template', 'fechaLiteral', 'company_settings', 'provider_workplace', 'provider_phones', 'customer_workplace', 'customer_manager', 'currency', 'bank_account', 'provider_bank_account'));
         return $pdf->download($invoice_name_pdf.'.pdf'); 
     }
 

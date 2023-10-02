@@ -18,7 +18,7 @@ $bg_color = $bn? '#000':($company_settings->base_color_invoices? $company_settin
 
 <main>
 	{{-- Líneas de la factura --}}
-	@if($items->count() > 0)
+	@if($items && $items->count())
 		@php
 		$arrIva = [];
 
@@ -192,6 +192,35 @@ $bg_color = $bn? '#000':($company_settings->base_color_invoices? $company_settin
 						</tr>
 					@endforeach
 				@endif --}}
+			</tbody>
+		</table>
+	@endif
+
+	{{-- Pedidos de agrupaciones --}}
+	@if($suborders && $suborders->count())
+		<table class="tblBody">
+			<thead>
+				<tr>
+					<th style="background-color: {{ $bg_color }}; text-align: center;">
+						{{ ucfirst(trans('textos.pedido_num')) }}	
+					</th>
+					<th style="background-color: {{ $bg_color }}; text-align: center;">
+						{{ ucfirst(trans('textos.pedido')) }}	
+					</th>
+				</tr>
+			</thead>
+
+			<tbody>
+				@foreach($suborders as $row)
+					<tr>	
+						<td class="text-right">
+							<b>{{ $row->order_num }}</b>
+						</td>
+						<td>
+							{{ $row->name }}
+						</td>
+					</tr>
+				@endforeach
 			</tbody>
 		</table>
 	@endif
