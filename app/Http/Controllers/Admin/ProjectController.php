@@ -139,6 +139,7 @@ class ProjectController extends Controller{
         $favourites = ProjectFavourite::select('projects.id', 'projects.project_num', 'projects.name', 'projects.hours_forecast', 'projects.hours_worked')
         ->join('projects', 'project_favourites.project_id', '=', 'projects.id')
         ->where('project_favourites.user_id', Auth::user()->id)
+        ->where('projects.company_id', session('currentCompany'))
         ->orderBy('projects.name', 'ASC')
         ->get();
 
