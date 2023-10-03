@@ -174,9 +174,10 @@ class ProjectController extends Controller{
         ->pluck('project_id')
         ->toArray();
 
-        $data = Project::select('projects.id', 'projects.name', 'projects.estimated_delivery_date', 'projects.delivery_date', 'projects.hours_forecast', 'projects.hours_worked', 'projects.completed', 'projects.status', 'projects.created_at', 'companies.name AS customer'
+        $data = Project::select('projects.id', 'projects.name', 'projects.estimated_delivery_date', 'projects.delivery_date', 'projects.hours_forecast', 'projects.hours_worked', 'projects.completed', 'projects.status', 'projects.created_at', 'companies.name AS customer', 'users.name AS nombre', 'users.surname'
         )
         ->leftJoin('companies', 'projects.customer_id', '=', 'companies.id')
+        ->leftJoin('users', 'projects.owner', '=', 'users.id')
         ->where('projects.company_id', session('currentCompany'))
         //Filtro status:
         ->when($arrStatus, function($q) use($arrStatus){
@@ -187,6 +188,9 @@ class ProjectController extends Controller{
         return DataTables::of($data)
         ->addColumn('name', function($row){
             return '<a href="/admin/projects/'.$row->id.'/edit">'.$row->name.'</a>'; 
+        })
+        ->addColumn('manager', function($row){
+            return $row->nombre.' '.$row->surname;
         })
         ->addColumn('customer', function($row){
             return $row->customer;

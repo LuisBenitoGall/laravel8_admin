@@ -6,6 +6,8 @@ use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 //Models:
 use App\Models\Project;
@@ -37,6 +39,11 @@ class ProjectGetMiddleware{
         //Permisos del usuario:
         $members = $project->team? explode(',', $project->team):[];
         array_push($members, $project->owner);
+
+        //Si el usuario en session tiene permisos de SuperAdmin, puede acceder:
+        if(Auth::user()->hasRole(config('constants.SUPER_ADMIN_'))){
+            array_push($members, Auth::user()->id);    
+        }
 
         //Equipos:
         $groups = $project->groups? explode(',', $project->groups):[];
