@@ -1388,7 +1388,8 @@ class InvoiceController extends Controller{
             // }
 
             $invoice->amount = $base_amount;
-            $invoice->amount_with_iva = $invoice_amount;
+            //02/10/23: se suma el ajuste de IVA al importe total con IVA:
+            $invoice->amount_with_iva = $invoice_amount + $invoice->iva_adjust;
             $invoice->save();
         }    
     }
@@ -1478,6 +1479,18 @@ class InvoiceController extends Controller{
                 ->where('irpf', '>', '')
                 ->update(['irpf' => $invoice->irpf]);    
             }
+
+            //Ajuste de IVA:
+            if((float)$request->iva_adjust != $invoice->iva_adjust){
+                $invoice->iva_adjust = (float)$request->iva_adjust;
+
+                //Recalculamos importe con IVA:
+                $percent = helpers::percent($invoice->amount, $invoice->with_iva); 
+                $iva_amount = $invoice->amount + $percent;
+                $invoice->amount_with_iva = $iva_amount + (float)$request->iva_adjust;
+
+                //dd((float)$request->iva_adjust, $invoice->amount, $percent, $iva_amount, $invoice->amount_with_iva);
+            }
         }
 
         if($request->status){
@@ -1553,13 +1566,16 @@ class InvoiceController extends Controller{
         ->where('orders.id', $invoice->order_id)
         ->first();
 
+        //Factura de agrupación:
         if($invoice_order->is_group){
             $items = false;
 
             $suborders = Order::select('orders.id', 'orders.order_num', 'orders.name', 'orders.purchase_num', 'orders.purchase_old_num', 'orders.budget_num', 'orders.discount', 'orders.invoiced', 'orders.order_status')
-            ->where('orders.order_parent', $invoice_order->id)
+            ->join('invoice_orders', 'orders.id', '=', 'invoice_orders.order_id')
+            ->where('invoice_orders.invoice_id', $invoice->id)
             ->get();
 
+        //Factura de pedido simple:
         }else{
             $items = Item::where('order_id', $invoice_order->id)
             ->orderBy('concept', 'ASC')

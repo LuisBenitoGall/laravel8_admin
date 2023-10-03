@@ -32,6 +32,9 @@ class Invoice extends Model{
             $iva_amount = $this->amount;    
         }
 
+        //Ajuste de IVA:
+        $iva_amount = $iva_amount + $this->iva_adjust;
+
         $this->amount_with_iva = $iva_amount;
         $this->save();
     }
@@ -53,6 +56,9 @@ class Invoice extends Model{
             $iva = $i->iva > 0? round(($i->amount * $i->iva) / 100, 2):0;
             $amount_with_iva = $amount_with_iva + $i->amount + $iva;
         }
+
+        //Ajuste de IVA:
+        $amount_with_iva = $amount_with_iva + $this->iva_adjust;
         
         $this->amount = $amount;
         $this->amount_with_iva = $amount_with_iva;
