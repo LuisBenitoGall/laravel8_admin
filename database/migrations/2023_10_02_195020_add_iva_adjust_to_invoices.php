@@ -1,0 +1,29 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+class AddIvaAdjustToInvoices extends Migration{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up(){
+        Schema::table('invoices', function (Blueprint $table){
+            $table->float('iva_adjust', 10, 2)->nullable()->after('amount_with_iva');
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down(){
+        Schema::table('invoices', function (Blueprint $table){
+            $table->dropColumn(['iva_adjust']);
+        });
+    }
+}

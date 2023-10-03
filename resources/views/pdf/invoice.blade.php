@@ -84,6 +84,7 @@ $bg_color = $bn? '#000':($company_settings->base_color_invoices? $company_settin
 
 			<tbody>
 				<tr>
+					<td style="background-color: #efefef; text-align: right;"></td>
 					<td style="background-color: #efefef;"></td>
 					<td colspan="{{ $colspan }}" style="background-color: #efefef;">
 						<b>{{ $invoice_order->name }}</b>	
@@ -202,6 +203,9 @@ $bg_color = $bn? '#000':($company_settings->base_color_invoices? $company_settin
 			<thead>
 				<tr>
 					<th style="background-color: {{ $bg_color }}; text-align: center;">
+						#
+					</th>
+					<th style="background-color: {{ $bg_color }}; text-align: center;">
 						{{ ucfirst(trans('textos.pedido_num')) }}	
 					</th>
 					<th style="background-color: {{ $bg_color }}; text-align: center;">
@@ -216,9 +220,16 @@ $bg_color = $bn? '#000':($company_settings->base_color_invoices? $company_settin
 				</tr>
 			</thead>
 
+			@php
+			$j = 1;
+			@endphp
+
 			<tbody>
 				@foreach($suborders as $row)
 					<tr>	
+						<td style="text-align: right">
+							{{ $j }}
+						</td>
 						<td style="text-align: right">
 							<b>{{ $row->order_num }}</b>
 						</td>
@@ -238,9 +249,17 @@ $bg_color = $bn? '#000':($company_settings->base_color_invoices? $company_settin
 							{{ $amount['total_amount'] }}{{ $currency->symbol }}
 						</td>
 					</tr>
+
+					@php
+					$j++;
+					@endphp
 				@endforeach
 			</tbody>
 		</table>
+
+		@if($j > 17)
+			<div style="page-break-after:always;"></div>
+		@endif
 	@endif
 </main>
 

@@ -128,6 +128,12 @@
 				<x-select name="status" class="select2" label="indica_estado" :options="$estados" value="{{ $invoice->status }}" disabled="{{ $disabled }}"/>	
 			</div>
 		@endif
+
+		{{-- Ajuste IVA --}}
+		<label for="iva_adjust" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.iva_ajuste')) !!}</label>
+		<div class="col-lg-1">
+			<x-input type="text" name="iva_adjust" class="text-right set-decimals" autocomplete="off" maxlength="6" group="right" groupvalue="{{ $currency->symbol }}" value="{{ $invoice->iva_adjust }}"/>
+		</div>
 	</div>
 	
 	@if(!$is_sale)

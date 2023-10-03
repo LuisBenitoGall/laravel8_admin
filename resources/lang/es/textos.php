@@ -1485,6 +1485,7 @@ return array(
 	'items_economicos_filtrar' => 'Filtrar items con valor económico',
 	'items_no_existe' => 'No existen items para este formulario.',
 	'iva' => 'IVA',
+	'iva_ajuste' => 'Ajuste de IVA',
 	'iva_exento' => 'Exento IVA',
 	'iva_incluye' => 'Precio con IVA',
 	'iva_sin' => 'Sin IVA',

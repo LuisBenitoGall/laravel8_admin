@@ -869,8 +869,7 @@ $(document).ready(function(){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
         var from = $('#dtFrom').val();
 
-        //Filters:
-
+        // Filters:
         // Load data from localstorage
         var jsonData = JSON.parse(localStorage.getItem('DataTables_tblBudgets_'+window.location.pathname));
 
@@ -4714,7 +4713,7 @@ $(document).ready(function(){
         $('#tblProjects thead tr').clone(true).appendTo('#tblProjects thead');
         $('#tblProjects thead tr:eq(1) th').each(function(i){
             var title = $(this).text(); 
-            if(i == 5 || i == 6 || i == 7 || i == 9){
+            if(i == 6 || i == 7 || i == 8 || i == 10){
                 $(this).html('');
             }else{
                 let value = jsonData && jsonData.columns[i].search.search ? jsonData.columns[i].search.search : '';
@@ -4749,6 +4748,7 @@ $(document).ready(function(){
             },
             columns: [
                 {data: 'name', name: 'projects.name'},
+                {data: 'manager', name: 'users.name'},
                 {data: 'customer', name: 'companies.name'},
                 {data: 'alta', className: 'text-right'},
                 {data: 'entrega_prevista', className: 'text-right'},
@@ -4768,7 +4768,7 @@ $(document).ready(function(){
 
                 //Total por filtro aplicado:
                 hours_forecast = api
-                .column(5, { search: 'applied' })
+                .column(6, { search: 'applied' })
                 .data()
                 .reduce(function(a, b){
                     return intVal(a) + intVal(b);
@@ -4776,7 +4776,7 @@ $(document).ready(function(){
 
                 //Horas trabajadas:
                 hours_worked = api
-                .column(6, { search: 'applied' })
+                .column(7, { search: 'applied' })
                 .data()
                 .reduce(function(a, b){
                     return intVal(a) + intVal(b);
@@ -4784,7 +4784,7 @@ $(document).ready(function(){
 
                 var pending = hours_forecast - hours_worked;
 
-                $(api.column(5).footer()).html(
+                $(api.column(6).footer()).html(
                     hours_forecast.toFixed(2)+' / '+pending.toFixed(2)
                 );
             }

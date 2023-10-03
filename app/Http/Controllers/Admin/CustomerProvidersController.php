@@ -452,6 +452,7 @@ class CustomerProvidersController extends Controller{
         $data = Company::select('id', 'name')
         ->where('id', '!=', $id)
         ->orWhereNull('id')
+        ->where('status', 1)
         ->orderBy('name', 'ASC')
         ->get();
 
