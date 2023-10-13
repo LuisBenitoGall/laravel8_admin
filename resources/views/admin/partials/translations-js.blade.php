@@ -9,6 +9,7 @@ var txtAgrupacionEliminarConfirm = "{!! trans("textos.agrupacion_eliminar_confir
 var txtAgrupacionVer = "{!! trans("textos.agrupacion_ver") !!}";
 var txtAlmacenConfirmEliminar = "{!! trans("textos.almacen_confirm_eliminar") !!}";
 var txtAlmacenEliminar = "{!! ucfirst(trans("textos.almacen_eliminar")) !!}";
+var txtAlmacenSelec = "{!! ucfirst(trans("textos.almacen_selec")) !!}";
 var txtAny = "{!! ucfirst(trans("textos.any")) !!}";
 var txtArchivoConfirmEliminar = "{!! trans("textos.archivo_confirm_eliminar") !!}";
 var txtArchivoEliminado = "{!! trans("textos.archivo_deleted") !!}";

@@ -921,14 +921,6 @@ class UserController extends Controller{
         }
     }
 
-
-
-
-
-
-
-
-
     /**
      * . Listado de todos los usuarios para DataTable.
      */

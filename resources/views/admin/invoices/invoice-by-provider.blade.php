@@ -95,25 +95,31 @@
 							<x-input type="text" name="invoice_old_num" autocomplete="off" maxlength="150" required/>
 						</div>
 
-						{{-- Fecha fiscal --}}
-						<label for="fiscal_date" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.fecha_fiscal')) !!}</label>
+						{{-- Centros de coste --}}
+						<label for="cost_center" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.centros_coste')) !!}</label>
+						<div class="col-lg-3">
+							<x-select name="cost_center" class="select2" label="centro_coste_selec" :options="$cost_centers"/>	
+						</div>
+					</div>
+
+					<div class="form-group row">
+						{{-- Fecha registro --}}
+						<label for="fiscal_date" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.fecha_registro')) !!}</label>
 						<div class="col-lg-2">
 							<x-date-picker name="fiscal_date" :format="$languages[config('app.locale')][4]"/>
+						</div>
+
+						{{-- Fecha factura --}}
+						<label for="invoice_date" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.fecha_factura')) !!}</label>
+						<div class="col-lg-2">
+							<x-date-picker name="invoice_date" :format="$languages[config('app.locale')][4]"/>
 						</div>
 
 						{{-- Fecha vencimiento --}}
 						<label for="expiration_date" class="col-md-2 col-form-label">{!! ucfirst(trans('textos.fecha_vencimiento')) !!}</label>
 						<div class="col-md-4 col-lg-2">
 							<x-date-picker name="expiration_date" :format="$languages[config('app.locale')][4]"/>
-						</div>
-					</div>
-
-					<div class="form-group row">
-						{{-- Centros de coste --}}
-						<label for="cost_center" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.centros_coste')) !!}</label>
-						<div class="col-lg-3">
-							<x-select name="cost_center" class="select2" label="centro_coste_selec" :options="$cost_centers"/>	
-						</div>
+						</div>	
 					</div>
 
 					{{-- <div class="form-group row"> --}}

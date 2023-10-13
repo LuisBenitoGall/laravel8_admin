@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Yajra\DataTables\DataTables;
+use Carbon\Carbon;
 
 //Models:
 use App\Models\Product;
@@ -68,8 +69,15 @@ class ProductSerialsController extends Controller{
                 return $user->name.' '.$user->surname;
             }
         })
+        ->addColumn('assignment_date', function($row){
+            $user = $row->user();
+            if($user && $user->operation == 's'){
+                return $user->created_at->format($this->languages[session()->get('locale')][4].' H:i:s'); 
+            }
+        })
         ->addColumn('acciones', function($row){
-            return view('admin.product_serials.partials.dt-actions', compact('row'));    
+            $user = $row->user();
+            return view('admin.product_serials.partials.dt-actions', compact('row', 'user'));    
         })
         ->make(true);
     }
@@ -106,5 +114,36 @@ class ProductSerialsController extends Controller{
 
         $msg = trans('textos.serializacion_creada');
         return redirect()->route('products.edit', [$product->id, 'serials'])->with(compact('msg'));
+    }
+
+    /**
+     * 3. Eliminar serial.
+     */
+    public function destroy(ProductSerials $serial){
+        //Comprobamos que el producto no esté asignado a ningún usuario:
+        $stock = Stock::select('stocks.id', 'stocks.operation', 'users.name', 'users.surname')
+        ->leftJoin('users', 'stocks.for_user', '=', 'users.id')
+        ->where('stocks.product_serial_id', $serial->id)
+        ->whereNotNull('stocks.for_user')
+        ->orderBy('stocks.id', 'DESC')
+        ->first();
+
+        if($stock && $stock->operation == 's'){
+            $alert = trans('textos.');
+            return redirect()->route('products.edit', [$serial->product_id, 'serials'])->with(compact('alert'));
+            exit;
+        }
+
+        $serial->delete();
+
+        $msg = trans('textos.serial_deleted');
+        return redirect()->route('products.edit', [$serial->product_id, 'serials'])->with(compact('msg'));
+    }
+
+    /**
+     * 4. Serials por producto.
+     */
+    public function getProductSerials($product_id){
+        
     }
 }

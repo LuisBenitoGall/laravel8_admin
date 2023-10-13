@@ -28,6 +28,7 @@ class BatchController extends Controller{
      * 1.1. Filtro de lotes.
      * 1.2. Listado de lotes para DataTable.
      * 2. Lotes por producto.
+     * 2.1. Lotes producto y almacén.
      * 3. Crear lote.
      * 4. Guardar lote.
      * 5. Editar lote.
@@ -157,6 +158,24 @@ class BatchController extends Controller{
             $data = Batch::select('id', 'batch_num')
             ->where('product_id', $product_id)
             ->groupBy('id')
+            ->get();
+
+            return response()->json($data);
+        }
+    }
+
+    /**
+     * 2.1. Lotes producto y almacén.
+     */
+    public function productBatchesByStore(Request $request, $product_id, $store_id){
+        if($request->ajax()){
+            $data = Stock::select('batches.id', 'batches.batch_num')
+            ->join('batches', 'stocks.batch_id', '=', 'batches.id')
+            ->where('stocks.product_id', $product_id)
+            ->where('stocks.store_id', $store_id)
+            ->where('stocks.result', '>', 0)
+            ->orderBy('stocks.created_at', 'DESC')
+            ->groupBy('stocks.batch_id')
             ->get();
 
             return response()->json($data);

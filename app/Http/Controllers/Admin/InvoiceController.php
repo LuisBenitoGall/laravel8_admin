@@ -616,6 +616,15 @@ class InvoiceController extends Controller{
         ->first();
         $provider_bank_account = $provider_bank_account_? $provider_bank_account_->id:NULL;
 
+        //Configuraciones de proveedor:
+        $provider_settings = CustomerProviders::select('accounting_concept_id', 'pay_after_days', 'payday', 'payment_method_id')
+        ->where('customer_id', $order->customer_id)
+        ->where('provider_id', $order->provider_id)
+        ->first();
+
+        //Cálculo fecha vencimiento:
+        $expiration_date = helpers::calculateExpirationDate(date('Y-m-d'), $provider_settings->pay_after_days, $provider_settings->payday);
+
         //Creamos cabecera de la factura, para poder utilizar su id:
         $invoice = new Invoice();
         $invoice->order_id = $order->id;
@@ -624,6 +633,7 @@ class InvoiceController extends Controller{
         $invoice->with_iva = CompanySettings::co_iva();
         $invoice->amount_with_iva = $amount_with_iva;
         $invoice->fiscal_date = date('Y-m-d');
+        $invoice->expiration_date = $expiration_date;
         $invoice->bank_account_id = $bank_account;
         $invoice->provider_bank_account_id = $provider_bank_account;
         $invoice->status = config('constants.INVOICE_OPEN_');
@@ -880,9 +890,11 @@ class InvoiceController extends Controller{
 
         //Formateando fechas:
         $fiscal_date = $request->fiscal_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->fiscal_date):$request->fiscal_date:NULL;
+        $invoice_date = $request->invoice_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->invoice_date):$request->invoice_date:NULL;
         $expiration_date = $request->expiration_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->expiration_date):$request->expiration_date:NULL;
 
         //Comprobamos si la fecha fiscal es válida, que el mes y año no estén cerrados.
+        //13/10/23 revisar con fiscal la nueva fecha de invoice_date si corresponde con este script.
         if($fiscal_date){
             $no_valid = AccountingOption::validInvoiceDate($fiscal_date, 'p', session('currentCompany'));  
             if($no_valid){
@@ -962,6 +974,7 @@ class InvoiceController extends Controller{
         $inv->amount_with_iva = $invoice_amount;
         $inv->irpf = $request->irpf;
         $inv->fiscal_date = $fiscal_date;
+        $inv->invoice_date = $invoice_date;
         $inv->expiration_date = $expiration_date;
         $inv->user_id = Auth::user()->id;
         $inv->customer_observations = $request->customer_observations;
