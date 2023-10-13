@@ -33,6 +33,9 @@ use App\Models\ProductPatterns;
 use App\Models\ProductPrices;
 use App\Models\ProductProviders;
 use App\Models\ProductUnits;
+use App\Models\StockMovements;
+use App\Models\Store;
+use App\Models\UserCompanies;
 
 class ProductController extends Controller{
     /**
@@ -307,6 +310,9 @@ class ProductController extends Controller{
         // ->orderBy('id', 'ASC')
         // ->get();
         //$serials = false;
+        
+        //Empresa:
+        $company = Company::find(session('currentCompany'));
 
         //Histórico de precios:
         $prices = ProductPrices::where('product_id', $product->id)
@@ -315,6 +321,29 @@ class ProductController extends Controller{
 
         //Centros de coste:
         $cost_centers = CostCenters::where('company_id', session('currentCompany'))
+        ->where('status', 1)
+        ->pluck('name', 'id')
+        ->toArray();
+
+        //Empleados:
+        $employees = UserCompanies::select(
+            DB::raw("CONCAT(users.name,' ',users.surname) AS user"), 'users.id')
+        ->join('users', 'user_companies.user_id', '=', 'users.id')
+        ->where('users.status', 1)
+        ->where('user_companies.company_id', session('currentCompany'))
+        ->orderBy('users.name')
+        ->pluck('user', 'users.id')
+        ->toArray();
+
+        //Movimiento por defecto para asignación de material a usuario.
+        $movement = StockMovements::select('id')
+        ->where('acronym', 'ci')
+        ->where('sign', 'x')
+        ->first();
+
+        //Almacenes de consumo interno.
+        $stores = Store::where('company_id', session('currentCompany'))
+        ->where('type', 'c')
         ->where('status', 1)
         ->pluck('name', 'id')
         ->toArray();
@@ -333,7 +362,7 @@ class ProductController extends Controller{
         //Módulos activos:
         $module_production = $this->settedModule('production');
 
-        return view('admin.products.edit', compact('header', 'product', 'tab', 'productions', 'patterns', 'data_types', 'attributes', 'prices', 'cost_centers', 'currency', 'iva', 'production_status', 'languages', 'module_production'));
+        return view('admin.products.edit', compact('header', 'product', 'tab', 'productions', 'patterns', 'data_types', 'attributes', 'company', 'prices', 'cost_centers', 'employees', 'movement', 'stores', 'currency', 'iva', 'production_status', 'languages', 'module_production'));
     }
 
     /**

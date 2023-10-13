@@ -18,12 +18,12 @@ class ModuleSettedMiddleware{
      * @return mixed
      */
     public function handle(Request $request, Closure $next, $module){
-        $associatedModule = Module::select('id')
+        $associatedModule = Module::select('id', 'name')
             ->where('slug', $module)
             ->first();
 
         if(!session('modules') || !in_array($associatedModule->id, session('modules'))){
-            $alert = trans('textos.no_permisos_accion');
+            $alert = trans('textos.modulo_no_activo', ['module' => $associatedModule->name]);
             return redirect()->route('dashboard')->with(compact('alert'));
         }
         

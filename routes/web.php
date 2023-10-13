@@ -138,6 +138,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::put('batches/{batch}/update', 'BatchController@update')->name('batches.update')->middleware('permission:batches.edit');
     Route::get('batches/{batch}/remove-doc', 'BatchController@removeDoc')->name('batches.remove-doc')->middleware('permission:batches.edit');
     Route::delete('batches/{batch}', 'BatchController@destroy')->name('batches.destroy')->middleware('permission:batches.destroy');
+    Route::get('batches/{product_id}/by-store/{store_id}', 'BatchController@productBatchesByStore')->name('batches.by-store');
 
     // Budget Form Items:
     Route::post('budget-form-items/store', 'BudgetFormItemsController@store')->name('budget-form-items.store')->middleware('permission:budget-forms.edit');
@@ -1072,7 +1073,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::get('stocks/{product_id?}', 'StockController@index')->name('stocks.index')->where('product_id', '[0-9]+');
     Route::get('stocks/{product}/show', 'StockController@show')->name('stocks.show');
     Route::get('stocks/{product_id}/stores-stock', 'StockController@storesStock')->name('stocks.stores-stock');
-    Route::post('stocks.store', 'StockController@store')->name('stocks.store')->middleware('permission:stocks.create');
+    Route::post('stocks/store', 'StockController@store')->name('stocks.store')->middleware('permission:stocks.create');
 
     // Stores:
     Route::get('stores/index/{storeSelected?}', 'StoreController@index')->name('stores.index');

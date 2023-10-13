@@ -338,10 +338,10 @@ function selectProduct(products, currency, product_id){
         if(response){
             var total_stock = 0;
             response.forEach(function (item, index, arr){
-                console.log(item);
+                //console.log(item);
                 total_stock = parseFloat(total_stock) + parseFloat(item.stock);
-                var batch_ = item.batch == 'lote_0'? '':item.batch;
-                var batch_id_ = item.batch != ''? item.batch_id:'';     //Si el producto no tiene gestión de lotes, no se pasa el batch_id.
+                var batch_ = item.batch == 'lote_0' || item.batch == null? '':item.batch;
+                var batch_id_ = item.batch != '' && item.batch != null? item.batch_id:'';     //Si el producto no tiene gestión de lotes, no se pasa el batch_id.
                 var tr = '<tr>';
                     tr += '<td>'+item.store+'</td>';
                     tr += '<td>';
@@ -448,6 +448,8 @@ $(document).ready(function () {
         $('.desactivado').prop('disabled', false);
         if(batch_id == ''){
             $('.aboutBatch').prop('disabled', false);
+        }else{
+            $('.aboutBatch').prop('disabled', true);    
         }
 
         $('#tblStoresStock td').removeClass('bg-warning');

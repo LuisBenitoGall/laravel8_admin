@@ -1,4 +1,13 @@
 @can('products.edit')
+	{{-- Asignar a usuario - condiciones:
+		1. No asignado a ningún usuario.
+	--}}
+	@if(!$user)
+		<a href="#" class="btn btn-xs btn-info btnAssignMaterial" data-serial="{{ $row->id }}" data-toggle="modal" data-target="#modal-assign-material" rel="tooltip" title="{{ trans('textos.asignar_a_empleado') }}">
+			<i class="fa fa-hands"></i>	
+		</a>
+	@endif
+
 	{{-- Ficha de la unidad --}}
 	<a target="_blank" href="{{ route('product-serials-cards.edit', $row->id) }}" class="btn btn-xs btn-info" rel="tooltip" title="{{ trans('textos.ficha_unidad') }}">
 		<i class="fa fa-file-alt"></i>
