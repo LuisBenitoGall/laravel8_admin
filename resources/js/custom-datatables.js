@@ -2244,7 +2244,7 @@ $(document).ready(function(){
             columns: [
                 {data: 'product', name: 'products.name'},
                 {data: 'ref', name: 'products.ref'},
-                {data: 'alta'},
+                {data: 'alta', className: 'text-right'},
                 {data: 'image', className: 'text-center'},
                 {data: 'status', className: 'text-center'},
                 {data: 'acciones', className: 'text-right'}
