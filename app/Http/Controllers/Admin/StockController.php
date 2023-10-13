@@ -202,6 +202,7 @@ class StockController extends Controller{
                             $row = [
                                 'store' => $s->name,
                                 'store_id' => $s->id,
+                                'type' => $s->type,
                                 'batch' => $batch,
                                 'batch_id' => $b->id,
                                 'stock' => $stock? $stock->result:'0',
@@ -216,6 +217,7 @@ class StockController extends Controller{
                             $row = [
                                 'store' => $s->name,
                                 'store_id' => $s->id,
+                                'type' => $s->type,
                                 'batch' => $batch,
                                 'batch_id' => $b->id,
                                 'stock' => $stock? $stock->result:'0',
@@ -230,6 +232,7 @@ class StockController extends Controller{
                     $row = [
                         'store' => $s->name,
                         'store_id' => $s->id,
+                        'type' => $s->type,
                         'batch' => '',
                         'batch_id' => '',
                         'stock' => 0,
@@ -378,6 +381,10 @@ class StockController extends Controller{
                     $batch_num = $patternNum['pattern_num'];
                     $num_cardinal = $patternNum['num'];
                     $pattern_id = $request->pattern_id;
+
+                //Número sin patrón:
+                }else{
+                    $batch_num = trans('textos.lote').'-'.date('YmdHis');
                 }
 
                 $data_batch = [
@@ -406,7 +413,7 @@ class StockController extends Controller{
 
         //Recuperamos última línea del producto, almacén y lote:
         $result = 0;
-        if($request->stock_id){
+        if($request->stock_id || $request->from_environment == 'serial'){
             //request no trae lote en el traspaso entre almacenes
             $last_row = Stock::where('batch_id', $batch->id)
             ->where('product_id', $product->id)
@@ -467,6 +474,7 @@ class StockController extends Controller{
         $stock->doc = $fileName;
         $stock->doc_num = $request->doc_num;
         $stock->for_user = $request->for_user;
+        $stock->product_serial_id = $request->product_serial_id;
         $stock->observations = $request->observations;
         $stock->save();
 
@@ -494,6 +502,7 @@ class StockController extends Controller{
             $stock2->doc = $fileName;
             $stock2->doc_num = $request->doc_num;
             $stock2->for_user = $request->for_user;
+            $stock2->product_serial_id = $request->product_serial_id;
             $stock2->observations = $request->observations;
             $stock2->save();
         }
@@ -512,10 +521,16 @@ class StockController extends Controller{
             ->get();
 
             //11/08/2023: queda por revisar esta lógica.
-        }        
+        }   
 
-        $msg = trans('textos.movimiento_ok');
-        return redirect()->route('stocks.index', $request->product_id)->with(compact('msg'));
+        if($request->from_environment == 'serial'){
+            $msg = trans('textos.material_asignado_aviso');
+            return redirect()->route('products.edit', [$request->product_id, 'serials'])->with(compact('msg'));
+
+        }else{ 
+            $msg = trans('textos.movimiento_ok');
+            return redirect()->route('stocks.index', $request->product_id)->with(compact('msg'));
+        }
     }
    
 }

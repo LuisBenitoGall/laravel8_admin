@@ -75,8 +75,8 @@
 	</div>
 
 	<div class="form-group row">
-		{{-- Fecha fiscal --}}
-		<label for="fiscal_date" class="col-md-2 col-form-label">{!! ucfirst(trans('textos.fecha_fiscal')) !!}</label>
+		{{-- Fecha registro --}}
+		<label for="fiscal_date" class="col-md-2 col-form-label">{!! ucfirst(trans('textos.fecha_registro')) !!}</label>
 		<div class="col-md-4 col-lg-2">
 			@php
 			$fiscal_date = $invoice->fiscal_date != ''? \Carbon\Carbon::parse($invoice->fiscal_date)->format($languages[session()->get('locale')][4]):'';
@@ -92,7 +92,7 @@
 		<div class="col-md-4 col-lg-2">
 			@php
 			//Calculamos la fecha de vencimiento por defecto a partir de los datos de días para vencimiento y día de pago existentes en la configuración entre cliente y proveedor:
-			$default_expiration_date = $invoice->fiscal_date && $provider_settings->pay_after_days && $provider_settings->payday? App\Helpers\helpers::calculateExpirationDate($invoice->fiscal_date, $provider_settings->pay_after_days, $provider_settings->payday):false;
+			$default_expiration_date = $invoice->fiscal_date && $provider_settings->pay_after_days && $provider_settings->payday? App\helpers\helpers::calculateExpirationDate($invoice->fiscal_date, $provider_settings->pay_after_days, $provider_settings->payday):false;
 
 			$expiration_date = $invoice->expiration_date != ''? \Carbon\Carbon::parse($invoice->expiration_date)->format($languages[session()->get('locale')][4]):($default_expiration_date? \Carbon\Carbon::parse($default_expiration_date)->format($languages[session()->get('locale')][4]):'');
 			@endphp	

@@ -16,7 +16,7 @@
 						{{-- Prefijo del serial --}}
                     	<label for="prefix" class="col-lg-3 col-form-label">{!! ucfirst(trans('textos.prefijo')) !!}</label>
 						<div class="col-lg-9">
-							<x-input type="text" name="prefix" autocomplete="off" maxlength="150" required/>
+							<x-input type="text" name="prefix" autocomplete="off" maxlength="150" required value="{{ $company->acronym }}"/>
 						</div>
 					</div>
 

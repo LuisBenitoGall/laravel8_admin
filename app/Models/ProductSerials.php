@@ -22,7 +22,7 @@ class ProductSerials extends Model{
      * 1. Usuario vinculado.
      */
     public function user(){
-        $data = User::select('users.id', 'users.name', 'users.surname', 'stocks.operation')
+        $data = User::select('users.id', 'users.name', 'users.surname', 'stocks.operation', 'stocks.created_at')
         ->join('stocks', 'users.id', '=', 'stocks.for_user')
         ->join('product_serials', 'stocks.product_serial_id', '=', 'product_serials.id')
         ->where('product_serials.id', $this->id)

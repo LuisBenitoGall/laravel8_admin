@@ -39,6 +39,19 @@
         	@endif
         @endcan
 
+        {{-- Lotes del producto - condiciones: 
+			1. Producto con gestión de lotes.
+			2. Permisos de acceso a lotes.
+        --}}
+        @if($product->batch)
+        	@can('batches.index')
+		        <a href="{{ route('batches.index', $product) }}" class="btn btn-info">
+		        	<i class="fa fa-barcode"></i>
+		    		{!! ucfirst(trans('textos.lotes')) !!}
+		    	</a>
+		    @endcan
+		@endif
+
 		{{-- Generar serials --}}
 		<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-add-serials">
 			<i class="fa fa-sort-numeric-down"></i>
@@ -227,8 +240,11 @@
 {{-- Edit attribute --}}
 @include('admin.product_attributes.partials.modal-edit-attribute', ['action' => 'product-attributes.update', 'serial_id' => false])
 
-{{-- Add Serials: --}}
+{{-- Add Serials --}}
 @include('admin.product_serials.partials.modal-add-serials')
+
+{{-- Assign Material --}}
+@include('admin.product_serials.partials.modal-assign-material')
 
 @push('scripts')
 <script>
@@ -275,6 +291,45 @@ $(function(){
                 elem.before('<i class="fa fa-exclamation-triangle check-ko"></i>');
             }
         });  
+    });
+
+    //Número de serial para modal de asignación de material.
+    $(document).on('click', '.btnAssignMaterial', function(e){
+    	e.preventDefault();
+    	var product_id = $('#productId').val();
+    	var serial = $(this).data('serial');
+    	$('#productSerialId').val(serial);
+
+    	//Almacenes regulares con stock:
+    	$.get("/admin/stocks/"+product_id+"/stores-stock", function(response, state){
+    		if(response){	
+    			//console.log(response);
+    			$("#storeOrigin").append('<option value="">' + txtAlmacenSelec + '</option>');
+                for (i = 0; i < response.length; i++) {
+                	if(response[i].stock > 0 && response[i].type == 'r'){
+                    	$("#storeOrigin").append('<option value="' + response[i].store_id + '">' + response[i].store + '</option>');
+                	}
+                }
+    		}
+    	});
+    });
+
+    //Lotes por producto y almacén.
+    $(document).on('change', '#storeOrigin', function(){
+    	var store_id = $(this).val();
+    	var product_id = $('#productId').val();
+
+    	//Lotes por almacén:
+    	$.get("/admin/batches/"+product_id+"/by-store/"+store_id, function(response, state){
+    		if(response){	
+    			console.log(response);
+    			$("#batchId").append('<option value="">' + txtLoteSelec + '</option>');
+                for (i = 0; i < response.length; i++) {
+                	var batch_num = response[i].batch_num? response[i].batch_num:'{{ config('constants.NOBATCH_') }}';
+                	$("#batchId").append('<option value="' + response[i].id + '">' + batch_num + '</option>');
+                }
+    		}
+    	});
     });
 });
 </script>

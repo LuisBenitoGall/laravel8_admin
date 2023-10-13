@@ -2164,35 +2164,6 @@ $(document).ready(function(){
                 {data: 'alta', className: 'text-right'},
                 {data: 'acciones', className: 'text-right'}
             ]
-            // columnDefs: [
-            //     {"targets": 0,
-            //     "render": function(data, type, row){
-            //         return row['name']+' '+row['surname'];
-            //     }
-            //     },
-            //     {"targets": -1,
-            //     "render": function(data, type, row){
-            //         //Estado:
-            //         var checked = (row['responsible'] == 1)? 'checked':'';
-            //         var responsible = '<label class="custom-chk-rdb" rel="tooltip" title="'+txtGrupoResponsable+'">';
-            //             responsible += '<input type="checkbox" name="responsible" '+checked+' ><span class="chk" data-id="'+row['id']+'" data-ctrl="/admin/group_members/responsible"></span>';
-            //         responsible += '</label>';
-
-            //         //Editar:
-            //         var editar = '<a href="#" data-toggle="modal" data-target="#modal-edit-member" data-id="'+row['id']+'" data-member="'+row['name']+' '+row['surname']+'" data-rol="'+row['rol']+'" class="btn btn-xs btn-info btn-module btnEditMember" rel="tooltip" title="'+txtEditar+'"><i class="fa fa-edit"></i></a>';
-
-            //         //Eliminar:
-            //         var eliminar = '<form method="POST" action="/admin/group_members/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
-            //             eliminar += '<input name="_method" type="hidden" value="DELETE">';
-            //             eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
-            //             eliminar += '<input type="hidden" name="group_id" value="'+row['group_id']+'">';
-            //             eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtEliminar+'" data-msg="'+txtMiembroConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
-            //         eliminar += '</form>';
-
-            //         return responsible+' '+editar+' '+eliminar;
-            //     }
-            //     }
-            // ]
         });
     }
 
@@ -2215,6 +2186,29 @@ $(document).ready(function(){
                 {data: 'alta', name: 'alta', className: 'text-right'},
                 {data: 'description'},
                 {data: 'acciones', name: 'acciones', className: 'text-right'}
+            ]
+        });
+    }
+
+    //Tabla Inventory:
+    if($('#tblInventory').length > 0){
+        var tableInventory = $('#tblInventory').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/inventory",
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'product', name: 'products.name'},
+                {data: 'ref', name: 'products.ref'},
+                {data: 'alta'},
+                {data: 'image', className: 'text-center'},
+                {data: 'estado'},
+                {data: 'acciones', className: 'text-right'}
             ]
         });
     }
@@ -4411,6 +4405,7 @@ $(document).ready(function(){
                 {data: 'serial'},
                 {data: 'alta', className: 'text-right'},
                 {data: 'employee'},
+                {data: 'assignment_date', className: 'text-right'},
                 {data: 'acciones', className: 'text-right'}
             ]
         });
