@@ -591,7 +591,8 @@ class Helpers{
 		//Ajustando fecha de pago:
 		$month = $p[1];	
 		$year = $p[0];
-		if($p[2] > $payday){
+		$payday = $p[2];
+		if($payday > 0 && $p[2] > $payday){
 			$month = intval($month) + 1;
 			if($month == 13){
 				$month = 1;
