@@ -1463,6 +1463,7 @@ return array(
 	'inicial' => 'Inicial',
 	'inicio' => 'inicio',
 	'inventario' => 'Inventario',
+	'inventario_ver' => 'Ver inventario',
 	'invitacion_para' => 'Invitación para',
 	'invitacion_reunion' => 'Invitación a reunión',
 	'invitaciones_enviadas' => 'Las invitaciones se han enviado correctamente.',

@@ -2207,9 +2207,31 @@ $(document).ready(function(){
                 {data: 'ref', name: 'products.ref'},
                 {data: 'alta'},
                 {data: 'image', className: 'text-center'},
-                {data: 'estado'},
+                {data: 'status', className: 'text-center'},
                 {data: 'acciones', className: 'text-right'}
             ]
+        });
+
+        $('#tblInventory tbody').on('click', 'td .btnSeeItem', function (e) {
+            e.preventDefault();
+            var tr = $(this).closest('tr');
+            var row = tableInventory.row(tr);
+            var product_id = $(this).data('product');
+            var route = "/api/admin/inventory/" + product_id;
+
+            if (row.child.isShown()) {
+                row.child.hide();
+                tr.removeClass('shown');
+            } else {
+                $.ajax({
+                    url: route,
+                    cache: true
+                })
+                .done(function (data) {
+                    row.child(format(data)).show();
+                    tr.addClass('shown');
+                });
+            }
         });
     }
 
