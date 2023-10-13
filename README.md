@@ -191,6 +191,13 @@ where o.invoiced = true;
 SELECT field, count(*) FROM table
     GROUP BY field
     HAVING COUNT(*)>1;
+
+- Listado de configuración datos de pago por clientes:
+SELECT companies.name, customer_providers.pay_after_days, customer_providers.payday
+FROM customer_providers
+INNER JOIN companies 
+ON customer_providers.customer_id = companies.id
+WHERE customer_providers.provider_id = 4;
    
 
 ### Instalación de Sentry

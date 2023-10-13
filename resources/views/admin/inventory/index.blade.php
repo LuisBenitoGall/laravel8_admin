@@ -18,7 +18,7 @@
 					<th>{!! ucfirst(trans('textos.referencia')) !!}</th>
 					<th class="text-center">{!! ucfirst(trans('textos.fecha_alta')) !!}</th>
 					<th>{!! ucfirst(trans('textos.imagen')) !!}</th>
-					<th>{!! ucfirst(trans('textos.estado')) !!}</th>
+					<th class="text-center">{!! ucfirst(trans('textos.estado')) !!}</th>
 					<th class="text-center">{!! ucfirst(trans('textos.acciones')) !!}</th>
 				</tr>
 			</thead>
