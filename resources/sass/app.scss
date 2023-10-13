@@ -5345,6 +5345,30 @@ body.body-small .footer.fixed {
     min-height: 400px;
 }
 
+.subtable{
+    thead{
+        tr{
+            th{
+                background-color: $yellow_light;
+            }
+        }
+    }
+    tbody{
+        tr{
+            td{
+                background-color: #FFF;
+            }
+        }
+    }  
+    tfoot{
+        tr{
+            td{
+                padding: .75rem !important;
+            }
+        }
+    }
+}
+
 /* PANELS */
 .panel.blank-panel {
   background: none;
