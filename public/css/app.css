@@ -22775,6 +22775,16 @@ body.body-small .footer.fixed {
   min-height: 400px;
 }
 
+.subtable thead tr th {
+  background-color: #FFFFE8;
+}
+.subtable tbody tr td {
+  background-color: #FFF;
+}
+.subtable tfoot tr td {
+  padding: 0.75rem !important;
+}
+
 /* PANELS */
 .panel.blank-panel {
   background: none;
