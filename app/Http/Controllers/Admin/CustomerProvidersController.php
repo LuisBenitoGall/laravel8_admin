@@ -152,6 +152,9 @@ class CustomerProvidersController extends Controller{
 
         $tabla = 'tblCustomers';
 
+        CustomerProviders::whereNull('pay_after_days')
+        ->update(['pay_after_days' => 60]);
+
         //Roles básicos:
         //$basic_roles = $this->companyRoles();
 
