@@ -18,6 +18,7 @@ use File;
 use App\Models\Batch;
 use App\Models\Product;
 use App\Models\Stock;
+use App\Models\Store;
 
 class InventoryController extends Controller{
     /**
@@ -99,17 +100,24 @@ class InventoryController extends Controller{
         ->where('product_id', $product_id)
         ->get();
 
+        $stores = Store::select('id', 'name')
+        ->where('company_id', session('currentCompany'))
+        ->get();
+
         $data = [];
 
         foreach($batches as $b){
-            $stock = Stock::select('result')
-            ->where('batch_id', $b->id)
-            ->orderBy('id', 'DESC')
-            ->first();
+            foreach($stores as $s){
+                $stock = Stock::select('result')
+                ->where('batch_id', $b->id)
+                ->where('store_id', $s->id)
+                ->orderBy('id', 'DESC')
+                ->first();
 
-            if($stock && $stock > 0){
-                $arr = [$b->batch_num, $stock->result];
-                array_push($data, $arr);
+                if($stock && $stock->result > 0){
+                    $arr = [$b->batch_num, $s->name, $stock->result];
+                    array_push($data, $arr);
+                }
             }
         }
 
