@@ -186,7 +186,7 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     Route::get('groups', 'GroupController@getGroupsDT');
 
     //Inventory:
-    Route::get('inventory', 'InventoryController@getInventoryDT')
+    Route::get('inventory', 'InventoryController@getInventoryDT');
     Route::get('inventory/{product_id}', 'InventoryController@getInventoryByProduct');
 
     //InvoiceControl:
