@@ -405,6 +405,11 @@ class FunctionalitiesTableSeeder extends Seeder{
             'label' => 'bancos_cuentas',
             'module' => 'accounting'            
             ],
+            ['name' => 'accounting accounts',
+            'slug' => 'accounting-accounts',
+            'label' => 'cuentas_contables',
+            'module' => 'accounting'            
+            ],
             ['name' => 'accounting concepts',
             'slug' => 'accounting-concepts',
             'label' => 'conceptos_contables',

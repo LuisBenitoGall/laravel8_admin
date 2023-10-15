@@ -63,6 +63,18 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::get('accounting', 'AccountingController@index')->name('accounting.index');
     Route::post('get/device/id', [\App\Http\Controllers\Admin\DevicePushController::class, 'store'])->name('save.push');
 
+    // Accounting Accounts:
+    Route::get('accounting-accounts', 'AccountingAccountController@index')->name('accounting-accounts.index')->middleware('permission:accounting-accounts.index');
+    Route::get('accounting-accounts/create', 'AccountingAccountController@create')->name('accounting-accounts.create')->middleware('permission:accounting-accounts.create');
+    Route::post('accounting-accounts/store', 'AccountingAccountController@store')->name('accounting-accounts.store')->middleware('permission:accounting-accounts.edit');
+    Route::get('accounting-accounts/{account}/edit', 'AccountingAccountController@edit')->name('accounting-accounts.edit')->middleware('permission:accounting-accounts.edit');
+    Route::put('accounting-accounts/{account}/update', 'AccountingAccountController@update')->name('accounting-accounts.update')->middleware('permission:accounting-accounts.edit');
+    Route::get('accounting-accounts/status/{id}/{status}', 'AccountingAccountController@status')->name('accounting-accounts.status')->middleware('permission:accounting-accounts.edit');
+    Route::delete('accounting-accounts/{account}', 'AccountingAccountController@destroy')->name('accounting-accounts.destroy');
+    Route::get('accounting-accounts/{account}/featured', 'AccountingAccountController@featured')->name('accounting-accounts.featured')->middleware('permission:accounting-accounts.edit');
+    Route::get('accounting-accounts/{account}/iva-account', 'AccountingAccountController@ivaAccount')->name('accounting-accounts.iva-account')->middleware('permission:accounting-accounts.edit');
+    Route::post('accounting-accounts/default-accounts', 'AccountingAccountController@defaultAccounts')->name('accounting-accounts.default-accounts')->middleware('permission:accounting-accounts.edit');
+
     // Accounting Concepts:
     Route::get('accounting-concepts', 'AccountingConceptController@index')->name('accounting-concepts.index')->middleware('permission:accounting-concepts.index');
     Route::get('accounting-concepts/create', 'AccountingConceptController@create')->name('accounting-concepts.create')->middleware('permission:accounting-concepts.create');

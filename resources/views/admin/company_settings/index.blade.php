@@ -25,7 +25,7 @@
 				            </label>
 
 				            <span class="suffix">
-				            	{!! App\Helpers\Helpers::info('company-settings-customers-management') !!}
+				            	{!! App\Helpers\helpers::info('company-settings-customers-management') !!}
 				            </span>
 						</div>
 
@@ -38,7 +38,7 @@
 				            </label>
 
 				            <span class="suffix">
-				            	{!! App\Helpers\Helpers::info('company-settings-providers-management') !!}
+				            	{!! App\Helpers\helpers::info('company-settings-providers-management') !!}
 				            </span>
 						</div>	
 
@@ -246,6 +246,23 @@
 							</div>
 						</div>
 					</div>
+					<hr>
+
+					{{-- Contabilidad --}}
+					<div class="form-group row">
+						<label class="col-lg-2 col-form-label">
+							{{ trans('textos.contabilidad') }}
+						</label>
+
+						<div class="col-lg-10">
+							<div class="row">
+								<label for="accounting_account_digits" class="col-lg-2 col-form-label">{{ trans('textos.cuenta_contable_digitos') }}</label>
+								<div class="col-lg-1">
+									<x-input type="text" name="accounting_account_digits" class="text-right" value="{{ $company_settings->accounting_account_digits }}" info="company-settings-accounting-account-digits"/>
+								</div>
+							</div>
+						</div>
+					</label>
 					
 					<x-btn-submit name="submit_update" label="{{ trans('textos.guardar') }}"/>
 				</form>
