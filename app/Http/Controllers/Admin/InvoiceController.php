@@ -1531,16 +1531,18 @@ class InvoiceController extends Controller{
 
         $invoice->save();
 
-        //Actualizando valores por defecto en la relación cliente-proveedor:
+        //Actualizando valores por defecto en la relación cliente-proveedor. Los puede modificar el proveedor o el cliente en caso de que el proveedor no disponga de cuenta propia.
         $provider_settings = CustomerProviders::select('id', 'accounting_concept_id', 'expense_account_id', 'pay_after_days', 'payday', 'payment_method_id')
         ->where('customer_id', $order->customer_id)
         ->where('provider_id', $order->provider_id)
         ->first();
 
-        if(!$provider_settings->pay_after_days){
+        //if(!$provider_settings->pay_after_days || !$provider_account){
+        if( ($order && $order->provider_id == session('currentCompany')) || !$provider_account){
             $provider_settings->pay_after_days = $request->pay_after_days;   
         }
-        if(!$provider_settings->payday){
+        //if(!$provider_settings->payday || !$provider_account){
+        if( ($order && $order->provider_id == session('currentCompany')) || !$provider_account){
             $provider_settings->payday = $request->payday;    
         }
         if(!$provider_settings->accounting_concept_id){
@@ -1661,6 +1663,8 @@ class InvoiceController extends Controller{
         //Moneda:
         $currency = CompanySettings::co_currency(0);
 
+        $languages = $this->languages;
+
         //Datos bancarios cliente:
         $bank_account = false;
         if($invoice->bank_account_id){
@@ -1687,7 +1691,7 @@ class InvoiceController extends Controller{
         //Template de factura. Se pasa por variable por si se incluyen más templates.
         $invoice_template = 'pdf/invoice';
 
-        $pdf = PDF::loadView($invoice_template, compact('invoice', 'bn', 'invoice_order', 'items', 'suborders', 'advance_invoices', 'provider', 'customer', 'template', 'fechaLiteral', 'company_settings', 'provider_workplace', 'provider_phones', 'customer_workplace', 'customer_manager', 'currency', 'bank_account', 'provider_bank_account'));
+        $pdf = PDF::loadView($invoice_template, compact('invoice', 'bn', 'invoice_order', 'items', 'suborders', 'advance_invoices', 'provider', 'customer', 'template', 'fechaLiteral', 'company_settings', 'provider_workplace', 'provider_phones', 'customer_workplace', 'customer_manager', 'currency', 'languages', 'bank_account', 'provider_bank_account'));
         return $pdf->download($invoice_name_pdf.'.pdf'); 
     }
 

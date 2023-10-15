@@ -144,6 +144,50 @@ $(document).ready(function(){
         stateSave: true,    //Guarda página al refrescar. 
     });
 
+    //Tabla Accounting Accounts:
+    if($('#tblAccountingAccounts').length > 0){
+        //Filters:
+        $('#tblAccountingAccounts thead tr').clone(true).appendTo('#tblAccountingAccounts thead');
+        $('#tblAccountingAccounts thead tr:eq(1) th').each(function(i){
+            var title = $(this).text();
+            if(i == 6){
+                $(this).html('');
+            }else{
+                $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
+            }
+     
+            $('input', this).on('keyup change', function(){
+                if(tableAccountingAccounts.column(i).search() !== this.value){
+                    tableAccountingAccounts
+                        .column(i)
+                        .search(this.value)
+                        .draw();
+                }
+            });
+        });
+
+        var tableAccountingAccounts = $('#tblAccountingAccounts').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                type: "GET",
+                url: "/api/admin/accounting-accounts",
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'account', name: 'accounting_accounts.account'},
+                {data: 'name', name: 'accounting_accounts.name'},
+                {data: 'company', name: 'companies.name'},
+                {data: 'tipo', name: 'accounting_account_types.name'},
+                {data: 'subtipo', name: 'accounting_account_types.name'},
+                {data: 'with_iva', name: 'accounting_accounts.with_iva', className: 'text-center'},
+                {data: 'acciones', className: 'text-right'}
+            ]
+        });
+    }
+
     //Tabla Accounting Concepts:
     if($('#tblAccountingConcepts').length > 0){
         $('#tblAccountingConcepts').DataTable({

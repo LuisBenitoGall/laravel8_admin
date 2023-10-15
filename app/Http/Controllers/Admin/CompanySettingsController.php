@@ -124,6 +124,7 @@ class CompanySettingsController extends Controller{
         $cs->ip = $ip;
         $cs->emails = $emails;
         $cs->public_info = $public_info;
+        $cs->accounting_account_digits = $request->accounting_account_digits;
         $cs->save();
 
         session(['companySettings' => $cs]);

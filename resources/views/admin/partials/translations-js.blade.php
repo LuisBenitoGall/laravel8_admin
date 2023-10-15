@@ -278,6 +278,7 @@ var txtSinVacaciones = "{!! ucfirst(trans("textos.sin_vacaciones")) !!}";
 var txtSolicitarRevision = "{{ ucfirst(trans("textos.solicitar_revision")) }}";
 var txtStocksNo = "{{ ucfirst(trans("textos.stocks_no")) }}";
 var txtStockVer = "{{ ucfirst(trans("textos.stock_ver")) }}";
+var txtSubtipoSelec = "{{ ucfirst(trans("textos.subtipo_selec")) }}";
 var txtSubtotal = "{{ ucfirst(trans("textos.subtotal")) }}";
 var txtSumar = "{{ ucfirst(trans("textos.sumar")) }}";
 var txtTarea = "{{ ucfirst(trans("textos.tarea")) }}";

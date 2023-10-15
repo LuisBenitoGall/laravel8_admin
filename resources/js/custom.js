@@ -1248,7 +1248,7 @@ $(window).on('load', function () {
     $('#search_company').autocomplete({
         minLength: 0,
         source: function(request,response){
-            // Fetch data
+            // Fetch data-
             if(request.term.length > 1){
                 $.ajax({
                     url: "/api/admin/companies-search",
@@ -1279,6 +1279,7 @@ $(window).on('load', function () {
         select: function(event,ui){
             $('#search_company').val(ui.item.label);
             $('#companyId').val(ui.item.value);
+            $('#chkInternalAccount').prop('checked', false);    //Para la creación de cuentas contables.
             if(ui.item.code != ''){
                 $('#company-nif').fadeIn();
                 $('#companyNif').val(ui.item.code);
