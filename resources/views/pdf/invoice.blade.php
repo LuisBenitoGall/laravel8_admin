@@ -24,7 +24,7 @@ $bg_color = $bn? '#000':($company_settings->base_color_invoices? $company_settin
 
 		//Comprobando si alguna línea viene con valor modificado manualmente:
 		$modified_amount = false;
-		$colspan = 4;
+		$colspan = 3;
 		foreach($items as $row){
 			$line_amount = $row->qty * $row->price;
 			if($row->discount){

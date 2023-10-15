@@ -130,6 +130,18 @@
 					</tr>
 				@endif
 
+				@if($invoice->expiration_date)
+					@php
+					$expiration_date = \Carbon\Carbon::parse($invoice->expiration_date)->format($languages[session()->get('locale')][4]);
+					@endphp
+					<tr>
+						<td>
+							{{ trans('textos.fecha_vencimiento') }}:
+							<b style="color: #FFF">{!! $expiration_date !!}</b>	
+						</td>
+					</tr>
+				@endif
+
 				{{-- Cuenta bancaria proveedor --}}
 				@if($provider_bank_account)
 					<tr>

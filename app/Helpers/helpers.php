@@ -62,6 +62,8 @@ class Helpers{
 	 *  3.27. Estados de envíos.
 	 *  3.28. Estados de protocolos.
 	 *  3.29. Estados de venta por caja.
+	 *  3.30. Tipos de cuentas contables.
+	 *  3.31. Subtipos de cuentas contables.
 	 *
 	 * 4. Strings:
 	 * 	4.1. Truncar texto.
@@ -1163,6 +1165,44 @@ class Helpers{
 		];
 		if($status){
 			return $data[$status];
+		}else{
+			return $data;
+		}	
+	}
+
+	/**
+	 * 3.30. Tipos de cuentas contables.
+	 *
+	 * Según tipología del Plan General Contable.
+	 */
+	public static function accountingAccountsTypes($type = false){
+		$data = [
+			1 => ucfirst(trans('textos.financiacion_basica')),
+			2 => ucfirst(trans('textos.inmovilizado')),
+			3 => ucfirst(trans('textos.existencias')),
+			4 => ucfirst(trans('textos.acreedores_deudores')),
+			5 => ucfirst(trans('textos.cuentas_financieras')),
+			6 => ucfirst(trans('textos.compras_gastos')),
+			7 => ucfirst(trans('textos.ventas_ingresos')),
+			8 => ucfirst(trans('textos.gastos_patrimonio_neto')),
+			9 => ucfirst(trans('textos.ingresos_patrimonio_neto'))
+		];
+		if($type){
+			return $data[$type];
+		}else{
+			return $data;
+		}	
+	}
+
+	/**
+	 * 3.31. Subtipos de cuentas contables.
+	 */
+	public static function accountingAccountsSubtypes($subtype = false){
+		$data = [
+			4 => ['00' => ucfirst(trans('textos.acreedores')), '10' => ucfirst(trans('textos.proveedores')), '30' => ucfirst(trans('textos.clientes'))]
+		];
+		if($subtype){
+			return $data[$subtype];
 		}else{
 			return $data;
 		}	

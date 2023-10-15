@@ -2,6 +2,13 @@
 
 return [
     'ACCOUNT_DURATION_' => 365,
+    'ACCOUNT_DEFAULT_SALES_' => 10,
+    'ACCOUNT_DEFAULT_SALES_IVA_' => 20,
+    'ACCOUNT_DEFAULT_PURCHASES_' => 30,
+    'ACCOUNT_DEFAULT_PURCHASES_IVA_' => 40,
+    'ACCOUNT_DEFAULT_CASH_SALES_' => 50,
+    'ACCOUNT_DEFAULT_CASH_PURCHASES_' => 60,
+    'ACCOUNTING_ACCOUNT_DIGITS_DEFAULT_' => 4,
     'ANSWER_TYPE_BOOLEAN_' => 10,
     'ANSWER_TYPE_BY_POINTS_' => 20,
     'BASIC_TIMETABLE_ITEMS_' => false,      //Marca si se pueden utilizar las opciones básicas de fichajes para móvil.
