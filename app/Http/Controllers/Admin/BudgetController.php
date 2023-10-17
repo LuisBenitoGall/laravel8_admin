@@ -1451,7 +1451,7 @@ class BudgetController extends Controller{
             $it->days_continue_discount = $i->days_continue_discount;
             $it->provider_cost_center_id = $i->provider_cost_center_id;
             $it->active = $i->active;
-            $it->status = $i->status;
+            $it->status = config('constants.BUDGET_STATUS_INITIAL_');
             $it->print = $i->print;
             $it->user_id = Auth::user()->id;
             $it->save();

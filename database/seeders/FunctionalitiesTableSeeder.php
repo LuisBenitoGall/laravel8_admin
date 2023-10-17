@@ -82,6 +82,11 @@ class FunctionalitiesTableSeeder extends Seeder{
             'label' => 'iva_tipos',
             'module' => 'settings'
             ],
+            ['name' => 'accounting account types',
+            'slug' => 'accounting-account-types',
+            'label' => 'grupos_contables',
+            'module' => 'settings'
+            ],
             
             ['name' => 'my account',
             'slug' => 'my-account',
