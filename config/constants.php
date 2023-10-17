@@ -21,6 +21,7 @@ return [
     'BUDGET_STATUS_APPROVED__' => 20,
     'BUDGET_STATUS_CANCELLED_' => 30,
     'BUDGET_STATUS_CLOSED_' => 40,
+    'BUDGET_STATUS_INITIAL_' => 1,
     'CHAT_ROLE_ADMIN_' => 10,
     'CHAT_ROLE_USER_' => 1,
     'COLOR_PRIMARY_' => '#23c6c8',

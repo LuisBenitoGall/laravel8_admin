@@ -63,6 +63,15 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::get('accounting', 'AccountingController@index')->name('accounting.index');
     Route::post('get/device/id', [\App\Http\Controllers\Admin\DevicePushController::class, 'store'])->name('save.push');
 
+    // Accounting Account Types:
+    Route::get('accounting-account-types', 'AccountingAccountTypeController@index')->name('accounting-account-types.index')->middleware('permission:accounting-account-types.index');
+    Route::get('accounting-account-types/create', 'AccountingAccountTypeController@create')->name('accounting-account-types.create')->middleware('permission:accounting-account-types.create');
+    Route::post('accounting-account-types/store', 'AccountingAccountTypeController@store')->name('accounting-account-types.store')->middleware('permission:accounting-account-types.create');
+    Route::get('accounting-account-types/{group}/edit', 'AccountingAccountTypeController@edit')->name('accounting-account-types.edit')->middleware('permission:accounting-account-types.edit');
+    Route::put('accounting-account-types/{account}/update', 'AccountingAccountTypeController@update')->name('accounting-account-types.update')->middleware('permission:accounting-account-types.edit');
+
+    Route::get('accounting-account-types/show', 'AccountingAccountTypeController@show')->name('accounting-account-types.show');
+
     // Accounting Accounts:
     Route::get('accounting-accounts', 'AccountingAccountController@index')->name('accounting-accounts.index')->middleware('permission:accounting-accounts.index');
     Route::get('accounting-accounts/create', 'AccountingAccountController@create')->name('accounting-accounts.create')->middleware('permission:accounting-accounts.create');

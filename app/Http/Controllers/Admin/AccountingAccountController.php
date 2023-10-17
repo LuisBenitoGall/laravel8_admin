@@ -155,8 +155,8 @@ class AccountingAccountController extends Controller{
             'slug' => 'accounting-accounts'
         ]; 
 
-        $types = helpers::accountingAccountsTypes();
-        $subtypes = helpers::accountingAccountsSubtypes();
+        $types = helpers::accountingAccountsTypesLevel1();
+        $subtypes = helpers::accountingAccountsSubtypesLevel2();
 
         $languages = $this->languages;
 
