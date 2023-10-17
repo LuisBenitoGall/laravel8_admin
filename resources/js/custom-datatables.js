@@ -144,6 +144,26 @@ $(document).ready(function(){
         stateSave: true,    //Guarda página al refrescar. 
     });
 
+    //Tabla Accounting Account Types:
+    if($('#tblAccountingAccountTypes').length > 0){
+        var tableAccountingAccounts = $('#tblAccountingAccountTypes').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                type: "GET",
+                url: "/api/admin/accounting-account-types",
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'code', name: 'accounting_account_types.code'},
+                {data: 'name', name: 'accounting_account_types.name'},
+                {data: 'acciones', className: 'text-right'}
+            ]
+        });    
+    }
+
     //Tabla Accounting Accounts:
     if($('#tblAccountingAccounts').length > 0){
         //Filters:

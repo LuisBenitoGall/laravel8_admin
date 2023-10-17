@@ -287,6 +287,14 @@
 				"slug" : "iva-types",
 				"permission" : "iva-types.index",
 				"setted" : false	
+			},
+			{
+				"suboption" : "grupos contables",
+				"label" : "grupos_contables",
+				"url": "accounting-account-types.index",
+				"slug" : "accounting-account-types",
+				"permission" : "accounting-account-types.index",
+				"setted" : false	
 			}
 		] 
 	}
