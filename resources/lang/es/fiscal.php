@@ -32,6 +32,8 @@ return array(
 
 	'patrimonio_neto_emision_instrumentos_financieros_compuestos' => 'Patrimonio neto por emisión de instrumentos financieros compuestos',
 	'prima_emision_asuncion' => 'Prima de emisión o asunción',
+	'provision_impuestos' => 'Provisión para impuestos',
+	'provision_retribuciones' => 'Provisión para retribuiciones y otras prestaciones al personal',
 	'provisiones' => 'Provisiones',
 
 	'remanente' => 'Remanente',
