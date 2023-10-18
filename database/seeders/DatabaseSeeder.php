@@ -13,7 +13,7 @@ class DatabaseSeeder extends Seeder{
     public function run(){
         //Mantener el orden de ejecución de los seeds:
         $this->call(AppSettingsTableSeeder::class);
-        $this->call(AccountingAccountTypesTableSeeder::class);
+        // $this->call(AccountingAccountTypesTableSeeder::class);
         $this->call(AccountsTableSeeder::class);
         $this->call(CountriesTableSeeder::class);
     	$this->call(ProvincesTableSeeder::class);

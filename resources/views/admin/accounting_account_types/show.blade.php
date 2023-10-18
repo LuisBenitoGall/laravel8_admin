@@ -9,7 +9,7 @@ $data = [
         'name' => ucfirst(trans('fiscal.financiacion_basica')),
         'level2' =>  [
             '0' => [
-                'name' => ucfirst(trans('fiscal.capital')), 
+                'name' => ucfirst(trans('fiscal.capital')),
                 'level3' => [
                     '0' => [
                         'name' => ucfirst(trans('fiscal.capital_social')),
@@ -170,7 +170,7 @@ $data = [
                         'name' => ucfirst(trans('fiscal.ingresos_fiscales_varios_ejercicios')),
                         'level4' => [
                             '0' => ['name' => ucfirst(trans('fiscal.ingresos_fiscales_diferencias_permanentes'))],
-                            '1' => ['name' => ucfirst(trans('fiscal.ingresos_fiscales_deducciones_bonificaciones'))]    
+                            '1' => ['name' => ucfirst(trans('fiscal.ingresos_fiscales_deducciones_bonificaciones'))]
                         ]
                     ]
                 ]
@@ -185,18 +185,52 @@ $data = [
                 	'1' => [
                 		'name' => ucfirst(trans('fiscal.provision_impuestos')),
                         'level4' => false
-                	]
+                    ],
+                    '2' => [
+                        'name' => ucfirst(trans('fiscal.provision_responsabilidades')),
+                        'level4' => false
+                    ],
+                    '3' => [
+                        'name' => ucfirst(trans('fiscal.provision_desmantelamiento')),
+                        'level4' => false
+                    ],
+                    '5' => [
+                        'name' => ucfirst(trans('fiscal.provision_actuaciones')),
+                        'level4' => false
+                    ],
+                    '6' => [
+                        'name' => ucfirst(trans('fiscal.provision_reestructuraciones')),
+                        'level4' => false
+                    ],
+                    '7' => [
+                        'name' => ucfirst(trans('fiscal.provisiones_transacciones')),
+                        'level4' => false
+                    ]
                 ]
             ],
             '5' => [
                 'name' => ucfirst(trans('fiscal.deudas_largo_plazo')),
                 'level3' => [
-
+                    '0' => [
+                        'name' => ucfirst(trans('fiscal.acciones_largo_plazo_pasivo')),
+                        'level4' => false
+                    ],
+                    '3' => [
+                        'name' => ucfirst(trans('fiscal.desembolsos_no_exigidos_participaciones_pasivo')),
+                        'level4' => false
+                    ],
+                    '4' => [
+                        'name' => ucfirst(trans('fiscal.aportaciones_participaciones_pasivo')),
+                        'level4' => false
+                    ]
                 ]
             ],
             '6' => [
                 'name' => ucfirst(trans('fiscal.deudas_largo_plazo_vinculadas')),
                 'level3' => [
+                    '0' => [
+                        ''
+                    ]
 
                 ]
             ],
@@ -274,7 +308,7 @@ $data = [
 @foreach($data as $i1 => $r1)
 	<div class="mb-5">
 		<h3>{{ $i1 }} - {{ $r1['name'] }}</h3>
-		
+
 		@if(isset($r1['level2']))
 			@foreach($r1['level2'] as $i2 => $r2)
 				<div class="pl-3 mb-3">

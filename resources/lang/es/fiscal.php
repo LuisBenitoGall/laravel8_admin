@@ -1,11 +1,13 @@
 <?php
 
 return array(
+    'acciones_largo_plazo_pasivo' => 'Acciones o participaciones a largo plazo contabilizadas como pasivo',
 	'acciones_participaciones_propias_reduccion_capital' => 'Acciones o participaciones propias para reducción de capital',
 	'acciones_participaciones_propias_situaciones_especiales' => 'Acciones o participaciones propias en situaciones especiales',
 	'acreedores_deudores' => 'acreedores y deudores',
 	'ajustes_valoracion_activos_no_corrientes' => 'Ajustes por valoración en activos no corrientes y grupos enajenables de elementos mantenidos para la venta',
 	'ajustes_valoracion_instrumentos_financieros' => 'Ajustes por valoración de instrumentos financieros',
+    'aportaciones_participaciones_pasivo' => 'Aportaciones no dinerarias pendientes por acciones o participaciones contabilizadas como pasivo',
 	'aportaciones_socios_propietarios' => 'Aportaciones de socios o propietarios',
 	'capital' => 'Capital',
 	'capital_social' => 'Capital social',
@@ -13,6 +15,9 @@ return array(
 	'cobertura_flujos_efectivo' => 'Cobertura de flujos de efectivo',
 	'compras_gastos' => 'Compras y gastos',
 	'cuentas_financieras' => 'Cuentas financieras',
+    'deudas_largo_plazo' => 'Deudas a largo plazo con características especiales',
+    'deudas_largo_plazo_vinculadas' => 'Deudas a largo plazo con partes vinculadas',
+    'desembolsos_no_exigidos_participaciones_pasivo' => 'Desembolsos no exigidos por acciones o participaciones contabilizadas como pasivo',
 	'diferencias_ajuste_capital_euros' => 'Diferencias por ajuste del capital a euros',
 	'diferencias_conversion' => 'Diferencias de conversión',
 	'donaciones_legados_capital' => 'Donaciones y legados de capital',
@@ -32,9 +37,14 @@ return array(
 
 	'patrimonio_neto_emision_instrumentos_financieros_compuestos' => 'Patrimonio neto por emisión de instrumentos financieros compuestos',
 	'prima_emision_asuncion' => 'Prima de emisión o asunción',
+    'provision_actuaciones' => 'Provisión para actuaciones medioambientales',
+    'provision_desmantelamiento' => 'Provisión por desmantelamiento, retiro o rehabilitación del inmovilizado',
 	'provision_impuestos' => 'Provisión para impuestos',
+    'provision_reestructuraciones' => 'Provisión para reestructuraciones',
+    'provision_responsabilidades' => 'Provisión para otras responsabilidades',
 	'provision_retribuciones' => 'Provisión para retribuiciones y otras prestaciones al personal',
 	'provisiones' => 'Provisiones',
+    'provisiones_transacciones' => 'Provisiones por transacciones con pagos basados en instrumentos de patrimonio',
 
 	'remanente' => 'Remanente',
 	'reserva_acciones_propias' => 'Reserva por acciones propias aceptadas en garantía',
