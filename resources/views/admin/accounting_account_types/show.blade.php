@@ -353,7 +353,83 @@ $data = [
     2 => [
         'name' => ucfirst(trans('fiscal.inmovilizado')),
         'level2' =>  [
-
+            '0' => [
+                'name' => ucfirst(trans('fiscal.inmovilizaciones_intangibles')),
+                'level3' => [
+                    '0' => [
+                        'name' => ucfirst(trans('fiscal.gastos_investigacion')),
+                        'level4' => false
+                    ],
+                    '1' => [
+                        'name' => ucfirst(trans('fiscal.desarrollo')),
+                        'level4' => false
+                    ],
+                    '2' => [
+                        'name' => ucfirst(trans('fiscal.concesiones_administrativas')),
+                        'level4' => false
+                    ],
+                    '3' => [
+                        'name' => ucfirst(trans('fiscal.propiedad_industrial')),
+                        'level4' => false
+                    ],
+                    '4' => [
+                        'name' => ucfirst(trans('fiscal.fondo_comercio')),
+                        'level4' => false
+                    ],
+                    '5' => [
+                        'name' => ucfirst(trans('fiscal.derechos_traspaso')),
+                        'level4' => false
+                    ],
+                    '6' => [
+                        'name' => ucfirst(trans('fiscal.aplicaciones_informaticas')),
+                        'level4' => false
+                    ],
+                    '9' => [
+                        'name' => ucfirst(trans('fiscal.anticipos_inmovilizaciones_intangibles')),
+                        'level4' => false
+                    ]
+                ]
+            ],
+            '1' => [
+                'name' => ucfirst(trans('fiscal.inmovilizaciones_materiales')),
+                'level3' => [
+                    '0' => [
+                        'name' => ucfirst(trans('fiscal.terrenos_bienes_naturales')),
+                        'level4' => false
+                    ],
+                    '1' => [
+                        'name' => ucfirst(trans('fiscal.construcciones')),
+                        'level4' => false
+                    ],
+                    '2' => [
+                        'name' => ucfirst(trans('fiscal.instalaciones_tecnicas')),
+                        'level4' => false
+                    ],
+                    '3' => [
+                        'name' => ucfirst(trans('fiscal.maquinaria')),
+                        'level4' => false
+                    ],
+                    '4' => [
+                        'name' => ucfirst(trans('fiscal.utillaje')),
+                        'level4' => false
+                    ],
+                    '5' => [
+                        'name' => ucfirst(trans('fiscal.otras_instalaciones')),
+                        'level4' => false
+                    ],
+                    '6' => [
+                        'name' => ucfirst(trans('fiscal.mobiliario')),
+                        'level4' => false
+                    ],
+                    '7' => [
+                        'name' => ucfirst(trans('fiscal.equipos_procesos_informacion')),
+                        'level4' => false
+                    ],
+                    '8' => [
+                        'name'
+                    ]
+                ]
+            ]
         ]
     ],
     3 => [
