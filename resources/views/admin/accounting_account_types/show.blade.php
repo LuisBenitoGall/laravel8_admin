@@ -229,27 +229,123 @@ $data = [
                 'name' => ucfirst(trans('fiscal.deudas_largo_plazo_vinculadas')),
                 'level3' => [
                     '0' => [
-                        ''
+                        'name' => ucfirst(trans('fiscal.deudas_largo_plazo_entidades_vinculadas')),
+                        'level4' => false
+                    ],
+                    '1' => [
+                        'name' => ucfirst(trans('fiscal.proveedores_inmovilizado_largo_plazo_vinculadas')),
+                        'level4' => false
+                    ],
+                    '2' => [
+                        'name' => ucfirst(trans('fiscal.acreedores_arrendamiento_financiero_largo_plazo_vinculadas')),
+                        'level4' => false
+                    ],
+                    '3' => [
+                        'name' => ucfirst(trans('fiscal.otras_deudas_largo_plazo_vinculadas')),
+                        'level4' => [
+                            '3' => ['name' => ucfirst(trans('fiscal.otras_deudas_grupo'))],
+                            '4' => ['name' => ucfirst(trans('fiscal.otras_deudas_asociadas'))],
+                            '5' => ['name' => ucfirst(trans('fiscal.otras_deudas_vinculadas'))]
+                        ]
                     ]
-
                 ]
             ],
             '7' => [
                 'name' => ucfirst(trans('fiscal.deudas_largo_plazo_recibidos')),
                 'level3' => [
-
+                    '0' => [
+                        'name' => ucfirst(trans('fiscal.deudas_entidades_credito')),
+                        'level4' => false
+                    ],
+                    '1' => [
+                        'name' => ucfirst(trans('fiscal.deudas_a_largo_plazo')),
+                        'level4' => false
+                    ],
+                    '2' => [
+                        'name' => ucfirst(trans('fiscal.deudas_transformables_subvenciones')),
+                        'level4' => false
+                    ],
+                    '3' => [
+                        'name' => ucfirst(trans('fiscal.proveedores_inmovilizado_largo_plazo')),
+                        'level4' => false
+                    ],
+                    '4' => [
+                        'name' => ucfirst(trans('fiscal.acreedores_arrendamiento_financiero_largo_plazo')),
+                        'level4' => false
+                    ],
+                    '5' => [
+                        'name' => ucfirst(trans('fiscal.efectos_pagar_largo_plazo')),
+                        'level4' => false
+                    ],
+                    '6' => [
+                        'name' => ucfirst(trans('fiscal.pasivos_derivados_financieros_largo_plazo')),
+                        'level4' => [
+                            '5' => ['name' => ucfirst(trans('fiscal.pasivos_derivados_financieros_largo_plazo_cartera_negociación'))],
+                            '8' => ['name' => ucfirst(trans('fiscal.pasivos_derivados_financieros_largo_plazo_instrumentos_cobertura'))]
+                        ]
+                    ],
+                    '7' => [
+                        'name' => ucfirst(trans('fiscal.obligaciones_bonos')),
+                        'level4' => false
+                    ],
+                    '8' => [
+                        'name' => ucfirst(trans('fiscal.obligaciones_bonos_convertibles')),
+                        'level4' => false
+                    ],
+                    '9' => [
+                        'name' => ucfirst(trans('fiscal.deudas_representadas_valores_negociables')),
+                        'level4' => false
+                    ]
                 ]
             ],
             '8' => [
                 'name' => ucfirst(trans('fiscal.fianzas_depositos_largo_plazo')),
                 'level3' => [
-
+                    '0' => [
+                        'name' => ucfirst(trans('fiscal.fianzas_largo_plazo')),
+                        'level4' => false
+                    ],
+                    '1' => [
+                        'name' => ucfirst(trans('fiscal.anticipos_ventas_prestaciones_servicios_largo_plazo')),
+                        'level4' => false
+                    ],
+                    '5' => [
+                        'name' => ucfirst(trans('fiscal.depositos_largo_plazo')),
+                        'level4' => false
+                    ],
+                    '9' => [
+                        'name' => ucfirst(trans('fiscal.garantias_financieras_largo_plazo')),
+                        'level4' => false
+                    ]
                 ]
             ],
             '9' => [
                 'name' => ucfirst(trans('fiscal.situaciones_transitorias_financiacion')),
                 'level3' => [
-
+                    '0' => [
+                        'name' => ucfirst(trans('fiscal.acciones_participaciones_emitidas')),
+                        'level4' => false
+                    ],
+                    '2' => [
+                        'name' => ucfirst(trans('fiscal.suscriptores_acciones')),
+                        'level4' => false
+                    ],
+                    '4' => [
+                        'name' => ucfirst(trans('fiscal.capital_pendiente_inscripcion')),
+                        'level4' => false
+                    ],
+                    '5' => [
+                        'name' => ucfirst(trans('fiscal.acciones_participaciones_pasivos_financieros')),
+                        'level4' => false
+                    ],
+                    '7' => [
+                        'name' => ucfirst(trans('fiscal.suscriptores_pasivos_financieros')),
+                        'level4' => false
+                    ],
+                    '9' => [
+                        'name' => ucfirst(trans('fiscal.acciones_pasivos_financieros_pendientes_inscripcion')),
+                        'level4' => false
+                    ]
                 ]
             ]
         ]
