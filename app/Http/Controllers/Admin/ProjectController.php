@@ -442,7 +442,14 @@ class ProjectController extends Controller{
             ->get();
         }
 
-        $users = Employee::companyEmployees(session('currentCompany'), 1);
+        //$users = Employee::companyEmployees(session('currentCompany'), 1);
+        //19/10/2023: se modifica la fuente de datos para obtener todos los usuarios vinculados con la empresa.
+        $users = User::select('users.id', 'users.name', 'users.surname')
+        ->join('user_companies', 'users.id', '=', 'user_companies.user_id')
+        ->where('users.status', 1)
+        ->where('user_companies.company_id', session('currentCompany'))
+        ->orderBy('users.name')
+        ->get();
 
         //Info de los miembros del equipo:
         $team_members = false;

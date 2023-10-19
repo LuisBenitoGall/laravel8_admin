@@ -198,6 +198,19 @@ FROM customer_providers
 INNER JOIN companies 
 ON customer_providers.customer_id = companies.id
 WHERE customer_providers.provider_id = 4;
+
+- Facturas por proveedor en intervalo de fechas:
+select c.name AS provider, cc.name AS customer, o.order_num, i.invoice_num, i.fiscal_date, i.amount, i.amount_with_iva
+from invoices i
+inner join orders o
+on i.order_id = o.id
+inner join companies c
+on o.provider_id = c.id
+inner join companies cc
+on o.customer_id = cc.id
+where o.provider_id in (227,8)
+and i.fiscal_date >= '2023-07-01'
+and i.fiscal_date <= '2023-07-31'
    
 
 ### Instalación de Sentry
