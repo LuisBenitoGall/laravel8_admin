@@ -1873,10 +1873,13 @@ class OrderController extends Controller{
         })
         ->orderBy('orders.id', 'DESC')
         ->orderBy('orders.created_at', 'DESC');
+        //->get();
+
+        //dd($data);
 
         return DataTables::of($data)
         ->addColumn('fecha', function($row){
-            $month = $row->month? helpers::yearMonths($row->month):'';
+            $month = $row->month && in_array($row->month, ['01','02','03','04','05','06','07','08','09','10','11','12'])? helpers::yearMonths($row->month):'';
             return '<span style="display: none">'.strtotime($row->year.'-'.$row->month.'-01').'</span>'.$month.' '.$row->year;
         })
         ->filterColumn('fecha', function($q, $keyword){
@@ -1941,7 +1944,7 @@ class OrderController extends Controller{
                 return number_format($a_facturar, 2, '.', '');
             }else{
                 return number_format($amount, 2, '.', '');
-            }    
+            }  
         })
         ->addColumn('invoice_amount', function($row){ 
             return Invoice::amountByOrder($row->id);
