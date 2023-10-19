@@ -68,6 +68,7 @@ return array(
     'desembolsos_no_exigidos_participaciones_pasivo' => 'Desembolsos no exigidos por acciones o participaciones contabilizadas como pasivo',
     'desembolsos_pendientes_neto_largo' => 'Desembolsos pendientes sobre participaciones en el patrimonio neto a largo plazo',
     'desembolsos_pendientes_participaciones_largo_plazo_vinculadas' => 'Desembolsos pendientes sobre participaciones a largo plazo en partes vinculadas',
+    'deterioro_existencias' => 'Deterioro de valor de las existencias',
 	'diferencias_ajuste_capital_euros' => 'Diferencias por ajuste del capital a euros',
 	'diferencias_conversion' => 'Diferencias de conversión',
 	'donaciones_legados_capital' => 'Donaciones y legados de capital',

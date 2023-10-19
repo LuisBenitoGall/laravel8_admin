@@ -742,6 +742,12 @@ $data = [
                         'level4' => false
                     ]
                 ]
+            ],
+            '9' => [
+                'name' => ucfirst(trans('fiscal.deterioro_existencias')),
+                'level3' => [
+                    
+                ]
             ]
         ]
     ],
