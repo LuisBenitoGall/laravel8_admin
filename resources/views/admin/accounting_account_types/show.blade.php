@@ -576,6 +576,55 @@ $data = [
                         'name' => ucfirst(trans('fiscal.amortizacion_intangible')),
                         'level4' => false
                     ],
+                    '1' => [
+                        'name' => ucfirst(trans('fiscal.amortizacion_material')),
+                        'level4' => false
+                    ],
+                    '2' => [
+                        'name' => ucfirst(trans('fiscal.amortizacion_inmobiliarias')),
+                        'level4' => false
+                    ]
+                ]
+            ],
+            '9' => [
+                'name' => ucfirst(trans('fiscal.deterioro_no_corrientes')),
+                'level3' => [
+                    '0' => [
+                        'name' => ucfirst(trans('fiscal.deterioro_intangible')),
+                        'level4' => false
+                    ],
+                    '1' => [
+                        'name' => ucfirst(trans('fiscal.deterioro_material')),
+                        'level4' => false
+                    ],
+                    '2' => [
+                        'name' => ucfirst(trans('fiscal.deterioro_inmobiliarias')),
+                        'level4' => false
+                    ],
+                    '3' => [
+                        'name' => ucfirst(trans('fiscal.deterioro_largo_vinculadas')),
+                        'level4' => false
+                    ],
+                    '4' => [
+                        'name' => ucfirst(trans('fiscal.deterioro_deuda_largo_vinculadas')),
+                        'level4' => false
+                    ],
+                    '5' => [
+                        'name' => ucfirst(trans('fiscal.deterioro_creditos_largo_vinculadas')),
+                        'level4' => false
+                    ],
+                    '6' => [
+                        'name' => ucfirst(trans('fiscal.deterioro_neto_largo')),
+                        'level4' => false
+                    ],
+                    '7' => [
+                        'name' => ucfirst(trans('fiscal.deterioro_deuda_largo')),
+                        'level4' => false
+                    ],
+                    '8' => [
+                        'name' => ucfirst(trans('fiscal.deterioro_valor_largo')),
+                        'level4' => false
+                    ]
                 ]
             ]
         ]
@@ -583,7 +632,123 @@ $data = [
     3 => [
         'name' => ucfirst(trans('fiscal.existencias')),
         'level2' =>  [
-
+            '0' => [
+                'name' => ucfirst(trans('fiscal.comerciales')),
+                'level3' => [
+                    '0' => [
+                        'name' => ucfirst(trans('fiscal.comerciales')),
+                        'level4' => false
+                    ],
+                    '1' => [
+                        'name' => ucfirst(trans('fiscal.comerciales')),
+                        'level4' => false
+                    ]
+                ]
+            ],
+            '1' => [
+                'name' => ucfirst(trans('fiscal.materias_primas')),
+                'level3' => [
+                    '0' => [
+                        'name' => ucfirst(trans('fiscal.materias_primas')),
+                        'level4' => false
+                    ],
+                    '1' => [
+                        'name' => ucfirst(trans('fiscal.materias_primas')),
+                        'level4' => false
+                    ]
+                ]
+            ],
+            '2' => [
+                'name' => ucfirst(trans('fiscal.otros_aprovisionamientos')),
+                'level3' => [
+                    '0' => [
+                        'name' => ucfirst(trans('fiscal.elementos_conjuntos_incorporables')),
+                        'level4' => false
+                    ],
+                    '1' => [
+                        'name' => ucfirst(trans('fiscal.combustibles')),
+                        'level4' => false
+                    ],
+                    '2' => [
+                        'name' => ucfirst(trans('fiscal.repuestos')),
+                        'level4' => false
+                    ],
+                    '5' => [
+                        'name' => ucfirst(trans('fiscal.materiales_diversos')),
+                        'level4' => false
+                    ],
+                    '6' => [
+                        'name' => ucfirst(trans('fiscal.embalajes')),
+                        'level4' => false
+                    ],
+                    '7' => [
+                        'name' => ucfirst(trans('fiscal.envases')),
+                        'level4' => false
+                    ],
+                    '8' => [
+                        'name' => ucfirst(trans('fiscal.material_oficina')),
+                        'level4' => false
+                    ]
+                ]
+            ],
+            '3' => [
+                'name' => ucfirst(trans('fiscal.productos_curso')),
+                'level3' => [
+                    '0' => [
+                        'name' => ucfirst(trans('fiscal.productos_curso')),
+                        'level4' => false
+                    ],
+                    '1' => [
+                        'name' => ucfirst(trans('fiscal.productos_curso')),
+                        'level4' => false
+                    ]
+                ]
+            ],
+            '4' => [
+                'name' => ucfirst(trans('fiscal.productos_semiterminados')),
+                'level3' => [
+                    '0' => [
+                        'name' => ucfirst(trans('fiscal.productos_semiterminados')),
+                        'level4' => false
+                    ],
+                    '1' => [
+                        'name' => ucfirst(trans('fiscal.productos_semiterminados')),
+                        'level4' => false
+                    ]
+                ]
+            ],
+            '5' => [
+                'name' => ucfirst(trans('fiscal.productos_terminados')),
+                'level3' => [
+                    '0' => [
+                        'name' => ucfirst(trans('fiscal.productos_terminados')),
+                        'level4' => false
+                    ],
+                    '1' => [
+                        'name' => ucfirst(trans('fiscal.productos_terminados')),
+                        'level4' => false
+                    ]
+                ]
+            ],
+            '6' => [
+                'name' => ucfirst(trans('fiscal.subproductos_residuos_recuperados')),
+                'level3' => [
+                    '0' => [
+                        'name' => ucfirst(trans('fiscal.subproductos_residuos_recuperados')),
+                        'level4' => false
+                    ],
+                    '9' => [
+                        'name' => ucfirst(trans('fiscal.subproductos_residuos_recuperados')),
+                        'level4' => false
+                    ]
+                ]
+            ],
+            '9' => [
+                'name' => ucfirst(trans('fiscal.deterioro_existencias')),
+                'level3' => [
+                    
+                ]
+            ]
         ]
     ],
     4 => [
