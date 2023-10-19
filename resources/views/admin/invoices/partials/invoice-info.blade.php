@@ -158,12 +158,12 @@
 			{{-- Cuenta de gastos --}}
 			@php
 			$ac_id = $invoice->accounting_concept_id? $invoice->accounting_concept_id:'';
-			$disabled = count($structure_concepts)? false:true;
+			$disabled_ = count($structure_concepts)? false:true;
 			@endphp
 			
 			<label for="accounting_concept" class="col-md-2 col-form-label">{!! ucfirst(trans('textos.cuenta_gastos')) !!}</label>
 			<div class="col-md-2">
-				<x-select name="accounting_concept" class="select2" id="accountingConcept" label="" :options="$structure_concepts" value="{{ $ac_id }}" disabled="{{ $disabled }}"/>
+				<x-select name="accounting_concept" class="select2" id="accountingConcept" label="" :options="$structure_concepts" value="{{ $ac_id }}" disabled="{{ $disabled_ }}"/>
 			</div>
 		</div>
 

@@ -3,6 +3,7 @@
 @section('content')
 
 @php
+
 //Campos que se bloquean ante factura bloqueada o para compras, campos que son gestionados por el proveedor.
 $disabled = $invoice->blocked || ($order->customer_id == session('currentCompany') && $provider_account)? true:false;
 $readonly = $invoice->blocked && !$is_sale || ($order->customer_id == session('currentCompany') && $provider_account)? true:false;
