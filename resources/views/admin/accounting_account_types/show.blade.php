@@ -426,8 +426,156 @@ $data = [
                         'level4' => false
                     ],
                     '8' => [
-                        'name'
+                        'name' => ucfirst(trans('fiscal.elementos_transporte')),
+                        'level4' => false
+                    ],
+                    '9' => [
+                        'name' => ucfirst(trans('fiscal.otro_inmovilizado_material')),
+                        'level4' => false
                     ]
+                ]
+            ],
+            '2' => [
+                'name' => ucfirst(trans('fiscal.inversiones_inmobiliarias')),
+                'level3' => [
+                    '0' => [
+                        'name' => ucfirst(trans('fiscal.inversiones_terrenos_bienes_naturales')),
+                        'level4' => false
+                    ],
+                    '1' => [
+                        'name' => ucfirst(trans('fiscal.inversiones_construcciones')),
+                        'level4' => false
+                    ]
+                ]
+            ],
+            '3' => [
+                'name' => ucfirst(trans('fiscal.inmovilizaciones_materiales_curso')),
+                'level3' => [
+                    '0' => [
+                        'name' => ucfirst(trans('fiscal.adaptacion_terrenos_bienes_naturales')),
+                        'level4' => false
+                    ],
+                    '1' => [
+                        'name' => ucfirst(trans('fiscal.construcciones_curso')),
+                        'level4' => false
+                    ],
+                    '2' => [
+                        'name' => ucfirst(trans('fiscal.instalaciones_tecnicas_montaje')),
+                        'level4' => false
+                    ],
+                    '3' => [
+                        'name' => ucfirst(trans('fiscal.maquinaria_montaje')),
+                        'level4' => false
+                    ],
+                    '7' => [
+                        'name' => ucfirst(trans('fiscal.equipos_procesos_informacion_montaje')),
+                        'level4' => false
+                    ],
+                    '9' => [
+                        'name' => ucfirst(trans('fiscal.anticipos_inmovilizaciones_materiales')),
+                        'level4' => false
+                    ]
+                ]
+            ],
+            '4' => [
+                'name' => ucfirst(trans('fiscal.inversiones_financieras_largo_plazo_vinculadas')),
+                'level3' => [
+                    '0' => [
+                        'name' => ucfirst(trans('fiscal.participaciones_largo_plazo_vinculadas')),
+                        'level4' => [
+                            '3' => [
+                                'name' => ucfirst(trans('fiscal.participacion_largo_plazo_empresas_grupo'))
+                            ],
+                            '4' => [
+                                'name' => ucfirst(trans('fiscal.participacion_largo_plazo_empresas_asociadas'))
+                            ],
+                            '5' => [
+                                'name' => ucfirst(trans('fiscal.participaciones_largo_plazo_otras_vinculadas'))
+                            ]
+                        ]
+                    ],
+                    '1' => [
+                        'name' => ucfirst(trans('fiscal.valores_representativos_largo_plazo_vinculadas')),
+                        'level4' => false
+                    ],
+                    '2' => [
+                        'name' => ucfirst(trans('fiscal.creditos_largo_plazo_partes_vinculadas')),
+                        'level4' => false
+                    ],
+                    '9' => [
+                        'name' => ucfirst(trans('fiscal.desembolsos_pendientes_participaciones_largo_plazo_vinculadas')),
+                        'level4' => false
+                    ]
+                ]
+            ],
+            '5' => [
+                'name' => ucfirst(trans('fiscal.otras_inversiones_financieras_largo_plazo')),
+                'level3' => [
+                    '0' => [
+                        'name' => ucfirst(trans('fiscal.inversiones_financieras_largo_plazo_instrumentos_patrimonio')),
+                        'level4' => false
+                    ],
+                    '1' => [
+                        'name' => ucfirst(trans('fiscal.valores_representativos_largo_plazo')),
+                        'level4' => false
+                    ],
+                    '2' => [
+                        'name' => ucfirst(trans('fiscal.creditos_largo_plazo')),
+                        'level4' => false
+                    ],
+                    '3' => [
+                        'name' => ucfirst(trans('fiscal.creditos_largo_plazo_enajenacion_inmovilizado')),
+                        'level4' => false
+                    ],
+                    '4' => [
+                        'name' => ucfirst(trans('fiscal.creditos_largo_plazo_personal')),
+                        'level4' => false
+                    ],
+                    '5' => [
+                        'name' => ucfirst(trans('fiscal.activos_derivados_financieros_largo_plazo')),
+                        'level4' => [
+                            '0' => [
+                                'name' => ucfirst(trans('fiscal.activos_financieros_largo_plazo_negociacion'))
+                            ],
+                            '3' => [
+                                'name' => ucfirst(trans('fiscal.activos_financieros_largo_plazo_cobertura'))
+                            ]
+                        ]
+                    ],
+                    '7' => [
+                        'name' => ucfirst(trans('fiscal.activos_retribuciones_largo_definida')),
+                        'level4' => false
+                    ],
+                    '8' => [
+                        'name' => ucfirst(trans('fiscal.imposiciones_largo_plazo')),
+                        'level4' => false
+                    ],
+                    '9' => [
+                        'name' => ucfirst(trans('fiscal.desembolsos_pendientes_neto_largo')),
+                        'level4' => false
+                    ]
+                ]
+            ],
+            '6' => [
+                'name' => ucfirst(trans('fiscal.fianzas_depositos_largo')),
+                'level3' => [
+                    '0' => [
+                        'name' => ucfirst(trans('fiscal.fianzas_largo')),
+                        'level4' => false
+                    ],
+                    '5' => [
+                        'name' => ucfirst(trans('fiscal.depositos_largo')),
+                        'level4' => false
+                    ]
+                ]
+            ],
+            '8' => [
+                'name' => ucfirst(trans('fiscal.amortizacion_acumulada_inmovilizado')),
+                'level3' => [
+                    '0' => [
+                        'name' => ucfirst(trans('fiscal.amortizacion_intangible')),
+                        'level4' => false
+                    ],
                 ]
             ]
         ]
