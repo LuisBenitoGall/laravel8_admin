@@ -5,9 +5,13 @@
 <div class="row mb-3">
 	{{-- Acciones: --}}
 	<div class="col-12">
+		{{-- Crear nuevo grupo contable --}}
 		@can('accounting-account-types.create')
 			<a class="btn btn-info" href="{{ route('accounting-account-types.create') }}"><i class="fa fa-plus"></i> {!! ucfirst(trans('textos.grupo_nuevo')) !!}</a>
 		@endcan
+
+		{{-- Ver tipos de cuentas contables --}}
+		<a class="btn btn-info" href="{{ route('accounting-account-types.show') }}"><i class="fa fa-eye"></i> {!! ucfirst(trans('textos.cuentas_contables_tipos')) !!}</a>
 	</div>
 </div>
 
@@ -24,11 +28,31 @@
 				<tr>
 					<th class="wdt50">{!! ucfirst(trans('textos.codigo')) !!}</th>
 					<th class="wdt150">{!! ucfirst(trans('textos.nombre')) !!}</th>
+					<th class="wdt50">{!! ucfirst(trans('textos.nivel')) !!}</th>
 					<th class="text-center wdt100">{!! ucfirst(trans('textos.acciones')) !!}</th>
 				</tr>
 			</thead>
 		</table>
 	</div>
 </div>
+
+{{-- Modals: --}}
+{{-- Edit accounting account type: --}}
+@include('admin.accounting_account_types.partials.modal-edit-accounting-account-type')
+
+@push('scripts')
+<script>
+$(function(){
+	//Modal edición tipo cuenta:
+	$(document).on('click', '.btnEditType', function(){
+		var id = $(this).data('id');
+		var name = $(this).data('name');
+		$('#aatId').val(id);
+		$('#aatName').val(name);
+	});
+
+});
+</script>
+@endpush
 
 @endsection

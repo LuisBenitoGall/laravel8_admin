@@ -1,10 +1,10 @@
 @can('accounting-accounts.edit')
 	{{-- Estado --}}
 	<label class="custom-chk-rdb" rel="tooltip" title="{{ trans('textos.cuenta_on_off') }}">
-<input type="checkbox" name="status" @if($row->status == 1) checked @endif><span class="chk chk-action" data-id="{{ $row->id }}" data-ctrl="accounting-accounts/status"></span>
-</label>
+		<input type="checkbox" name="status" @if($row->status == 1) checked @endif><span class="chk chk-action" data-id="{{ $row->id }}" data-ctrl="accounting-accounts/status"></span>
+	</label>
 
-{{-- Editar --}}
+	{{-- Editar --}}
 	<a href="{{ route('accounting-accounts.edit', $row) }}" class="btn btn-xs btn-info" rel="tooltip" title="{{ ucfirst(trans('textos.editar')) }}"><i class="fa fa-edit"></i></a>
 @endcan
 

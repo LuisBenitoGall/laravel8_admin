@@ -262,7 +262,7 @@
 								</div>
 							</div>
 						</div>
-					</label>
+					</div>
 					
 					<x-btn-submit name="submit_update" label="{{ trans('textos.guardar') }}"/>
 				</form>
