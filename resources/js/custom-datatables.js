@@ -120,6 +120,7 @@ $(document).ready(function(){
         },
         responsive: true,
         stateSave: false,    //Guarda página al refrescar. 
+        pageLength: 100,        //Resultados por página
         initComplete: function(){
             //Búsqueda automática al clicar sobre el td.filtro:
             var api = this.api();
@@ -159,6 +160,7 @@ $(document).ready(function(){
             columns: [
                 {data: 'code', name: 'accounting_account_types.code'},
                 {data: 'name', name: 'accounting_account_types.name'},
+                {data: 'level', className: 'text-center'},
                 {data: 'acciones', className: 'text-right'}
             ]
         });    

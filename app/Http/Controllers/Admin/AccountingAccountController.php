@@ -107,9 +107,6 @@ class AccountingAccountController extends Controller{
         ->where('accounting_accounts.company_id', session('currentCompany'))
         ->orderBy('accounting_accounts.featured', 'DESC');
 
-        $types = helpers::accountingAccountsTypes();
-        $subtypes = helpers::accountingAccountsSubtypes();
-
         return DataTables::of($data)
         ->addColumn('account', function ($row){
             return $row->account;
@@ -120,15 +117,15 @@ class AccountingAccountController extends Controller{
         ->addColumn('company', function ($row){
             return $row->company;
         })
-        ->addColumn('tipo', function ($row) use($types){
-            $first_letter = substr($row->type, 0, 1);
-            return $row->type? ucfirst($types[$first_letter]):'';
+        ->addColumn('tipo', function ($row){
+            // $first_letter = substr($row->type, 0, 1);
+            // return $row->type? ucfirst($types[$first_letter]):'';
         })
-        ->addColumn('subtipo', function ($row) use($types, $subtypes){
-            $first_letter = substr($row->type, 0, 1);
-            $subtype_letters = substr($row->type, 1, 2);
-            $subtype = isset($subtypes[$first_letter][$subtype_letters])? $subtypes[$first_letter][$subtype_letters]:'';
-            return $subtype;
+        ->addColumn('subtipo', function ($row){
+            // $first_letter = substr($row->type, 0, 1);
+            // $subtype_letters = substr($row->type, 1, 2);
+            // $subtype = isset($subtypes[$first_letter][$subtype_letters])? $subtypes[$first_letter][$subtype_letters]:'';
+            // return $subtype;
         })
         ->addColumn('with_iva', function ($row){
             if($row->with_iva){
@@ -155,12 +152,9 @@ class AccountingAccountController extends Controller{
             'slug' => 'accounting-accounts'
         ]; 
 
-        $types = helpers::accountingAccountsTypesLevel1();
-        $subtypes = helpers::accountingAccountsSubtypesLevel2();
-
         $languages = $this->languages;
 
-        return view('admin.accounting_accounts.create')->with(compact('header', 'types', 'subtypes', 'languages'));    
+        return view('admin.accounting_accounts.create')->with(compact('header', 'languages'));    
     }
 
     /**
@@ -225,15 +219,12 @@ class AccountingAccountController extends Controller{
             'slug' => 'accounting-accounts'
         ]; 
 
-        $types = helpers::accountingAccountsTypes();
-        $subtypes = helpers::accountingAccountsSubtypes();
-
         //Empresa target:
         $company = Company::select('name')->find($account->company_target);
 
         $languages = $this->languages;
 
-        return view('admin.accounting_accounts.edit')->with(compact('header', 'account', 'types', 'subtypes', 'company', 'languages'));     
+        return view('admin.accounting_accounts.edit')->with(compact('header', 'account', 'company', 'languages'));     
     }
 
     /**

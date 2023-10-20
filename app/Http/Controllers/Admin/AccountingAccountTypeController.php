@@ -23,6 +23,8 @@ class AccountingAccountTypeController extends Controller{
      * 3. Guardar nuevo grupo.
      * 4. Editar grupo.
      * 5. Actualizar grupo.
+     * 6. Eliminar grupo.
+     * 7. Mostrar listado de grupos.
      */
     
     private $option = 'configuracion';
@@ -43,6 +45,13 @@ class AccountingAccountTypeController extends Controller{
                 'name' => 'required'
             ],[
                 'code.unique' => trans('textos.grupo_contable_codigo_repetido')
+            ]);
+
+        //Validación update:
+        }elseif(isset($data['submit_update'])) {
+            return Validator::make($data, [
+                'id' => "required|integer",
+                'name' => 'required'
             ]);
         }
     }
@@ -66,8 +75,7 @@ class AccountingAccountTypeController extends Controller{
      * 1.1. Lista de grupos contales para DataTable.
      */
     public function getAccountingAccountTypesDT(){
-        $data = AccountingAccountType::where('autoreference', '0')
-        ->orderBy('code', 'ASC');
+        $data = AccountingAccountType::orderBy('id', 'ASC');
 
         return DataTables::of($data)
         ->addColumn('code', function ($row){
@@ -75,6 +83,9 @@ class AccountingAccountTypeController extends Controller{
         }) 
         ->addColumn('name', function ($row){
             return $row->name;
+        }) 
+        ->addColumn('level', function ($row){
+            return strlen($row->code);
         }) 
         ->addColumn('acciones', function ($row){
             return view('admin.accounting_account_types.partials.dt-actions', compact('row'));
@@ -122,37 +133,49 @@ class AccountingAccountTypeController extends Controller{
     /**
      * 4. Editar grupo.
      */
-    public function edit(AccountingAccountType $group){
-        $header = [
-            'option' => $this->option,
-            'suboption' => 'textos.grupo_contable_editar',
-            'module' => $this->module,
-            'slug' => 'accounting-account-types'
-        ]; 
+    // public function edit(AccountingAccountType $group){
+    //     $header = [
+    //         'option' => $this->option,
+    //         'suboption' => 'textos.grupo_contable_editar',
+    //         'module' => $this->module,
+    //         'slug' => 'accounting-account-types'
+    //     ]; 
 
-        return view('admin.accounting_account_types.edit')->with(compact('header', 'group'));     
-    }
+    //     return view('admin.accounting_account_types.edit')->with(compact('header', 'group'));     
+    // }
 
     /**
      * 5. Actualizar grupo.
      */
-    public function update(Request $request, AccountingAccountType $group){
+    public function update(Request $request){
         $validator = $this->validator($request->all());
         if ($validator->fails()) {
-            return redirect('/admin/accounting-account-types/'.$group->id.'/edit')
+            return redirect('/admin/accounting-account-types/'.$data->id.'/edit')
                 ->withErrors($validator)
                 ->withInput();
         }
 
-        $group->request->name;
-        $group->save();
+        $type = AccountingAccountType::find($request->id);
+        $type->name = $request->name;
+        $type->save();
 
         $msg = trans('textos.grupo_actualizado');
-        return redirect()->route('accounting-account-types.edit', $group)->with(compact('msg'));
+        return redirect()->route('accounting-account-types.index')->with(compact('msg'));
     }
 
+    /**
+     * 6. Eliminar grupo.
+     */
+    public function destroy(AccountingAccountType $group){
+        $group->delete();
+        
+        $msg = trans('textos.grupo_deleted');
+        return redirect()->route('accounting-account-types.index')->with(compact('msg'));    
+    }
 
-
+    /**
+     * 7. Mostrar listado de grupos.
+     */
     public function show(){
         $header = [
             'option' => $this->option,
@@ -160,7 +183,9 @@ class AccountingAccountTypeController extends Controller{
             'module' => $this->module,
             'slug' => 'accounting-account-types'
         ]; 
+
+        $accounts = AccountingAccountType::orderBy('id', 'ASC')->get();
     
-        return view('admin.accounting_account_types.show')->with(compact('header'));   
+        return view('admin.accounting_account_types.show')->with(compact('header', 'accounts'));   
     }
 }
