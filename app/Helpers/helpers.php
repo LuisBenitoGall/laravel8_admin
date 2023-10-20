@@ -62,8 +62,6 @@ class Helpers{
 	 *  3.27. Estados de envíos.
 	 *  3.28. Estados de protocolos.
 	 *  3.29. Estados de venta por caja.
-	 *  3.30. Tipos de cuentas contables.
-	 *  3.31. Subtipos de cuentas contables.
 	 *
 	 * 4. Strings:
 	 * 	4.1. Truncar texto.
@@ -1168,94 +1166,6 @@ class Helpers{
 		}else{
 			return $data;
 		}	
-	}
-
-	/**
-	 * 3.30. Tipos de cuentas contables.
-	 *
-	 * Según tipología del Plan General Contable.
-	 */
-	public static function accountingAccountsTypesLevel1($type = false){
-		$data = [
-			1 => ucfirst(trans('textos.financiacion_basica')),
-			2 => ucfirst(trans('textos.inmovilizado')),
-			3 => ucfirst(trans('textos.existencias')),
-			4 => ucfirst(trans('textos.acreedores_deudores')),
-			5 => ucfirst(trans('textos.cuentas_financieras')),
-			6 => ucfirst(trans('textos.compras_gastos')),
-			7 => ucfirst(trans('textos.ventas_ingresos')),
-			8 => ucfirst(trans('textos.gastos_patrimonio_neto')),
-			9 => ucfirst(trans('textos.ingresos_patrimonio_neto'))
-		];
-		if($type){
-			return $data[$type];
-		}else{
-			return $data;
-		}	
-	}
-
-	/**
-	 * 3.31. Subtipos de cuentas contables nivel 2.
-	 */
-	public static function accountingAccountsSubtypesLevel2($subtype = false){
-		$data = [
-			1 => [
-				'0' => ucfirst(trans('textos.capital')), 
-				'1' => ucfirst(trans('textos.reservas')),
-				'2' => ucfirst(trans('textos.resultado_pendientes_aplicacion')),
-				'3' => ucfirst(trans('textos.ingresos_distribuir_ejercicios')),
-				'4' => ucfirst(trans('textos.provisiones')),
-				'5' => ucfirst(trans('textos.emprestitos_obligaciones_analogas')),
-				'6' => ucfirst(trans('textos.deudas_largo_plazo_vinculadas')),
-				'7' => ucfirst(trans('textos.deudas_largo_plazo_recibidos')),
-				'8' => ucfirst(trans('textos.fianzas_depositos_largo_plazo')),
-				'9' => ucfirst(trans('textos.situaciones_transitorias_financiacion'))
-			],
-
-			2 => [
-				'0' => ucfirst(trans('textos.')),
-			],
-
-			4 => ['00' => ucfirst(trans('textos.acreedores')), '10' => ucfirst(trans('textos.proveedores')), '30' => ucfirst(trans('textos.clientes'))]
-		];
-		if($subtype){
-			return $data[$subtype];
-		}else{
-			return $data;
-		}	
-	}
-
-	/**
-	 * 3.32. Subtipos de cuentas contables nivel 3.
-	 */
-	public static function accountingAccountsSubtypesLevel3($subtype = false){
-		$data = [
-			'11' => [
-				'0' => ucfirst(trans('textos.prima_emision_acciones')),
-				'1' => ucfirst(trans('textos.reservas_revalorizacion')),
-				'2' => ucfirst(trans('textos.reserva_legal')),
-				'3' => ucfirst(trans('textos.reservas_especiales')),
-				'4' => ucfirst(trans('textos.reserva_acciones_sociedad_dominante')),
-				'5' => ucfirst(trans('textos.reserva_acciones_propias')),
-				'6' => ucfirst(trans('textos.reservas_estatutarias')),
-				'7' => ucfirst(trans('textos.reservas_voluntarias')),
-				'8' => ucfirst(trans('textos.reserva_capital_amortizado')),
-				'9' => ucfirst(trans('textos.otras_reservas')),
-			],
-			'12' => [
-				'0' => ucfirst(trans('textos.remanente')),
-			]
-
-		];
-
-	}
-	
-	/**
-	 * 3.33. Subtipos de cuentas contables nivel 4.
-	 */
-	public static function accountingAccountsSubtypesLevel4($subtype = false){
-
-
 	}
 
 	/**

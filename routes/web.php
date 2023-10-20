@@ -67,9 +67,9 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::get('accounting-account-types', 'AccountingAccountTypeController@index')->name('accounting-account-types.index')->middleware('permission:accounting-account-types.index');
     Route::get('accounting-account-types/create', 'AccountingAccountTypeController@create')->name('accounting-account-types.create')->middleware('permission:accounting-account-types.create');
     Route::post('accounting-account-types/store', 'AccountingAccountTypeController@store')->name('accounting-account-types.store')->middleware('permission:accounting-account-types.create');
-    Route::get('accounting-account-types/{group}/edit', 'AccountingAccountTypeController@edit')->name('accounting-account-types.edit')->middleware('permission:accounting-account-types.edit');
-    Route::put('accounting-account-types/{account}/update', 'AccountingAccountTypeController@update')->name('accounting-account-types.update')->middleware('permission:accounting-account-types.edit');
-
+    // Route::get('accounting-account-types/{group}/edit', 'AccountingAccountTypeController@edit')->name('accounting-account-types.edit')->middleware('permission:accounting-account-types.edit');
+    Route::post('accounting-account-types/update', 'AccountingAccountTypeController@update')->name('accounting-account-types.update')->middleware('permission:accounting-account-types.edit');
+    Route::delete('accounting-account-types/{group}', 'AccountingAccountTypeController@destroy')->name('accounting-account-types.destroy');
     Route::get('accounting-account-types/show', 'AccountingAccountTypeController@show')->name('accounting-account-types.show');
 
     // Accounting Accounts:

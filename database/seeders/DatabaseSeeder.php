@@ -8,12 +8,14 @@ class DatabaseSeeder extends Seeder{
     /**
      * Seed the application's database.
      *
+     * Comando para correr un seeder específico: php artisan db:seed --class=NameSeeder
+     *
      * @return void
      */
     public function run(){
         //Mantener el orden de ejecución de los seeds:
         $this->call(AppSettingsTableSeeder::class);
-        // $this->call(AccountingAccountTypesTableSeeder::class);
+        $this->call(AccountingAccountTypesTableSeeder::class);  //php artisan db:seed --class=AccountingAccountTypesTableSeeder
         $this->call(AccountsTableSeeder::class);
         $this->call(CountriesTableSeeder::class);
     	$this->call(ProvincesTableSeeder::class);
