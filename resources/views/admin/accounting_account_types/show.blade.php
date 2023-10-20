@@ -746,7 +746,34 @@ $data = [
             '9' => [
                 'name' => ucfirst(trans('fiscal.deterioro_existencias')),
                 'level3' => [
-                    
+                    '0' => [
+                        'name' => ucfirst(trans('fiscal.deterioro_mercaderias')),
+                        'level4' => false
+                    ],
+                    '1' => [
+                        'name' => ucfirst(trans('fiscal.deterioro_primas')),
+                        'level4' => false
+                    ],
+                    '2' => [
+                        'name' => ucfirst(trans('fiscal.deterioro_aprovisionamientos')),
+                        'level4' => false
+                    ],
+                    '3' => [
+                        'name' => ucfirst(trans('fiscal.deterioro_productos_curso')),
+                        'level4' => false
+                    ],
+                    '4' => [
+                        'name' => ucfirst(trans('fiscal.deterioro_semiterminados')),
+                        'level4' => false
+                    ],
+                    '5' => [
+                        'name' => ucfirst(trans('fiscal.deterioro_terminados')),
+                        'level4' => false
+                    ],
+                    '6' => [
+                        'name' => ucfirst(trans('fiscal.deterioro_subproductos_residuos_recuperados')),
+                        'level4' => false
+                    ]
                 ]
             ]
         ]
