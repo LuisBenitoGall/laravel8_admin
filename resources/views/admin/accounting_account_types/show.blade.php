@@ -1026,7 +1026,77 @@ $data = [
     5 => [
         'name' => ucfirst(trans('fiscal.cuentas_financieras')),
         'level2' =>  [
-
+            '0' => [
+                'name' => ucfirst(trans('fiscal.emprestitos_especiales_analogas_corto')),
+                'level3' => [
+                    '0' => [
+                        'name' => ucfirst(trans('fiscal.obligaciones_bonos_corto')),
+                        'level4' => false
+                    ],
+                    '1' => [
+                        'name' => ucfirst(trans('fiscal.obligaciones_bonos_convertibles_corto')),
+                        'level4' => false
+                    ],
+                    '2' => [
+                        'name' => ucfirst(trans('fiscal.acciones_corto_pasivo')),
+                        'level4' => false
+                    ],
+                    '5' => [
+                        'name' => ucfirst(trans('fiscal.deudas_negociables_corto')),
+                        'level4' => false
+                    ],
+                    '6' => [
+                        'name' => ucfirst(trans('fiscal.intereses_analogas')),
+                        'level4' => false
+                    ],
+                    '7' => [
+                        'name' => ucfirst(trans('fiscal.dividendos_emisiones_pasivo')),
+                        'level4' => false
+                    ],
+                    '9' => [
+                        'name' => ucfirst(trans('fiscal.valores_amortizados')),
+                        'level4' => false
+                    ]
+                ]
+            ],
+            '1' => [
+                'name' => ucfirst(trans('fiscal.deudas_corto_vinculadas')),
+                'level3' => [
+                    '0' => [
+                        'name' => ucfirst(trans('fiscal.deudas_corto_credito_vinculadas')),
+                        'level4' => false
+                    ],
+                    '1' => [
+                        'name' => ucfirst(trans('fiscal.proveedores_corto_vinculadas')),
+                        'level4' => false
+                    ],
+                    '2' => [
+                        'name' => ucfirst(trans('fiscal.acreedores_corto_vinculadas')),
+                        'level4' => false
+                    ],
+                    '3' => [
+                        'name' => ucfirst(trans('fiscal.otras_corto_vinculadas')),
+                        'level4' => false
+                    ],
+                    '4' => [
+                        'name' => ucfirst(trans('fiscal.intereses_corto_vinculadas')),
+                        'level4' => false
+                    ]
+                ]
+            ],
+            '2' => [
+                'name' => ucfirst(trans('fiscal.deudas_corto_recibidos')),
+                'level3' => [
+                    '0' => [
+                        'name' => ucfirst(trans('fiscal.deudas_corto_credito')),
+                        'level4' => [
+                            '0' => [
+                                'name' => ucfirst(trans('fiscal.prestamos_corto_credito'))
+                            ]
+                        ]
+                    ]
+                ]
+            ]
         ]
     ],
     6 => [
