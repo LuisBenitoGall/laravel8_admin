@@ -746,7 +746,34 @@ $data = [
             '9' => [
                 'name' => ucfirst(trans('fiscal.deterioro_existencias')),
                 'level3' => [
-                    
+                    '0' => [
+                        'name' => ucfirst(trans('fiscal.deterioro_mercaderias')),
+                        'level4' => false
+                    ],
+                    '1' => [
+                        'name' => ucfirst(trans('fiscal.deterioro_primas')),
+                        'level4' => false
+                    ],
+                    '2' => [
+                        'name' => ucfirst(trans('fiscal.deterioro_aprovisionamientos')),
+                        'level4' => false
+                    ],
+                    '3' => [
+                        'name' => ucfirst(trans('fiscal.deterioro_productos_curso')),
+                        'level4' => false
+                    ],
+                    '4' => [
+                        'name' => ucfirst(trans('fiscal.deterioro_semiterminados')),
+                        'level4' => false
+                    ],
+                    '5' => [
+                        'name' => ucfirst(trans('fiscal.deterioro_terminados')),
+                        'level4' => false
+                    ],
+                    '6' => [
+                        'name' => ucfirst(trans('fiscal.deterioro_subproductos_residuos_recuperados')),
+                        'level4' => false
+                    ]
                 ]
             ]
         ]
@@ -754,7 +781,246 @@ $data = [
     4 => [
         'name' => ucfirst(trans('fiscal.acreedores_deudores')),
         'level2' =>  [
-
+            '0' => [
+                'name' => ucfirst(trans('fiscal.proveedores')),
+                'level3' => [
+                    '0' => [
+                        'name' => ucfirst(trans('fiscal.proveedores')),
+                        'level4' => false
+                    ],
+                    '1' => [
+                        'name' => ucfirst(trans('fiscal.proveedores_comerciales_pagar')),
+                        'level4' => false
+                    ],
+                    '3' => [
+                        'name' => ucfirst(trans('fiscal.proveedores_empresas_grupo')),
+                        'level4' => false
+                    ],
+                    '4' => [
+                        'name' => ucfirst(trans('fiscal.proveedores_asociadas')),
+                        'level4' => false
+                    ],
+                    '5' => [
+                        'name' => ucfirst(trans('fiscal.proveedores_vinculadas')),
+                        'level4' => false
+                    ],
+                    '6' => [
+                        'name' => ucfirst(trans('fiscal.envases_proveedores')),
+                        'level4' => false
+                    ],
+                    '7' => [
+                        'name' => ucfirst(trans('fiscal.anticipos_proveedores')),
+                        'level4' => false
+                    ]
+                ]
+            ],
+            '1' => [
+                'name' => ucfirst(trans('fiscal.acreedores_varios')),
+                'level3' => [
+                    '0' => [
+                        'name' => ucfirst(trans('fiscal.acreedores_servicios')),
+                        'level4' => false
+                    ],
+                    '1' => [
+                        'name' => ucfirst(trans('fiscal.acreedores_comerciales_pagar')),
+                        'level4' => false
+                    ],
+                    '9' => [
+                        'name' => ucfirst(trans('fiscal.acreedores_operaciones_comun')),
+                        'level4' => false
+                    ]
+                ]
+            ],
+            '3' => [
+                'name' => ucfirst(trans('fiscal.clientes')),
+                'level3' => [
+                    '0' => [
+                        'name' => ucfirst(trans('fiscal.clientes')),
+                        'level4' => false
+                    ],
+                    '1' => [
+                        'name' => ucfirst(trans('fiscal.clientes_comerciales_cobrar')),
+                        'level4' => false
+                    ],
+                    '2' => [
+                        'name' => ucfirst(trans('fiscal.clientes_factoring')),
+                        'level4' => false
+                    ],
+                    '3' => [
+                        'name' => ucfirst(trans('fiscal.clientes_empresas_grupo')),
+                        'level4' => false
+                    ],
+                    '4' => [
+                        'name' => ucfirst(trans('fiscal.clientes_asociadas')),
+                        'level4' => false
+                    ],
+                    '5' => [
+                        'name' => ucfirst(trans('fiscal.clientes_vinculadas')),
+                        'level4' => false
+                    ],
+                    '6' => [
+                        'name' => ucfirst(trans('fiscal.clientes_dudoso_cobro')),
+                        'level4' => false
+                    ],
+                    '7' => [
+                        'name' => ucfirst(trans('fiscal.envases_devolver_clientes')),
+                        'level4' => false
+                    ],
+                    '8' => [
+                        'name' => ucfirst(trans('fiscal.anticipos_clientes')),
+                        'level4' => false
+                    ]
+                ]
+            ],
+            '4' => [
+                'name' => ucfirst(trans('fiscal.deudores_varios')),
+                'level3' => [
+                    '0' => [
+                        'name' => ucfirst(trans('fiscal.deudores')),
+                        'level4' => false
+                    ],
+                    '1' => [
+                        'name' => ucfirst(trans('fiscal.deudores_comerciales_cobrar')),
+                        'level4' => false
+                    ],
+                    '6' => [
+                        'name' => ucfirst(trans('fiscal.deudores_cobro')),
+                        'level4' => false
+                    ],
+                    '9' => [
+                        'name' => ucfirst(trans('fiscal.deudores_comun')),
+                        'level4' => false
+                    ]
+                ]
+            ],
+            '6' => [
+                'name' => ucfirst(trans('fiscal.personal')),
+                'level3' => [
+                    '0' => [
+                        'name' => ucfirst(trans('fiscal.anticipos_remuneraciones')),
+                        'level4' => false
+                    ],
+                    '5' => [
+                        'name' => ucfirst(trans('fiscal.remuneraciones_pendientes')),
+                        'level4' => false
+                    ],
+                    '6' => [
+                        'name' => ucfirst(trans('fiscal.remuneraciones_sistemas_definida_pendientes')),
+                        'level4' => false
+                    ]
+                ]
+            ],
+            '7' => [
+                'name' => ucfirst(trans('fiscal.administraciones_publicas')),
+                'level3' => [
+                    '0' => [
+                        'name' => ucfirst(trans('fiscal.publica_deudora_conceptos')),
+                        'level4' => [
+                            '0' => [
+                                'name' => ucfirst(trans('fiscal.publica_iva'))
+                            ],
+                            '8' => [
+                                'name' => ucfirst(trans('fiscal.publica_subvenciones_concedidas'))
+                            ],
+                            '9' => [
+                                'name' => ucfirst(trans('fiscal.publica_devolucion_impuestos'))
+                            ]
+                        ]
+                    ],
+                    '1' => [
+                        'name' => ucfirst(trans('fiscal.organismos_social_deudores')),
+                        'level4' => false
+                    ],
+                    '2' => [
+                        'name' => ucfirst(trans('fiscal.publica_iva_soportado')),
+                        'level4' => false
+                    ],
+                    '3' => [
+                        'name'=> ucfirst(trans('fiscal.publica_retenciones_cuenta')),
+                        'level4' => false
+                    ],
+                    '4' => [
+                        'name' => ucfirst(trans('fiscal.activos_impuesto_diferido')),
+                        'level4' => [
+                            '0' => [
+                                'name' => ucfirst(trans('fiscal.activos_temporarias_deducibles'))
+                            ],
+                            '2' => [
+                                'name' => ucfirst(trans('fiscal.derechos_deducciones_bonificaciones_pendientes'))
+                            ],
+                            '5' => [
+                                'name' => ucfirst(trans('fiscal.credito_perdidas_ejercicio'))
+                            ]
+                        ]
+                    ],
+                    '5' => [
+                        'name' => ucfirst(trans('fiscal.publica_fiscales')),
+                        'level4' => [
+                            '0' => [
+                                'name' => ucfirst(trans('fiscal.publica_acreedora_iva'))
+                            ],
+                            '1' => [
+                                'name' => ucfirst(trans('fiscal.publica_practicadas'))
+                            ],
+                            '2' => [
+                                'name' => ucfirst(trans('fiscal.publica_impuesto_sociedades'))
+                            ],
+                            '8' => [
+                                'name' => ucfirst(trans('fiscal.publica_subvenciones_reintegrar'))
+                            ]
+                        ]
+                    ],
+                    '6' => [
+                        'name' => ucfirst(trans('fiscal.organismos_social_acreedores')),
+                        'level4' => false
+                    ],
+                    '7' => [
+                        'name' => ucfirst(trans('fiscal.publica_iva_repercutido')),
+                        'level4' => false
+                    ],
+                    '9' => [
+                        'name' => ucfirst(trans('fiscal.pasivos_temporarias_imponibles')),
+                        'level4' => false
+                    ]
+                ]
+            ],
+            '8' => [
+                'name' => ucfirst(trans('fiscal.ajustes_periodificacion')),
+                'level3' => [
+                    '0' => [
+                        'name' => ucfirst(trans('fiscal.gastos_anticipados')),
+                        'level4' => false
+                    ],
+                    '5' => [
+                        'name' => ucfirst(trans('fiscal.ingresos_anticipados')),
+                        'level4' => false
+                    ]
+                ]
+            ],
+            '9' => [
+                'name' => ucfirst(trans('fiscal.deterioro_creditos_corto')),
+                'level3' => [
+                    '0' => [
+                        'name' => ucfirst(trans('fiscal.deterioro_comerciales')),
+                        'level4' => false
+                    ],
+                    '3' => [
+                        'name' => ucfirst(trans('fiscal.deterioro_comerciales_vinculadas')),
+                        'level4' => false
+                    ],
+                    '9' => [
+                        'name' => ucfirst(trans('fiscal.provisiones_comerciales')),
+                        'level4' => [
+                            '4' => [
+                                'name' => ucfirst(trans('fiscal.provision_onerosos'))
+                            ],
+                            '9' => [
+                                'name' => ucfirst(trans('fiscal.provision_comerciales'))
+                            ]
+                        ]
+                    ]
+                ]
+            ]
         ]
     ],
     5 => [
