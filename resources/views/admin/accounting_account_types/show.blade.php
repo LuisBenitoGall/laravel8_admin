@@ -1835,9 +1835,39 @@ $data = [
     ],
     6 => [
         'name' => ucfirst(trans('fiscal.compras_gastos')),
-        'group' => '',
+        'group' => false,
         'level2' =>  [
-
+            '0' => [
+                'name' => ucfirst(trans('fiscal.compras')),
+                'group' => false,
+                'level3' => [
+                    '0' => [
+                        'name' => ucfirst(trans('fiscal.compras_mercaderias')),
+                        'group' => false,
+                        'level4' => false
+                    ],
+                    '1' => [
+                        'name' => ucfirst(trans('fiscal.compras_primas')),
+                        'group' => false,
+                        'level4' => false
+                    ],
+                    '2' => [
+                        'name' => ucfirst(trans('fiscal.compras_aprovisionamientos')),
+                        'group' => false,
+                        'level4' => false
+                    ],
+                    '6' => [
+                        'name' => ucfirst(trans('fiscal.descuentos_compras_pronto')),
+                        'group' => false,
+                        'level4' => false
+                    ],
+                    '7' => [
+                        'name' => ucfirst(trans('fiscal.trabajos_empresas')),
+                        'group' => false,
+                        'level4' => false
+                    ]
+                ]
+            ]
         ]
     ],
     7 => [
