@@ -2286,7 +2286,47 @@ $data = [
         'name' => ucfirst(trans('fiscal.ventas_ingresos')),
         'group' => false,
         'level2' =>  [
-
+            '0' => [
+                'name' => ucfirst(trans('fiscal.ventas_propia_servicios')),
+                'group' => false,
+                'level3' => [
+                    '0' => [
+                        'name' => ucfirst(trans('fiscal.ventas_mercaderias')),
+                        'group' => false,
+                        'level4' => false
+                    ],
+                    '1' => [
+                        'name' => ucfirst(trans('fiscal.ventas_terminados')),
+                        'group' => false,
+                        'level4' => false
+                    ],
+                    '2' => [
+                        'name' => ucfirst(trans('fiscal.ventas_semiterminados')),
+                        'group' => false,
+                        'level4' => false
+                    ],
+                    '3' => [
+                        'name' => ucfirst(trans('fiscal.ventas_residuos')),
+                        'group' => false,
+                        'level4' => false
+                    ],
+                    '4' => [
+                        'name' => ucfirst(trans('fiscal.ventas_embalajes')),
+                        'group' => false,
+                        'level4' => false
+                    ],
+                    '5' => [
+                        'name' => ucfirst(trans('fiscal.prestacion_servicios')),
+                        'group' => false,
+                        'level4' => false
+                    ],
+                    '6' => [
+                        'name' => ucfirst(trans('fiscal.descuentos_pronto')),
+                        'group' => false,
+                        'level4' => false
+                    ]
+                ]
+            ]
         ]
     ],
     8 => [

@@ -106,6 +106,7 @@ return array(
     'derivados_corto' => 'Derivados financieros a corto plazo',
     'desarrollo' => 'Desarrollo',
     'descuentos_compras_pronto' => 'Descuentos sobre compras por pronto pago',
+    'descuentos_pronto' => 'Descuentos sobre ventas por pronto pago',
     'desembolsos_no_exigidos_participaciones_pasivo' => 'Desembolsos no exigidos por acciones o participaciones contabilizadas como pasivo',
     'desembolsos_participaciones_corto_vinculadas' => 'Desembolsos pendientes sobre participaciones a corto plazo de partes vinculadas',
     'desembolsos_participaciones_neto' => 'Desembolsos exigidos sobre participaciones en el patrimonio neto',
@@ -329,6 +330,7 @@ return array(
     'perdidas_venta' => 'Pérdidas de disponibles para la venta',
     'perdidas_vinculadas' => 'Pérdidas procedentes de participaciones a largo plazo en partes vinculadas',
     'personal' => 'Personal',
+    'prestacion_servicios' => 'Prestación de servicios',
     'prestamos_corto_credito' => 'Préstamos a corto plazo de entidades de crédito',
 	'prima_emision_asuncion' => 'Prima de emisión o asunción',
     'productos_curso' => 'Productos en curso',
@@ -435,6 +437,11 @@ return array(
     'variacion_existencias' => 'Variación de existencias',
     'variacion_mercaderias' => 'Variación de existencias de mercaderías',
     'variacion_primas' => 'Variación de existencias de materias primas',
+    'ventas_embalajes' => 'Ventas de envases y embalajes',
 	'ventas_ingresos' => 'Ventas e ingresos',
-
+    'ventas_mercaderias' => 'Ventas de mercaderías',
+    'ventas_propia_servicios' => 'Ventas de mercaderías, de producción propia, de servicios, etc',
+    'ventas_residuos' => 'Ventas de subproductos y residuos',
+    'ventas_semiterminados' => 'Ventas de productos semiterminados',
+    'ventas_terminados' => 'Ventas de productos terminados',
 );
