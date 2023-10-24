@@ -2063,6 +2063,78 @@ $data = [
                         'name' => ucfirst(trans('fiscal.perdidas_incobrables')),
                         'group' => false,
                         'level4' => false
+                    ],
+                    '1' => [
+                        'name' => ucfirst(trans('fiscal.resultados_comun')),
+                        'group' => false,
+                        'level4' => [
+                            '0' => [
+                                'name' => ucfirst(trans('fiscal.beneficio_gestor')),
+                                'group' => false
+                            ],
+                            '1' => [
+                                'name' => ucfirst(trans('fiscal.perdida_participe')),
+                                'group' => false
+                            ]
+                        ]
+                    ],
+                    '9' => [
+                        'name' => ucfirst(trans('fiscal.otras_corriente')),
+                        'group' => false,
+                        'level4' => false
+                    ]
+                ]
+            ],
+            '6' => [
+                'name' => ucfirst(trans('fiscal.gastos_financieros')),
+                'group' => false,
+                'level3' => [
+                    '0' => [
+                        'name' => ucfirst(trans('fiscal.gastos_provisiones')),
+                        'group' => false,
+                        'level4' => false
+                    ],
+                    '1' => [
+                        'name' => ucfirst(trans('fiscal.intereses_bonos')),
+                        'group' => false,
+                        'level4' => false
+                    ],
+                    '2' => [
+                        'name' => ucfirst(trans('fiscal.intereses_deudas')),
+                        'group' => false,
+                        'level4' => false
+                    ],
+                    '3' => [
+                        'name' => ucfirst(trans('fiscal.perdidas_instrumentos_razonable')),
+                        'group' => false,
+                        'level4' => [
+                            '0' => [
+                                'name' => ucfirst(trans('fiscal.perdidas_negociacion')),
+                                'group' => false
+                            ],
+                            '1' => [
+                                'name' => ucfirst(trans('fiscal.perdidas_empresa')),
+                                'group' => false
+                            ],
+                            '2' => [
+                                'name' => ucfirst(trans('fiscal.perdidas_venta')),
+                                'group' => false
+                            ],
+                            '3' => [
+                                'name' => ucfirst(trans('fiscal.perdidas_cobertura')),
+                                'group' => false
+                            ]
+                        ]
+                    ],
+                    '4' => [
+                        'name' => ucfirst(trans('fiscal.dividendos_pasivo')),
+                        'group' => false,
+                        'level4' => false
+                    ],
+                    '5' => [
+                        'name' => ucfirst(trans('fiscal.intereses_factoring')),
+                        'group' => false,
+                        'level4' => false
                     ]
                 ]
             ]
