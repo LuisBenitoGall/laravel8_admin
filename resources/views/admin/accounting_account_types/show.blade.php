@@ -2135,6 +2135,148 @@ $data = [
                         'name' => ucfirst(trans('fiscal.intereses_factoring')),
                         'group' => false,
                         'level4' => false
+                    ],
+                    '6' => [
+                        'name' => ucfirst(trans('fiscal.perdidas_deuda')),
+                        'group' => false,
+                        'level4' => false
+                    ],
+                    '7' => [
+                        'name' => ucfirst(trans('fiscal.perdidas_comerciales')),
+                        'group' => false,
+                        'level4' => false
+                    ],
+                    '8' => [
+                        'name' => ucfirst(trans('fiscal.diferencias_cambio')),
+                        'group' => false,
+                        'level4' => false
+                    ],
+                    '9' => [
+                        'name' => ucfirst(trans('fiscal.otros_financieros')),
+                        'group' => false,
+                        'level4' => false
+                    ]
+                ]
+            ],
+            '7' => [
+                'name' => ucfirst(trans('fiscal.perdidas_excepcionales')),
+                'group' => false,
+                'level3' => [
+                    '0' => [
+                        'name' => ucfirst(trans('fiscal.perdidas_intangible')),
+                        'group' => false,
+                        'level4' => false
+                    ],
+                    '1' => [
+                        'name' => ucfirst(trans('fiscal.perdidas_material')),
+                        'group' => false,
+                        'level4' => false
+                    ],
+                    '2' => [
+                        'name' => ucfirst(trans('fiscal.perdidas_inmobiliarias')),
+                        'group' => false,
+                        'level4' => false
+                    ],
+                    '3' => [
+                        'name' => ucfirst(trans('fiscal.perdidas_vinculadas')),
+                        'group' => false,
+                        'level4' => false
+                    ],
+                    '5' => [
+                        'name' => ucfirst(trans('fiscal.perdidas_propias')),
+                        'group' => false,
+                        'level4' => false
+                    ],
+                    '8' => [
+                        'name' => ucfirst(trans('fiscal.gastos_excepcionales')),
+                        'group' => false,
+                        'level4' => false
+                    ]
+                ]
+            ],
+            '8' => [
+                'name' => ucfirst(trans('fiscal.dotaciones_amortizaciones')),
+                'group' => false,
+                'level3' => [
+                    '0' => [
+                        'name' => ucfirst(trans('fiscal.amortizacion_inmovilizado_intangible')),
+                        'group' => false,
+                        'level4' => false
+                    ],
+                    '1' => [
+                        'name' => ucfirst(trans('fiscal.amortizacion_inmovilizado_material')),
+                        'group' => false,
+                        'level4' => false
+                    ],
+                    '2' => [
+                        'name' => ucfirst(trans('fiscal.amortizacion_inversiones_inmobiliarias')),
+                        'group' => false,
+                        'level4' => false
+                    ]
+                ]
+            ],
+            '9' => [
+                'name' => ucfirst(trans('fiscal.perdidas_dotaciones')),
+                'group' => false,
+                'level3' => [
+                    '0' => [
+                        'name' => ucfirst(trans('fiscal.perdidas_deterioro_intangible')),
+                        'group' => false,
+                        'level4' => false
+                    ],
+                    '1' => [
+                        'name' => ucfirst(trans('fiscal.perdidas_deterioro_material')),
+                        'group' => false,
+                        'level4' => false
+                    ],
+                    '2' => [
+                        'name' => ucfirst(trans('fiscal.perdidas_deterioro_inmobiliarias')),
+                        'group' => false,
+                        'level4' => false
+                    ],
+                    '3' => [
+                        'name' => ucfirst(trans('fiscal.perdidas_deterioro_existencias')),
+                        'group' => false,
+                        'level4' => false
+                    ],
+                    '4' => [
+                        'name' => ucfirst(trans('fiscal.perdidas_deterioro_comerciales')),
+                        'group' => false,
+                        'level4' => false
+                    ],
+                    '5' => [
+                        'name' => ucfirst(trans('fiscal.dotacion_comerciales')),
+                        'group' => false,
+                        'level4' => [
+                            '4' => [
+                                'name' => ucfirst(trans('fiscal.dotacion_contratos_onerosos')),
+                                'group' => false
+                            ],
+                            '9' => [
+                                'name' => ucfirst(trans('fiscal.dotacion_otras_comerciales')),
+                                'group' => false
+                            ]
+                        ]
+                    ],
+                    '6' => [
+                        'name' => ucfirst(trans('fiscal.perdidas_valores_largo')),
+                        'group' => false,
+                        'level4' => false
+                    ],
+                    '7' => [
+                        'name' => ucfirst(trans('fiscal.perdidas_largo')),
+                        'group' => false,
+                        'level4' => false
+                    ],
+                    '8' => [
+                        'name' => ucfirst(trans('fiscal.perdidas_corto')),
+                        'group' => false,
+                        'level4' => false
+                    ],
+                    '9' => [
+                        'name' => ucfirst(trans('fiscal.perdidas_creditos_corto')),
+                        'group' => false,
+                        'level4' => false
                     ]
                 ]
             ]
