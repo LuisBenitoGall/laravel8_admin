@@ -2804,7 +2804,138 @@ $data = [
         'name' => ucfirst(trans('fiscal.ingresos_patrimonio_neto')),
         'group' => '',
         'level2' =>  [
-
+            '0' => [
+                'name' => ucfirst(trans('fiscal.ingresos_activos_financieros')),
+                'group' => '',
+                'level3' => [
+                    '0' => [
+                        'name' => ucfirst(trans('fiscal.beneficios_financieros_venta')),
+                        'group' => '',
+                        'level4' => false
+                    ],
+                    '2' => [
+                        'name' => ucfirst(trans('fiscal.transferencia_activos_venta')),
+                        'group' => '',
+                        'level4' => false
+                    ]
+                ]
+            ],
+            '1' => [
+                'name' => ucfirst(trans('fiscal.ingresos_cobertura')),
+                'group' => '',
+                'level3' => [
+                    '0' => [
+                        'name' => ucfirst(trans('fiscal.beneficios_efectivo')),
+                        'group' => '',
+                        'level4' => false
+                    ],
+                    '1' => [
+                        'name' => ucfirst(trans('fiscal.beneficios_extranjero')),
+                        'group' => '',
+                        'level4' => false
+                    ],
+                    '2' => [
+                        'name' => ucfirst(trans('fiscal.transferencia_perdidas_efectivo')),
+                        'group' => '',
+                        'level4' => false
+                    ],
+                    '3' => [
+                        'name' => ucfirst(trans('fiscal.transferencia_perdidas_extranjero')),
+                        'group' => '',
+                        'level4' => false
+                    ]
+                ]
+            ],
+            '2' => [
+                'name' => ucfirst(trans('fiscal.ingresos_conversion')),
+                'group' => '',
+                'level3' => [
+                    '0' => [
+                        'name' => ucfirst(trans('fiscal.diferencias_positivas')),
+                        'group' => '',
+                        'level4' => false
+                    ],
+                    '1' => [
+                        'name' => ucfirst(trans('fiscal.transferencia_negativas')),
+                        'group' => '',
+                        'level4' => false
+                    ]
+                ]
+            ],
+            '4' => [
+                'name' => ucfirst(trans('fiscal.ingresos_legados')),
+                'group' => '',
+                'level3' => [
+                    '0' => [
+                        'name' => ucfirst(trans('fiscal.ingresos_de')),
+                        'group' => '',
+                        'level4' => false
+                    ],
+                    '2' => [
+                        'name' => ucfirst(trans('fiscal.ingresos_de')),
+                        'group' => '',
+                        'level4' => false
+                    ]
+                ]
+            ],
+            '5' => [
+                'name' => ucfirst(trans('fiscal.ingresos_definida')),
+                'group' => '',
+                'level3' =>  [
+                    '0' => [
+                        'name' => ucfirst(trans('fiscal.ganancias_actuariales')),
+                        'group' => '',
+                        'level4' => false
+                    ],
+                    '1' => [
+                        'name' => ucfirst(trans('fiscal.ajustes_definida')),
+                        'group' => '',
+                        'level4' => false
+                    ]
+                ]
+            ],
+            '6' => [
+                'name' => ucfirst(trans('fiscal.ingresos_venta')),
+                'group' => '',
+                'level3' => [
+                    '0' => [
+                        'name' => ucfirst(trans('fiscal.beneficios_activos_venta')),
+                        'group' => '',
+                        'level4' => false
+                    ],
+                    '2' => [
+                        'name' => ucfirst(trans('fiscal.transferencia_grupos_venta')),
+                        'group' => '',
+                        'level4' => false
+                    ]
+                ]
+            ],
+            '9' => [
+                'name' => ucfirst(trans('fiscal.ingresos_grupo_previos')),
+                'group' => '',
+                'level3' => [
+                    '1' => [
+                        'name' => ucfirst(trans('fiscal.recuperacion_grupo')),
+                        'group' => '',
+                        'level4' => false
+                    ],
+                    '2' => [
+                        'name' => ucfirst(trans('fiscal.recuperacion_asociadas')),
+                        'group' => '',
+                        'level4' => false
+                    ],
+                    '3' => [
+                        'name' => ucfirst(trans('fiscal.transferencia_previos_grupo')),
+                        'group' => '',
+                        'level4' => false
+                    ],
+                    '4' => [
+                        'name' => ucfirst(trans('fiscal.transferencia_previos_asociadas')),
+                        'group' => '',
+                        'level4' => false
+                    ]
+                ]
+            ]
         ]
     ]
 ];
