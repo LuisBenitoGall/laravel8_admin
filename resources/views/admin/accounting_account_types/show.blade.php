@@ -232,13 +232,13 @@ $data = [
                 'name' => ucfirst(trans('fiscal.provisiones')),
                 'group' => '',
                 'level3' => [
-                	'0' => [
-                		'name' => ucfirst(trans('fiscal.provision_retribuciones')),
+                    '0' => [
+                        'name' => ucfirst(trans('fiscal.provision_retribuciones')),
                         'group' => '',
                         'level4' => false
-                	],
-                	'1' => [
-                		'name' => ucfirst(trans('fiscal.provision_impuestos')),
+                    ],
+                    '1' => [
+                        'name' => ucfirst(trans('fiscal.provision_impuestos')),
                         'group' => '',
                         'level4' => false
                     ],
@@ -2635,33 +2635,33 @@ $data = [
 @endphp
 
 @foreach($data as $i1 => $r1)
-	<div class="mb-5">
-		<h3>{{ $i1 }} - {{ $r1['name'] }}</h3>
+    <div class="mb-5">
+        <h3>{{ $i1 }} - {{ $r1['name'] }}</h3>
 
-		@if(isset($r1['level2']))
-			@foreach($r1['level2'] as $i2 => $r2)
-				<div class="pl-3 mb-3">
-					{{ $i1 }}{{ $i2 }} - {{ $r2['name'] }}
+        @if(isset($r1['level2']))
+            @foreach($r1['level2'] as $i2 => $r2)
+                <div class="pl-3 mb-3">
+                    {{ $i1 }}{{ $i2 }} - {{ $r2['name'] }}
 
-					@if(isset($r2['level3']))
-						@foreach($r2['level3'] as $i3 => $r3)
-							<div class="pl-3">
-								{{ $i1 }}{{ $i2 }}{{ $i3 }} - {{ $r3['name'] }}
+                    @if(isset($r2['level3']))
+                        @foreach($r2['level3'] as $i3 => $r3)
+                            <div class="pl-3">
+                                {{ $i1 }}{{ $i2 }}{{ $i3 }} - {{ $r3['name'] }}
 
-								@if($r3['level4'])
-									@foreach($r3['level4'] as $i4 => $r4)
-										<div class="pl-3">
-											{{ $i1 }}{{ $i2 }}{{ $i3 }}{{ $i4 }} - {{ $r4['name'] }}
-										</div>
-									@endforeach
-								@endif
-							</div>
-						@endforeach
-					@endif
-				</div>
-			@endforeach
-		@endif
-	</div>
+                                @if($r3['level4'])
+                                    @foreach($r3['level4'] as $i4 => $r4)
+                                        <div class="pl-3">
+                                            {{ $i1 }}{{ $i2 }}{{ $i3 }}{{ $i4 }} - {{ $r4['name'] }}
+                                        </div>
+                                    @endforeach
+                                @endif
+                            </div>
+                        @endforeach
+                    @endif
+                </div>
+            @endforeach
+        @endif
+    </div>
 @endforeach
 
 @endsection
