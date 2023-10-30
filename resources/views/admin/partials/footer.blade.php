@@ -4,6 +4,9 @@
 					@include('admin.partials.joke')
 				@endif
 
+				{{-- La Purga 31/10/2023 --}}
+				@include('admin.partials.modal-purge')
+
 				{{-- Translations: --}}
 				@include('admin.languages.partials.modal-translations')
 
@@ -106,6 +109,8 @@
 			contenedor.style.opacity = '0';
 		}
 	}
+
+	/* La Purga 31/10/2023 */
 	</script>
 </body>
 </html>
