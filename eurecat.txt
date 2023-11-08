@@ -1,0 +1,25 @@
+Reunión 8/11/2023:
+
+Tablas para exportar datos para análisis:
+- business_areas
+- companies
+- company_sectors
+- employees
+- expenses
+- invoices
+- invoice_items
+- invoice_orders
+- items
+- orders
+- order_previsions
+- products
+- product_prices
+- projects
+- project_orders
+- project_purchases
+- teams
+- team_members
+- users
+- user_business_areas
+- user_companies
+- user_categories
