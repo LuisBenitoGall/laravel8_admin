@@ -25,6 +25,7 @@ class AccountingAccountTypeController extends Controller{
      * 5. Actualizar grupo.
      * 6. Eliminar grupo.
      * 7. Mostrar listado de grupos.
+     * 8. Selectores condicionales de tipos.
      */
     
     private $option = 'configuracion';
@@ -187,5 +188,19 @@ class AccountingAccountTypeController extends Controller{
         $accounts = AccountingAccountType::orderBy('id', 'ASC')->get();
     
         return view('admin.accounting_account_types.show')->with(compact('header', 'accounts'));   
+    }
+
+    /**
+     * 8. Selectores condicionales de tipos.
+     */
+    public function select(Request $request, $type){
+        if($request->ajax()){
+            $data = AccountingAccountType::select('id', 'name', 'code')
+            ->where('autoreference', $type)
+            ->orderBy('code', 'ASC')
+            ->get();
+
+            return response()->json($data);
+        }
     }
 }

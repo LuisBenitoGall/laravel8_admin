@@ -15,7 +15,7 @@ class CreateInvoicesTable extends Migration{
             $table->id();
             $table->bigInteger('refund')->nullable();
             $table->string('invoice_num')->nullable();
-            $table->string('num_cardinal')->nullable();
+            $table->integer('num_cardinal')->nullable();
             //FK:
             $table->unsignedBigInteger('pattern_id')->nullable();
             $table->foreign('pattern_id')->references('id')->on('invoice_patterns');

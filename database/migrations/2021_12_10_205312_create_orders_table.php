@@ -21,7 +21,7 @@ class CreateOrdersTable extends Migration{
             //About Budget:
             $table->bigInteger('recid')->nullable();    //Referencia del budget principal para las versiones.
             $table->string('budget_num')->nullable();
-            $table->string('budget_num_cardinal')->nullable();
+            $table->integer('budget_num_cardinal')->nullable();
             //FK:
             $table->unsignedBigInteger('budget_pattern_id')->nullable();
             $table->foreign('budget_pattern_id')->references('id')->on('budget_patterns');
@@ -47,7 +47,7 @@ class CreateOrdersTable extends Migration{
             $table->bigInteger('order_parent')->nullable();
             $table->boolean('is_group')->default(0);
             $table->string('order_num')->nullable();
-            $table->string('order_num_cardinal')->nullable();
+            $table->integer('order_num_cardinal')->nullable();
             //FK:
             $table->unsignedBigInteger('order_pattern_id')->nullable();
             $table->foreign('order_pattern_id')->references('id')->on('order_patterns');
@@ -65,7 +65,7 @@ class CreateOrdersTable extends Migration{
 
             //About Purchase:
             $table->string('purchase_num')->nullable();
-            $table->string('purchase_num_cardinal')->nullable();
+            $table->integer('purchase_num_cardinal')->nullable();
             //FK:
             $table->unsignedBigInteger('purchase_pattern_id')->nullable();
             $table->foreign('purchase_pattern_id')->references('id')->on('purchase_patterns');

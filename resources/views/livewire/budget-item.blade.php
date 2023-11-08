@@ -304,13 +304,25 @@ $permitted = !$order || ($order && $add_items && !$order->parent && !$order->blo
                     @endif
 
                     {{-- Imprimir --}}
-                    <label for="print"
-                           class="col-4 col-sm-2 col-xl-1 col-form-label sinpadding-right">{!! ucfirst(trans('textos.imprimir')) !!}</label>
+                    <label for="print" class="col-4 col-sm-2 col-xl-1 col-form-label sinpadding-right">{!! ucfirst(trans('textos.imprimir')) !!}</label>
                     <div class="col-8 col-sm-1 col-xl-1 mb-3">
                         <label class="custom-chk-rdb">
                             <input type="checkbox" wire:model.defer="print" @if($print) checked @endif>
                             <span class="chk" style="top: 5px;"></span>
                         </label>
+                    </div>
+
+                    {{-- Agregar a catálogo --}}
+                    <label for="add_catalogue" class="col-4 col-sm-2 col-form-label sinpadding-right">{!! ucfirst(trans('textos.catalogo_agregar')) !!}</label>
+                    <div class="col-8 col-sm-1 col-xl-1 mb-3 position-relative">
+                        <label class="custom-chk-rdb">
+                            <input type="checkbox" wire:model.defer="add_catalogue">
+                            <span class="chk" style="top: 5px;"></span>
+                        </label>  
+
+                        <div class="position-absolute" style="right: 40%; top: 1px;">
+                            {!! App\Helpers\helpers::info('budget-add-to-catalogue') !!}
+                        </div>  
                     </div>
 
                     {{-- Subtotal--}}

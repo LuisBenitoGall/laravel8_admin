@@ -286,6 +286,7 @@ var txtTelefonoConfirmEliminar = "{{ ucfirst(trans("textos.telefono_confirm_elim
 var txtTextoCopiado = "{!! trans("textos.texto_copiado") !!}";
 var txtTiempoAgotado = '{!! trans("textos.tiempo_agotado_warning") !!}';
 var txtTipo = "{!! trans("textos.tipo") !!}";
+var txtTipoSelec = "{!! trans("textos.tipo_selec") !!}";
 var txtTodos = "{!! trans("textos.todos") !!}";
 var txtTotal = "{!! trans("textos.total") !!}";
 var txtTrabajoOrdenConfirmEliminar = "{{ ucfirst(trans("textos.trabajo_orden_confirm_eliminar")) }}";
