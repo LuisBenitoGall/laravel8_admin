@@ -5,6 +5,7 @@
 <div class="row mb-3">
 	{{-- Acciones: --}}
 	<div class="col-sm-12">
+		{{-- Volver a cuentas contables. --}}
 		<a href="{{ route('accounting-accounts.index') }}" class="btn btn-info">
 			<i class="fa fa-angle-left"></i>
 			{!! trans('textos.volver_cuentas_contables') !!}
@@ -46,15 +47,17 @@
 					{{-- Tipo de cuenta --}}
 					<label class="mr-5">
 						{!! ucfirst(trans('textos.cuenta_tipo')) !!}:
-						@php
-						$type_ = substr($account->type, 0, 1);
-						$type = $types[$type_];
+						@if($account->type == 'a')
+							@php
+							$type = ucfirst(trans('textos.activos'));
+							@endphp
+						@elseif($account->type == 'p')
+							@php
+							$type = ucfirst(trans('textos.pasivos'));
+							@endphp
+						@endif
 
-						$subtype_ = substr($account->type, 1,2);
-						$subtype = isset($subtypes[$type_][$subtype_])? $subtypes[$type_][$subtype_]:false;
-						@endphp
-
-						<b>{{ $type }}@if($subtype) - {{ $subtype }} @endif</b>
+						<b>{{ $type }}</b>
 					</label>
 
 					{{-- Aplica IVA --}}
@@ -97,7 +100,7 @@
 						</div>
 					</div>	 
 
-					<div class="form-group row">
+					{{-- <div class="form-group row"> --}}
 						{{-- Tipo --}}
 						{{-- <label for="type" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.tipo')) !!}*</label>
 						<div class="col-lg-3">
@@ -105,11 +108,11 @@
 						</div> --}}
 
 						{{-- Empresa --}}
-						<label for="company" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.empresa')) !!}</label>
+						{{-- <label for="company" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.empresa')) !!}</label>
 						<div class="col-lg-5 position-relative">
 							<x-input type="text" name="company" autocomplete="off" required value="{{ $company->name }}" disabled/>
 						</div> 
-					</div> 
+					</div>  --}}
 		
 					<x-btn-submit name="submit_update" label="{{ trans('textos.guardar') }}"/>
 				</form>

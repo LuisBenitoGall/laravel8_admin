@@ -10,6 +10,7 @@ class CompanySettings extends Model{
     /**
      * 1. Moneda de la empresa.
      * 2. IVA de la empresa.
+     * 3. Dígitos por cuenta contable de la empresa.
      */
 
     use HasFactory;
@@ -65,5 +66,17 @@ class CompanySettings extends Model{
 
     public function company(){
         return $this->belongsTo(Company::class);
+    }
+
+    /**
+     * 3. Dígitos por cuenta contable de la empresa.
+     */
+    public static function co_account_digits(){
+        $data = CompanySettings::select('accounting_account_digits')
+        ->where('company_id', session('currentCompany'))
+        ->first();  
+
+        $aad = $data? $data->accounting_account_digits:config('constants.ACCOUNTING_ACCOUNT_DIGITS_DEFAULT_');
+        return $aad;    
     }
 }
