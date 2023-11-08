@@ -7,6 +7,7 @@ return array(
 	'abierto' => 'Abierto',
 	'abonada' => 'abonada',
 	'abonado' => 'abonado',
+	'abono' => 'abono',
 	'abono_concepto_aviso' => 'Indica el concepto del abono y el importe (sin impuestos).',
 	'abono_generar_aviso' => 'Selecciona si se trata de un abono íntegro o parcial. Los abonos íntegros comprenden el importe pendiente de abonar si se han hecho otros abonos anteriores. Para los abonos parciales debes indicar concepto e importe.',
 	'abono_generar' => 'Generar abono',
