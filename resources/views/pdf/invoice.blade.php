@@ -1,15 +1,16 @@
 @php
 $invoiceNum = $invoice->invoice_num? $invoice->invoice_num:$invoice->id;
 $bg_color = $bn? '#000':($company_settings->base_color_invoices? $company_settings->base_color_invoices:'#10172C');
+$text_doc = $invoice->refund > 0? 'abono':'factura';
 @endphp
 
-@include('pdf.partials.head', ['header_title' => ucfirst(trans('textos.factura')).' #'.$invoiceNum])
+@include('pdf.partials.head', ['header_title' => ucfirst(trans('textos.'.$text_doc)).' #'.$invoiceNum])
 
 @include('pdf.partials.header', [
 	'standard' => true,
 	'company_settings' => $company_settings, 
 	'bg_color' => $bg_color, 
-	'left_h1' => ucfirst(trans('textos.factura')).' Nº '.$invoiceNum,
+	'left_h1' =>  ucfirst(trans('textos.'.$text_doc)).' Nº '.$invoiceNum,
 	'left_title' => false,
 	'left_manager' => false,
 	'right_h1' => ucfirst(trans('textos.cliente')),

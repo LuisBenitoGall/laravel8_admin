@@ -7,7 +7,7 @@
 	--}}
 
 	<h1 style="color: {{ $bg_color }}">
-		{{ ucfirst(trans('textos.factura')) }} Nº {{ $invoiceNum }}
+		@if($invoice->refund > 0) {{ ucfirst(trans('textos.abono')) }} @else {{ ucfirst(trans('textos.factura')) }} @endif Nº {{ $invoiceNum }}
 	</h1>	
 
 	<p style="display: block; font-size: 11px; font-weight: normal; line-height: 120%; margin: 0 0 5px 0; width: 100%;">
