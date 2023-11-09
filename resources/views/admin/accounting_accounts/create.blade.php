@@ -40,9 +40,9 @@ $maxlength = $company_settings->accounting_account_digits && $company_settings->
 								'p' => trans('textos.pasivos')
 							]
 							@endphp
-							<x-select name="type" class="select2" :options="$tipos" label="tipo_selec"/>
+							<x-select name="type" class="select2" :options="$tipos" label="tipo_selec" required/>
 						</div>
-					
+										
 						{{-- Status --}}
 						<label for="status" class="col-lg-1 col-form-label">{!! ucfirst(trans('textos.activo')) !!}</label>
 						<div class="col-lg-1">
@@ -53,13 +53,15 @@ $maxlength = $company_settings->accounting_account_digits && $company_settings->
 						</div>
 
 						{{-- Con IVA --}}
-						<label for="with_iva" class="col-lg-1 col-form-label">{!! ucfirst(trans('textos.iva_aplica')) !!}</label>
+						{{-- 8/11/2023: para ADN oculto por ahora esta opción, y se le pasa valor true por defecto --}}
+						<input type="hidden" name="with_iva" value="true">
+						{{-- <label for="with_iva" class="col-lg-1 col-form-label">{!! ucfirst(trans('textos.iva_aplica')) !!}</label>
 						<div class="col-lg-1">
 							<label class="custom-chk-rdb" rel="tooltip" title="{!! trans('textos.iva_aplica') !!}">
 								<input type="checkbox" name="with_iva" checked>
 								<span class="chk" style="top: 5px;"></span>
 							</label>
-						</div>
+						</div> --}}
 					</div>
 
 					<div class="form-group row">

@@ -25,6 +25,7 @@ class AccountingAccountController extends Controller{
      * 1.1. Lista de cuentas para DataTable.
      * 2. Formulario nueva cuenta.
      * 3. Guardar nueva cuenta.
+     * 3.1. Guardar nueva cuenta para clientes y proveedores.
      * 4. Editar cuenta.
      * 5. Actualizar cuenta.
      * 6. Eliminar cuenta.
@@ -59,13 +60,14 @@ class AccountingAccountController extends Controller{
                 //'company' => 'required_if:mode,a|required_if:mode,p|required_if:mode,c',
                 'account' => 'nullable|required_without:level1|digits:'.$total_digits.'|integer',
                 'name' => 'required',
+                'type' => 'required'
                 //'digits' => 'required_with:level1|digits:'.$this->accounting_account_digits
             ],[
                 //'account.integer' => trans('textos.cuenta_numerica_aviso'),
                 //'account.min' => trans('textos.cuenta_consta').session('companySettings')->accounting_account_digits.' '.trans('textos.digitos'),
                 'account.integer' => 'La cuenta debe ser numérica',
                 'account.digits' => trans('textos.cuenta_consta').$total_digits.' dígitos',
-                //'company.required_without' => trans('textos.empresa_obligatoria_no_cuenta_interna'),
+                'account.required_without' => trans('textos.cuenta_contable_digitos_aviso'),
                 //'digits.digits' => 'El resto de la numeración debe constar de '.$this->accounting_account_digits.' dígitos'
             ]);
 
@@ -214,10 +216,11 @@ class AccountingAccountController extends Controller{
 
             }else{
                 //Obtenemos la última cuenta de esta tipología:
-                $last_account = AccountingAccount::select('id', 'account')
-                ->where('company_id', session('currentCompany'))
-                ->where('account', 'LIKE', $account_prefix.'%')
-                ->first();          
+                // $last_account = AccountingAccount::select('id', 'account')
+                // ->where('company_id', session('currentCompany'))
+                // ->where('account', 'LIKE', $account_prefix.'%')
+                // ->first(); 
+                $last_account = AccountingAccount::getLastAccount($account_prefix);         
 
                 if($last_account && $last_account->account){
                     $account = (int)$last_account->account + 1;   
@@ -247,6 +250,9 @@ class AccountingAccountController extends Controller{
 
         $company_id = $request->company_id? $request->company_id:session('currentCompany');
 
+        //Indicador de cuentas de ganancias y pérdidas para los grupos 6 y 7:
+        $first_ = substr($account, 0, 1);
+        $earnings_loses = $first_ == 6 || $first_ == 7? true:false;
 
         // $company_target = $request->own_company? session('currentCompany'):$request->company_id;
 
@@ -277,6 +283,7 @@ class AccountingAccountController extends Controller{
         $aa->account = $account;
         $aa->name = $request->name;
         $aa->type = $request->type;
+        $aa->earnings_loses = $earnings_loses;
         $aa->company_target = $company_id;
         $aa->status = $request->status? 1:0;
         $aa->with_iva = $request->with_iva? 1:0;
@@ -285,6 +292,13 @@ class AccountingAccountController extends Controller{
 
         $msg = trans('textos.cuenta_creada');
         return redirect()->route('accounting-accounts.edit', $aa)->with(compact('msg'));
+    }
+
+    /**
+     * 3.1. Guardar nueva cuenta para clientes y proveedores.
+     */
+    public function storeAuto(Request $request){
+        dd($request->all());
     }
 
     /**

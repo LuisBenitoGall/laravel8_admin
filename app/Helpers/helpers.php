@@ -62,6 +62,7 @@ class Helpers{
 	 *  3.27. Estados de envíos.
 	 *  3.28. Estados de protocolos.
 	 *  3.29. Estados de venta por caja.
+	 *  3.30. Modos de cuentas contables.
 	 *
 	 * 4. Strings:
 	 * 	4.1. Truncar texto.
@@ -591,8 +592,9 @@ class Helpers{
 		//Ajustando fecha de pago:
 		$month = $p[1];	
 		$year = $p[0];
-		$payday = $p[2];
-		if($payday > 0 && $p[2] > $payday){
+		$day = (int)$payday > (int)$p[2]? $payday:$p[2];
+		if($payday > 0 && (int)$p[2] > $payday){
+			dd($payday.' es mayor que '.(int)$p[2]);
 			$month = intval($month) + 1;
 			if($month == 13){
 				$month = 1;
@@ -601,7 +603,7 @@ class Helpers{
 			$month = $month < 10? '0'.$month:$month;
 		}
 
-		return $year.'-'.$month.'-'.$payday;
+		return $year.'-'.$month.'-'.$day;
 	}
 	
 	/**
@@ -1166,6 +1168,23 @@ class Helpers{
 		}else{
 			return $data;
 		}	
+	}
+
+	/**
+	 * 3.30. Modos de cuentas contables.
+	 */
+	public static function accountingAccountModes($mode = false){
+		$data = [
+			1 => ucfirst(trans('textos.cliente')),
+			2 => ucfirst(trans('textos.proveedor')),
+			3 => ucfirst(trans('textos.banco')),
+			4 => ucfirst(trans('textos.contabilidad'))
+		];
+		if($mode){
+			return $data[$mode];
+		}else{
+			return $data;
+		}		
 	}
 
 	/**

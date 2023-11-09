@@ -76,7 +76,7 @@ class CompanySettings extends Model{
         ->where('company_id', session('currentCompany'))
         ->first();  
 
-        $aad = $data? $data->accounting_account_digits:config('constants.ACCOUNTING_ACCOUNT_DIGITS_DEFAULT_');
+        $aad = $data && $data->accounting_account_digits? $data->accounting_account_digits:config('constants.ACCOUNTING_ACCOUNT_DIGITS_DEFAULT_');
         return $aad;    
     }
 }
