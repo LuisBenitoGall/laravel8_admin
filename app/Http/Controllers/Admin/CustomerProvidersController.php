@@ -69,10 +69,14 @@ class CustomerProvidersController extends Controller{
     private $option = 'empresas';
     private $module = 'companies';
     private $co_currency;
+    private $languages;
     
     public function __construct(){
         //Moneda:
         $this->co_currency = CompanySettings::co_currency(0);
+
+        //Idiomas:
+        $this->languages = helpers::languages();
 
         $this->middleware('management_customers', ['only' => ['customers', 'createCustomer']]);
         $this->middleware('management_providers', ['only' => ['providers', 'createProvider']]);
@@ -307,7 +311,9 @@ class CustomerProvidersController extends Controller{
         ->where('mode', 1)
         ->get();
 
-        return view('admin.customer_providers.edit')->with(compact('header', 'company', 'tab', 'workplaces', 'areas', 'conditions', 'business_relationship', 'environment', 'company_account', 'banks', 'bank_accounts', 'payment_methods', 'accounting_accounts'));     
+        $languages = $this->languages;
+
+        return view('admin.customer_providers.edit')->with(compact('header', 'company', 'tab', 'workplaces', 'areas', 'conditions', 'business_relationship', 'environment', 'company_account', 'banks', 'bank_accounts', 'payment_methods', 'accounting_accounts', 'languages'));     
     }
 
     /**
@@ -423,7 +429,9 @@ class CustomerProvidersController extends Controller{
         ->where('mode', 2)
         ->get();
 
-        return view('admin.customer_providers.edit')->with(compact('header', 'company', 'tab', 'workplaces', 'areas', 'conditions', 'business_relationship', 'environment', 'company_account', 'banks', 'bank_accounts', 'payment_methods', 'accounting_accounts'));     
+        $languages = $this->languages;
+
+        return view('admin.customer_providers.edit')->with(compact('header', 'company', 'tab', 'workplaces', 'areas', 'conditions', 'business_relationship', 'environment', 'company_account', 'banks', 'bank_accounts', 'payment_methods', 'accounting_accounts', 'languages'));     
     }
 
     /**

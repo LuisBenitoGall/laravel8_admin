@@ -298,7 +298,20 @@ class AccountingAccountController extends Controller{
      * 3.1. Guardar nueva cuenta para clientes y proveedores.
      */
     public function storeAuto(Request $request){
-        dd($request->all());
+        $account_to = $request->mode == 1? 'customer':'provider';
+        $return = $request->mode == 1? 'customers':'providers';
+
+        //Creando cuenta contable:
+        $accounting_account_data = [
+            'account_to' => $account_to,
+            'company_target' => $request->company_target,
+            'mode' => $request->mode,
+            'with_iva' => 1
+        ];
+        AccountingAccount::setAccountingAccount($accounting_account_data);
+
+        $msg = trans('textos.cuenta_creada');
+        return redirect()->route($return.'.edit', [$request->company_target, 'accounting-accounts'])->with(compact('msg'));
     }
 
     /**
@@ -348,13 +361,18 @@ class AccountingAccountController extends Controller{
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(AccountingAccount $account){
+    public function destroy(Request $request, AccountingAccount $account){
         $account_id = $account->id;
+        $company_target = $account->company_target;
         
         $account->delete();  
 
         $msg = trans('textos.cuenta_deleted');
-        return redirect()->route('accounting-accounts.index')->with(compact('msg'));   
+        if($request->return){
+            return redirect()->route($request->return.'.edit', [$company_target, 'accounting-accounts'])->with(compact('msg'));
+        }else{
+            return redirect()->route('accounting-accounts.index')->with(compact('msg'));   
+        }
     }
 
     /**
