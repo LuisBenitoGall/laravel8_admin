@@ -891,7 +891,7 @@ class InvoiceController extends Controller{
         //Formateando fechas:
         $fiscal_date = $request->fiscal_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->fiscal_date):$request->fiscal_date:NULL;
         $invoice_date = $request->invoice_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->invoice_date):$request->invoice_date:NULL;
-        $expiration_date = $request->expiration_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->expiration_date):$request->expiration_date:NULL;
+        $expiration_date = $request->expiration_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->expiration_date):$request->expiration_date:NULL;    //Esta fecha puede verse modificada posteriormente si existen valores de configuración de condiciones de pago para el cliente.        
 
         //Comprobamos si la fecha fiscal es válida, que el mes y año no estén cerrados.
         //13/10/23 revisar con fiscal la nueva fecha de invoice_date si corresponde con este script.
@@ -930,7 +930,7 @@ class InvoiceController extends Controller{
             // $item->save();
 
         }else{
-            $order = Order::select('id', 'invoiced')->find($request->order_id);
+            $order = Order::select('id', 'invoiced', 'customer_id', 'provider_id')->find($request->order_id);
             $order->customer_cost_center_id = $request->cost_center;
             $order->invoiced = 1;
             $order->blocked = true;
@@ -963,6 +963,15 @@ class InvoiceController extends Controller{
         ->where('customer_id', $order->customer_id)
         ->where('provider_id', $order->provider_id)
         ->first(); 
+
+        //Cálculo fecha vencimiento:
+        $provider_settings = CustomerProviders::select('id', 'accounting_concept_id', 'expense_account_id', 'pay_after_days', 'payday', 'payment_method_id')
+        ->where('customer_id', $order->customer_id)
+        ->where('provider_id', $order->provider_id)
+        ->first();
+        if($provider_settings && $provider_settings->pay_after_days){
+            $expiration_date = helpers::calculateExpirationDate($fiscal_date, $provider_settings->pay_after_days, $provider_settings->payday);
+        }
 
         //Creamos factura:
         $inv = new Invoice();

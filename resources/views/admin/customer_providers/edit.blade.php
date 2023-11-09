@@ -56,6 +56,10 @@
 			  		<li class="nav-item @if($tab == 'conditions') active @endif">
 			  			<a class="nav-link @if($tab == 'conditions') active @endif" href="#tab-conditions" role="tab" data-toggle="tab">@if($business_relationship == 'customers') {{ ucfirst(trans('textos.condiciones_cobro')) }} @else {{ ucfirst(trans('textos.condiciones_pago')) }} @endif</a>
 			  		</li>
+
+			  		<li class="nav-item @if($tab == 'accounting-accounts') active @endif">
+			  			<a class="nav-link @if($tab == 'accounting-accounts') active @endif" href="#tab-accounting-accounts" role="tab" data-toggle="tab">{{ ucfirst(trans('textos.cuentas_contables')) }}</a>
+			  		</li>
 			  	</ul>
 
 			  	<div class="tab-content pt-4">
@@ -82,6 +86,11 @@
 					{{-- Condiciones de pago --}}
 					<div class="tab-pane fade @if($tab == 'conditions') show active @endif" role="tabpanel" id="tab-conditions">
 						@include('admin.customer_providers.partials.customer-providers-pay-conditions')
+					</div>
+
+					{{-- Cuentas contables --}}
+					<div class="tab-pane fade @if($tab == 'accounting-accounts') show active @endif" role="tabpanel" id="tab-accounting-accounts">
+						@include('admin.customer_providers.partials.customer-providers-accounting-accounts')
 					</div>
 				</div>				
 			</div>
