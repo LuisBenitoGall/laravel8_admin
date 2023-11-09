@@ -17,6 +17,7 @@ use Yajra\DataTables\DataTables;
 
 //Models:
 use App\Models\Account;
+use App\Models\AccountingAccount;
 use App\Models\AccountingConcept;
 use App\Models\BankAccounts;
 use App\Models\Bank;
@@ -300,7 +301,13 @@ class CustomerProvidersController extends Controller{
         ->pluck('name', 'id')
         ->toArray();
 
-        return view('admin.customer_providers.edit')->with(compact('header', 'company', 'tab', 'workplaces', 'areas', 'conditions', 'business_relationship', 'environment', 'company_account', 'banks', 'bank_accounts', 'payment_methods'));     
+        //Cuentas contables:
+        $accounting_accounts = AccountingAccount::where('company_id', session('currentCompany'))
+        ->where('company_target', $company->id)
+        ->where('mode', 1)
+        ->get();
+
+        return view('admin.customer_providers.edit')->with(compact('header', 'company', 'tab', 'workplaces', 'areas', 'conditions', 'business_relationship', 'environment', 'company_account', 'banks', 'bank_accounts', 'payment_methods', 'accounting_accounts'));     
     }
 
     /**
@@ -410,7 +417,13 @@ class CustomerProvidersController extends Controller{
         ->pluck('name', 'id')
         ->toArray();
 
-        return view('admin.customer_providers.edit')->with(compact('header', 'company', 'tab', 'workplaces', 'areas', 'conditions', 'business_relationship', 'environment', 'company_account', 'banks', 'bank_accounts', 'payment_methods'));     
+        //Cuentas contables:
+        $accounting_accounts = AccountingAccount::where('company_id', session('currentCompany'))
+        ->where('company_target', $company->id)
+        ->where('mode', 2)
+        ->get();
+
+        return view('admin.customer_providers.edit')->with(compact('header', 'company', 'tab', 'workplaces', 'areas', 'conditions', 'business_relationship', 'environment', 'company_account', 'banks', 'bank_accounts', 'payment_methods', 'accounting_accounts'));     
     }
 
     /**
@@ -597,14 +610,18 @@ class CustomerProvidersController extends Controller{
 
                     $workplace_id = $workplace? $workplace->id:NULL;
 
-
                     //Vínculo cliente - proveedor:
                     if($environment == 'customers'){
                         $customerId = $company->id;
                         $providerId = session('currentCompany');
+                        $account_to = 'customer';
+                        $mode = 1;  //Helper: accountingAccountModes();
+
                     }else{
                         $customerId = session('currentCompany');
                         $providerId = $company->id;
+                        $account_to = 'provider';
+                        $mode = 2;  //Helper: accountingAccountModes();
                     }
 
                     //Verificamos si existe previamente la relación:
@@ -672,6 +689,15 @@ class CustomerProvidersController extends Controller{
                             }
                         }
                     }
+
+                    //Cuenta contable:
+                    $accounting_account_data = [
+                        'account_to' => $account_to,
+                        'company_target' => $company->id,
+                        'mode' => $mode,
+                        'with_iva' => 1
+                    ];
+                    AccountingAccount::setAccountingAccount($accounting_account_data);
                 }
 
             }else{
@@ -717,6 +743,15 @@ class CustomerProvidersController extends Controller{
                             $item->billing_comunication = $row->billing_comunication;
                             $item->status = $row->status;
                             $item->save();
+
+                            //Cuenta contable:
+                            $accounting_account_data = [
+                                'account_to' => 'customer',
+                                'company_target' => $co,
+                                'mode' => 1,
+                                'with_iva' => 1
+                            ];
+                            AccountingAccount::setAccountingAccount($accounting_account_data);
                         }
                     }
                 }
@@ -764,6 +799,15 @@ class CustomerProvidersController extends Controller{
                             $item->billing_comunication = $row->billing_comunication;
                             $item->status = $row->status;
                             $item->save();
+
+                            //Cuenta contable:
+                            $accounting_account_data = [
+                                'account_to' => 'provider',
+                                'company_target' => $co,
+                                'mode' => 2, //Helper: accountingAccountModes();
+                                'with_iva' => 1
+                            ];
+                            AccountingAccount::setAccountingAccount($accounting_account_data);
                         }
                     }
                 }

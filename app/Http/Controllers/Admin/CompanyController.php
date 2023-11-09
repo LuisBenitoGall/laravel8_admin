@@ -17,6 +17,7 @@ use File;
 
 //Models:
 use App\Models\Account;
+use App\Models\AccountingAccount;
 use App\Models\Category;
 use App\Models\Company;
 use App\Models\CompanyAccounts;
@@ -203,10 +204,14 @@ class CompanyController extends Controller{
             if($request->input('business_relationship') == 'customers'){
                 $customer_id = $request->company_id;
                 $provider_id = session('currentCompany');
+                $account_to = 'customer';
+                $mode = 1;  //Helper: accountingAccountModes();
 
             }else{
                 $customer_id = session('currentCompany');
                 $provider_id = $request->company_id;
+                $account_to = 'provider';
+                $mode = 2;
             }
 
             $exist = CustomerProviders::where('customer_id', $customer_id)
@@ -228,6 +233,15 @@ class CompanyController extends Controller{
             $cp->save();
 
             $company_id = $request->company_id;
+
+            //Creando cuenta contable:
+            $accounting_account_data = [
+                'account_to' => $account_to,
+                'company_target' => $company_id,
+                'mode' => $mode,
+                'with_iva' => 1
+            ];
+            AccountingAccount::setAccountingAccount($accounting_account_data);
 
         //Nueva empresa:
         }else{
@@ -373,15 +387,28 @@ class CompanyController extends Controller{
             if($request->business_relationship == 'customers'){
                 $customer_id = $company->id;
                 $provider_id = session('currentCompany');
+                $account_to = 'customer';
+                $mode = 1;  //Helper: accountingAccountModes();
             }else{
                 $customer_id = session('currentCompany');
                 $provider_id = $company->id;
+                $account_to = 'provider';
+                $mode = 2;  //Helper: accountingAccountModes();
             }
 
             $cp = new CustomerProviders();
             $cp->customer_id = $customer_id;
             $cp->provider_id = $provider_id;
             $cp->save();
+
+            //Creando cuenta contable:
+            $accounting_account_data = [
+                'account_to' => $account_to,
+                'company_target' => $company->id,
+                'mode' => $mode,
+                'with_iva' => 1
+            ];
+            AccountingAccount::setAccountingAccount($accounting_account_data);
         }
 
         //Info de la cuenta suscrita:
@@ -448,6 +475,15 @@ class CompanyController extends Controller{
             }else{
                 $company = $this->saveCompany($request);
             }
+
+            //Creando cuenta contable:
+            $accounting_account_data = [
+                'account_to' => 'provider',
+                'company_target' => $company->id,
+                'mode' => 2,
+                'with_iva' => 1
+            ];
+            AccountingAccount::setAccountingAccount($accounting_account_data);
 
             //Categorías:
             if($request->categories){
