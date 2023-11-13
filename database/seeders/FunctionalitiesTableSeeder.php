@@ -430,6 +430,11 @@ class FunctionalitiesTableSeeder extends Seeder{
             'label' => 'metodos_pago',
             'module' => 'accounting'            
             ],
+            ['name' => 'seats',
+            'slug' => 'seats',
+            'label' => 'asientos_contables',
+            'module' => 'accounting'            
+            ],
 
             ['name' => 'incidences',
             'slug' => 'incidences',

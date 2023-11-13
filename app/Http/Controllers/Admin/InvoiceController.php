@@ -1548,22 +1548,22 @@ class InvoiceController extends Controller{
 
         //if(!$provider_settings->pay_after_days || !$provider_account){
         if( ($order && $order->provider_id == session('currentCompany')) || !$provider_account){
-            $provider_settings->pay_after_days = $request->pay_after_days;   
+            //$provider_settings->pay_after_days = $request->pay_after_days;   
         }
         //if(!$provider_settings->payday || !$provider_account){
         if( ($order && $order->provider_id == session('currentCompany')) || !$provider_account){
-            $provider_settings->payday = $request->payday;    
+            //$provider_settings->payday = $request->payday;    
         }
         if(!$provider_settings->accounting_concept_id){
-            $provider_settings->accounting_concept_id = $request->accounting_structure;    
+            //$provider_settings->accounting_concept_id = $request->accounting_structure;    
         }
         if(!$provider_settings->expense_account_id){
-            $provider_settings->expense_account_id = $request->accounting_concept;    
+            //$provider_settings->expense_account_id = $request->accounting_concept;    
         }
         if(!$provider_settings->payment_method_id){
-            $provider_settings->payment_method_id = $request->payment_method;    
+            //$provider_settings->payment_method_id = $request->payment_method;    
         }
-        $provider_settings->save();
+        //$provider_settings->save();
 
         $msg = trans('textos.factura_updated');
         $route = $is_sale? 'edit':'edit-purchase';

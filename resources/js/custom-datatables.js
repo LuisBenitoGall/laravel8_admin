@@ -5900,6 +5900,39 @@ $(document).ready(function(){
         });
     }
 
+    //Tabla Seats:
+    if($('#tblSeats').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        var year = $('#seatsYear').val();
+        var accounting_account_id = $('#seatsAccountingAccount').val()? $('#seatsAccountingAccount').val():'x';
+        var from = $('#seatsFrom').val()? $('#seatsFrom').val():year+'-01-01';
+        var to = $('#seatsTo').val()? $('#seatsTo').val():year+'-12-31';
+
+        var tableSeats = $('#tblSeats').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/seats/"+year+"/"+accounting_account_id+"/"+from+"/"+to,
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'seat_date', name: 'seats.seat_date', className: 'text-right', "defaultContent": ""},
+                {data: 'year', name: 'seats.year', className: 'text-right', "defaultContent": ""},
+                {data: 'description', name: 'seats.description', "defaultContent": ""},
+                {data: 'amount', className: 'text-right', "defaultContent": ""},
+                // {data: 'debe', className: 'text-right', "defaultContent": ""},
+                // {data: 'haber', className: 'text-right', "defaultContent": ""},
+                // {data: 'saldo', className: 'text-right', "defaultContent": ""},
+                {data: 'other_company', name: 'companies.name', "defaultContent": ""},
+                {data: 'provider_doc', name: 'seats.provider_doc', "defaultContent": ""},
+                {data: 'acciones', className: 'text-right'}
+            ]
+        });
+    }
+
     //Tabla Shipment Patterns:
     if($('#tblShipmentPatterns').length > 0){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
