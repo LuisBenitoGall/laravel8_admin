@@ -97,6 +97,7 @@ return [
     'ROLE_SUPERADMIN_' => 1,        //id role con permisos absolutos (extraído de la tabla 'roles').
     'SET_ORDER_PREVISIONS_' => false,
     'SUPER_ADMIN_' => 'Super Admin',
+    'TOLERANCE_INVOICED_' => 99.99,    //Indica el valor de tolerancia admitido para facturas.
     'UNDEFINED_DATE_' => '9999-12-31',
     
 ];

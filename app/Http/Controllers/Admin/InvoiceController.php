@@ -1608,6 +1608,12 @@ class InvoiceController extends Controller{
             $suborders = false;
         }
 
+        //Porcentaje facturado:
+        $amount_invoiced = OrderPrevisions::select('id', 'percent')
+        ->where('order_id', $invoice_order->id)
+        ->where('invoice_id', $invoice->id)
+        ->first();        
+
         //Anticipos:
         //16/10/2022: revisar el campo order_id de las facturas migradas, pues es posible que no esté coincidiendo correctamente.
         $advance_invoices = Invoice::select('id', 'invoice_num', 'amount', 'with_iva', 'amount_with_iva')
@@ -1638,9 +1644,11 @@ class InvoiceController extends Controller{
             ->where('workplaces.id', $invoice_order->provider_workplace_id)
             ->first();  
 
-            $provider_phones = Phone::select('phone_number')
-            ->where('workplace_id', $provider_workplace->id)
-            ->get();
+            if($provider_workplace && $provider_workplace->id){
+                $provider_phones = Phone::select('phone_number')
+                ->where('workplace_id', $provider_workplace->id)
+                ->get();
+            }
         }
 
         //Sede cliente:
@@ -1700,7 +1708,7 @@ class InvoiceController extends Controller{
         //Template de factura. Se pasa por variable por si se incluyen más templates.
         $invoice_template = 'pdf/invoice';
 
-        $pdf = PDF::loadView($invoice_template, compact('invoice', 'bn', 'invoice_order', 'items', 'suborders', 'advance_invoices', 'provider', 'customer', 'template', 'fechaLiteral', 'company_settings', 'provider_workplace', 'provider_phones', 'customer_workplace', 'customer_manager', 'currency', 'languages', 'bank_account', 'provider_bank_account'));
+        $pdf = PDF::loadView($invoice_template, compact('invoice', 'bn', 'invoice_order', 'items', 'suborders', 'amount_invoiced', 'advance_invoices', 'provider', 'customer', 'template', 'fechaLiteral', 'company_settings', 'provider_workplace', 'provider_phones', 'customer_workplace', 'customer_manager', 'currency', 'languages', 'bank_account', 'provider_bank_account'));
         return $pdf->download($invoice_name_pdf.'.pdf'); 
     }
 
