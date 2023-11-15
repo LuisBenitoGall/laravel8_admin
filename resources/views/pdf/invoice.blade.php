@@ -71,6 +71,18 @@ $text_doc = $invoice->refund > 0? 'abono':'factura';
 							{{ ucfirst(trans('textos.importe_modificado')) }}	
 						</th>	
 					@endif --}}
+
+					{{-- Porcentaje facturado para facturas parciales --}}
+					@if($amount_invoiced->percent < config('constants.TOLERANCE_INVOICED_'))
+						<th style="background-color: {{ $bg_color }}; text-align: center;">
+							{{ ucfirst(trans('textos.facturado')) }}
+						</th>	
+
+						@php
+						$colspan = $colspan+1;
+						@endphp
+					@endif
+
 					<th style="background-color: {{ $bg_color }}; text-align: center;">
 						{{ ucfirst(trans('textos.descuento')) }}
 					</th>
@@ -116,6 +128,13 @@ $text_doc = $invoice->refund > 0? 'abono':'factura';
 							@endif
 						</td>
 
+						{{-- Facturado --}}
+						@if($amount_invoiced->percent < config('constants.TOLERANCE_INVOICED_'))
+							<td class="text-right" style="text-align: right;">
+								{{ $amount_invoiced->percent }}%
+							</td>
+						@endif
+
 						{{-- Precio modificado --}}
 						{{-- @if($modified_amount)
 							<td style="text-align: right;">
@@ -141,6 +160,11 @@ $text_doc = $invoice->refund > 0? 'abono':'factura';
 							if($row->discount && !$row->amount){
 								$discount = App\Helpers\Helpers::percent($amount, $row->discount);	
 								$amount = $amount - $discount;	
+							}
+
+							//Facturación parcial:
+							if($amount_invoiced->percent < config('constants.TOLERANCE_INVOICED_')){
+								$amount = App\Helpers\Helpers::percent($amount, $amount_invoiced->percent);
 							}
 
 							//IVA:
