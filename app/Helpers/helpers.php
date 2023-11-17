@@ -594,7 +594,7 @@ class Helpers{
 		$year = $p[0];
 		$day = (int)$payday > (int)$p[2]? $payday:$p[2];
 		if($payday > 0 && (int)$p[2] > $payday){
-			dd($payday.' es mayor que '.(int)$p[2]);
+			//dd($payday.' es mayor que '.(int)$p[2]);
 			$month = intval($month) + 1;
 			if($month == 13){
 				$month = 1;
