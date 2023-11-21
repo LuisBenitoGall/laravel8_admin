@@ -93,7 +93,7 @@ class AccountingAccountController extends Controller{
         ]; 
 
         //Generación masiva de cuentas:
-        $this->generateAllAccounts(); 
+        //$this->generateAllAccounts(); 
 
         $company = Company::find(session('currentCompany'));
 
