@@ -18,6 +18,7 @@ use App\Models\Company;
 use App\Models\AccountingAccount;
 use App\Models\AccountingAccountType;
 use App\Models\CompanySettings;
+use App\Models\CustomerProviders;
 
 class AccountingAccountController extends Controller{
     /**
@@ -34,6 +35,7 @@ class AccountingAccountController extends Controller{
      * 9. Marcar cuenta como principal.
      * 10. Marcar cuenta IVA.
      * 11. Cuentas por defecto.
+     * 12. Generación masiva de cuentas contables.
      */
     
     private $option = 'contabilidad';
@@ -88,7 +90,10 @@ class AccountingAccountController extends Controller{
             'suboption' => 'textos.cuentas_contables',
             'module' => $this->module,
             'slug' => 'accounting-accounts'
-        ];  
+        ]; 
+
+        //Generación masiva de cuentas:
+        $this->generateAllAccounts(); 
 
         $company = Company::find(session('currentCompany'));
 
@@ -98,12 +103,14 @@ class AccountingAccountController extends Controller{
         ->where('company_target', session('currentCompany'))
         ->pluck('cuenta', 'id')
         ->toArray();
+        $accounting_accounts = [];
 
         $default_accounts = AccountingAccount::select('id', 'featured')
         ->where('company_id', session('currentCompany'))
         ->where('featured', '>', 0)
         ->pluck('id', 'featured')
         ->toArray();
+        $default_accounts = [];
 
         return view('admin.accounting_accounts.index')->with(compact('header', 'company', 'accounting_accounts', 'default_accounts'));
     }
@@ -113,7 +120,7 @@ class AccountingAccountController extends Controller{
      */
     public function getAccountingAccountsDT(){
         $data = AccountingAccount::select('accounting_accounts.*', 'companies.name AS company')
-        ->leftJoin('companies', 'accounting_accounts.company_id', '=', 'companies.id')
+        ->leftJoin('companies', 'accounting_accounts.company_target', '=', 'companies.id')
         ->where('accounting_accounts.company_id', session('currentCompany'))
         ->orderBy('accounting_accounts.featured', 'DESC');
 
@@ -128,15 +135,15 @@ class AccountingAccountController extends Controller{
             return $row->company;
         })
         ->addColumn('tipo', function ($row){
-            // $first_letter = substr($row->type, 0, 1);
-            // return $row->type? ucfirst($types[$first_letter]):'';
+            $type = $row->type == 'c'? ucfirst(trans('textos.cliente')):($row->type == 'p'? ucfirst(trans('textos.proveedor')):'');
+            return $type;
         })
-        ->addColumn('subtipo', function ($row){
-            // $first_letter = substr($row->type, 0, 1);
-            // $subtype_letters = substr($row->type, 1, 2);
-            // $subtype = isset($subtypes[$first_letter][$subtype_letters])? $subtypes[$first_letter][$subtype_letters]:'';
-            // return $subtype;
-        })
+        // ->addColumn('subtipo', function ($row){
+        //     // $first_letter = substr($row->type, 0, 1);
+        //     // $subtype_letters = substr($row->type, 1, 2);
+        //     // $subtype = isset($subtypes[$first_letter][$subtype_letters])? $subtypes[$first_letter][$subtype_letters]:'';
+        //     // return $subtype;
+        // })
         ->addColumn('with_iva', function ($row){
             if($row->with_iva){
                 return '<i class="fa fa-check text-success"></i>';
@@ -220,7 +227,7 @@ class AccountingAccountController extends Controller{
                 // ->where('company_id', session('currentCompany'))
                 // ->where('account', 'LIKE', $account_prefix.'%')
                 // ->first(); 
-                $last_account = AccountingAccount::getLastAccount($account_prefix);         
+                $last_account = AccountingAccount::getLastAccount($account_prefix, session('currentCompany'));         
 
                 if($last_account && $last_account->account){
                     $account = (int)$last_account->account + 1;   
@@ -465,5 +472,62 @@ class AccountingAccountController extends Controller{
 
         $msg = trans('textos.cuentas_defecto_definidas');
         return redirect()->route('accounting-accounts.index')->with(compact('msg'));  
+    }
+
+    /**
+     * 12. Generación masiva de cuentas contables.
+     */
+    public function generateAllAccounts(){
+        $companies = [4,8,202,227,275];
+
+        foreach($companies as $c){
+            //Clientes:
+            $customers = CustomerProviders::select('customer_id')
+            ->where('provider_id', $c)
+            ->get();
+
+            foreach($customers as $cu){
+                //Comprobamos que no exista:
+                $existC = AccountingAccount::select('id')
+                ->where('company_id', $c)
+                ->where('company_target', $cu->customer_id)
+                ->where('type', 'c')
+                ->first();
+
+                if(!$existC){
+                    $accounting_account_dataC = [
+                        'account_to' => 'customer',
+                        'company_target' => $cu->customer_id,
+                        'mode' => 1,
+                        'with_iva' => 1
+                    ];
+                    AccountingAccount::setAccountingAccount($accounting_account_dataC, $c);  
+                }  
+            }
+
+            //Proveedores:
+            $providers = CustomerProviders::select('provider_id')
+            ->where('customer_id', $c)
+            ->get();
+
+            foreach($providers as $pr){
+                //Comprobamos que no exista:
+                $existP = AccountingAccount::select('id')
+                ->where('company_id', $c)
+                ->where('company_target', $pr->provider_id)
+                ->where('type', 'p')
+                ->first();
+
+                if(!$existP){
+                    $accounting_account_dataP = [
+                        'account_to' => 'provider',
+                        'company_target' => $pr->provider_id,
+                        'mode' => 2,
+                        'with_iva' => 1
+                    ];
+                    AccountingAccount::setAccountingAccount($accounting_account_dataP, $c); 
+                }   
+            }
+        }
     }
 }

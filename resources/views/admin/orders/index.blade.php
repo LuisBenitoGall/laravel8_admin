@@ -65,6 +65,7 @@
 	<input type="hidden" id="myOrderBuy" value="{{ $order_buy }}">
 	<input type="hidden" id="myFrom" value="{{ $from }}">
 	<input type="hidden" id="myTo" value="{{ $to }}">
+	<input type="hidden" id="myGroups" value="{{ $groups_ }}">
 
 	{{-- Tabla --}}
 	<div class="row">

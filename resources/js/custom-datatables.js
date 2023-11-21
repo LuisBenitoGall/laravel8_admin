@@ -120,7 +120,7 @@ $(document).ready(function(){
         },
         responsive: true,
         stateSave: false,    //Guarda página al refrescar. 
-        pageLength: 100,        //Resultados por página
+        pageLength: 25,        //Resultados por página
         initComplete: function(){
             //Búsqueda automática al clicar sobre el td.filtro:
             var api = this.api();
@@ -203,7 +203,7 @@ $(document).ready(function(){
                 {data: 'name', name: 'accounting_accounts.name'},
                 {data: 'company', name: 'companies.name'},
                 {data: 'tipo', name: 'accounting_account_types.name'},
-                {data: 'subtipo', name: 'accounting_account_types.name'},
+                // {data: 'subtipo', name: 'accounting_account_types.name'},
                 {data: 'with_iva', name: 'accounting_accounts.with_iva', className: 'text-center'},
                 {data: 'acciones', className: 'text-right'}
             ]
@@ -3575,6 +3575,7 @@ $(document).ready(function(){
         var status = $('#myStatus').val() && $('#myStatus').val() != ''? $('#myStatus').val():false;
         var from = $('#myFrom').val() && $('#myFrom').val() != ''? $('#myFrom').val():'0';
         var to = $('#myTo').val() && $('#myTo').val() != ''? $('#myTo').val():'0';
+        var groups = $('#myGroups').val() != ''? $('#myGroups').val():false;
         var accounting_on = $('#myModuleAccounting').val() == 1? true:false;
         var recordsTotal;       //Variable número de registros
 
@@ -3676,7 +3677,7 @@ $(document).ready(function(){
             // },
             ajax: {
                 "type": "GET",
-                "url": `/api/admin/orders/${year}/${customer}/${provider}/${owner}/${status}/${from}/${to}/${orderbuy}`,
+                "url": `/api/admin/orders/${year}/${customer}/${provider}/${owner}/${groups}/${status}/${from}/${to}/${orderbuy}`,
                 /* "url": "/api/admin/orders/"+year+"/"+customer+"/"+provider+"/"+owner+"/"+status, */
                 "error": function(reason){
                     console.log(reason);
