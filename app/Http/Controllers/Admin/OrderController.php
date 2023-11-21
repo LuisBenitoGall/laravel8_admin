@@ -26,6 +26,8 @@ use App\Models\CustomerProviders;
 use App\Models\Delivery;
 use App\Models\DeliveryOrders;
 use App\Models\Employee;
+use App\Models\Group;
+use App\Models\GroupMembers;
 use App\Models\Invoice;
 use App\Models\Item;
 use App\Models\Order;
@@ -90,6 +92,7 @@ class OrderController extends Controller{
      * 23. Eliminar miembro de equipo.
      * 24. Pedidos según proveedor.
      * 25. Exportar .xls pedidos por rango de fecha.
+     * 26. Pedidos para autocomplete.
      */
     
     private $option = 'pedidos';
@@ -225,7 +228,7 @@ class OrderController extends Controller{
     /**
      * 1. Pedidos por cliente o proveedor.
      */
-    public function index($year = false, $customer_id = false, $provider_id = false, $owner = false, $status = false, $from = '', $to = '', $order_buy = false){
+    public function index($year = false, $customer_id = false, $provider_id = false, $owner = false, $groups_ = false, $status = false, $from = '', $to = '', $order_buy = false){
         //Si se cambia la empresa en sesión se toman los pedidos relativos a ésta:
         if($customer_id 
             && $customer_id != session('currentCompany') 
@@ -272,6 +275,12 @@ class OrderController extends Controller{
         //Propietarios de pedidos (sólo usuarios activos):
         $owners = UserCompanies::getCompanyUsers(session('currentCompany'), 1);
 
+        //Grupos:
+        $groups = Group::where('company_id', session('currentCompany'))
+        ->where('status', 1)
+        ->pluck('name', 'id')
+        ->toArray();
+
         //Estados de pedido:
         $order_status = helpers::orderStatus();
 
@@ -296,7 +305,7 @@ class OrderController extends Controller{
 
         $languages = $this->languages;
 
-        return view('admin.orders.index')->with(compact('header', 'year', 'owner', 'status', 'from', 'to', 'customer_id', 'provider_id', 'customer', 'provider', 'ordersType', 'customers', 'providers', 'owners', 'order_status', 'module_accounting', 'order_buy', 'languages'));
+        return view('admin.orders.index')->with(compact('header', 'year', 'owner', 'status', 'from', 'to', 'customer_id', 'provider_id', 'customer', 'provider', 'ordersType', 'customers', 'providers', 'owners', 'groups_', 'groups', 'order_status', 'module_accounting', 'order_buy', 'languages'));
     }
 
     /**
@@ -393,8 +402,10 @@ class OrderController extends Controller{
 
         //Estado:
         $status = $request->status? $request->status:'0';
+
+        $groups = $request->groups? implode('-', $request->groups):'0';
         
-        return redirect()->route('orders.index', [$request->year, $customer_id, $provider_id, $request->owner, $status, $from, $to, $request->order_buy]);
+        return redirect()->route('orders.index', [$request->year, $customer_id, $provider_id, $request->owner, $groups, $status, $from, $to, $request->order_buy]);
     }
 
     /**
@@ -412,7 +423,7 @@ class OrderController extends Controller{
      * 
      * @return json
      */
-    public function getOrdersDT(Request $request, $year = false, $customer = false, $provider = false, $owner = false, $status = false, $from = false, $to = false, $order_buy = false){
+    public function getOrdersDT(Request $request, $year = false, $customer = false, $provider = false, $owner = false, $groups = false, $status = false, $from = false, $to = false, $order_buy = false){
         //La empresa en sesión debe ser cliente o proveedor del pedido.
         if($customer && $customer != session('currentCompany') && $provider && $provider != session('currentCompany')){
             return false;
@@ -424,6 +435,18 @@ class OrderController extends Controller{
         /* $order_buy = "%4700480218%"; */
         // Se comrpueba que el campo no sea false
         $order_buy = $order_buy == 'false' ? false : $order_buy;
+
+        $owners = [];
+        //Usuarios de los grupos:
+        if($groups && $groups != '0'){
+            $arr_groups = explode('-', $groups);
+
+            $owners = GroupMembers::distinct('user_id')
+            ->whereIn('group_id', $arr_groups)
+            ->pluck('user_id')
+            ->toArray();
+        }
+        if($owner && !in_array($owner, $owners)) array_push($owners, $owner);
 
         //Obtenemos pedidos simples, no agrupaciones:
         $fields_order = [
@@ -449,7 +472,7 @@ class OrderController extends Controller{
             'users.name AS nombre', 
             'users.surname'
         ];
-        $data = $this->buildOrdersQuery($company_field, $from, $to, $status, $order_buy, $owner, $customer, $provider, $year, $fields_order);
+        $data = $this->buildOrdersQuery($company_field, $from, $to, $status, $order_buy, $owners, $customer, $provider, $year, $fields_order);
 
         // $arrIds = [];
         // foreach($data as $r){
@@ -457,7 +480,7 @@ class OrderController extends Controller{
         //     //$arrIds .= $r->id.',';
         // }
 
-        $total = $this->getOrdersTotal($company_field, $from, $to, $status, $order_buy, $owner, $customer, $provider, $year, $request->all());
+        $total = $this->getOrdersTotal($company_field, $from, $to, $status, $order_buy, $owners, $customer, $provider, $year, $request->all());
 
         $estados = helpers::orderStatus();
 
@@ -548,7 +571,7 @@ class OrderController extends Controller{
      * 
      * @return Eloquent<Order> Query de eloquent para obtener los pedidos.
      */
-    public function buildOrdersQuery($company_field, $from, $to, $status, $order_buy, $owner, $customer, $provider, $year, $fields){
+    public function buildOrdersQuery($company_field, $from, $to, $status, $order_buy, $owners, $customer, $provider, $year, $fields){
         //Obtenemos pedidos simples, no agrupaciones:
         $data = Order::select($fields)
         ->join('companies', 'orders.'.$company_field.'_id', '=', 'companies.id')
@@ -578,8 +601,8 @@ class OrderController extends Controller{
             return $q->whereBetween('orders.finished_at', [$from, $to]);
         })
         // Por manager:
-        ->when($owner && $owner > 0, function($q) use($owner){
-            return $q->where('orders.provider_manager_id', $owner);
+        ->when(count($owners), function($q) use($owners){
+            return $q->whereIn('orders.provider_manager_id', $owners);
         })
         ->when($customer && $provider, function($q) use($customer, $provider){
             if(is_numeric($customer) && is_numeric($provider)){
@@ -623,7 +646,7 @@ class OrderController extends Controller{
      * 
      * @return array
      */
-    public function getOrdersTotal($company_field, $from, $to, $status, $order_buy, $owner, $customer, $provider, $year, $request_all_data){
+    public function getOrdersTotal($company_field, $from, $to, $status, $order_buy, $owners, $customer, $provider, $year, $request_all_data){
 
         // Filtro de campos explicitos:
         $filter_data_raw = [];
@@ -644,8 +667,10 @@ class OrderController extends Controller{
         // Campos minimos para que la consulta funcione:
         $fields = ['orders.id', 'orders.discount'];
 
+        //$owners = [$owner];
+
         // Obtenemos la consulta:
-        $data = $this->buildOrdersQuery($company_field, $from, $to, $status, $order_buy, $owner, $customer, $provider, $year, $fields);
+        $data = $this->buildOrdersQuery($company_field, $from, $to, $status, $order_buy, $owners, $customer, $provider, $year, $fields);
 
         // Filtro global:
         $data->where(function($q) use ($filter_data_raw_or) {
@@ -2662,6 +2687,27 @@ class OrderController extends Controller{
         }
 
         return (new OrdersExport($temp_num))->download('orders.xlsx');
+    }
+
+    /**
+     * 26. Pedidos para autocomplete.
+     */
+    public function searchOrders(Request $request) {
+        $search = $request->search;
+
+        $data = Order::select('id', 'name', 'order_num', 'order_old_num')  
+        ->where('is_order', 1)
+        ->where('provider_id', session('currentCompany'))
+        ->where(function($q) use ($search){  
+            $q->where('order_num', 'like', '%'.$search.'%') 
+            ->orWhere('order_old_num', 'like', '%'.$search.'%')   
+            ->orWhere('name', 'like', '%'.$search.'%');
+        })
+        ->orderBy('name', 'ASC')
+        ->limit(15)
+        ->get(); 
+
+        return response()->json($data);
     }
     
 }

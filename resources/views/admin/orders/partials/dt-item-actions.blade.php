@@ -9,6 +9,14 @@
 	{{-- Ver --}}
     <a href="#" class="btn btn-xs btn-info btnSeeItem" rel="tooltip" title="{{ ucfirst(trans('textos.observaciones_ver')) }}"><i class="fa fa-eye"></i></a>
 
+    {{-- Vincular línea de compra a pedido de terceros - condiciones 
+		1. Para pedidos de compra.
+		...
+    --}}
+    @if($order->customer_id == session('currentCompany'))
+    	<a href="#" class="btn btn-xs btn-info btnLinkItem" data-id="{{ $item->id }}" data-toggle="modal" data-target="#modal-link-item" rel="tooltip" title="{{ ucfirst(trans('textos.pedido_vincular')) }}"><i class="fa fa-link"></i></a>	
+    @endif
+
     {{-- Editar - condiciones 
 		1. Disponer de permisos.
 		2. Exclusivo proveedor o para cliente con facturas de proveedores sin cuenta en el ERP:

@@ -75,7 +75,7 @@
 		{{-- Apellidos --}}
 		<label for="surname" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.apellidos')) !!}*</label>
 		<div class="col-lg-4">
-			<x-input type="text" name="surname" id="surname" maxlength="100" placeholder="{!! ucfirst(trans('textos.apellidos')) !!}" value="{{ $user->surname }}" autocomplete="off" required/>
+			<x-input type="text" name="surname" id="surname" maxlength="100" placeholder="{!! ucfirst(trans('textos.apellidos')) !!}" value="{{ ucwords($user->surname) }}" autocomplete="off" required/>
 		</div>
 	</div>
 

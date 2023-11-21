@@ -1582,4 +1582,47 @@ $(window).on('load', function () {
             }
         });
     });
+
+    // 41. Búsqueda autocompleta para pedidos.
+    $('#search_order').autocomplete({
+        minLength: 0,
+        source: function(request,response){
+            // Fetch data
+            if(request.term.length > 1){
+                $.ajax({
+                    url: "/api/admin/orders-search",
+                    type: "post",
+                    dataType: "json",
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        search: request.term
+                    },
+                    success: function(data){
+                        response($.map(data, function (item){
+                            var num_ = item.order_num? item.order_num:(item.order_old_num? item.order_old_num:item.id);
+
+                            return {
+                                label: num_+' - '+item.name,
+                                value: item.id
+                            }
+                        }));
+                    }
+                });
+
+            //Limpiamos datos:
+            }else{
+                $('#orderId_').val('');  
+            }
+        },
+        select: function(event,ui){
+            $('#search_order').val(ui.item.label);
+            $('#orderId_').val(ui.item.value);
+
+            if(ui.item.value == ''){
+                $('#orderId_').val('');
+            }
+            
+            return false;
+        }    
+    });
 });
