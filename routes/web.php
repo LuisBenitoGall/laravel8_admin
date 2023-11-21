@@ -580,6 +580,11 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::post('ip-access/store', 'IpAccessController@store')->name('ip-access.store');
     Route::delete('ip-access/{range}', 'IpAccessController@destroy')->name('ip-access.destroy');
 
+    // Item Linked Orders:
+    Route::post('item-linked-orders/store', 'ItemLinkedOrderController@store')->name('item-linked-orders.store');
+    Route::get('item-linked-orders/{item_id}/show', 'ItemLinkedOrderController@show')->name('item-linked-orders.show');
+    Route::get('item-linked-orders/{item_linked}/delete/{order_id}', 'ItemLinkedOrderController@destroy')->name('item-linked-orders.destroy');
+
     // Item Status:
     Route::get('item-status/{id}', 'ItemStatusController@index')->name('item-status.index');
     Route::post('item-status/store', 'ItemStatusController@store')->name('item-status.store');
@@ -677,7 +682,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::get('order-settings/{template}/featured', 'OrderSettingsController@featured')->name('order-settings.featured')->middleware('permission:order-settings.edit');
 
     // Orders:
-    Route::get('orders/list/{year?}/{customer_id?}/{provider_id?}/{owner?}/{status?}/{from?}/{to?}/{order_buy?}', 'OrderController@index')->name('orders.index')->middleware('permission:orders.index');
+    Route::get('orders/list/{year?}/{customer_id?}/{provider_id?}/{owner?}/{groups_?}/{status?}/{from?}/{to?}/{order_buy?}', 'OrderController@index')->name('orders.index')->middleware('permission:orders.index');
     Route::post('orders', 'OrderController@getOrdersBy')->name('orders.list')->middleware('permission:orders.index');
     Route::get('orders/control-panel-sales/{year?}/{workplace_id?}', 'OrderController@controlPanelSales')->name('orders.control-panel-sales')->middleware('permission:orders.index');
     Route::get('orders/control-panel-purchases/{year?}/{workplace_id?}', 'OrderController@controlPanelPurchases')->name('orders.control-panel-purchases')->middleware('permission:orders.index');

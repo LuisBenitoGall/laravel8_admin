@@ -57,6 +57,22 @@
 							<input class="form-control" type="text" name="order_buy" maxlength="25">
 						</div>
 
+						{{-- Estado --}}
+						<label for="status" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.estado')) !!} </label>
+						<div class="col-lg-2">
+							@php
+							//Rehacemos el array de estados para incluir en primer lugar la opción de Todos. Descartamos el uso de la función array_unshift pues resetea los índices del resto de opciones, lo cual no interesa.
+							$order_status_[0] = trans('textos.todos');
+							foreach($order_status as $k => $os){
+								$order_status_[$k] = $os;
+							}
+							@endphp
+
+							<x-select name="status" class="select2" :options="$order_status_" label="estado_selec" value="{{ $status }}"/>
+						</div>
+					</div>
+
+					<div class="form-group row">
 						{{-- Propietario --}}
 						@if(isset($owners))
 							<label for="owner" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.manager')) !!} </label>
@@ -71,22 +87,17 @@
 								<x-select name="owner" class="select2" :options="$owners_" value="{{ $owner }}"/>
 							</div>
 						@endif
-					</div>
 
-					<div class="form-group row">
-						{{-- Estado --}}
-						<label for="status" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.estado')) !!} </label>
-						<div class="col-lg-2">
-							@php
-							//Rehacemos el array de estados para incluir en primer lugar la opción de Todos. Descartamos el uso de la función array_unshift pues resetea los índices del resto de opciones, lo cual no interesa.
-							$order_status_[0] = trans('textos.todos');
-							foreach($order_status as $k => $os){
-								$order_status_[$k] = $os;
-							}
-							@endphp
-
-							<x-select name="status" class="select2" :options="$order_status_" label="estado_selec" value="{{ $status }}"/>
-						</div>
+						{{-- Grupos --}}
+						@if(count($groups))
+							<label for="groups" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.grupos')) !!} </label>
+							<div class="col-lg-4">
+								@php
+								$groups_selected = $groups_? explode('-', $groups_):[];
+								@endphp
+								<x-select name="groups[]" class="select2" :options="$groups" multiple :values="$groups_selected"/>	
+							</div>
+						@endif
 					</div>
 
 					<x-btn-submit name="submit_filter" label="{{ trans('textos.buscar') }}"/>

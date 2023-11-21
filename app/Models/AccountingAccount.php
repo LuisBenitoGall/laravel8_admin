@@ -45,70 +45,80 @@ class AccountingAccount extends Model{
     /**
      * 2. Crear cuenta contable clientes y proveedores.
      */
-    public static function setAccountingAccount($data){
+    public static function setAccountingAccount($data, $company_owner = false){
         $company_target = Company::select('id', 'name')->find($data['company_target']);
 
-        //Tipos de cuentas específicos:
-        $account_types = [
-            'provider' => '4000',
-            'creditor' => '4100',
-            'customer' => '4300'
-        ];
-        $prefix = $account_types[$data['account_to']];
+        if($company_target){
+            //Empresa propietaria:
+            $company_owner = $company_owner? $company_owner:session('currentCompany');
 
-        //Última cuenta relativa:
-        $last_account = AccountingAccount::getLastAccount($prefix); 
+            //Tipos de cuentas específicos:
+            $account_types = [
+                'provider' => '4000',
+                'creditor' => '4100',
+                'customer' => '4300'
+            ];
+            $prefix = $account_types[$data['account_to']];
 
-        if($last_account && $last_account->account){
-            $account = (int)$last_account->account + 1;   
-        }else{
-            $pre_zeros = '';
-            $z = 1;
-            //Nº de dígitos configurados por la empresa:
-            $accounting_account_digits = CompanySettings::co_account_digits();
-            while($z < $accounting_account_digits){
-                $pre_zeros .= '0';
-                $z++;
+            //Última cuenta relativa:
+            $last_account = AccountingAccount::getLastAccount($prefix, $company_owner); 
+
+            if($last_account && $last_account->account){
+                $account = (int)$last_account->account + 1;   
+            }else{
+                $pre_zeros = '';
+                $z = 1;
+                //Nº de dígitos configurados por la empresa:
+                $accounting_account_digits = CompanySettings::co_account_digits();
+                while($z < $accounting_account_digits){
+                    $pre_zeros .= '0';
+                    $z++;
+                }
+                $account = $prefix.$pre_zeros.'1';
             }
-            $account = $prefix.$pre_zeros.'1';
-        }
 
-        //Tipo balance:
-        $type = $data['account_to'] == 'customer'? 'a':'p';
+            //Tipo balance:
+            $type = $data['account_to'] == 'customer'? 'c':'p';
 
-        //Cuenta principal:
-        $featured_account = AccountingAccount::select('id', 'featured')
-        ->where('company_id', session('currentCompany'))
-        ->where('company_target', $data['company_target'])
-        ->where('type', $type)
-        ->where('featured', 1)
-        ->first();
-        $featured = $featured_account? false:true;
+            //Cuenta principal:
+            $featured_account = AccountingAccount::select('id', 'featured')
+            ->where('company_id', $company_owner)
+            ->where('company_target', $data['company_target'])
+            ->where('type', $type)
+            ->where('featured', 1)
+            ->first();
+            $featured = $featured_account? false:true;
 
-        $aa = new AccountingAccount();
-        $aa->company_id = session('currentCompany');
-        $aa->account = $account;
-        $aa->name = $company_target->name;
-        $aa->mode = $data['mode'];
-        $aa->type = $type;
-        //$aa->earnings_loses = $earnings_loses;
-        $aa->company_target = $data['company_target'];
-        $aa->status = 1;
-        $aa->featured = $featured;
-        $aa->with_iva = $data['with_iva'];
-        $aa->created_by = Auth::user()->id;
-        $aa->save(); 
+            $aa = new AccountingAccount();
+            $aa->company_id = $company_owner;
+            $aa->account = $account;
+            $aa->name = $company_target->name? $company_target->name:'';
+            $aa->mode = $data['mode'];
+            $aa->type = $type;
+            //$aa->earnings_loses = $earnings_loses;
+            $aa->company_target = $data['company_target'];
+            $aa->status = 1;
+            $aa->featured = $featured;
+            $aa->with_iva = $data['with_iva'];
+            $aa->created_by = Auth::user()->id;
+            $aa->save(); 
 
-        return $aa;   
+            return $aa;  
+
+        }else{
+            return false;
+        } 
     }
 
     /**
      * 3. Obtener última cuenta por tipología y empresa.
      */
-    public static function getLastAccount($prefix){
+    public static function getLastAccount($prefix, $company_id){
         return AccountingAccount::select('id', 'account')
-            ->where('company_id', session('currentCompany'))
+            ->where('company_id', $company_id)
             ->where('account', 'LIKE', $prefix.'%')
+            ->orderBy('account', 'DESC')
+            ->orderBy('created_at', 'DESC')
             ->first();          
     }
 }

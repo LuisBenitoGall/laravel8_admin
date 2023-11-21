@@ -185,7 +185,7 @@ class UserController extends Controller{
 
         return DataTables::of($data)
         ->addColumn('user', function($row){
-            return $row->name.' '.$row->surname;
+            return ucwords($row->name).' '.ucwords($row->surname);
         })
         ->addColumn('alta', function($row){
             return $row->created_at->format($this->languages[session()->get('locale')][4]);
