@@ -98,21 +98,22 @@ class AccountingAccountController extends Controller{
         $company = Company::find(session('currentCompany'));
 
         //Cuentas contables internas:
-        $accounting_accounts = AccountingAccount::select(DB::raw("CONCAT(account,' - ',name) AS cuenta"), 'id')
-        ->where('company_id', session('currentCompany'))
-        ->where('company_target', session('currentCompany'))
-        ->pluck('cuenta', 'id')
-        ->toArray();
-        $accounting_accounts = [];
+        // $accounting_accounts = AccountingAccount::select(DB::raw("CONCAT(account,' - ',name) AS cuenta"), 'id')
+        // ->where('company_id', session('currentCompany'))
+        // ->where('company_target', session('currentCompany'))
+        // ->pluck('cuenta', 'id')
+        // ->toArray();
 
-        $default_accounts = AccountingAccount::select('id', 'featured')
+        $default_accounts_ = AccountingAccount::select('id', 'account', 'name', 'featured')
         ->where('company_id', session('currentCompany'))
-        ->where('featured', '>', 0)
-        ->pluck('id', 'featured')
-        ->toArray();
+        ->where('featured', '>', 1)
+        ->get();
         $default_accounts = [];
+        foreach($default_accounts_ as $da){
+            $default_accounts[$da->featured] = [$da->id, $da->account.' - '.$da->name];    
+        }
 
-        return view('admin.accounting_accounts.index')->with(compact('header', 'company', 'accounting_accounts', 'default_accounts'));
+        return view('admin.accounting_accounts.index')->with(compact('header', 'company', 'default_accounts'));
     }
 
     /**
@@ -442,7 +443,7 @@ class AccountingAccountController extends Controller{
     public function defaultAccounts(Request $request){
         //Eliminamos las cuentas default anteriores:
         AccountingAccount::where('company_id', session('currentCompany'))
-        ->where('featured', '>', 0)
+        ->where('featured', '>', 1)
         ->update(['featured' => 0]);
 
         if($request->accounting_sales){
