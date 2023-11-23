@@ -364,6 +364,8 @@ $(window).on('load', function () {
     38. Modal editar atributo de producto o unidad de producto.
     39. Búsqueda autocomplete de usuarios.
     40. Guardar Me Gusta.
+    41. Búsqueda autocomplete para pedidos.
+    42. Búsqueda autocomplete para cuentas contables.
     */
 
     // 1. Eliminar preview imagen seleccionada:
@@ -1583,7 +1585,7 @@ $(window).on('load', function () {
         });
     });
 
-    // 41. Búsqueda autocompleta para pedidos.
+    // 41. Búsqueda autocomplete para pedidos.
     $('#search_order').autocomplete({
         minLength: 0,
         source: function(request,response){
@@ -1624,5 +1626,50 @@ $(window).on('load', function () {
             
             return false;
         }    
+    });
+
+    // 42. Búsqueda autocomplete para cuentas contables.
+    $('.search_accounting_account').each(function(){
+        var input_ = $(this).data('id');
+
+        $(this).autocomplete({
+            minLength: 2,
+            source: function(request,response){
+                // Fetch data
+                if(request.term.length > 1){
+                    $.ajax({
+                        url: "/api/admin/accounting-accounts-search",
+                        type: "post",
+                        dataType: "json",
+                        data: {
+                            _token: $('meta[name="csrf-token"]').attr('content'),
+                            search: request.term
+                        },
+                        success: function(data){
+                            response($.map(data, function (item){
+                                return {
+                                    label: item.account+' - '+item.name,
+                                    value: item.id
+                                }
+                            }));
+                        }
+                    });
+
+                //Limpiamos datos:
+                }else{
+                    $('#searchAccountingAccount'+input_).val('');  
+                }
+            },
+            select: function(event,ui){
+                $('#searchAccountingAccount'+input_).val(ui.item.label);
+                $('#accountingAccountId'+input_).val(ui.item.value);
+
+                if(ui.item.value == ''){
+                    $('#searchAccountingAccount'+input_).val('');
+                }
+                
+                return false;
+            }    
+        });
     });
 });

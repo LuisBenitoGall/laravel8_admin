@@ -690,6 +690,7 @@ return array(
 	'cuenta_bancaria_proveedor' => 'Cuenta bancaria proveedor',
 	'cuenta_bancaria_selec' => 'Selecciona cuenta bancaria',
 	'cuenta_bancaria' => 'cuenta bancaria',
+	'cuenta_buscar' => 'Buscar cuenta',
 	'cuenta_cancelada_ok' => 'La cuenta se ha cancelado correctamente.',
 	'cuenta_cancelada' => 'Cuenta cancelada',
 	'cuenta_cliente' => 'Cuenta del cliente',

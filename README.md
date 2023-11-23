@@ -211,6 +211,18 @@ on o.customer_id = cc.id
 where o.provider_id in (227,8)
 and i.fiscal_date >= '2023-07-01'
 and i.fiscal_date <= '2023-07-31'
+
+- Líneas de pedidos por cliente:
+select o.order_num, o.created_at, p.name, i.concept, i.qty, i.price, i.discount, 
+(i.qty * i.price) - COALESCE((i.qty * i.price * i.discount) / 100, 0) AS amount
+from items i
+inner join products p
+on i.product_id = p.id
+inner join orders o
+on i.order_id = o.id
+where o.customer_id = 2
+and o.provider_id = 4
+and o.is_order = 1;
    
 
 ### Instalación de Sentry
