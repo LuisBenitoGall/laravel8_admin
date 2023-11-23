@@ -73,7 +73,7 @@ $text_doc = $invoice->refund > 0? 'abono':'factura';
 					@endif --}}
 
 					{{-- Porcentaje facturado para facturas parciales --}}
-					@if($amount_invoiced->percent < config('constants.TOLERANCE_INVOICED_'))
+					@if($amount_invoiced && $amount_invoiced->percent < config('constants.TOLERANCE_INVOICED_'))
 						<th style="background-color: {{ $bg_color }}; text-align: center;">
 							{{ ucfirst(trans('textos.facturado')) }}
 						</th>	
