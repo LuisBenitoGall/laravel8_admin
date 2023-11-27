@@ -369,11 +369,13 @@ $readonly = $invoice->blocked && !$is_sale || ($order->customer_id == session('c
 {{-- Link project --}}
 @include('admin.invoices.partials.modal-link-project')
 
+{{-- Link item to order --}}
+@include('admin.orders.partials.modal-link-item', ['environment' => 'invoices'])
+
 @push('scripts')
 <script>
 $(function(){
 	var payments = {!! json_encode($payments) !!}
-	console.log(payments);
 
 	//Activar - desactivar IVA en factura.
     $('.btnWithIva').on('click', function(){
