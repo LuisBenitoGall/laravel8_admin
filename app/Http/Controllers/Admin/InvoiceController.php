@@ -510,6 +510,7 @@ class InvoiceController extends Controller{
         $advance = false;
         $advance_percent = NULL;
         $percentage_invoiced = NULL;
+        $amount_priority = 1;
 
         //Si la factura es un avance se incluye el importe a facturar o se obtiene el porcentaje sobre el total del pedido:
         //Se considera cada avance como una previsión de facturación, por lo que se crea registro en order_previsions.
@@ -547,6 +548,7 @@ class InvoiceController extends Controller{
                 }
 
                 $total_amount = $provisional_amount;
+                $amount_priority = 2;
 
             //Si viene declarado el importe:
             }elseif($request->advance_amount){
@@ -630,6 +632,7 @@ class InvoiceController extends Controller{
         $invoice->order_id = $order->id;
         $invoice->user_id = Auth::user()->id;
         $invoice->amount = $total_amount;
+        $invoice->amount_priority = $amount_priority;
         $invoice->with_iva = CompanySettings::co_iva();
         $invoice->amount_with_iva = $amount_with_iva;
         $invoice->fiscal_date = date('Y-m-d');
@@ -1208,9 +1211,9 @@ class InvoiceController extends Controller{
 
         //Recalculando importe factura por sus líneas:
         //02/04/2023: revisar estas líneas para que no recalcule sobre facturas parciales.
-        if($order->from_customer == 1){
-            $this->recalculateInvoiceAmount($invoice, $order);
-        }
+        // if($order->from_customer == 1){
+        //     $this->recalculateInvoiceAmount($invoice, $order);
+        // }
         
         //Entorno: compra.
         $is_sale = false;
@@ -1395,8 +1398,11 @@ class InvoiceController extends Controller{
      * $invoice obj
      */
     public function recalculateInvoiceAmount($invoice, $order){
-        //Recalculando importe factura por sus líneas:
-        if($invoice->blocked == '0' && $invoice->order_id){
+        //Recalculando importe factura por sus líneas - condiciones:
+        // 1. Factura no bloqueada.ç
+        // 2. Existe pedido.
+        // 3. Se factura con prioridad al porcentaje.
+        if($invoice->blocked == '0' && $invoice->order_id && $invoice->amount_priority == 2){
             //Previsión de facturación:
             $prevision = OrderPrevisions::where('order_id', $order->id)
             ->where('invoice_id', $invoice->id)
@@ -1415,11 +1421,10 @@ class InvoiceController extends Controller{
             // }
             
             //Facturación parcial:
-            if($prevision->percent > 0 && $prevision->percent < 100){
+            if($order->provider_id == session('currentCompany') && $prevision && $prevision->percent > 0 && $prevision->percent < 100){
                 $base_amount = ($base_amount * $prevision->percent) / 100;
                 $invoice_amount = ($invoice_amount * $prevision->percent) / 100;
             }
-            //dd($base_amount);
 
             $invoice->amount = round($base_amount, 2);
             //02/10/23: se suma el ajuste de IVA al importe total con IVA:
