@@ -1,3 +1,4 @@
+	<div style="page-break-after:always;"></div>
 	<footer>
 		<table class="tblFooter">
 			<thead>
@@ -31,15 +32,28 @@
 				{{-- 27/11/2023: se reestablece el IVA desglosado según tipo aplicado --}}
 				@if(isset($sumIva) && count($sumIva) > 0)
 					@foreach($sumIva as $i => $si)
+						{{-- Facturación parcial: --}}
+						@if($amount_invoiced && $amount_invoiced->percent < config('constants.TOLERANCE_INVOICED_'))
+							@php
+							$base_ = App\Helpers\helpers::percent(round(array_sum($baseIva[$i]), 2), $amount_invoiced->percent);
+							$iva_ = App\Helpers\helpers::percent(round(array_sum($si), 2), $amount_invoiced->percent);
+							@endphp
+
+						@endif
+
+
+
 						<tr>
 							<th style="background-color: #efefef; text-align: right; width: 80%;">
 								IVA ({{ $i }}%)	
 							</th>
 							<th style="background-color: #efefef;">
-								<b>{{ array_sum($baseIva[$i]) }}{{ $currency->symbol }}</b>	
+								{{-- <b>{{ array_sum($baseIva[$i]) }}{{ $currency->symbol }}</b>	 --}}
+								<b>{{ $base_ }}{{ $currency->symbol }}</b>
 							</th>
 							<th style="background-color: #efefef; text-align: right;">
-								<b>{{ array_sum($si) }}{{ $currency->symbol }}</b>
+								{{-- <b>{{ array_sum($si) }}{{ $currency->symbol }}</b> --}}
+								<b>{{ $iva_ }}{{ $currency->symbol }}</b>
 							</th>
 						</tr>
 					@endforeach
@@ -60,6 +74,7 @@
 			</thead>
 
 			<tbody>
+				{{-- Total factura --}}
 				<tr>
 					<td colspan="2" style="background-color: {{ $bg_color }}; text-align: right;">
 						{{ strtoupper(trans('textos.factura_total')) }}
