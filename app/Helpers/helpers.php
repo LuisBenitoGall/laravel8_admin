@@ -2268,10 +2268,10 @@ class Helpers{
 	 * Para líneas con importe fijo, NO calculado porcentualmente.
 	 */
 	public static function itemAmount($item, $with_iva = false, $with_equivalence_surcharge = false){
-		$amount = $item->price * $item->qty;
+		$amount = round($item->price * $item->qty, 2);
 
 		//Guardamos el precio original antes de descuento:
-		$amount_without_discount = $item->price * $item->qty;
+		$amount_without_discount = $amount;
 
 		if($item->price > 0){
 			//Contabilizando jornadas:
@@ -2317,7 +2317,7 @@ class Helpers{
         	$amount = round($amount + $percent, 2);
         }
 
-        $arr = ['amount' => $amount, 'amount_without_discount' => $amount_without_discount];
+        $arr = ['amount' => round($amount,2), 'amount_without_discount' => round($amount_without_discount,2)];
         return $arr;
 	}
 

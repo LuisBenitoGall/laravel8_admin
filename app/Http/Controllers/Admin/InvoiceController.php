@@ -1397,6 +1397,11 @@ class InvoiceController extends Controller{
     public function recalculateInvoiceAmount($invoice, $order){
         //Recalculando importe factura por sus líneas:
         if($invoice->blocked == '0' && $invoice->order_id){
+            //Previsión de facturación:
+            $prevision = OrderPrevisions::where('order_id', $order->id)
+            ->where('invoice_id', $invoice->id)
+            ->first();
+
             //Importe total del pedido:
             $order_amount = $order->getAmount(true, true);
             $base_amount = $order_amount['total_amount'];
@@ -1408,10 +1413,17 @@ class InvoiceController extends Controller{
             //     $desc_irpf = ($invoice->irpf * $base_amount) / 100;
             //     $invoice_amount = $invoice_amount - $desc_irpf;
             // }
+            
+            //Facturación parcial:
+            if($prevision->percent > 0 && $prevision->percent < 100){
+                $base_amount = ($base_amount * $prevision->percent) / 100;
+                $invoice_amount = ($invoice_amount * $prevision->percent) / 100;
+            }
+            //dd($base_amount);
 
-            $invoice->amount = $base_amount;
+            $invoice->amount = round($base_amount, 2);
             //02/10/23: se suma el ajuste de IVA al importe total con IVA:
-            $invoice->amount_with_iva = $invoice_amount + $invoice->iva_adjust;
+            $invoice->amount_with_iva = round($invoice_amount,2) + $invoice->iva_adjust;
             $invoice->save();
         }    
     }
@@ -1580,15 +1592,15 @@ class InvoiceController extends Controller{
             exit;       
         }  
 
-        //Recalculando importe factura por sus líneas:
-        //$this->recalculateInvoiceAmount($invoice);
-
         $invoice_order = Order::select('orders.*', 'users.name AS Nombre', 'users.surname', 'projects.name AS project')
         ->leftJoin('users', 'orders.provider_manager_id', '=', 'users.id')
         ->leftJoin('project_orders', 'orders.id', '=', 'project_orders.order_id')
         ->leftJoin('projects', 'project_orders.project_id', '=', 'orders.id')
         ->where('orders.id', $invoice->order_id)
         ->first();
+
+        //Recalculando importe factura por sus líneas:
+        $this->recalculateInvoiceAmount($invoice, $invoice_order);
 
         //Factura de agrupación:
         if($invoice_order->is_group){
