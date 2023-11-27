@@ -62,7 +62,11 @@ class ItemLinkedOrderController extends Controller{
         $i->save();
 
         $msg = trans('textos.item_vinculado_pedido');
-        return redirect()->route('orders.edit', [$request->order_origin, 'items'])->with(compact('msg'));
+        if($request->environment == 'orders'){
+            return redirect()->route('orders.edit', [$request->order_origin, 'items'])->with(compact('msg'));
+        }elseif($request->environment == 'invoices'){
+            return redirect()->route('invoices.edit', [$request->invoice_id, 'items'])->with(compact('msg'));    
+        }
     }
 
     /**

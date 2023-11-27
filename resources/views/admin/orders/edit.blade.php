@@ -864,7 +864,7 @@ $order_amount_without_discount = $order_amount_without_discount_in_lines > $orde
 @include('admin.invoices.partials.modal-link-project')
 
 {{-- Link item to order --}}
-@include('admin.orders.partials.modal-link-item')
+@include('admin.orders.partials.modal-link-item', ['environment' => 'orders'])
 
 {{-- Generate invoice --}}
 @php

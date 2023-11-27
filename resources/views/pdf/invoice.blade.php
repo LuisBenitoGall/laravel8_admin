@@ -161,7 +161,6 @@ $text_doc = $invoice->refund > 0? 'abono':'factura';
 							@php
 							$arr_order_amount = App\Helpers\helpers::itemAmount($row, false);
 							$amount = $arr_order_amount['amount'];
-							//dd($arr_order_amount);
 							//$amount = $row->amount? $row->amount:round($row->qty * $row->price, 2);
 
 
@@ -173,10 +172,11 @@ $text_doc = $invoice->refund > 0? 'abono':'factura';
 							// }
 
 							//Facturación parcial:
-							// if($amount_invoiced && $amount_invoiced->percent < config('constants.TOLERANCE_INVOICED_')){
-							// 	$amount = round(($amount * $amount_invoiced->percent) / 100, 2);
-							// 	//$amount = App\Helpers\helpers::percent(round($amount, 2), $amount_invoiced->percent);
-							// }
+							$partial_amount = $amount;
+							if($amount_invoiced && $amount_invoiced->percent < config('constants.TOLERANCE_INVOICED_')){
+								$partial_amount = round(($amount * $amount_invoiced->percent) / 100, 2);
+								//$amount = App\Helpers\helpers::percent(round($amount, 2), $amount_invoiced->percent);
+							}
 
 							//Total de la factura:
 							$totalInvoice = $totalInvoice + round($amount, 2);
@@ -184,20 +184,13 @@ $text_doc = $invoice->refund > 0? 'abono':'factura';
 							//IVA:
 							//23/11/23: se desactiva la columna de IVA para cada registro, y se incluirán en la parte inferior, en los sumatorios
 							$iva_amount = App\Helpers\helpers::percent($amount, $row->iva);
-							//$amount = $amount + $iva_amount;
-							
-
-							
-							//Pasamos al IVA el importe acumulado por cada tipo y el importe del IVA:
-							//$arr_iva = [];
-							
 
 							//Sumando importes de IVA:
 							array_push($sumIva[$row->iva], round($iva_amount,2));
 							//Sumando bases por cada tipo de IVA:
-							array_push($baseIva[$row->iva], round($amount,2));
+							array_push($baseIva[$row->iva], round($partial_amount,2));
 							@endphp
-							{{ number_format($amount, 2) }}{{$currency->symbol }}
+							{{ number_format($partial_amount, 2) }}{{$currency->symbol }}
 						</td>
 					</tr>
 

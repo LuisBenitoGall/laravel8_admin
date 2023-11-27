@@ -38,10 +38,15 @@
 							$base_ = App\Helpers\helpers::percent(round(array_sum($baseIva[$i]), 2), $amount_invoiced->percent);
 							$iva_ = App\Helpers\helpers::percent(round(array_sum($si), 2), $amount_invoiced->percent);
 							@endphp
-
 						@endif
 
-
+						{{-- Para facturas con un único tipo de IVA, se toman los valores de la factura. Evitamos posibles desajustes de decimales --}}
+						@if(count($sumIva) == 1)
+							@php
+							$base_ = $invoice->amount;
+							$iva_ = $invoice->amount_with_iva - $invoice->amount; 
+							@endphp
+						@endif
 
 						<tr>
 							<th style="background-color: #efefef; text-align: right; width: 80%;">

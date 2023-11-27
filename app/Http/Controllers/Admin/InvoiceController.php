@@ -1527,8 +1527,6 @@ class InvoiceController extends Controller{
                 $percent = helpers::percent($invoice->amount, $invoice->with_iva); 
                 $iva_amount = $invoice->amount + $percent;
                 $invoice->amount_with_iva = $iva_amount + (float)$request->iva_adjust;
-
-                //dd((float)$request->iva_adjust, $invoice->amount, $percent, $iva_amount, $invoice->amount_with_iva);
             }
         }
 

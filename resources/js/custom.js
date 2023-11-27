@@ -366,6 +366,7 @@ $(window).on('load', function () {
     40. Guardar Me Gusta.
     41. Búsqueda autocomplete para pedidos.
     42. Búsqueda autocomplete para cuentas contables.
+    43. Modal vincular pedidos de terceros.
     */
 
     // 1. Eliminar preview imagen seleccionada:
@@ -1670,6 +1671,48 @@ $(window).on('load', function () {
                 
                 return false;
             }    
+        });
+    });
+
+    // 43. Modal vincular pedidos de terceros.
+    $(document).on('click', '.btnLinkItem', function(e){
+        e.preventDefault();
+        var item_id = $(this).data('id');
+        $('#itemLinkedId').val(item_id);
+
+        var order_id = $('#myOrder').val();
+
+        $.get("/admin/item-linked-orders/"+item_id+"/show", function(response, state){
+            var html = '';
+            if(response.length > 0){
+                for(i=0; i<response.length; i++){
+                    html += '<tr>';
+                        var order_ = response[i].order_num? response[i].order_num:(response[i].order_old_num? response[i].order_old_num:response[i].order_id);
+                        html += '<td><a target="_blank" href="/admin/orders/'+response[i].order_id+'/edit">'+order_+' - '+response[i].name+'</a></td>';
+
+                        var fecha = new Date(response[i].created_at);
+                        var any = fecha.getFullYear();
+                        var mes = (fecha.getMonth() + 1).toString().padStart(2, '0'); // Meses son 0-indexados
+                        var dia = fecha.getDate().toString().padStart(2, '0');
+
+                        // Formatear la fecha en el formato deseado
+                        var formatDate = dia+'/'+mes+'/'+any;
+
+                        html += '<td class="text-right">'+formatDate+'</td>';
+                        html += '<td class="text-right">';
+                            //Eliminar:
+                            html += '<a href="/admin/item-linked-orders/'+response[i].id+'/delete/'+order_id+'" class="btn btn-xs btn-danger btn-confirm" data-msg="'+txtItemVinculadoEliminarConfirm+'" rel="tooltip" title="'+txtDesvincular+'"><i class="fa fa-trash"></i></a>';
+                        html += '</td>';
+                    html += '</tr>';
+                }
+                
+            }else{
+                html += '<tr>';
+                    html += '<td colspan="3" class="text-center text-warning pt-4">'+txtItemsVinculadosSin+'</td>';
+                html += '</tr>';
+            }
+
+            $('#tblItemsLinked tbody').html(html);
         });
     });
 });
