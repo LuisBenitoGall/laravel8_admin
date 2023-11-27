@@ -13,6 +13,10 @@
                     {{ csrf_field() }}
                     <input type="hidden" name="item_id" id="itemLinkedId">
                     <input type="hidden" name="order_origin" value="{{ $order->id }}">
+                    <input type="hidden" name="environment" value="{{ $environment }}">
+                    @if(isset($invoice))
+                        <input type="hidden" name="invoice_id" value="{{ $invoice->id }}">
+                    @endif
 
                     <div class="form-group row">
                         {{-- Pedidos --}}
