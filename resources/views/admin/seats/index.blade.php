@@ -23,6 +23,9 @@
 		@can('seats.create')
 			<a class="btn btn-info" href="{{ route('seats.create') }}"><i class="fa fa-plus"></i> {!! ucfirst(trans('textos.asiento_nuevo')) !!}</a>
 		@endcan	
+
+		{{-- Modelos --}}
+		<a class="btn btn-info" href="{{ route('seat-models.index') }}"><i class="fa fa-list"></i> {!! ucfirst(trans('textos.modelos')) !!}</a>
 	</div>
 </div>
 

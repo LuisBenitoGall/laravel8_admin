@@ -63,8 +63,10 @@ class Helpers{
 	 *  3.28. Estados de protocolos.
 	 *  3.29. Estados de venta por caja.
 	 *  3.30. Modos de cuentas contables.
+	 *  3.31. Diarios contables.
+	 *  3.32. Tipos líneas de asientos contables.
 	 *
-	 * 4. Strings:
+	 * 4. Strings & Arrays:
 	 * 	4.1. Truncar texto.
 	 * 	4.2. Slug string para archivos.
 	 *  4.3. Customizar CIF.
@@ -72,6 +74,7 @@ class Helpers{
 	 *  4.4. Formato numérico para decimales.
 	 *  4.5. Customizar strings.
 	 *  4.6. Cadena serializada.
+	 *  4.7. Detectar valores repetidos en un array.
 	 *
 	 * 5. Archivos:
 	 *  5.1. Allowed Image Mime Types.
@@ -1188,6 +1191,49 @@ class Helpers{
 	}
 
 	/**
+	 * 3.31. Diarios contables.
+	 */
+	public static function accountingDiaries($diary = false){
+		$data = [
+			'dg' => trans('textos.diario_general'),
+			//'PG' => 'Diario Pagos',
+			'dc' => trans('textos.diario_compras'),
+			'dv' => trans('textos.diario_ventas'),
+			//'RB' => 'Remesas Bancarias',
+			//'CB' => 'Diario Cobros',
+			'dj' => trans('textos.diario_caja'),
+			//'IMPAG' => 'Impagados'
+		];
+		if($diary){
+			if(isset($data[$diary])){
+				return $data[$diary];
+			}else{
+				return false;
+			}
+		}else{
+			return $data;
+		}
+	}
+
+	/**
+	 * 3.32. Tipos líneas de asientos contables.
+	 */
+	public static function seatLinesTypes($type = false){
+		$data = [
+			'cp' => 'CP',
+			'ir' => 'IR',
+			'iv' => 'IV',
+			'tr' => 'TR',
+			'vc' => 'VC'
+		];
+		if($type){
+			return ucfirst($data[$type]);
+		}else{
+			return $data;
+		}
+	}
+
+	/**
 	 * 4.1. Truncar texto.
 	 */
 	public static function truncate($text, $chars = 120){
@@ -1326,6 +1372,15 @@ class Helpers{
 	 */
 	public static function isSerialized($string) {
     	return (@unserialize($string) !== false || $string == 'b:0;');
+	}
+
+	/**
+	 * 4.7. Detectar valores repetidos en un array.
+	 */
+	public static function getRepeatValues($data){
+		$unique_values = array_unique($data);
+		$comunes = array_diff_assoc($data, $unique_values);
+		return $comunes;
 	}
 
 	/**

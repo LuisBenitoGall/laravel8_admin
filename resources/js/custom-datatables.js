@@ -5901,6 +5901,9 @@ $(document).ready(function(){
         });
     }
 
+    //Tabla Seat Models:
+    
+
     //Tabla Seats:
     if($('#tblSeats').length > 0){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');

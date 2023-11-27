@@ -85,8 +85,7 @@ class SeatController extends Controller{
     }
 
 
-
-
+    
 
     /**
      * 2. Formulario nuevo asiento.
