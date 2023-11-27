@@ -28,6 +28,7 @@ $text_doc = $invoice->refund > 0? 'abono':'factura';
 		$colspan = 3;
 		foreach($items as $row){
 			$line_amount = $row->qty * $row->price;
+			//Aplicando descuento:
 			if($row->discount){
 				$percentage = App\Helpers\Helpers::percent($line_amount, $row->discount);
 				$line_amount = $line_amount - $percentage;
@@ -49,8 +50,10 @@ $text_doc = $invoice->refund > 0? 'abono':'factura';
 		$arrIva = array_unique($arrIva);
 		//Generamos los arrays de la suma de los distintos tipos de IVA:
 		$sumIva = [];
+		$baseIva = [];
 		foreach($arrIva as $ai){
 			$sumIva[$ai] = [];
+			$baseIva[$ai] = [];
 		}
 		@endphp
 
@@ -86,9 +89,10 @@ $text_doc = $invoice->refund > 0? 'abono':'factura';
 					<th style="background-color: {{ $bg_color }}; text-align: center;">
 						{{ ucfirst(trans('textos.descuento')) }}
 					</th>
-					<th style="background-color: {{ $bg_color }}; text-align: center;">
+					{{-- 23/11/23: se desactiva la columna de IVA para cada registro, y se incluirán en la parte inferior, en los sumatorios --}}
+					{{-- <th style="background-color: {{ $bg_color }}; text-align: center;">
 						IVA
-					</th>
+					</th> --}}
 					<th style="background-color: {{ $bg_color }}; text-align: center;">
 						{{ ucfirst(trans('textos.total')) }}({{ $currency->symbol }})
 					</th>
@@ -99,7 +103,7 @@ $text_doc = $invoice->refund > 0? 'abono':'factura';
 				<tr>
 					<td style="background-color: #efefef; text-align: right;"></td>
 					<td style="background-color: #efefef;"></td>
-					<td colspan="{{ $colspan }}" style="background-color: #efefef;">
+					<td colspan="{{ $colspan - 1 }}" style="background-color: #efefef;">
 						<b>{{ $invoice_order->name }}</b>	
 					</td>
 					<td style="background-color: #efefef; text-align: right;">
@@ -109,7 +113,7 @@ $text_doc = $invoice->refund > 0? 'abono':'factura';
 
 				{{-- Líneas de la factura --}}
 				@php
-				$total = 0;
+				$totalInvoice = 0;
 				@endphp
 
 				@foreach($items as $row)
@@ -150,7 +154,7 @@ $text_doc = $invoice->refund > 0? 'abono':'factura';
 							@endif
 						</td>
 
-						<td style="text-align: right;">@if($invoice->with_iva > 0) {{ $row->iva }}% @endif</td>
+						{{-- <td style="text-align: right;">@if($invoice->with_iva > 0) {{ $row->iva }}% @endif</td> --}}
 
 						<td style="text-align: right;">
 							@php
@@ -167,31 +171,27 @@ $text_doc = $invoice->refund > 0? 'abono':'factura';
 								$amount = App\Helpers\Helpers::percent($amount, $amount_invoiced->percent);
 							}
 
+							//Total de la factura:
+							$totalInvoice = $totalInvoice + round($amount, 2);
+
 							//IVA:
+							//23/11/23: se desactiva la columna de IVA para cada registro, y se incluirán en la parte inferior, en los sumatorios
 							$iva_amount = App\Helpers\Helpers::percent($amount, $row->iva);
-							$amount = $amount + $iva_amount;
+							//$amount = $amount + $iva_amount;
+							
+							//Pasamos al IVA el importe acumulado por cada tipo y el importe del IVA:
+							//$arr_iva = [];
+							
 
 							//Sumando importes de IVA:
 							array_push($sumIva[$row->iva], $iva_amount);
+							//Sumando bases por cada tipo de IVA:
+							array_push($baseIva[$row->iva], $amount);
 							@endphp
 							{{ number_format($amount, 2) }}{{$currency->symbol }}
 						</td>
 					</tr>
 				@endforeach
-
-				{{-- Indicamos descuento sobre el total para facturas que NO sean de abono --}}
-				@if($invoice_order->discount && !$invoice->refund && $invoice->discount_amount)
-					<tr>
-						<td></td>
-						<td colspan="2">
-							<b>{{ trans('textos.descuento_pedido') }}</b>
-						</td>
-						<td style="text-align: right;">
-							{{ $invoice_order->discount }}%
-						</td>
-						<td colspan="2"></td>
-					</tr>
-				@endif
 
 				{{-- Avances de facturas --}}
 				{{-- @if($advance_invoices->count() > 0)

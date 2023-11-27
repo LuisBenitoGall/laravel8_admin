@@ -1,30 +1,51 @@
 	<footer>
 		<table class="tblFooter">
 			<thead>
+				{{-- Subtotal: importe neto sin IVA --}}
 				<tr>
 					<th style="background-color: #efefef; text-align: right; width: 80%;">
 						{{ strtoupper(trans('textos.subtotal')) }}	
 					</th>
+					<th style="background-color: #efefef;"></th>
 					<th style="background-color: #efefef; text-align: right;">
 						<b>{{ $invoice->amount }}{{ $currency->symbol }}</b>
 					</th>
 				</tr>
 
+				{{-- Descuentos aplicados sobre el pedido: indicamos descuento sobre el total para facturas que NO sean de abono --}}
+				@if($invoice_order->discount && !$invoice->refund && $invoice->discount_amount)
+					<tr>
+						<th style="background-color: #efefef; text-align: right; width: 80%;">
+							<b>{{ strtoupper(trans('textos.descuento')) }}</b>
+						</th>
+						<th style="background-color: #efefef; text-align: right;">
+							{{ $invoice_order->discount }}%
+						</th>
+						<th style="background-color: #efefef; text-align: right;">
+							{{ $invoice_order->discount_amount }}{{ $currency->symbol }}
+						</th>
+					</tr>
+				@endif
+
 				{{-- Importes de IVA --}}
-				{{-- @if(isset($sumIva) && count($sumIva) > 0)
+				{{-- 27/11/2023: se reestablece el IVA desglosado según tipo aplicado --}}
+				@if(isset($sumIva) && count($sumIva) > 0)
 					@foreach($sumIva as $i => $si)
 						<tr>
 							<th style="background-color: #efefef; text-align: right; width: 80%;">
 								IVA ({{ $i }}%)	
+							</th>
+							<th style="background-color: #efefef;">
+								<b>{{ array_sum($baseIva[$i]) }}{{ $currency->symbol }}</b>	
 							</th>
 							<th style="background-color: #efefef; text-align: right;">
 								<b>{{ array_sum($si) }}{{ $currency->symbol }}</b>
 							</th>
 						</tr>
 					@endforeach
-				@endif --}}
+				@endif
 
-				<tr>
+				{{-- <tr>
 					<th style="background-color: #efefef; text-align: right; width: 80%;">
 						IVA	
 					</th>
@@ -35,13 +56,13 @@
 
 						<b>{{ $iva_amount }}{{ $currency->symbol }}</b>
 					</th>
-				</tr>
+				</tr> --}}
 			</thead>
 
 			<tbody>
 				<tr>
-					<td style="background-color: {{ $bg_color }}; text-align: right;">
-						{{ strtoupper(trans('textos.total')) }}
+					<td colspan="2" style="background-color: {{ $bg_color }}; text-align: right;">
+						{{ strtoupper(trans('textos.factura_total')) }}
 					</td>
 					<td style="background-color: {{ $bg_color }}; text-align: right;">
 						<b>{{ $invoice->amount_with_iva }}{{ $currency->symbol }}</b>

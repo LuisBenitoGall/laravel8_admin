@@ -1053,12 +1053,16 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::put('schedules/{schedule}/update', 'ScheduleController@update')->name('schedules.update')->middleware('permission:schedules.edit');
     Route::get('schedules/{schedule}/status/{status}', 'ScheduleController@status')->name('schedules.status')->middleware('permission:schedules.edit');
 
+    // Seat Models:
+    Route::get('seat-models', 'SeatModelController@index')->name('seat-models.index')->middleware('permission:seats.index');
+    Route::get('seat-models/create', 'SeatModelController@create')->name('seat-models.create')->middleware('permission:seats.create');
+    Route::post('seat-models/store', 'SeatModelController@store')->name('seat-models.store')->middleware('permission:seats.create');
+
     // Seats:
     Route::get('seats/list/{year?}/{accounting_account_id?}/{from?}/{to?}', 'SeatController@index')->name('seats.index')->middleware('permission:seats.index');
     Route::post('seats', 'SeatController@getSeatsBy')->name('seats.list')->middleware('permission:seats.index');
     Route::get('seats/create', 'SeatController@create')->name('seats.create')->middleware('permission:seats.create');
     Route::post('seats/store', 'SeatController@store')->name('seats.store')->middleware('permission:seats.create');
- 
 
     // Sectors:
     Route::get('sectors', 'CompanyController@sectors')->name('sectors.index');
