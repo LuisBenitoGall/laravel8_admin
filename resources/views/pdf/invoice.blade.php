@@ -114,6 +114,7 @@ $text_doc = $invoice->refund > 0? 'abono':'factura';
 				{{-- Líneas de la factura --}}
 				@php
 				$totalInvoice = 0;
+				$j = 1;
 				@endphp
 
 				@foreach($items as $row)
@@ -158,39 +159,51 @@ $text_doc = $invoice->refund > 0? 'abono':'factura';
 
 						<td style="text-align: right;">
 							@php
-							$amount = $row->amount? $row->amount:$row->qty * $row->price;
+							$arr_order_amount = App\Helpers\helpers::itemAmount($row, false);
+							$amount = $arr_order_amount['amount'];
+							//dd($arr_order_amount);
+							//$amount = $row->amount? $row->amount:round($row->qty * $row->price, 2);
+
+
 							
 							//Descuento. Sólo si el importe de factura por línea no viniera declarado:
-							if($row->discount && !$row->amount){
-								$discount = App\Helpers\Helpers::percent($amount, $row->discount);	
-								$amount = $amount - $discount;	
-							}
+							// if($row->discount && !$row->amount){
+							// 	$discount = App\Helpers\helpers::percent($amount, $row->discount);	
+							// 	$amount = round($amount - $discount, 2);	
+							// }
 
 							//Facturación parcial:
-							if($amount_invoiced && $amount_invoiced->percent < config('constants.TOLERANCE_INVOICED_')){
-								$amount = App\Helpers\Helpers::percent($amount, $amount_invoiced->percent);
-							}
+							// if($amount_invoiced && $amount_invoiced->percent < config('constants.TOLERANCE_INVOICED_')){
+							// 	$amount = round(($amount * $amount_invoiced->percent) / 100, 2);
+							// 	//$amount = App\Helpers\helpers::percent(round($amount, 2), $amount_invoiced->percent);
+							// }
 
 							//Total de la factura:
 							$totalInvoice = $totalInvoice + round($amount, 2);
 
 							//IVA:
 							//23/11/23: se desactiva la columna de IVA para cada registro, y se incluirán en la parte inferior, en los sumatorios
-							$iva_amount = App\Helpers\Helpers::percent($amount, $row->iva);
+							$iva_amount = App\Helpers\helpers::percent($amount, $row->iva);
 							//$amount = $amount + $iva_amount;
+							
+
 							
 							//Pasamos al IVA el importe acumulado por cada tipo y el importe del IVA:
 							//$arr_iva = [];
 							
 
 							//Sumando importes de IVA:
-							array_push($sumIva[$row->iva], $iva_amount);
+							array_push($sumIva[$row->iva], round($iva_amount,2));
 							//Sumando bases por cada tipo de IVA:
-							array_push($baseIva[$row->iva], $amount);
+							array_push($baseIva[$row->iva], round($amount,2));
 							@endphp
 							{{ number_format($amount, 2) }}{{$currency->symbol }}
 						</td>
 					</tr>
+
+					@php
+					$j++;
+					@endphp
 				@endforeach
 
 				{{-- Avances de facturas --}}
