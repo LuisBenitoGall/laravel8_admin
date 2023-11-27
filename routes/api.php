@@ -369,6 +369,16 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     //ScheduleEventTypes:
     Route::get('schedule-event-types', 'ScheduleEventTypesController@getEventTypesDT');
 
+    //SeatLines:
+    Route::get('seat-lines/{seat_id}', 'SeatLinesController@getLines');
+    Route::get('seat-lines/{accounting_account_id}/dt/{from}/{to}', 'SeatLinesController@getLinesDT');
+
+    //SeatModels:
+    Route::get('seat-models', 'SeatModelsController@getSeatModelsDT');
+
+    //Seats:
+    Route::get('seats/{year?}/{accountin_account_id?}/{from?}/{to?}', 'SeatController@getSeatsDT');
+
     //ShipmentPatterns:
     Route::get('shipment-patterns', 'ShipmentPatternsController@getPatternsDT');
 
