@@ -90,14 +90,16 @@ class OrderPrevisions extends Model{
 
     /**
      * 3. Previsiones de facturación por pedido.
+     *
+     * 28/11/2023: incluimos el parámetro $generate para generar nuevas previsiones en función si el pedido se encuentra o no bloqueado.
      */
-    public static function previsions($order_id){
+    public static function previsions($order_id, $generate = false){
         //Suma de porcentaje de las previsiones:
         $sum_percent = OrderPrevisions::where('order_previsions.order_id', $order_id)
         ->sum('percent');
 
         //Añadimos nueva previsión si el porcentaje previsto es inferior a 100:
-        if($sum_percent < 100){
+        if($sum_percent < 100 && $generate){
             $diff = 100 - $sum_percent;
 
             $op = new OrderPrevisions();

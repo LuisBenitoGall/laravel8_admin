@@ -374,7 +374,7 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     Route::get('seat-lines/{accounting_account_id}/dt/{from}/{to}', 'SeatLinesController@getLinesDT');
 
     //SeatModels:
-    Route::get('seat-models', 'SeatModelsController@getSeatModelsDT');
+    Route::get('seat-models', 'SeatModelController@getSeatModelsDT');
 
     //Seats:
     Route::get('seats/{year?}/{accountin_account_id?}/{from?}/{to?}', 'SeatController@getSeatsDT');

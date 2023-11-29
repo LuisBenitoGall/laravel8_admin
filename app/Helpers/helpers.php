@@ -1220,11 +1220,11 @@ class Helpers{
 	 */
 	public static function seatLinesTypes($type = false){
 		$data = [
-			'cp' => 'CP',
+			'cp' => trans('textos.cheque_pagare'),
 			'ir' => 'IR',
 			'iv' => 'IV',
-			'tr' => 'TR',
-			'vc' => 'VC'
+			'tr' => trans('textos.transferencia'),
+			'vc' => trans('textos.venta_contado')
 		];
 		if($type){
 			return ucfirst($data[$type]);

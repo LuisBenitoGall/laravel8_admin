@@ -26,8 +26,8 @@ class SeatModelLine extends Model{
         $l->model_id = $data['model_id'];
         $l->accounting_account_id = $data['accounting_account_id'];
         $l->line_num = $data['line_num'];
-        $l->debe = $data['debe'];
-        $l->haber = $data['haber'];
+        $l->debit = $data['debit'];
+        $l->credit = $data['credit'];
         $l->code_auto = $data['code_auto'];
         $l->type = $data['type'];
         $l->currency_id = $data['currency_id'];

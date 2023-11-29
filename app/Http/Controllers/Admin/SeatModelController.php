@@ -81,11 +81,14 @@ class SeatModelController extends Controller{
      * 1.1. Listado de modelos para DataTable.
      */
     public function getSeatModelsDT(){
-        $data = SeatModels::where('company_id', session('currentCompany'));
+        $data = SeatModel::where('company_id', session('currentCompany'));
 
         $diaries = helpers::accountingDiaries();
 
         return DataTables::of($data)
+        ->addColumn('date', function ($row){
+            return $row->created_at->format($this->languages[session()->get('locale')][4]);
+        })
         ->addColumn('diary', function ($row) use($diaries){
             if(isset($diaries[$row->diary])) return $diaries[$row->diary];
         })
@@ -106,13 +109,17 @@ class SeatModelController extends Controller{
             'slug' => 'seat-models'
         ]; 
 
+        //Diarios:
         $diaries = helpers::accountingDiaries();
+
+        //Tipos de líneas de asientos contables:
+        $seat_lines_types = helpers::seatLinesTypes();
 
         $languages = $this->languages;
 
         $currency = $this->currency;
 
-        return view('admin.seat_models.create')->with(compact('header', 'diaries', 'languages', 'currency'));        
+        return view('admin.seat_models.create')->with(compact('header', 'diaries', 'seat_lines_types', 'languages', 'currency'));        
     }
 
     /**
@@ -167,5 +174,105 @@ class SeatModelController extends Controller{
 
         $msg = trans('textos.modelo_creado');
         return redirect()->route('seat-models.edit', $sm)->with(compact('msg'));
+    }
+
+    /**
+     * 4. Editar modelo.
+     */
+    public function edit(SeatModel $model){
+        $header = [
+            'option' => $this->option,
+            'suboption' => 'textos.modelo_asiento_contable_editar',
+            'module' => $this->module,
+            'slug' => 'seat-models'
+        ]; 
+
+        $diaries = helpers::accountingDiaries();
+
+        $lines = SeatModelLine::select('seat_model_lines.*', 'accounting_accounts.name', 'accounting_accounts.account', 'currencies.symbol')
+        ->join('accounting_accounts', 'seat_model_lines.accounting_account_id', '=', 'accounting_accounts.id')
+        ->leftJoin('currencies', 'seat_model_lines.currency_id', '=', 'currencies.id')
+        ->where('seat_model_lines.model_id', $model->id)
+        ->orderBy('seat_model_lines.line_num')
+        ->get();
+
+        //Tipos de líneas de asientos contables:
+        $seat_lines_types = helpers::seatLinesTypes();
+
+        $languages = $this->languages;
+
+        $currency = $this->currency;
+
+        return view('admin.seat_models.edit', $model)->with(compact('header', 'model', 'diaries', 'lines', 'seat_lines_types', 'languages', 'currency'));    
+    }   
+
+    /**
+     * 5. Actualizar modelo.
+     */
+    public function update(Request $request, SeatModel $model){
+        $validator = $this->validator($request->all());
+        if ($validator->fails()) {
+            return redirect('/admin/seat-models/'.$model->id.'/edit')
+                ->withErrors($validator)
+                ->withInput();
+        }  
+
+        //Validando que no se repitan cuentas contables:
+        $repeat = helpers::getRepeatValues($request->accounting_account_id);
+        if(count($repeat)){
+            $alert = trans('textos.cuentas_contables_repetidas');
+            return redirect()->route('seat-models.edit', $model)->with(compact('alert'));      
+        }
+
+        $model->name = $request->name;
+        $model->diary = $request->diary;
+        $model->description = $request->description;
+        $model->updated_by = Auth::user()->id;
+        $model->save();
+
+        //Líneas del modelo:
+        //Eliminamos las líneas previas y se insertan por completo:
+        SeatModelLine::where('model_id', $model->id)->delete();
+
+        //Líneas:
+        if($request->accounting_account_id && is_array($request->accounting_account_id)){
+            $model_lines = [];
+            $model_lines['accounting_account_id'] = $request->accounting_account_id;
+            $model_lines['type'] = $request->type;
+            $model_lines['debit'] = $request->debit;
+            $model_lines['credit'] = $request->credit;
+
+            //Numeración líneas:
+            $k = 1;
+            for($i = 0; $i < count($model_lines['accounting_account_id']); $i++){
+                $data_line = [
+                    'model_id' => $model->id,
+                    'line_num' => $k,
+                    'accounting_account_id' => $model_lines['accounting_account_id'][$i],
+                    'accounting_account' => NULL,
+                    'debit' => $model_lines['debit'][$i],
+                    'credit' => $model_lines['credit'][$i],
+                    'code_auto' => NULL,
+                    'type' => $model_lines['type'][$i],
+                    'currency_id' => $request->currency_id
+                ];
+                SeatModelLine::saveLine($data_line);
+
+                $k++;
+            }
+        }
+
+        $msg = trans('textos.modelo_updated');
+        return redirect()->route('seat-models.edit', $model)->with(compact('msg'));     
+    }
+
+    /**
+     * 6. Eliminar modelo.
+     */
+    public function destroy(SeatModel $model){
+        $model->delete();
+
+        $msg = trans('textos.modelo_deleted');
+        return redirect()->route('seat-models.index')->with(compact('msg'));
     }
 }

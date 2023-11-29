@@ -270,9 +270,11 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 			</label>
 
 			<div class="col-lg-1 pt-1">
-				<button class="btn btn-warning btn-circle btnAddPrevision" rel="tooltip" title="{{ trans('textos.agregar_prevision') }}">
-					<i class="fa fa-plus"></i>
-				</button>
+				@if($order->blocked == '0')
+					<button class="btn btn-warning btn-circle btnAddPrevision" rel="tooltip" title="{{ trans('textos.agregar_prevision') }}">
+						<i class="fa fa-plus"></i>
+					</button>
+				@endif
 			</div>
 
 			<div class="col-lg-9">
@@ -412,8 +414,10 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 					{{-- Indicador de porcentaje pendiente
 						Pasamos como condición adicional que el porcentaje sea mayor a 0.02, para evitar decimales residuales.
 					--}}
-					@if($totalPercent < 100 && (100 - $totalPercent) > 0.02)
+					@if($totalPercent < 100 && (100 - $totalPercent) > 0.02 && $order->blocked == '0')
 						<p class="text-warning">{!! trans('textos.facturacion_prevision_pendiente') !!}: <b>{{ round(100 - $totalPercent, 2) }}%</b></p>
+					@elseif($totalPercent < 100 && $order->blocked == 1)
+						<p class="text-warning">{!! trans('textos.pedido_cerrado_aviso') !!}</p>	
 					@endif		
 				</div>
 			</div>
