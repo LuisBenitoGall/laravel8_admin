@@ -93,6 +93,7 @@ class OrderController extends Controller{
      * 24. Pedidos según proveedor.
      * 25. Exportar .xls pedidos por rango de fecha.
      * 26. Pedidos para autocomplete.
+     * 27. Cerrar pedido.
      */
     
     private $option = 'pedidos';
@@ -104,7 +105,7 @@ class OrderController extends Controller{
         $this->languages = helpers::languages();
 
         $this->middleware('module_setted:orders');
-        $this->middleware('order_get', ['only' => ['orderFromBudget', 'edit', 'update', 'destroy', 'print', 'setOrderDelivery', 'resetNum', 'removePurchaseDoc']]);
+        $this->middleware('order_get', ['only' => ['orderFromBudget', 'edit', 'update', 'destroy', 'print', 'setOrderDelivery', 'resetNum', 'removePurchaseDoc', 'close']]);
         $this->middleware('project_purchases', ['only' => ['addPurchaseToProject']]);
     }
 
@@ -1169,14 +1170,15 @@ class OrderController extends Controller{
         }
         if($invoices->count()) $permitted = false;
 
-        //Previsiones de facturación del pedido:      
-        $previsions = OrderPrevisions::previsions($order->id);
+        //Previsiones de facturación del pedido:    
+        $generate = $order->blocked == 1? false:true;  
+        $previsions = OrderPrevisions::previsions($order->id, $generate);
 
         //Debe existir siempre al menos una previsión:
         if(!$previsions->count()){
             OrderPrevisions::store($order->id);
 
-            $previsions = OrderPrevisions::previsions($order->id);
+            $previsions = OrderPrevisions::previsions($order->id, $generate);
         }
 
         //Productos. Activos y aptos para venta:
@@ -1899,8 +1901,6 @@ class OrderController extends Controller{
         ->orderBy('orders.id', 'DESC')
         ->orderBy('orders.created_at', 'DESC');
         //->get();
-
-        //dd($data);
 
         return DataTables::of($data)
         ->addColumn('fecha', function($row){
@@ -2708,6 +2708,23 @@ class OrderController extends Controller{
         ->get(); 
 
         return response()->json($data);
+    }
+
+    /**
+     * 27. Cerrar pedido.
+     */
+    public function close(Order $order){
+        //Eliminamos las previsiones no facturadas.
+        OrderPrevisions::where('order_id', $order->id)
+        ->whereNull('invoice_id')
+        ->delete();
+
+        //Bloqueamos pedido:
+        $order->blocked = 1;
+        $order->save();
+
+        $msg = trans('textos.pedido_cerrado');
+        return redirect()->route('orders.edit', $order)->with(compact('msg'));
     }
     
 }

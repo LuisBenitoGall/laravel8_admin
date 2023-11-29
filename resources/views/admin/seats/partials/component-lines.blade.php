@@ -9,10 +9,10 @@
 	{{-- Cuenta contable --}}
 	<label for="accounting_account_" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.cuenta_contable')) !!}</label>
 	<div class="col-lg-4 position-relative">
-		<x-input type="text" name="accounting_account_" id="search_accounting_account" placeholder="{!! ucfirst(trans('textos.cuenta_contable')) !!}" maxlength="150"/>
+		<x-input type="text" name="accounting_account_" class="search_accounting_account" datas="id:1" id="searchAccountingAccount1" placeholder="{!! ucfirst(trans('textos.cuenta_contable')) !!}" maxlength="150"/>
 	</div>
 
-	<input type="hidden" name="accounting_account_id_" id="accountingAccountId">
+	<input type="hidden" name="accounting_account_id_" id="accountingAccountId1">
 
 	{{-- Tipo de línea --}}
 	<label for="type_" class="col-lg-2 col-form-label">{{ ucfirst(trans('textos.tipo')) }}</label>
@@ -25,13 +25,13 @@
 	{{-- Debe --}}
 	<label for="debe_" class="col-lg-2 col-form-label">{{ trans('textos.debe') }}</label>
 	<div class="col-lg-2">
-		<x-input type="text" name="debe_" class="text-right set-decimals" autocomplete="off" maxlength="20" group="right" groupvalue="{{ $currency->symbol }}"/>
+		<x-input type="text" name="debit_" class="text-right set-decimals" autocomplete="off" maxlength="20" group="right" groupvalue="{{ $currency->symbol }}"/>
 	</div>
 
 	{{-- Haber --}}
 	<label for="haber_" class="col-lg-2 col-form-label">{{ trans('textos.haber') }}</label>
 	<div class="col-lg-2">
-		<x-input type="text" name="haber_" class="text-right set-decimals" autocomplete="off" maxlength="20" group="right" groupvalue="{{ $currency->symbol }}"/>
+		<x-input type="text" name="credit_" class="text-right set-decimals" autocomplete="off" maxlength="20" group="right" groupvalue="{{ $currency->symbol }}"/>
 	</div>	
 
 	{{-- Añadir --}}
@@ -67,8 +67,8 @@ $(function(){
 		var accounting_account = $('input[name="accounting_account_"]').val();
 		var type_id = $('select[name="type_"]').val();
 		var type = type_id != null? $('select[name="type_"] option:selected').text():'';
-		var debe = $('input[name="debe_"]').val();
-		var haber = $('input[name="haber_"]').val();
+		var debe = $('input[name="debit_"]').val();
+		var haber = $('input[name="credit_"]').val();
 		$('.line-titles').css("visibility", "visible");
 
 		var html = '<div class="form-group row">';
@@ -77,8 +77,8 @@ $(function(){
 			html += '<input type="hidden" name="accounting_account_id[]" value="'+accounting_account_id+'">';
 			html += '<div class="col-md-1"><input type="text" class="form-control" value="'+type+'" readonly></div>';
 			html += '<input type="hidden" name="type[]" value="'+type+'">';
-			html += '<div class="col-md-2"><input type="text" name="debe[]" class="form-control text-right from-debe" value="'+debe+'" readonly></div>';
-			html += '<div class="col-md-2"><input type="text" name="haber[]" class="form-control text-right from-haber" value="'+haber+'" readonly></div>';
+			html += '<div class="col-md-2"><input type="text" name="debit[]" class="form-control text-right from-debe" value="'+debe+'" readonly></div>';
+			html += '<div class="col-md-2"><input type="text" name="credit[]" class="form-control text-right from-haber" value="'+haber+'" readonly></div>';
 			html += '<div class="col-1 pt-2"><button class="btn btn-danger btn-circle btn-circle-mini btnRemoveLine"><i class="fa fa-times"></i></button></div>';
 		html += '</div>';
 
@@ -103,8 +103,8 @@ $(function(){
 		$('input[name="accounting_account_id_"]').val('');
 		$('input[name="accounting_account_"]').val('');
 		$('select[name="type_"]').val('').trigger('change');
-		$('input[name="debe_"]').val('');
-		$('input[name="haber_"]').val('');
+		$('input[name="debit_"]').val('');
+		$('input[name="credit_"]').val('');
 	});
 
 	//Modificar importes:
@@ -161,12 +161,6 @@ $(function(){
 
 	//Validando importes de líneas:
 	$('#sbtSeat').on('click', function(e){
-		//e.preventDefault();
-		// var iva_amount1 = $('input[name="iva_amount1"]').val() > 0? $('input[name="iva_amount1"]').val():0;
-		// var iva_amount2 = $('input[name="iva_amount2"]').val() > 0? $('input[name="iva_amount2"]').val():0;
-		// var iva_amount3 = $('input[name="iva_amount3"]').val() > 0? $('input[name="iva_amount3"]').val():0;
-		// var amount = parseFloat(iva_amount1) + parseFloat(iva_amount2) + parseFloat(iva_amount3); 
-
 		var debe_amount = $('#debeTotal').val();
 		$('.from-debe').each(function(index){
 			if($(this).val() > 0){
@@ -181,8 +175,23 @@ $(function(){
 		});
 
 		if(debe_amount != haber_amount){
-			alert('Las cantidades no coinciden');
-			return false;	
+        	var msg = '{!! trans('textos.asiento_contable_incorrecto') !!}';
+
+        	swal.fire({
+                title: msg,
+                text: "",
+                icon: 'warning',
+                iconColor: color_warning,
+                showCancelButton: false,
+                confirmButtonColor: color_danger,
+                cancelButtonColor: color_danger,
+                confirmButtonText: txtCancelar,
+                cancelButtonText: txtCancelar
+            });
+        	e.preventDefault();
+
+		}else{
+			return true;
 		}
 	});
 });

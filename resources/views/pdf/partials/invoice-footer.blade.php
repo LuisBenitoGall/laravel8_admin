@@ -31,6 +31,11 @@
 				{{-- Importes de IVA --}}
 				{{-- 27/11/2023: se reestablece el IVA desglosado según tipo aplicado --}}
 				@if(isset($sumIva) && count($sumIva) > 0)
+					{{-- Cantidad de IVA distintos aplicados --}}
+					@php
+					$num_ivas = count($sumIva);
+					@endphp
+
 					@foreach($sumIva as $i => $si)
 						{{-- Facturación parcial: --}}
 						@if($amount_invoiced && $amount_invoiced->percent < config('constants.TOLERANCE_INVOICED_'))
@@ -39,9 +44,9 @@
 							$iva_ = App\Helpers\helpers::percent(round(array_sum($si), 2), $amount_invoiced->percent);
 							@endphp
 						@endif
-
+						
 						{{-- Para facturas con un único tipo de IVA, se toman los valores de la factura. Evitamos posibles desajustes de decimales --}}
-						@if(count($sumIva) == 1)
+						@if($num_ivas == 1)
 							@php
 							$base_ = $invoice->amount;
 							$iva_ = $invoice->amount_with_iva - $invoice->amount; 
