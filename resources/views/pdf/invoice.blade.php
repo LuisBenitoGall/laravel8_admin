@@ -115,6 +115,8 @@ $text_doc = $invoice->refund > 0? 'abono':'factura';
 				@php
 				$totalInvoice = 0;
 				$j = 1;
+				//Importe total por suma de items:
+				$sum_items = 0;
 				@endphp
 
 				@foreach($items as $row)
@@ -149,6 +151,7 @@ $text_doc = $invoice->refund > 0? 'abono':'factura';
 							</td>
 						@endif --}}
 
+						{{-- Descuento --}}
 						<td style="text-align: right;">
 							@if($row->discount)
 								{{ $row->discount }}%
@@ -157,6 +160,7 @@ $text_doc = $invoice->refund > 0? 'abono':'factura';
 
 						{{-- <td style="text-align: right;">@if($invoice->with_iva > 0) {{ $row->iva }}% @endif</td> --}}
 
+						{{-- Total línea --}}
 						<td style="text-align: right;">
 							@php
 							$arr_order_amount = App\Helpers\helpers::itemAmount($row, false);
@@ -184,6 +188,17 @@ $text_doc = $invoice->refund > 0? 'abono':'factura';
 							//IVA:
 							//23/11/23: se desactiva la columna de IVA para cada registro, y se incluirán en la parte inferior, en los sumatorios
 							$iva_amount = App\Helpers\helpers::percent($amount, $row->iva);
+
+							//Suma por items:
+							$sum_items = $sum_items + round($partial_amount, 2);
+
+							//Al alcanzar la última línea, la suma de los items debe ser igual al importe de la factura. En caso negativo, ajustamos la última línea para cuadrar decimales.
+							if($j == $items->count()){
+								$diff = $invoice->amount - $sum_items;
+								if($diff != 0){
+									$partial_amount = $partial_amount + $diff;
+								}
+							}
 
 							//Sumando importes de IVA:
 							array_push($sumIva[$row->iva], round($iva_amount,2));
