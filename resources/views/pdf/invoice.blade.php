@@ -136,7 +136,7 @@ $text_doc = $invoice->refund > 0? 'abono':'factura';
 						{{-- Facturado --}}
 						@if($amount_invoiced && $amount_invoiced->percent < config('constants.TOLERANCE_INVOICED_'))
 							<td class="text-right" style="text-align: right;">
-								{{ $amount_invoiced->percent }}%
+								{{ number_format($amount_invoiced->percent, 2) }}%
 							</td>
 						@endif
 
@@ -174,7 +174,7 @@ $text_doc = $invoice->refund > 0? 'abono':'factura';
 							//Facturación parcial:
 							$partial_amount = $amount;
 							if($amount_invoiced && $amount_invoiced->percent < config('constants.TOLERANCE_INVOICED_')){
-								$partial_amount = round(($amount * $amount_invoiced->percent) / 100, 2);
+								$partial_amount = ($amount * $amount_invoiced->percent) / 100;
 								//$amount = App\Helpers\helpers::percent(round($amount, 2), $amount_invoiced->percent);
 							}
 
