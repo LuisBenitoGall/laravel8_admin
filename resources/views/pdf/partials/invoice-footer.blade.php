@@ -40,8 +40,8 @@
 						{{-- Facturación parcial: --}}
 						@if($amount_invoiced && $amount_invoiced->percent < config('constants.TOLERANCE_INVOICED_'))
 							@php
-							$base_ = App\Helpers\helpers::percent(round(array_sum($baseIva[$i]), 2), $amount_invoiced->percent);
-							$iva_ = App\Helpers\helpers::percent(round(array_sum($si), 2), $amount_invoiced->percent);
+							$base_ = App\Helpers\helpers::percent(array_sum($baseIva[$i]), $amount_invoiced->percent);
+							$iva_ = App\Helpers\helpers::percent(array_sum($si), $amount_invoiced->percent);
 							@endphp
 						@endif
 						

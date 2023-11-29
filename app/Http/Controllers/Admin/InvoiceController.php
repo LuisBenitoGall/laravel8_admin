@@ -561,6 +561,19 @@ class InvoiceController extends Controller{
 
                 $total_amount = $request->advance_amount;
 
+                //Rectificamos la siguiente previsión de facturación:
+                $last_prevision = OrderPrevisions::where('order_id', $order->id)
+                ->whereNull('invoice_id')
+                ->orderBy('year', 'ASC')
+                ->orderBy('month', 'ASC')
+                ->first();
+
+                $real_percent = ($total_amount * 100) / $order_amount['total_amount'];
+
+                //Actualizamos el porcentaje a facturar:
+                $last_prevision->percent = $real_percent;
+                $last_prevision->save();
+
                 //Obtenemos el importe con IVA:
                 $amount_with_iva = ($order_amount['invoice_amount'] * $request->advance_amount) / $order_amount['total_amount'];
             }
@@ -571,8 +584,6 @@ class InvoiceController extends Controller{
                 $prevision = OrderPrevisions::find($request->modality);
 
                 if($prevision){
-                
-
                     //Si se trata de la última previsión de facturación y no queda porcentaje por establecer previsión, el importe debe ser todo el pendiente:
                     $more_previsions = OrderPrevisions::select('invoice_id')
                     ->where('order_id', $prevision->order_id)
@@ -590,8 +601,6 @@ class InvoiceController extends Controller{
 
                     //Importe con IVA:
                     $amount_with_iva = helpers::percent($order_amount['invoice_amount'], $percent_to_invoice);
-
-                    //dd($total_amount, $amount_with_iva, $prevision, $request->all(), $order_amount, $previous_amount, $previous_percent, $outstanding_amount, $outstanding_percent);
                 }
             }
         }
@@ -2166,7 +2175,7 @@ class InvoiceController extends Controller{
             $new_order_prevision = new OrderPrevisions();
             $new_order_prevision->order_id = $invoice->order_id;
             $new_order_prevision->year = date('Y');
-            $new_order_prevision->percent = round(($refund_amount * 100) / $invoice->amount, 2);
+            $new_order_prevision->percent = ($refund_amount * 100) / $invoice->amount;
             $new_order_prevision->save();
 
         }elseif($request->refund == 't'){

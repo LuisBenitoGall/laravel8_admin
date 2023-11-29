@@ -73,11 +73,11 @@ class OrderPrevisions extends Model{
                 $total_percent = $total_percent + round($percent, 2);
                 if($total_percent > 100){
                     $diff = $total_percent - 100;
-                    $percent = round($percent - $diff, 2);
+                    $percent = $percent - $diff;
                 }
 
                 $prev->month = $prev->month? $prev->month:Date('m');
-                $prev->percent = round($percent, 2);
+                $prev->percent = $percent;
                 $prev->save();
             }
 
@@ -105,7 +105,7 @@ class OrderPrevisions extends Model{
             $op = new OrderPrevisions();
             $op->order_id = $order_id;
             $op->year = date('Y');
-            $op->percent = round($diff, 2);
+            $op->percent = $diff;
             $op->save();
         }
 

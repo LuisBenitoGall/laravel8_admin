@@ -18,7 +18,7 @@ class CreateOrderPrevisionsTable extends Migration{
             $table->foreign('order_id')->references('id')->on('orders');
             $table->char('year', 4)->nullable();
             $table->char('month', 2)->nullable();
-            $table->float('percent', 5, 2)->nullable();
+            $table->float('percent', 9, 6)->nullable();
             //FK:
             $table->bigInteger('invoice_id')->unsigned()->nullable();
             $table->foreign('invoice_id')->references('id')->on('invoices');

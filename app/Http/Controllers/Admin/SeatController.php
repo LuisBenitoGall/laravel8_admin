@@ -319,8 +319,6 @@ class SeatController extends Controller{
                 ->withInput();
         }   
 
-        //dd($request->all());
-
         //Validando importes del asiento:
         $amounts = $this->validateAmounts($request);
 
