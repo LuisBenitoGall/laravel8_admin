@@ -5902,7 +5902,28 @@ $(document).ready(function(){
     }
 
     //Tabla Seat Models:
-    
+    if($('#tblSeatModels').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+
+        $('#tblSeatModels').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/seat-models",
+                "error": function(reason){
+                console.log(reason);
+            }
+            },
+            columns: [
+                {data: 'name'},
+                {data: 'date', className: 'text-right'},
+                {data: 'diary'},
+                {data: 'description'},
+                {data: 'acciones', className: 'text-right'}
+            ]
+        });
+    }
 
     //Tabla Seats:
     if($('#tblSeats').length > 0){

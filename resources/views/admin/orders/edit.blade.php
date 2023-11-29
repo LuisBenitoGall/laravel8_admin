@@ -137,20 +137,27 @@
 				@endif
 			@endif --}}
 
+			{{-- Nueva línea - condiciones 
+				1. Permisos de edición de pedidos.
+				2. Pedido no bloqueado.
+				...
+			--}}
 			@can('orders.edit')
-				{{-- 4/11/22: se omite la condición de pedido facturado. Se pueden añadir líneas incluso facturado el pedido. --}}
-				{{-- @if(!$order->invoiced) --}}
-					{{-- Nueva línea --}}
-					<a href="#" class="btn btn-info btnAddItem" data-toggle="modal" data-target="#modal-new-line">
-						<i class="fa fa-plus"></i> {!! ucfirst(trans('textos.linea_nueva')) !!}
-					</a>
+				@if($order->blocked == '0')
+					{{-- 4/11/22: se omite la condición de pedido facturado. Se pueden añadir líneas incluso facturado el pedido. --}}
+					{{-- @if(!$order->invoiced) --}}
+						{{-- Nueva línea --}}
+						<a href="#" class="btn btn-info btnAddItem" data-toggle="modal" data-target="#modal-new-line">
+							<i class="fa fa-plus"></i> {!! ucfirst(trans('textos.linea_nueva')) !!}
+						</a>
 
-					{{-- Importar líneas --}}
-			    	<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-import-items">
-		    			<i class="fa fa-file-import"></i>
-		    			{!! ucfirst(trans('textos.lineas_importar')) !!}
-		    		</a>
-		    	{{-- @endif --}}
+						{{-- Importar líneas --}}
+				    	<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-import-items">
+			    			<i class="fa fa-file-import"></i>
+			    			{!! ucfirst(trans('textos.lineas_importar')) !!}
+			    		</a>
+			    	{{-- @endif --}}
+			    @endif
 			@endcan
 
 			{{-- Imprimir --}}
@@ -386,6 +393,7 @@
 				4. El importe facturado debe ser menor al importe total del pedido.
 				5. No debe pertenecer a ninguna agrupación de pedidos.
 				6. Exclusivo proveedor.
+				7. Pedido no bloqueado.
 				...
 			--}}
 			@can('invoices.create')
@@ -394,6 +402,7 @@
 					&& (!$invoiced || round($order_amount, 2) > round($invoiced['invoiced_amount'], 2))
 					&& !$order->order_parent
 					&& $order->provider_id == session('currentCompany')
+					&& $order->blocked == '0'
 				)
 					<a href="#" class="btn btn-warning" rel="tooltip" title="{{ ucfirst(trans('textos.facturar')) }}" data-toggle="modal" data-target="#modal-generate-invoice"><i class="fa fa-file-invoice-dollar"></i></a>
 				@endif
@@ -435,9 +444,10 @@
 				2. Permisos de edicion de facturas.
 				3. No quedan previsiones de facturación pendientes de facturar.
 				4. El importe del pedido supera al facturado.
+				5. Pedido no bloqueado.
 				...
 			--}}
-			@if($order->provider_id == session('currentCompany'))
+			@if($order->provider_id == session('currentCompany') && $order->blocked == '0')
 				@can('invoices.edit')
 					{{-- Controlamos que no existan previsiones sin facturar --}}
 					@php
@@ -461,11 +471,32 @@
 		@endif
 		{{-- / Acciones pedidos simples --}}
 
+		{{-- Cerrar pedido - condiciones 
+			1. Permisos de eliminación de pedidos.
+			2. Pedido no bloquedado.
+			...
+		--}}
+		@can('orders.destroy')
+			@if($order->blocked == '0')
+				<a href="{{ route('orders.close', $order) }}" class="btn btn-danger btn-confirm" data-msg="{{ ucfirst(trans('textos.pedido_confirm_cerrar')) }}">
+					<i class="fa fa-times"></i>
+					{!! trans('textos.pedido_cerrar') !!}
+				</a>
+			@endif
+		@endcan
+
+		@if($order->blocked == 1)
+			<label class="btn" rel="tooltip" title="{{ ucfirst(trans('textos.pedido_cerrado')) }}">
+				<i class="fa fa-lock text-danger"></i>
+			</label>
+		@endif
+
 		{{-- Eliminar pedido - condiciones
-			1. Disponer de permisos para eliminar facturas.
+			1. Permisos de eliminación de pedidos.
 			2. Que se cumplan las condiciones: $permitted = true.
 			3. Pedido no facturado.
 			4. Exclusivo para proveedor.
+			...
 		--}}
         @can('orders.destroy')
         	@if($permitted && !$order->invoiced && $order->provider_id == session('currentCompany'))

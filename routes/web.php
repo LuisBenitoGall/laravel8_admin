@@ -715,7 +715,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::get('control-panel', 'OrderController@index')->name('control-panel.index')->middleware('permission:orders.index');
     Route::post('orders/control-panel-sales-year', 'OrderController@controlPanelSalesPost')->name('orders.control-panel-sales-year')->middleware('permission:orders.index');
     Route::post('orders/control-panel-purchases-year', 'OrderController@controlPanelPurchasesPost')->name('orders.control-panel-purchases-year')->middleware('permission:orders.index');
-
+    Route::get('orders/{order}/close', 'OrderController@close')->name('orders.close')->middleware('permission:orders.destroy');
 
     Route::get('orders/create/{project_id?}', 'OrderController@create')->name('orders-forms.create')->middleware('permission:orders.create');
 
@@ -1057,11 +1057,14 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::get('seat-models', 'SeatModelController@index')->name('seat-models.index')->middleware('permission:seats.index');
     Route::get('seat-models/create', 'SeatModelController@create')->name('seat-models.create')->middleware('permission:seats.create');
     Route::post('seat-models/store', 'SeatModelController@store')->name('seat-models.store')->middleware('permission:seats.create');
+    Route::get('seat-models/{model}/edit', 'SeatModelController@edit')->name('seat-models.edit')->middleware('permission:seat-models.edit');
+    Route::put('seat-models/{model}/update', 'SeatModelController@update')->name('seat-models.update')->middleware('permission:seat-models.edit');
+    Route::delete('seat-models/{model}', 'SeatModelController@destroy')->name('seat-models.destroy')->middleware('permission:seat-models.destroy');
 
     // Seats:
     Route::get('seats/list/{year?}/{accounting_account_id?}/{from?}/{to?}', 'SeatController@index')->name('seats.index')->middleware('permission:seats.index');
     Route::post('seats', 'SeatController@getSeatsBy')->name('seats.list')->middleware('permission:seats.index');
-    Route::get('seats/create', 'SeatController@create')->name('seats.create')->middleware('permission:seats.create');
+    Route::get('seats/create/{model_id?}', 'SeatController@create')->name('seats.create')->where('model_id', '[0-9]+')->middleware('permission:seats.create');
     Route::post('seats/store', 'SeatController@store')->name('seats.store')->middleware('permission:seats.create');
 
     // Sectors:

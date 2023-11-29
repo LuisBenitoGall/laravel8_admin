@@ -28531,6 +28531,10 @@ ul li.rev .fa {
   display: none;
 }
 
+.line-titles {
+  visibility: hidden;
+}
+
 .typeColor {
   position: relative;
 }

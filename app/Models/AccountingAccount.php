@@ -37,6 +37,7 @@ class AccountingAccount extends Model{
             $query->where('name', 'like', '%'.$search.'%')
             ->orWhere('account', 'like', '%'.$search.'%');
         })
+        ->groupBy('account')
         ->orderBy('name', 'ASC')
         ->limit(15)
         ->get();

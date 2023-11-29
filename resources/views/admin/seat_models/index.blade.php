@@ -24,11 +24,11 @@
 	</div>
 
 	<div class="table-responsive">
-		<table class="table table-hover dTable" id="tblSeatModels">
+		<table class="table table-hover dtabla" id="tblSeatModels">
 			<thead>
 				<tr>
-					<th class="text-center wdt50">{!! ucfirst(trans('textos.fecha')) !!}</th>
 					<th class="text-center wdt50">{!! ucfirst(trans('textos.modelo')) !!}</th>
+					<th class="text-center wdt50">{!! ucfirst(trans('textos.fecha')) !!}</th>
 					<th class="wdt50">{!! ucfirst(trans('textos.diario')) !!}</th>
 					<th class="wdt50">{!! ucfirst(trans('textos.descripcion')) !!}</th>
 					<th class="text-center wdt100">{!! ucfirst(trans('textos.acciones')) !!}</th>

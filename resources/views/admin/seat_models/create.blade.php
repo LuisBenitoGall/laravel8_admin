@@ -45,7 +45,7 @@
 					<br>
 
 					{{-- Añadir líneas de asientos contables --}}
-					@include('admin.seats.partials.component-lines', ['title' => 'Líneas de modelo de asiento contable'])	
+					@include('admin.seats.partials.component-lines', ['title' => trans('textos.asiento_contable_modelo_lineas')])	
 
 					<div class="form-group row mt-4 line-titles">
 						<div class="col-1 text-right"><b>#</b></div>
