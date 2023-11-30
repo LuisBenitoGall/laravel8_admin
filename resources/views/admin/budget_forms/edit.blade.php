@@ -140,9 +140,12 @@ $(function(){
 	$(document).on('click', '.btnEditFormBlock', function(){
 		var id = $(this).data('id');
 		var name = $(this).data('name');
+		var cost_center = $(this).data('costcenter');
 
 		$('#blockItemsId').val(id);
 		$('#blockItemsName').val(name);
+		$('#blockItemsCostCenter').val(cost_center);
+		$('#blockItemsCostCenter').trigger('change');
 	});
 
 	//Modal editar item de formulario de presupuestos:

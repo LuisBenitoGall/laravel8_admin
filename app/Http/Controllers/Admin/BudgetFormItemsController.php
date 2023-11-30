@@ -14,6 +14,7 @@ use Yajra\DataTables\DataTables;
 
 //Models:
 use App\Models\BudgetFormItems;
+use App\Models\CompanySettings;
 use App\Models\Product;
 
 class BudgetFormItemsController extends Controller{
@@ -87,13 +88,26 @@ class BudgetFormItemsController extends Controller{
     public function getBudgetFormItemsDT($form_id = false, $recid = '0'){
         if($form_id){
             if($recid == '0'){
-                $items = BudgetFormItems::where('form_id', $form_id)
-                ->where('recid', $recid)
-                ->get();
+                $data = BudgetFormItems::select('budget_form_items.*', 'cost_centers.name AS cost_center')
+                ->leftJoin('cost_centers', 'budget_form_items.cost_center_id', '=', 'cost_centers.id')
+                ->where('budget_form_items.form_id', $form_id)
+                ->where('budget_form_items.recid', $recid);
+
+                return DataTables::of($data)
+                ->addColumn('name', function($row){
+                    return $row->name;
+                })
+                ->addColumn('cost_center', function($row){
+                    return $row->cost_center;
+                })
+                ->addColumn('acciones', function($row){
+                    return view('admin.budget_form_items.partials.dt-actions', compact('row'));    
+                })
+                ->make(true);
 
             }else{
-                $items = BudgetFormItems::select(
-                    DB::raw('(SELECT t.name FROM budget_form_items AS t WHERE budget_form_items.recid = t.id) AS Bloque'),
+                $data = BudgetFormItems::select(
+                    DB::raw('(SELECT t.name FROM budget_form_items AS t WHERE budget_form_items.recid = t.id) AS block'),
                     'budget_form_items.*',
                     'products.name AS productName',
                     'products.price',
@@ -101,20 +115,36 @@ class BudgetFormItemsController extends Controller{
                 )
                 ->leftJoin('products', 'budget_form_items.product_id', '=', 'products.id')
                 ->where('budget_form_items.form_id', $form_id)
-                ->where('budget_form_items.recid', '>', '0')
-                ->get();
+                ->where('budget_form_items.recid', '>', '0');
+
+                //Moneda:
+                $currency = CompanySettings::co_currency(0);
+
+                return DataTables::of($data)
+                ->addColumn('name', function($row){
+                    return $row->name;
+                })
+                ->addColumn('block', function($row){
+                    return $row->block;
+                })
+                ->addColumn('price', function($row) use($currency){
+                    if($row->calculated_by_percent && $row->calculated_by_percent > 0){
+                        return $row->price_by_percent.'%';
+                    }else{
+                        return $row->price.$currency->symbol;
+                    }
+                })
+                ->addColumn('discount', function($row){
+                    if($row->discount > 0){
+                        return $row->discount.'%';
+                    }
+                })
+                ->addColumn('acciones', function($row){
+                    return view('admin.budget_form_items.partials.dt-actions-items', compact('row'));    
+                })
+                ->make(true);
             }
 
-            //Permisos del usuario:
-            $editar = Auth::user()->can('budget-forms.edit');
-
-            //Ampliación de información de los objetos:
-            foreach($items as $row){
-                //Permisos para las acciones:
-                $row->editar = $editar;
-            }
-
-            return datatables($items)->toJson();
         }else{
             return false;
         }   
@@ -147,6 +177,7 @@ class BudgetFormItemsController extends Controller{
         $item->discount = $request->discount;
         $item->qty_min = $request->qty_min;
         $item->calculated_by_percent = $request->calculated_by_percent? $request->calculated_by_percent:NULL;
+        $item->cost_center_id = $request->cost_center;
         $item->save();
 
         //Actualizamos precio en catálogo:
@@ -181,6 +212,7 @@ class BudgetFormItemsController extends Controller{
         $item->qty_min = $request->qty_min;
         $item->discount = $request->discount;
         $item->calculated_by_percent = $request->calculated_by_percent? $request->calculated_by_percent:NULL;
+        $item->cost_center_id = $request->cost_center;
         $item->save();
     
         $msg = $item->recid == '0'? trans('textos.bloque_updated'):trans('textos.item_updated');
@@ -306,7 +338,6 @@ class BudgetFormItemsController extends Controller{
      * 9. Eliminar Bloque.
      */
     public function deleteBlock(BudgetFormItems $bfi){
-        
         $order_id = $bfi->order_id;
 
         $t = $bfi->delete();

@@ -16,6 +16,7 @@ use File;
 use App\Models\BudgetFormItems;
 use App\Models\BudgetForms;
 use App\Models\CompanySettings;
+use App\Models\CostCenters;
 use App\Models\CustomerProviders;
 use App\Models\Product;
 
@@ -74,7 +75,13 @@ class BudgetFormsController extends Controller{
             'slug' => 'budget-forms'
         ];  
 
-        return view('admin.budget_forms.index')->with(compact('header'));  
+        //Centros de coste:
+        $cost_centers = CostCenters::where('company_id', session('currentCompany'))
+        ->where('status', 1)
+        ->pluck('name', 'id')
+        ->toArray();
+
+        return view('admin.budget_forms.index')->with(compact('header', 'cost_centers'));  
     }
 
     /**
@@ -157,12 +164,18 @@ class BudgetFormsController extends Controller{
         ->orderBy('name', 'ASC')
         ->get();
 
+        //Centros de coste:
+        $cost_centers = CostCenters::where('company_id', session('currentCompany'))
+        ->where('status', 1)
+        ->pluck('name', 'id')
+        ->toArray();
+
         //Moneda:
         $currency = CompanySettings::co_currency(0);
 
         $languages = $this->languages;
 
-        return view('admin.budget_forms.edit')->with(compact('header', 'form', 'tab', 'blocks', 'products', 'currency', 'languages'));
+        return view('admin.budget_forms.edit')->with(compact('header', 'form', 'tab', 'blocks', 'products', 'cost_centers', 'currency', 'languages'));
     }
 
     /**

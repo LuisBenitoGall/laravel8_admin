@@ -10,14 +10,12 @@ use App\Http\Resources\BudgetFormCollection;
 use App\Http\Requests\BudgetFormStoreRequest;
 use App\Http\Requests\BudgetFormUpdateRequest;
 
-class BudgetFormController extends Controller
-{
+class BudgetFormController extends Controller{
     /**
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
-    {
+    public function index(Request $request){
         // $this->authorize('view-any', BudgetForm::class);
 
         //$search = $request->get('search', '');
@@ -31,8 +29,7 @@ class BudgetFormController extends Controller
      * @param \App\Http\Requests\BudgetFormStoreRequest $request
      * @return \Illuminate\Http\Response
      */
-    public function store(BudgetFormStoreRequest $request)
-    {
+    public function store(BudgetFormStoreRequest $request){
         // $this->authorize('create', BudgetForm::class);
 
         $validated = $request->validated();
@@ -47,8 +44,7 @@ class BudgetFormController extends Controller
      * @param \App\Models\BudgetForm $budgetForm
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request, BudgetForm $budgetForm)
-    {
+    public function show(Request $request, BudgetForm $budgetForm){
         // $this->authorize('view', $budgetForm);
 
         return new BudgetFormResource($budgetForm);

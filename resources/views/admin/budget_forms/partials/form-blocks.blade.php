@@ -3,6 +3,7 @@
 		<thead>
 			<tr>
 				<th>{!! ucfirst(trans('textos.bloque')) !!}</th>
+				<th>{!! ucfirst(trans('textos.centro_coste')) !!}</th>
 				<th class="text-center">{!! ucfirst(trans('textos.acciones')) !!}</th>
 			</tr>
 		</thead>
