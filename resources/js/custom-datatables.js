@@ -357,7 +357,7 @@ $(document).ready(function(){
         $('#tblBudgetFormBlocks thead tr').clone(true).appendTo('#tblBudgetFormBlocks thead');
         $('#tblBudgetFormBlocks thead tr:eq(1) th').each(function(i){
             var title = $(this).text();
-            if(i == 1){
+            if(i == 2){
                 $(this).html('');
             }else{
                 $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
@@ -385,32 +385,8 @@ $(document).ready(function(){
             },
             columns: [
                 {data: 'name'},
-                {data: 'id', className: 'text-right'}
-            ],
-            columnDefs: [
-                {"targets": -1,
-                "render": function(data, type, row){
-                    var trans = '';
-                    var editar = '';
-                    var eliminar = '';
-                    if(row['editar']){
-                        //Translations:
-                        trans = linkTranslations(row['id'], 'budget_form_items', txtTraducciones);
-
-                        //Editar:
-                        editar = '<a href="#" class="btn btn-xs btn-info btn-module btnEditFormBlock" rel="tooltip" title="'+txtEditar+'" data-toggle="modal" data-target="#modal-edit-block" data-name="'+row['name']+'" data-id="'+data+'"><i class="fa fa-edit"></i></a>';
-
-                        //Eliminar:
-                        eliminar = '<form method="POST" action="/admin/budget-form-items/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
-                            eliminar += '<input name="_method" type="hidden" value="DELETE">';
-                            eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
-                            eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtEliminar+'" data-msg="'+txtBloqueConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
-                        eliminar += '</form>';
-                    }
-
-                    return trans+' '+editar+' '+eliminar;
-                }
-                }
+                {data: 'cost_center'},
+                {data: 'acciones', className: 'text-right'}
             ]
         });
     }
@@ -500,7 +476,7 @@ $(document).ready(function(){
         
         var tableBudgetFormItems = $('#tblBudgetFormItems').DataTable({
             serverSide: true,
-            /*processing: true, */
+            processing: true, 
             //scrollX: true,
             //fixedColumns: true,
             ajax: {
@@ -512,74 +488,11 @@ $(document).ready(function(){
             },
             columns: [
                 {data: 'name'},
-                {data: 'Bloque'},
+                {data: 'block'},
                 {data: 'price', className: 'text-right'},
                 {data: 'discount', className: 'text-right'},
-                {data: 'id', className: 'text-right'}
-            ],
-            columnDefs: [
-                {
-                    "targets": 0,
-                    "width": "50%"
-                },
-                {"targets": 0,
-                "render": function(data, type, row){
-                    var name = row['name']? row['name']:row['productName'];
-                    return name;
-                }
-                },
-                {"targets": 2,
-                "render": function(data, type, row){
-                    if(row['calculated_by_percent'] && row['calculated_by_percent'] > 0){
-                        return txtPorPorcentaje+' ('+row['calculated_by_percent']+'%)';
-                    }else{
-                        return data+'€';
-                    }
-                }
-                },
-                {"targets": 3,
-                "render": function(data, type, row){
-                    if(data){
-                        return data+'%';
-                    }else{
-                        return '0%';
-                    }
-                }
-                },
-                {"targets": -1,
-                "render": function(data, type, row){
-                    var fixed = '';
-                    var trans = '';
-                    var editar = '';
-                    var eliminar = '';
-                    if(row['editar']){
-                        //Fijo en los presupuestos:
-                        var checked = (row['fixed_in_budget'] == 1)? 'checked':'';
-                        fixed = '<label class="custom-chk-rdb" rel="tooltip" title="'+txtItemFijoEnPresupuesto+'">';
-                            fixed += '<input type="checkbox" name="status" '+checked+' ><span class="chk chk-action" data-id="'+row['id']+'" data-ctrl="/admin/budget-form-items/fixed"></span>';
-                        fixed += '</label>';
-
-                        //Translations:
-                        trans = linkTranslations(row['id'], 'budget_form_items', txtTraducciones);
-
-                        var name = row['name']? row['name']:row['productName'];
-
-                        //Editar:
-                        editar = '<a href="#" class="btn btn-xs btn-info btn-module btnEditFormItem" rel="tooltip" title="'+txtEditar+'" data-toggle="modal" data-target="#modal-edit-item" data-name="'+name+'" data-id="'+data+'" data-observations="'+row['observations']+'" data-price="'+row['price']+'" data-discount="'+row['discount']+'" data-qtymin="'+row['qty_min']+'" data-calculatebypercent="'+row['calculated_by_percent']+'"><i class="fa fa-edit"></i></a>';
-
-                        //Eliminar:
-                        eliminar = '<form method="POST" action="/admin/budget-form-items/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
-                            eliminar += '<input name="_method" type="hidden" value="DELETE">';
-                            eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
-                            eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtEliminar+'" data-msg="'+txtItemConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
-                        eliminar += '</form>';
-                    }
-
-                    return fixed+' '+trans+' '+editar+' '+eliminar;
-                }
-                }
+                {data: 'acciones', className: 'text-right'}
             ]
-
         });
     }
 
