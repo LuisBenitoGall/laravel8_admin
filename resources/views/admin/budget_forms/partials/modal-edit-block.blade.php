@@ -14,10 +14,19 @@
                     <input type="hidden" name="form_id" value="{{ $form->id }}">
                     <input type="hidden" name="id" id="blockItemsId">
 
+                    {{-- Bloque --}}
 					<div class="form-group row">
                         <label for="name" class="col-lg-12">{!! ucfirst(trans('textos.bloque')) !!}*</label>
                         <div class="col-lg-12">
                         	<x-input type="text" name="name" id="blockItemsName" autocomplete="off" maxlength="255" required/>
+                        </div>
+                    </div>
+
+                    {{-- Centros de coste --}}
+                    <div class="form-group row">
+                        <label for="cost_center" class="col-lg-12">{!! ucfirst(trans('textos.centro_coste')) !!}</label>
+                        <div class="col-lg-12">
+                            <x-select name="cost_center" class="select2" id="blockItemsCostCenter" label="centro_coste_selec" :options="$cost_centers"/>
                         </div>
                     </div>
                     
