@@ -1393,6 +1393,53 @@ $(window).on('load', function () {
         }
     });
 
+    // 35.2. Búsqueda autocomplete de productos de compra.
+    $('.search_purchase_product').autocomplete({
+        minLength: 0,
+        source: function(request,response){
+            // Fetch data
+            if(request.term.length > 1){
+                $.ajax({
+                    url: "/api/admin/purchase-products-search",
+                    type: "post",
+                    dataType: "json",
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        search: request.term,
+                    },
+                    success: function(data){
+                        response($.map(data, function (item){
+                            return {
+                                label: item.name,
+                                value: item.id,
+                                iva: item.iva
+                            }
+                        }));
+                    }
+                });
+
+            //Limpiamos datos:
+            }else{
+                $('#purchaseProductId').val('');  
+                $('#productIva').val('');   
+            }
+        },
+        select: function(event,ui){
+            $('.search_purchase_product').val(ui.item.label);
+            $('#purchaseProductId').val(ui.item.value);
+            $('#productIva').val(ui.item.iva);
+
+            ref_drawn = ui.item.ref? ui.item.ref:(ui.item.manual_ref? ui.item.manual_ref:'');
+            $('#productRef').val(ref_drawn);
+            if(ui.item.value == ''){
+                $('#purchaseProductId').val('');
+                $('#productIva').val('');    
+            }
+            
+            return false;
+        }
+    });
+
     // 36. Proyectos por empresa.
     $('#companyId_').on('change', function (event) {
         //Limpiamos posibles valores de proyecto:

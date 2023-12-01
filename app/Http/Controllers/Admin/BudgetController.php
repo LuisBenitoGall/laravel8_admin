@@ -543,6 +543,7 @@ class BudgetController extends Controller{
 
         //Centros de coste del proveedor:
         $provider_cost_centers = CostCenters::where('company_id', $order->provider_id)
+        ->where('status', 1)
         ->get();
 
         //Áreas de negocio del proveedor:

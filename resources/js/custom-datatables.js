@@ -5157,6 +5157,29 @@ $(document).ready(function(){
         });
     }
 
+    //Tabla Purchase Products:
+    if($('#tblPurchaseProducts').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        
+        $('#tblPurchaseProducts').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/purchase-products",
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'name', className: 'capitalize'},
+                {data: 'description'},
+                {data: 'iva', className: 'text-right'},
+                {data: 'acciones', className: 'text-right'}
+            ]
+         });
+    }
+
     //Tabla Question Answers:
     if($('#tblQuestionAnswers').length > 0){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');

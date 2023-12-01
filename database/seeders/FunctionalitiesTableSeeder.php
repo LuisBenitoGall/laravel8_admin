@@ -217,6 +217,11 @@ class FunctionalitiesTableSeeder extends Seeder{
             'label' => 'atributos',
             'module' => 'products'
             ],
+            ['name' => 'purchase products',
+            'slug' => 'purchase-products',
+            'label' => 'productos_compras',
+            'module' => 'products'
+            ],
 
             ['name' => 'stores',
             'slug' => 'stores',

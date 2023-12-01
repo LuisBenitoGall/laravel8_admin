@@ -86,9 +86,11 @@
 						<div class="form-group row">
 							<label for="concept" class="col-md-2 col-form-label sinpadding-left">{!! ucfirst(trans('textos.producto_manual')) !!}</label>	
 							<div class="col-md-10">
-								<x-input type="text" name="concept" id="productManual" autocomplete="off" info="order-product-manual"/>
+								<x-input type="text" name="concept" class="search_purchase_product" id="productManual" autocomplete="off" info="order-product-manual"/>
 							</div>
 						</div>
+
+						<input type="hidden" name="purchase_product_id" id="purchaseProductId">
 					@endif
 
 					{{-- Correspondencia de referencia de producto para compras. --}}
