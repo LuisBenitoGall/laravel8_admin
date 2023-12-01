@@ -615,9 +615,12 @@ $(function(){
     $('.editBlockName').on('click', function(){
     	var id = $(this).data('id');
     	var name = $(this).data('name');
+    	var cost_center = $(this).data('costcenter');
 
     	$('#bfiId').val(id);
     	$('#bfiName').val(name);
+    	$('#bfiCostCenter').val(cost_center);
+    	$('#bfiCostCenter').trigger('change');
     }); 
 });
 </script>
