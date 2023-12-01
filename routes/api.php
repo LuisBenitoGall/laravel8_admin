@@ -324,6 +324,10 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     //PurchasePatterns:
     Route::get('purchase-patterns', 'PurchasePatternsController@getPatternsDT');
 
+    //PurchaseProducts:
+    Route::get('purchase-products', 'PurchaseProductController@getProductsDT');
+    Route::post('purchase-products-search', 'PurchaseProductController@searchProducts');
+
     //QuestionAnswers:
     Route::get('question-answers/{question}', 'AnswerController@getQuestionAnswersDT');
 

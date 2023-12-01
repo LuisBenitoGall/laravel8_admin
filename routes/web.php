@@ -931,6 +931,15 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::put('purchase-patterns/{pattern}/update', 'PurchasePatternsController@update')->name('purchase-patterns.update')->middleware('permission:purchases.edit');
     Route::get('purchase-patterns/status/{id}/{status}', 'PurchasePatternsController@status')->name('purchase-patterns.status')->middleware('permission:purchase-patterns.edit');
 
+    // Purchase Products:
+    Route::get('purchase-products', 'PurchaseProductController@index')->name('purchase-products.index')->middleware('permission:purchase-products.index');
+    Route::get('purchase-products/create', 'PurchaseProductController@create')->name('purchase-products.create')->middleware('permission:purchase-products.create');
+    Route::post('purchase-products/store', 'PurchaseProductController@store')->name('purchase-products.store')->middleware('permission:purchase-products.create');
+    Route::get('purchase-products/{product}/edit', 'PurchaseProductController@edit')->name('purchase-products.edit')->middleware('permission:purchases.edit');
+    Route::delete('purchase-products/{product}', 'PurchaseProductController@destroy')->name('purchase-products.destroy')->middleware('permission:purchases.destroy');
+    Route::put('purchase-products/{product}/update', 'PurchaseProductController@update')->name('purchase-products.update')->middleware('permission:purchases.edit');
+    Route::get('purchase-products/status/{id}/{status}', 'PurchaseProductController@status')->name('purchase-products.status')->middleware('permission:purchase-products.edit');
+
     // Question Images:
     Route::post('question-images/{question}/store', 'QuestionImagesController@store')->name('question-images.store')->middleware('permission:questions.edit');
     Route::get('question-images/{question}/destroy/{image}', 'QuestionImagesController@destroy')->name('question-images.destroy')->middleware('permission:questions.edit');

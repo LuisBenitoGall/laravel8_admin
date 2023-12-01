@@ -259,6 +259,14 @@ class BudgetItem extends Component{
                 //IVA:
                 $iva = $this->item ? $this->item['iva'] : $this->co_iva;
 
+                //Centro de coste:
+                $item_ = BudgetFormItems::select('id', 'recid')->find($this->item['id']);
+                $cost_center_id = $this->item? $this->item['cost_center_id']:NULL;
+                if($item_){
+                    $cost_center = BudgetFormItems::select('cost_center_id')->find($item_->recid);
+                    $cost_center_id = $cost_center && $cost_center->cost_center_id? $cost_center->cost_center_id:NULL;
+                }                
+
                 //Recargo de equivalencia:
                 $equivalence_surcharge = NULL;
                 if($iva > 0){
@@ -290,7 +298,7 @@ class BudgetItem extends Component{
                 $item->days = $this->days ? $this->days : 0;
                 $item->days_continue = $this->days_continue ? true : false;
                 $item->days_continue_discount = $days_continue_discount;
-                $item->provider_cost_center_id = $this->item ? $this->item['cost_center_id']:NULL;
+                $item->provider_cost_center_id = $cost_center_id;
                 $item->print = $this->print ? true : false;
                 $item->user_id = Auth::user()->id;
                 $item->save();

@@ -277,6 +277,7 @@ class ItemController extends Controller{
 
         $item = new Item();
         $item->product_id = $request->product_id? $request->product_id:NULL;
+        $item->purchase_product_id = $request->purchase_product_id? $request->purchase_product_id:NULL;
         $item->order_id = $order->id;
         $item->budget_form_block_id = $budget_form_block_id;
         $item->budget_sort = $budget_sort;

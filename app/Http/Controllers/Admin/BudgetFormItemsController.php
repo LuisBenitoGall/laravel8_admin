@@ -278,6 +278,7 @@ class BudgetFormItemsController extends Controller{
             $item->recid = 0;
             $item->order_id = $request->order_id;
             $item->name = $request->name;
+            $item->cost_center_id = $request->cost_center;
             $item->save();
 
             $msg = trans('textos.bloque_creado_ok');
@@ -302,7 +303,7 @@ class BudgetFormItemsController extends Controller{
         }
 
         BudgetFormItems::where('id', $request->bfi_id)
-        ->update(['name' => $request->name]); 
+        ->update(['name' => $request->name, 'cost_center_id' => $request->cost_center]); 
 
         $msg = trans('textos.bloque_updated');
         return redirect()->route('budgets.edit', [$request->order_id, 'items'])->with(compact('msg'));

@@ -50,7 +50,7 @@ class BudgetFormItems extends Model{
      * 2. Obtener bloques por presupuesto.
      */
     public static function getBudgetBlocks($form_id, $order_id){
-        $data = BudgetFormItems::select('id', 'name', 'form_id', 'sort_block')
+        $data = BudgetFormItems::select('id', 'name', 'form_id', 'sort_block', 'cost_center_id')
         ->where('recid', '0')
         ->where(function($query) use($form_id, $order_id){
             $query->where('form_id', $form_id)

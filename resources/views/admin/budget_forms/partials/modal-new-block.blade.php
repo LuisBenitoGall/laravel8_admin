@@ -23,12 +23,14 @@
                     </div>
 
                     {{-- Centros de coste --}}
-                    <div class="form-group row">
-                        <label for="cost_center" class="col-lg-12">{!! ucfirst(trans('textos.centro_coste')) !!}</label>
-                        <div class="col-lg-12">
-                            <x-select name="cost_center" class="select2" label="centro_coste_selec" :options="$cost_centers"/>
+                    @if(count($cost_centers))
+                        <div class="form-group row">
+                            <label for="cost_center" class="col-lg-12">{!! ucfirst(trans('textos.centro_coste')) !!}</label>
+                            <div class="col-lg-12">
+                                <x-select name="cost_center" class="select2" label="centro_coste_selec" :options="$cost_centers"/>
+                            </div>
                         </div>
-                    </div>
+                    @endif
                     
                     <x-btn-submit name="submit_save" label="{{ trans('textos.guardar') }}"/>
                 </form>    

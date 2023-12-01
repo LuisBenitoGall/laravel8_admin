@@ -59,7 +59,7 @@ $permitted = !$order || ($order && $add_items && !$order->parent && !$order->blo
 
                                         {{-- Los bloques introducidos manualmente pueden modificar el nombre --}}
                                         @if(!$block->form_id)
-                                            <a href="#" class="editBlockName" rel="tooltip" title="{{ ucfirst(trans('textos.editar')) }}" data-toggle="modal" data-target="#modal-edit-block" data-id="{{ $block->id }}" data-name="{{ $block->name }}">
+                                            <a href="#" class="editBlockName" rel="tooltip" title="{{ ucfirst(trans('textos.editar')) }}" data-toggle="modal" data-target="#modal-edit-block" data-id="{{ $block->id }}" data-name="{{ $block->name }}" data-costcenter="{{ $block->cost_center_id }}">
                                                 <i class="fa fa-edit"></i>
                                             </a>
                                         @endif
