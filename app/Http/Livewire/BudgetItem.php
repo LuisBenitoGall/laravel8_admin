@@ -257,10 +257,10 @@ class BudgetItem extends Component{
             //Insert:
             } elseif ($this->action == 'save') {
                 //IVA:
-                $iva = $this->item ? $this->item['iva'] : $this->co_iva;
+                $iva = $this->item? $this->item['iva'] : $this->co_iva;
 
                 //Centro de coste:
-                $item_ = BudgetFormItems::select('id', 'recid')->find($this->item['id']);
+                $item_ = $this->item? BudgetFormItems::select('id', 'recid')->find($this->item['id']):false;
                 $cost_center_id = $this->item? $this->item['cost_center_id']:NULL;
                 if($item_){
                     $cost_center = BudgetFormItems::select('cost_center_id')->find($item_->recid);
