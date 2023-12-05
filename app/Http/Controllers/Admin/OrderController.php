@@ -1727,7 +1727,7 @@ class OrderController extends Controller{
         return DataTables::of($items)
         ->addColumn('price', function($item) use($currency){
             if($item->price > 0){
-                $price = round($item->price, 2).$currency->symbol;
+                $price = number_format($item->price,2 , ',', '.').$currency->symbol;
                 //IRPF:
                 if($item->irpf > 0){
                     $price .= '<br><small>-'.$item->irpf.'% IRPF</small>';
@@ -1778,12 +1778,12 @@ class OrderController extends Controller{
                         if($item->iva > 0){
                             $amount_with_iva = helpers::itemAmount($item, true);
 
-                            return round($amount, 2).$currency->symbol.'<br><small>+iva '.$amount_with_iva['amount'].$currency->symbol.'</small>';
+                            return number_format($amount,2 , ',', '.').$currency->symbol.'<br><small>+iva '.number_format($amount_with_iva['amount'],2 , ',', '.').$currency->symbol.'</small>';
                         }else{
                             return $amount.$currency->symbol.'<br><small>'.trans('textos.iva_exento').'</small>';    
                         }
                     }else{
-                        return $amount.$currency->symbol;    
+                        return number_format($amount,2 , ',', '.').$currency->symbol;    
                     }
                 }            
             }else{

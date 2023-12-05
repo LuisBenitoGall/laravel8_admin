@@ -39,7 +39,7 @@ $tbl = $env == 'invoices'? 'tblInvoiceItems':'tblOrderItems';
 
 	            <tr>
 	                <td colspan="{{ $colspan }}" class="text-right"><b>{{ trans('textos.importe_total') }} *</b></td>
-	                <td class="text-right">{{ $order_amount }}{{ $currency->symbol }}</td>
+	                <td class="text-right">{{ number_format($order_amount, 2, ',', '.') }}{{ $currency->symbol }}</td>
 	                <td></td>
 	                <td></td>
 	                <td></td>
@@ -49,7 +49,7 @@ $tbl = $env == 'invoices'? 'tblInvoiceItems':'tblOrderItems';
 		            <tr>
 		                <td colspan="{{ $colspan }}" class="text-right"><b>{{ trans('textos.importe') }} + IVA</b></td>
 		                {{-- ({{ $invoice->with_iva }}%) --}}
-		                <td class="text-right">{{ round($invoice->amount_with_iva, 2) }}{{ $currency->symbol }}</td>
+		                <td class="text-right">{{ number_format($invoice->amount_with_iva, 2, ',', '.') }}{{ $currency->symbol }}</td>
 		                <td></td>
 		                <td></td>
 		                <td></td>
