@@ -279,7 +279,6 @@ class BudgetItem extends Component{
                     $equivalence_surcharge = $es? $es->equivalence_surcharge:NULL;
                 }
 
-
                 $item = new Item();
                 $item->product_id = $this->item ? $this->item['product_id'] : NULL;
                 $item->order_id = $this->order->id;

@@ -258,7 +258,7 @@ class BudgetController extends Controller{
         })
         ->addColumn('amount', function($row) use($currency){
             $amount = $row->getAmount();    
-            return $amount['total_amount'].$currency->symbol;
+            return number_format($amount['total_amount'], 2, ',', '.').$currency->symbol;
         })
         // ->addColumn('modalidad', function($row) use($abrev){
         //     return ucfirst($abrev[$row->modality]);
