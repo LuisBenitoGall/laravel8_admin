@@ -127,7 +127,7 @@ class ExpenseController extends Controller{
         })
         ->addColumn('amount', function($row) use($currency){
             if($row->amount_with_iva){
-                return $row->amount_with_iva.$currency->symbol;
+                return number_format($row->amount_with_iva, 2, ',', '.').$currency->symbol;
             }else{
                 return '';
             }
