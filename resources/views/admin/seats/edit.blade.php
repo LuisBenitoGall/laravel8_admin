@@ -21,7 +21,7 @@
 			<form method="POST" action="{{ route('seats.destroy', $seat) }}" class="frm-inline" role="form" accept-charset="UTF-8">
 				<input name="_method" type="hidden" value="DELETE">
 				{{ csrf_field() }}
-				<button type="submit" class="btn btn-danger frm-confirm" rel="tooltip" title="{{ ucfirst(trans('textos.asiento_eliminar')) }}" data-msg="{{ ucfirst(trans('textos.asiento_eliminar_confirm')) }}" style="padding: 10px 12px;"><i class="fa fa-trash"></i></button>
+				<button type="submit" class="btn btn-danger frm-confirm" rel="tooltip" title="{{ ucfirst(trans('textos.asiento_eliminar')) }}" data-msg="{{ ucfirst(trans('textos.asiento_eliminar_confirm')) }}"><i class="fa fa-trash"></i></button>
 			</form>
 		@endcan
 	</div>
@@ -130,8 +130,8 @@
 								<input type="hidden" name="accounting_account_id[]" value="{{ $line->accounting_account_id }}">
 								<div class="col-md-1"><input type="text" class="form-control" value="@if($line->type && isset($seat_lines_types[$line->type])) {!! $seat_lines_types[$line->type] !!} @endif" readonly></div>
 								<input type="hidden" name="type[]" value="@if($line->type) {{ $line->type }} @endif">
-								<div class="col-md-2"><input type="text" name="debe[]" class="form-control text-right from-lines" value="{{ $line->debe }}" readonly></div>
-								<div class="col-md-2"><input type="text" name="haber[]" class="form-control text-right from-lines" value="{{ $line->haber }}" readonly></div>
+								<div class="col-md-2"><input type="text" name="debit[]" class="form-control text-right from-lines" value="{{ $line->debit }}" readonly></div>
+								<div class="col-md-2"><input type="text" name="credit[]" class="form-control text-right from-lines" value="{{ $line->credit }}" readonly></div>
 								<div class="col-1 pt-2"><button class="btn btn-danger btn-circle btn-circle-mini btnRemoveLine"><i class="fa fa-times"></i></button></div>
 							</div>
 						@endforeach

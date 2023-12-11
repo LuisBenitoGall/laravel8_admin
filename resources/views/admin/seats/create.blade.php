@@ -15,6 +15,7 @@
 		@if($models->count())
 			<select name="model" class="form-control" id="selectModel" style="display: inline-block !important; width: 250px;">
 				<option value="">{{ trans('textos.modelo_selecciona') }}</option>
+				<option value="x">{{ trans('textos.modelo_sin') }}</option>
 				@foreach($models as $m)
 					@php
 					$selected = $model && $model->id == $m->id? 'selected':'';
@@ -64,11 +65,17 @@
 					</div>
 
 					<div class="form-group row">
-						{{-- Documento --}}
-						<label for="doc_num" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.documento')) !!}</label>
+						{{-- Nº documento --}}
+						<label for="doc_num" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.documento_num')) !!}</label>
 						<div class="col-lg-4 position-relative">
 							<x-input type="text" name="doc_num" placeholder="{!! ucfirst(trans('textos.documento')) !!}" maxlength="150"/>
 						</div>	
+
+						{{-- Documento --}}
+						<label for="doc" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.documento')) !!}</label>
+						<div class="col-lg-4">
+							<x-input-file name="doc"/>
+						</div>
 					
 						{{-- Concepto --}}
 						{{-- <label for="concept" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.concepto')) !!}</label>
@@ -136,7 +143,11 @@ $(function(){
 	//Selector de modelo:
 	$('#selectModel').on('change', function(e){
 		var model = e.target.value;
-        window.location.href = '/admin/seats/create/' + model;
+		if(model == 'x'){
+        	window.location.href = '/admin/seats/create';
+		}else{
+			window.location.href = '/admin/seats/create/' + model;	
+		}
 	});
 });
 </script>

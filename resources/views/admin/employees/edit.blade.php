@@ -73,28 +73,41 @@
 						<div class="col-lg-4">
 							<x-input type="text" name="job_title"  autocomplete="off" maxlength="150" value="{{ $employee->job_title }}"/>
 						</div>
-					</div>
-
-					<div class="form-group row">
-						{{-- Horas semanales --}}
-						<label for="weekly_hours" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.horas_semanales')) !!}*</label>
-						<div class="col-lg-2">
-							<x-input type="text" name="weekly_hours" class="set-decimals text-right" id="weekly_hours" autocomplete="off" placeholder="0" maxlength="2" required value="{{ $employee->weekly_hours }}"/>
-						</div>
-
-						{{-- Control horario --}}
-						<label for="time_control" class="col-lg-2 col-form-label">{!! trans('textos.control_horario') !!}</label>
-						<div class="col-lg-2">
-							<label class="custom-chk-rdb" rel="tooltip">
-				                <input type="checkbox" name="time_control" @if($employee->time_control == 1) checked @endif>
-				                <span class="chk" style="top: 5px;"></span>
-				            </label>
-						</div>
 
 						{{-- Salario anual --}}
 						<label for="year_salary" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.salario_anual')) !!}</label>
 						<div class="col-lg-2">
 							<x-input type="text" name="year_salary" class="text-right set-decimals" id="year_salary" autocomplete="off" placeholder="0" maxlength="9" group="right" groupvalue="{{ $currency->symbol }}" value="{{ $employee->year_salary }}"/>
+						</div>
+					</div>
+
+					<div class="form-group row">
+						{{-- Horas semanales --}}
+						<label for="weekly_hours" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.horas_semanales')) !!}*</label>
+						<div class="col-md-1">
+							<x-input type="text" name="weekly_hours" class="set-decimals text-right" id="weekly_hours" autocomplete="off" placeholder="0" maxlength="2" required value="{{ $employee->weekly_hours }}"/>
+						</div>
+
+						{{-- Control horario --}}
+						<label for="time_control" class="col-lg-2 col-form-label">{!! trans('textos.control_horario') !!}</label>
+						<div class="col-md-1">
+							<label class="custom-chk-rdb" rel="tooltip">
+				                <input type="checkbox" name="time_control" @if($employee->time_control == 1) checked @endif>
+				                <span class="chk" style="top: 5px;"></span>
+
+				                {!! App\Helpers\helpers::info('employee-time-control', true) !!}
+				            </label>
+						</div>
+
+						{{-- Conceptos obligatorios --}}
+						<label for="required_concepts" class="col-lg-2 col-form-label">{!! trans('textos.conceptos_obligatorios') !!}</label>
+						<div class="col-lg-1">
+							<label class="custom-chk-rdb" rel="tooltip">
+				                <input type="checkbox" name="required_concepts" @if($employee->required_concepts == 1) checked @endif>
+				                <span class="chk" style="top: 5px;"></span>
+
+				                {!! App\Helpers\helpers::info('employee-required-concepts', true) !!}
+				            </label>
 						</div>
 					</div>
 

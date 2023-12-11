@@ -281,7 +281,6 @@ class EmployeeController extends Controller{
             $end_date = config('constants.UNDEFINED_DATE_');
         }
 
-        $time_control = $request->input('time_control')? 1:0;
         $status = ($start_date > date('Y-m-d'))? 0:1;
 
         //Empleo:
@@ -293,7 +292,8 @@ class EmployeeController extends Controller{
         $employee->start_date = $start_date;
         $employee->end_date = $end_date;
         $employee->weekly_hours = $request->input('weekly_hours');
-        $employee->time_control = $time_control;
+        $employee->time_control = $request->time_control? 1:0;
+        $employee->required_concepts = $request->required_concepts? 1:0;
         $employee->year_salary = $request->input('year_salary');
         $employee->status = $status;
         $employee->observations = $request->input('observations');
@@ -411,7 +411,7 @@ class EmployeeController extends Controller{
                 ->withErrors($validator)
                 ->withInput();
         }  
-//dd($request->all(), date('d/m/Y', strtotime($request->input('end_date'))));
+
         //Formateando fechas de inicio y fin:
         $start_date = helpers::convertFecha($request->input('start_date'));
 
@@ -427,7 +427,6 @@ class EmployeeController extends Controller{
             $end_date = config('constants.UNDEFINED_DATE_');
         }
 
-        $time_control = $request->input('time_control')? 1:0;
         $status = ($start_date > date('Y-m-d'))? 0:1;
 
         //Empleo:
@@ -435,7 +434,8 @@ class EmployeeController extends Controller{
         $employee->start_date = $start_date;
         $employee->end_date = $end_date;
         $employee->weekly_hours = $request->input('weekly_hours');
-        $employee->time_control = $time_control;
+        $employee->time_control = $request->time_control? 1:0;
+        $employee->required_concepts = $request->required_concepts? 1:0;
         $employee->year_salary = $request->input('year_salary');
         $employee->status = $status;
         $employee->observations = $request->input('observations');
