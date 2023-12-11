@@ -1075,6 +1075,10 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::post('seats', 'SeatController@getSeatsBy')->name('seats.list')->middleware('permission:seats.index');
     Route::get('seats/create/{model_id?}', 'SeatController@create')->name('seats.create')->where('model_id', '[0-9]+')->middleware('permission:seats.create');
     Route::post('seats/store', 'SeatController@store')->name('seats.store')->middleware('permission:seats.create');
+    Route::get('seats/{seat}/edit', 'SeatController@edit')->name('seats.edit')->middleware('permission:seats.edit');
+    Route::get('seats/{seat}/show', 'SeatController@show')->name('seats.show')->middleware('permission:seats.index');
+    Route::put('seats/{seat}/update', 'SeatController@update')->name('seats.update')->middleware('permission:seats.edit');
+    Route::delete('seats/{seat}', 'SeatController@destroy')->name('seats.destroy')->middleware('permission:seats.destroy');
 
     // Sectors:
     Route::get('sectors', 'CompanyController@sectors')->name('sectors.index');

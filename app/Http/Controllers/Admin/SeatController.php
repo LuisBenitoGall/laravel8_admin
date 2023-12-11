@@ -11,9 +11,11 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Yajra\DataTables\DataTables;
 use Carbon\Carbon;
+use File;
 
 //Models:
 use App\Models\AccountingAccount;
+use App\Models\AccountingAccountYearBalance;
 use App\Models\Company;
 use App\Models\CompanySettings;
 use App\Models\Seat;
@@ -209,13 +211,13 @@ class SeatController extends Controller{
                 ->withErrors($validator)
                 ->withInput();
         }   
-
+//dd($request->all());
         //Validando importes del asiento:
         $amounts = $this->validateAmounts($request);
 
         //Si los importes difieren devolvemos error:
         if($amounts['debit'] != $amounts['credit']){
-            $alert = 'Hay discrepancia entre el importe del asiento contable y sus líneas. Corrígelo antes de continuar.';
+            $alert = trans('textos.asiento_contable_discrepancia');
             return redirect()->route('seats.create')->with(compact('alert'));
             exit;
         }
@@ -223,6 +225,15 @@ class SeatController extends Controller{
         //Formateando fechas:
         $seat_date = $request->seat_date != '' ? (session()->get('locale') != 'en') ? helpers::convertFecha($request->seat_date) : $request->seat_date : NULL;
         $invoice_date = $request->invoice_date != '' ? (session()->get('locale') != 'en') ? helpers::convertFecha($request->invoice_date) : $request->invoice_date : NULL;
+
+        //Documento:
+        $fileName = NULL;
+        if($request->hasFile('doc')){
+            $file = $request->file('doc');
+            $path = public_path().'/docs/seats';
+            $fileName = uniqid().$file->getClientOriginalName();
+            $moved = $file->move($path, $fileName);
+        }
 
         //Líneas:
         $seat_lines = [];
@@ -236,7 +247,7 @@ class SeatController extends Controller{
         //Generando asiento contable:
         $data = [
             'company_id' => session('currentCompany'),
-            'seat_num' => '',
+            'seat_num' => NULL,
             'seat_type' => $request->seat_type,
             'seat_date' => $seat_date,
             'operation_type' => NULL,
@@ -245,19 +256,11 @@ class SeatController extends Controller{
             'description' => $request->description,
             'serie' => $request->serie,
             'doc_num' => $request->doc_num,
+            'doc' => $fileName,
             'sort_num' => '',
-            'company2_id' => $request->company_id,
+            'company_target' => $request->company_id,
             'mode' => $request->mode,
             'currency_id' => $this->currency->id,
-            // 'base1' => $amounts['debe'],
-            // 'base2' => 0,
-            // 'base3' => 0,
-            // 'iva_percent1' => 0,
-            // 'iva_percent2' => 0,
-            // 'iva_percent3' => 0,
-            // 'iva_amount1' => 0,
-            // 'iva_amount2' => 0,
-            // 'iva_amount3' => 0,
             'invoice_id' => NULL,
             'invoice_date' => $invoice_date,
             'invoice_num' => $request->invoice_num,
@@ -288,8 +291,6 @@ class SeatController extends Controller{
 
         $diaries = helpers::accountingDiaries();
 
-        $concepts = helpers::seatConcepts();
-
         $lines = SeatLines::select('seat_lines.id', 'seat_lines.line_num', 'seat_lines.debit', 'seat_lines.credit', 'seat_lines.accounting_account_id', 'seat_lines.type', 'seat_lines.currency_id', 'accounting_accounts.account')
         ->leftJoin('accounting_accounts', 'seat_lines.accounting_account_id', '=', 'accounting_accounts.id')
         ->where('seat_lines.seat_id', $seat->id)
@@ -305,7 +306,7 @@ class SeatController extends Controller{
 
         $currency = $this->currency;
 
-        return view('admin.seats.edit')->with(compact('header', 'seat', 'diaries', 'concepts', 'lines', 'seat_lines_types', 'company', 'languages', 'currency'));    
+        return view('admin.seats.edit')->with(compact('header', 'seat', 'diaries', 'lines', 'seat_lines_types', 'company', 'languages', 'currency'));    
     }
 
     /**

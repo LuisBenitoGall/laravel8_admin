@@ -26,22 +26,19 @@ class Seat extends Model{
         $seat = new Seat();
         $seat->company_id = $data['company_id'];
         $seat->year = date('Y');
-        //$seat->seat_num = $data['seat_num']; 
+        $seat->seat_num = $data['seat_num']; 
         $seat->seat_type = $data['seat_type']; 
         $seat->seat_date = $data['seat_date'];
-        $seat->operation_type = $data['operation_type']; 
+        //$seat->operation_type = $data['operation_type']; 
         $seat->diary = $data['diary']; 
         $seat->concept = $data['concept']; 
         $seat->description = $data['description']; 
         //$seat->serie = $data['serie']; 
-        $seat->doc_num = $data['doc_num']; 
+        $seat->doc_num = $data['doc_num'];
+        $seat->doc = $data['doc']; 
         $seat->sort_num = $data['sort_num']; 
         $seat->company_target = $data['company_target']; 
         $seat->mode = $data['mode']; 
-        $seat->currency_id = $data['currency_id']; 
-
-
-
         $seat->created_by = Auth::user()->id;
         //$seat->order_id = isset($data['order_id'])? $data['order_id']:NULL;
         $seat->invoice_id = $data['invoice_id'];
