@@ -138,6 +138,7 @@ class RequiredTimetableItemsTask extends Command{
                             ->where('employees.status', 1)
                             ->where('employees.time_control', 1)
                             ->where('employees.workplace_id', $wp->id)
+                            ->where('employees.required_concepts', 1)
                             ->where('contracts.company_id', $co->id)
                             ->groupBy('users.id')
                             ->get();
