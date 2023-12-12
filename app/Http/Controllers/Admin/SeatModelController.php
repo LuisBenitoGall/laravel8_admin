@@ -41,6 +41,9 @@ class SeatModelController extends Controller{
 
         //Moneda:
         $this->currency = CompanySettings::co_currency(0);
+
+        $this->middleware('module_setted:accounting');
+        $this->middleware('seat_model_get', ['only' => ['edit', 'update', 'destroy']]);
     }   
 
     //0. Validator:

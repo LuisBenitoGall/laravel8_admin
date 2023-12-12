@@ -76,12 +76,6 @@
 						<div class="col-lg-4">
 							<x-input-file name="doc"/>
 						</div>
-					
-						{{-- Concepto --}}
-						{{-- <label for="concept" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.concepto')) !!}</label>
-						<div class="col-lg-2">
-							<x-select name="concept" class="select2" label="concepto_selec" :options="$concepts"/>
-						</div> --}}	
 
 						{{-- Serie --}}
 						{{-- <label for="serie" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.serie')) !!}</label>

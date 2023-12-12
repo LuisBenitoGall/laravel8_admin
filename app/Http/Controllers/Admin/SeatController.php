@@ -22,6 +22,7 @@ use App\Models\Seat;
 use App\Models\SeatLines;
 use App\Models\SeatModel;
 use App\Models\SeatModelLine;
+use App\Models\User;
 
 class SeatController extends Controller{
     /**
@@ -33,6 +34,7 @@ class SeatController extends Controller{
      * 5. Actualizar asiento contable.
      * 6. Validación importes.
      * 7. Eliminar asiento contable.
+     * 8. Eliminar documento de asiento contable.
      */
     
     private $option = 'contabilidad';
@@ -46,6 +48,9 @@ class SeatController extends Controller{
 
         //Moneda:
         $this->currency = CompanySettings::co_currency(0);
+
+        $this->middleware('module_setted:accounting');
+        $this->middleware('seat_get', ['only' => ['edit', 'update', 'destroy', 'deleteDoc']]);
     }
 
     //0. Validator:
@@ -54,14 +59,14 @@ class SeatController extends Controller{
         if(isset($data['submit_save'])) {
             return Validator::make($data, [
                 'seat_date' => 'required',
-                'description' => 'required'
+                'concept' => 'required'
             ]);
 
         //Validación update:
         } elseif (isset($data['submit_update'])) {
             return Validator::make($data, [
                 'seat_date' => 'required',
-                'description' => 'required'
+                'concept' => 'required'
             ]);
         }
     }
@@ -91,8 +96,8 @@ class SeatController extends Controller{
     /**
      * 1.1. Listado de asientos contables para DataTable.
      */
-    public function getSeatsDT($from, $to, $accounting_account_id = false){
-        $data = Seat::select('seats.*', 'companies.name AS other_company')
+    public function getSeatsDT($from = false, $to = false, $accounting_account_id = false){
+        $data = Seat::select('seats.*', 'companies.name AS company')
         ->leftJoin('companies', 'seats.company_target', '=', 'companies.id')
         ->leftJoin('seat_lines', 'seats.id', '=', 'seat_lines.seat_id')
         ->where('seats.company_id', session('currentCompany'))
@@ -100,7 +105,7 @@ class SeatController extends Controller{
             return $q->whereBetween('seats.created_at', [$from, $to]);
         })
         ->groupBy('seats.id')
-        ->orderBy('seats.seat_date', 'DESC');  
+        ->orderBy('seats.seat_date', 'DESC');
 
         //Obtenemos la situación de los años comprendidos en el intervalo buscado:
         $p_year = explode('-', $from);
@@ -141,9 +146,9 @@ class SeatController extends Controller{
         // ->addColumn('saldo', function ($row){
 
         // })
-        ->addColumn('other_company', function($row){
-            if($row->other_company){
-                return $row->other_company;
+        ->addColumn('company_target', function($row){
+            if($row->company_target){
+                return $row->company;
             }else{
                 return '';
             }
@@ -211,7 +216,7 @@ class SeatController extends Controller{
                 ->withErrors($validator)
                 ->withInput();
         }   
-//dd($request->all());
+
         //Validando importes del asiento:
         $amounts = $this->validateAmounts($request);
 
@@ -300,13 +305,15 @@ class SeatController extends Controller{
         //Tipos de líneas de asientos contables:
         $seat_lines_types = helpers::seatLinesTypes();
 
-        $company = Company::select('id', 'name')->find($seat->company_id);
+        $company = $seat->company_target? Company::select('id', 'name')->find($seat->company_target):false;
+
+        $author = User::select('name', 'surname')->find($seat->created_by);
 
         $languages = $this->languages;
 
         $currency = $this->currency;
 
-        return view('admin.seats.edit')->with(compact('header', 'seat', 'diaries', 'lines', 'seat_lines_types', 'company', 'languages', 'currency'));    
+        return view('admin.seats.edit')->with(compact('header', 'seat', 'diaries', 'lines', 'seat_lines_types', 'company', 'author', 'languages', 'currency'));    
     }
 
     /**
@@ -417,6 +424,11 @@ class SeatController extends Controller{
      * 7. Eliminar asiento contable.
      */
     public function destroy(Seat $seat){
+        //Documento:
+        if($seat->doc){
+            File::delete(public_path().'/docs/seats/'.$seat->doc);
+        }
+
         //Líneas:
         SeatLines::where('seat_id', $seat->id)
         ->delete();
@@ -425,5 +437,18 @@ class SeatController extends Controller{
 
         $msg = trans('textos.asiento_deleted');
         return redirect()->route('seats.index')->with(compact('msg'));
+    }
+
+    /**
+     * 8. Eliminar documento de asiento contable.
+     */
+    public function deleteDoc(Seat $seat){
+        File::delete(public_path().'/docs/seats/'.$seat->doc);
+
+        $seat->doc = NULL;
+        $seat->save();
+
+        $msg = trans('textos.documento_deleted');
+        return redirect()->route('seats.edit', $seat)->with(compact('msg'));
     }
 }
