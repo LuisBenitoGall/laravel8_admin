@@ -811,6 +811,8 @@ class BudgetController extends Controller{
         //¿Pedido aprobado?
         if(in_array($request->status, config('constants.BUDGET_STATUS_APPROVED_'))){
             $order->is_order = true;
+            $order->accepted_date = date('Y-m-d');
+            $order->accepted_by = Auth::user()->id;
         }
 
         //Actualizando datos:
@@ -1327,6 +1329,11 @@ class BudgetController extends Controller{
     public function status(Request $request, Order $order, $status){
         if($request->ajax()){    
             $order->budget_status = $status;
+            //Modificamos fecha de aceptación para presupuestos aprobados.
+            if(in_array($status, config('constants.BUDGET_STATUS_APPROVED_'))){
+                $order->accepted_date = date('Y-m-d');
+                $order->accepted_by = Auth::user()->id;
+            }
             $order->save();
 
             return response()->json(true);

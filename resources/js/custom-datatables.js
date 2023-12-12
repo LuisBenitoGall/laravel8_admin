@@ -5874,21 +5874,22 @@ $(document).ready(function(){
             processing: true,
             ajax: {
                 "type": "GET",
-                "url": "/api/admin/seats/"+year+"/"+accounting_account_id+"/"+from+"/"+to,
+                "url": "/api/admin/seats/"+from+"/"+to+"/"+accounting_account_id,
                 "error": function(reason){
                     console.log(reason);
                 }
             },
             columns: [
+                {data: 'num', name: 'seats.seat_date', className: 'text-right', "defaultContent": ""},
                 {data: 'seat_date', name: 'seats.seat_date', className: 'text-right', "defaultContent": ""},
                 {data: 'year', name: 'seats.year', className: 'text-right', "defaultContent": ""},
-                {data: 'description', name: 'seats.description', "defaultContent": ""},
-                {data: 'amount', className: 'text-right', "defaultContent": ""},
+                {data: 'concept', name: 'seats.concept', "defaultContent": ""},
+                //{data: 'amount', className: 'text-right', "defaultContent": ""},
                 // {data: 'debe', className: 'text-right', "defaultContent": ""},
                 // {data: 'haber', className: 'text-right', "defaultContent": ""},
                 // {data: 'saldo', className: 'text-right', "defaultContent": ""},
-                {data: 'other_company', name: 'companies.name', "defaultContent": ""},
-                {data: 'provider_doc', name: 'seats.provider_doc', "defaultContent": ""},
+                {data: 'company_target', name: 'companies.name', "defaultContent": ""},
+                {data: 'doc', name: 'seats.doc_num', "defaultContent": ""},
                 {data: 'acciones', className: 'text-right'}
             ]
         });
