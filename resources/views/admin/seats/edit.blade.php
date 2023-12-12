@@ -50,6 +50,14 @@
 							@if($seat->updated_at) {{ $seat->updated_at->format($languages[session()->get('locale')][4].' H:i:s') }} @endif
 						</b>
 					</label>
+
+					{{-- Autor --}}
+					<label class="mr-5">
+						{!! ucfirst(trans('textos.creado_por')) !!}: 
+						<b>
+							{{ $author->name }} {{ $author->surname }}
+						</b>
+					</label>
 				</div>
 
 				<form method="post" autocomplete="off" action="{{ route('seats.update', $seat) }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
@@ -67,10 +75,10 @@
 							<x-date-picker name="seat_date" :format="$languages[config('app.locale')][4]" required value="{{ $seat_date }}"/>
 						</div>	
 
-						{{-- Descripción --}}
-						<label for="description" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.descripcion')) !!}*</label>
+						{{-- Concepto --}}
+						<label for="concept" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.concepto')) !!}*</label>
 						<div class="col-lg-6">
-							<x-input type="text" name="description" maxlength="255" placeholder="{!! ucfirst(trans('textos.descripcion')) !!}" autocomplete="off" value="{{ $seat->description }}" required/>
+							<x-input type="text" name="concept" maxlength="255" placeholder="{!! ucfirst(trans('textos.concepto')) !!}" autocomplete="off" value="{{ $seat->concept }}" required/>
 						</div>	
 					</div>
 
@@ -91,23 +99,46 @@
 					</div>
 
 					<div class="form-group row">
-						{{-- Documento --}}
-						<label for="doc_num" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.documento')) !!}</label>
+						{{-- Nº documento --}}
+						<label for="doc_num" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.documento_num')) !!}</label>
 						<div class="col-lg-4 position-relative">
-							<x-input type="text" name="doc_num" placeholder="{!! ucfirst(trans('textos.documento')) !!}" maxlength="150" value="{{ $seat->doc_num }}"/>
+							<x-input type="text" name="doc_num" placeholder="{!! ucfirst(trans('textos.documento_num')) !!}" maxlength="150" value="{{ $seat->doc_num }}"/>
 						</div>
 					
-						{{-- Concepto --}}
-						{{-- <label for="concept" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.concepto')) !!}</label>
-						<div class="col-lg-2">
-							<x-select name="concept" class="select2" label="concepto_selec" :options="$concepts" value="{{ $seat->concept }}"/>
-						</div>	 --}}
+						{{-- Documento --}}
+						<label for="doc" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.documento')) !!}</label>
+						<div class="col-lg-4">
+							@if($seat->doc)
+								@if(file_exists('docs/seats/'.$seat->doc))
+									<a target="_blank" class="btn btn-sm btn-info" href="{{ asset('docs/seats/'.$seat->doc) }}" rel="tooltip" title="{{ trans('textos.documento_ver') }}">
+										<i class="fa fa-file"></i>
+									</a>	
+								@else
+									<span class="text-warning">{{ trans('textos.documento_no_hallado') }}</span>
+								@endif
+
+								{{-- Eliminar documento --}}
+								<a class="btn btn-sm btn-danger btn-confirm ml-3" href="{{ route('seats.delete-doc', $seat) }}" rel="tooltip" title="{{ trans('textos.documento_eliminar') }}" data-msg="{{ ucfirst(trans('textos.documento_eliminar_confirm')) }}">
+									<i class="fa fa-trash"></i>
+								</a>
+							@else
+								<x-input-file name="doc"/>
+							@endif	
+						</div>					
 
 						{{-- Serie --}}
 						{{-- <label for="serie" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.serie')) !!}</label>
 						<div class="col-lg-2">
 							<x-input type="text" name="serie" maxlength="15" placeholder="{!! ucfirst(trans('textos.serie')) !!}" autocomplete="off" value="{{ $seat->serie }}"/>
 						</div>	 --}}
+					</div>
+
+					<div class="form-group row">
+						{{-- Descripción --}}
+						<label for="description" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.descripcion')) !!}</label>
+						<div class="col-9 col-md-10">
+							<textarea name="description" class="form-control">{{ $seat->description }}</textarea>
+						</div>	
 					</div>
 					<br>
 

@@ -203,6 +203,10 @@ class Kernel extends HttpKernel{
 
         'sat_pattern_get' => \App\Http\Middleware\SatPatternGetMiddleware::class,
 
+        'seat_get' => \App\Http\Middleware\SeatGetMiddleware::class,
+
+        'seat_model_get' => \App\Http\Middleware\SeatModelGetMiddleware::class,
+
         'schedule_event_type_get' => \App\Http\Middleware\ScheduleEventTypeGetMiddleware::class,
 
         'schedule_get' => \App\Http\Middleware\ScheduleGetMiddleware::class,

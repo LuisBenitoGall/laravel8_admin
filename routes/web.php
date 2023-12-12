@@ -1079,6 +1079,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::get('seats/{seat}/show', 'SeatController@show')->name('seats.show')->middleware('permission:seats.index');
     Route::put('seats/{seat}/update', 'SeatController@update')->name('seats.update')->middleware('permission:seats.edit');
     Route::delete('seats/{seat}', 'SeatController@destroy')->name('seats.destroy')->middleware('permission:seats.destroy');
+    Route::get('seats/{seat}/delete-doc', 'SeatController@deleteDoc')->name('seats.delete-doc')->middleware('permission:seats.edit');
 
     // Sectors:
     Route::get('sectors', 'CompanyController@sectors')->name('sectors.index');
