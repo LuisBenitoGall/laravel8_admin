@@ -27,14 +27,14 @@
 							{!! ucfirst(trans('textos.cuenta_ventas')) !!}
 						</label>
 						<div class="col-lg-4">
-							{{-- @php
-							$val1 = isset($default_accounts[config('constants.ACCOUNT_DEFAULT_SALES_')])? $default_accounts[config('constants.ACCOUNT_DEFAULT_SALES_')]:'';
+							@php
+							$val1_text = isset($default_accounts[config('constants.ACCOUNT_DEFAULT_SALES_')])? $default_accounts[config('constants.ACCOUNT_DEFAULT_SALES_')][1]:'';
+							$val1_id = isset($default_accounts[config('constants.ACCOUNT_DEFAULT_SALES_')])? $default_accounts[config('constants.ACCOUNT_DEFAULT_SALES_')][0]:'';
 							@endphp
-							<x-select name="accounting_sales" class="select2" :options="$accounting_accounts" label="cuenta_contable_selec" value="{{ $val1 }}"/> --}}
 
-							<x-input type="text" name="accounting_sales_" datas="id:1" class="search_accounting_account" id="searchAccountingAccount1" placeholder="{!! ucfirst(trans('textos.cuenta_buscar')) !!}" maxlength="250" required/>
+							<x-input type="text" name="accounting_sales_" datas="id:1" class="search_accounting_account" id="searchAccountingAccount1" placeholder="{!! ucfirst(trans('textos.cuenta_buscar')) !!}" maxlength="250" value="{{ $val1_text }}"/>
 
-                            <input type="hidden" name="accounting_sales" id="accountingAccountId1">
+                            <input type="hidden" name="accounting_sales" id="accountingAccountId1" value="{{ $val1_id }}">
 						</div>
 
 						{{-- Cuenta compras --}}
@@ -42,14 +42,14 @@
 							{!! ucfirst(trans('textos.cuenta_compras')) !!}
 						</label>
 						<div class="col-lg-4">
-							{{-- @php
-							$val2 = isset($default_accounts[config('constants.ACCOUNT_DEFAULT_PURCHASES_')])? $default_accounts[config('constants.ACCOUNT_DEFAULT_PURCHASES_')]:'';
+							@php
+							$val2_text = isset($default_accounts[config('constants.ACCOUNT_DEFAULT_PURCHASES_')])? $default_accounts[config('constants.ACCOUNT_DEFAULT_PURCHASES_')][1]:'';
+							$val2_id = isset($default_accounts[config('constants.ACCOUNT_DEFAULT_PURCHASES_')])? $default_accounts[config('constants.ACCOUNT_DEFAULT_PURCHASES_')][0]:'';
 							@endphp
-							<x-select name="accounting_purchases" class="select2" :options="$accounting_accounts" label="cuenta_contable_selec" value="{{ $val2 }}"/> --}}
 
-							<x-input type="text" name="accounting_purchases_" datas="id:2" class="search_accounting_account" id="searchAccountingAccount2" placeholder="{!! ucfirst(trans('textos.cuenta_buscar')) !!}" maxlength="250" required/>
+							<x-input type="text" name="accounting_purchases_" datas="id:2" class="search_accounting_account" id="searchAccountingAccount2" placeholder="{!! ucfirst(trans('textos.cuenta_buscar')) !!}" maxlength="250" value="{{ $val2_text }}"/>
 
-                            <input type="hidden" name="accounting_purchases" id="accountingAccountId2">
+                            <input type="hidden" name="accounting_purchases" id="accountingAccountId2" value="{{ $val2_id }}">
 						</div>
 					</div>
 
@@ -59,15 +59,14 @@
 							{!! ucfirst(trans('textos.cuenta_ventas')) !!} IVA
 						</label>
 						<div class="col-lg-4">
-							{{-- @php
-							$val3 = isset($default_accounts[config('constants.ACCOUNT_DEFAULT_SALES_IVA_')])? $default_accounts[config('constants.ACCOUNT_DEFAULT_SALES_IVA_')]:'';
+							@php
+							$val3_text = isset($default_accounts[config('constants.ACCOUNT_DEFAULT_SALES_IVA_')])? $default_accounts[config('constants.ACCOUNT_DEFAULT_SALES_IVA_')][1]:'';
+							$val3_id = isset($default_accounts[config('constants.ACCOUNT_DEFAULT_SALES_IVA_')])? $default_accounts[config('constants.ACCOUNT_DEFAULT_SALES_IVA_')][0]:'';
 							@endphp
-							
-							<x-select name="accounting_sales_iva" class="select2" :options="$accounting_accounts" label="cuenta_contable_selec" value="{{ $val3 }}"/> --}}
 
-							<x-input type="text" name="accounting_sales_iva_" datas="id:3" class="search_accounting_account" id="searchAccountingAccount3" placeholder="{!! ucfirst(trans('textos.cuenta_buscar')) !!}" maxlength="250" required/>
+							<x-input type="text" name="accounting_sales_iva_" datas="id:3" class="search_accounting_account" id="searchAccountingAccount3" placeholder="{!! ucfirst(trans('textos.cuenta_buscar')) !!}" maxlength="250" value="{{ $val3_text }}"/>
 
-                            <input type="hidden" name="accounting_sales_iva" id="accountingAccountId3">
+                            <input type="hidden" name="accounting_sales_iva" id="accountingAccountId3" value="{{ $val3_id }}">
 						</div>
 
 						{{-- Cuenta compras IVA --}}
@@ -75,14 +74,14 @@
 							{!! ucfirst(trans('textos.cuenta_compras')) !!} IVA
 						</label>
 						<div class="col-lg-4">
-							{{-- @php
-							$val4 = isset($default_accounts[config('constants.ACCOUNT_DEFAULT_PURCHASES_IVA_')])? $default_accounts[config('constants.ACCOUNT_DEFAULT_PURCHASES_IVA_')]:'';
+							@php
+							$val4_text = isset($default_accounts[config('constants.ACCOUNT_DEFAULT_PURCHASES_IVA_')])? $default_accounts[config('constants.ACCOUNT_DEFAULT_PURCHASES_IVA_')][1]:'';
+							$val4_id = isset($default_accounts[config('constants.ACCOUNT_DEFAULT_PURCHASES_IVA_')])? $default_accounts[config('constants.ACCOUNT_DEFAULT_PURCHASES_IVA_')][0]:'';
 							@endphp
-							<x-select name="accounting_purchases_iva" class="select2" :options="$accounting_accounts" label="cuenta_contable_selec" value="{{ $val4 }}"/> --}}
 
-							<x-input type="text" name="accounting_purchases_iva_" datas="id:4" class="search_accounting_account" id="searchAccountingAccount4" placeholder="{!! ucfirst(trans('textos.cuenta_buscar')) !!}" maxlength="250" required/>
+							<x-input type="text" name="accounting_purchases_iva_" datas="id:4" class="search_accounting_account" id="searchAccountingAccount4" placeholder="{!! ucfirst(trans('textos.cuenta_buscar')) !!}" maxlength="250" value="{{ $val4_text }}"/>
 
-                            <input type="hidden" name="accounting_purchases_iva" id="accountingAccountId4">
+                            <input type="hidden" name="accounting_purchases_iva" id="accountingAccountId4" value="{{ $val4_id }}">
 						</div>
 					</div>
 
@@ -92,14 +91,14 @@
 							{!! ucfirst(trans('textos.cuenta_ventas_caja')) !!}
 						</label>
 						<div class="col-lg-4">
-							{{-- @php
-							$val5 = isset($default_accounts[config('constants.ACCOUNT_DEFAULT_CASH_SALES_')])? $default_accounts[config('constants.ACCOUNT_DEFAULT_CASH_SALES_')]:'';
+							@php
+							$val5_text = isset($default_accounts[config('constants.ACCOUNT_DEFAULT_CASH_SALES_')])? $default_accounts[config('constants.ACCOUNT_DEFAULT_CASH_SALES_')][1]:'';
+							$val5_id = isset($default_accounts[config('constants.ACCOUNT_DEFAULT_CASH_SALES_')])? $default_accounts[config('constants.ACCOUNT_DEFAULT_CASH_SALES_')][0]:'';
 							@endphp
-							<x-select name="accounting_cash_sales" class="select2" :options="$accounting_accounts" label="cuenta_contable_selec" value="{{ $val5 }}"/> --}}
 
-							<x-input type="text" name="accounting_cash_sales_" datas="id:5" class="search_accounting_account" id="searchAccountingAccount5" placeholder="{!! ucfirst(trans('textos.cuenta_buscar')) !!}" maxlength="250" required/>
+							<x-input type="text" name="accounting_cash_sales_" datas="id:5" class="search_accounting_account" id="searchAccountingAccount5" placeholder="{!! ucfirst(trans('textos.cuenta_buscar')) !!}" maxlength="250" value="{{ $val5_text }}"/>
 
-                            <input type="hidden" name="accounting_cash_sales" id="accountingAccountId5">
+                            <input type="hidden" name="accounting_cash_sales" id="accountingAccountId5" value="{{ $val5_id }}">
 						</div>
 
 						{{-- Cuenta caja compras --}}
@@ -107,14 +106,14 @@
 							{!! ucfirst(trans('textos.cuenta_pagos_caja')) !!}
 						</label>
 						<div class="col-lg-4">
-							{{-- @php
-							$val6 = isset($default_accounts[config('constants.ACCOUNT_DEFAULT_CASH_PURCHASES_')])? $default_accounts[config('constants.ACCOUNT_DEFAULT_CASH_PURCHASES_')]:'';
+							@php
+							$val6_text = isset($default_accounts[config('constants.ACCOUNT_DEFAULT_CASH_PURCHASES_')])? $default_accounts[config('constants.ACCOUNT_DEFAULT_CASH_PURCHASES_')][1]:'';
+							$val6_id = isset($default_accounts[config('constants.ACCOUNT_DEFAULT_CASH_PURCHASES_')])? $default_accounts[config('constants.ACCOUNT_DEFAULT_CASH_PURCHASES_')][0]:'';
 							@endphp
-							<x-select name="accounting_cash_purchases" class="select2" :options="$accounting_accounts" label="cuenta_contable_selec" value="{{ $val6 }}"/> --}}
 
-							<x-input type="text" name="accounting_cash_purchases_" datas="id:6" class="search_accounting_account" id="searchAccountingAccount6" placeholder="{!! ucfirst(trans('textos.cuenta_buscar')) !!}" maxlength="250" required/>
+							<x-input type="text" name="accounting_cash_purchases_" datas="id:6" class="search_accounting_account" id="searchAccountingAccount6" placeholder="{!! ucfirst(trans('textos.cuenta_buscar')) !!}" maxlength="250"  value="{{ $val6_text }}"/>
 
-                            <input type="hidden" name="accounting_cash_purchases" id="accountingAccountId6">
+                            <input type="hidden" name="accounting_cash_purchases" id="accountingAccountId6" value="{{ $val6_id }}">
 						</div>
 					</div>
 

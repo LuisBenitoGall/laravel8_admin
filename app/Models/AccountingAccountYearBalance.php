@@ -28,8 +28,8 @@ class AccountingAccountYearBalance extends Model{
     public static function getBalanceByInterval($accounting_account_id, $from, $to){
         //Líneas del año consultado:
         $data = SeatLines::select(
-            DB::raw('sum(seat_lines.debe) as debe_'),
-            DB::raw('sum(seat_lines.haber) as haber_')
+            DB::raw('sum(seat_lines.debit) as debit_'),
+            DB::raw('sum(seat_lines.credit) as credit_')
         )
         ->join('seats', 'seat_lines.seat_id', '=', 'seats.id')
         ->where('seat_lines.accounting_account_id', $accounting_account_id)
@@ -48,7 +48,7 @@ class AccountingAccountYearBalance extends Model{
         ->first();
         $prevBalance = $prev_balance? $prev_balance->balance:'0';
 
-        $balance = $prevBalance + ($data->debe_ - $data->haber_);
+        $balance = $prevBalance + ($data->debit_ - $data->credit_);
 
         return $balance;
     }
@@ -69,8 +69,8 @@ class AccountingAccountYearBalance extends Model{
         //dd($prev_year, $last_balance, $from);
 
         $data = SeatLines::select(
-            DB::raw('sum(seat_lines.debe) as debe_'),
-            DB::raw('sum(seat_lines.haber) as haber_')
+            DB::raw('sum(seat_lines.debit) as debit_'),
+            DB::raw('sum(seat_lines.credit) as credit_')
         )
         ->join('seats', 'seat_lines.seat_id', '=', 'seats.id')
         ->where('seat_lines.accounting_account_id', $accounting_account_id)
@@ -78,7 +78,7 @@ class AccountingAccountYearBalance extends Model{
         ->where('seats.seat_date', '<=', $to)
         ->first();  
 
-        $balance = $data->debe_ - $data->haber_;  
+        $balance = $data->debit_ - $data->credit_;  
 
         return $balance;
     }

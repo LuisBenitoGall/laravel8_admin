@@ -72,7 +72,10 @@ class CompanySettingsController extends Controller{
         //Información pública:
         $public_items = Helpers::publicInfo();
 
-        return view('admin.company_settings.index')->with(compact('header', 'company', 'company_settings', 'currencies', 'public_items'));
+        //Métodos contables:
+        $accounting_methods = Helpers::accountingMethods();
+
+        return view('admin.company_settings.index')->with(compact('header', 'company', 'company_settings', 'currencies', 'public_items', 'accounting_methods'));
     }   
 
     /**
@@ -124,6 +127,7 @@ class CompanySettingsController extends Controller{
         $cs->ip = $ip;
         $cs->emails = $emails;
         $cs->public_info = $public_info;
+        $cs->accounting_method = $request->accounting_method;
         $cs->accounting_account_digits = $request->accounting_account_digits;
         $cs->save();
 

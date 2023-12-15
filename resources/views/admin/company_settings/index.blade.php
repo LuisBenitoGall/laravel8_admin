@@ -255,10 +255,18 @@
 						</label>
 
 						<div class="col-lg-10">
+							{{-- Dígitos cuentas contables --}}
 							<div class="row">
 								<label for="accounting_account_digits" class="col-lg-2 col-form-label">{{ trans('textos.cuenta_contable_digitos') }}</label>
 								<div class="col-lg-1">
 									<x-input type="text" name="accounting_account_digits" class="text-right" value="{{ $company_settings->accounting_account_digits }}" info="company-settings-accounting-account-digits"/>
+								</div>
+							
+
+								{{-- Métodos contables --}}
+								<label for="accounting_method" class="col-lg-2 col-form-label">{{ trans('textos.metodos_contables') }}</label>
+								<div class="col-lg-3">
+									<x-select name="accounting_method" class="select2" label="metodo_selec" :options="$accounting_methods" value="{{ $company_settings->accounting_method }}"/>
 								</div>
 							</div>
 						</div>

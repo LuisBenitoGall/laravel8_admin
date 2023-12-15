@@ -65,6 +65,8 @@ class Helpers{
 	 *  3.30. Modos de cuentas contables.
 	 *  3.31. Diarios contables.
 	 *  3.32. Tipos líneas de asientos contables.
+	 *  3.33. Conceptos asientos contables.
+	 *  3.34. Métodos contables.
 	 *
 	 * 4. Strings & Arrays:
 	 * 	4.1. Truncar texto.
@@ -597,7 +599,6 @@ class Helpers{
 		$year = $p[0];
 		$day = (int)$payday > (int)$p[2]? $payday:$p[2];
 		if($payday > 0 && (int)$p[2] > $payday){
-			//dd($payday.' es mayor que '.(int)$p[2]);
 			$month = intval($month) + 1;
 			if($month == 13){
 				$month = 1;
@@ -1228,6 +1229,58 @@ class Helpers{
 		];
 		if($type){
 			return ucfirst($data[$type]);
+		}else{
+			return $data;
+		}
+	}
+
+	/**
+	 * 3.33. Conceptos asientos contables.
+	 */
+	public static function seatConcepts($concept = false){
+		$data = [
+			'CF' => trans('textos.cobro_factura'),
+			'IMPAG' => trans('textos.impagado'),
+			'LI' => trans('textos.liquidacion'),
+			'NF' => trans('textos.factura_nuestra'),
+			//'NO' => trans('textos.no'),
+			'NP' => trans('textos.pago_nuestro'),
+			'NR' => trans('textos.remesa_num'),
+			'PYS' => trans('textos.paga_senal'),
+			'SF' => trans('textos.factura_proveedor')
+		];
+		if($concept){
+			if(isset($data[$concept])){
+				return ucfirst($data[$concept]);
+			}else{
+				return false;
+			}
+		}else{
+			return $data;
+		}
+	}
+
+	/**
+	 * 3.34. Métodos contables.
+	 */
+	public static function accountingMethods($method = false){
+		$data = [
+			1 => ucfirst(trans('textos.devengo')),
+			2 => ucfirst(trans('textos.caja')),
+			3 => ucfirst(trans('textos.competencia')),
+			4 => ucfirst(trans('textos.porcentaje_completado')),
+			5 => ucfirst(trans('textos.unidad_produccion')),
+			6 => ucfirst(trans('textos.costo_historico')),
+			7 => ucfirst(trans('textos.revaluacion')),
+			8 => ucfirst(trans('textos.ingresos'))
+		];	
+
+		if($method){
+			if(isset($data[$method])){
+				return ucfirst($data[$method]);
+			}else{
+				return false;
+			}
 		}else{
 			return $data;
 		}
@@ -2298,18 +2351,23 @@ class Helpers{
 
 	    //Descontando IRPF:
         //29/09/23: se modifica la fórmula a base - irpf
+        //14/12/23: nueva modificación de la fórmula: base - irpf, y sobre la base se obtiene también en el IVA, no sobre este resultado.
         $irpf_amount = 0;
         if($item->irpf > 0){
-            $irpf_amount = helpers::percent($amount, $item->irpf);
+            $irpf_amount = helpers::percent($tax_base, $item->irpf);
         }
 
         //IVA:	
+        $iva_amount = 0;
         if($item->iva > 0 && $with_iva){
-        	$percent = ($amount * $item->iva) / 100;
-        	$amount = round($amount + $percent, 2);
+        	$iva_amount = helpers::percent($tax_base, $item->iva);
         }
 
-        $amount = $amount - $irpf_amount;
+        //Importe sin iva:
+        $amount_without_iva = $amount - $irpf_amount;
+
+        //Importe principal: puede llevar IVA o no según se indique en el parámetro $with_iva.
+        $amount = $amount + $iva_amount - $irpf_amount;
 
         //Recargo de equivalencia. Se obtiene sobre la base imponible y se suma al importe total añadido ya el IVA u otros impuestos que pueda haber.
         if($with_equivalence_surcharge && $with_iva && $item->equivalence_surcharge > 0){
@@ -2317,7 +2375,7 @@ class Helpers{
         	$amount = round($amount + $percent, 2);
         }
 
-        $arr = ['amount' => round($amount,2), 'amount_without_discount' => round($amount_without_discount,2)];
+        $arr = ['amount' => round($amount,2), 'amount_without_discount' => round($amount_without_discount,2), 'amount_without_iva' => round($amount_without_iva,2)];
         return $arr;
 	}
 
