@@ -37,8 +37,9 @@ $maxlength = $company_settings->accounting_account_digits && $company_settings->
 							@php
 							$tipos = [
 								'a' => trans('textos.activos'),
-								'p' => trans('textos.pasivos')
-							]
+								'p' => trans('textos.pasivos'),
+								'g' => trans('textos.perdidas_ganancias')
+							];
 							@endphp
 							<x-select name="type" class="select2" :options="$tipos" label="tipo_selec" required/>
 						</div>

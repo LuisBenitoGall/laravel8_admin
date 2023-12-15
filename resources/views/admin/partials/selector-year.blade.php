@@ -8,5 +8,5 @@
 	}
 	@endphp
 
-	<x-select name="year" class="select2" label="selecciona_any" :options="$years" value="{{ $selected_year }}"/>
+	<x-select id="selectorYear" name="year" class="select2" label="selecciona_any" :options="$years" value="{{ $selected_year }}"/>
 </div>

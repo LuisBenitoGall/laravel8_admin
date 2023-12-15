@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 class SeatLines extends Model{
     /**
      * 1. Guardar línea.
+     * 2. Balance por cuenta y año.
      */
     
     use HasFactory;
@@ -35,5 +36,14 @@ class SeatLines extends Model{
         $sl->save();
 
         return $sl;
+    }
+
+    /**
+     * 2. Balance por cuenta y año.
+     */
+    public function accountBalanceByYear($accounting_account_id, $year){
+        return AccountingAccountYearBalance::where('accounting_account_id', $accounting_account_id)
+        ->where('year', $year)
+        ->first();
     }
 }

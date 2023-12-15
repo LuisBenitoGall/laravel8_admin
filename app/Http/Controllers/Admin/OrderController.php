@@ -728,6 +728,7 @@ class OrderController extends Controller{
             $companies = CustomerProviders::select('companies.id', 'companies.name', 'companies.tradename')
             ->join('companies', 'customer_providers.customer_id', '=', 'companies.id')
             ->where('customer_providers.provider_id', session('currentCompany'))
+            ->where('customer_providers.status', 1)
             ->where('companies.id', '!=', session('currentCompany'))
             ->orderBy('companies.name', 'ASC')
             ->get();
@@ -738,6 +739,7 @@ class OrderController extends Controller{
             $companies = CustomerProviders::select('companies.id', 'companies.name', 'companies.tradename')
             ->join('companies', 'customer_providers.provider_id', '=', 'companies.id')
             ->where('customer_providers.customer_id', session('currentCompany'))
+            ->where('customer_providers.status', 1)
             ->where('companies.id', '!=', session('currentCompany'))
             ->orderBy('companies.name', 'ASC')
             ->get();
@@ -1766,6 +1768,7 @@ class OrderController extends Controller{
         ->addColumn('amount', function($item) use($currency, $order_amount, $environment){
             $amount = '';
             if($item->price != 0){
+                //Cálculo importe por porcentaje:
                 if($item->calculated_by_percent > 0){
                     $amount = helpers::itemAmountPercentage($item->price, $order_amount['total_amount']);
                     return $amount.$currency->symbol.'<br><small>('.trans('textos.precio_porcentual').')</small>';

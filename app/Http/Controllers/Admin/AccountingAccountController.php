@@ -112,7 +112,7 @@ class AccountingAccountController extends Controller{
         foreach($default_accounts_ as $da){
             $default_accounts[$da->featured] = [$da->id, $da->account.' - '.$da->name];    
         }
-
+//dd($default_accounts);
         return view('admin.accounting_accounts.index')->with(compact('header', 'company', 'default_accounts'));
     }
 
@@ -122,8 +122,14 @@ class AccountingAccountController extends Controller{
     public function getAccountingAccountsDT(){
         $data = AccountingAccount::select('accounting_accounts.*', 'companies.name AS company')
         ->leftJoin('companies', 'accounting_accounts.company_target', '=', 'companies.id')
+        ->leftJoin('accounting_account_types', 'accounting_accounts.aatype_id', '=', 'accounting_account_types.id')
         ->where('accounting_accounts.company_id', session('currentCompany'))
         ->orderBy('accounting_accounts.featured', 'DESC');
+
+        $types = [
+            'c' => trans('textos.cliente'),
+            'p' => trans('textos.proveedor')
+        ];
 
         return DataTables::of($data)
         ->addColumn('account', function ($row){
@@ -135,10 +141,27 @@ class AccountingAccountController extends Controller{
         ->addColumn('company', function ($row){
             return $row->company;
         })
-        ->addColumn('tipo', function ($row){
-            $type = $row->type == 'c'? ucfirst(trans('textos.cliente')):($row->type == 'p'? ucfirst(trans('textos.proveedor')):'');
-            return $type;
+        ->addColumn('tipo', function ($row) use($types){
+            return ucfirst($types[$row->type]);
+            // $type = $row->type == 'c'? ucfirst(trans('textos.cliente')):($row->type == 'p'? ucfirst(trans('textos.proveedor')):'');
+            // return $type;
         })
+        ->filterColumn('tipo', function ($query, $keyword) use ($types) {
+            //dd($keyword);
+            $query->whereIn('type', array_keys(array_filter($types, function ($type) use ($keyword) {
+                return stripos($type, $keyword) !== false;
+            })));
+        })
+
+
+        // ->filterColumn('tipo', function ($query, $keyword) use($types){
+        //     $query->whereIn('type', array_keys(array_filter($types, function ($value) use ($keyword) {
+        //         return stripos($value, $keyword) !== false;
+            
+
+
+        //     //$query->where('type', $types[$keyword]);
+        // })))
         // ->addColumn('subtipo', function ($row){
         //     // $first_letter = substr($row->type, 0, 1);
         //     // $subtype_letters = substr($row->type, 1, 2);
@@ -441,6 +464,7 @@ class AccountingAccountController extends Controller{
      * 11. Cuentas por defecto.
      */
     public function defaultAccounts(Request $request){
+        //dd($request->all());
         //Eliminamos las cuentas default anteriores:
         AccountingAccount::where('company_id', session('currentCompany'))
         ->where('featured', '>', 1)

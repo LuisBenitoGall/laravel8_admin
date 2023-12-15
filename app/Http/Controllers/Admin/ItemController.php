@@ -295,13 +295,15 @@ class ItemController extends Controller{
         $item->user_id = Auth::user()->id;
         $item->save();
 
-        //Si se trata de una inclusión de línea sobre un pedido de compra ya facturado, se genera la línea de factura:
+        //Si se trata de una inclusión de línea sobre un pedido de compra ya facturado pero sin líneas, se genera la línea de factura:
         if($order->customer_id == session('currentCompany') && $order->from_customer){
             //Obtenemos última factura del pedido:
-            $invoice = Invoice::select('id')
+            $invoice = $request->invoice_id? Invoice::find($request->invoice_id):Invoice::select('id')
             ->where('order_id', $order->id)
             ->latest('id')
             ->first();
+
+        //     //$with_iva = $item->iva > 0? true:false;
 
             $amount = helpers::itemAmount($item);
 

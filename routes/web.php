@@ -1062,6 +1062,11 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::put('schedules/{schedule}/update', 'ScheduleController@update')->name('schedules.update')->middleware('permission:schedules.edit');
     Route::get('schedules/{schedule}/status/{status}', 'ScheduleController@status')->name('schedules.status')->middleware('permission:schedules.edit');
 
+    // Seat Lines:
+    Route::get('seat-lines/{seat_id}/edit', 'SeatLinesController@getLines')->name('seat-lines.edit');
+    Route::put('seat-lines/{seat}/update', 'SeatLinesController@update')->name('seat-lines.update')->middleware('permission:seats.edit');
+    Route::delete('seat-lines/{line}', 'SeatLinesController@destroy')->name('seat-lines.destroy')->middleware('permission:seats.destroy');
+
     // Seat Models:
     Route::get('seat-models', 'SeatModelController@index')->name('seat-models.index')->middleware('permission:seats.index');
     Route::get('seat-models/create', 'SeatModelController@create')->name('seat-models.create')->middleware('permission:seats.create');
