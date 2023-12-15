@@ -22692,6 +22692,10 @@ body.body-small .footer.fixed {
   font-weight: bold;
 }
 
+.table > tbody > tr.featured td {
+  background-color: #FFFFE8 !important;
+}
+
 .table td.no-border {
   border: none !important;
 }
@@ -22783,6 +22787,10 @@ body.body-small .footer.fixed {
 }
 .subtable tfoot tr td {
   padding: 0.75rem !important;
+}
+
+.tbl-subrows th, .tbl-subrows td {
+  background-color: #FFF;
 }
 
 /* PANELS */

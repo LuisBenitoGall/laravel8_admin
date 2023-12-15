@@ -11,6 +11,7 @@ class Invoice extends Model{
     /**
      * 1. Calcular importe de factura.
      * 1.1. Cálculo factura por items.
+     * 1.2. Cálculo factura por items de factura.
      * 2. Suma de importes por pedido.
      */
 
@@ -43,6 +44,32 @@ class Invoice extends Model{
      * 1.1. Cálculo factura por items.
      */
     public function calculateAmountByItems(){
+        $items = $this->order_id? Item::select('id', 'qty', 'price', 'item_no_price', 'irpf', 'iva', 'equivalence_surcharge', 'days', 'days_continue', 'days_continue_discount')
+        ->where('order_id', $this->order_id)
+        ->get():false;
+
+        $amount = 0;
+        $amount_with_iva = 0;
+
+        foreach($items as $i){
+            $arr_amount = helpers::itemAmount($i, true);
+
+            $amount = $amount + $arr_amount['amount_without_iva'];
+            $amount_with_iva = $amount_with_iva + $arr_amount['amount'];
+        }
+
+        //Ajuste de IVA:
+        $amount_with_iva = $amount_with_iva + $this->iva_adjust;
+        
+        $this->amount = $amount;
+        $this->amount_with_iva = $amount_with_iva;
+        $this->save();
+    }
+
+    /**
+     * 1.2. Cálculo factura por items de factura.
+     */
+    public function calculateAmountByInvoiceItems(){
         $items = InvoiceItems::select('id', 'amount', 'iva')
         ->where('invoice_id', $this->id)
         ->get();
@@ -53,8 +80,8 @@ class Invoice extends Model{
         foreach($items as $i){
             $amount = $amount + $i->amount;
 
-            $iva = $i->iva > 0? round(($i->amount * $i->iva) / 100, 2):0;
-            $amount_with_iva = $amount_with_iva + $i->amount + $iva;
+            //$iva = $i->iva > 0? round(($i->amount * $i->iva) / 100, 2):0;
+            //$amount_with_iva = $amount_with_iva + $i->amount + $iva;
         }
 
         //Ajuste de IVA:

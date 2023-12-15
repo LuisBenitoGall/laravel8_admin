@@ -5252,6 +5252,9 @@ body.body-small .footer.fixed {
     background-color: $yellow_light;
     font-weight: bold;
 }
+.table > tbody > tr.featured td{
+  background-color: $yellow_light !important; 
+}
 .table td.no-border{
     border: none !important;
 }
@@ -5366,6 +5369,12 @@ body.body-small .footer.fixed {
                 padding: .75rem !important;
             }
         }
+    }
+}
+
+.tbl-subrows{
+    th, td{
+      background-color: #FFF;
     }
 }
 

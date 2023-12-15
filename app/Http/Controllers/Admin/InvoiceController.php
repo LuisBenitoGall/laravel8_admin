@@ -42,6 +42,7 @@ use App\Models\Phone;
 use App\Models\Product;
 use App\Models\Project;
 use App\Models\ProjectPurchases;
+use App\Models\Seat;
 use App\Models\User;
 use App\Models\Workplace;
 
@@ -691,6 +692,39 @@ class InvoiceController extends Controller{
         //Recalculando porcentaje de las previsiones de facturación. Se considera que con un porcentaje por facturar por debajo del 0.1%, ya no queda nada por facturar.
         $all_invoiced = $outstanding_percent < 0.1? true:false;
         OrderPrevisions::recalculatePrevisionsPercent($order, $all_invoiced);
+
+        //Asiento contable:
+        //Para facturas se ejecutan los métodos contables de Devengo e Ingresos.
+        if(in_array(session('companySettings')->accounting_method, config('constants.ACCOUNTING_METHODS_INVOICE_') )){
+            $seat_data = [
+                'company_id' => session('currentCompany'),
+                'seat_num' => NULL,
+                // 'seat_type' => $request->seat_type,????????
+                'seat_date' => date('Y-m-d'),
+                'operation_type' => NULL,
+                // 'diary' => $request->diary, ????????
+                // 'concept' => $request->concept, ??????????
+                // 'description' => $request->description, ??????????
+                // 'serie' => $request->serie, ?????????
+                // 'doc_num' => NULL, ??????????
+                'doc' => NULL,
+                'sort_num' => '',
+                'company_target' => $order->customer_id,
+                // 'mode' => $request->mode, ???????????
+                // 'currency_id' => $this->currency->id, ???????????
+                'invoice_id' => $invoice->id,
+                // 'invoice_date' => $invoice_date, ????????????
+                // 'invoice_num' => $request->invoice_num, ???????????
+                'invoice_amount' => $invoice->amount,
+                'invoice_amount_iva' => $invoice->amount_with_iva,
+                'provider_doc' => NULL,
+                'cash_id' => NULL,
+                // 'pay_sign' => $request->pay_sign,?????????
+                // 'accounting_sale_id' => NULL,
+                // 'seat_lines' => $seat_lines ?????????
+            ];
+            //Seat::saveSeat($seat_data);
+        }
 
         $msg = trans('textos.factura_creada');
         return redirect()->route('invoices.edit', [$invoice->id, false])->with(compact('msg'));

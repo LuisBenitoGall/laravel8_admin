@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Helpers\helpers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -28,6 +29,7 @@ class SeatController extends Controller{
     /**
      * 1. Relación de asientos contables.
      * 1.1. Listado de asientos contables para DataTable.
+     * 1.2. Filtro de asientos contables.
      * 2. Formulario nuevo asiento.
      * 3. Guardar nuevo asiento.
      * 4. Editar asiento contable.
@@ -35,6 +37,7 @@ class SeatController extends Controller{
      * 6. Validación importes.
      * 7. Eliminar asiento contable.
      * 8. Eliminar documento de asiento contable.
+     * 9. Detalle de asiento contable.
      */
     
     private $option = 'contabilidad';
@@ -83,14 +86,76 @@ class SeatController extends Controller{
         ];  
 
         $year = $year? $year:date('Y');
+        $from = $from? $from:date('Y').'-01-01';
+        $to = $to? $to:date('Y').'-12-31';
 
+        //Cuenta contable:
         $accounting_account = $accounting_account_id && $accounting_account_id != 'x'? AccountingAccount::select('id', 'account', 'name')->find($accounting_account_id):false;
+
+        $seat_lines = false;
+        $balance = [];
+        if($accounting_account){
+            //Obtención del saldo para los tipos de cuenta distinto de 6 y 7:
+            $no_balance = [6,7];
+            $first_char = $accounting_account->account[0];
+            if(!in_array($first_char, $no_balance)){
+                //Año de la fecha de inicio:
+                $p_from = explode('-', $from);
+                $p_to = explode('-', $to);
+                $year_from = $p_from[0] < date('Y')? $p_from[0]:(int)$p_from[0];
+
+                //1. Obtenemos el saldo de la cuenta del año al inicio del intervalo.
+                $prev_balance = AccountingAccountYearBalance::select('id', 'balance', 'year', 'status')
+                ->where('accounting_account_id', $accounting_account->id)
+                ->where('year', $year_from)
+                ->first();
+
+                //2. Calculamos el saldo de no existir:
+                if(!$prev_balance){
+                    $prev_balance = AccountingAccountYearBalance::setBalanceByYear($accounting_account->id, $year_from);
+                }
+
+                //3. Obtenemos saldo entre 01-01- del año del fin del intervalo y el día anterior al inicio del intervalo buscado:
+                $from_ = $p_to[0].'-01-01';
+                $to_ = Carbon::parse($from)->subDay()->format('Y-m-d');
+
+                $prev_seat_lines = SeatLines::select(
+                    DB::raw('sum(seat_lines.debit) as debit_'),
+                    DB::raw('sum(seat_lines.credit) as credit_')
+                )
+                ->join('seats', 'seat_lines.seat_id', '=', 'seats.id')
+                ->where('seat_lines.accounting_account_id', $accounting_account->id)
+                ->where('seats.seat_date', '>=', $from_)
+                ->where('seats.seat_date', '<=', $to_)
+                ->first(); 
+
+                $current_balance = $prev_seat_lines->debit_ - $prev_seat_lines->credit_;  
+
+                $balance = [
+                    'amount' => $prev_balance->balance + $current_balance,
+                    'year' => $prev_balance->year,
+                    'status' => $prev_balance->status
+                ];
+            } 
+
+            $seat_lines = SeatLines::select('seat_lines.*', 'seats.seat_date', 'seats.year', 'seats.description', 'seats.doc_num')
+            ->join('seats', 'seat_lines.seat_id', '=', 'seats.id')
+            ->where('seat_lines.accounting_account_id', $accounting_account_id)
+            ->where('seats.seat_date', '>=', $from)
+            ->where('seats.seat_date', '<=', $to)
+            ->orderBy('seats.seat_date', 'ASC')
+            ->orderBy('seats.id', 'ASC')
+            ->get();
+        }
 
         $company = Company::find(session('currentCompany'));
 
+        //Tipos de líneas de asientos contables:
+        $seat_lines_types = helpers::seatLinesTypes();
+
         $languages = $this->languages;
 
-        return view('admin.seats.index')->with(compact('header', 'year', 'accounting_account', 'from', 'to', 'company', 'languages'));
+        return view('admin.seats.index')->with(compact('header', 'year', 'accounting_account', 'from', 'to', 'balance', 'seat_lines', 'company', 'seat_lines_types', 'languages'));
     }
 
     /**
@@ -133,19 +198,6 @@ class SeatController extends Controller{
         ->addColumn('seat_date', function ($row){
             return Carbon::parse($row->seat_date)->format($this->languages[session()->get('locale')][4]);
         })
-        // ->addColumn('amount', function ($row) use($currency){
-        //     $amount = $row->linesAmount();
-        //     return number_format($amount, 2).$currency->symbol;
-        // })
-        // ->addColumn('debit', function ($row){
-            
-        // })
-        // ->addColumn('credit', function ($row){
-
-        // })
-        // ->addColumn('saldo', function ($row){
-
-        // })
         ->addColumn('company_target', function($row){
             if($row->company_target){
                 return $row->company;
@@ -153,11 +205,39 @@ class SeatController extends Controller{
                 return '';
             }
         })
+        ->addColumn('doc', function ($row){
+            if($row->doc && file_exists('docs/seats/'.$row->doc)){
+                return '<a target="_blank" class="btn btn-xs btn-info" href="'.asset('docs/seats/'.$row->doc).'" rel="tooltip" title="'.trans('textos.documento_ver').'"><i class="fa fa-file"></i></a>';
+            }else{
+                return '';
+            }
+        })
         ->addColumn('acciones', function ($row) use($open_balances){
             return view('admin.seats.partials.dt-actions', compact('row', 'open_balances'));
         })
+        ->rawColumns(['doc'])
         ->make(true);  
-    }    
+    }  
+
+    /**
+     * 1.2. Filtro de asientos contables.
+     */
+    public function getSeatsBy(Request $request){
+        $year = $request->year;
+        $accounting_account_id = $request->accounting_account_id? $request->accounting_account_id:'x';
+        //Formateando fechas:
+        $from = $request->from != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->from):$request->from:$year.'-01-01';
+        $to = $request->to != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->to):$request->to:$year.'-12-31';
+
+        //La fecha final no puede ser inferior a la fecha inicial:
+        if(strtotime($to) < strtotime($from)){
+            $alert = 'La fecha fin no puede ser inferior a la fecha de inicio.';
+            return redirect()->route('seats.index')->with(compact('alert'));
+            exit;
+        }
+
+        return redirect()->route('seats.index', [$request->year, $accounting_account_id, $from, $to]);    
+    }  
 
     /**
      * 2. Formulario nuevo asiento.
@@ -450,5 +530,32 @@ class SeatController extends Controller{
 
         $msg = trans('textos.documento_deleted');
         return redirect()->route('seats.edit', $seat)->with(compact('msg'));
+    }
+
+    /**
+     * 9. Detalle de asiento contable.
+     */
+    public function show(Request $request, Seat $seat){
+        if($request->ajax()){
+            $diary = $seat->diary? helpers::accountingDiaries($seat->diary):false;
+            $concept = $seat->concept? helpers::seatConcepts($seat->concept):false;
+            $lines = SeatLines::select('seat_lines.debit', 'seat_lines.credit', 'seat_lines.code_auto', 'seats.invoice_id', 'accounting_accounts.account', 'accounting_accounts.name', 'invoices.invoice_num', 'invoices.invoice_old_num', 'currencies.symbol')
+            ->join('seats', 'seat_lines.seat_id', '=', 'seats.id')
+            ->leftJoin('accounting_accounts', 'seat_lines.accounting_account_id', '=', 'accounting_accounts.id')
+            ->leftJoin('invoices', 'seats.invoice_id', '=', 'invoices.id')
+            ->leftJoin('currencies', 'seat_lines.currency_id', '=', 'currencies.id')
+            ->where('seat_lines.seat_id', $seat->id)
+            ->orderBy('seat_lines.line_num', 'ASC')
+            ->get();
+
+            $data = [
+                'seat' => $seat,
+                'diary' => $diary,
+                'concept' => $concept,
+                'lines' => $lines
+            ];
+
+            return response()->json($data);
+        }    
     }
 }

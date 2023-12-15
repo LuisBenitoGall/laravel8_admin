@@ -325,6 +325,7 @@ class BudgetController extends Controller{
             $customers = CustomerProviders::select('companies.id', 'companies.name', 'companies.tradename')
             ->join('companies', 'customer_providers.customer_id', '=', 'companies.id')
             ->where('customer_providers.provider_id', session('currentCompany'))
+            ->where('customer_providers.status', 1)
             ->orderBy('companies.name', 'ASC')
             ->get();
         }

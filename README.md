@@ -223,8 +223,10 @@ on i.order_id = o.id
 left join users u
 on o.customer_manager_id = u.id
 where o.customer_id = 2
+and o.deleted_at is null
 and o.provider_id = 4
-and o.is_order = 1;
+and o.is_order = 1
+and o.is_budget < 1;
    
 
 ### Instalación de Sentry
