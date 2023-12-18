@@ -182,7 +182,7 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     Route::get('employees', 'EmployeeController@getEmployeesDT');
 
     //EmployeesTimetables:
-    Route::get('employees-timetable/{workplace_id}/{from}/{to}', 'TimetableController@getEmployeesTimetablesDT');
+    Route::get('employees-timetable/{workplace_id}/{from}/{to}/{status}', 'TimetableController@getEmployeesTimetablesDT');
 
     //Expenses:
     Route::get('expenses', 'ExpenseController@getExpensesDT');

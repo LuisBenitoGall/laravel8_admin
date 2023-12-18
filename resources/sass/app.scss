@@ -11882,6 +11882,18 @@ ul.ui-autocomplete {
     }
 }
 
+.sup-circle{
+    border-radius: 50%;
+    color: #FFF;
+    font-size: 9px;
+    height: 16px;
+    position: absolute;
+    right: -8px;
+    text-align: center;
+    top: -8px;
+    width: 16px;
+}
+
 /**
  * RESPONSIVE MEDIA QUERIES
  */
