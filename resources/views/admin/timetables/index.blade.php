@@ -30,6 +30,24 @@
 						@elseif($workplaces->count() == 1)
 							<input type="hidden" name="workplace_id" value="{{ $workplaces[0]->id }}">
 						@endif
+
+						{{-- Filtro empleados --}}
+						<label for="status" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.empleados')) !!}</label>
+						<div class="col-lg-4">
+						    {{-- Activos --}}
+						    <label class="custom-chk-rdb mr-4" style="margin-bottom: 0; margin-top: 7px;">
+					        	<input type="radio" name="status" value="1" @if($status == 1) checked @endif required>
+					        	<span class="rdb chksmall"></span>
+					        	{{ ucfirst(trans('textos.activos')) }}
+						    </label> 
+
+						    {{-- Todos --}}
+							<label class="custom-chk-rdb mr-4" style="margin-bottom: 0; margin-top: 7px;">
+					        	<input type="radio" name="status" value="x" @if($status == 'x') checked @endif required>
+					        	<span class="rdb chksmall"></span>
+					        	{{ trans('textos.todos') }}
+						    </label>  
+						</div>
 					</div>
 
 					<div class="form-group row">
@@ -66,6 +84,7 @@
 	<input type="hidden" id="dtWorkplace" value="{{ $workplace->id }}">
 	<input type="hidden" id="dtFrom" value="{{ $from }}">
 	<input type="hidden" id="dtTo" value="{{ $to }}">
+	<input type="hidden" id="dtStatus" value="{{ $status }}">
 
 	<div class="row">
 		<div class="table-responsive">

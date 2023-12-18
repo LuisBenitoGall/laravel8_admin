@@ -2073,13 +2073,14 @@ $(document).ready(function(){
         var workplace_id = $('#dtWorkplace').val();
         var from = $('#dtFrom').val();
         var to = $('#dtTo').val();
+        var status = $('#dtStatus').val();
 
         var tblEmployeesHours = $('#tblEmployeesHours').DataTable({
             serverSide: true,
             processing: true,
             ajax: {
                 "type": "GET",
-                "url": "/api/admin/employees-timetable/"+workplace_id+"/"+from+"/"+to,
+                "url": "/api/admin/employees-timetable/"+workplace_id+"/"+from+"/"+to+"/"+status,
                 "error": function(reason){
                     console.log(reason);
                 }
@@ -6345,6 +6346,17 @@ $(document).ready(function(){
                 {data: 'reviewable', className: 'text-center'},
                 {data: 'acciones', className: 'text-right'}
             ]
+        });
+    }
+
+    //Tabla TimetableSignedReports:
+    if($('#tblTimetableSignedReports').length > 0){
+        if ($.fn.DataTable.isDataTable('#tblTimetableSignedReports')) {
+            $('#tblTimetableSignedReports').destroy();
+        }
+
+        $('#tblTimetableSignedReports').DataTable({
+            order: [[ 1, "desc" ]]
         });
     }
 

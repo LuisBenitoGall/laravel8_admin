@@ -1209,6 +1209,8 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::get('timetable-signed/{year}/{month}/validate', 'TimetableSignedController@validateTimetable')->name('timetable-signed.validate');
     Route::get('timetable-signed/{ts}/sign', 'TimetableSignedController@sign')->name('timetable-signed.sign');
     Route::get('timetable-signed/{ts}/download', 'TimetableSignedController@download')->name('timetable-signed.download');
+    Route::get('timetable-signed/{year}/{month}/report', 'TimetableSignedController@report')->name('timetable-signed.report');
+    Route::delete('timetable-signed/{ts}', 'TimetableSignedController@destroy')->name('timetable-signed.destroy');
 
     // Timetables:
     Route::get('timetable/{item}/store', 'TimetableController@store')->name('timetable.store');
