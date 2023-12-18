@@ -103,6 +103,9 @@ class TimetableController extends Controller{
         //La fecha de finalización no puede ser inferior a la de inicio:
         if($to < $from) $to = $from;
 
+        //Status:
+        $status = $request->status? $request->status:1;
+
         //Centros de trabajo:
         $workplaces = Workplace::select('workplaces.id', 'workplaces.name', 'towns.name AS Town')
         ->leftJoin('towns', 'workplaces.town_id', '=', 'towns.id')
@@ -113,13 +116,13 @@ class TimetableController extends Controller{
 
         $languages = $this->languages;
 
-        return view('admin.timetables.index')->with(compact('header', 'workplace', 'from', 'to', 'workplaces', 'languages'));
+        return view('admin.timetables.index')->with(compact('header', 'workplace', 'from', 'to', 'status', 'workplaces', 'languages'));
     }
 
     /**
      * 1.1. Listado de horarios por empleados para DataTable.
      */
-    public function getEmployeesTimetablesDT($workplace_id = false, $from = false, $to = false){
+    public function getEmployeesTimetablesDT($workplace_id = false, $from = false, $to = false, $status = false){
         if(!$workplace_id || !$from || !$to){
             return false;
             exit;
@@ -131,6 +134,9 @@ class TimetableController extends Controller{
         ->where('employees.status', 1)
         ->where('employees.time_control', 1)
         ->where('user_workplaces.workplace_id', $workplace_id)
+        ->when($status && $status == 1, function($q) use($status){
+            return $q->where('users.status', $status);
+        })
         ->orderBy('users.name')
         ->groupBy('users.id')
         ->get();   

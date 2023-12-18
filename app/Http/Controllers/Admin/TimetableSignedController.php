@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
+use File;
 use PDF;
 
 //Models:
@@ -29,6 +30,8 @@ class TimetableSignedController extends Controller{
      * 3. Validar firma de horarios.
      * 4. Firmar horario.
      * 5. Descargar horario en .pdf.
+     * 6. Informe horarios firmados.
+     * 7. Eliminar firma.
      */
     
     private $option = 'horarios'; 
@@ -238,6 +241,47 @@ class TimetableSignedController extends Controller{
             $alert = trans('textos.no_permisos_edicion');
             return redirect()->route('timetable-signed.show', Auth::user()->id)->with(compact('alert'));
         }   
+    }
+
+    /**
+     * 6. Informe horarios firmados.
+     */
+    public function report($year, $month){
+        $header = [
+            'option' => $this->option, 
+            'suboption' => 'textos.firma_horarios_informe',
+            'module' => $this->module,
+            'slug' => 'timetable-signed'
+        ]; 
+
+        $month_ = $month? helpers::yearMonths($month):'';
+
+        $data = TimetableSigned::select('timetable_signed.id', 'timetable_signed.user_id', 'timetable_signed.signed', 'timetable_signed.doc', 'timetable_signed.updated_at', 'users.name', 'users.surname')
+        ->join('users', 'timetable_signed.user_id', '=', 'users.id')
+        ->where('company_id', session('currentCompany'))
+        ->where('year', $year)
+        ->where('month', $month)
+        ->orderBy('timetable_signed.signed', 'ASC')
+        ->orderBy('users.name', 'ASC')
+        ->get();
+
+        $languages = $this->languages;
+        
+        return view('admin.timetable_signed.report')->with(compact('year', 'month_', 'header', 'data', 'languages'));
+    }
+
+    /**
+     * 7. Eliminar firma.
+     */
+    public function destroy(TimetableSigned $ts){
+        File::delete(public_path().'/docs/timetables_signed/'.$ts->doc);
+
+        $ts->signed = false;
+        $ts->doc = NULL;
+        $ts->save();
+
+        $msg = trans('textos.firma_eliminada');
+        return redirect()->route('timetable-signed.report', [$ts->year, $ts->month])->with(compact('msg'));
     }
 
 }
