@@ -47,6 +47,9 @@
 					{{-- Tipo de cuenta --}}
 					<label class="mr-5">
 						{!! ucfirst(trans('textos.cuenta_tipo')) !!}:
+						@php
+						$type = '';
+						@endphp
 						@if($account->type == 'a')
 							@php
 							$type = ucfirst(trans('textos.activos'));
@@ -55,9 +58,19 @@
 							@php
 							$type = ucfirst(trans('textos.pasivos'));
 							@endphp
+						@elseif($account->type == 'g')
+							@php
+							$type = ucfirst(trans('textos.ganancias_perdidas'));
+							@endphp
 						@endif
 
 						<b>{{ $type }}</b>
+					</label>
+
+					{{-- Modalidad --}}
+					<label class="mr-5">
+						{!! ucfirst(trans('textos.modalidad')) !!}:
+						<b>{!! $modes[$account->mode] !!}</b>
 					</label>
 
 					{{-- Aplica IVA --}}

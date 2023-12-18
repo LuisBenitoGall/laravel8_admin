@@ -203,7 +203,7 @@ $(document).ready(function(){
                 {data: 'name', name: 'accounting_accounts.name'},
                 {data: 'company', name: 'companies.name'},
                 {data: 'tipo'},
-                // {data: 'subtipo', name: 'accounting_account_types.name'},
+                {data: 'mode', name: 'accounting_account_types.mode'},
                 {data: 'with_iva', name: 'accounting_accounts.with_iva', className: 'text-center'},
                 {data: 'acciones', className: 'text-right'}
             ]
@@ -5175,6 +5175,7 @@ $(document).ready(function(){
                 {data: 'name', className: 'capitalize'},
                 {data: 'description'},
                 {data: 'iva', className: 'text-right'},
+                {data: 'account', className: 'text-right'},
                 {data: 'acciones', className: 'text-right'}
             ]
          });

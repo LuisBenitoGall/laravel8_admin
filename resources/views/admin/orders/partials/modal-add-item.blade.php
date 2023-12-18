@@ -80,20 +80,41 @@
 							</div>
 						@endif
 					</div>
-
-					{{-- Línea manual. Para pedidos de compra si el producto no consta en el catálogo. Su precio es 0 --}}
+					
+					{{-- Opciones de cliente: --}}
 					@if(session('currentCompany') == $order->customer_id)
+						{{-- Línea manual. Para pedidos de compra si el producto no consta en el catálogo. Su precio es 0 --}}
 						<div class="form-group row">
 							<label for="concept" class="col-md-2 col-form-label sinpadding-left">{!! ucfirst(trans('textos.producto_manual')) !!}</label>	
 							<div class="col-md-10">
-								<x-input type="text" name="concept" class="search_purchase_product" id="productManual" autocomplete="off" info="order-product-manual"/>
+								<x-input type="text" name="concept" id="productManual" autocomplete="off" info="order-product-manual"/>
 							</div>
 						</div>
 
-						<input type="hidden" name="purchase_product_id" id="purchaseProductId">
+						{{-- Producto contable --}}
+						@if(isset($accounting_products) && $accounting_products->count())
+							@php
+							$accounting_products_arr = [];
+							foreach($accounting_products as $ap){
+								$accounting_products_arr[$ap->id] = $ap->name;	
+							}
+							@endphp
+
+							<div class="form-group row">
+								<label for="accounting_product" class="col-md-2 col-form-label sinpadding-left">{!! ucfirst(trans('textos.producto_contable')) !!}</label>	
+								<div class="col-md-10">
+									<x-select name="accounting_product" class="select2" id="accountingProduct" label="producto_contable_selec" :options="$accounting_products_arr"/>
+
+
+									{{-- <x-input type="text" name="accounting_product" class="search_purchase_product" autocomplete="off" info="order-product-accounting"/>
+
+									<input type="hidden" name="purchase_product_id" id="purchaseProductId"> --}}
+								</div>
+							</div>
+						@endif
 					@endif
 
-					{{-- Correspondencia de referencia de producto para compras. --}}
+					{{-- Correspondencia de referencia de producto contable. --}}
 					@if(session('currentCompany') == $order->customer_id)
 						<div class="form-group row" id="customerRef">
 							<div class="col-md-10 offset-md-2">
@@ -101,6 +122,8 @@
 								<span></span>
 							</div>
 						</div>
+
+
 					@endif
 
 					<div class="form-group row">
@@ -227,6 +250,7 @@
 <script>
 $(function(){
 	var products = {!! json_encode($products) !!}
+	var accounting_products = @if(isset($accounting_products) && $accounting_products->count()) {!! json_encode($accounting_products) !!} @else false @endif;
 	var perspective = $('#myPerspective').val();
 
 	// Limpiar formulario nuevo item.
@@ -241,7 +265,7 @@ $(function(){
 	    //Buscamos precio:
 	    products.forEach(function(i){
 	        if(i.id == product_id){
-	        	console.log(i);
+	        	//console.log(i);
 	        	//Centro de coste:
 	        	var arr = [i.cost_center_id];
 	        	$('#productCostCenter').val(arr);
@@ -283,14 +307,35 @@ $(function(){
 	    }
 	});
 	
+	// Seteando producto manual.
 	$('#productManual').on('change', function(){
 		var valor = $(this).val();
 		var arr = [''];
-        $('#productId').val(arr);
-        $('#productId').trigger('change');
+        $('#productId, #accountingProduct').val(arr);
+        $('#productId, #accountingProduct').trigger('change');
 
 		$('#productPrice').val('0.00');
+		$('#productIva').val('');
 		$(this).val(valor);
+	});
+
+	// Seteando producto contable.
+	$('#accountingProduct').on('change', function(e){
+		var product_id_ = e.target.value;
+		var arr = [''];
+        $('#productId').val(arr);
+        $('#productId').trigger('change');
+        $('#productManual').val('');
+
+		$('#productPrice').val('0.00');
+		if(accounting_products){
+			accounting_products.forEach(function(i){
+				if(i.id == product_id_){
+					$('#productIva').val(i.iva);
+				}
+			});
+		}
+		$(this).val(product_id_);
 	});
 });
 </script>

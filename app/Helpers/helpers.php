@@ -63,6 +63,7 @@ class Helpers{
 	 *  3.28. Estados de protocolos.
 	 *  3.29. Estados de venta por caja.
 	 *  3.30. Modos de cuentas contables.
+	 *  3.30.1. Tipos de cuentas contables.
 	 *  3.31. Diarios contables.
 	 *  3.32. Tipos líneas de asientos contables.
 	 *  3.33. Conceptos asientos contables.
@@ -1186,6 +1187,22 @@ class Helpers{
 		];
 		if($mode){
 			return $data[$mode];
+		}else{
+			return $data;
+		}		
+	}
+
+	/**
+	 * 3.30.1. Tipos de cuentas contables.
+	 */
+	public static function accountingAccountTypes($type = false){
+		$data = [
+			'a' => ucfirst(trans('textos.activos')),
+			'p' => ucfirst(trans('textos.pasivos')),
+			'g' => ucfirst(trans('textos.perdidas_ganancias'))
+		];
+		if($type){
+			return $data[$type];
 		}else{
 			return $data;
 		}		

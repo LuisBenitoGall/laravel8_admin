@@ -34,13 +34,6 @@ $maxlength = $company_settings->accounting_account_digits && $company_settings->
 						{{-- Activos / Pasivos --}}
 						<label for="type" class="col-lg-1 col-form-label">{!! ucfirst(trans('textos.tipo')) !!}*</label>
 						<div class="col-lg-2">
-							@php
-							$tipos = [
-								'a' => trans('textos.activos'),
-								'p' => trans('textos.pasivos'),
-								'g' => trans('textos.perdidas_ganancias')
-							];
-							@endphp
 							<x-select name="type" class="select2" :options="$tipos" label="tipo_selec" required/>
 						</div>
 										
@@ -71,6 +64,12 @@ $maxlength = $company_settings->accounting_account_digits && $company_settings->
 						<label for="account" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.cuenta_numeracion')) !!}</label>
 						<div class="col-lg-4">
 							<x-input type="text" name="account" id="aaAccount" placeholder="{!! ucfirst(trans('textos.cuenta_numeracion')) !!}" autocomplete="off" maxlength="{{ $maxlength + 4 }}"/>
+						</div>
+
+						{{-- Modalidad --}}
+						<label for="mode" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.modalidad')) !!}*</label>
+						<div class="col-lg-4">
+							<x-select name="mode" class="select2" :options="$modes" label="modalidad_selec" value="{{ config('constants.ACCOUNTING_ACCOUNT_MODE_DEFAULT_') }}" required/>	
 						</div>
 					</div>
 					<hr>

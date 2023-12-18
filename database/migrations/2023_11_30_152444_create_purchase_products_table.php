@@ -8,7 +8,7 @@ class CreatePurchaseProductsTable extends Migration{
     /**
      * Run the migrations.
      *
-     * Productos genéricos para utilizar en compras sin catálogo de proveedor.
+     * Productos contables para utilizar en compras sin catálogo de proveedor y otras operaciones contables.
      *
      * @return void
      */
