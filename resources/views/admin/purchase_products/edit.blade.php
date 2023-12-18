@@ -54,9 +54,13 @@
 						{{-- Cuenta contable --}}
 						<label for="accounting_account" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.cuenta_contable')) !!}</label>
 						<div class="col-lg-6">
-							<x-input type="text" name="accounting_account_" class="search_accounting_account" datas="id:1" id="searchAccountingAccount1" placeholder="{!! ucfirst(trans('textos.cuenta_contable')) !!}" maxlength="150" value="{{ $account->name }}"/>
+							@php
+							$account_name = $account? $account->name:'';
+							$account_id = $account? $account->id:'';
+							@endphp
+							<x-input type="text" name="accounting_account_" class="search_accounting_account" datas="id:1" id="searchAccountingAccount1" placeholder="{!! ucfirst(trans('textos.cuenta_contable')) !!}" maxlength="150" value="{{ $account_name }}"/>
 
-							<input type="hidden" name="accounting_account" id="accountingAccountId1" value="{{ $account->id }}">
+							<input type="hidden" name="accounting_account" id="accountingAccountId1" value="{{ $account_id }}">
 						</div>
 
 						{{-- IVA --}}
