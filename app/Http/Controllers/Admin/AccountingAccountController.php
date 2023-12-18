@@ -112,7 +112,7 @@ class AccountingAccountController extends Controller{
         foreach($default_accounts_ as $da){
             $default_accounts[$da->featured] = [$da->id, $da->account.' - '.$da->name];    
         }
-//dd($default_accounts);
+
         return view('admin.accounting_accounts.index')->with(compact('header', 'company', 'default_accounts'));
     }
 
@@ -126,10 +126,9 @@ class AccountingAccountController extends Controller{
         ->where('accounting_accounts.company_id', session('currentCompany'))
         ->orderBy('accounting_accounts.featured', 'DESC');
 
-        $types = [
-            'c' => trans('textos.cliente'),
-            'p' => trans('textos.proveedor')
-        ];
+        $tipos = helpers::accountingAccountTypes();
+
+        $modes = helpers::accountingAccountModes();
 
         return DataTables::of($data)
         ->addColumn('account', function ($row){
@@ -141,14 +140,17 @@ class AccountingAccountController extends Controller{
         ->addColumn('company', function ($row){
             return $row->company;
         })
-        ->addColumn('tipo', function ($row) use($types){
-            return ucfirst($types[$row->type]);
+        ->addColumn('tipo', function ($row) use($tipos){
+            return ucfirst($tipos[$row->type]);
             // $type = $row->type == 'c'? ucfirst(trans('textos.cliente')):($row->type == 'p'? ucfirst(trans('textos.proveedor')):'');
             // return $type;
         })
-        ->filterColumn('tipo', function ($query, $keyword) use ($types) {
+        ->addColumn('mode', function ($row) use($modes){
+            return ucfirst($modes[$row->mode]);
+        })
+        ->filterColumn('tipo', function ($query, $keyword) use ($tipos) {
             //dd($keyword);
-            $query->whereIn('type', array_keys(array_filter($types, function ($type) use ($keyword) {
+            $query->whereIn('type', array_keys(array_filter($tipos, function ($type) use ($keyword) {
                 return stripos($type, $keyword) !== false;
             })));
         })
@@ -199,11 +201,15 @@ class AccountingAccountController extends Controller{
         ->pluck('type', 'id')
         ->toArray();
 
+        $modes = helpers::accountingAccountModes();
+
+        $tipos = helpers::accountingAccountTypes();
+
         $languages = $this->languages;
 
         $company_settings = CompanySettings::where('company_id', session('currentCompany'))->first();
 
-        return view('admin.accounting_accounts.create')->with(compact('header', 'types', 'languages', 'company_settings'));    
+        return view('admin.accounting_accounts.create')->with(compact('header', 'types', 'modes', 'tipos', 'languages', 'company_settings'));    
     }
 
     /**
@@ -313,6 +319,7 @@ class AccountingAccountController extends Controller{
         $aa->company_id = session('currentCompany');
         $aa->account = $account;
         $aa->name = $request->name;
+        $aa->mode = $request->mode;
         $aa->type = $request->type;
         $aa->earnings_loses = $earnings_loses;
         $aa->company_target = $company_id;
@@ -356,14 +363,14 @@ class AccountingAccountController extends Controller{
             'slug' => 'accounting-accounts'
         ]; 
 
-        //$modes = helpers::accountingAccountsModes();
+        $modes = helpers::accountingAccountModes();
 
         //Empresa target:
         $company = Company::select('name')->find($account->company_id);
 
         $languages = $this->languages;
 
-        return view('admin.accounting_accounts.edit')->with(compact('header', 'account', 'company', 'languages'));  
+        return view('admin.accounting_accounts.edit')->with(compact('header', 'account', 'modes', 'company', 'languages'));  
     }
 
     /**
@@ -424,9 +431,7 @@ class AccountingAccountController extends Controller{
      * 8. Autocomplete de cuentas.
      */
     public function getAccounts(Request $request){
-        $search = $request->search;
-
-        $data = AccountingAccount::getAccounts($search);  
+        $data = AccountingAccount::getAccounts($request->search);  
         return response()->json($data); 
     }
 

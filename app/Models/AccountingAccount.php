@@ -79,13 +79,15 @@ class AccountingAccount extends Model{
             }
 
             //Tipo balance:
-            $type = $data['account_to'] == 'customer'? 'c':'p';
+            //18/12/23: revisar type (activo, pasivo, ganancias-pérdidas con Didac);
+            //$type = $data['account_to'] == 'customer'? 'c':'p';
+            $type = NULL;
 
             //Cuenta principal:
             $featured_account = AccountingAccount::select('id', 'featured')
             ->where('company_id', $company_owner)
             ->where('company_target', $data['company_target'])
-            ->where('type', $type)
+            ->where('mode', $data['mode'])
             ->where('featured', 1)
             ->first();
             $featured = $featured_account? false:true;
