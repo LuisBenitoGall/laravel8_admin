@@ -140,7 +140,7 @@
 					<th class="wdt150">{!! ucfirst(trans('textos.nombre')) !!}</th>
 					<th class="wdt150">{!! ucfirst(trans('textos.empresa')) !!}</th>
 					<th class="wdt100">{!! ucfirst(trans('textos.tipo')) !!}</th>
-					{{-- <th class="wdt100">{!! ucfirst(trans('textos.subtipo')) !!}</th> --}}
+					<th class="wdt100">{!! ucfirst(trans('textos.modalidad')) !!}</th>
 					<th class="text-center wdt50">{!! ucfirst(trans('textos.iva_aplica')) !!}</th>
 					<th class="text-center wdt100">{!! ucfirst(trans('textos.acciones')) !!}</th>
 				</tr>

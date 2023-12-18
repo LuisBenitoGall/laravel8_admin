@@ -219,7 +219,7 @@ class FunctionalitiesTableSeeder extends Seeder{
             ],
             ['name' => 'purchase products',
             'slug' => 'purchase-products',
-            'label' => 'productos_compras',
+            'label' => 'productos_contables',
             'module' => 'products'
             ],
 

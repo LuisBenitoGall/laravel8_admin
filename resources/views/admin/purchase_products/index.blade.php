@@ -25,10 +25,10 @@
 	@if($company)
 		<div class="col-12 mb-3">
 			<h3>
-				{{ ucfirst(trans('textos.catalogo_compras')) }}
+				{{ ucfirst(trans('textos.productos_contables')) }}
 				<u>{{ $company->name }}</u>
 			</h3>
-			<p class="text-warning">{{ trans('textos.productos_compras_texto') }}</p>
+			<p class="text-warning">{{ trans('textos.productos_contables_texto') }}</p>
 		</div>	
 	@endif
 
@@ -39,6 +39,7 @@
 					<th>{!! ucfirst(trans('textos.producto')) !!}</th>
 					<th>{!! ucfirst(trans('textos.descripcion')) !!}</th>
 					<th class="text-center">{!! ucfirst(trans('textos.iva')) !!}</th>
+					<th class="text-center">{!! ucfirst(trans('textos.cuenta_contable')) !!}</th>
 					<th class="text-center">{!! ucfirst(trans('textos.acciones')) !!}</th>
 				</tr>
 			</thead>

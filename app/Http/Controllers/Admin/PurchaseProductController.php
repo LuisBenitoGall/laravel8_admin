@@ -60,7 +60,7 @@ class PurchaseProductController extends Controller{
     public function index(){
         $header = [
             'option' => $this->option, 
-            'suboption' => 'textos.productos_compras',
+            'suboption' => 'textos.productos_contables',
             'module' => $this->module,
             'slug' => 'purchase-products'
         ];
@@ -83,6 +83,9 @@ class PurchaseProductController extends Controller{
         return DataTables::of($data)
         ->addColumn('iva', function($row){
             if($row->iva) return $row->iva.'%';
+        })
+        ->addColumn('account', function($row){
+            if($row->accountingAccount) return $row->accountingAccount->name;
         })
         ->addColumn('acciones', function($row){
             return view('admin.purchase_products.partials.dt-actions', compact('row'));    
@@ -124,6 +127,7 @@ class PurchaseProductController extends Controller{
         $product->slug = Str::slug($request->name);
         $product->description = $request->description;
         $product->iva = $request->iva;
+        $product->accounting_account_id = $request->accounting_account;
         $product->status = $request->status? 1:'0';
         $product->save();
 
@@ -145,7 +149,10 @@ class PurchaseProductController extends Controller{
         //Moneda:
         $currency = CompanySettings::co_currency(0);
 
-        return view('admin.purchase_products.edit')->with(compact('header', 'product', 'currency'));  
+        //Cuenta contable:
+        $account = $product->accountingAccount;
+
+        return view('admin.purchase_products.edit')->with(compact('header', 'product', 'currency', 'account'));  
     }
 
     /**
@@ -163,6 +170,7 @@ class PurchaseProductController extends Controller{
         $product->slug = Str::slug($request->name);
         $product->description = $request->description;
         $product->iva = $request->iva;
+        $product->accounting_account_id = $request->accounting_account;
         $product->status = $request->status? 1:'0';
         $product->save();
 

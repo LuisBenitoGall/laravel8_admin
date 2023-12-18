@@ -42,6 +42,7 @@ use App\Models\Phone;
 use App\Models\Product;
 use App\Models\Project;
 use App\Models\ProjectPurchases;
+use App\Models\PurchaseProduct;
 use App\Models\Seat;
 use App\Models\User;
 use App\Models\Workplace;
@@ -930,14 +931,16 @@ class InvoiceController extends Controller{
         ->first();
         if($exist){
             $alert = trans('textos.factura_existe');
-            return redirect()->route('invoices.store-from-provider')->with(compact('alert'));   
+            return redirect()->route('invoices.create-from-provider')->with(compact('alert'));   
             exit;  
         }
 
         //Formateando fechas:
         $fiscal_date = $request->fiscal_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->fiscal_date):$request->fiscal_date:NULL;
         $invoice_date = $request->invoice_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->invoice_date):$request->invoice_date:NULL;
-        $expiration_date = $request->expiration_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->expiration_date):$request->expiration_date:NULL;    //Esta fecha puede verse modificada posteriormente si existen valores de configuración de condiciones de pago para el cliente.        
+        //$expiration_date = $request->expiration_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->expiration_date):$request->expiration_date:NULL;    //Esta fecha puede verse modificada posteriormente si existen valores de configuración de condiciones de pago para el cliente.  
+        //17/12/2023: se omite esta opción para que inicialmente se calcule la fecha de vencimiento según la configuración debida, y ya en la edición se puede establecer libremente      
+        $expiration_date = NULL;
 
         //Comprobamos si la fecha fiscal es válida, que el mes y año no estén cerrados.
         //13/10/23 revisar con fiscal la nueva fecha de invoice_date si corresponde con este script.
@@ -1387,7 +1390,14 @@ class InvoiceController extends Controller{
             if($pba->featured == 1) $provider_bank_featured = $pba->id;
         }
 
-        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'is_sale', 'order', 'invoiced', 'invoices', 'refund', 'customer', 'customer_account', 'provider', 'provider_account', 'provider_settings', 'structure_concepts', 'items', 'products', 'currency', 'languages', 'patterns', 'payments', 'templates', 'featuredTemplate', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'payment_methods', 'concepts', 'customer_bank_accounts', 'customer_bank_featured', 'provider_bank_accounts', 'provider_bank_featured'));
+        //Productos contables de cliente:
+        $accounting_products  = PurchaseProduct::select('id', 'name', 'iva')
+        ->where('company_id', $order->customer_id)
+        ->where('status', 1)
+        ->orderBy('name', 'ASC')
+        ->get();
+
+        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'is_sale', 'order', 'invoiced', 'invoices', 'refund', 'customer', 'customer_account', 'provider', 'provider_account', 'provider_settings', 'structure_concepts', 'items', 'products', 'currency', 'languages', 'patterns', 'payments', 'templates', 'featuredTemplate', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'payment_methods', 'concepts', 'customer_bank_accounts', 'customer_bank_featured', 'provider_bank_accounts', 'provider_bank_featured', 'accounting_products'));
     }
 
     /**
@@ -1494,11 +1504,8 @@ class InvoiceController extends Controller{
         ->first();
 
         if( ($is_sale || !$provider_account) && !$invoice->blocked){
-            $fiscal_date = $request->fiscal_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->fiscal_date):$request->fiscal_date:NULL;
-            $expiration_date = $request->expiration_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->expiration_date):$request->expiration_date:NULL;
-
-            $invoice->fiscal_date = $fiscal_date;
-            $invoice->expiration_date = $expiration_date;
+            $invoice->fiscal_date = $request->fiscal_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->fiscal_date):$request->fiscal_date:NULL;
+            $invoice->expiration_date = $request->expiration_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->expiration_date):$request->expiration_date:NULL;
         }
 
         //Venta:
@@ -1694,12 +1701,15 @@ class InvoiceController extends Controller{
         $company_settings = session('companySettings');
 
         //Sede proveedor:
+        //17/12/2023: se modifica la consulta del centro de trabajo para traer siempre el principal, aunque el pedido corresponda a otro centro. El de facturación debe ser siempre el principal.
         $provider_workplace = false;
         $provider_phones = false;
         if($invoice_order->provider_workplace_id){
             $provider_workplace = Workplace::select('workplaces.*', 'towns.name AS Town')
             ->join('towns', 'workplaces.town_id', '=', 'towns.id')
-            ->where('workplaces.id', $invoice_order->provider_workplace_id)
+            //->where('workplaces.id', $invoice_order->provider_workplace_id)
+            ->where('workplaces.company_id', $invoice_order->provider_id)
+            ->where('workplaces.featured', 1)
             ->first();  
 
             if($provider_workplace && $provider_workplace->id){

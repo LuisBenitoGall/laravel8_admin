@@ -116,10 +116,11 @@
 						</div>
 
 						{{-- Fecha vencimiento --}}
-						<label for="expiration_date" class="col-md-2 col-form-label">{!! ucfirst(trans('textos.fecha_vencimiento')) !!}</label>
+						{{-- 17/12/2023: se omite esta opción para que inicialmente se calcule la fecha de vencimiento según la configuración debida, y ya en la edición se puede establecer libremente --}}
+						{{-- <label for="expiration_date" class="col-md-2 col-form-label">{!! ucfirst(trans('textos.fecha_vencimiento')) !!}</label>
 						<div class="col-md-4 col-lg-2">
 							<x-date-picker name="expiration_date" :format="$languages[config('app.locale')][4]"/>
-						</div>	
+						</div> --}}	
 					</div>
 
 					{{-- <div class="form-group row"> --}}
