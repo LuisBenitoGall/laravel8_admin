@@ -1184,7 +1184,7 @@ return array(
 	'factura_inicial' => 'Factura inicial',
 	'factura_integra' => 'Factura íntegra',
 	'factura_linea' => 'Línea de factura',
-	'factura_no_existe' => 'No existe esta factura',
+	'factura_no_existe' => 'No existe esta factura.',
 	'factura_nuestra' => 'Nuestra factura',
 	'factura_num' => 'Número factura',
 	'factura_numeracion' => 'Numeración de facturas',
