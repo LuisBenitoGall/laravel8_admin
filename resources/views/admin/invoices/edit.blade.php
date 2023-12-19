@@ -116,7 +116,7 @@ $readonly = $invoice->blocked && !$is_sale || ($order->customer_id == session('c
 		{{-- Imprimir - condiciones 
 			1. Para facturas simples.
 		--}}
-		@if(!$order->is_group)
+		{{-- @if(!$order->is_group) --}}
 			<a href="{{ route('invoices.print', $invoice) }}" class="btn btn-info close-animation" rel="tooltip" title="{!! ucfirst(trans('textos.imprimir')) !!}">
 				<i class="fa fa-print"></i>
 			</a>
@@ -124,7 +124,7 @@ $readonly = $invoice->blocked && !$is_sale || ($order->customer_id == session('c
 			<a href="{{ route('invoices.print', [$invoice, true]) }}" class="btn btn-info close-animation" rel="tooltip" title="{!! ucfirst(trans('textos.imprimir_bn')) !!}">
 				<i class="fa fa-print"></i> B/N
 			</a>
-		@endif
+		{{-- @endif --}}
 
 		{{-- Cancelar factura - condiciones:
 			1. Permisos de cancelación de factura.

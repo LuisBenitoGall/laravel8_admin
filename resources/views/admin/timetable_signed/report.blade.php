@@ -47,7 +47,7 @@
 							@endif	
 						</td>
 						{{-- Fecha --}}
-						<td class="text-center">
+						<td class="text-right">
 							@if($row->signed == 1)
 								{!! $row->updated_at->format($languages[session()->get('locale')][4]) !!}
 							@endif	
