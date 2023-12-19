@@ -21,6 +21,7 @@ use App\Models\Item;
 use App\Models\IvaType;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\PurchaseProduct;
 use App\Models\TempImportOrderItems;
 
 //Import XLS:
@@ -225,6 +226,9 @@ class ItemController extends Controller{
         //Producto:
         $product = $request->product_id? Product::select('name')->find($request->product_id):false;
 
+        //Producto contable:
+        $accounting_product = $request->accounting_product? PurchaseProduct::select('id', 'name', 'iva')->find($request->accounting_product):false;
+
         //Bloque al que pertenece el item:
         $budget_form_block_id = NULL;
 
@@ -277,11 +281,12 @@ class ItemController extends Controller{
 
         $item = new Item();
         $item->product_id = $request->product_id? $request->product_id:NULL;
-        $item->purchase_product_id = $request->purchase_product_id? $request->purchase_product_id:NULL;
+        // 17/12/2023: se modifica la nomeclatura de 'producto de compras' a 'producto contable', por lo que se modifican los names y etiquetas en las vistas pero se mantiene en los modelos:
+        $item->purchase_product_id = $request->accounting_product? $request->accounting_product:NULL;
         $item->order_id = $order->id;
         $item->budget_form_block_id = $budget_form_block_id;
         $item->budget_sort = $budget_sort;
-        $item->concept = $product? $product->name:$request->concept;
+        $item->concept = $product? $product->name:($accounting_product? $accounting_product->name:$request->concept);
         $item->observations = $request->observations;
         $item->qty = $request->calculated_by_percent? 1:$request->qty;      //La cantidad siempre es 1 para precios calculados por porcentaje.
         $item->price = $request->price? $request->price:($request->calculated_by_percent? $request->calculated_by_percent:NULL);
