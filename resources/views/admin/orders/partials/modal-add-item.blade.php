@@ -104,11 +104,6 @@
 								<label for="accounting_product" class="col-md-2 col-form-label sinpadding-left">{!! ucfirst(trans('textos.producto_contable')) !!}</label>	
 								<div class="col-md-10">
 									<x-select name="accounting_product" class="select2" id="accountingProduct" label="producto_contable_selec" :options="$accounting_products_arr"/>
-
-
-									{{-- <x-input type="text" name="accounting_product" class="search_purchase_product" autocomplete="off" info="order-product-accounting"/>
-
-									<input type="hidden" name="purchase_product_id" id="purchaseProductId"> --}}
 								</div>
 							</div>
 						@endif
@@ -122,8 +117,6 @@
 								<span></span>
 							</div>
 						</div>
-
-
 					@endif
 
 					<div class="form-group row">
