@@ -28,7 +28,7 @@
 					</tr>
 				@endif
 
-				{{-- Importes de IVA --}}
+				{{-- Importes de IVA facturas simple --}}
 				{{-- 27/11/2023: se reestablece el IVA desglosado según tipo aplicado --}}
 				@if(isset($sumIva) && count($sumIva) > 0)
 					{{-- Cantidad de IVA distintos aplicados --}}
@@ -67,6 +67,20 @@
 							</th>
 						</tr>
 					@endforeach
+				@endif
+
+				{{-- Importes de IVA facturas agrupadas --}}
+				@if(isset($group_iva_amount))
+					<tr>
+						<th style="background-color: #efefef; text-align: right;">
+							IVA ({{ config('constants.IVA_DEFAULT_') }}%)	
+						</th>
+						<th style="background-color: #efefef;"></th>
+						<th style="background-color: #efefef; text-align: right;">
+							{{-- <b>{{ array_sum($si) }}{{ $currency->symbol }}</b> --}}
+							<b>{{ $group_iva_amount }}{{ $currency->symbol }}</b>
+						</th>
+					</tr>
 				@endif
 
 				{{-- <tr>
