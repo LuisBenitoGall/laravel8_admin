@@ -5,7 +5,7 @@
 				@endif
 
 				{{-- La Purga 31/10/2023 --}}
-				@include('admin.partials.modal-purge')
+				{{-- @include('admin.partials.modal-purge') --}}
 
 				{{-- Translations: --}}
 				@include('admin.languages.partials.modal-translations')
@@ -15,6 +15,7 @@
 
 				{{-- Notes --}}
 				@include('admin.notes.partials.modal-add-note')
+				@include('admin.notes.partials.modal-edit-note')
 			</div>
 			{{-- End Page Content --}}
 

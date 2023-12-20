@@ -367,6 +367,7 @@ $(window).on('load', function () {
     41. Búsqueda autocomplete para pedidos.
     42. Búsqueda autocomplete para cuentas contables.
     43. Modal vincular pedidos de terceros.
+    44. Modal editar nota.
     */
 
     // 1. Eliminar preview imagen seleccionada:
@@ -1761,5 +1762,17 @@ $(window).on('load', function () {
 
             $('#tblItemsLinked tbody').html(html);
         });
+    });
+
+    // 44. Modal editar nota.
+    $(document).on('click', '.btnEditNote', function(e){
+        e.preventDefault();
+        var id = $(this).data('id');  
+        var title = $(this).closest('.note-content').find('h4').text();
+        var content = $(this).closest('.note-content').find('p').text();
+
+        $('#noteEditId').val(id);
+        $('#noteEditTitle').val(title);
+        $('#noteEditContent').val(content);
     });
 });
