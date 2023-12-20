@@ -629,6 +629,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
 
     // Notes:
     Route::post('notes/store', 'NoteController@store')->name('notes.store');
+    Route::post('notes/update', 'NoteController@update')->name('notes.update');
 
     // Notifications:
     Route::get('notifications/{tab?}', 'NotificationController@index')->name('notifications.index');
