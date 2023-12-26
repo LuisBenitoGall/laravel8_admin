@@ -18,7 +18,7 @@ class CreateAccountingAccountsTable extends Migration{
             $table->foreign('company_id')->references('id')->on('companies');
             $table->string('account');
             $table->string('name');
-            $table->char('type', 3); 
+            $table->char('type', 3)->nullable(); 
             //FK:
             $table->unsignedBigInteger('company_target')->nullable();       //Empresa sobre la que se aplica la cuenta.       
             $table->foreign('company_target')->references('id')->on('companies');

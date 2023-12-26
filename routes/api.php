@@ -165,6 +165,7 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
 
     //Customers:
     Route::get('customers', 'CustomerProvidersController@getCustomersDT');
+    Route::post('customers-search', 'CompanyController@searchCustomers');
 
     //Deliveries:
     Route::get('deliveries/{year?}/{customer?}/{status?}', 'DeliveryController@getDeliveriesDT');
@@ -177,6 +178,9 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
 
     //DayTypes:
     Route::get('day-types', 'DayTypesController@getDayTypesDT');
+
+    //Effects:
+    Route::get('effects/{year?}/{customer_id?}/{provider_id?}', 'EffectController@getEffectsDT');
 
     //Employees:
     Route::get('employees', 'EmployeeController@getEmployeesDT');
@@ -360,6 +364,12 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
 
     //Recommendations Ranking:
     Route::get('recommendations-ranking/{item}', 'UserRecommendationController@getItemRankingDT');
+
+    //RemittancePatterns:
+    Route::get('remittance-patterns', 'RemittancePatternController@getPatternsDT');
+
+    //Remittances:
+    Route::get('remittances', 'RemittanceController@getRemittancesDT');
 
     //Roles:
     Route::get('roles', 'RoleController@getRolesDT');

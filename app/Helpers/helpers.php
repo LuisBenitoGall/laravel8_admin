@@ -68,6 +68,8 @@ class Helpers{
 	 *  3.32. Tipos líneas de asientos contables.
 	 *  3.33. Conceptos asientos contables.
 	 *  3.34. Métodos contables.
+	 *  3.35. Estados de efectos contables.
+	 *  3.36. Estados de pagos.
 	 *
 	 * 4. Strings & Arrays:
 	 * 	4.1. Truncar texto.
@@ -1301,6 +1303,56 @@ class Helpers{
 		}else{
 			return $data;
 		}
+	}
+
+	/**
+	 * 3.35. Estados de efectos contables.
+	 */
+	public static function effectsStatus($status = false){
+		$data = [
+			1 => trans('textos.aceptado'),
+			10 => trans('textos.aceptado_no')
+			// 20 => trans('textos.cobrado'),
+			// 30 => trans('textos.impagado')
+		];
+		if($status){
+			return ucfirst($data[$status]);
+		}else{
+			return $data;
+		}	
+	}
+
+	/**
+	 * 3.36. Estados de pagos.
+	 */
+	public static function paymentStatus($status = false){
+		$data = [
+			'A' => ucfirst(trans('textos.aprobado')),
+			'C' => ucfirst(trans('textos.efectivo')),
+			'N' =>  ucfirst(trans('textos.pagado_no')),
+			'R' => 'R'
+		];
+		if($status){
+			return ucfirst($data[$status]);
+		}else{
+			return $data;
+		}
+	}
+
+	/**
+	 * 3.37. Estados de remesas contables.
+	 */
+	public static function remittanceStatus($status = false){
+		$data = [
+			1 => trans('textos.abierta'),
+			10 => trans('textos.enviada'),
+			20 => trans('textos.cobrado')
+		];
+		if($status){
+			return ucfirst($data[$status]);
+		}else{
+			return $data;
+		}	
 	}
 
 	/**

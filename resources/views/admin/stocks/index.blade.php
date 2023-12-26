@@ -271,8 +271,10 @@
                             <div class="col-lg-4">
                                 @php
                                 $stores_ = [];
+                                $stores_types_ = [];
                                 foreach($stores as $st){
                                     $stores_[$st->id] = $st->name;
+                                    $stores_types_[$st->id] = $st->type;
                                 }
                                 @endphp
 
@@ -338,7 +340,7 @@ function selectProduct(products, currency, product_id){
         if(response){
             var total_stock = 0;
             response.forEach(function (item, index, arr){
-                //console.log(item);
+                console.log(item);
                 total_stock = parseFloat(total_stock) + parseFloat(item.stock);
                 var batch_ = item.batch == 'lote_0' || item.batch == null? '':item.batch;
                 var batch_id_ = item.batch != '' && item.batch != null? item.batch_id:'';     //Si el producto no tiene gestión de lotes, no se pasa el batch_id.
@@ -355,7 +357,7 @@ function selectProduct(products, currency, product_id){
                     tr += '</td>';
                     tr += '<td class="text-right">'+item.stock+'</td>';
                     tr += '<td class="text-right">';
-                        tr += '<a href="#" class="btn btn-xs btn-info btnSelectBatch" data-stockid="'+item.stock_id+'" data-stock="'+item.stock+'" data-store="'+item.store+'" data-storeid="'+item.store_id+'" data-batchid="'+batch_id_+'" rel="tooltip" title="'+txtLoteSelec+'"><i class="fa fa-filter"></i></a>';
+                        tr += '<a href="#" class="btn btn-xs btn-info btnSelectBatch" data-stockid="'+item.stock_id+'" data-stock="'+item.stock+'" data-store="'+item.store+'" data-storeid="'+item.store_id+'" data-storetype="'+item.type+'" data-batchid="'+batch_id_+'" rel="tooltip" title="'+txtLoteSelec+'"><i class="fa fa-filter"></i></a>';
                     tr += '</td>';
                 tr += '</tr>';
                 $('#tblStoresStock tbody').append(tr);           
@@ -412,6 +414,7 @@ $(document).ready(function () {
 	var products = {!! json_encode($products) !!};
     var movements = {!! json_encode($movements) !!};
     var stores = {!! json_encode($stores_) !!};
+    var stores_types = {!! json_encode($stores_types_) !!};
     var product_id = @if($product_id) {{ $product_id }} @else false @endif;
 	var product = '';
     $('#withOrder_').hide();
@@ -488,10 +491,17 @@ $(document).ready(function () {
                 var html = '<div id="movementExplanation_" class="p-3"><b>'+item.name+':</b> '+item.explanation_+'</div>';
                 $('#movementExplanation div').empty().html(html);
             
-                if(item.sign == 'x'){
+                if(item.sign == 'x' || item.sign == 'y'){
                     $('.typeX').removeAttr('disabled');
                 }else{
                     $('.typeX').prop('disabled', true);    
+                }
+
+                //Seteando almacenes:
+                $('#toStore').empty();
+                for(const k in stores){
+                    var option = '<option value="'+k+'">'+stores[k]+'</option>';
+                    $('#toStore').append(option);
                 }
 
                 //Pedidos de compra del producto:
@@ -516,6 +526,22 @@ $(document).ready(function () {
                 }else if(item.acronym == 'sp'){
                     $('#productOrders').empty();
                     $('#withOrder_').slideDown();
+
+                //Devolución interna (mantenemos sólo almacenes regulares)
+                }else if(item.acronym == 'di'){
+                    $('#toStore').empty();
+                    //console.log(stores);
+                    for(const k in stores){
+                        if(stores_types[k] == 'r'){
+                            var option = '<option value="'+k+'">'+stores[k]+'</option>';
+                            $('#toStore').append(option);
+                        }
+                    }
+
+
+
+                    // $('#withOrder_').slideUp();
+                
 
                 }else{
                     $('#withOrder_').slideUp();    
