@@ -18,7 +18,11 @@
 			<thead>
 				<tr>
 					<th>{!! ucfirst(trans('textos.banco')) !!}</th>
-					<th>{!! ucfirst(trans('textos.cuenta')) !!}</th>
+					<th class="text-center">{!! ucfirst(trans('textos.iban')) !!}</th>
+					<th class="text-center">{!! ucfirst(trans('textos.entidad')) !!}</th>
+					<th class="text-center">{!! ucfirst(trans('textos.oficina')) !!}</th>
+					<th class="text-center">{!! ucfirst(trans('textos.digitos_control')) !!}</th>
+					<th class="text-center">{!! ucfirst(trans('textos.cuenta')) !!}</th>
 					<th class="text-center">{!! ucfirst(trans('textos.cuenta_principal')) !!}</th>
 					<th class="text-center">{!! ucfirst(trans('textos.acciones')) !!}</th>
 				</tr>
@@ -29,8 +33,16 @@
 					<tr>
 						{{-- Banco --}}
 						<td>{{ $row->name }}</td>
+						{{-- IBAN --}}
+						<td class="text-right">{{ $row->iban }}</td>
+						{{-- Entidad --}}
+						<td class="text-right">{{ $row->entity }}</td>
+						{{-- Oficina --}}
+						<td class="text-right">{{ $row->office }}</td>
+						{{-- DC --}}
+						<td class="text-right">{{ $row->dc }}</td>
 						{{-- Cuenta --}}
-						<td>{{ $row->account }}</td>
+						<td class="text-right">{{ $row->digits }}</td>
 						{{-- Principal --}}
 						<td class="text-center">
 							@if($row->featured)

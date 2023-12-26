@@ -1,8 +1,8 @@
 @can('stock-movements.edit')
     {{-- Estado --}}
-    {{-- <label class="custom-chk-rdb" rel="tooltip" title="{{ trans('textos.movimiento_on_off') }}">
+    <label class="custom-chk-rdb" rel="tooltip" title="{{ trans('textos.movimiento_on_off') }}">
         <input type="checkbox" name="status" @if($row->status == 1) checked @endif><span class="chk chk-action" data-id="{{ $row->id }}" data-ctrl="/admin/stock-movements/status"></span>
-    </label> --}}
+    </label>
 
     {{-- Editar --}}
     <a href="{{ route('stock-movements.edit', $row) }}" class="btn btn-xs btn-info btn-module" rel="tooltip" title="{{ ucfirst(trans('textos.movimiento_editar')) }}"><i class="fa fa-edit"></i></a>

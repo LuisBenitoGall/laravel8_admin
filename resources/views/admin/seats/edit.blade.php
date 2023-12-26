@@ -31,7 +31,7 @@
 	<div class="col-12">
 		<div class="card">
 			<div class="card-body">
-				<h3 class="mb-3">{!! trans('textos.asiento_contable') !!} <u>{{ $seat->id }} - {{ $seat->description }}</u></h3>
+				<h3 class="mb-3">{!! trans('textos.asiento_contable') !!} <u>{{ $seat->id }} - {{ $seat->concept }}</u></h3>
 
 				{{-- Info --}}
 				<div class="mb-3">

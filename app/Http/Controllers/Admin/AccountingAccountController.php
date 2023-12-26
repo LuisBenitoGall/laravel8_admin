@@ -141,9 +141,9 @@ class AccountingAccountController extends Controller{
             return $row->company;
         })
         ->addColumn('tipo', function ($row) use($tipos){
-            return ucfirst($tipos[$row->type]);
-            // $type = $row->type == 'c'? ucfirst(trans('textos.cliente')):($row->type == 'p'? ucfirst(trans('textos.proveedor')):'');
-            // return $type;
+            if(isset($tipos[$row->type])){
+                return ucfirst($tipos[$row->type]);   
+            }
         })
         ->addColumn('mode', function ($row) use($modes){
             return ucfirst($modes[$row->mode]);

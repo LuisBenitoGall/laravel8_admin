@@ -126,6 +126,14 @@ $readonly = $invoice->blocked && !$is_sale || ($order->customer_id == session('c
 			</a>
 		{{-- @endif --}}
 
+		{{-- Asiento contable --}}
+		@if($seat)
+			<a target="_blank" href="{{ route('seats.edit', $seat) }}" class="btn btn-info">
+				<i class="fa fa-edit"></i>
+				{!! ucfirst(trans('textos.asiento_contable_editar')) !!}
+			</a>	
+		@endif
+
 		{{-- Cancelar factura - condiciones:
 			1. Permisos de cancelación de factura.
 			2. Acción permitida.

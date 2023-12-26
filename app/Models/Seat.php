@@ -42,8 +42,6 @@ class Seat extends Model{
         $seat->created_by = Auth::user()->id;
         //$seat->order_id = isset($data['order_id'])? $data['order_id']:NULL;
         $seat->invoice_id = $data['invoice_id'];
-        //$seat->invoice_date = $data['invoice_date']; 
-        //$seat->invoice_num = $data['invoice_num']; 
         //$seat->cash_id = $data['cash_id'];
         $seat->provider_doc = $data['provider_doc']; 
         $seat->pay_sign = $data['pay_sign']; 
@@ -53,15 +51,15 @@ class Seat extends Model{
         if(isset($data['seat_lines'])){
             //Numeración líneas:
             $k = 1;
-            for($i = 0; $i < count($data['seat_lines']['accounting_account_id']); $i++){
+            for($i = 0; $i < count($data['seat_lines']); $i++){
                 $data_line = [
                     'seat_id' => $seat->id,
                     'line_num' => $k,
-                    'accounting_account_id' => $data['seat_lines']['accounting_account_id'][$i],
-                    'debit' => $data['seat_lines']['debit'][$i],
-                    'credit' => $data['seat_lines']['credit'][$i],
+                    'accounting_account_id' => $data['seat_lines'][$i]['accounting_account_id'],
+                    'debit' => $data['seat_lines'][$i]['debit'],
+                    'credit' => $data['seat_lines'][$i]['credit'],
                     'code_auto' => NULL,
-                    'type' => $data['seat_lines']['type'][$i],
+                    'type' => $data['seat_lines'][$i]['type'],
                     'currency_id' => $data['currency_id']
                 ];
                 SeatLines::saveLine($data_line);

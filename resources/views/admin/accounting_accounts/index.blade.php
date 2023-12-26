@@ -85,9 +85,9 @@
 						</div>
 					</div>
 
-					<div class="form-group row">
+					{{-- <div class="form-group row"> --}}
 						{{-- Cuenta caja ventas --}}
-						<label for="accounting_cash_sales" class="col-lg-2 col-form-label">
+						{{-- <label for="accounting_cash_sales" class="col-lg-2 col-form-label">
 							{!! ucfirst(trans('textos.cuenta_ventas_caja')) !!}
 						</label>
 						<div class="col-lg-4">
@@ -99,10 +99,10 @@
 							<x-input type="text" name="accounting_cash_sales_" datas="id:5" class="search_accounting_account" id="searchAccountingAccount5" placeholder="{!! ucfirst(trans('textos.cuenta_buscar')) !!}" maxlength="250" value="{{ $val5_text }}"/>
 
                             <input type="hidden" name="accounting_cash_sales" id="accountingAccountId5" value="{{ $val5_id }}">
-						</div>
+						</div> --}}
 
 						{{-- Cuenta caja compras --}}
-						<label for="accounting_cash_purchases" class="col-lg-2 col-form-label">
+						{{-- <label for="accounting_cash_purchases" class="col-lg-2 col-form-label">
 							{!! ucfirst(trans('textos.cuenta_pagos_caja')) !!}
 						</label>
 						<div class="col-lg-4">
@@ -115,7 +115,7 @@
 
                             <input type="hidden" name="accounting_cash_purchases" id="accountingAccountId6" value="{{ $val6_id }}">
 						</div>
-					</div>
+					</div> --}}
 
 					<x-btn-submit name="submit_save" label="{{ trans('textos.guardar') }}"/>
 				</form>

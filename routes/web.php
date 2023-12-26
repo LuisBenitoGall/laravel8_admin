@@ -126,7 +126,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::post('bank-accounts/store', 'BankAccountsController@store')->name('bank-accounts.store')->middleware('permission:bank-accounts.create');
     Route::get('bank-accounts/{account}/edit', 'BankAccountsController@edit')->name('bank-accounts.edit')->middleware('permission:bank-accounts.edit');
     Route::put('bank-accounts/{account}/update', 'BankAccountsController@update')->name('bank-accounts.update')->middleware('permission:bank-accounts.edit');
-    Route::post('bank-accounts/update', 'BankAccountsController@updateFromModal')->name('bank-accounts.update')->middleware('permission:bank-accounts.edit');  //update desde modal.
+    Route::post('bank-accounts/update-modal', 'BankAccountsController@updateFromModal')->name('bank-accounts.update-modal')->middleware('permission:bank-accounts.edit');  //update desde modal.
     Route::get('bank-accounts/status/{id}/{status}', 'BankAccountsController@status')->name('bank-accounts.status')->middleware('permission:bank-accounts.edit');
     Route::delete('bank-accounts/{account}', 'BankAccountsController@destroy')->name('bank-accounts.destroy')->middleware('permission:bank-accounts.destroy');
     Route::delete('bank-accounts-modal/{account}', 'BankAccountsController@destroyFromModal')->name('bank-accounts-modal.destroy')->middleware('permission:companies.edit');
@@ -464,6 +464,17 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     // Delivery Orders:
     Route::post('delivery-orders/store', 'DeliveryOrdersController@store')->name('delivery-orders.store');
     Route::delete('delivery-orders/{delivery_order}', 'DeliveryOrdersController@destroy')->name('delivery-orders.destroy')->middleware('permission:deliveries.edit');
+
+    // Effects:
+    Route::get('effects/list/{year?}/{customer_id?}/{provider_id?}', 'EffectController@index')->name('effects.index')->middleware('permission:effects.index');
+    Route::post('effects', 'EffectController@getEffectsBy')->name('effects.list')->middleware('permission:effects.index');
+    Route::get('effects/create', 'EffectController@create')->name('effects.create')->middleware('permission:effects.create');
+    Route::post('effects/store', 'EffectController@store')->name('effects.store')->middleware('permission:effects.create');
+    Route::get('effects/{effect}/edit', 'EffectController@edit')->name('effects.edit')->middleware('permission:effects.edit');
+    Route::put('effects/{effect}/update', 'EffectController@update')->name('effects.update')->middleware('permission:effects.edit');
+    Route::delete('effects/{effect}', 'EffectController@destroy')->name('effects.destroy')->middleware('permission:effects.destroy');
+    Route::get('effects/{effect}/status/{status}', 'EffectController@status')->name('effects.status');
+    Route::get('effects/groups/{customer_id?}/{provider_id?}/{from?}/{to?}/{payment_method?}', 'EffectController@groups')->name('effects.groups')->middleware('permission:effects.create');
 
     // Employees:
     Route::get('employees', 'EmployeeController@index')->name('employees.index');
@@ -1004,6 +1015,24 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::get('receiving/{delivery}/all-order/{order}', 'ReceivingController@storeAllOrder')->name('receiving.all-order')->middleware('permission:receiving.edit');
     Route::get('receiving/{delivery}/edit/{tab?}', 'ReceivingController@edit')->name('receiving.edit')->middleware('permission:receiving.edit');
     Route::put('receiving/{delivery}/update', 'ReceivingController@update')->name('receiving.update')->middleware('permission:receiving.edit');
+
+    // Remittance Patterns
+    Route::get('remittance-patterns', 'RemittancePatternController@index')->name('remittance-patterns.index')->middleware('permission:remittance-patterns.index');
+    Route::get('remittance-patterns/create', 'remittancePatternController@create')->name('remittance-patterns.create')->middleware('permission:remittance-patterns.create');
+    Route::post('remittance-patterns/store', 'remittancePatternController@store')->name('remittance-patterns.store')->middleware('permission:remittance-patterns.create');
+    Route::get('remittance-patterns/{pattern}/edit', 'remittancePatternController@edit')->name('remittance-patterns.edit')->middleware('permission:remittance-patterns.edit');
+    Route::put('remittance-patterns/{pattern}/update', 'remittancePatternController@update')->name('remittance-patterns.update')->middleware('permission:remittances.edit');
+    Route::delete('remittance-patterns/{pattern}', 'remittancePatternController@destroy')->name('remittance-patterns.destroy')->middleware('permission:remittance-patterns.destroy');
+    Route::get('remittance-patterns/status/{id}/{status}', 'remittancePatternController@status')->name('remittance-patterns.status')->middleware('permission:remittance-patterns.edit');
+
+    // Remittances
+    Route::get('remittances', 'RemittanceController@index')->name('remittances.index')->middleware('permission:remittances.index');
+    Route::get('remittances/create', 'RemittanceController@create')->name('remittances.create')->middleware('permission:remittances.create');
+    Route::post('remittances/store', 'RemittanceController@store')->name('remittances.store')->middleware('permission:remittances.create');
+    Route::get('remittances/{remittance}/edit', 'RemittanceController@edit')->name('remittances.edit')->middleware('permission:remittances.edit');
+    Route::put('remittances/{remittance}/update', 'RemittanceController@update')->name('remittances.update')->middleware('permission:remittances.edit');
+    Route::delete('remittances/{remittance}', 'RemittanceController@destroy')->name('remittances.destroy')->middleware('permission:remittances.destroy');
+    Route::get('remittances/{remittance}/status/{status}', 'remittanceController@status')->name('remittances.status');
 
     // Roles:
     Route::get('roles', 'RoleController@index')->name('roles.index')->middleware('permission:roles.index');
