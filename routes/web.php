@@ -1018,12 +1018,12 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
 
     // Remittance Patterns
     Route::get('remittance-patterns', 'RemittancePatternController@index')->name('remittance-patterns.index')->middleware('permission:remittance-patterns.index');
-    Route::get('remittance-patterns/create', 'remittancePatternController@create')->name('remittance-patterns.create')->middleware('permission:remittance-patterns.create');
-    Route::post('remittance-patterns/store', 'remittancePatternController@store')->name('remittance-patterns.store')->middleware('permission:remittance-patterns.create');
-    Route::get('remittance-patterns/{pattern}/edit', 'remittancePatternController@edit')->name('remittance-patterns.edit')->middleware('permission:remittance-patterns.edit');
-    Route::put('remittance-patterns/{pattern}/update', 'remittancePatternController@update')->name('remittance-patterns.update')->middleware('permission:remittances.edit');
-    Route::delete('remittance-patterns/{pattern}', 'remittancePatternController@destroy')->name('remittance-patterns.destroy')->middleware('permission:remittance-patterns.destroy');
-    Route::get('remittance-patterns/status/{id}/{status}', 'remittancePatternController@status')->name('remittance-patterns.status')->middleware('permission:remittance-patterns.edit');
+    Route::get('remittance-patterns/create', 'RemittancePatternController@create')->name('remittance-patterns.create')->middleware('permission:remittance-patterns.create');
+    Route::post('remittance-patterns/store', 'RemittancePatternController@store')->name('remittance-patterns.store')->middleware('permission:remittance-patterns.create');
+    Route::get('remittance-patterns/{pattern}/edit', 'RemittancePatternController@edit')->name('remittance-patterns.edit')->middleware('permission:remittance-patterns.edit');
+    Route::put('remittance-patterns/{pattern}/update', 'RemittancePatternController@update')->name('remittance-patterns.update')->middleware('permission:remittances.edit');
+    Route::delete('remittance-patterns/{pattern}', 'RemittancePatternController@destroy')->name('remittance-patterns.destroy')->middleware('permission:remittance-patterns.destroy');
+    Route::get('remittance-patterns/status/{id}/{status}', 'RemittancePatternController@status')->name('remittance-patterns.status')->middleware('permission:remittance-patterns.edit');
 
     // Remittances
     Route::get('remittances', 'RemittanceController@index')->name('remittances.index')->middleware('permission:remittances.index');

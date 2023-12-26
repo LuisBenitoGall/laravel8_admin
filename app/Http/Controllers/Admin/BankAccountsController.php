@@ -88,7 +88,7 @@ class BankAccountsController extends Controller{
         ]; 
 
         //Conversión de formato de cuentas bancarias:
-        $this->conversionAccount();
+        //$this->conversionAccount();
 
         $accounts = BankAccounts::select('bank_accounts.*', 'banks.name', 'banks.tradename')
         ->join('banks', 'bank_accounts.bank_id', '=', 'banks.id')
