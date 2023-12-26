@@ -23,6 +23,7 @@ class StockMovementsController extends Controller{
      * 4. Editar movimiento de stock.
      * 5. Actualizar movimiento de stock.
      * 6. Eliminar movimiento de stock.
+     * 7. Actualizar estado.
      */
 
     private $option = 'configuracion';
@@ -216,5 +217,19 @@ class StockMovementsController extends Controller{
 
         $msg = trans('textos.movimiento_deleted');
         return redirect()->route('stock-movements.index')->with(compact('msg'));
+    }
+
+    /**
+     * 7. Actualizar estado.
+     */
+    public function status(Request $request, $id, $status){
+        if($request->ajax()){ 
+            $mov = StockMovements::find($id);
+            $mov->status = $status;
+            $mov->save();
+
+            $resp = ($mov)? true:false;
+            return response()->json($resp);
+        }
     }
 }

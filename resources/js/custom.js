@@ -359,6 +359,9 @@ $(window).on('load', function () {
     33. Vincular / desvincular sectores a empresa.
     34. Búsqueda autocomplete de empresa.
     35. Búsqueda autocomplete de proveedor.
+        35.1. Búsqueda autocomplete de cliente.
+        35.2. Búsqueda autocomplete de productos.
+        35.3. Búsqueda autocomplete de productos de compra.
     36. Proyectos por empresa.
     37. Marcar proyecto como favorito.
     38. Modal editar atributo de producto o unidad de producto.
@@ -1338,7 +1341,48 @@ $(window).on('load', function () {
         }
     });
 
-    // 35.1. Búsqueda autocomplete de productos.
+    // 35.1. Búsqueda autocomplete de cliente.
+    $('#search_customer').autocomplete({
+        minLength: 0,
+        source: function(request,response){
+            // Fetch data
+            if(request.term.length > 1){
+                $.ajax({
+                    url: "/api/admin/customers-search",
+                    type: "post",
+                    dataType: "json",
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        search: request.term
+                    },
+                    success: function(data){
+                        response($.map(data, function (item){
+                            return {
+                                label: item.name,
+                                value: item.id,
+                                code: item.nif
+                            }
+                        }));
+                    }
+                });
+
+            //Limpiamos datos:
+            }else{
+                $('#customerId').val('');    
+            }
+        },
+        select: function(event,ui){
+            $('#search_customer').val(ui.item.label);
+            $('#customerId').val(ui.item.value);
+            if(ui.item.value == ''){
+                $('#customerId').val('');    
+            }
+            
+            return false;
+        }
+    });
+
+    // 35.2. Búsqueda autocomplete de productos.
     $('#search_product').autocomplete({
         minLength: 0,
         source: function(request,response){
@@ -1394,7 +1438,7 @@ $(window).on('load', function () {
         }
     });
 
-    // 35.2. Búsqueda autocomplete de productos de compra.
+    // 35.3. Búsqueda autocomplete de productos de compra.
     $('.search_purchase_product').autocomplete({
         minLength: 0,
         source: function(request,response){

@@ -440,6 +440,21 @@ class FunctionalitiesTableSeeder extends Seeder{
             'label' => 'asientos_contables',
             'module' => 'accounting'            
             ],
+            ['name' => 'effects',
+            'slug' => 'effects',
+            'label' => 'efectos',
+            'module' => 'accounting'
+            ],
+            ['name' => 'remittances',
+            'slug' => 'remittances',
+            'label' => 'remesas',
+            'module' => 'accounting'
+            ],
+            ['name' => 'remittance patterns',
+            'slug' => 'remittance-patterns',
+            'label' => 'remesa_patrones',
+            'module' => 'accounting'
+            ],
 
             ['name' => 'incidences',
             'slug' => 'incidences',

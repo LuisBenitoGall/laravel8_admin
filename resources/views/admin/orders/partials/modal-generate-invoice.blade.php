@@ -91,6 +91,29 @@
 	                    </div>
                     </div>
 
+                    {{-- Cuentas contables de cliente --}}
+                    @if($customer_accounting_accounts->count() == 1)
+                    	<input type="hidden" name="customer_accounting_account" value="{{ $customer_accounting_accounts[0]->id }}">
+
+                    @elseif($customer_accounting_accounts->count() > 1)
+                    	<div class="form-group row mt-4">
+                    		<label for="customer_accounting_account" class="col-lg-3 col-form-label">{!! ucfirst(trans('textos.cuenta_contable')) !!}*</label>	
+                    		<div class="col-lg-9">
+                    			@php
+	                            $customer_accounting_accounts_ = [];
+	                            @endphp
+
+	                            @foreach($customer_accounting_accounts as $caa)
+	                                @php
+	                                $customer_accounting_accounts_[$caa->id] = $caa->account.' - '.$caa->name;
+	                                @endphp
+	                            @endforeach
+
+	                            <x-select name="customer_accounting_account" class="select2" :options="$customer_accounting_accounts_" label="cuenta_contable_selec" required/>		
+                    		</div>
+                    	</div>	
+                    @endif
+
                     <x-btn-submit name="submit_generate_invoice" label="{{ trans('textos.guardar') }}"/>
                 </form>
             </div>

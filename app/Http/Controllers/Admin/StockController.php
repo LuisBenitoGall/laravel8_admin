@@ -99,7 +99,8 @@ class StockController extends Controller{
         session(['currentCompanyStores' => $stores]);
 
         //Movimientos de stock:
-        $movements = StockMovements::orderBy('name', 'ASC')
+        $movements = StockMovements::where('status', 1)
+        ->orderBy('name', 'ASC')
         ->get();
 
         $movements_arr = [];
@@ -302,14 +303,14 @@ class StockController extends Controller{
         })
         ->addColumn('doc', function($row){
             $doc = '';
-            if($row->doc){
-                $doc .= '<a target="_blank" href="/docs/stock-docs/'.$row->doc.'">';
-                    if($row->doc_num){
-                        $doc .= $row->doc_num;
-                    }else{
-                        $doc .= '<i class="fa fa-file"></i>';
-                    }
-                $doc .= '</a>';
+            if($row->doc_num){
+                if($row->doc){
+                    $doc .= '<a target="_blank" href="/docs/stock-docs/'.$row->doc.'">';
+                }
+                $doc .= $row->doc_num;
+                if($row->doc){
+                    $doc .= '</a>';
+                }
             }
             return $doc;
         })
@@ -424,7 +425,7 @@ class StockController extends Controller{
         }
         //dd($request->all(), $result, $batch, $request->new_batch, $expiry_date);
         //Actualizando result:
-        if($stock_mov->sign == 's'){
+        if($stock_mov->sign == 's' || $stock_mov == 'y'){
             $result = $result + $request->qty;  
             $operation = 's'; 
 

@@ -1999,6 +1999,37 @@ $(document).ready(function(){
         });
     }
 
+    //Tabla Effects:
+    if($('#tblEffects').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        var customer = $('#myCustomer').val() != ''? $('#myCustomer').val():'0';
+        var provider = $('#myProvider').val() != ''? $('#myProvider').val():'0'; 
+        var year = $('#myYear').val();
+        
+        $('#tblEffects').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/effects/"+year+"/"+customer+"/"+provider,
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'effect_num', className: 'text-right'},
+                {data: 'date', className: 'text-right'},
+                {data: 'group', className: 'text-right'},
+                {data: 'invoices', className: 'text-right'},
+                {data: 'amount', className: 'text-right'},
+                {data: 'payment_method', className: 'text-right'},
+                {data: 'remittance', className: 'text-right'},
+                {data: 'status', className: 'text-right'},
+                {data: 'acciones', className: 'text-right'}
+            ]
+        });
+    }
+
     //Tabla Employees:
     if($('#tblEmployees').length > 0){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
@@ -5504,6 +5535,59 @@ $(document).ready(function(){
         });
     }
 
+    //Tabla Remittance Patterns:
+    if($('#tblRemittancePatterns').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+
+        $('#tblRemittancePatterns').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/remittance-patterns",
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'name', className: 'capitalize'},
+                {data: 'pattern'},
+                {data: 'reset', className: 'text-center'},
+                {data: 'created_at', className: 'text-right'},
+                {data: 'acciones', className: 'text-right'}
+            ]
+        });
+    }
+
+    //Tabla Remittances:
+    if($('#tblRemittances').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+
+        var tableRemittances = $('#tblRemittances').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/remittances",
+                "error": function(reason){
+                console.log(reason);
+            }
+            },
+            columns: [
+                {data: 'num', className: 'capitalize'},
+                {data: 'created_at', className: 'text-right'},
+                {data: 'send_date', className: 'text-right'},
+                {data: 'paying_date', className: 'text-right'},
+                {data: 'amount', className: 'text-right'},
+                {data: 'entity'},
+                {data: 'bank_account', className: 'text-right'},
+                {data: 'created_by'},
+                {data: 'estado', className: 'text-right'},
+                {data: 'acciones', className: 'text-right'}
+            ]
+        });
+    }
+
     //Tabla Recommendation Companies:
     if($('#tblRecommendationCompanies').length > 0){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
@@ -5914,7 +5998,7 @@ $(document).ready(function(){
                     var debit = row.debit? parseFloat(row.debit)+row.symbol:'';
                     var credit = row.credit? parseFloat(row.credit)+row.symbol:'';
                     tr += '<tr>' +
-                    '<td colspan="1" class="no-border">' + row.line_num + '</td>' +
+                    '<td colspan="1" class="no-border text-right">' + row.line_num + '</td>' +
                     '<td colspan="1" class="no-border">' + row.account+' - '+row.name+'</td>' +
                     '<td colspan="1" class="no-border text-right">' + debit+'</td>' +
                     '<td colspan="1" class="no-border text-right">' + credit+'</td>' +
@@ -5928,15 +6012,15 @@ $(document).ready(function(){
 
             var html = '<table class="tbl-subrows" cellpadding="0" cellspacing="0" border="0" width="100%">' +
             '<thead>' +
-            '<th>#</th>' +
+            '<th class="text-center">#</th>' +
             '<th>'+txtCuentaContable+'</th>' +
-            '<th>'+txtDebe+'</th>' +
-            '<th>'+txtHaber+'</th>' +
+            '<th class="text-center">'+txtDebe+'</th>' +
+            '<th class="text-center">'+txtHaber+'</th>' +
             '</thead>' +
             tr +
             '</table>';
 
-            return html
+            return html;
         }
 
         // Load data from localstorage

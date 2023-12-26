@@ -18,6 +18,7 @@ use PDF;
 use Carbon\Carbon;
 
 //Models:
+use App\Models\AccountingAccount;
 use App\Models\AccountingConcept;
 use App\Models\AccountingOption;
 use App\Models\BankAccounts;
@@ -82,10 +83,14 @@ class InvoiceController extends Controller{
     private $option = 'contabilidad';
     private $module = 'accounting';
     private $languages;
+    private $currency;
 
     public function __construct(){
         //Idiomas:
         $this->languages = helpers::languages();
+
+        //Moneda:
+        $this->currency = CompanySettings::co_currency(0);
 
         $this->middleware('module_setted:accounting');
         $this->middleware('invoice_customer_get', ['only' => ['editPurchase']]);
@@ -445,8 +450,6 @@ class InvoiceController extends Controller{
         // });
         // $invoices = $query->orderBy('invoices.created_at', 'DESC'); 
 
-        
-
         //Ampliación de información de los objetos:
         //$this->setInvoicesData($invoices, $environment);
         //return datatables($data)->toJson();
@@ -697,34 +700,70 @@ class InvoiceController extends Controller{
         //Asiento contable:
         //Para facturas se ejecutan los métodos contables de Devengo e Ingresos.
         if(in_array(session('companySettings')->accounting_method, config('constants.ACCOUNTING_METHODS_INVOICE_') )){
+            //Líneas del asiento:
+            $seat_lines = [];
+
+            //1. Cuenta contable del cliente (DEBIT):
+            if($request->customer_accounting_account){
+                $seat_lines[0]['accounting_account_id'] = $request->customer_accounting_account;
+                $seat_lines[0]['type'] = NULL;
+                $seat_lines[0]['debit'] = $invoice->amount_with_iva;
+                $seat_lines[0]['credit'] = '0';
+            }
+
+            //2. Cuentas contables del proveedor (CREDIT):
+            //2.1. Cuenta de ventas base:
+            $provider_accounting_account = AccountingAccount::select('id')
+            ->where('company_id', $order->provider_id)
+            ->where('featured', config('constants.ACCOUNT_DEFAULT_SALES_'))
+            ->first();
+
+            if($provider_accounting_account){
+                $seat_lines[1]['accounting_account_id'] = $provider_accounting_account->id;
+                $seat_lines[1]['type'] = NULL;
+                $seat_lines[1]['debit'] = '0';
+                $seat_lines[1]['credit'] = $invoice->amount;
+            }
+
+            //2.2. Cuenta de ventas IVA:
+            $provider_accounting_account_iva = AccountingAccount::select('id')
+            ->where('company_id', $order->provider_id)
+            ->where('featured', config('constants.ACCOUNT_DEFAULT_SALES_IVA_'))
+            ->first();
+
+            if($provider_accounting_account_iva){
+                $seat_lines[2]['accounting_account_id'] = $provider_accounting_account_iva->id;
+                $seat_lines[2]['type'] = NULL;
+                $seat_lines[2]['debit'] = '0';
+                $seat_lines[2]['credit'] = $invoice->amount_with_iva - $invoice->amount;
+            }
+
             $seat_data = [
                 'company_id' => session('currentCompany'),
                 'seat_num' => NULL,
-                // 'seat_type' => $request->seat_type,????????
+                'seat_type' => NULL,
                 'seat_date' => date('Y-m-d'),
                 'operation_type' => NULL,
-                // 'diary' => $request->diary, ????????
-                // 'concept' => $request->concept, ??????????
-                // 'description' => $request->description, ??????????
-                // 'serie' => $request->serie, ?????????
-                // 'doc_num' => NULL, ??????????
+                'diary' => NULL,
+                'concept' => trans('textos.factura').' - '.$invoice->id,
+                'description' => NULL,
+                'serie' => NULL,
+                'doc_num' => NULL,
                 'doc' => NULL,
                 'sort_num' => '',
                 'company_target' => $order->customer_id,
-                // 'mode' => $request->mode, ???????????
-                // 'currency_id' => $this->currency->id, ???????????
+                'mode' => NULL,
+                'currency_id' => $this->currency->id,
                 'invoice_id' => $invoice->id,
-                // 'invoice_date' => $invoice_date, ????????????
-                // 'invoice_num' => $request->invoice_num, ???????????
                 'invoice_amount' => $invoice->amount,
                 'invoice_amount_iva' => $invoice->amount_with_iva,
                 'provider_doc' => NULL,
                 'cash_id' => NULL,
-                // 'pay_sign' => $request->pay_sign,?????????
+                'pay_sign' => NULL,
                 // 'accounting_sale_id' => NULL,
-                // 'seat_lines' => $seat_lines ?????????
+                'seat_lines' => $seat_lines
             ];
-            //Seat::saveSeat($seat_data);
+            Seat::saveSeat($seat_data);
         }
 
         $msg = trans('textos.factura_creada');
@@ -1049,6 +1088,76 @@ class InvoiceController extends Controller{
             ProjectPurchases::firstOrCreate(['project_id' => $request->project_id, 'order_id' => $order->id]);
         }
 
+        //Asiento contable. ¿Se genera conjuntamente con la factura aunque sea con valor 0 y se modifica a medida que se agregan líneas?
+        //Líneas del asiento:
+        $seat_lines = [];
+
+        //1. Cuenta contable del cliente (DEBIT???????????????):
+        //1.1. Cuenta de compras base:
+        $customer_accounting_account = AccountingAccount::select('id')
+        ->where('company_id', $order->customer_id)
+        ->where('featured', config('constants.ACCOUNT_DEFAULT_PURCHASES_'))
+        ->first();
+
+        if($customer_accounting_account){
+            $seat_lines[0]['accounting_account_id'] = $customer_accounting_account->id;
+            $seat_lines[0]['type'] = NULL;
+            $seat_lines[0]['debit'] = $inv->amount_with_iva;
+            $seat_lines[0]['credit'] = '0';
+        }
+
+        //1.2. Cuenta de compras IVA:    REVISAR CON DIDAC TODO ESTE PROCESO.
+        // $customer_accounting_account_iva = AccountingAccount::select('id')
+        // ->where('company_id', $order->customer_id)
+        // ->where('featured', config('constants.ACCOUNT_DEFAULT_PURCHASES_IVA_'))
+        // ->first();
+
+        // if($customer_accounting_account_iva){
+        //     $seat_lines[2]['accounting_account_id'] = $customer_accounting_account_iva->id;
+        //     $seat_lines[2]['type'] = NULL;
+        //     $seat_lines[2]['debit'] = '0';
+        //     $seat_lines[2]['credit'] = $inv->amount_with_iva - $inv->amount;
+        // }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        //2. Cuenta contable del proveedor:
+        $provider_accounting_account = AccountingAccount::select('id')
+        ->where('company_id', $order->customer_id)
+        ->where('company_target', $order->provider_id)
+        ->where('mode', 2)      //Modo proveedor.
+        ->first();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         $msg = trans('textos.factura_creada');
         return redirect()->route('invoices.edit-purchase', [$inv->id, false])->with(compact('msg'));       
     }
@@ -1156,6 +1265,15 @@ class InvoiceController extends Controller{
         //Pagos:
         $payments = Payment::paymentsByInvoice($invoice->id);
 
+        //Asiento contable. Filtramos por company_id, pues hay que tene en cuenta que una misma factura puede generar 2 asientos contables: el del proveedor y el del cliente.
+        $seat = false;
+        if($order->provider_id == session('currentCompany')){
+            $seat = Seat::select('id')
+            ->where('company_id', $order->provider_id)
+            ->where('invoice_id', $invoice->id)
+            ->first();
+        }
+
         //Templates:
         $templates = [];
         if($order->provider_id == session('currentCompany')){
@@ -1237,7 +1355,7 @@ class InvoiceController extends Controller{
             if($pba->featured == 1) $provider_bank_featured = $pba->id;
         }
 
-        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'is_sale', 'order', 'suborders', 'invoiced', 'invoices', 'refund', 'customer', 'customer_settings', 'provider', 'provider_account', 'provider_settings', 'items', 'products', 'patterns', 'payments', 'templates', 'featuredTemplate', 'currency', 'languages', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'payment_methods', 'customer_bank_accounts', 'customer_bank_featured', 'provider_bank_accounts', 'provider_bank_featured'));
+        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'is_sale', 'order', 'suborders', 'invoiced', 'invoices', 'refund', 'customer', 'customer_settings', 'provider', 'provider_account', 'provider_settings', 'items', 'products', 'patterns', 'payments', 'seat', 'templates', 'featuredTemplate', 'currency', 'languages', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'payment_methods', 'customer_bank_accounts', 'customer_bank_featured', 'provider_bank_accounts', 'provider_bank_featured'));
     }
 
     /**
@@ -1331,6 +1449,15 @@ class InvoiceController extends Controller{
         //Pagos:
         $payments = Payment::paymentsByInvoice($invoice->id);
 
+        //Asiento contable. Filtramos por company_id, pues hay que tene en cuenta que una misma factura puede generar 2 asientos contables: el del proveedor y el del cliente.
+        $seat = false;
+        if($customer->id == session('currentCompany')){
+            $seat = Seat::select('id')
+            ->where('company_id', $customer->id)
+            ->where('invoice_id', $invoice->id)
+            ->first();
+        }
+
         //Templates:
         $templates = [];
 
@@ -1397,7 +1524,7 @@ class InvoiceController extends Controller{
         ->orderBy('name', 'ASC')
         ->get();
 
-        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'is_sale', 'order', 'invoiced', 'invoices', 'refund', 'customer', 'customer_account', 'provider', 'provider_account', 'provider_settings', 'structure_concepts', 'items', 'products', 'currency', 'languages', 'patterns', 'payments', 'templates', 'featuredTemplate', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'payment_methods', 'concepts', 'customer_bank_accounts', 'customer_bank_featured', 'provider_bank_accounts', 'provider_bank_featured', 'accounting_products'));
+        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'is_sale', 'order', 'invoiced', 'invoices', 'refund', 'customer', 'customer_account', 'provider', 'provider_account', 'provider_settings', 'structure_concepts', 'items', 'products', 'currency', 'languages', 'patterns', 'payments', 'seat', 'templates', 'featuredTemplate', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'payment_methods', 'concepts', 'customer_bank_accounts', 'customer_bank_featured', 'provider_bank_accounts', 'provider_bank_featured', 'accounting_products'));
     }
 
     /**
