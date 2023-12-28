@@ -82,10 +82,10 @@ class Effect extends Model{
         $instance->save();
 
         //if($data['is_group']){
-        if($invoice){
-            $invoice->effect_id = $instance->id;
-            $invoice->save();
-        }
+        // if($invoice){
+        //     $invoice->effect_id = $instance->id;
+        //     $invoice->save();
+        // }
 
         return $instance;
     }
