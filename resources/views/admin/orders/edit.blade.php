@@ -938,7 +938,7 @@ function percentController(){
 	$('.previsions .prevision .percent').each(function(){
     	var percent = $(this).val();
     	if(percent > 0){
-    		total = (parseFloat(total) + parseFloat(percent)).toFixed(2);
+    		total = (parseFloat(total) + parseFloat(percent)).toFixed(6);
     	}
     });
 
