@@ -198,6 +198,8 @@ class Kernel extends HttpKernel{
 
         'receiving_get' => \App\Http\Middleware\ReceivingGetMiddleware::class,
 
+        'remittance_get' => \App\Http\Middleware\RemittanceGetMiddleware::class,
+
         'remittance_pattern_get' => \App\Http\Middleware\RemittancePatternGetMiddleware::class,
 
         'role_company' => \App\Http\Middleware\RoleCompanyMiddleware::class,

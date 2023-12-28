@@ -1,8 +1,8 @@
 @can('remittances.edit')
-{{-- Estado --}}
+	{{-- Estado --}}
 	@include('admin.partials.selector-status', ['estados' => $estados, 'item' => $row])
 
-{{-- Editar --}}
+	{{-- Editar --}}
 	<a href="{{ route('remittances.edit', $row) }}" class="btn btn-xs btn-info" rel="tooltip" title="{{ ucfirst(trans('textos.editar')) }}"><i class="fa fa-edit"></i></a>
 @endcan
 

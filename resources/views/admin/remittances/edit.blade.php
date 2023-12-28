@@ -17,13 +17,19 @@
 	</div>
 </div>
 
-<div class="row mb-3">
+<div class="row">
 	<div class="col-12">
-		<div class="card">
+		<div class="card mb-3">
 			<div class="card-body">
 				<h3 class="mb-3">
 					{!! ucfirst(trans('textos.remesa')) !!} 
-					<u>{{ $remittance->remittance_num }}</u>
+					<u>
+						@if($remittance->remittance_num)	
+							{{ $remittance->remittance_num }}
+						@else
+							{{ $remittance->id }}
+						@endif
+					</u>
 				</h3>	
 
 				{{-- Info --}}
@@ -55,10 +61,88 @@
 					{{ csrf_field() }}
 
 					<div class="form-group row">
+						{{-- Nº de remesa --}}
+						<label for="pattern_id" class="col-md-3 col-lg-2 col-form-label">{!! ucfirst(trans('textos.remesa_num')) !!}</label>
+						<div class="col-md-3">
+							{{-- Patrón de numeración - condiciones:
+							 	1. Si existen patrones.
+								3. Exclusivo para proveedor.
+								4. No existe remittance_num.
+								...
+							--}}
+							@if($patterns && $remittance->company_id == session('currentCompany') && !$remittance->remittance_num)
+								@if(count($patterns))
+									<x-select name="pattern_id" class="select2" label="patron_selecciona" :options="$patterns" info="remittance-pattern-num"/>
+								@else
+									<label class="text-warning mt-2">{{ trans('textos.patrones_no_hay') }}</label>
+								@endif
+
+							@else
+								<label class="text-warning mt-1" style="font-size: 16px;"><b><u>
+									@if($remittance->order_num)
+										{{ $remittance->order_num }}
+									@else
+										{{ $remittance->id }}
+									@endif
+								</u></b></label>
+							@endif
+
+							{{-- Reset de número - condiciones:
+								3. Exclusivo para proveedor.
+							--}}
+							@if($remittance->remittance_num && $remittance->provider_id == session('currentCompany'))
+								<a href="{{ route('orders.reset-num', $order->id) }}" class="ml-3 btn-confirm" rel="tooltip" title="{{ trans('textos.numero_reset') }}" data-msg="{{ trans('textos.numero_reset_confirm') }}">
+									<i class="fa fa-redo"></i>
+								</a>
+							@endif
+						</div>
+
+						{{-- Remesa nº manual --}}
+						<label for="remittance_old_num" class="col-md-3 col-lg-2 col-form-label">{!! ucfirst(trans('textos.remesa_num_manual')) !!}</label>
+						<div class="col-md-3">
+							<x-input type="text" name="remittance_old_num" value="{{ $remittance->remittance_old_num }}" autocomplete="off" maxlength="150" info="remittance-old-num"/>
+						</div>
+					</div>
+
+					<div class="form-group row">
 						{{-- Cuenta bancaria --}}
-						<label for="bank_account" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.bank_account')) !!}*</label>
-						<div class="col-lg-4">
+						<label for="bank_account" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.cuenta_bancaria')) !!}*</label>
+						<div class="col-lg-2">
 							<x-select name="bank_account" class="select2" :options="$bank_accounts" label="cuenta_selec" value="{{ $remittance->bank_account_id }}" required/>
+						</div>
+
+						{{-- Precio --}}
+						<label for="amount" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.importe')) !!}</label>
+						<div class="col-lg-2">
+							<x-input type="text" name="amount" class="text-right set-decimals" id="price" value="{{ $remittance->amount }}" autocomplete="off" maxlength="8" group="right" groupvalue="{{ $currency->symbol }}"/>
+						</div>
+
+						{{-- Estado --}}
+						<label for="status" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.estado')) !!}</label>
+						<div class="col-lg-2">
+							<x-select name="status" class="select2" label="estado_selec" :options="$estados" value="{{ $remittance->status }}"/>
+						</div>
+					</div>
+
+					<div class="form-group row">
+						{{-- Fecha envío --}}
+						<label for="send_date" class="col-md-2 col-lg-2 col-form-label">{!! ucfirst(trans('textos.fecha_envio')) !!}</label>
+						<div class="col-md-4 col-lg-2">
+							@php
+							$sendDate = $remittance->send_date != ''? \Carbon\Carbon::parse($remittance->send_date)->format($languages[session()->get('locale')][4]):'';
+							@endphp
+							
+							<x-date-picker name="send_date" value="{{ $sendDate }}" :format="$languages[config('app.locale')][4]"/>
+						</div>
+
+						{{-- Fecha pago --}}
+						<label for="paying_date" class="col-md-2 col-lg-2 col-form-label">{!! ucfirst(trans('textos.pago_fecha')) !!}</label>
+						<div class="col-md-4 col-lg-2">
+							@php
+							$payingDate = $remittance->paying_date != ''? \Carbon\Carbon::parse($remittance->paying_date)->format($languages[session()->get('locale')][4]):'';
+							@endphp
+							
+							<x-date-picker name="paying_date" value="{{ $payingDate }}" :format="$languages[config('app.locale')][4]"/>
 						</div>
 					</div>
 
@@ -66,6 +150,59 @@
 				</form>
 			</div>
 		</div>
+	</div>
+</div>
+
+<div class="row mb-3">
+	<div class="table-responsive">
+		<table class="table table-hover dTable" id="tblRemittanceEffects">
+			<thead>
+				<th class="wdt50">{!! ucfirst(trans('textos.cliente')) !!}</th>
+				<th class="wdt150">{!! ucfirst(trans('textos.factura')) !!}</th>
+				<th class="text-center wdt50">{!! ucfirst(trans('textos.fecha')) !!}</th>
+				<th class="text-center wdt50">{!! ucfirst(trans('textos.importe')) !!}</th>
+				<th class="text-center wdt50">{!! ucfirst(trans('textos.cuenta_bancaria')) !!}</th>
+				<th class="text-center wdt100">{!! ucfirst(trans('textos.acciones')) !!}</th>
+			</thead>
+
+			<tbody>
+				@foreach($effects as $ef)
+					<tr>
+						{{-- Cliente --}}
+						<td>
+							{{ $ef->customer }}
+						</td>
+						{{-- Factura --}}
+						<td class="text-right">
+							@if($ef->invoice_id)
+								@php
+								$num = $ef->invoice_num? $ef->invoice_num:($ef->invoice_old_num? $ef->invoice_old_num:$ef->invoice_id);
+								@endphp
+								<a target="_blank" href="{{ route('invoices.edit', $ef->invoice_id) }}">{{ $num }}</a>
+							@endif
+						</td>
+						{{-- Fecha --}}
+						<td class="text-right">
+							{!! Carbon\Carbon::parse($ef->date)->format($languages[session()->get('locale')][4]); !!}
+						</td>
+						{{-- Importe --}}
+						<td class="text-right">
+							{{ $ef->amount }}{{ $ef->symbol }}
+						</td>
+						{{-- Cuenta bancaria --}}
+						<td class="text-right">
+							{{ $ef->entity }} {{ $ef->iban }}-{{ $ef->office }}-{{ $ef->dc }}-{{ $ef->account }}	
+						</td>
+						{{-- Acciones --}}
+						<td class="text-right">
+							<label class="custom-chk-rdb" rel="tooltip" title="{{ trans('textos.efecto_on_off') }}">
+						<input type="checkbox" name="effect" value="{{ $ef->id }}" class="chkEffect"><span class="chk"></span>
+						</label>
+						</td>
+					</tr>
+				@endforeach	
+			</tbody>
+		</table>
 	</div>
 </div>
 

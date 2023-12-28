@@ -28,6 +28,7 @@ use App\Models\CompanyAccounts;
 use App\Models\CompanySettings;
 use App\Models\CostCenters;
 use App\Models\CustomerProviders;
+use App\Models\Effect;
 use App\Models\Invoice;
 //use App\Models\InvoiceItems;
 use App\Models\InvoiceOrders;
@@ -699,7 +700,8 @@ class InvoiceController extends Controller{
 
         //Asiento contable:
         //Para facturas se ejecutan los métodos contables de Devengo e Ingresos.
-        if(in_array(session('companySettings')->accounting_method, config('constants.ACCOUNTING_METHODS_INVOICE_') )){
+        //27/12/2023: por ahora se omite el condicional para la generación de asientos. Estudiar bien las posibles condiciones.
+        //if(in_array(session('companySettings')->accounting_method, config('constants.ACCOUNTING_METHODS_INVOICE_') )){
             //Líneas del asiento:
             $seat_lines = [];
 
@@ -764,7 +766,36 @@ class InvoiceController extends Controller{
                 'seat_lines' => $seat_lines
             ];
             Seat::saveSeat($seat_data);
-        }
+        //}
+
+        //Pagas y señales:
+        $sign_payments = Payment::where('order_id', $order->id)
+        ->where('is_pay_sign', 1)
+        ->sum('amount');
+
+        //Efecto contable:
+        $effect_amount = $invoice->amount_with_iva - $sign_payments;
+        $data_effect = [
+            'is_group' => false,
+            'parent' => NULL,
+            'date' => $invoice->fiscal_date,
+            'provider_id' => $order->provider_id,
+            'provider_bank_account_id' => $provider_bank_account,
+            'customer_id' => $order->customer_id,
+            'customer_bank_account_id' => $bank_account,
+            'invoice_id' => $invoice->id,
+            //'serie_id' => $other_data['serie'],
+            'remittance_id' => NULL,                //31/08/23 La remesa permanece NULL hasta que se incluye el efecto en alguna remesa. Es un proceso posterior y manual.
+            'payment_method_id' => $invoice->payment_method_id,
+            'payment_status' => NULL,
+            'amount' => $effect_amount,             //Se descuenta la paga y señal.
+            'currency_id' => $this->currency->id,
+            'created_by' => Auth::user()->id,
+            'updated_by' => NULL,
+            'status' => config('constants.EFFECT_STATUS_PENDENT_'),
+            'is_group' => false
+        ];
+        Effect::setEffect($data_effect);
 
         $msg = trans('textos.factura_creada');
         return redirect()->route('invoices.edit', [$invoice->id, false])->with(compact('msg'));
