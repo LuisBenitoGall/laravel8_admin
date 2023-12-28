@@ -2019,12 +2019,13 @@ $(document).ready(function(){
             columns: [
                 {data: 'effect_num', className: 'text-right'},
                 {data: 'date', className: 'text-right'},
-                {data: 'group', className: 'text-right'},
+                {data: 'company'},
+                {data: 'is_group', className: 'text-center'},
                 {data: 'invoices', className: 'text-right'},
                 {data: 'amount', className: 'text-right'},
                 {data: 'payment_method', className: 'text-right'},
                 {data: 'remittance', className: 'text-right'},
-                {data: 'status', className: 'text-right'},
+                {data: 'estado', className: 'text-right'},
                 {data: 'acciones', className: 'text-right'}
             ]
         });
@@ -5574,7 +5575,7 @@ $(document).ready(function(){
             }
             },
             columns: [
-                {data: 'num', className: 'capitalize'},
+                {data: 'num', className: 'capitalize text-right'},
                 {data: 'created_at', className: 'text-right'},
                 {data: 'send_date', className: 'text-right'},
                 {data: 'paying_date', className: 'text-right'},
