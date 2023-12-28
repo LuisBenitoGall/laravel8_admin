@@ -842,7 +842,7 @@ $order_amount_without_discount = $order_amount_without_discount_in_lines > $orde
 		{{-- Porcentaje --}}
 		<label for="percent" class="col-md-2 col-lg-2 col-form-label">{!! ucfirst(trans('textos.porcentaje')) !!}</label>
 		<div class="col-md-4 col-lg-2 sinpadding">
-			<x-input type="text" name="percent[]" class="text-right set-decimals percent" autocomplete="off" maxlength="5" group="right" groupvalue="%" required/>
+			<x-input type="text" name="percent[]" class="text-right set-decimals percent" autocomplete="off" maxlength="10" group="right" groupvalue="%" required/>
 		</div>
 
 		<div class="col-md-1 col-lg-1 pt-2">
