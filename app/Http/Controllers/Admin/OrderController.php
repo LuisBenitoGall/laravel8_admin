@@ -1712,7 +1712,7 @@ class OrderController extends Controller{
      * 9. Obtener líneas de pedido.
      */
     public function getItemsDT(Order $order, $environment){
-        $items = Item::where('order_id', $order->id)->get();
+        $items = Item::where('order_id', $order->id);
 
         //Moneda:
         $currency = CompanySettings::co_currency(0);
@@ -1802,7 +1802,7 @@ class OrderController extends Controller{
             }              
         })
         ->addColumn('cost_center', function($item){
-            if($item->provider_cost_center_id){
+            if($item->provider_cost_center_id && $item->cost_center_provider){
                 return $item->cost_center_provider->name;    
             }else{
                 return '';

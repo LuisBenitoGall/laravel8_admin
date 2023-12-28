@@ -69,7 +69,7 @@ class Effect extends Model{
         $instance->customer_id = $data['customer_id'];
         $instance->customer_bank_account_id = $data['customer_bank_account_id'];
         $instance->invoice_id = $data['is_group']? NULL:$data['invoice_id'];
-        $instance->serie_id = $data['serie_id'];
+        //$instance->serie_id = $data['serie_id'];
         $instance->remittance_id = $data['remittance_id'];
         $instance->payment_method_id = $data['payment_method_id'];
         $instance->payment_status = $data['payment_status'];

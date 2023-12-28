@@ -44,6 +44,22 @@ class RemittanceController extends Controller{
 
         //Moneda:
         $this->currency = CompanySettings::co_currency(0);
+        $this->middleware('remittance_get', ['only' => ['edit', 'update', 'destroy']]);
+    }
+
+    //0. Validator:
+    protected function validator(array $data){
+        //Validación save:
+        if(isset($data['submit_save'])){
+            return Validator::make($data, [
+                'bank_account' => 'required|integer'
+            ]);
+
+        }elseif(isset($data['submit_update'])){
+            return Validator::make($data, [
+                'bank_account' => 'required|integer'
+            ]);    
+        }
     }
 
     /**
@@ -64,13 +80,16 @@ class RemittanceController extends Controller{
      * 1.1. Listado de remesas para DataTable.
      */
     public function getRemittancesDT(){
-        $data = Remittance::select('remittances.*', 'bank_accounts.account', 'users.name AS nombre', 'users.surname')
+        $data = Remittance::select('remittances.*', 'bank_accounts.account', 'banks.tradename AS bank', 'users.name AS nombre', 'users.surname')
         ->join('bank_accounts', 'remittances.bank_account_id', '=', 'bank_accounts.id')
+        ->join('banks', 'bank_accounts.bank_id', '=', 'banks.id')
         ->join('users', 'remittances.created_by', '=', 'users.id')
         ->where('remittances.company_id', session('currentCompany'))
         ->orderBy('remittances.created_at', 'DESC');
 
         $estados = helpers::remittanceStatus();
+
+        $currency = $this->currency;
 
         return DataTables::of($data)
         ->addColumn('num', function ($row) {
@@ -86,8 +105,11 @@ class RemittanceController extends Controller{
         ->addColumn('paying_date', function ($row) {
             return $row->paying_date? Carbon::parse($row->paying_date)->format($this->languages[session()->get('locale')][4]):'';
         })
-        ->addColumn('amount', function ($row) {
-            $row->amount;
+        ->addColumn('entity', function ($row) {
+            return $row->bank;
+        })
+        ->addColumn('amount', function ($row) use($currency){
+            return $row->amount.$currency->symbol;
         })
         ->addColumn('bank_account', function ($row) {
             return $row->account;
@@ -147,6 +169,13 @@ class RemittanceController extends Controller{
      * 3. Guardar remesa.
      */
     public function store(Request $request){
+        $validator = $this->validator($request->all());
+        if($validator->fails()){
+            return redirect('admin/remittances/create')
+                ->withErrors($validator)
+                ->withInput();
+        } 
+
         $r = new Remittance();
         $r->company_id = session('currentCompany');
         $r->bank_account_id = $request->bank_account;
@@ -172,10 +201,11 @@ class RemittanceController extends Controller{
 
         $author = User::select('name', 'surname')->find($remittance->created_by);
 
+        $effects = Effect::where('remittance_id', $remittance->id)->get();
+
         //Cuentas bancarias:
-        $bank_accounts = BankAccounts::select(DB::raw("CONCAT(entity,' ',iban,'-',office,'-',dc,'-',account) as cuenta"), 'id')
-        ->where('company_id', session('currentCompany'))
-        ->pluck('cuenta', 'id')
+        $bank_accounts = BankAccounts::where('company_id', session('currentCompany'))
+        ->pluck('account', 'id')
         ->toArray();
 
         //Patrones:
@@ -184,20 +214,55 @@ class RemittanceController extends Controller{
         ->pluck('name', 'id')
         ->toArray();
 
+        $estados = helpers::remittanceStatus();
+
         $languages = $this->languages;
 
-        return view('admin.remittances.edit')->with(compact('header', 'remittance', 'author', 'bank_accounts', 'patterns', 'languages'));
+        $currency = $this->currency;
+
+        return view('admin.remittances.edit')->with(compact('header', 'remittance', 'author', 'effects', 'bank_accounts', 'patterns', 'estados', 'languages', 'currency'));
     }
 
     /**
      * 5. Actualizar remesa.
      */
     public function update(Request $request, Remittance $remittance){
+        $validator = $this->validator($request->all());
+        if($validator->fails()){
+            return redirect('admin/remittances/'.$remittance->id.'/edit')
+                ->withErrors($validator)
+                ->withInput();
+        } 
 
+        //Número de remesa:
+        $patternNum = [];
+        if($request->pattern_id){
+            $patternNum = $this->setPatternNumber('remittance', $request->pattern_id);
+        }
 
+        //Formateando fechas:
+        $send_date = $request->send_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->send_date):$request->send_date:NULL;
+        $paying_date = $request->paying_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->paying_date):$request->paying_date:NULL;
 
+        //Actualizando datos:
+        $remittance->bank_account_id = $request->bank_account;
+        if($request->pattern_id){
+            if(!empty($patternNum)){
+                $remittance->remittance_num = $patternNum['pattern_num'];  
+                $remittance->num_cardinal = $patternNum['num']; 
+            }            
+            $remittance->pattern_id = $request->pattern_id;
+        }
+        $remittance->remittance_old_num = $request->remittance_old_num;
+        $remittance->amount = $request->amount;
+        $remittance->send_date = $send_date;
+        $remittance->paying_date = $paying_date;
+        //$remittance->paying_by = $paying_by;
+        $remittance->status = $request->status;
+        $remittance->save();
 
-        return view('admin.remittances.edit')->with(compact('header', 'remittance', 'author', 'bank_accounts', 'patterns', 'languages'));
+        $msg = trans('textos.remesa_updated');
+        return redirect()->route('remittances.edit', [$remittance, false])->with(compact('msg'));
     }
 
     /**

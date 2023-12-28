@@ -206,12 +206,13 @@ class EffectController extends Controller{
 
         $estados = helpers::effectsStatus(); 
 
-        $data = Effect::select('effects.*', 'currencies.symbol', 'users.name', 'users.surname', 'companies.name AS company', 'remittances.id AS remittanceId', 'remittances.remittance_num', 'remittances.remittance_old_num', 'payment_methods.name AS method')
+        $data = Effect::select('effects.*', 'currencies.symbol', 'users.name', 'users.surname', 'companies.name AS company', 'remittances.id AS remittanceId', 'remittances.remittance_num', 'remittances.remittance_old_num', 'payment_methods.name AS method', 'invoices.invoice_num', 'invoices.invoice_old_num')
         ->leftJoin('currencies', 'effects.currency_id', '=', 'currencies.id')
         ->join('users', 'effects.created_by', '=', 'users.id')
         ->join('companies', 'effects.'.$company_field.'_id', '=', 'companies.id')
         ->leftJoin('remittances', 'effects.remittance_id', '=', 'remittances.id')
         ->leftJoin('payment_methods', 'effects.payment_method_id', '=', 'payment_methods.id')
+        ->leftJoin('invoices', 'effects.invoice_id', '=', 'invoices.id')
         ->whereYear('effects.created_at', '=', $year)
         ->whereNull('effects.deleted_at')
         ->when($customer_id && $provider_id, function ($q) use ($customer_id, $provider_id) {
@@ -231,25 +232,15 @@ class EffectController extends Controller{
         })
         ->addColumn('is_group', function ($row){
             if($row->is_group){
-                return '<span style="display: none">1</span><i class="fa fa-check text-success"></i>';
+                return '<span style="display: none">1</span><a href="/admin/effects/'.$row->parent.'/edit">'.$row->parent.'</a>';
             }else{
                 return '<span style="display: none">0</span>';
             }
         })
         ->addColumn('invoices', function ($row){
-            $invoices = Invoice::select('id', 'invoice_num', 'invoice_old_num')->where('effect_id', $row->id)->get();
-            if($invoices->count()){
-                $html = '';
-                $k = 0;
-                foreach($invoices as $in){
-                    $num_ = $in->invoice_num? $in->invoice_num:($in->invoice_old_num? $in->invoice_old_num:$in->id);
-                    if($k > 0){
-                    $html .= ', ';
-                    }
-                    $html .= '<a target="_blank" href="'.route('invoices.edit', $in->id).'">'.$num_.'</a>';
-                    $k++;
-                }
-                return $html;
+            if($row->invoice_id){
+                $num_ = $row->invoice_num? $row->invoice_num:($row->invoice_old_num? $row->invoice_old_num:$row->invoice_id);
+                return '<a target="_blank" href="'.route('invoices.edit', $row->invoice_id).'">'.$num_.'</a>';
             }else{
                 return '';
             }
@@ -436,10 +427,10 @@ class EffectController extends Controller{
         ->toArray();
 
         //Series:
-        $series = InvoiceSerie::select(DB::raw("CONCAT(code,'-',description) as cuenta"), 'id')
-        ->where('company_id', session('currentCompany'))
-        ->pluck('cuenta', 'id')
-        ->toArray();
+        // $series = InvoiceSerie::select(DB::raw("CONCAT(code,'-',description) as cuenta"), 'id')
+        // ->where('company_id', session('currentCompany'))
+        // ->pluck('cuenta', 'id')
+        // ->toArray();
 
         //Facturas:
         $invoices = Invoice::select('invoices.id', 'invoices.invoice_num', 'invoices.invoice_old_num', 'invoices.amount', 'invoices.amount_with_iva', 'invoices.fiscal_date', 'invoices.expiration_date', 'invoices.status', 'companies.name AS company')
@@ -497,6 +488,6 @@ class EffectController extends Controller{
 
         $currency = $this->currency;
 
-        return view('admin.effects.edit', compact('header', 'effect', 'effect_status', 'my_bank_accounts', 'bank_accounts','payment_methods', 'series', 'invoices', 'invoices_out', 'invoice_status', 'son_effects', 'payment_status', 'remittance', 'customer', 'created_by', 'languages', 'currency'));
+        return view('admin.effects.edit', compact('header', 'effect', 'effect_status', 'my_bank_accounts', 'bank_accounts','payment_methods', 'invoices', 'invoices_out', 'invoice_status', 'son_effects', 'payment_status', 'remittance', 'customer', 'created_by', 'languages', 'currency'));
     }
 }
