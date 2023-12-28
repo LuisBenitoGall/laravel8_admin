@@ -367,7 +367,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 									$accumulatedAmount = $accumulatedAmount + $orden_w;
 									@endphp
 
-									<x-input type="text" name="percent[]" class="text-right set-decimals percent prevision-data" autocomplete="off" maxlength="5" value="{{ $percent }}" group="right" groupvalue="%" required disabled="{{ $disabled_ }}"/>
+									<x-input type="text" name="percent[]" class="text-right set-decimals percent prevision-data" autocomplete="off" maxlength="10" value="{{ $percent }}" group="right" groupvalue="%" required disabled="{{ $disabled_ }}"/>
 
 									{{-- Monto de la orden, aplicando el porcentaje de cobro --}}
 									<small data-container="body" data-toggle="popover" data-placement="top" data-content="{{ trans('textos.facturacion_prevista_info_percent') }}">
