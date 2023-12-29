@@ -282,6 +282,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 					@php
 					$totalPercent = 0;
 					$accumulatedAmount = 0;			//Importe acumulado de previsiones.
+					$previsionSetted = true;		//Variable para controlar si la última previsión tiene declarado importe y porcentaje.
 					$k = 1;							//Contador de previsiones.
 					@endphp
 
@@ -292,6 +293,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 							$totalPercent = $totalPercent + $prev->percent;
 							$disabled = $prev->invoice_id? 'disabled':'';
 							$disabled_ = $prev->invoice_id? true:false;
+							if(!$prev->amount && !$prev->percent) $previsionSetted = false;
 							@endphp
 
 							<div class="form-group row prevision">
@@ -301,7 +303,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 
 								{{-- Año --}}
 								<label for="year" class="col-md-2 col-lg-1 col-form-label mb-2">{!! ucfirst(trans('textos.any')) !!}</label>
-								<div class="col-md-4 col-lg-2 sinpadding">
+								<div class="col-md-4 col-lg-1 sinpadding">
 									<select name="year[]" class="form-control select2 prevision-data" {{ $disabled }}>
 										@for($y=config('constants.MIN_YEAR_'); $y<=(date('Y')+3); $y++)
 											@php
@@ -321,7 +323,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 
 								{{-- Mes --}}
 								<label for="month" class="col-md-2 col-lg-1 col-form-label">{!! ucfirst(trans('textos.mes')) !!}</label>
-								<div class="col-md-4 col-lg-2 sinpadding">
+								<div class="col-md-4 col-lg-1 sinpadding">
 									@php
 									$months = App\Helpers\helpers::yearMonths();
 									@endphp
@@ -349,8 +351,18 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 						            @endif
 								</div>
 
+								{{-- Importe --}}
+								<label for="amount" class="col-md-2 col-lg-1 col-form-label">{!! ucfirst(trans('textos.importe')) !!}</label>
+								<div class="col-md-4 col-lg-2 sinpadding text-right">
+									<x-input type="text" name="amount[]" class="text-right set-decimals prevision-amount prevision-data" autocomplete="off" maxlength="10" value="{{ $prev->amount }}" group="right" groupvalue="{{ $currency->symbol }}" required disabled="{{ $disabled_ }}"/>
+
+									@php
+									$accumulatedAmount = $accumulatedAmount + $prev->amount;
+									@endphp
+								</div>
+
 								{{-- Porcentaje --}}
-								<label for="percent" class="col-md-2 col-lg-2 col-form-label">{!! ucfirst(trans('textos.porcentaje')) !!}</label>
+								<label for="percent" class="col-md-2 col-lg-1 col-form-label">{!! ucfirst(trans('textos.porcentaje')) !!}</label>
 								<div class="col-md-4 col-lg-2 sinpadding text-right">
 									@php
 									$percent = $totalPercent > 100? '':$prev->percent;
@@ -363,16 +375,14 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 									if($k = $previsions->count() && $totalPercent >= 100){
 										$orden_w = abs($order_amount - $accumulatedAmount);
 									}
-
-									$accumulatedAmount = $accumulatedAmount + $orden_w;
 									@endphp
 
 									<x-input type="text" name="percent[]" class="text-right set-decimals percent prevision-data" autocomplete="off" maxlength="10" value="{{ $percent }}" group="right" groupvalue="%" required disabled="{{ $disabled_ }}"/>
 
 									{{-- Monto de la orden, aplicando el porcentaje de cobro --}}
-									<small data-container="body" data-toggle="popover" data-placement="top" data-content="{{ trans('textos.facturacion_prevista_info_percent') }}">
+									{{-- <small data-container="body" data-toggle="popover" data-placement="top" data-content="{{ trans('textos.facturacion_prevista_info_percent') }}">
 										{{ round($orden_w, 3) }}{{ $currency['symbol'] }} ({{ round($orden_wo, 3) }}{{ $currency['symbol'] }}) <li class="fa fa-info-circle"></li>
-									</small>
+									</small> --}}
 
 						            @if(round($totalPercent, 2) > 100)
 						            	<span class="invalid-feedback" role="alert">
@@ -415,7 +425,17 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 						Pasamos como condición adicional que el porcentaje sea mayor a 0.02, para evitar decimales residuales.
 					--}}
 					@if($totalPercent < 100 && (100 - $totalPercent) > 0.02 && $order->blocked == '0')
-						<p class="text-warning">{!! trans('textos.facturacion_prevision_pendiente') !!}: <b>{{ round(100 - $totalPercent, 2) }}%</b></p>
+						<p class="text-warning">
+							{!! trans('textos.facturacion_prevision_pendiente') !!}: 
+							<b class="mr-4">{{ round($order_amount - $accumulatedAmount, 2) }}{{ $currency->symbol }}</b>
+							<b class="mr-4">{{ round(100 - $totalPercent, 6) }}%</b>
+
+							{{-- Copiar valores a la nueva previsión --}}
+							<a href="#" id="copyPrev" @if(!$previsionSetted) style="display: inline-block;" @endif rel="tooltip" title="{{ trans('textos.prevision_copiar_valores') }}" data-amount="{{ round($order_amount - $accumulatedAmount, 2) }}" data-percent="{{ round(100 - $totalPercent, 6) }}">
+								<i class="fa fa-copy"></i>
+							</a>
+						</p>
+
 					@elseif($totalPercent < 100 && $order->blocked == 1)
 						<p class="text-warning">{!! trans('textos.pedido_cerrado_aviso') !!}</p>	
 					@endif		
