@@ -803,7 +803,7 @@ $order_amount_without_discount = $order_amount_without_discount_in_lines > $orde
 	<div class="form-group row prevision">
 		{{-- Año --}}
 		<label for="year" class="col-md-2 col-lg-1 col-form-label mb-2">{!! ucfirst(trans('textos.any')) !!}</label>
-		<div class="col-md-4 col-lg-2 sinpadding">
+		<div class="col-md-4 col-lg-1 sinpadding">
 			<select name="year[]" class="form-control">
 				@for($y=date('Y'); $y<=(date('Y')+3); $y++)
 					<option value="{{ $y }}">{{ $y }}</option>
@@ -819,7 +819,7 @@ $order_amount_without_discount = $order_amount_without_discount_in_lines > $orde
 
 		{{-- Mes --}}
 		<label for="month" class="col-md-2 col-lg-1 col-form-label">{!! ucfirst(trans('textos.mes')) !!}</label>
-		<div class="col-md-4 col-lg-2 sinpadding">
+		<div class="col-md-4 col-lg-1 sinpadding">
 			@php
 			$months = App\Helpers\Helpers::yearMonths();
 			@endphp
@@ -839,8 +839,14 @@ $order_amount_without_discount = $order_amount_without_discount_in_lines > $orde
 		    @endif
 		</div>
 
+		{{-- Importe --}}
+		<label for="amount" class="col-md-2 col-lg-1 col-form-label">{!! ucfirst(trans('textos.importe')) !!}</label>
+		<div class="col-md-4 col-lg-2 sinpadding text-right">
+			<x-input type="text" name="amount[]" class="text-right set-decimals prevision-amount" autocomplete="off" maxlength="10" group="right" groupvalue="{{ $currency->symbol }}" required/>
+		</div>
+
 		{{-- Porcentaje --}}
-		<label for="percent" class="col-md-2 col-lg-2 col-form-label">{!! ucfirst(trans('textos.porcentaje')) !!}</label>
+		<label for="percent" class="col-md-2 col-lg-1 col-form-label">{!! ucfirst(trans('textos.porcentaje')) !!}</label>
 		<div class="col-md-4 col-lg-2 sinpadding">
 			<x-input type="text" name="percent[]" class="text-right set-decimals percent" autocomplete="off" maxlength="10" group="right" groupvalue="%" required/>
 		</div>
@@ -952,7 +958,7 @@ function percentController(){
     }
 
     if(total > 100){
-    	$('.previsions .prevision .percent:last').val('');
+    	$('.previsions .prevision .percent:last, .previsions .prevision .prevision-amount:last').val('');
     	swal.fire({
 	        title: txtFacturacion100,
 	        text: "",
@@ -969,6 +975,42 @@ function percentController(){
     }
 }
 
+//Control del importe de facturación:
+var previsions_amount = 0;
+function amountController(){
+	var total_amount_ = '0';	
+
+	$('.previsions .prevision .prevision-amount').each(function(){
+    	var amount_ = $(this).val();
+    	if(amount_ > 0){
+    		total_amount_ = (parseFloat(total_amount_) + parseFloat(amount_)).toFixed(2);
+    	}
+    });
+
+	//Bloqueamos o habilitamos la inclusión de nuevas previsiones de facturación en función del importe alcanzado:
+    if(total_amount_ > {{ $order_amount }}){
+    	$('.btnAddPrevision').fadeOut();
+
+    	$('.previsions .prevision .percent:last, .previsions .prevision .prevision-amount:last').val('');
+    	swal.fire({
+	        title: txtFacturacion100,
+	        text: "",
+	        icon: 'warning',
+	        iconColor: color_warning,
+	        showCancelButton: false,
+	        confirmButtonColor: color_danger,
+	        cancelButtonColor: color_danger,
+	        confirmButtonText: txtCancelar,
+	        cancelButtonText: txtCancelar
+	    });
+
+	    return 'delete';
+
+    }else{
+    	$('.btnAddPrevision').fadeIn();
+    }
+}
+
 $(function(){
 	var customer_team = {!! json_encode($customer_team) !!};
 	var provider_team = {!! json_encode($provider_team) !!};
@@ -979,18 +1021,52 @@ $(function(){
         var prev = $('.clones').html();
         $('.previsions').append(prev);
         $('.fa-spinner').remove();
+        $('#copyPrev').fadeIn();
     });
     $(document).on('click', '.btnRemovePrevision', function(){
         $(this).closest('.prevision').remove();
+        $('.btnAddPrevision').fadeIn();
+        $('#copyPrev').fadeOut();
     });
 
-    //Control previsión de facturación:
+    //Control previsión de facturación por porcentaje:
     percentController();
+    amountController();
     $(document).on('change', '.percent', function(){
+    	//Calculando importe del porcentaje:
+    	var pcnt = $(this).val();
+    	var amnt = ((pcnt * {{ $order_amount}}) / 100).toFixed(2);
+    	var father = $(this).closest('.prevision');
+    	father.find('.prevision-amount').val(amnt);
+
    		var action = percentController();
    		if(action == 'delete'){
    			$(this).val('');
    		}
+    });
+
+    //Control previsión de facturación por importe:
+    $(document).on('change', '.prevision-amount', function(){
+    	//Calculando porcentaje del importe:
+    	var amnt = $(this).val();
+    	var pcnt = ((amnt * 100) / {{ $order_amount}}).toFixed(6);
+    	var father = $(this).closest('.prevision');
+    	father.find('.percent').val(pcnt);
+
+   		var action = amountController();
+   		if(action == 'delete'){
+   			$(this).val('');
+   		}
+    });
+
+    //Copiar valores pendientes de previsión a nueva previsión:
+    $('#copyPrev').on('click', function(e){
+    	e.preventDefault();
+    	var a = $(this).data('amount');
+    	var p = $(this).data('percent');
+
+    	$('.previsions .prevision .prevision-amount:last').val(a);
+    	$('.previsions .prevision .percent:last').val(p);
     });
 
     //Validación previsiones de facturación:

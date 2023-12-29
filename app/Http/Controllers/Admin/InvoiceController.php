@@ -689,6 +689,7 @@ class InvoiceController extends Controller{
             $new_prev->order_id = $order->id;
             $new_prev->year = Date('Y');
             $new_prev->month = Date('m');
+            $new_prev->amount = $outstanding_amount;
             $new_prev->percent = round($percent, 2);
             $new_prev->invoice_id = $invoice->id;
             $new_prev->save();    
@@ -2377,6 +2378,7 @@ class InvoiceController extends Controller{
             $new_order_prevision = new OrderPrevisions();
             $new_order_prevision->order_id = $invoice->order_id;
             $new_order_prevision->year = date('Y');
+            $new_order_prevision->amount = $refund_amount;
             $new_order_prevision->percent = ($refund_amount * 100) / $invoice->amount;
             $new_order_prevision->save();
 
