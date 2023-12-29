@@ -1175,13 +1175,13 @@ class OrderController extends Controller{
 
         //Previsiones de facturación del pedido:    
         $generate = $order->blocked == 1? false:true;  
-        $previsions = OrderPrevisions::previsions($order->id, $generate);
+        $previsions = OrderPrevisions::previsions($order->id, $order_amount, $generate);
 
         //Debe existir siempre al menos una previsión:
         if(!$previsions->count()){
             OrderPrevisions::store($order->id);
 
-            $previsions = OrderPrevisions::previsions($order->id, $generate);
+            $previsions = OrderPrevisions::previsions($order->id, $order_amount, $generate);
         }
 
         //Productos. Activos y aptos para venta:
@@ -1534,17 +1534,21 @@ class OrderController extends Controller{
 
         //Guardamos previsiones:
         if($request->year){
+            $order_amount = $order->getAmount(true, false, true); 
+
             for($i=0; $i<count($request->year); $i++){
                 //Validamos datos:
                 if(is_numeric($request->year[$i])){
                     //Actualizar o...
+                    //29/12/2023: trasladamos la actualización de las previsiones a la edición del pedido.  Como primer paso se recalcularán cada vez importes y porcentajes de las previsiones de facturación.
                     if(isset($request->op_id[$i])){
                         $op = OrderPrevisions::find($request->op_id[$i]);
                         //Actualizamos si no se encuentra facturado:
                         if(!$op->invoice_id){
                             $op->year = $request->year[$i];
                             $op->month = $request->month[$i]? $request->month[$i]:NULL;
-                            $op->percent = $request->percent[$i];
+                            $op->amount = $request->amount[$i]? $request->amount[$i]:NULL;
+                            $op->percent = $request->percent[$i]? $request->percent[$i]:NULL;
                             $op->save();
                         }
 
@@ -1554,7 +1558,8 @@ class OrderController extends Controller{
                         $op->order_id = $order->id;
                         $op->year = $request->year[$i];
                         $op->month = $request->month[$i]? $request->month[$i]:NULL;
-                        $op->percent = $request->percent[$i];
+                        $op->amount = $request->amount[$i]? $request->amount[$i]:NULL;
+                        $op->percent = $request->percent[$i]? $request->percent[$i]:NULL;
                         $op->save();
                     }
                 }
@@ -1591,6 +1596,7 @@ class OrderController extends Controller{
                                 $op_->order_id = $first_provider_order->id;
                                 $op_->year = $cp->year;
                                 $op_->month = $cp->month;
+                                $op_->amount = $cp->amount;
                                 $op_->percent = $cp->percent;
                                 $op_->save();
                             }

@@ -194,6 +194,7 @@ class Invoice extends Model{
             $new_prev->order_id = $order->id;
             $new_prev->year = Date('Y');
             $new_prev->month = Date('m');
+            $new_prev->amount = $invoice->amount;
             $new_prev->percent = round($percent, 2);
             $new_prev->invoice_id = $invoice->id;
             $new_prev->save();    

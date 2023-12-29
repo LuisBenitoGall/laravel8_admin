@@ -227,6 +227,32 @@ and o.deleted_at is null
 and o.provider_id = 4
 and o.is_order = 1
 and o.is_budget < 1;
+
+- Comparativa importes pedidos y facturas:
+SELECT
+    o.order_num,
+    c.name AS company,
+    CONCAT(u.name, ' ', u.surname) as manager,
+    FORMAT(
+    	(SELECT SUM(amount) FROM invoices i WHERE i.order_id = o.id AND i.deleted_at IS NULL), 2 
+    ) AS importe_factura,
+    FORMAT(
+        (SELECT SUM((it.qty * it.price) - COALESCE((it.qty * it.price * it.discount) / 100, 0)) 
+         FROM items it 
+         WHERE it.order_id = o.id AND it.deleted_at IS NULL), 2
+    ) AS importe_pedido
+FROM
+    orders o
+    INNER JOIN companies c ON o.customer_id = c.id
+    LEFT JOIN users u ON o.provider_manager_id = u.id
+WHERE
+    o.provider_id = 4
+    AND o.deleted_at IS NULL
+    AND o.is_order = 1
+    AND YEAR(o.created_at) = 2023
+    AND o.invoiced = 1
+ORDER BY
+    o.order_num ASC;
    
 
 ### Instalación de Sentry

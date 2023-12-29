@@ -755,7 +755,10 @@ $(window).on('load', function () {
         //Reemplazamos comas por puntos:
         var value = value.replace(/,/g, '.');
         //Patrón de formato correcto con 2 decimales:
-        var regexp = /^-?\d*(\.\d{1})?\d{0,1}$/;
+        //var regexp = /^-?\d*(\.\d{1})?\d{0,1}$/;
+        //29/12/2023: se modifica el patrón para que admita hasta 6 decimales.
+        var regexp = /^-?\d*(\.\d{1})?\d{0,6}$/;
+
         //7/12/22: se permite incluir valor 0 ( value == '0' || )
         if (!regexp.test(value) ||  value == '') {
             swal.fire({

@@ -2424,6 +2424,7 @@ return array(
 	'presupuestos_proveedores' => 'Presupuestos proveedores',
 	'presupuestos_ventas' => 'Presupuestos de ventas',
 	'presupuestos' => 'presupuestos',
+	'prevision_copiar_valores' => 'Copiar valores de previsión',
 	'prevision_deleted' => 'La previsión ha sido eliminada correctamente.',
 	'prevision_eliminar_aviso' => 'Confirma que deseas eliminar esta previsión',
 	'prevision_eliminar_error' => 'No se puede eliminar un tramo de pedido ya facturado',
