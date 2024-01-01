@@ -7,7 +7,7 @@
 <div class="row mb-3">
 	{{-- Acciones: --}}
 	<div class="col-12">
-		@can('cash.create')
+		@can('remittances.create')
 			<a class="btn btn-info" href="{{ route('remittances.create') }}"><i class="fa fa-plus"></i> {!! ucfirst(trans('textos.remesa_nueva')) !!}</a>
 		@endcan
 	</div>

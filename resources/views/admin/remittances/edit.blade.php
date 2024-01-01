@@ -11,7 +11,7 @@
 		</a>
 
 		{{-- Nueva remesa --}}
-		@can('cash.create')
+		@can('remittances.create')
 			<a class="btn btn-info" href="{{ route('remittances.create') }}"><i class="fa fa-plus"></i> {!! ucfirst(trans('textos.remesa_nueva')) !!}</a>
 		@endcan
 	</div>
@@ -26,6 +26,8 @@
 					<u>
 						@if($remittance->remittance_num)	
 							{{ $remittance->remittance_num }}
+						@elseif($remittance->remittance_old_num)	
+							{{ $remittance->remittance_old_num }}
 						@else
 							{{ $remittance->id }}
 						@endif
@@ -114,7 +116,7 @@
 						{{-- Precio --}}
 						<label for="amount" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.importe')) !!}</label>
 						<div class="col-lg-2">
-							<x-input type="text" name="amount" class="text-right set-decimals" id="price" value="{{ $remittance->amount }}" autocomplete="off" maxlength="8" group="right" groupvalue="{{ $currency->symbol }}"/>
+							<x-input type="text" name="amount" class="text-right set-decimals" id="price" value="{{ $remittance->amount }}" autocomplete="off" maxlength="8" group="right" groupvalue="{{ $currency->symbol }}" readonly/>
 						</div>
 
 						{{-- Estado --}}
@@ -146,6 +148,13 @@
 						</div>
 					</div>
 
+					<div id="effects">
+						{{-- Se almacenan los effects que se vayan seleccionando --}}
+						@foreach($selected_effects as $sf_)
+							<input type="hidden" class="ef-{{ $sf_->id }}" name="effects[]" value="{{ $sf_->id }}">
+						@endforeach
+					</div>
+
 					<x-btn-submit name="submit_update" label="{{ trans('textos.guardar') }}"/> 				
 				</form>
 			</div>
@@ -157,50 +166,132 @@
 	<div class="table-responsive">
 		<table class="table table-hover dTable" id="tblRemittanceEffects">
 			<thead>
-				<th class="wdt50">{!! ucfirst(trans('textos.cliente')) !!}</th>
-				<th class="wdt150">{!! ucfirst(trans('textos.factura')) !!}</th>
+				<th class="text-center wdt50">#</th>
+				<th class="wdt100">{!! ucfirst(trans('textos.cliente')) !!}</th>
+				<th class="wdt50">{!! ucfirst(trans('textos.factura')) !!}</th>
 				<th class="text-center wdt50">{!! ucfirst(trans('textos.fecha')) !!}</th>
 				<th class="text-center wdt50">{!! ucfirst(trans('textos.importe')) !!}</th>
-				<th class="text-center wdt50">{!! ucfirst(trans('textos.cuenta_bancaria')) !!}</th>
+				<th class="text-center wdt50">{!! ucfirst(trans('textos.tipo')) !!}</th>
+				<th class="text-center wdt100">{!! ucfirst(trans('textos.cuenta_bancaria')) !!}</th>
 				<th class="text-center wdt100">{!! ucfirst(trans('textos.acciones')) !!}</th>
 			</thead>
 
 			<tbody>
-				@foreach($effects as $ef)
+				{{-- Efectos remesados --}}
+				@foreach($selected_effects as $sf)
 					<tr>
+						{{-- Número --}}
+						<td class="text-right">
+							@if($sf->effect_num) 
+								<a target="_blank" href="{{ route('effects.edit', $sf->id) }}">{{ $sf->effect_num }}</a>
+							@endif
+						</td>
 						{{-- Cliente --}}
 						<td>
-							{{ $ef->customer }}
+							{{ $sf->customer }}
 						</td>
 						{{-- Factura --}}
 						<td class="text-right">
-							@if($ef->invoice_id)
+							@if($sf->invoice_id)
 								@php
-								$num = $ef->invoice_num? $ef->invoice_num:($ef->invoice_old_num? $ef->invoice_old_num:$ef->invoice_id);
+								$num = $sf->invoice_num? $sf->invoice_num:($sf->invoice_old_num? $sf->invoice_old_num:$sf->invoice_id);
 								@endphp
-								<a target="_blank" href="{{ route('invoices.edit', $ef->invoice_id) }}">{{ $num }}</a>
+								<a target="_blank" href="{{ route('invoices.edit', $sf->invoice_id) }}">{{ $num }}</a>
 							@endif
 						</td>
 						{{-- Fecha --}}
 						<td class="text-right">
-							{!! Carbon\Carbon::parse($ef->date)->format($languages[session()->get('locale')][4]); !!}
+							{!! Carbon\Carbon::parse($sf->date)->format($languages[session()->get('locale')][4]); !!}
 						</td>
 						{{-- Importe --}}
 						<td class="text-right">
-							{{ $ef->amount }}{{ $ef->symbol }}
+							{{ $sf->amount }}{{ $sf->symbol }}
+						</td>
+						{{-- Tipo de efecto --}}
+						<td>
+							@if($sf->type && isset($effect_types[$sf->type])) {!! $effect_types[$sf->type] !!} @endif
 						</td>
 						{{-- Cuenta bancaria --}}
 						<td class="text-right">
-							{{ $ef->entity }} {{ $ef->iban }}-{{ $ef->office }}-{{ $ef->dc }}-{{ $ef->account }}	
+							{{ $sf->account }}	
 						</td>
 						{{-- Acciones --}}
 						<td class="text-right">
-							<label class="custom-chk-rdb" rel="tooltip" title="{{ trans('textos.efecto_on_off') }}">
-						<input type="checkbox" name="effect" value="{{ $ef->id }}" class="chkEffect"><span class="chk"></span>
-						</label>
+							{{-- Vincular a remesa - condiciones: 
+								1. Si la remesa está en estado pendiente.
+								... 
+							--}}
+							@if($remittance->status == config('constants.EFFECT_STATUS_PENDENT_'))
+								<label class="custom-chk-rdb" rel="tooltip" title="{{ trans('textos.efecto_on_off') }}">
+									<input type="checkbox" name="effect" value="{{ $sf->id }}" class="chkEffect" checked><span class="chk"></span>
+								</label>
+							@endif
+
+							{{-- Editar --}}
+							<a target="_blank" class="btn btn-xs btn-info" href="{{ route('effects.edit', $sf->id) }}" rel="tooltip" title="{{ ucfirst(trans('textos.editar')) }}">
+								<i class="fa fa-edit"></i>
+							</a>
 						</td>
 					</tr>
-				@endforeach	
+				@endforeach
+
+				{{-- Efectos remesables - condiciones: 
+					1. Si la remesa está en estado pendiente.
+					...
+				--}}
+				@if($remittance->status == config('constants.EFFECT_STATUS_PENDENT_'))
+					@foreach($effects as $ef)
+						<tr>
+							{{-- Número --}}
+							<td class="text-right">
+								@if($ef->effect_num) 
+									<a target="_blank" href="{{ route('effects.edit', $ef->id) }}">{{ $ef->effect_num }}</a>
+								@endif
+							</td>
+							{{-- Cliente --}}
+							<td>
+								{{ $ef->customer }}
+							</td>
+							{{-- Factura --}}
+							<td class="text-right">
+								@if($ef->invoice_id)
+									@php
+									$num = $ef->invoice_num? $ef->invoice_num:($ef->invoice_old_num? $ef->invoice_old_num:$ef->invoice_id);
+									@endphp
+									<a target="_blank" href="{{ route('invoices.edit', $ef->invoice_id) }}">{{ $num }}</a>
+								@endif
+							</td>
+							{{-- Fecha --}}
+							<td class="text-right">
+								{!! Carbon\Carbon::parse($ef->date)->format($languages[session()->get('locale')][4]); !!}
+							</td>
+							{{-- Importe --}}
+							<td class="text-right">
+								{{ $ef->amount }}{{ $ef->symbol }}
+							</td>
+							{{-- Tipo de efecto --}}
+							<td>
+								@if($ef->type && isset($effect_types[$ef->type])) {!! $effect_types[$ef->type] !!} @endif
+							</td>
+							{{-- Cuenta bancaria --}}
+							<td class="text-right">
+								{{ $ef->account }}	
+							</td>
+							{{-- Acciones --}}
+							<td class="text-right">
+								{{-- Vincular a remesa --}}
+								<label class="custom-chk-rdb" rel="tooltip" title="{{ trans('textos.efecto_on_off') }}">
+									<input type="checkbox" name="effect" value="{{ $ef->id }}" class="chkEffect"><span class="chk"></span>
+								</label>
+
+								{{-- Editar --}}
+								<a target="_blank" class="btn btn-xs btn-info" href="{{ route('effects.edit', $ef->id) }}" rel="tooltip" title="{{ ucfirst(trans('textos.editar')) }}">
+									<i class="fa fa-edit"></i>
+								</a>
+							</td>
+						</tr>
+					@endforeach	
+				@endif
 			</tbody>
 		</table>
 	</div>

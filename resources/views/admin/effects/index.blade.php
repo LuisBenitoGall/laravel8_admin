@@ -86,7 +86,7 @@
 
 {{-- Modals --}}
 {{-- Add remittance --}}
-{{-- @include('admin.effects.partials.modal-add-remittance') --}}
+@include('admin.effects.partials.modal-add-remittance')
 
 @push('scripts')
 <script>
