@@ -11,6 +11,8 @@ class Effect extends Model{
     /**
      * 1. Generar nuevo efecto.
      * 2. Empresa vinculada.
+     * 3. Facturas de un efecto.
+     * 4. Efectos remesables.
      */
     
     use HasFactory;
@@ -68,7 +70,6 @@ class Effect extends Model{
         $instance->provider_bank_account_id = $data['provider_bank_account_id'];
         $instance->customer_id = $data['customer_id'];
         $instance->customer_bank_account_id = $data['customer_bank_account_id'];
-        $instance->invoice_id = $data['is_group']? NULL:$data['invoice_id'];
         //$instance->serie_id = $data['serie_id'];
         $instance->remittance_id = $data['remittance_id'];
         $instance->payment_method_id = $data['payment_method_id'];
@@ -86,6 +87,14 @@ class Effect extends Model{
         //     $invoice->effect_id = $instance->id;
         //     $invoice->save();
         // }
+        
+        //Vincular efecto con factura:
+        if($data['invoice_id']){
+            $ie = new InvoiceEffect();
+            $ie->invoice_id = $data['invoice_id'];
+            $ie->effect_id = $instance->id;
+            $ie->save();
+        }
 
         return $instance;
     }
@@ -95,6 +104,28 @@ class Effect extends Model{
      */
     public function company(){
         return $this->belongsTo(Company::class);
+    }
+
+    /**
+     * 3. Facturas de un efecto.
+     */
+    public function invoices(){
+        return $this->belongsToMany(Invoice::class, 'invoice_effects');
+    }
+
+    /**
+     * 4. Efectos remesables.
+     */
+    public static function getEffectsToRemittance(){
+        return Effect::select('effects.id', 'effects.effect_num', 'effects.parent', 'effects.customer_id', 'effects.date', 'effects.amount', 'effects.status', 'effects.type', 'bank_accounts.account', 'companies.name AS customer', 'currencies.symbol')
+        ->where('effects.provider_id', session('currentCompany'))
+        ->join('bank_accounts', 'effects.provider_bank_account_id', '=', 'bank_accounts.id')
+        ->join('companies', 'effects.customer_id', '=', 'companies.id')
+        ->join('currencies', 'effects.currency_id', '=', 'currencies.id')
+        ->where('effects.status', config('constants.EFFECT_STATUS_PENDENT_'))
+        ->whereNull('effects.remittance_id')
+        ->orderBy('effects.created_at', 'DESC')
+        ->get();    
     }
 
 }

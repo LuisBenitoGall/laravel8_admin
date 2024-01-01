@@ -371,6 +371,7 @@ $(window).on('load', function () {
     42. Búsqueda autocomplete para cuentas contables.
     43. Modal vincular pedidos de terceros.
     44. Modal editar nota.
+    45. Seleccionar efectos para remesa.
     */
 
     // 1. Eliminar preview imagen seleccionada:
@@ -1821,5 +1822,16 @@ $(window).on('load', function () {
         $('#noteEditId').val(id);
         $('#noteEditTitle').val(title);
         $('#noteEditContent').val(content);
+    });
+
+    // 45. Seleccionar efectos para remesa.
+    $('.chkEffect').on('click', function(){
+        var val = $(this).val();
+        if($(this).is(':checked')){
+            var html = '<input type="hidden" class="ef-'+val+'" name="effects[]" value="'+val+'">'; 
+            $('#effects').append(html);
+        }else{
+            $('.ef-'+val).remove();
+        }       
     });
 });

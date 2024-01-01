@@ -22,8 +22,10 @@ use App\Models\CompanySettings;
 use App\Models\CustomerProviders;
 use App\Models\Effect;
 use App\Models\Invoice;
+use App\Models\InvoiceEffect;
 use App\Models\Payment;
 use App\Models\PaymentMethod;
+use App\Models\Remittance;
 use App\Models\User;
 
 class EffectController extends Controller{
@@ -129,12 +131,12 @@ class EffectController extends Controller{
         $customer = $customer_id? Company::find($customer_id):false;
         $provider = $provider_id? Company::find($provider_id):false;
 
-        // $remittances = Remittance::where('company_id', session('currentCompany'))
-        // ->where('status', config('constants.REMITTANCE_STATUS_OPEN_'))
-        // ->pluck('remittance_num', 'id')
-        // ->toArray();
+        $remittances = Remittance::where('company_id', session('currentCompany'))
+        ->where('status', config('constants.REMITTANCE_STATUS_OPEN_'))
+        ->pluck('remittance_num', 'id')
+        ->toArray();
 
-        return view('admin.effects.index', compact('header', 'year', 'customer', 'provider'));
+        return view('admin.effects.index', compact('header', 'year', 'customer', 'provider', 'remittances'));
     }
 
     /**
@@ -206,13 +208,12 @@ class EffectController extends Controller{
 
         $estados = helpers::effectsStatus(); 
 
-        $data = Effect::select('effects.*', 'currencies.symbol', 'users.name', 'users.surname', 'companies.name AS company', 'remittances.id AS remittanceId', 'remittances.remittance_num', 'remittances.remittance_old_num', 'payment_methods.name AS method', 'invoices.invoice_num', 'invoices.invoice_old_num')
+        $data = Effect::select('effects.*', 'currencies.symbol', 'users.name', 'users.surname', 'companies.name AS company', 'remittances.id AS remittanceId', 'remittances.remittance_num', 'remittances.remittance_old_num', 'payment_methods.name AS method')
         ->leftJoin('currencies', 'effects.currency_id', '=', 'currencies.id')
         ->join('users', 'effects.created_by', '=', 'users.id')
         ->join('companies', 'effects.'.$company_field.'_id', '=', 'companies.id')
         ->leftJoin('remittances', 'effects.remittance_id', '=', 'remittances.id')
         ->leftJoin('payment_methods', 'effects.payment_method_id', '=', 'payment_methods.id')
-        ->leftJoin('invoices', 'effects.invoice_id', '=', 'invoices.id')
         ->whereYear('effects.created_at', '=', $year)
         ->whereNull('effects.deleted_at')
         ->when($customer_id && $provider_id, function ($q) use ($customer_id, $provider_id) {
@@ -238,12 +239,15 @@ class EffectController extends Controller{
             }
         })
         ->addColumn('invoices', function ($row){
-            if($row->invoice_id){
-                $num_ = $row->invoice_num? $row->invoice_num:($row->invoice_old_num? $row->invoice_old_num:$row->invoice_id);
-                return '<a target="_blank" href="'.route('invoices.edit', $row->invoice_id).'">'.$num_.'</a>';
-            }else{
-                return '';
+            $invoices = $row->invoices;
+            $k = 0;
+            $html = '';
+            foreach($invoices as $inv){
+                if($k > 0) $html .= ', ';
+                $num_ = $inv->invoice_num? $inv->invoice_num:($inv->invoice_old_num? $inv->invoice_old_num:$inv->id);
+                $html .= '<a target="_blank" href="'.route('invoices.edit', $inv->id).'">'.$num_.'</a>';
             }
+            return $html;
         })
         ->addColumn('amount', function ($row){
             return $row->amount.$row->symbol;
@@ -409,16 +413,14 @@ class EffectController extends Controller{
         }
 
         //Cuentas bancarias propias:
-        $my_bank_accounts = BankAccounts::select(DB::raw("CONCAT(entity,' ',iban,'-',office,'-',dc,'-',account) as cuenta"), 'id')
-        ->where('company_id', $effect->company_id)
-        ->pluck('cuenta', 'id')
+        $my_bank_accounts = BankAccounts::where('company_id', session('currentCompany'))
+        ->pluck('account', 'id')
         ->toArray();
 
         //Cuentas bancarias del cliente o proveedor:
         $bank_account_company = $effect->company_id == $effect->provider_id? $effect->customer_id:$effect->provider_id;
-        $bank_accounts = BankAccounts::select(DB::raw("CONCAT(entity,' ',iban,'-',office,'-',dc,'-',account) as cuenta"), 'id')
-        ->where('company_id', $bank_account_company)
-        ->pluck('cuenta', 'id')
+        $bank_accounts = BankAccounts::where('company_id', $bank_account_company)
+        ->pluck('account', 'id')
         ->toArray();
 
         //Métodos de pago:
@@ -436,7 +438,8 @@ class EffectController extends Controller{
         $invoices = Invoice::select('invoices.id', 'invoices.invoice_num', 'invoices.invoice_old_num', 'invoices.amount', 'invoices.amount_with_iva', 'invoices.fiscal_date', 'invoices.expiration_date', 'invoices.status', 'companies.name AS company')
         ->join('orders', 'invoices.order_id', '=', 'orders.id')
         ->join('companies', 'orders.customer_id', '=', 'companies.id')
-        ->where('invoices.effect_id', $effect->id)
+        ->join('invoice_effects', 'invoices.id', '=', 'invoice_effects.invoice_id')
+        ->where('invoice_effects.effect_id', $effect->id)
         ->get();
 
         $arr_invoices_in = [];
@@ -450,7 +453,6 @@ class EffectController extends Controller{
         ->join('companies', 'orders.customer_id', '=', 'companies.id')
         ->where('orders.provider_id', session('currentCompany'))
         ->whereNotIn('invoices.id', $arr_invoices_in)
-        ->whereNull('invoices.effect_id')
         ->get();
 
         $invoices_out = [];
@@ -489,5 +491,80 @@ class EffectController extends Controller{
         $currency = $this->currency;
 
         return view('admin.effects.edit', compact('header', 'effect', 'effect_status', 'my_bank_accounts', 'bank_accounts','payment_methods', 'invoices', 'invoices_out', 'invoice_status', 'son_effects', 'payment_status', 'remittance', 'customer', 'created_by', 'languages', 'currency'));
+    }
+
+    /**
+     * 5. Actualizar efecto.
+     * @param \App\Http\Requests\EffectUpdateRequest $request
+     * @param \App\Models\Effect $effect
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, Effect $effect){
+        $validator = $this->validator($request->all());
+        if ($validator->fails()) {
+            return redirect('/admin/effects/'.$effect->id.'/edit')
+            ->withErrors($validator)
+            ->withInput();
+        }
+
+        //Formateando fechas:
+        $date = $request->date? (session()->get('locale') != 'en') ? helpers::convertFecha($request->date) : $request->date : false;
+
+        //Indicadores para actualización de las cuentas bancarias:
+        $provider_bank_account_update = false;
+        $customer_bank_account_update = false;
+
+        if($request->my_bank_account){
+            if($effect->customer_id == session('currentCompany')){
+                $customer_bank_account = $request->my_bank_account; 
+                $customer_bank_account_update = true;
+            }
+
+            if($effect->provider_id == session('currentCompany')){
+                $provider_bank_account = $request->my_bank_account; 
+                $provider_bank_account_update = true;
+            }
+        }
+        if($request->bank_account){
+            if($effect->customer_id != session('currentCompany')){
+                $customer_bank_account = $request->bank_account;    
+                $customer_bank_account_update = true;
+            }
+
+            if($effect->provider_id != session('currentCompany')){
+                $provider_bank_account = $request->bank_account;    
+                $provider_bank_account_update = true;
+            }
+        }
+        
+        if($request->amount){
+            $effect->amount = $request->amount;
+        }
+        if($date){
+            $effect->date = $date;
+        }
+        if($request->payment_method){
+            $effect->payment_method_id = $request->payment_method;
+        }
+        if($provider_bank_account_update){
+            $effect->provider_bank_account_id = $provider_bank_account;
+        }
+        if($customer_bank_account_update){
+            $effect->customer_bank_account_id = $customer_bank_account;
+        }
+        if($request->payment_status){
+            $effect->payment_status = $request->payment_status;
+        }
+        // if($request->serie){
+        //     $effect->serie_id = $request->serie;
+        // }
+        if($request->status){
+            $effect->status = $request->status;
+        }
+        $effect->observations = $request->observations;
+        $effect->save();
+
+        $msg = trans('textos.efecto_updated');
+        return redirect()->route('effects.edit', $effect)->with(compact('msg'));
     }
 }

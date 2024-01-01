@@ -2384,7 +2384,7 @@ class InvoiceController extends Controller{
 
         }elseif($request->refund == 't'){
             OrderPrevisions::where('invoice_id', $invoice->id)
-            ->update(['month' => NULL, 'percent' => 100, 'invoice_id' => NULL]);
+            ->update(['month' => NULL, 'percent' => 100, 'amount' => $refund_amount, 'invoice_id' => NULL]);
         }
 
         $msg = trans('textos.factura_abono_creada');

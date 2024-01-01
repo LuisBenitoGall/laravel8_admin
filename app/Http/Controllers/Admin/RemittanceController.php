@@ -149,20 +149,15 @@ class RemittanceController extends Controller{
         ->pluck('name', 'id')
         ->toArray();
 
+        //Tipos de efectos:
+        $effect_types = helpers::effectTypes();
+
         //Efectos:
-        $effects = Effect::select('effects.id', 'effects.parent', 'effects.customer_id', 'effects.date', 'effects.amount', 'effects.status', 'effects.invoice_id', 'bank_accounts.account', 'companies.name AS customer', 'invoices.invoice_num', 'invoices.invoice_old_num', 'currencies.symbol')
-        ->where('effects.provider_id', session('currentCompany'))
-        ->join('bank_accounts', 'effects.provider_bank_account_id', '=', 'bank_accounts.id')
-        ->join('companies', 'effects.customer_id', '=', 'companies.id')
-        ->leftJoin('invoices', 'effects.invoice_id', '=', 'invoices.id')
-        ->join('currencies', 'effects.currency_id', '=', 'currencies.id')
-        ->where('effects.status', config('constants.EFFECT_STATUS_PENDENT_'))
-        ->orderBy('effects.created_at', 'DESC')
-        ->get();
+        $effects = Effect::getEffectsToRemittance();
 
         $languages = $this->languages;
 
-        return view('admin.remittances.create')->with(compact('header', 'bank_accounts', 'patterns', 'effects', 'languages'));
+        return view('admin.remittances.create')->with(compact('header', 'bank_accounts', 'patterns', 'effect_types', 'effects', 'languages'));
     }
 
     /**
@@ -182,7 +177,17 @@ class RemittanceController extends Controller{
         $r->created_by = Auth::user()->id;
         $r->save();
 
+        //Numeración de la remesa:
         $remittance_arr = RemittancePattern::saveRemittanceNum($r, session('currentCompany'), $request->pattern_id);
+
+        //Vincular efectos a remesa:
+        if(is_array($request->effects) && count($request->effects)){
+            foreach($request->effects as $e){
+                Effect::where('id', $e)
+                ->whereNull('remittance_id')        //Aseguramos que el efecto no haya sido incluido en otra remesa durante el intervalo del proceso.
+                ->update(['remittance_id' => $r->id]);
+            }
+        }
 
         $msg = trans('textos.remesa_creada');
         return redirect()->route('remittances.edit', [$r->id, false])->with(compact('msg'));
@@ -199,9 +204,26 @@ class RemittanceController extends Controller{
         'slug' => 'remittances'
         ];
 
+        //Importe de la remesa = suma importes de los efectos:
+        $sum = Effect::where('remittance_id', $remittance->id)
+        ->sum('amount');
+        $remittance->amount = $sum;
+        $remittance->save();
+
         $author = User::select('name', 'surname')->find($remittance->created_by);
 
-        $effects = Effect::where('remittance_id', $remittance->id)->get();
+        $selected_effects = Effect::select('effects.id', 'effects.effect_num', 'effects.parent', 'effects.customer_id', 'effects.date', 'effects.amount', 'effects.status', 'effects.type', 'bank_accounts.account', 'companies.name AS customer', 'currencies.symbol')
+        ->join('bank_accounts', 'effects.provider_bank_account_id', '=', 'bank_accounts.id')
+        ->join('companies', 'effects.customer_id', '=', 'companies.id')
+        ->join('currencies', 'effects.currency_id', '=', 'currencies.id')
+        ->where('remittance_id', $remittance->id)
+        ->get();
+
+        //Efectos:
+        $effects = Effect::getEffectsToRemittance();
+
+        //Tipos de efectos:
+        $effect_types = helpers::effectTypes();
 
         //Cuentas bancarias:
         $bank_accounts = BankAccounts::where('company_id', session('currentCompany'))
@@ -220,7 +242,7 @@ class RemittanceController extends Controller{
 
         $currency = $this->currency;
 
-        return view('admin.remittances.edit')->with(compact('header', 'remittance', 'author', 'effects', 'bank_accounts', 'patterns', 'estados', 'languages', 'currency'));
+        return view('admin.remittances.edit')->with(compact('header', 'remittance', 'author', 'selected_effects', 'effect_types', 'effects', 'bank_accounts', 'patterns', 'estados', 'languages', 'currency'));
     }
 
     /**
@@ -260,6 +282,16 @@ class RemittanceController extends Controller{
         //$remittance->paying_by = $paying_by;
         $remittance->status = $request->status;
         $remittance->save();
+
+        //Vincular efectos a remesa. Eliminamos previamente todos los vínculos existentes:
+        Effect::where('remittance_id', $remittance->id)
+            ->update(['remittance_id' => NULL]);
+        if(is_array($request->effects) && count($request->effects)){
+            foreach($request->effects as $e){
+                Effect::where('id', $e)
+                ->update(['remittance_id' => $remittance->id]);
+            }
+        }
 
         $msg = trans('textos.remesa_updated');
         return redirect()->route('remittances.edit', [$remittance, false])->with(compact('msg'));

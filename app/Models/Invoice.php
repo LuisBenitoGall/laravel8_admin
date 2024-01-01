@@ -14,6 +14,7 @@ class Invoice extends Model{
      * 1.2. Cálculo factura por items de factura.
      * 2. Suma de importes por pedido.
      * 3. Generar factura.
+     * 4. Efectos de una factura.
      */
 
     use HasFactory;
@@ -200,5 +201,12 @@ class Invoice extends Model{
             $new_prev->save();    
         }
 
+    }
+
+    /**
+     * 4. Efectos de una factura.
+     */
+    public function effects(){
+        return $this->belongsToMany(Effect::class, 'invoice_effects');
     }
 }
