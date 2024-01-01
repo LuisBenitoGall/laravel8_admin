@@ -21,7 +21,7 @@ class OrderPrevisions extends Model{
 
     protected $table = 'order_previsions'; 
 
-    protected $fillable = ['order_id', 'year', 'month', 'percent'];
+    protected $fillable = ['order_id', 'year', 'month', 'amount', 'percent'];
 
     /**
      * 1. Guardar previsión de facturación.

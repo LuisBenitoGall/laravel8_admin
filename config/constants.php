@@ -98,6 +98,9 @@ return [
     'QUESTION_CROSSWORD_' => 30,
     'QUESTION_FREE_TEXT_' => 20,
     'QUESTION_TEST_' => 10,
+    'REMITTANCE_STATUS_DELIVERED_' => 10,        //Remesa enviada.
+    'REMITTANCE_STATUS_OPEN_' => 1,              //Remesa abierta.
+    'REMITTANCE_STATUS_PAYED_' => 20,            //Remesa pagada.
 	'ROLE_' => 'usuario',			//role sin permisos.
     'ROLE_BASICO_' => 'basico',
 	//'ROLE_ID_' => 3,				//id role sin permisos (extraído de la tabla 'roles').

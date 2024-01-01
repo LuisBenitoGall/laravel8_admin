@@ -475,6 +475,8 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::delete('effects/{effect}', 'EffectController@destroy')->name('effects.destroy')->middleware('permission:effects.destroy');
     Route::get('effects/{effect}/status/{status}', 'EffectController@status')->name('effects.status');
     Route::get('effects/groups/{customer_id?}/{provider_id?}/{from?}/{to?}/{payment_method?}', 'EffectController@groups')->name('effects.groups')->middleware('permission:effects.create');
+    Route::post('effects/set-remittance', 'EffectController@setRemittance')->name('effects.set-remittance')->middleware('permission:effects.edit');
+    Route::post('effects/set-invoices', 'EffectController@setInvoices')->name('effects.set-invoices')->middleware('permission:effects.edit');
 
     // Employees:
     Route::get('employees', 'EmployeeController@index')->name('employees.index');

@@ -55,29 +55,43 @@
 	<div class="table-responsive">
 		<table class="table table-hover dTable" id="tblAddEffectsToRemittance">
 			<thead>
-				<th class="wdt50">{!! ucfirst(trans('textos.cliente')) !!}</th>
-				<th class="wdt150">{!! ucfirst(trans('textos.factura')) !!}</th>
+				<th class="text-center wdt50">#</th>
+				<th class="wdt100">{!! ucfirst(trans('textos.cliente')) !!}</th>
+				<th class="wdt50">{!! ucfirst(trans('textos.factura')) !!}</th>
 				<th class="text-center wdt50">{!! ucfirst(trans('textos.fecha')) !!}</th>
 				<th class="text-center wdt50">{!! ucfirst(trans('textos.importe')) !!}</th>
-				<th class="text-center wdt50">{!! ucfirst(trans('textos.cuenta_bancaria')) !!}</th>
-				<th class="text-center wdt100">{!! ucfirst(trans('textos.acciones')) !!}</th>
+				<th class="text-center wdt50">{!! ucfirst(trans('textos.tipo')) !!}</th>
+				<th class="text-center wdt100">{!! ucfirst(trans('textos.cuenta_bancaria')) !!}</th>
+				<th class="text-center wdt50">{!! ucfirst(trans('textos.acciones')) !!}</th>
 			</thead>
 
 			<tbody>
 				@foreach($effects as $ef)
 					<tr>
+						{{-- Número --}}
+						<td class="text-right">
+							@if($ef->effect_num) 
+								<a target="_blank" href="{{ route('effects.edit', $ef->id) }}">{{ $ef->effect_num }}</a>
+							@endif
+						</td>
 						{{-- Cliente --}}
 						<td>
 							{{ $ef->customer }}
 						</td>
 						{{-- Factura --}}
 						<td class="text-right">
-							@if($ef->invoice_id)
-								@php
-								$num = $ef->invoice_num? $ef->invoice_num:($ef->invoice_old_num? $ef->invoice_old_num:$ef->invoice_id);
-								@endphp
-								<a target="_blank" href="{{ route('invoices.edit', $ef->invoice_id) }}">{{ $num }}</a>
-							@endif
+							@php
+							$invoices = $ef->invoices;
+            				$k = 0;
+            				$html = '';
+				            foreach($invoices as $inv){
+				                if($k > 0) $html .= ', ';
+				                $num_ = $inv->invoice_num? $inv->invoice_num:($inv->invoice_old_num? $inv->invoice_old_num:$inv->id);
+				                $html .= '<a target="_blank" href="'.route('invoices.edit', $inv->id).'">'.$num_.'</a>';
+				            }
+				            @endphp
+
+				            {!! $html !!}
 						</td>
 						{{-- Fecha --}}
 						<td class="text-right">
@@ -87,15 +101,26 @@
 						<td class="text-right">
 							{{ $ef->amount }}{{ $ef->symbol }}
 						</td>
+						{{-- Tipo de efecto --}}
+						<td>
+							@if($ef->type && isset($effect_types[$ef->type])) {!! $effect_types[$ef->type] !!} @endif
+						</td>
 						{{-- Cuenta bancaria --}}
 						<td class="text-right">
-							{{ $ef->entity }} {{ $ef->iban }}-{{ $ef->office }}-{{ $ef->dc }}-{{ $ef->account }}	
+							{{ $ef->account }}	
 						</td>
 						{{-- Acciones --}}
 						<td class="text-right">
+							{{-- Vincular a remesa --}}
 							<label class="custom-chk-rdb" rel="tooltip" title="{{ trans('textos.efecto_on_off') }}">
-						<input type="checkbox" name="effect" value="{{ $ef->id }}" class="chkEffect"><span class="chk"></span>
-						</label>
+								<input type="checkbox" name="effect" value="{{ $ef->id }}" class="chkEffect">
+								<span class="chk"></span>
+							</label>
+
+							{{-- Editar --}}
+							<a target="_blank" class="btn btn-xs btn-info" href="{{ route('effects.edit', $ef->id) }}" rel="tooltip" title="{{ ucfirst(trans('textos.editar')) }}">
+								<i class="fa fa-edit"></i>
+							</a>
 						</td>
 					</tr>
 				@endforeach	
@@ -103,23 +128,5 @@
 		</table>
 	</div>
 </div>
-
-@push('scripts')
-<script>
-$(function(){
-	//Seleccionar efectos.
-	$('.chkEffect').on('click', function(){
-		var elem = $(this);
-		var val = $(this).val();
-		if (elem.siblings('input').is(':checked')) {
-			var html = '<input type="hidden" class="ef-'+val+'" name="effects[]" value="'+val+'">';	
-			('#effects').append(html);
-		}else{
-			$('.ef-'+val).remove();
-		}		
-	});
-});
-</script>
-@endpush
 
 @endsection
