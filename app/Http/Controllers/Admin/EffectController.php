@@ -60,7 +60,7 @@ class EffectController extends Controller{
         //Validación index:
         if (isset($data['submit_filter'])) {
             //Si no viene declarado order_id
-            if (!$data['effect']) {
+            //if (!$data['effect']) {
                 return Validator::make($data, [
                     //'year' => 'required|integer',
                     'customer_id' => 'required_without:provider_id|required_if:provider_id,==,0',
@@ -71,11 +71,11 @@ class EffectController extends Controller{
                     'provider_id.required_without' => trans('textos.required_cliente_proveedor'),
                     'provider_id.required_if' => trans('textos.required_cliente_proveedor')
                 ]);
-            } else {
+            /*} else {
                 return Validator::make($data, [
                     'effect' => 'required'
-            ]);
-        }
+            ]); */
+        //}
 
         //Validación guardar efecto:
         }elseif(isset($data['submit_save'])){
@@ -118,15 +118,13 @@ class EffectController extends Controller{
     /**
      * 1. Relación de efectos.
      */
-    public function index($year = false, $customer_id = false, $provider_id = false){
+    public function index($customer_id = false, $provider_id = false){
         $header = [
             'option' => $this->option,
             'suboption' => 'textos.efectos',
             'module' => $this->module,
             'slug' => 'effects'
         ];
-
-        $year = $year? $year:date('Y');
 
         $customer = $customer_id? Company::find($customer_id):false;
         $provider = $provider_id? Company::find($provider_id):false;
@@ -136,7 +134,7 @@ class EffectController extends Controller{
         ->pluck('remittance_num', 'id')
         ->toArray();
 
-        return view('admin.effects.index', compact('header', 'year', 'customer', 'provider', 'remittances'));
+        return view('admin.effects.index', compact('header', 'customer', 'provider', 'remittances'));
     }
 
     /**
@@ -189,15 +187,13 @@ class EffectController extends Controller{
             $customer_id = session('currentCompany');
         }
 
-        $year = $request->year? $request->year:date('Y');
-
-        return redirect()->route('effects.index', [$year, $customer_id, $provider_id]);
+        return redirect()->route('effects.index', [$customer_id, $provider_id]);
     }
 
     /**
      * 1.2. Listado de efectos para DataTable.
      */
-    public function getEffectsDT($year = false, $customer_id = false, $provider_id = false){
+    public function getEffectsDT($customer_id = false, $provider_id = false){
         if($customer_id == session('currentCompany')){
             $company_id = $provider_id;
             $company_field = 'provider';
@@ -214,9 +210,9 @@ class EffectController extends Controller{
         ->join('companies', 'effects.'.$company_field.'_id', '=', 'companies.id')
         ->leftJoin('remittances', 'effects.remittance_id', '=', 'remittances.id')
         ->leftJoin('payment_methods', 'effects.payment_method_id', '=', 'payment_methods.id')
-        ->whereYear('effects.created_at', '=', $year)
+        //->whereYear('effects.created_at', '=', $year)
         ->whereNull('effects.deleted_at')
-        ->when($customer_id && $provider_id, function ($q) use ($customer_id, $provider_id) {
+        ->when($provider_id && $customer_id && $customer_id > 0, function ($q) use ($customer_id, $provider_id) {
             return $q->where('effects.customer_id', $customer_id)
             ->where('effects.provider_id', $provider_id);
         });

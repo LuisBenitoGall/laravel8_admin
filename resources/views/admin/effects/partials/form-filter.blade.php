@@ -30,36 +30,37 @@
 			            <input type="hidden" name="provider_id" id="providerId">
 			        </div>
 
-					<div class="form-group row">
-					{{-- Año --}}
-					@php
-					$year = false;
-					$selected_year = $year? $year:date('Y');
-					@endphp
-					@include('admin.partials.selector-year', ['selected_year' => $selected_year])
+			        {{-- 02/01/2024: se eliminan los filtros por año, nº efecto y propietario. Sólo filtro por cliente o proveedor --}}
+					{{-- <div class="form-group row"> --}}
+						{{-- Año --}}
+						{{-- @php
+						$year = false;
+						$selected_year = $year? $year:date('Y');
+						@endphp
+						@include('admin.partials.selector-year', ['selected_year' => $selected_year]) --}}
 
-					{{-- Efecto --}}
-					<label for="effect" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.efecto_num')) !!} </label>
-					<div class="col-lg-2">
-						<input class="form-control" type="text" name="effect" maxlength="25">
-					</div>
-
-					{{-- Propietario --}}
-					@if(isset($owners))
-						<label for="owner"
-						 class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.propietario')) !!} </label>
+						{{-- Efecto --}}
+						{{-- <label for="effect" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.efecto_num')) !!} </label>
 						<div class="col-lg-2">
-							@php
-							$owners_[0] = trans('textos.todos');
-							foreach($owners as $own){
-								$owners_[$own->id] = $own->name.' '.$own->surname;
-							}
-							@endphp
+							<input class="form-control" type="text" name="effect" maxlength="25">
+						</div> --}}
 
-							<x-select name="owner" class="select2" :options="$owners_" value="{{ $owner }}"/>
-						</div>
-					@endif
-					</div>
+						{{-- Propietario --}}
+						{{-- @if(isset($owners))
+							<label for="owner"
+							 class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.propietario')) !!} </label>
+							<div class="col-lg-2">
+								@php
+								$owners_[0] = trans('textos.todos');
+								foreach($owners as $own){
+									$owners_[$own->id] = $own->name.' '.$own->surname;
+								}
+								@endphp
+
+								<x-select name="owner" class="select2" :options="$owners_" value="{{ $owner }}"/>
+							</div>
+						@endif
+					</div> --}}
 
 					<x-btn-submit name="submit_filter" label="{{ trans('textos.buscar') }}"/>
 				</form>

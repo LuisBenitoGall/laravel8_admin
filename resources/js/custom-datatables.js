@@ -2004,14 +2004,14 @@ $(document).ready(function(){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
         var customer = $('#myCustomer').val() != ''? $('#myCustomer').val():'0';
         var provider = $('#myProvider').val() != ''? $('#myProvider').val():'0'; 
-        var year = $('#myYear').val();
+        //var year = $('#myYear').val();
         
         $('#tblEffects').DataTable({
             serverSide: true,
             processing: true,
             ajax: {
                 "type": "GET",
-                "url": "/api/admin/effects/"+year+"/"+customer+"/"+provider,
+                "url": "/api/admin/effects/"+customer+"/"+provider,
                 "error": function(reason){
                     console.log(reason);
                 }
