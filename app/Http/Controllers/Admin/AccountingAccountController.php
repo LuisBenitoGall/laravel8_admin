@@ -19,6 +19,7 @@ use App\Models\AccountingAccount;
 use App\Models\AccountingAccountType;
 use App\Models\CompanySettings;
 use App\Models\CustomerProviders;
+use App\Models\IvaType;
 
 class AccountingAccountController extends Controller{
     /**
@@ -34,6 +35,7 @@ class AccountingAccountController extends Controller{
      * 8. Autocomplete de cuentas.
      * 9. Marcar cuenta como principal.
      * 10. Marcar cuenta IVA.
+     * 10.1. Cuentas IVA.
      * 11. Cuentas por defecto.
      * 12. Generación masiva de cuentas contables.
      */
@@ -218,11 +220,19 @@ class AccountingAccountController extends Controller{
     public function store(Request $request){
         $validator = $this->validator($request->all());
         if ($validator->fails()) {
-            return redirect('/admin/accounting-accounts/create')
+            if($request->return == 'iva-accounts'){
+                $validator->getMessageBag()->add('accion', 'modal-add-account');
+
+                return redirect('/admin/accounting-accounts/iva-accounts')
+                ->withErrors($validator)
+                ->withInput();    
+            }else{
+                return redirect('/admin/accounting-accounts/create')
                 ->withErrors($validator)
                 ->withInput();
+            }
         }
-
+//dd($request->all());
         //Generación manual:
         if($request->account){
             $account = $request->account;
@@ -329,7 +339,11 @@ class AccountingAccountController extends Controller{
         $aa->save();
 
         $msg = trans('textos.cuenta_creada');
-        return redirect()->route('accounting-accounts.edit', $aa)->with(compact('msg'));
+        if($request->return == 'iva-accounts'){
+            return redirect()->route('accounting-accounts.iva-accounts')->with(compact('msg'));    
+        }else{
+            return redirect()->route('accounting-accounts.edit', $aa)->with(compact('msg'));
+        }
     }
 
     /**
@@ -463,6 +477,35 @@ class AccountingAccountController extends Controller{
 
         $msg = trans('textos.cuenta_iva_ok');
         return redirect()->route('accounting-accounts.index')->with(compact('msg'));
+    }
+
+    /**
+     * 10.1. Cuentas IVA.
+     */
+    public function ivaAccounts(){
+        $header = [
+            'option' => $this->option,
+            'suboption' => 'textos.cuentas_iva',
+            'module' => $this->module,
+            'slug' => 'accounting-accounts'
+        ]; 
+
+        $modes = helpers::accountingAccountModes();
+
+        $iva_types = IvaType::where('status', 1)->orderBy('iva', 'ASC')->get();
+
+        //Cuentas de IVA:
+        $accounts = AccountingAccount::select('id', 'account', 'name', 'mode', 'iva_type_id')
+        ->whereNotNull('iva_type_id')
+        ->where('status', 1)
+        ->get();
+
+        //Tipos de cuentas contables:
+        $tipos = helpers::accountingAccountTypes();
+
+        $languages = $this->languages;
+
+        return view('admin.accounting_accounts.iva-accounts')->with(compact('header', 'modes', 'iva_types', 'accounts', 'tipos', 'languages'));      
     }
 
     /**

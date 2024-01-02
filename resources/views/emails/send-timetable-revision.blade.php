@@ -10,6 +10,10 @@
 </p>
 <p>
 	Comentarios: {{ $comments }}
+
+	<br><br>
+
+	<a target="_blank" href="{{ route('work-user-calendar.index', $user_id) }}">{{ trans('textos.horario_ver') }}</a>
 </p>
 
 @include('emails.partials.footer')

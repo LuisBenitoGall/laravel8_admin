@@ -5,8 +5,14 @@
 <div class="row mb-3">
 	{{-- Acciones: --}}
 	<div class="col-12">
+		{{-- Nueva cuenta contable --}}
 		@can('accounting-accounts.create')
 			<a class="btn btn-info" href="{{ route('accounting-accounts.create') }}"><i class="fa fa-plus"></i> {!! ucfirst(trans('textos.cuenta_nueva')) !!}</a>
+		@endcan
+
+		{{-- Cuentas IVA --}}
+		@can('accounting-accounts.create')
+			<a class="btn btn-info" href="{{ route('accounting-accounts.iva-accounts') }}"><i class="fa fa-file-invoice-dollar"></i> {!! ucfirst(trans('textos.cuentas_iva')) !!}</a>
 		@endcan
 	</div>
 </div>
@@ -37,23 +43,6 @@
                             <input type="hidden" name="accounting_sales" id="accountingAccountId1" value="{{ $val1_id }}">
 						</div>
 
-						{{-- Cuenta compras --}}
-						<label for="accounting_purchases" class="col-lg-2 col-form-label">
-							{!! ucfirst(trans('textos.cuenta_compras')) !!}
-						</label>
-						<div class="col-lg-4">
-							@php
-							$val2_text = isset($default_accounts[config('constants.ACCOUNT_DEFAULT_PURCHASES_')])? $default_accounts[config('constants.ACCOUNT_DEFAULT_PURCHASES_')][1]:'';
-							$val2_id = isset($default_accounts[config('constants.ACCOUNT_DEFAULT_PURCHASES_')])? $default_accounts[config('constants.ACCOUNT_DEFAULT_PURCHASES_')][0]:'';
-							@endphp
-
-							<x-input type="text" name="accounting_purchases_" datas="id:2" class="search_accounting_account" id="searchAccountingAccount2" placeholder="{!! ucfirst(trans('textos.cuenta_buscar')) !!}" maxlength="250" value="{{ $val2_text }}"/>
-
-                            <input type="hidden" name="accounting_purchases" id="accountingAccountId2" value="{{ $val2_id }}">
-						</div>
-					</div>
-
-					<div class="form-group row">
 						{{-- Cuenta ventas IVA --}}
 						<label for="accounting_sales_iva" class="col-lg-2 col-form-label">
 							{!! ucfirst(trans('textos.cuenta_ventas')) !!} IVA
@@ -68,9 +57,26 @@
 
                             <input type="hidden" name="accounting_sales_iva" id="accountingAccountId3" value="{{ $val3_id }}">
 						</div>
+					</div>
+
+					{{-- <div class="form-group row">	 --}}
+						{{-- Cuenta compras --}}
+						{{-- <label for="accounting_purchases" class="col-lg-2 col-form-label">
+							{!! ucfirst(trans('textos.cuenta_compras')) !!}
+						</label>
+						<div class="col-lg-4">
+							@php
+							$val2_text = isset($default_accounts[config('constants.ACCOUNT_DEFAULT_PURCHASES_')])? $default_accounts[config('constants.ACCOUNT_DEFAULT_PURCHASES_')][1]:'';
+							$val2_id = isset($default_accounts[config('constants.ACCOUNT_DEFAULT_PURCHASES_')])? $default_accounts[config('constants.ACCOUNT_DEFAULT_PURCHASES_')][0]:'';
+							@endphp
+
+							<x-input type="text" name="accounting_purchases_" datas="id:2" class="search_accounting_account" id="searchAccountingAccount2" placeholder="{!! ucfirst(trans('textos.cuenta_buscar')) !!}" maxlength="250" value="{{ $val2_text }}"/>
+
+                            <input type="hidden" name="accounting_purchases" id="accountingAccountId2" value="{{ $val2_id }}">
+						</div> --}}
 
 						{{-- Cuenta compras IVA --}}
-						<label for="accounting_purchases_iva" class="col-lg-2 col-form-label">
+						{{-- <label for="accounting_purchases_iva" class="col-lg-2 col-form-label">
 							{!! ucfirst(trans('textos.cuenta_compras')) !!} IVA
 						</label>
 						<div class="col-lg-4">
@@ -83,7 +89,7 @@
 
                             <input type="hidden" name="accounting_purchases_iva" id="accountingAccountId4" value="{{ $val4_id }}">
 						</div>
-					</div>
+					</div> --}}
 
 					{{-- <div class="form-group row"> --}}
 						{{-- Cuenta caja ventas --}}

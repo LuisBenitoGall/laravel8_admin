@@ -18,11 +18,11 @@
 		@include('admin.companies.partials.actions', ['company' => $company, 'business_relationship' => $business_relationship])
 
 		{{-- Nueva cuenta bancaria --}}
-		@can('companies.edit')
+		{{-- @can('companies.edit')
 			@if(!$company_account)
 				<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-new-bank-account"><i class="fa fa-plus"></i> {!! ucfirst(trans('textos.banco_cuenta_nueva')) !!}</a>	
 			@endif
-		@endcan
+		@endcan --}}
 	</div>
 </div>
 
@@ -113,10 +113,12 @@ $(function(){
 		var id = $(this).data('id');
 		var account = $(this).data('account');
 		var bank = $(this).data('bank');
+		var route = '/admin/bank-accounts/'+id+'/update';
 
 		$('#accountId').val(id);
 		$('#accountNumber').val(account);
 		$('#accountBank').val(bank).trigger('change');
+		$('#frmEditBankAccount').attr('action', route);
 	});
 });
 </script>

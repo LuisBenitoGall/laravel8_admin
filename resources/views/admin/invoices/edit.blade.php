@@ -182,6 +182,23 @@ $readonly = $invoice->blocked && !$is_sale || ($order->customer_id == session('c
 				{{-- Componente importe pedido flotante: --}}
 				@livewire('budget-amount', ['budget_amount' => $invoice->amount_with_iva, 'currency' => $currency->symbol, 'budget_amount_without_discount' => false, 'environment' => 'invoices'])
 
+				{{-- Registro de factura. Genera su asiento y efecto contable - condiciones: 
+					1. Factura de compra.
+					2. No existe el asiento contable.
+					...	
+				--}}
+				{{-- @if(!$is_sale && !$seat)
+					<div class="float-fixed-div" style="top: 290px;">
+	                    <div class="row">
+	                        <div class="col-12">
+	                            <a href="{{ route('invoices.register', $invoice) }}" class="btn btn-info btn-confirm" data-msg="{{ trans('textos.factura_registrar_aviso') }}">
+	                        		{{ trans('textos.factura_registrar') }}
+	                            </a>
+	                        </div>
+	                    </div>
+	                </div>
+	            @endif --}}
+
 				<h3 class="mb-3">
 					{{-- Factura abono --}}
 					@if($invoice->refund)
