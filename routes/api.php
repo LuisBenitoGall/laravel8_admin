@@ -180,7 +180,7 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     Route::get('day-types', 'DayTypesController@getDayTypesDT');
 
     //Effects:
-    Route::get('effects/{year?}/{customer_id?}/{provider_id?}', 'EffectController@getEffectsDT');
+    Route::get('effects/{customer_id?}/{provider_id?}', 'EffectController@getEffectsDT');
 
     //Employees:
     Route::get('employees', 'EmployeeController@getEmployeesDT');

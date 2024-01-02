@@ -58,6 +58,7 @@ class InvoiceController extends Controller{
      * 2.1. Generar factura desde agrupación de pedidos.
      * 2.2. Introducir factura de proveedor.
      * 2.3. Guardar factura de proveedor.
+     * 2.4. Registrar factura de proveedor.
      * 3. Editar factura.
      * 3.1. Editar factura por parte de cliente.
      * 3.2. Mostrar factura.
@@ -1195,6 +1196,15 @@ class InvoiceController extends Controller{
     }
 
     /**
+     * 2.4. Registrar factura de proveedor.
+     *
+     * Genera los asientos contables y efectos propios de la compra.
+     */
+    public function registerPurchase(Invoice $invoice){
+        dd($invoice); 
+    }
+
+    /**
      * 3. Editar factura.
      */
     public function edit(Invoice $invoice, $tab = false){
@@ -1481,7 +1491,7 @@ class InvoiceController extends Controller{
         //Pagos:
         $payments = Payment::paymentsByInvoice($invoice->id);
 
-        //Asiento contable. Filtramos por company_id, pues hay que tene en cuenta que una misma factura puede generar 2 asientos contables: el del proveedor y el del cliente.
+        //Asiento contable. Filtramos por company_id, pues hay que tener en cuenta que una misma factura puede generar 2 asientos contables: el del proveedor y el del cliente.
         $seat = false;
         if($customer->id == session('currentCompany')){
             $seat = Seat::select('id')

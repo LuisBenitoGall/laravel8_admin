@@ -475,6 +475,7 @@ class TimetableController extends Controller{
         //Enviamos email:
         $data = [
             'comments' => $comments,
+            'user_id' => $user->id,
             'nombre' => $user->name,
             'apellidos' => $user->surname,
             'fecha' => $hour->date,

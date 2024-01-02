@@ -85,6 +85,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::get('accounting-accounts/{account}/featured', 'AccountingAccountController@featured')->name('accounting-accounts.featured')->middleware('permission:accounting-accounts.edit');
     Route::get('accounting-accounts/{account}/iva-account', 'AccountingAccountController@ivaAccount')->name('accounting-accounts.iva-account')->middleware('permission:accounting-accounts.edit');
     Route::post('accounting-accounts/default-accounts', 'AccountingAccountController@defaultAccounts')->name('accounting-accounts.default-accounts')->middleware('permission:accounting-accounts.edit');
+    Route::get('accounting-accounts/iva-accounts', 'AccountingAccountController@ivaAccounts')->name('accounting-accounts.iva-accounts')->middleware('permission:accounting-accounts.index');
 
     // Accounting Concepts:
     Route::get('accounting-concepts', 'AccountingConceptController@index')->name('accounting-concepts.index')->middleware('permission:accounting-concepts.index');
@@ -466,7 +467,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::delete('delivery-orders/{delivery_order}', 'DeliveryOrdersController@destroy')->name('delivery-orders.destroy')->middleware('permission:deliveries.edit');
 
     // Effects:
-    Route::get('effects/list/{year?}/{customer_id?}/{provider_id?}', 'EffectController@index')->name('effects.index')->middleware('permission:effects.index');
+    Route::get('effects/list/{customer_id?}/{provider_id?}', 'EffectController@index')->name('effects.index')->middleware('permission:effects.index');
     Route::post('effects', 'EffectController@getEffectsBy')->name('effects.list')->middleware('permission:effects.index');
     Route::get('effects/create', 'EffectController@create')->name('effects.create')->middleware('permission:effects.create');
     Route::post('effects/store', 'EffectController@store')->name('effects.store')->middleware('permission:effects.create');
@@ -587,6 +588,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::get('invoices/{invoice}/remove-from-invoice/{order}', 'InvoiceController@removeFromInvoice')->name('invoices.remove-from-invoice')->middleware('permission:invoices.edit');
     Route::get('invoices/control', 'InvoiceController@control')->name('invoices.control')->middleware('permission:invoices.index');
     Route::get('invoices/{invoice}/delete-doc', 'InvoiceController@removeDoc')->name('invoices.delete-doc')->middleware('permission:invoices.edit');
+    Route::get('invoices/{invoice}/register', 'InvoiceController@registerPurchase')->name('invoices.register')->middleware('permission:invoices.edit');
 
     // IP Access:
     Route::get('ip-access', 'IpAccessController@index')->name('ip-access.index');

@@ -5,7 +5,6 @@
 <input type="hidden" id="dtController" value="effects">
 <input type="hidden" id="myCustomer" value="@if($customer){{ $customer->id }}@endif">
 <input type="hidden" id="myProvider" value="@if($provider){{ $provider->id }}@endif">
-<input type="hidden" id="myYear" value="{{ $year }}">
 
 <div class="row mb-3">
 	{{-- Acciones: --}}
@@ -29,60 +28,68 @@
 {{-- Formulario filtro --}}
 @include('admin.effects.partials.form-filter')
 
-<div class="row">
-	<div class="table-responsive">
-		<table class="table table-hover dtabla" id="tblEffects">
-			<thead>
-				<tr>
-					<th class="text-center">#</th>
-					<th class="text-center">
-						{{ trans('textos.fecha_vencimiento') }}
-					</th>
-					<th>
-						@php
-						$company_label = $customer && $customer->id == session('currentCompany')? 'proveedor':'cliente';
-						@endphp
+@if($customer || $provider)
+	<div class="row">
+		<div class="table-responsive">
+			<table class="table table-hover dtabla" id="tblEffects">
+				<thead>
+					<tr>
+						<th class="text-center">#</th>
+						<th class="text-center">
+							{{ trans('textos.fecha_vencimiento') }}
+						</th>
+						<th>
+							@php
+							$company_label = $customer && $customer->id == session('currentCompany')? 'proveedor':'cliente';
+							@endphp
 
-						{{ ucfirst(trans('textos.'.$company_label)) }}
-					</th>
-					{{-- <th>
-					{{ ucfirst(trans('textos.comercial')) }}
-					</th> --}}
-					{{-- <th>
-					@lang('crud.effects.inputs.payment_type_id')
-					</th>
-					<th>
-					@lang('crud.effects.inputs.invoice_serie_id')
-					</th> --}}
-					<th class="text-center">
-						{{ trans('textos.agrupacion') }}
-					</th>
-					<th>
-						{{ trans('textos.facturas') }}
-					</th>
-					{{-- <th>
-					@lang('crud.effects.inputs.date_invoice')
-					</th> --}}
-					<th class="text-center">
-						{{ ucfirst(trans('textos.importe')) }}
-					</th>
-					<th class="text-center">
-						{{ ucfirst(trans('textos.pago_metodo')) }}
-					</th>
-					<th class="text-center">
-						{{ ucfirst(trans('textos.remesa')) }}
-					</th>
-					<th>
-						{{ ucfirst(trans('textos.estado')) }}
-					</th>
-					<th class="text-center">
-						{{ ucfirst(trans('textos.acciones')) }}
-					</th>
-				</tr>
-			</thead>
-		</table>
+							{{ ucfirst(trans('textos.'.$company_label)) }}
+						</th>
+						{{-- <th>
+						{{ ucfirst(trans('textos.comercial')) }}
+						</th> --}}
+						{{-- <th>
+						@lang('crud.effects.inputs.payment_type_id')
+						</th>
+						<th>
+						@lang('crud.effects.inputs.invoice_serie_id')
+						</th> --}}
+						<th class="text-center">
+							{{ trans('textos.agrupacion') }}
+						</th>
+						<th>
+							{{ trans('textos.facturas') }}
+						</th>
+						{{-- <th>
+						@lang('crud.effects.inputs.date_invoice')
+						</th> --}}
+						<th class="text-center">
+							{{ ucfirst(trans('textos.importe')) }}
+						</th>
+						<th class="text-center">
+							{{ ucfirst(trans('textos.pago_metodo')) }}
+						</th>
+						<th class="text-center">
+							{{ ucfirst(trans('textos.remesa')) }}
+						</th>
+						<th>
+							{{ ucfirst(trans('textos.estado')) }}
+						</th>
+						<th class="text-center">
+							{{ ucfirst(trans('textos.acciones')) }}
+						</th>
+					</tr>
+				</thead>
+			</table>
+		</div>
 	</div>
-</div>
+@else
+	<div class="row">
+		<div class="col-12 text-center pt-4">
+			<h2>{!! trans('textos.efectos_filtra') !!}.</h2>
+		</div>
+	</div>
+@endif
 
 {{-- Modals --}}
 {{-- Add remittance --}}
