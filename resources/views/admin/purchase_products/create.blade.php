@@ -40,9 +40,13 @@
 						{{-- Cuenta contable --}}
 						<label for="accounting_account" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.cuenta_contable')) !!}</label>
 						<div class="col-lg-6">
-							<x-input type="text" name="accounting_account_" class="search_accounting_account" datas="id:1" id="searchAccountingAccount1" placeholder="{!! ucfirst(trans('textos.cuenta_contable')) !!}" maxlength="150"/>
+							{{-- <x-input type="text" name="accounting_account_" class="search_accounting_account" datas="id:1" id="searchAccountingAccount1" placeholder="{!! ucfirst(trans('textos.cuenta_contable')) !!}" maxlength="150"/>
 
-							<input type="hidden" name="accounting_account" id="accountingAccountId1">
+							<input type="hidden" name="accounting_account" id="accountingAccountId1"> --}}
+
+							<x-input type="text" name="accounting_account_" id="search_accounting_account" placeholder="{!! ucfirst(trans('textos.cuenta_contable')) !!}" maxlength="150"/>
+
+							<input type="hidden" name="accounting_account" id="accountingAccountId">
 						</div>
 
 						{{-- IVA --}}
