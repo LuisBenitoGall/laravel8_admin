@@ -13,7 +13,10 @@
                     {{ csrf_field() }}
                     <input type="hidden" name="mode" value="4">
                     <input type="hidden" name="level1" value="4">  {{-- Tipo cuentas: 4 - Acreedores y deudores por operaciones de tráfico/comerciales --}}
+                    <input type="hidden" name="prefix" id="accountPrefix">
                     <input type="hidden" name="return" value="iva-accounts">
+                    <input type="hidden" name="iva_type_id" id="accountIvaType">
+                    <input type="hidden" name="status" value="1">
 
                     <div class="form-group row">
                         {{-- Nombre cuenta --}}

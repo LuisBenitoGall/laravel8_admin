@@ -163,7 +163,6 @@ class Timetable extends Model{
             }
             //Quitamos valores duplicados:
             $arrCompanyWorkCalendar = array_unique($arrCompanyWorkCalendar);
-
             //Horarios personalizados:
             $custom_timetables = UserTimetables::select('id', 'from', 'to', 'daily_hours')
             ->where('user_id', $user_id)
@@ -197,6 +196,7 @@ class Timetable extends Model{
                     //Obtenemos el tiempo de trabajo del día según el calendario de Empresa:
                     if(in_array($date, $arrCompanyWorkCalendar)){
                         $hoursOfWork = $arrCompanyWorkCalendarHours[strval($date)];        //Horas de la jornada laborable.
+
                     }else{
                         //Si son horas trabajadas fuera del calendario de empresa:
                         if(in_array($date, $arrUserWorkedDays)){

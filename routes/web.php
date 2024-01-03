@@ -81,7 +81,11 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::get('accounting-accounts/{account}/edit', 'AccountingAccountController@edit')->name('accounting-accounts.edit')->middleware('permission:accounting-accounts.edit');
     Route::put('accounting-accounts/{account}/update', 'AccountingAccountController@update')->name('accounting-accounts.update')->middleware('permission:accounting-accounts.edit');
     Route::get('accounting-accounts/status/{id}/{status}', 'AccountingAccountController@status')->name('accounting-accounts.status')->middleware('permission:accounting-accounts.edit');
-    Route::delete('accounting-accounts/{account}', 'AccountingAccountController@destroy')->name('accounting-accounts.destroy');
+    Route::delete('accounting-accounts/{account}', 'AccountingAccountController@destroy')->name('accounting-accounts.destroy')->middleware('permission:accounting-accounts.destroy');
+    Route::get('accounting-accounts/{account}/delete-iva', 'AccountingAccountController@destroyIva')->name('accounting-accounts.delete-iva')->middleware('permission:accounting-accounts.destroy');
+
+
+
     Route::get('accounting-accounts/{account}/featured', 'AccountingAccountController@featured')->name('accounting-accounts.featured')->middleware('permission:accounting-accounts.edit');
     Route::get('accounting-accounts/{account}/iva-account', 'AccountingAccountController@ivaAccount')->name('accounting-accounts.iva-account')->middleware('permission:accounting-accounts.edit');
     Route::post('accounting-accounts/default-accounts', 'AccountingAccountController@defaultAccounts')->name('accounting-accounts.default-accounts')->middleware('permission:accounting-accounts.edit');
