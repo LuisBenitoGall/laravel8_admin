@@ -472,7 +472,8 @@ class InvoiceController extends Controller{
         }
 
         //Pedido:
-        $order = Order::find($request->order_id);
+        $order = Order::select('id', 'order_status', 'order_parent', 'is_group', 'customer_id', 'provider_id', 'blocked', 'invoiced')
+        ->find($request->order_id);
 
         //Facturación de pedido. 
         //1. El pedido debe estar en algún status que permita su facturación:
@@ -730,6 +731,10 @@ class InvoiceController extends Controller{
             }
 
             //2.2. Cuenta de ventas IVA:
+
+            $iva_amounts = $order_amount['amounts_by_iva'];
+            //dd($iva_amounts);
+
             $provider_accounting_account_iva = AccountingAccount::select('id')
             ->where('company_id', $order->provider_id)
             ->where('featured', config('constants.ACCOUNT_DEFAULT_SALES_IVA_'))
