@@ -29,6 +29,7 @@ class UserWorkplaces extends Model{
         ->join('workplaces', 'user_workplaces.workplace_id', '=', 'workplaces.id')
         ->where('user_workplaces.user_id', $user_id)
         ->where('workplaces.company_id', $company_id)
+        ->whereNull('user_workplaces.deleted_at')
         ->get();
 
         return $data;
@@ -38,18 +39,16 @@ class UserWorkplaces extends Model{
      * 2. Centro de trabajo por empleo.
      */
     public static function getEmployeeWorkplace($user_id, $from, $to){
-        $data = Employee::select('workplaces.id', 'workplaces.name')
+        return Employee::select('workplaces.id', 'workplaces.name')
         ->join('workplaces', 'employees.workplace_id', '=', 'workplaces.id')
         ->where('employees.user_id', $user_id)
         ->where(function($query) use ($from, $to){
-            $query->where('employees.start_date', '<=', $from)
-            ->orWhere('employees.end_date', '>=', $to);
+            $query->where('employees.start_date', '<=', $to)
+            ->where('employees.end_date', '>=', $from);
         })
         ->first();
 
         // ->where('employees.start_date', '<=', $from)
         // ->where('employees.end_date', '>=', $to)
-
-        return $data;
     }
 }

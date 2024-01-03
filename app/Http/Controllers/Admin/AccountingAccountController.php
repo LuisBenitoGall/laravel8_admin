@@ -31,6 +31,7 @@ class AccountingAccountController extends Controller{
      * 4. Editar cuenta.
      * 5. Actualizar cuenta.
      * 6. Eliminar cuenta.
+     * 6.1. Eliminar cuenta de IVA.
      * 7. Estado de la cuenta.
      * 8. Autocomplete de cuentas.
      * 9. Marcar cuenta como principal.
@@ -232,10 +233,31 @@ class AccountingAccountController extends Controller{
                 ->withInput();
             }
         }
-//dd($request->all());
+
         //Generación manual:
         if($request->account){
             $account = $request->account;
+
+        //Cuentas de IVA:
+        }elseif($request->iva_type_id){
+            //Separamos el prefijo del porcentaje de iva:
+            $p_ = explode('/', $request->prefix);
+
+            //Nº de dígitos del porcentaje de iva:
+            $n_digits = strlen($p_[1]);
+            //Resto de 0:
+            $rest0 = $this->accounting_account_digits - $n_digits;
+            //Componiendo número de cuenta:
+            $account = $p_[0];
+            $z = 1;
+            while($z <= $rest0){
+                $account .= '0';
+                $z++;
+            }
+            $account .= $p_[1];
+
+            //dd($p_, $request->all(), $n_digits, $rest0, $account);
+
 
         //Generación automática de la cuenta:
         }else{
@@ -335,6 +357,7 @@ class AccountingAccountController extends Controller{
         $aa->company_target = $company_id;
         $aa->status = $request->status? 1:0;
         $aa->with_iva = $request->with_iva? 1:0;
+        $aa->iva_type_id = $request->iva_type_id;
         $aa->created_by = Auth::user()->id;
         $aa->save();
 
@@ -425,6 +448,16 @@ class AccountingAccountController extends Controller{
         }else{
             return redirect()->route('accounting-accounts.index')->with(compact('msg'));   
         }
+    }
+
+    /**
+     * 6.1. Eliminar cuenta de IVA.
+     */
+    public function destroyIVA(AccountingAccount $account){
+        $account->delete();
+
+        $msg = trans('textos.cuenta_deleted');
+        return redirect()->route('accounting-accounts.iva-accounts')->with(compact('msg'));
     }
 
     /**
