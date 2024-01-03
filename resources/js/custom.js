@@ -1758,6 +1758,8 @@ $(window).on('load', function () {
                 }
             },
             select: function(event,ui){
+                event.preventDefault(event);
+                console.log('Evento select ejecutado correctamente');
                 $('#searchAccountingAccount'+input_).val(ui.item.label);
                 $('#accountingAccountId'+input_).val(ui.item.value);
 
@@ -1766,7 +1768,9 @@ $(window).on('load', function () {
                 }
                 
                 return false;
-            }    
+            },
+            autoFocus: true, 
+            delay: 0  
         });
     });
 
