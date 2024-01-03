@@ -313,7 +313,11 @@ class AccountingAccountController extends Controller{
 
         if($exist_account){
             $alert = trans('textos.cuenta_contable_existe', ['account' => $account]);
-            return redirect()->route('accounting-accounts.create')->with(compact('alert'));
+            if($request->return == 'iva-accounts'){
+                return redirect()->route('accounting-accounts.iva-accounts')->with(compact('alert'));    
+            }else{
+                return redirect()->route('accounting-accounts.create')->with(compact('alert'));
+            }
             exit;
         }
 
@@ -528,7 +532,7 @@ class AccountingAccountController extends Controller{
         $iva_types = IvaType::where('status', 1)->orderBy('iva', 'ASC')->get();
 
         //Cuentas de IVA:
-        $accounts = AccountingAccount::select('id', 'account', 'name', 'mode', 'iva_type_id')
+        $accounts = AccountingAccount::select('id', 'account', 'name', 'mode', 'type', 'iva_type_id')
         ->whereNotNull('iva_type_id')
         ->where('status', 1)
         ->get();
