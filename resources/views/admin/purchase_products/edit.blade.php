@@ -58,9 +58,13 @@
 							$account_name = $account? $account->name:'';
 							$account_id = $account? $account->id:'';
 							@endphp
-							<x-input type="text" name="accounting_account_" class="search_accounting_account" datas="id:1" id="searchAccountingAccount1" placeholder="{!! ucfirst(trans('textos.cuenta_contable')) !!}" maxlength="150" value="{{ $account_name }}"/>
+							{{-- <x-input type="text" name="accounting_account_" class="search_accounting_account" datas="id:1" id="searchAccountingAccount1" placeholder="{!! ucfirst(trans('textos.cuenta_contable')) !!}" maxlength="150" value="{{ $account_name }}"/>
 
-							<input type="hidden" name="accounting_account" id="accountingAccountId1" value="{{ $account_id }}">
+							<input type="hidden" name="accounting_account" id="accountingAccountId1" value="{{ $account_id }}"> --}}
+
+							<x-input type="text" name="accounting_account_" id="search_accounting_account" placeholder="{!! ucfirst(trans('textos.cuenta_contable')) !!}" maxlength="150" value="{{ $account_name }}"/>
+
+							<input type="hidden" name="accounting_account" id="accountingAccountId" value="{{ $account_id }}">
 						</div>
 
 						{{-- IVA --}}
