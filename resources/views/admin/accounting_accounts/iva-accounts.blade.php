@@ -20,11 +20,14 @@
 		<table class="table table-hover dTable" id="tblIvaAccountsSales">	
 			<thead>
 				<tr>
-					<th class="wdt100">{!! ucfirst(trans('textos.iva')) !!}</th>
-					<th class="wdt150">{!! ucfirst(trans('textos.ventas')) !!} ({!! ucfirst(trans('textos.repercutido')) !!})</th>
-					<th class="text-center wdt50"></th>
-					<th class="wdt150">{!! ucfirst(trans('textos.compras')) !!} ({!! ucfirst(trans('textos.soportado')) !!})</th>
-					<th class="text-center wdt50"></th>
+					<th class="wdt100 border-right3">{!! ucfirst(trans('textos.iva')) !!}</th>
+					<th class="wdt100">{!! ucfirst(trans('textos.ventas')) !!} ({!! ucfirst(trans('textos.repercutido')) !!})</th>
+					<th class="wdt100">{!! ucfirst(trans('textos.tipo')) !!}</th>
+					<th class="text-center wdt50 border-right3">{!! ucfirst(trans('textos.acciones')) !!}</th>
+
+					<th class="wdt100">{!! ucfirst(trans('textos.compras')) !!} ({!! ucfirst(trans('textos.soportado')) !!})</th>
+					<th class="wdt100">{!! ucfirst(trans('textos.tipo')) !!}</th>
+					<th class="text-center wdt50">{!! ucfirst(trans('textos.acciones')) !!}</th>
 				</tr>
 			</thead>
 
@@ -32,40 +35,82 @@
 				@foreach($iva_types as $it)
 					<tr>
 						{{-- IVA --}}
-						<td>{{ $it->name }} - {{ $it->iva }}%</td>
+						<td class="border-right3">{{ $it->name }} - {{ $it->iva }}%</td>
 						{{-- Cuenta ventas --}}
 						<td>
 							@php
 							$iva_sales_account = '';
 							$iva_sales_account_id = false; 
+							$iva_sales_type = false;
 							@endphp
 							@foreach($accounts as $a)
-								@if($a->iva_type_id == $it->id)
+								@if($a->iva_type_id == $it->id && strpos($a->account, config('constants.ACCOUNTING_ACCOUNT_IVA_PREFIX_SALES_')) === 0)
 									@php
 									$iva_sales_account = $a->name.' - '.$a->account;
 									$iva_sales_account_id = $a->id;
+									$iva_sales_type = $a->type;
 									@endphp
 								@endif
 							@endforeach
 							{!! $iva_sales_account !!}
 						</td>
-						{{-- Gestionar cuenta ventas --}}
-						<td class="text-center">
+						{{-- Tipo --}}
+						<td>
+							@if($iva_sales_type) {!! $tipos[$iva_sales_type] !!} @endif
+						</td>
+						{{-- Acciones cuenta ventas --}}
+						<td class="text-right border-right3">
 							@if($iva_sales_account == '')
-								<a href="#" class="btn btn-info btn-xs btnAddAccount" data-concept="{{ trans('textos.ventas') }} {{ $it->iva }}%" data-prefix="4770/{{ $it->iva }}" data-ivatype="{{ $it->id }}" data-toggle="modal" data-target="#modal-add-account" rel="tooltip" title="{{ ucfirst(trans('textos.cuenta_agregar')) }}">
+								<a href="#" class="btn btn-info btn-xs btnAddAccount" data-concept="{{ trans('textos.ventas') }} {{ $it->iva }}%" data-prefix="{{ config('constants.ACCOUNTING_ACCOUNT_IVA_PREFIX_SALES_') }}/{{ $it->iva }}" data-ivatype="{{ $it->id }}" data-toggle="modal" data-target="#modal-add-account" rel="tooltip" title="{{ ucfirst(trans('textos.cuenta_agregar')) }}">
 									<i class="fa fa-plus"></i>
 								</a>
 							@elseif($iva_sales_account_id)
+								{{-- Editar --}}
+								<a target="_blank" href="{{ route('accounting-accounts.edit', $iva_sales_account_id) }}" class="btn btn-xs btn-info" rel="tooltip" title="{{ ucfirst(trans('textos.editar')) }}"><i class="fa fa-edit"></i></a>
+
+								{{-- Eliminar --}}
 								<a href="{{ route('accounting-accounts.delete-iva', $iva_sales_account_id) }}" class="btn btn-danger btn-xs btn-confirm" rel="tooltip" title="{{ ucfirst(trans('textos.cuenta_eliminar')) }}" data-msg="{{ trans('textos.cuenta_confirm_eliminar') }}">
 									<i class="fa fa-trash"></i>
 								</a>
 							@endif	
 						</td>
+
 						{{-- Cuenta compras --}}
-						<td></td>
+						<td>
+							@php
+							$iva_purchases_account = '';
+							$iva_purchases_account_id = false; 
+							$iva_purchases_type = false;
+							@endphp
+							@foreach($accounts as $a_)
+								@if($a_->iva_type_id == $it->id && strpos($a_->account, config('constants.ACCOUNTING_ACCOUNT_IVA_PREFIX_PURCHASES_')) === 0)
+									@php
+									$iva_purchases_account = $a_->name.' - '.$a_->account;
+									$iva_purchases_account_id = $a_->id;
+									@endphp
+								@endif
+							@endforeach
+							{!! $iva_purchases_account !!}
+						</td>
+						{{-- Tipo --}}
+						<td>
+							@if($iva_purchases_type) {!! $tipos[$iva_purchases_type] !!} @endif
+						</td>
 						{{-- Gestionar cuenta compras --}}
-						<td class="text-center">
-							
+						<td class="text-right">
+							@if($iva_purchases_account == '')
+								<a href="#" class="btn btn-info btn-xs btnAddAccount" data-concept="{{ trans('textos.compras') }} {{ $it->iva }}%" data-prefix="{{ config('constants.ACCOUNTING_ACCOUNT_IVA_PREFIX_PURCHASES_') }}/{{ $it->iva }}" data-ivatype="{{ $it->id }}" data-toggle="modal" data-target="#modal-add-account" rel="tooltip" title="{{ ucfirst(trans('textos.cuenta_agregar')) }}">
+									<i class="fa fa-plus"></i>
+								</a>
+							@elseif($iva_purchases_account_id)
+								{{-- Editar --}}
+								<a target="_blank" href="{{ route('accounting-accounts.edit', $iva_purchases_account_id) }}" class="btn btn-xs btn-info" rel="tooltip" title="{{ ucfirst(trans('textos.editar')) }}"><i class="fa fa-edit"></i></a>
+
+								{{-- Eliminar --}}
+								<a href="{{ route('accounting-accounts.delete-iva', $iva_purchases_account_id) }}" class="btn btn-danger btn-xs btn-confirm" rel="tooltip" title="{{ ucfirst(trans('textos.cuenta_eliminar')) }}" data-msg="{{ trans('textos.cuenta_confirm_eliminar') }}">
+									<i class="fa fa-trash"></i>
+								</a>
+							@endif		
 						</td>
 					</tr>
 				@endforeach
