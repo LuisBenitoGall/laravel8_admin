@@ -187,7 +187,7 @@ $readonly = $invoice->blocked && !$is_sale || ($order->customer_id == session('c
 					2. No existe el asiento contable.
 					...	
 				--}}
-				{{-- @if(!$is_sale && !$seat)
+				@if(!$is_sale && !$seat)
 					<div class="float-fixed-div" style="top: 290px;">
 	                    <div class="row">
 	                        <div class="col-12">
@@ -197,7 +197,7 @@ $readonly = $invoice->blocked && !$is_sale || ($order->customer_id == session('c
 	                        </div>
 	                    </div>
 	                </div>
-	            @endif --}}
+	            @endif
 
 				<h3 class="mb-3">
 					{{-- Factura abono --}}
