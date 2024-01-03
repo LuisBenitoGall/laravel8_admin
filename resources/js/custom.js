@@ -1773,6 +1773,46 @@ $(window).on('load', function () {
         });
     });
 
+    $('#search_accounting_account').autocomplete({
+        minLength: 2,
+        source: function(request,response){
+            // Fetch data
+            if(request.term.length > 1){
+                $.ajax({
+                    url: "/api/admin/accounting-accounts-search",
+                    type: "post",
+                    dataType: "json",
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        search: request.term
+                    },
+                    success: function(data){
+                        response($.map(data, function (item){
+                            return {
+                                label: item.account+' - '+item.name,
+                                value: item.id
+                            }
+                        }));
+                    }
+                });
+
+            //Limpiamos datos:
+            }else{
+                $('#accountingAccountId').val('');  
+            }
+        },
+        select: function(event,ui){
+            $('#search_accounting_account').val(ui.item.label);
+            $('#accountingAccountId').val(ui.item.value);
+
+            if(ui.item.value == ''){
+                $('#search_accounting_account').val('');
+            }
+            
+            return false;
+        }
+    });
+
     // 43. Modal vincular pedidos de terceros.
     $(document).on('click', '.btnLinkItem', function(e){
         e.preventDefault();
