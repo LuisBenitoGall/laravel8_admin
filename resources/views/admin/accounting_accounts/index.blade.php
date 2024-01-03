@@ -44,7 +44,7 @@
 						</div>
 
 						{{-- Cuenta ventas IVA --}}
-						<label for="accounting_sales_iva" class="col-lg-2 col-form-label">
+						{{-- <label for="accounting_sales_iva" class="col-lg-2 col-form-label">
 							{!! ucfirst(trans('textos.cuenta_ventas')) !!} IVA
 						</label>
 						<div class="col-lg-4">
@@ -56,7 +56,7 @@
 							<x-input type="text" name="accounting_sales_iva_" datas="id:3" class="search_accounting_account" id="searchAccountingAccount3" placeholder="{!! ucfirst(trans('textos.cuenta_buscar')) !!}" maxlength="250" value="{{ $val3_text }}"/>
 
                             <input type="hidden" name="accounting_sales_iva" id="accountingAccountId3" value="{{ $val3_id }}">
-						</div>
+						</div> --}}
 					</div>
 
 					{{-- <div class="form-group row">	 --}}
