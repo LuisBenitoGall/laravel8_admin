@@ -13,6 +13,7 @@ class AccountingAccount extends Model{
      * 1. Obtener cuentas para autocomplete.
      * 2. Crear cuenta contable clientes y proveedores.
      * 3. Obtener última cuenta por tipología y empresa.
+     * 4. Cuentas de IVA por pedido para asientos contables.
      */
 
     use HasFactory;
@@ -123,5 +124,20 @@ class AccountingAccount extends Model{
             ->orderBy('account', 'DESC')
             ->orderBy('created_at', 'DESC')
             ->first();          
+    }
+
+    /**
+     * 4. Cuentas de IVA por pedido para asientos contables.
+     */
+    public static function getIvaAccountsByOrder($order){
+        //Obtenemos líneas del pedido:
+        $items = Item::select('id', 'qty', 'price', 'item_no_price', 'iva', 'equivalence_surcharge', 'irpf', 'discount', 'calculated_by_percent', 'days', 'days_continue', 'days_continue_discount')
+        ->where('order_id', $order->id)
+        ->get();
+
+        //Importe:
+        $amounts = $order->itemsAmount($items);
+
+        dd($items, $amounts);
     }
 }
