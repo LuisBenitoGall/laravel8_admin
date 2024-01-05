@@ -83,6 +83,7 @@ class InvoiceController extends Controller{
      * 17. Eliminar documento.
      * 18. Completar factura.
      * 19. Asiento contable de la factura.
+     * 10. Generación masiva de asientos de facturas.
      */
     
     private $option = 'contabilidad';
@@ -2641,6 +2642,50 @@ class InvoiceController extends Controller{
                 return 'error';
             }
         //}
+    }
+
+    /**
+     * 20. Generación masiva de asientos de facturas.
+     */
+    public function setPendentSeats(){
+        //Obtenemos facturas sin su correspondiente asiento:
+        $invoices = Invoice::select('id', 'refund', 'order_id', 'amount', 'with_iva', 'amount_with_iva', 'iva_adjust', 'irpf', 'fiscal_date', 'invoice_date')
+        ->whereDoesntHave('seats', function ($q){
+            $q->whereNull('invoice_id');
+        })
+        ->get(); 
+
+        foreach($invoices as $inv){
+            //Pedido:
+            $order = $inv->order_id? Order::select('id', 'order_status', 'order_parent', 'is_group', 'customer_id', 'provider_id', 'blocked', 'invoiced')
+            ->find($inv->order_id):false;
+
+            if($order){
+                //Importe total del pedido:
+                $order_amount = $order->getAmount(true, true);  
+
+                //Previsión de facturación:
+                $order_prevision = OrderPrevisions::select('amount', 'percent')
+                ->where('order_id', $order->id)
+                ->where('invoice_id', $inv->id)
+                ->whereNull('deleted_at')
+                ->first();
+
+                //Porcentaje facturado:
+                $percentage_invoiced = $order_prevision && $order_prevision->percent < 100? $order_prevision->percent:false;
+
+                //Cuenta contable de cliente:
+                $customer_accounting_account = AccountingAccount::select('id')
+                ->where('company_id', $order->provider_id)
+                ->where('company_target', $order->customer_id)
+                ->where('mode', 1)
+                ->first();
+
+                if($order_prevision && $customer_accounting_account){
+                    $this->setInvoiceSeat($inv, $order, $order_amount, $percentage_invoiced, $customer_accounting_account->id);
+                }
+            }
+        }
     }
     
 }
