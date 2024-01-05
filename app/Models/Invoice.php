@@ -15,6 +15,7 @@ class Invoice extends Model{
      * 2. Suma de importes por pedido.
      * 3. Generar factura.
      * 4. Efectos de una factura.
+     * 5. Asientos contables de una factura.
      */
 
     use HasFactory;
@@ -208,5 +209,12 @@ class Invoice extends Model{
      */
     public function effects(){
         return $this->belongsToMany(Effect::class, 'invoice_effects');
+    }
+
+    /**
+     * 5. Asientos contables de una factura.
+     */
+    public function seats(){
+        return $this->hasMany(Seat::class, 'invoice_id');
     }
 }

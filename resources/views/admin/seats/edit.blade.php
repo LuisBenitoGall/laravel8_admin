@@ -86,7 +86,10 @@
 						{{-- Empresa --}}
 						<label for="company_id" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.empresa')) !!}</label>
 						<div class="col-lg-4 position-relative">
-							<x-input type="text" name="company_id" id="search_company" placeholder="{!! ucfirst(trans('textos.empresa')) !!}" maxlength="150" value="{{ $company->name }}"/>
+							@php
+							$companyName = $company? $company->name:'';
+							@endphp
+							<x-input type="text" name="company_id" id="search_company" placeholder="{!! ucfirst(trans('textos.empresa')) !!}" maxlength="150" value="{{ $companyName }}"/>
 						</div>
 
 						<input type="hidden" name="company_id" id="companyId">
@@ -154,19 +157,32 @@
 					</div>		
 
 					<div id="seatLines">
+						@php
+						$debe_total = 0;
+						$haber_total = 0;
+						@endphp
+
 						@foreach($lines as $line)
+							@php
+							$debe_total = $debe_total + $line->debit;
+							$haber_total = $haber_total + $line->credit;	
+							@endphp
+
 							<div class="form-group row">	
 								<div class="col-1 text-right line-num" style="padding-top: 7px;">{{ $line->line_num }}.</div>
-								<div class="col-md-4"><input type="text" class="form-control" value="{{ $line->account }}" readonly></div>
+								<div class="col-md-4"><input type="text" class="form-control" value="{{ $line->account }} - {{ $line->name }}" readonly></div>
 								<input type="hidden" name="accounting_account_id[]" value="{{ $line->accounting_account_id }}">
 								<div class="col-md-1"><input type="text" class="form-control" value="@if($line->type && isset($seat_lines_types[$line->type])) {!! $seat_lines_types[$line->type] !!} @endif" readonly></div>
 								<input type="hidden" name="type[]" value="@if($line->type) {{ $line->type }} @endif">
-								<div class="col-md-2"><input type="text" name="debit[]" class="form-control text-right from-lines" value="{{ $line->debit }}" readonly></div>
-								<div class="col-md-2"><input type="text" name="credit[]" class="form-control text-right from-lines" value="{{ $line->credit }}" readonly></div>
+								<div class="col-md-2"><input type="text" name="debit[]" class="form-control text-right from-lines from-debe" value="{{ $line->debit }}" readonly></div>
+								<div class="col-md-2"><input type="text" name="credit[]" class="form-control text-right from-lines from-haber" value="{{ $line->credit }}" readonly></div>
 								<div class="col-1 pt-2"><button class="btn btn-danger btn-circle btn-circle-mini btnRemoveLine"><i class="fa fa-times"></i></button></div>
 							</div>
 						@endforeach
 					</div> 
+
+					<input type="hidden" id="debeTotal" value="{{ $debe_total }}">
+					<input type="hidden" id="haberTotal" value="{{ $haber_total }}">
 
 					<x-btn-submit name="submit_update" id="sbtSeat" label="{{ trans('textos.guardar') }}"/>
 				</form>
