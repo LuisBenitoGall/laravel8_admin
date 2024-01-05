@@ -68,6 +68,25 @@ class Seat extends Model{
             }
         }
 
+        //Líneas de IVA:
+        if(isset($data['iva_lines'])){
+            foreach($data['iva_lines'] as $iva_line){
+                $data_line = [
+                    'seat_id' => $seat->id,
+                    'line_num' => $k,
+                    'accounting_account_id' => $iva_line['accounting_account_id'],
+                    'debit' => $iva_line['debit'],
+                    'credit' => $iva_line['credit'],
+                    'code_auto' => NULL,
+                    'type' => $iva_line['type'],
+                    'currency_id' => $data['currency_id']
+                ];
+                SeatLines::saveLine($data_line);  
+                
+                $k++;   //Prosigo con la numeración del loop de líneas. 
+            }
+        }
+
         return $seat;        
     }
 }

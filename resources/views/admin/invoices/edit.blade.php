@@ -3,11 +3,28 @@
 @section('content')
 
 @php
-
 //Campos que se bloquean ante factura bloqueada o para compras, campos que son gestionados por el proveedor.
 $disabled = $invoice->blocked || ($order->customer_id == session('currentCompany') && $provider_account)? true:false;
 $readonly = $invoice->blocked && !$is_sale || ($order->customer_id == session('currentCompany') && $provider_account)? true:false;
 @endphp
+
+{{-- Aviso asientos contables no completados --}}
+@if($seat_error)
+	@php
+	$types_arr = $seat_error->iva_types? unserialize($seat_error->iva_types):false;
+	foreach($types_arr as &$ta){		//Atención a la sintaxis de la variable para que se guarde con el signo concatenado.
+		$ta .= '%';
+	}
+	$iva_types_ = $types_arr? '('.implode(', ', $types_arr).')':'';
+	@endphp
+	<div class="alert alert-danger" role="alert">
+        {{ trans('textos.asiento_contable_pendiente_aviso', ['iva_types' => $iva_types_]) }} 
+        <a target="_blank" class="btn btn-info btn-xs ml-3" href="{{ route('accounting-accounts.iva-accounts') }}"><i class="fa fa-file-invoice-dollar"></i> {!! ucfirst(trans('textos.cuentas_iva')) !!}</a>
+        <br>
+        {{ trans('textos.asiento_contable_pendiente_aviso2') }} 
+        <a target="_blank" class="btn btn-info btn-xs ml-3 btn-confirm" href="{{ route('invoices.complete', $invoice) }}" data-msg="{{ trans('textos.factura_registrar_confirm') }}"><i class="fa fa-file-invoice"></i> {!! ucfirst(trans('textos.factura_registrar')) !!}</a>
+    </div>
+@endif
 
 <div class="row mb-3">
 	{{-- Acciones: --}}

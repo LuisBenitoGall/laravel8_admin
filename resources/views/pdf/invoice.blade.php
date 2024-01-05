@@ -295,7 +295,6 @@ $text_doc = $invoice->refund > 0? 'abono':'factura';
 
 							//IVA acumulado:
 							$group_iva_amount = $group_iva_amount + ($amount['invoice_amount'] - $amount['total_amount']);
-							//dd($amount, $group_iva_amount);
 
 							@endphp
 							{{ $amount['total_amount'] }}{{ $currency->symbol }}

@@ -163,6 +163,7 @@ class Timetable extends Model{
             }
             //Quitamos valores duplicados:
             $arrCompanyWorkCalendar = array_unique($arrCompanyWorkCalendar);
+
             //Horarios personalizados:
             $custom_timetables = UserTimetables::select('id', 'from', 'to', 'daily_hours')
             ->where('user_id', $user_id)
@@ -185,7 +186,6 @@ class Timetable extends Model{
 
                 //05/05/23: omitimos por ahora los fines de semana:
                 if($week_day < 6){
-
                     $acumuladoDia = 0;          //Tiempo de trabajo acumulado por el empleado.
                     $arr['valid'] = true;
                     $arr['fecha'] = $date? Carbon::parse($date)->format($languages[session()->get('locale')][4]) : '';

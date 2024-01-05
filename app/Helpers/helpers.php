@@ -2467,7 +2467,7 @@ class Helpers{
         	$amount = round($amount + $percent, 2);
         }
 
-        $arr = ['amount' => round($amount,2), 'amount_without_discount' => round($amount_without_discount,2), 'amount_without_iva' => round($amount_without_iva,2)];
+        $arr = ['amount' => round($amount,2), 'amount_without_discount' => round($amount_without_discount,2), 'amount_without_iva' => round($amount_without_iva,2), 'iva_amount' => $iva_amount];
         return $arr;
 	}
 

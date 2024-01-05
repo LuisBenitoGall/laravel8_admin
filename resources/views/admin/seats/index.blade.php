@@ -47,9 +47,13 @@
 						@endphp
 						<label for="accounting_account_" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.cuenta_contable')) !!}</label>
 						<div class="col-lg-6 position-relative">
-							<x-input type="text" name="accounting_account_" datas="id:1" class="search_accounting_account" id="searchAccountingAccount1" placeholder="{!! ucfirst(trans('textos.cuenta_buscar')) !!}" maxlength="250"/>
+							{{-- <x-input type="text" name="accounting_account_" datas="id:1" class="search_accounting_account" id="searchAccountingAccount1" placeholder="{!! ucfirst(trans('textos.cuenta_buscar')) !!}" maxlength="250"/>
 
-                            <input type="hidden" name="accounting_account_id" id="accountingAccountId1" value="@if($accounting_account) {{ $accounting_account->id }} @endif">
+                            <input type="hidden" name="accounting_account_id" id="accountingAccountId1" value="@if($accounting_account) {{ $accounting_account->id }} @endif"> --}}
+
+                            <x-input type="text" name="accounting_account_" id="search_accounting_account" placeholder="{!! ucfirst(trans('textos.cuenta_buscar')) !!}" maxlength="150"/>
+
+							<input type="hidden" name="accounting_account_id" id="accountingAccountId" value="@if($accounting_account) {{ $accounting_account->id }} @endif">
 						</div>
 					</div>
 

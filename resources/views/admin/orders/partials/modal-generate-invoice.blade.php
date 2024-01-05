@@ -9,113 +9,128 @@
             </div>
 
             <div class="modal-body">
-                <form method="post" autocomplete="off" action="{{ route('invoices.create-from-order') }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
-                    {{ csrf_field() }}
-                    <input type="hidden" name="order_id" id="newInvoiceOrderId" value="@isset($order) {{ $order->id }} @endisset">
+            	{{-- Se pueden generar facturas si existe la cuenta contable de ventas del proveedor --}}
+            	@if($provider_accounting_account)
+	                <form method="post" autocomplete="off" action="{{ route('invoices.create-from-order') }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
+	                    {{ csrf_field() }}
+	                    <input type="hidden" name="order_id" id="newInvoiceOrderId" value="@isset($order) {{ $order->id }} @endisset">
 
-                    <p class="text-warning">{{ trans('textos.factura_generar_aviso') }}</p>
+	                    <p class="text-warning">{{ trans('textos.factura_generar_aviso') }}</p>
 
-                    {{-- Importe pendiente de facturar --}}
-                    @php
-                    $invoiced_ = $invoiced? $invoiced->invoiced_amount:'0';
-                    @endphp
+	                    {{-- Importe pendiente de facturar --}}
+	                    @php
+	                    $invoiced_ = $invoiced? $invoiced->invoiced_amount:'0';
+	                    @endphp
 
-                    <p>{{ trans('textos.pendiente_facturar') }} <b>{{ round($order_amount - $invoiced_, 2) }}{{ $currency->symbol }}</b></p>
+	                    <p>{{ trans('textos.pendiente_facturar') }} <b>{{ round($order_amount - $invoiced_, 2) }}{{ $currency->symbol }}</b></p>
 
-                    <div class="form-group row mt-4">
-                    	<div class="col-12">
-                    		{{-- Factura íntegra --}}
-	                    	<label class="custom-chk-rdb mr-5" style="margin-top: 2px;">
-			    				<input type="radio" name="modality" class="rdbInvoiceModality" value="t" required>
-			    				<span class="rdb"></span>
-								{{ trans('textos.factura_integra') }}								
-							</label>
-
-							{{-- Factura parcial --}}
-							<label class="custom-chk-rdb mr-5" style="margin-top: 2px;">
-			    				<input type="radio" name="modality" class="rdbInvoiceModality" value="p" required>
-			    				<span class="rdb"></span>
-								{{ trans('textos.factura_avance') }}
-							</label>
-
-							{{-- Previsión de facturación --}}
-							@if($next_prevision)
-								<label class="custom-chk-rdb" style="margin-top: 2px;">
-				    				<input type="radio" name="modality" class="rdbInvoiceModality" value="{{ $next_prevision->id }}" required>
+	                    <div class="form-group row mt-4">
+	                    	<div class="col-12">
+	                    		{{-- Factura íntegra --}}
+		                    	<label class="custom-chk-rdb mr-5" style="margin-top: 2px;">
+				    				<input type="radio" name="modality" class="rdbInvoiceModality" value="t" required>
 				    				<span class="rdb"></span>
-									{{ trans('textos.prevision_facturacion') }} {{ $next_prevision->percent }}%
+									{{ trans('textos.factura_integra') }}								
 								</label>
-							@endif
-						</div>
 
-						@if($errors->has('modality'))
-							<div class="col-12">
-			                	<span class="invalid-feedback" role="alert">
-			                  		<strong>{{ $errors->first('modality') }}</strong>
-			                	</span>
-			                </div>
-			            @endif
+								{{-- Factura parcial --}}
+								<label class="custom-chk-rdb mr-5" style="margin-top: 2px;">
+				    				<input type="radio" name="modality" class="rdbInvoiceModality" value="p" required>
+				    				<span class="rdb"></span>
+									{{ trans('textos.factura_avance') }}
+								</label>
 
-			            @if($errors->has('advance_amount'))
-			            	<div class="col-12">
-			                	<span class="invalid-feedback" role="alert">
-			                  		<strong>{{ $errors->first('advance_amount') }}</strong>
-			                	</span>
-			                </div>
-			            @endif
-
-			            @if($errors->has('advance_percent'))
-			            	<div class="col-12">
-			                	<span class="invalid-feedback" role="alert">
-			                  		<strong>{{ $errors->first('advance_percent') }}</strong>
-			                	</span>
-			                </div>
-			            @endif
-                    </div>
-
-                    <div class="advance-invoice-fields mt-4" style="display: none;">
-                    	<p class="text-warning">{{ trans('textos.factura_avance_aviso') }}</p>
-
-	                    <div class="form-group row">
-	                    	{{-- Por cantidad --}}
-	                    	<label for="advance_amount" class="col-lg-3 col-form-label">{!! ucfirst(trans('textos.importe')) !!}</label>
-							<div class="col-lg-3">
-								<x-input type="text" name="advance_amount" id="advance_amount" class="text-right set-decimals" autocomplete="off" maxlength="15" value="" group="right" groupvalue="{{ $currency->symbol }}"/>
+								{{-- Previsión de facturación --}}
+								@if($next_prevision)
+									<label class="custom-chk-rdb" style="margin-top: 2px;">
+					    				<input type="radio" name="modality" class="rdbInvoiceModality" value="{{ $next_prevision->id }}" required>
+					    				<span class="rdb"></span>
+										{{ trans('textos.prevision_facturacion') }} {{ $next_prevision->percent }}%
+									</label>
+								@endif
 							</div>
 
-							{{-- Por porcentaje --}}
-							<label for="advance_percent" class="col-lg-3 col-form-label">{!! ucfirst(trans('textos.porcentaje')) !!}</label>
-							<div class="col-lg-3">
-								<x-input type="text" name="advance_percent" id="advance_percent" class="text-right set-decimals percent" autocomplete="off" maxlength="15" value="" group="right" groupvalue="%"/>
-							</div>
+							@if($errors->has('modality'))
+								<div class="col-12">
+				                	<span class="invalid-feedback" role="alert">
+				                  		<strong>{{ $errors->first('modality') }}</strong>
+				                	</span>
+				                </div>
+				            @endif
+
+				            @if($errors->has('advance_amount'))
+				            	<div class="col-12">
+				                	<span class="invalid-feedback" role="alert">
+				                  		<strong>{{ $errors->first('advance_amount') }}</strong>
+				                	</span>
+				                </div>
+				            @endif
+
+				            @if($errors->has('advance_percent'))
+				            	<div class="col-12">
+				                	<span class="invalid-feedback" role="alert">
+				                  		<strong>{{ $errors->first('advance_percent') }}</strong>
+				                	</span>
+				                </div>
+				            @endif
 	                    </div>
-                    </div>
 
-                    {{-- Cuentas contables de cliente --}}
-                    @if($customer_accounting_accounts->count() == 1)
-                    	<input type="hidden" name="customer_accounting_account" value="{{ $customer_accounting_accounts[0]->id }}">
+	                    <div class="advance-invoice-fields mt-4" style="display: none;">
+	                    	<p class="text-warning">{{ trans('textos.factura_avance_aviso') }}</p>
 
-                    @elseif($customer_accounting_accounts->count() > 1)
-                    	<div class="form-group row mt-4">
-                    		<label for="customer_accounting_account" class="col-lg-3 col-form-label">{!! ucfirst(trans('textos.cuenta_contable')) !!}*</label>	
-                    		<div class="col-lg-9">
-                    			@php
-	                            $customer_accounting_accounts_ = [];
-	                            @endphp
+		                    <div class="form-group row">
+		                    	{{-- Por cantidad --}}
+		                    	<label for="advance_amount" class="col-lg-3 col-form-label">{!! ucfirst(trans('textos.importe')) !!}</label>
+								<div class="col-lg-3">
+									<x-input type="text" name="advance_amount" id="advance_amount" class="text-right set-decimals" autocomplete="off" maxlength="15" value="" group="right" groupvalue="{{ $currency->symbol }}"/>
+								</div>
 
-	                            @foreach($customer_accounting_accounts as $caa)
-	                                @php
-	                                $customer_accounting_accounts_[$caa->id] = $caa->account.' - '.$caa->name;
-	                                @endphp
-	                            @endforeach
+								{{-- Por porcentaje --}}
+								<label for="advance_percent" class="col-lg-3 col-form-label">{!! ucfirst(trans('textos.porcentaje')) !!}</label>
+								<div class="col-lg-3">
+									<x-input type="text" name="advance_percent" id="advance_percent" class="text-right set-decimals percent" autocomplete="off" maxlength="15" value="" group="right" groupvalue="%"/>
+								</div>
+		                    </div>
+	                    </div>
 
-	                            <x-select name="customer_accounting_account" class="select2" :options="$customer_accounting_accounts_" label="cuenta_contable_selec" required/>		
-                    		</div>
-                    	</div>	
-                    @endif
+	                    {{-- Cuentas contables de cliente --}}
+	                    @if($customer_accounting_accounts->count() == 1)
+	                    	<input type="hidden" name="customer_accounting_account" value="{{ $customer_accounting_accounts[0]->id }}">
 
-                    <x-btn-submit name="submit_generate_invoice" label="{{ trans('textos.guardar') }}"/>
-                </form>
+	                    @elseif($customer_accounting_accounts->count() > 1)
+	                    	<div class="form-group row mt-4">
+	                    		<label for="customer_accounting_account" class="col-lg-3 col-form-label">{!! ucfirst(trans('textos.cuenta_contable')) !!}*</label>	
+	                    		<div class="col-lg-9">
+	                    			@php
+		                            $customer_accounting_accounts_ = [];
+		                            @endphp
+
+		                            @foreach($customer_accounting_accounts as $caa)
+		                                @php
+		                                $customer_accounting_accounts_[$caa->id] = $caa->account.' - '.$caa->name;
+		                                @endphp
+		                            @endforeach
+
+		                            <x-select name="customer_accounting_account" class="select2" :options="$customer_accounting_accounts_" label="cuenta_contable_selec" required/>		
+	                    		</div>
+	                    	</div>	
+	                    @endif
+
+	                    <x-btn-submit name="submit_generate_invoice" label="{{ trans('textos.guardar') }}"/>
+	                </form>
+	            
+	            @else
+	            	<h4 class="text-warning">
+	            		{{ trans('textos.cuenta_contable_ventas_defecto') }}
+	            	</h4>
+
+	            	@can('accounting-accounts.create')
+		            	<a href="{{ route('accounting-accounts.index') }}" class="btn bt-xs btn-info mt-3">
+		            		<i class="fa fa-file mr-1"></i>
+		            		{{ trans('textos.cuentas_contables') }}
+		            	</a>
+		            @endcan
+	            @endif
             </div>
         </div>
     </div>
