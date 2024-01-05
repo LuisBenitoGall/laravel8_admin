@@ -593,6 +593,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::get('invoices/control', 'InvoiceController@control')->name('invoices.control')->middleware('permission:invoices.index');
     Route::get('invoices/{invoice}/delete-doc', 'InvoiceController@removeDoc')->name('invoices.delete-doc')->middleware('permission:invoices.edit');
     Route::get('invoices/{invoice}/register', 'InvoiceController@registerPurchase')->name('invoices.register')->middleware('permission:invoices.edit');
+    Route::get('invoices/{invoice}/complete', 'InvoiceController@completeInvoice')->name('invoices.complete')->middleware('permission:invoices.edit');
 
     // IP Access:
     Route::get('ip-access', 'IpAccessController@index')->name('ip-access.index');

@@ -46,6 +46,7 @@ use App\Models\Project;
 use App\Models\ProjectPurchases;
 use App\Models\PurchaseProduct;
 use App\Models\Seat;
+use App\Models\SeatError;
 use App\Models\User;
 use App\Models\Workplace;
 
@@ -80,6 +81,8 @@ class InvoiceController extends Controller{
      * 16. Control de facturación.
      * 16.1. Control de facturación para DataTable.
      * 17. Eliminar documento.
+     * 18. Completar factura.
+     * 19. Asiento contable de la factura.
      */
     
     private $option = 'contabilidad';
@@ -96,7 +99,7 @@ class InvoiceController extends Controller{
 
         $this->middleware('module_setted:accounting');
         $this->middleware('invoice_customer_get', ['only' => ['editPurchase']]);
-        $this->middleware('invoice_get', ['only' => ['edit', 'block', 'unlock', 'updateTemplate', 'destroy']]);
+        $this->middleware('invoice_get', ['only' => ['edit', 'block', 'unlock', 'updateTemplate', 'destroy', 'completeInvoice']]);
         $this->middleware('invoice_update_get', ['only' => ['update', 'print']]);
         $this->middleware('invoice_post', ['only' => ['refund']]);
         $this->middleware('invoice_modality', ['only' => ['createFromOrder']]);
@@ -517,7 +520,7 @@ class InvoiceController extends Controller{
         $amount_with_iva = 0;
         $advance = false;
         $advance_percent = NULL;
-        $percentage_invoiced = NULL;
+        $percentage_invoiced = false;
         $amount_priority = 1;
 
         //Si la factura es un avance se incluye el importe a facturar o se obtiene el porcentaje sobre el total del pedido:
@@ -542,8 +545,10 @@ class InvoiceController extends Controller{
         }else{
             //Si viene declarado el porcentaje, se convierte a importe neto:
             if($request->advance_percent){
+                $percentage_invoiced = $request->advance_percent;
+
                 $provisional_amount = helpers::percent($order_amount['total_amount'], $request->advance_percent);
-                
+
                 //El importe obtenido por porcentaje no puede ser superior al importe pendiente:
                 if($provisional_amount > $outstanding_amount){
                     $alert = trans('textos.importe_mayor_pendiente_aviso');
@@ -577,6 +582,7 @@ class InvoiceController extends Controller{
                 ->first();
 
                 $real_percent = ($total_amount * 100) / $order_amount['total_amount'];
+                $percentage_invoiced = $real_percent;
 
                 //Actualizamos el porcentaje a facturar:
                 $last_prevision->percent = $real_percent;
@@ -702,78 +708,7 @@ class InvoiceController extends Controller{
         OrderPrevisions::recalculatePrevisionsPercent($order, $all_invoiced);
 
         //Asiento contable:
-        //Para facturas se ejecutan los métodos contables de Devengo e Ingresos.
-        //27/12/2023: por ahora se omite el condicional para la generación de asientos. Estudiar bien las posibles condiciones.
-        //if(in_array(session('companySettings')->accounting_method, config('constants.ACCOUNTING_METHODS_INVOICE_') )){
-            //Líneas del asiento:
-            $seat_lines = [];
-
-            //1. Cuenta contable del cliente (DEBIT):
-            if($request->customer_accounting_account){
-                $seat_lines[0]['accounting_account_id'] = $request->customer_accounting_account;
-                $seat_lines[0]['type'] = NULL;
-                $seat_lines[0]['debit'] = $invoice->amount_with_iva;
-                $seat_lines[0]['credit'] = '0';
-            }
-
-            //2. Cuentas contables del proveedor (CREDIT):
-            //2.1. Cuenta de ventas base:
-            $provider_accounting_account = AccountingAccount::select('id')
-            ->where('company_id', $order->provider_id)
-            ->where('featured', config('constants.ACCOUNT_DEFAULT_SALES_'))
-            ->first();
-
-            if($provider_accounting_account){
-                $seat_lines[1]['accounting_account_id'] = $provider_accounting_account->id;
-                $seat_lines[1]['type'] = NULL;
-                $seat_lines[1]['debit'] = '0';
-                $seat_lines[1]['credit'] = $invoice->amount;
-            }
-
-            //2.2. Cuenta de ventas IVA:
-
-            $iva_amounts = $order_amount['amounts_by_iva'];
-            //dd($iva_amounts);
-
-            $provider_accounting_account_iva = AccountingAccount::select('id')
-            ->where('company_id', $order->provider_id)
-            ->where('featured', config('constants.ACCOUNT_DEFAULT_SALES_IVA_'))
-            ->first();
-
-            if($provider_accounting_account_iva){
-                $seat_lines[2]['accounting_account_id'] = $provider_accounting_account_iva->id;
-                $seat_lines[2]['type'] = NULL;
-                $seat_lines[2]['debit'] = '0';
-                $seat_lines[2]['credit'] = $invoice->amount_with_iva - $invoice->amount;
-            }
-
-            $seat_data = [
-                'company_id' => session('currentCompany'),
-                'seat_num' => NULL,
-                'seat_type' => NULL,
-                'seat_date' => date('Y-m-d'),
-                'operation_type' => NULL,
-                'diary' => NULL,
-                'concept' => trans('textos.factura').' - '.$invoice->id,
-                'description' => NULL,
-                'serie' => NULL,
-                'doc_num' => NULL,
-                'doc' => NULL,
-                'sort_num' => '',
-                'company_target' => $order->customer_id,
-                'mode' => NULL,
-                'currency_id' => $this->currency->id,
-                'invoice_id' => $invoice->id,
-                'invoice_amount' => $invoice->amount,
-                'invoice_amount_iva' => $invoice->amount_with_iva,
-                'provider_doc' => NULL,
-                'cash_id' => NULL,
-                'pay_sign' => NULL,
-                // 'accounting_sale_id' => NULL,
-                'seat_lines' => $seat_lines
-            ];
-            Seat::saveSeat($seat_data);
-        //}
+        $this->setInvoiceSeat($invoice, $order, $order_amount, $percentage_invoiced, $request->customer_accounting_account);
 
         //Pagas y señales:
         $sign_payments = Payment::where('order_id', $order->id)
@@ -1300,6 +1235,10 @@ class InvoiceController extends Controller{
         //Productos. Activos y aptos para venta:
         $products = Product::companyProducts($order->provider_id, $order->customer_id, true, true);
 
+        //Tipos de IVA:
+        $ivaTypeController = new IvaTypeController();
+        $ivaTypes = $ivaTypeController->ivaTypes;
+
         //Patrones de numeración de la factura:
         $patterns = false;
         if(!$invoice->pattern_id){
@@ -1320,6 +1259,9 @@ class InvoiceController extends Controller{
             ->where('invoice_id', $invoice->id)
             ->first();
         }
+
+        //Errores en el asiento contable:
+        $seat_error = SeatError::where('invoice_id', $invoice->id)->first();
 
         //Templates:
         $templates = [];
@@ -1402,7 +1344,7 @@ class InvoiceController extends Controller{
             if($pba->featured == 1) $provider_bank_featured = $pba->id;
         }
 
-        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'is_sale', 'order', 'suborders', 'invoiced', 'invoices', 'refund', 'customer', 'customer_settings', 'provider', 'provider_account', 'provider_settings', 'items', 'products', 'patterns', 'payments', 'seat', 'templates', 'featuredTemplate', 'currency', 'languages', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'payment_methods', 'customer_bank_accounts', 'customer_bank_featured', 'provider_bank_accounts', 'provider_bank_featured'));
+        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'is_sale', 'order', 'suborders', 'invoiced', 'invoices', 'refund', 'customer', 'customer_settings', 'provider', 'provider_account', 'provider_settings', 'items', 'products', 'ivaTypes', 'patterns', 'payments', 'seat', 'seat_error', 'templates', 'featuredTemplate', 'currency', 'languages', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'payment_methods', 'customer_bank_accounts', 'customer_bank_featured', 'provider_bank_accounts', 'provider_bank_featured'));
     }
 
     /**
@@ -2542,6 +2484,163 @@ class InvoiceController extends Controller{
 
         $msg = trans('textos.archivo_deleted');
         return redirect()->route('invoices.edit-purchase', $invoice)->with(compact('msg'));
+    }
+
+    /**
+     * 18. Completar factura.
+     *
+     * Para facturas a las que les ha faltado completar el asiento contable.
+     */
+    public function completeInvoice(Invoice $invoice){
+        $order = $invoice->order_id? Order::select('id', 'order_status', 'order_parent', 'is_group', 'customer_id', 'provider_id', 'blocked', 'invoiced')
+        ->find($invoice->order_id):false; 
+
+        //Importe total del pedido:
+        $order_amount = $order->getAmount(true, true);
+
+        //Porcentaje facturado:
+        $order_prevision = OrderPrevisions::select('percent')
+        ->where('invoice_id', $invoice->id)
+        ->first();
+        $percentage_invoice = $order_prevision && $order_prevision->percent < 100? $order_prevision->percent:false;
+
+        //Cuenta contable de cliente:
+        $customer_accounting_account = AccountingAccount::select('id')
+        ->where('company_id', $order->provider_id)
+        ->where('company_target', $order->customer_id)
+        ->where('mode', 1)
+        ->first();
+
+        if($order && $customer_accounting_account){
+            $seat = $this->setInvoiceSeat($invoice, $order, $order_amount, $percentage_invoiced, $customer_accounting_account->id);
+
+            if($seat == 'error'){
+                $alert = trans('textos.factura_registro_error');
+                return redirect()->route('invoices.edit', $invoice)->with(compact('alert'));
+            }else{
+                //Eliminamos el registro del error:
+                SeatError::where('invoice_id', $invoice->id)->delete();
+
+                $msg = trans('textos.factura_registrada');
+                return redirect()->route('invoices.edit', $invoice)->with(compact('msg'));
+            }
+
+        }else{
+            $alert = trans('textos.proceso_error_aviso');
+            return redirect()->route('invoices.edit', $invoice)->with(compact('alert'));
+        }
+    }
+
+    /**
+     * 19. Asiento contable de la factura.
+     */
+    public function setInvoiceSeat($invoice, $order, $order_amount, $percentage_invoiced = false, $customer_accounting_account = false){
+        //Para facturas se ejecutan los métodos contables de Devengo e Ingresos.
+        //27/12/2023: por ahora se omite el condicional para la generación de asientos. Estudiar bien las posibles condiciones.
+        //if(in_array(session('companySettings')->accounting_method, config('constants.ACCOUNTING_METHODS_INVOICE_') )){
+            //Líneas del asiento.
+            $seat_lines = [];
+            $iva_lines = [];
+            $iva_errors = [];   //Guardo los tipos de IVA no vinculados a ninguna cuenta contable.
+
+            //1. Cuenta contable del cliente (DEBIT):
+            if($customer_accounting_account){
+                $seat_lines[0]['accounting_account_id'] = $customer_accounting_account;
+                $seat_lines[0]['type'] = NULL;
+                $seat_lines[0]['debit'] = $invoice->amount_with_iva;
+                $seat_lines[0]['credit'] = '0';
+            }
+
+            //2. Cuentas contables del proveedor (CREDIT):
+            //2.1. Cuenta de ventas base:
+            $provider_accounting_account = AccountingAccount::select('id')
+            ->where('company_id', $order->provider_id)
+            ->where('featured', config('constants.ACCOUNT_DEFAULT_SALES_'))
+            ->first();
+
+            if($provider_accounting_account){
+                $seat_lines[1]['accounting_account_id'] = $provider_accounting_account->id;
+                $seat_lines[1]['type'] = NULL;
+                $seat_lines[1]['debit'] = '0';
+                $seat_lines[1]['credit'] = $invoice->amount;
+            }
+
+            //3. Cuenta de ventas IVA:
+            //3.1. Importes de IVA separados por tipo:
+            $iva_amounts = $order_amount['iva_amounts'];
+
+            //3.2. Cuentas contables vinculadas a cada tipo de IVA. Atención a la condición sobre la coincidencia de la cuenta, sólo debe seleccionar, en este caso, las de IVA repercutido.
+            foreach($iva_amounts as $idx => $val){
+                $line = [];
+
+                //Obtenemos el porcentaje de IVA si la factura no es por el importe total del pedido:
+                if($percentage_invoiced && $percentage_invoiced > 0){
+                    $val = round(($val * $percentage_invoiced) / 100, 2);
+                }
+
+                $iva_account = AccountingAccount::select('accounting_accounts.id')
+                ->join('iva_types', 'accounting_accounts.iva_type_id', '=', 'iva_types.id')
+                ->where('accounting_accounts.company_id', $order->provider_id)
+                ->where('accounting_accounts.account', 'LIKE', config('constants.ACCOUNTING_ACCOUNT_IVA_PREFIX_SALES_').'%')
+                ->where('iva_types.iva', $idx)
+                ->first(); 
+
+                if($iva_account){
+                    $line['accounting_account_id'] = $iva_account->id;
+                    $line['type'] = NULL;
+                    $line['debit'] = '0';
+                    $line['credit'] = $val;
+
+                    array_push($iva_lines, $line);
+
+                }else{
+                    array_push($iva_errors, $idx);
+                }
+            }         
+
+            //Se genera el asiento contable si todos los tipos de IVA están vinculados a cuenta contable:
+            if(empty($iva_errors)){
+                $seat_data = [
+                    'company_id' => session('currentCompany'),
+                    'seat_num' => NULL,
+                    'seat_type' => NULL,
+                    'seat_date' => date('Y-m-d'),
+                    'operation_type' => NULL,
+                    'diary' => NULL,
+                    'concept' => trans('textos.factura').' - '.$invoice->id,
+                    'description' => NULL,
+                    'serie' => NULL,
+                    'doc_num' => NULL,
+                    'doc' => NULL,
+                    'sort_num' => '',
+                    'company_target' => $order->customer_id,
+                    'mode' => NULL,
+                    'currency_id' => $this->currency->id,
+                    'invoice_id' => $invoice->id,
+                    'invoice_amount' => $invoice->amount,
+                    'invoice_amount_iva' => $invoice->amount_with_iva,
+                    'provider_doc' => NULL,
+                    'cash_id' => NULL,
+                    'pay_sign' => NULL,
+                    // 'accounting_sale_id' => NULL,
+                    'seat_lines' => $seat_lines,
+                    'iva_lines' => $iva_lines
+                ];
+                $seat = Seat::saveSeat($seat_data);
+
+                return $seat;
+
+            //Guardamos el error:
+            }else{
+                $er = new SeatError();
+                $er->invoice_id = $invoice->id;
+                $er->iva_types = serialize($iva_errors); 
+                $er->type = 'r';   
+                $er->save();
+
+                return 'error';
+            }
+        //}
     }
     
 }

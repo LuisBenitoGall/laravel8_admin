@@ -38,9 +38,13 @@
 							$val1_id = isset($default_accounts[config('constants.ACCOUNT_DEFAULT_SALES_')])? $default_accounts[config('constants.ACCOUNT_DEFAULT_SALES_')][0]:'';
 							@endphp
 
-							<x-input type="text" name="accounting_sales_" datas="id:1" class="search_accounting_account" id="searchAccountingAccount1" placeholder="{!! ucfirst(trans('textos.cuenta_buscar')) !!}" maxlength="250" value="{{ $val1_text }}"/>
+							{{-- <x-input type="text" name="accounting_sales_" datas="id:1" class="search_accounting_account" id="searchAccountingAccount1" placeholder="{!! ucfirst(trans('textos.cuenta_buscar')) !!}" maxlength="250" value="{{ $val1_text }}"/>
 
-                            <input type="hidden" name="accounting_sales" id="accountingAccountId1" value="{{ $val1_id }}">
+                            <input type="hidden" name="accounting_sales" id="accountingAccountId1" value="{{ $val1_id }}"> --}}
+
+                            <x-input type="text" name="accounting_sales_" id="search_accounting_account" placeholder="{!! ucfirst(trans('textos.cuenta_buscar')) !!}" maxlength="150" value="{{ $val1_text }}"/>
+
+							<input type="hidden" name="accounting_sales" id="accountingAccountId" value="{{ $val1_id }}">
 						</div>
 
 						{{-- Cuenta ventas IVA --}}

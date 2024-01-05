@@ -1124,8 +1124,14 @@ $(window).on('load', function () {
                     $('#itemDays_').val(response.days).prop('readonly', readonly);
                     $('#itemPrice_').val(response.price).prop('readonly', readonly);
                     $('#itemDiscount_').val(response.discount).prop('readonly', readonly);
-                    $('#itemIva_').val(response.iva).prop('readonly', readonly);
                     $('#itemCalculatedByPercent_').val('').prop('readonly', readonly);
+
+                    //IVA:
+                    var arr_iva = [response.iva];
+                    $('#itemIva_').val(arr_iva);
+                    $('#itemIva_').trigger('change');
+                    //$('#itemIva_').val(response.iva).prop('readonly', readonly);
+
 
                     if(response.iva == ''){
                         $('#frmEditItem .withoutIva').prop('checked', true);
@@ -1229,7 +1235,10 @@ $(window).on('load', function () {
     // 32. Producto exento de IVA.
     $('.withoutIva').on('change', function(){
         if($(this).is(':checked')){
-            $('.iva0').val('');
+            var arr_iva = ['0'];
+            $('.iva0').val(arr_iva);
+            $('.iva0').trigger('change');
+            //$('.iva0').val('');
         }    
     });
     $('.iva0').on('change', function(){
