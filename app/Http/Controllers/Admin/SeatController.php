@@ -19,6 +19,7 @@ use App\Models\AccountingAccount;
 use App\Models\AccountingAccountYearBalance;
 use App\Models\Company;
 use App\Models\CompanySettings;
+use App\Models\Invoice;
 use App\Models\Seat;
 use App\Models\SeatLines;
 use App\Models\SeatModel;
@@ -376,7 +377,7 @@ class SeatController extends Controller{
 
         $diaries = helpers::accountingDiaries();
 
-        $lines = SeatLines::select('seat_lines.id', 'seat_lines.line_num', 'seat_lines.debit', 'seat_lines.credit', 'seat_lines.accounting_account_id', 'seat_lines.type', 'seat_lines.currency_id', 'accounting_accounts.account')
+        $lines = SeatLines::select('seat_lines.id', 'seat_lines.line_num', 'seat_lines.debit', 'seat_lines.credit', 'seat_lines.accounting_account_id', 'seat_lines.type', 'seat_lines.currency_id', 'accounting_accounts.account', 'accounting_accounts.name')
         ->leftJoin('accounting_accounts', 'seat_lines.accounting_account_id', '=', 'accounting_accounts.id')
         ->where('seat_lines.seat_id', $seat->id)
         ->orderBy('seat_lines.line_num', 'ASC')
@@ -411,9 +412,9 @@ class SeatController extends Controller{
         $amounts = $this->validateAmounts($request);
 
         //Si los importes difieren devolvemos error:
-        if($amounts['seat_amount'] != $amounts['lines_amount']){
+        if($amounts['debit'] != $amounts['credit']){
             $alert = trans('textos.asiento_discrepancia');
-            return redirect()->route('seats.create')->with(compact('alert'));
+            return redirect()->route('seats.edit', $seat)->with(compact('alert'));
             exit;
         }
 
@@ -422,45 +423,36 @@ class SeatController extends Controller{
         $invoice_date = $request->invoice_date != '' ? (session()->get('locale') != 'en') ? helpers::convertFecha($request->invoice_date) : $request->invoice_date : NULL;
 
         $seat->year = date('Y');
-        $seat->seat_type = $request->seat_type;
+        //$seat->seat_type = $request->seat_type;
         $seat->seat_date = $seat_date;
-        $seat->operation_type = NULL;
+        //$seat->operation_type = NULL;
         $seat->diary = $request->diary;
         $seat->concept = $request->concept;
         $seat->description = $request->description;
-        $seat->serie = $request->serie;
+        //$seat->serie = $request->serie;
         $seat->doc_num = $request->doc_num;
         $seat->company_target = $request->company_id;
         $seat->mode = $request->mode;
-        $seat->currency_id = $this->currency->id;
-        // $seat->base1 = $request->base1? $request->base1:0;
-        // $seat->base2 = $request->base2? $request->base2:0;
-        // $seat->base3 = $request->base3? $request->base3:0;
-        // $seat->iva_percent1 = $request->iva_percent1? $request->iva_percent1:0;
-        // $seat->iva_percent2 = $request->iva_percent2? $request->iva_percent2:0;
-        // $seat->iva_percent3 = $request->iva_percent3? $request->iva_percent3:0;
-        // $seat->iva_amount1 = $amounts['amount1'];
-        // $seat->iva_amount2 = $amounts['amount2'];
-        // $seat->iva_amount3 = $amounts['amount3'];
+        //$seat->currency_id = $this->currency->id;
         $seat->updated_by = Auth::user()->id;
-        $seat->invoice_date = $invoice_date;
-        $seat->invoice_num = $request->invoice_num;
+        //$seat->invoice_date = $invoice_date;
+        //$seat->invoice_num = $request->invoice_num;
         $seat->provider_doc = $request->provider_doc;
         $seat->pay_sign = $request->pay_sign;
         $seat->save();
 
         //Líneas del asiento:
-        //Eliminamos las líneas previas y se insertan por completo:
-        SeatLines::where('seat_id', $seat->id)->delete();
-        
-        if($request->accounting_account){
+        if($request->accounting_account_id){
+            //Eliminamos las líneas previas y se insertan por completo:
+            SeatLines::where('seat_id', $seat->id)->delete();
+
             $i = 0;
             $line_num = 1;
-            foreach($request->accounting_account as $aa){
+            foreach($request->accounting_account_id as $aa){
                 $sl = new SeatLines();
                 $sl->seat_id = $seat->id;
                 $sl->line_num = $line_num;
-                $sl->accounting_account_id = $request->accounting_account[$i];
+                $sl->accounting_account_id = $request->accounting_account_id[$i];
                 $sl->debit = $request->debit[$i];
                 $sl->credit = $request->credit[$i];
                 $sl->code_auto = NULL;
@@ -558,4 +550,5 @@ class SeatController extends Controller{
             return response()->json($data);
         }    
     }
+
 }

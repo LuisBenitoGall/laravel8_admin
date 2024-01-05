@@ -25,13 +25,13 @@
 	{{-- Debe --}}
 	<label for="debe_" class="col-lg-2 col-form-label">{{ trans('textos.debe') }}</label>
 	<div class="col-lg-2">
-		<x-input type="text" name="debit_" class="text-right set-decimals" autocomplete="off" maxlength="20" group="right" groupvalue="{{ $currency->symbol }}"/>
+		<x-input type="text" name="debit_" class="text-right set-decimals" autocomplete="off" maxlength="20" group="right" value="0" groupvalue="{{ $currency->symbol }}"/>
 	</div>
 
 	{{-- Haber --}}
 	<label for="haber_" class="col-lg-2 col-form-label">{{ trans('textos.haber') }}</label>
 	<div class="col-lg-2">
-		<x-input type="text" name="credit_" class="text-right set-decimals" autocomplete="off" maxlength="20" group="right" groupvalue="{{ $currency->symbol }}"/>
+		<x-input type="text" name="credit_" class="text-right set-decimals" autocomplete="off" maxlength="20" group="right" value="0" groupvalue="{{ $currency->symbol }}"/>
 	</div>	
 
 	{{-- Añadir --}}
@@ -139,13 +139,13 @@ $(function(){
 		i--;	//Restamos 1 a i para mantener la correlación de números.
 
 		//Recalculando totales:
-		var debe_amount = 0;
+		debe_amount = 0;
 		$('.from-debe').each(function(index){
 			if($(this).val() > 0){
 				debe_amount = parseFloat(debe_amount) + parseFloat($(this).val());
 			}
 		});
-		var haber_amount = 0;
+		haber_amount = 0;
 		$('.from-haber').each(function(index){
 			if($(this).val() > 0){
 				haber_amount = parseFloat(haber_amount) + parseFloat($(this).val());
@@ -157,22 +157,25 @@ $(function(){
 		$('#totalDebe').text(debe_amount);
 		$('#totalHaber').text(haber_amount);
 		$('#totalDiff').text(diff);
+
+		$('#debeTotal').val(debe_amount.toFixed(2));
+		$('#haberTotal').val(haber_amount.toFixed(2));
 	});
 
 	//Validando importes de líneas:
 	$('#sbtSeat').on('click', function(e){
 		var debe_amount = $('#debeTotal').val();
-		$('.from-debe').each(function(index){
-			if($(this).val() > 0){
-				debe_amount = parseFloat(debe_amount) + parseFloat($(this).val());
-			}
-		});
+		// $('.from-debe').each(function(index){
+		// 	if($(this).val() > 0){
+		// 		debe_amount = parseFloat(debe_amount) + parseFloat($(this).val());
+		// 	}
+		// });
 		var haber_amount = $('#haberTotal').val();
-		$('.from-haber').each(function(index){
-			if($(this).val() > 0){
-				haber_amount = parseFloat(haber_amount) + parseFloat($(this).val());
-			}
-		});
+		// $('.from-haber').each(function(index){
+		// 	if($(this).val() > 0){
+		// 		haber_amount = parseFloat(haber_amount) + parseFloat($(this).val());
+		// 	}
+		// });
 
 		if(debe_amount != haber_amount){
         	var msg = '{!! trans('textos.asiento_contable_incorrecto') !!}';
