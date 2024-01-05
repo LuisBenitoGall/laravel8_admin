@@ -66,7 +66,20 @@
 						@if($environment_ == 'orders' || $environment_ == 'invoices')
 							<label for="iva" class="col-lg-2 col-form-label">IVA</label>
 							<div class="col-lg-2">
-								<x-input type="text" name="iva" class="text-right set-decimals iva0" id="itemIva_" autocomplete="off" maxlength="5" group="right" groupvalue="%" readonly="{{ $readonly }}"/>
+								@if($readonly)
+									<x-input type="text" name="iva" class="text-right set-decimals" id="itemIva_" autocomplete="off" maxlength="5" group="right" groupvalue="%" readonly="{{ $readonly }}"/>	
+
+								@else
+									{{-- 04/01/2023: se sustituye el input por un selecto con los tipos de IVA disponibles. --}}
+									@php
+									$iva_types = [];
+									foreach($ivaTypes as $it){
+										$iva_types[$it->iva] = $it->iva.'%'; 
+									}
+									@endphp
+
+									<x-select name="iva" class="select2 iva0" id="itemIva_" label="iva_selec" :options="$iva_types"/>
+								@endif								
 							</div>
 
 							{{-- Exento IVA --}}

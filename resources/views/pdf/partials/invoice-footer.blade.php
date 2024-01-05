@@ -33,6 +33,8 @@
 				@if(isset($sumIva) && count($sumIva) > 0)
 					{{-- Cantidad de IVA distintos aplicados --}}
 					@php
+					$amount_accumulated = $invoice->amount;		//Acumulamos los importes parciales para comprobar que cuadran con el importe final.
+					$j = 1;
 					$num_ivas = count($sumIva);
 					@endphp
 
@@ -53,19 +55,34 @@
 							@endphp
 						@endif
 
+						@php
+						$amount_accumulated = $amount_accumulated + $iva_;
+						@endphp
+
+						{{-- Ajuste del último importe de IVA para cuadrar importes --}}
+						@if($num_ivas == $j && $amount_accumulated != $invoice->amount_with_iva)
+							@php
+							$iva_ = $iva_ + ($invoice->amount_with_iva - $amount_accumulated);
+							@endphp
+						@endif
+
 						<tr>
 							<th style="background-color: #efefef; text-align: right; width: 80%;">
-								IVA ({{ $i }}%)	
+								IVA ({{ $i }}%)
 							</th>
 							<th style="background-color: #efefef;">
 								{{-- <b>{{ array_sum($baseIva[$i]) }}{{ $currency->symbol }}</b>	 --}}
-								<b>{{ $base_ }}{{ $currency->symbol }}</b>
+								{{-- <b>{{ $base_ }}{{ $currency->symbol }}</b> --}}
 							</th>
 							<th style="background-color: #efefef; text-align: right;">
 								{{-- <b>{{ array_sum($si) }}{{ $currency->symbol }}</b> --}}
 								<b>{{ $iva_ }}{{ $currency->symbol }}</b>
 							</th>
 						</tr>
+
+						@php
+						$j++;
+						@endphp
 					@endforeach
 				@endif
 
