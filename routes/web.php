@@ -482,6 +482,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::get('effects/groups/{customer_id?}/{provider_id?}/{from?}/{to?}/{payment_method?}', 'EffectController@groups')->name('effects.groups')->middleware('permission:effects.create');
     Route::post('effects/set-remittance', 'EffectController@setRemittance')->name('effects.set-remittance')->middleware('permission:effects.edit');
     Route::post('effects/set-invoices', 'EffectController@setInvoices')->name('effects.set-invoices')->middleware('permission:effects.edit');
+    Route::post('effects/groups-filter', 'EffectController@groupsFilter')->name('effects.groups-filter')->middleware('permission:effects.create');
 
     // Employees:
     Route::get('employees', 'EmployeeController@index')->name('employees.index');
@@ -569,7 +570,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::get('invoice-settings/{template}/featured', 'InvoiceSettingsController@featured')->name('invoice-settings.featured')->middleware('permission:invoices.edit');
 
     // Invoices:
-    Route::get('invoices/list/{year?}/{month?}/{company?}', 'InvoiceController@index')->name('invoices.index')->middleware('permission:invoices.index');
+    Route::get('invoices/list/{year?}/{month?}/{company?}/{group?}', 'InvoiceController@index')->name('invoices.index')->middleware('permission:invoices.index');
     Route::post('invoices', 'InvoiceController@getInvoicesBy')->name('invoices.list')->middleware('permission:invoices.index');
     Route::post('invoices/create-from-order', 'InvoiceController@createFromOrder')->name('invoices.create-from-order')->middleware('permission:invoices.create');
     Route::get('invoices/create-from-provider/{project_id?}/{order_id?}', 'InvoiceController@createFromProvider')->name('invoices.create-from-provider')->middleware('permission:invoices.create');

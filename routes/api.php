@@ -182,6 +182,9 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     //Effects:
     Route::get('effects/{customer_id?}/{provider_id?}', 'EffectController@getEffectsDT');
 
+    //Effects Groups:
+    Route::get('effects-groups/{customer_id?}/{provider_id?}/{from?}/{to?}/{payment_method?}', 'EffectController@getEffectsGroupsDT');
+
     //Employees:
     Route::get('employees', 'EmployeeController@getEmployeesDT');
 
@@ -208,7 +211,7 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     Route::get('invoice-patterns', 'InvoicePatternsController@getPatternsDT');
 
     //Invoices:
-    Route::get('invoices/{year?}/{customer?}/{provider?}/{month?}', 'InvoiceController@getInvoicesDT');
+    Route::get('invoices/{year?}/{customer?}/{provider?}/{month?}/{group?}', 'InvoiceController@getInvoicesDT');
 
     //Invoice Settings:
     Route::get('invoice-settings', 'InvoiceSettingsController@getTemplatesDT');

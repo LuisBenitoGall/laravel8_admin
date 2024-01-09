@@ -2031,6 +2031,39 @@ $(document).ready(function(){
         });
     }
 
+    //Tabla Effects Groups:
+    if($('#tblEffectsGroups').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        var customer = $('#myCustomer').val() != ''? $('#myCustomer').val():'0';
+        var provider = $('#myProvider').val() != ''? $('#myProvider').val():'0';
+        var from = $('#myFrom').val();
+        var to = $('#myTo').val();
+        var payment_method = $('#myPaymentMethod').val();
+
+        var tableEffectsGroups = $('#tblEffectsGroups').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/effects-groups/"+customer+"/"+provider+"/"+from+"/"+to+"/"+payment_method,
+                "error": function(reason){
+                console.log(reason);
+            }
+            },
+            columns: [
+                {data: 'num', className: 'text-right', name: 'effects.effect_num'},
+                {data: 'expiry_date', className: 'text-right'},
+                {data: 'company', className: 'text-right', name: 'companies.name'},
+                {data: 'invoices', name: 'invoices.invoice_num'},
+                {data: 'amount', className: 'text-right'},
+                {data: 'payment_method'},
+                {data: 'observations'},
+                {data: 'estado'},
+                {data: 'acciones', className: 'text-right'}
+            ]
+        });
+    }
+
     //Tabla Employees:
     if($('#tblEmployees').length > 0){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
@@ -2560,6 +2593,7 @@ $(document).ready(function(){
         var provider = $('#myProvider').val() != ''? $('#myProvider').val():'0'; 
         var year = $('#myYear').val();
         var month = $('#myMonth').val();
+        var group = $('#myGroup').val();
         var orderId = $('#orderId').val();
         var poId = $('#poId').val();        //by purchase order.
 
@@ -2571,7 +2605,7 @@ $(document).ready(function(){
         $('#tblInvoices thead tr').clone(true).appendTo('#tblInvoices thead');
         $('#tblInvoices thead tr:eq(1) th').each(function(i){
             var title = $(this).text();
-            if(i == 10){
+            if(i == 11){
                 $(this).html('');
             }else{
                 // Check field on json of localstorage
@@ -2593,7 +2627,7 @@ $(document).ready(function(){
         });
 
         // var api_route = 'invoices/'+year+'/'+customer+'/'+provider;
-        var api_route = `invoices/${year}/${customer}/${provider}/${month}`;
+        var api_route = `invoices/${year}/${customer}/${provider}/${month}/${group}`;
 
         if(orderId){
             api_route = 'invoices-by-order/'+orderId;
@@ -2602,7 +2636,7 @@ $(document).ready(function(){
         }
         
         var tableInvoices = $('#tblInvoices').DataTable({
-            order: [[ 4, "desc" ]],
+            order: [[ 5, "desc" ]],
             serverSide: false,
             processing: false,
             stateSave: true,
@@ -2621,7 +2655,7 @@ $(document).ready(function(){
                 {data: 'invoice_num', name: 'invoices.invoice_num', className: 'text-right'},
                 {data: 'company', name: 'companies.name'},
                 {data: 'order', name: 'orders.order_num', className: 'text-right'},
-                // {data: 'manager', name: 'users.name'},
+                {data: 'manager', name: 'users.name'},
                 {data: 'fiscal_date', className: 'text-right'},
                 {data: 'expiration_date', className: 'text-right'},
                 {data: 'amount', name: 'invoices.amount', className: 'text-right'},
@@ -2656,18 +2690,6 @@ $(document).ready(function(){
 
                     //Total:
                     total = api
-                    .column(5, { search: 'applied' })
-                    .data()
-                    .reduce(function(a, b){
-                        return intVal(a) + intVal(b);
-                    }, 0);
-
-                    $(api.column(5).footer()).html(
-                        total.toFixed(2)+currency   
-                    );
-
-                    //Total con IVA:
-                    total_iva = api
                     .column(6, { search: 'applied' })
                     .data()
                     .reduce(function(a, b){
@@ -2675,6 +2697,18 @@ $(document).ready(function(){
                     }, 0);
 
                     $(api.column(6).footer()).html(
+                        total.toFixed(2)+currency   
+                    );
+
+                    //Total con IVA:
+                    total_iva = api
+                    .column(7, { search: 'applied' })
+                    .data()
+                    .reduce(function(a, b){
+                        return intVal(a) + intVal(b);
+                    }, 0);
+
+                    $(api.column(7).footer()).html(
                         total_iva.toFixed(2)+currency   
                     );
      

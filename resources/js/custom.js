@@ -1126,12 +1126,16 @@ $(window).on('load', function () {
                     $('#itemDiscount_').val(response.discount).prop('readonly', readonly);
                     $('#itemCalculatedByPercent_').val('').prop('readonly', readonly);
 
+                    //Producto contable:
+                    var arr_accounting_product = [response.purchase_product_id];
+                    $('#itemAccountingProduct_').val(arr_accounting_product);
+                    $('#itemAccountingProduct_').trigger('change');
+
                     //IVA:
                     var arr_iva = [response.iva];
                     $('#itemIva_').val(arr_iva);
                     $('#itemIva_').trigger('change');
                     //$('#itemIva_').val(response.iva).prop('readonly', readonly);
-
 
                     if(response.iva == ''){
                         $('#frmEditItem .withoutIva').prop('checked', true);
