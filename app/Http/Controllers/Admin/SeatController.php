@@ -390,11 +390,14 @@ class SeatController extends Controller{
 
         $author = User::select('name', 'surname')->find($seat->created_by);
 
+        //Factura:
+        $invoice = $seat->invoice_id? Invoice::select('id', 'invoice_num', 'invoice_old_num')->find($seat->invoice_id):false;
+
         $languages = $this->languages;
 
         $currency = $this->currency;
 
-        return view('admin.seats.edit')->with(compact('header', 'seat', 'diaries', 'lines', 'seat_lines_types', 'company', 'author', 'languages', 'currency'));    
+        return view('admin.seats.edit')->with(compact('header', 'seat', 'diaries', 'lines', 'seat_lines_types', 'company', 'author', 'invoice', 'languages', 'currency'));    
     }
 
     /**

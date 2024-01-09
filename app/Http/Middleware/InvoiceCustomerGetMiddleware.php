@@ -16,6 +16,8 @@ class InvoiceCustomerGetMiddleware{
      * @param  \Illuminate\Http\Request  $request
      * @param  \Closure(\Illuminate\Http\Request): (\Illuminate\Http\Response|\Illuminate\Http\RedirectResponse)  $next
      * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
+     *
+     * Valida que se trate del cliente del pedido.
      */
     public function handle(Request $request, Closure $next){
         $company = Invoice::select('customer_id')

@@ -28,7 +28,6 @@ class Effect extends Model{
         'provider_bank_account_id',
         'customer_id',
         'customer_bank_account_id',
-        'invoice_id',
         'payment_method_id',
         'payment_status',
         'amount',

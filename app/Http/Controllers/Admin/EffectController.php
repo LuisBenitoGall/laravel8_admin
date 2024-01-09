@@ -39,7 +39,12 @@ class EffectController extends Controller{
      * 5. Actualizar efecto.
      * 6. Eliminar efecto.
      * 7. Actualizar estado de efecto.
-     *
+     * 8. Vincular a remesa.
+     * 9. Vincular facturas.
+     * 10. Efectos agrupados.
+     * 11. Filtro para agrupaciones de efectos.
+     * 12. Listado de efectos para grupos para DataTable.
+     * 13. Desvincular efecto del grupo.
      */
     
     private $option = 'contabilidad';
@@ -562,5 +567,154 @@ class EffectController extends Controller{
 
         $msg = trans('textos.efecto_updated');
         return redirect()->route('effects.edit', $effect)->with(compact('msg'));
+    }
+
+    /**
+     * 6. Eliminar efecto.
+     * @param \Illuminate\Http\Request $request
+     * @param \App\Models\Effect $effect
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy(Request $request, Effect $effect){
+    //Desvinculamos facturas:
+    Invoice::where('effect_id', $effect->id)
+    ->update(['effect_id' => NULL]);
+
+    $effect->delete();
+
+    $msg = trans('textos.efecto_deleted');
+    return redirect()->route('effects.index')->with(compact('msg'));
+    }
+
+    /**
+     * 7. Actualizar estado de efecto.
+     */
+    public function status(Request $request, Effect $effect, $status){
+        if ($request->ajax()) {
+            $effect->status = $status;
+            $effect->save();
+
+            return response()->json(true);
+        }
+    }
+
+    /**
+     * 8. Vincular a remesa.
+     */
+    public function setRemittance(Request $request){
+        $validator = $this->validator($request->all());
+        if ($validator->fails()) {
+        //Indicamos el origen de la acción realizada para manejar el modal:
+        $validator->getMessageBag()->add('accion', 'modal-add-remittance');
+
+        return redirect('/admin/effects/index')
+        ->withErrors($validator)
+        ->withInput();
+        }
+
+        Effect::where('id', $request->effect_id)
+        ->update(['remittance_id' => $request->remittance]);
+
+        $msg = trans('textos.efecto_remesado');
+        return redirect()->route('effects.index')->with(compact('msg'));
+    }
+
+    /**
+     * 9. Vincular facturas.
+     */
+    public function setInvoices(Request $request){
+        $validator = $this->validator($request->all());
+        if ($validator->fails()) {
+            //Indicamos el origen de la acción realizada para manejar el modal:
+            $validator->getMessageBag()->add('accion', 'modal-add-invoices');
+
+            return redirect('/admin/effects/'.$request->effect_id.'/edit')
+            ->withErrors($validator)
+            ->withInput();
+        }
+
+        foreach($request->invoices as $inv){
+            Invoice::where('id', $inv)
+            ->update(['effect_id' => $request->effect_id]);
+        }
+
+        $msg = trans('textos.facturas_agregadas');
+        return redirect()->route('effects.edit', $request->effect_id)->with(compact('msg'));
+    }
+
+    /**
+     * 10. Efectos agrupados.
+     */
+    public function groups($customer_id = false, $provider_id = false, $from = false, $to = false, $payment_method = false){
+        $header = [
+            'option' => $this->option,
+            'suboption' => 'textos.efectos_agrupados',
+            'module' => $this->module,
+            'slug' => 'effects'
+        ];
+
+        //Cuentas bancarias propias:
+        $my_bank_accounts = BankAccounts::select(DB::raw("CONCAT(entity,' ',iban,'-',office,'-',dc,'-',account) as cuenta"), 'id')
+        ->where('company_id', session('currentCompany'))
+        ->pluck('cuenta', 'id')
+        ->toArray();
+
+        $featured_account = BankAccounts::select('id')
+        ->where('featured', 1)
+        ->where('company_id', session('currentCompany'))
+        ->first();
+
+        //Cuentas bancarias del cliente o proveedor:
+        $other_company = $customer_id? $customer_id:($provider_id? $provider_id:false);
+        if($other_company){
+            $bank_accounts = BankAccounts::select(DB::raw("CONCAT(entity,' ',iban,'-',office,'-',dc,'-',account) as cuenta"), 'id')
+            ->where('company_id', $other_company)
+            ->pluck('cuenta', 'id')
+            ->toArray();
+        }else{
+            $bank_accounts = [];
+        }
+
+        //Métodos de pago:
+        $payment_methods = PaymentMethod::where('status', 1)
+        ->pluck('name', 'id')
+        ->toArray();
+
+        //Series:
+        // $series = InvoiceSerie::select(DB::raw("CONCAT(code,'-',description) as cuenta"), 'id')
+        // ->where('company_id', session('currentCompany'))
+        // ->pluck('cuenta', 'id')
+        // ->toArray();
+
+        //Estados de pago:
+        $payment_status = helpers::paymentStatus();
+
+        $languages = $this->languages;
+
+        $currency = $this->currency;
+
+        return view('admin.effects.groups', compact('header', 'provider_id', 'customer_id', 'from', 'to', 'payment_method', 'my_bank_accounts', 'featured_account', 'bank_accounts', 'payment_methods', 'payment_status', 'languages', 'currency'));
+    }
+
+    /**
+     * 11. Filtro para agrupaciones de efectos.
+     */
+    public function groupsFilter(Request $request){
+        //dd($request->all());
+        //Si no se informa de proveedor, éste es la empresa en sesión:
+        $provider_id = $request->provider_id ? $request->provider_id : session('currentCompany');
+        $customer_id = $request->customer_id ? $request->customer_id : session('currentCompany');
+
+        //Sólo podemos tomar un criterio, nunca ambos:
+        if($request->customer_id){
+            $provider_id = session('currentCompany');
+        }elseif($request->provider_id){
+            $customer_id = session('currentCompany');
+        }
+
+        $from = $request->from? (session()->get('locale') != 'en')? helpers::convertFecha($request->from):$request->from:'x';
+        $to = $request->to? (session()->get('locale') != 'en')? helpers::convertFecha($request->to):$request->to:'x';
+
+        return redirect()->route('effects.groups', [$customer_id, $provider_id, $from, $to, $request->payment_method]);
     }
 }

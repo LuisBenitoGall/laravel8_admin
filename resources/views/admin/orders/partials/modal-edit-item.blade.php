@@ -32,6 +32,26 @@
 						</div>
 					</div>
 
+					{{-- Opciones de cliente: --}}
+					@if(session('currentCompany') == $order->customer_id)
+						{{-- Producto contable --}}
+						@if(isset($accounting_products) && $accounting_products->count())
+							@php
+							$accounting_products_arr = [];
+							foreach($accounting_products as $ap){
+								$accounting_products_arr[$ap->id] = $ap->name;	
+							}
+							@endphp
+
+							<div class="form-group row">
+								<label for="accounting_product" class="col-md-2 col-form-label sinpadding-left">{!! ucfirst(trans('textos.producto_contable')) !!}</label>	
+								<div class="col-md-10">
+									<x-select name="accounting_product" class="select2" id="itemAccountingProduct_" label="producto_contable_selec" :options="$accounting_products_arr"/>
+								</div>
+							</div>
+						@endif
+					@endif
+
 					<div class="form-group row">
 						{{-- Cantidad --}}
                     	<label for="qty" class="col-lg-2 col-form-label price-fixed_">{!! ucfirst(trans('textos.cantidad')) !!} *</label>

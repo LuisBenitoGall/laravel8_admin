@@ -45,6 +45,12 @@
 						@include('admin.partials.selector-year', ['selected_year' => $year])
 						{{-- Mes --}}
 						@include('admin.partials.selector-month', ['selected_month' => $month])
+
+						{{-- Grupos --}}
+						<label for="group" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.grupo')) !!} </label>
+						<div class="col-lg-2">
+							<x-select name="group" class="select2" :options="$groups" value="{{ $group }}" label="grupo_selecciona"/>
+						</div>
 					</div>
 
 					<div class="form-group row">
@@ -76,6 +82,7 @@
 	<input type="hidden" id="myProvider" value="{{ $provider_id }}">
 	<input type="hidden" id="myYear" value="{{ $year }}">
 	<input type="hidden" id="myMonth" value="{{ $month }}">
+	<input type="hidden" id="myGroup" value="{{ $group }}">
 
 	@php
 	$totalInvoicesAmount = 0;
@@ -114,7 +121,7 @@
 							@endif
 						</th>
 						<th class="text-center wdt50">{!! ucfirst(trans('textos.pedido')) !!}</th>
-						{{-- <th class="text-center wdt100">{!! ucfirst(trans('textos.responsable')) !!}</th> --}}
+						<th class="text-center wdt100">{!! ucfirst(trans('textos.responsable')) !!}</th>
 						<th class="text-center wdt50">{!! ucfirst(trans('textos.fecha')) !!}</th>
 						<th class="text-center wdt100">{!! ucfirst(trans('textos.fecha_vencimiento')) !!}</th>
 						<th class="text-center wdt100">{!! trans('textos.importe') !!}</th>
@@ -128,6 +135,7 @@
 
 				<tfoot>
 					<tr>
+						<td></td>
 						<td></td>
 						<td></td>
 						<td></td>

@@ -393,6 +393,7 @@ class ItemController extends Controller{
         }
 
         //Actualizando info:
+        $item->purchase_product_id = $request->accounting_product;
         $item->concept = $request->concept;
         $item->qty = $request->qty;
         $item->price = $request->price;
