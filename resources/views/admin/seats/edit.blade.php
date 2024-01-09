@@ -16,6 +16,18 @@
 			<a class="btn btn-info" href="{{ route('seats.create') }}"><i class="fa fa-plus"></i> {!! ucfirst(trans('textos.asiento_nuevo')) !!}</a>
 		@endcan	
 
+		{{-- Factura --}}
+		@if($invoice)
+			@php
+			$invoiceNum = $invoice->invoice_num? $invoice->invoice_num:($invoice->invoice_old_num? $invoice->invoice_old_num:$invoice->id);
+			@endphp
+
+			<a class="btn btn-info" href="{{ route('invoices.edit', $invoice->id) }}">
+				<i class="fa fa-file-invoice-dollar"></i>
+				{{ trans('textos.factura') }} {{ $invoiceNum }}
+			</a>
+		@endif
+
 		{{-- Eliminar asiento --}}
 		@can('seats.destroy')
 			<form method="POST" action="{{ route('seats.destroy', $seat) }}" class="frm-inline" role="form" accept-charset="UTF-8">

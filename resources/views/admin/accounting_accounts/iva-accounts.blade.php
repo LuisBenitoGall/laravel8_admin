@@ -14,7 +14,7 @@
 
 <div class="row">
 	<div class="col-12">
-		<p class="text-warning">{{ trans('textos.cuentas_iva_texto') }}</p>
+		<p class="text-warning">{!! trans('textos.cuentas_iva_texto') !!}</p>
 	</div>
 	<div class="table-responsive">
 		<table class="table table-hover dTable" id="tblIvaAccountsSales">	
@@ -61,9 +61,16 @@
 						{{-- Acciones cuenta ventas --}}
 						<td class="text-right border-right3">
 							@if($iva_sales_account == '')
+								{{-- Crear cuenta --}}
 								<a href="#" class="btn btn-info btn-xs btnAddAccount" data-concept="{{ trans('textos.ventas') }} {{ $it->iva }}%" data-prefix="{{ config('constants.ACCOUNTING_ACCOUNT_IVA_PREFIX_SALES_') }}/{{ $it->iva }}" data-ivatype="{{ $it->id }}" data-toggle="modal" data-target="#modal-add-account" rel="tooltip" title="{{ ucfirst(trans('textos.cuenta_agregar')) }}">
 									<i class="fa fa-plus"></i>
 								</a>
+
+								{{-- Seleccionar cuenta --}}
+								<a href="#" class="btn btn-info btn-xs btnSelectAccount" data-concept="{{ trans('textos.ventas') }} {{ $it->iva }}%" data-prefix="{{ config('constants.ACCOUNTING_ACCOUNT_IVA_PREFIX_SALES_') }}/{{ $it->iva }}" data-ivatype="{{ $it->id }}" data-toggle="modal" data-target="#modal-select-account" rel="tooltip" title="{{ ucfirst(trans('textos.cuenta_selec')) }}">
+									<i class="fa fa-filter"></i>
+								</a>
+
 							@elseif($iva_sales_account_id)
 								{{-- Editar --}}
 								<a target="_blank" href="{{ route('accounting-accounts.edit', $iva_sales_account_id) }}" class="btn btn-xs btn-info" rel="tooltip" title="{{ ucfirst(trans('textos.editar')) }}"><i class="fa fa-edit"></i></a>
@@ -99,9 +106,16 @@
 						{{-- Gestionar cuenta compras --}}
 						<td class="text-right">
 							@if($iva_purchases_account == '')
+								{{-- Crear cuenta --}}
 								<a href="#" class="btn btn-info btn-xs btnAddAccount" data-concept="{{ trans('textos.compras') }} {{ $it->iva }}%" data-prefix="{{ config('constants.ACCOUNTING_ACCOUNT_IVA_PREFIX_PURCHASES_') }}/{{ $it->iva }}" data-ivatype="{{ $it->id }}" data-toggle="modal" data-target="#modal-add-account" rel="tooltip" title="{{ ucfirst(trans('textos.cuenta_agregar')) }}">
 									<i class="fa fa-plus"></i>
 								</a>
+
+								{{-- Seleccionar cuenta --}}
+								<a href="#" class="btn btn-info btn-xs btnSelectAccount" data-concept="{{ trans('textos.compras') }} {{ $it->iva }}%" data-prefix="{{ config('constants.ACCOUNTING_ACCOUNT_IVA_PREFIX_PURCHASES_') }}/{{ $it->iva }}" data-ivatype="{{ $it->id }}" data-toggle="modal" data-target="#modal-select-account" rel="tooltip" title="{{ ucfirst(trans('textos.cuenta_selec')) }}">
+									<i class="fa fa-filter"></i>
+								</a>
+
 							@elseif($iva_purchases_account_id)
 								{{-- Editar --}}
 								<a target="_blank" href="{{ route('accounting-accounts.edit', $iva_purchases_account_id) }}" class="btn btn-xs btn-info" rel="tooltip" title="{{ ucfirst(trans('textos.editar')) }}"><i class="fa fa-edit"></i></a>
@@ -123,6 +137,9 @@
 {{-- Set account --}}
 @include('admin.accounting_accounts.partials.modal-add-account')
 
+{{-- Select account --}}
+@include('admin.accounting_accounts.partials.modal-select-account')
+
 @push('scripts')
 <script>
 $(function(){
@@ -135,6 +152,17 @@ $(function(){
 		$('#addAccount').text(concept);
 		$('#accountPrefix').val(prefix);
 		$('#accountIvaType').val(iva_type);
+	});
+
+	//Modal seleccionar cuenta:
+	$('.btnSelectAccount').on('click', function(e){
+		e.preventDefault();
+		var concept = $(this).data('concept');
+		var prefix = $(this).data('prefix');
+		var iva_type = $(this).data('ivatype');
+		$('#selectAccount').text(concept);
+		$('#accountPrefix_').val(prefix);
+		$('#accountIvaType_').val(iva_type);
 	});
 });
 </script>

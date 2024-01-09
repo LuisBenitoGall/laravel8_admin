@@ -202,9 +202,10 @@ $readonly = $invoice->blocked && !$is_sale || ($order->customer_id == session('c
 				{{-- Registro de factura. Genera su asiento y efecto contable - condiciones: 
 					1. Factura de compra.
 					2. No existe el asiento contable.
+					3. Importe de la factura > 0.
 					...	
 				--}}
-				@if(!$is_sale && !$seat)
+				@if(!$is_sale && !$seat && $invoice->amount > 0)
 					<div class="float-fixed-div" style="top: 290px;">
 	                    <div class="row">
 	                        <div class="col-12">
