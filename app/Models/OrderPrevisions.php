@@ -106,6 +106,7 @@ class OrderPrevisions extends Model{
         $accumulated_amount = 0;
 
         foreach($previsions as $p){
+            //Previsión facturada:
             if($p->invoice_id){
                 //Importe de la factura:
                 $invoice_amount = Invoice::select('amount')->find($p->invoice_id);
@@ -122,13 +123,14 @@ class OrderPrevisions extends Model{
                     $p->percent = $percent;
                 }
 
+            //No facturada:
             }else{
                 //Para 1 única previsión:
-                if($previsions->count() == 1){
-                    $p->amount = $order_amount;
-                    $p->percent = 100;
+                // if($previsions->count() == 1){
+                //     $p->amount = $order_amount;
+                //     $p->percent = 100;
 
-                }else{
+                // }else{
                     //Verificamos que el importe se ajuste al total:
                     $amount = $p->amount <= ($order_amount - $accumulated_amount)? $p->amount:NULL;
 
@@ -137,7 +139,7 @@ class OrderPrevisions extends Model{
 
                     $p->amount = $amount;
                     $p->percent = $percent;
-                }
+                //}
             }
 
             $p->save();
