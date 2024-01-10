@@ -108,7 +108,7 @@
 					<tr>
 						<th class="text-center wdt50">{!! ucfirst(trans('textos.fecha')) !!}</th>
 						<th class="text-center wdt50">{!! ucfirst(trans('textos.asiento')) !!}</th>
-						<th class="wdt50">{!! ucfirst(trans('textos.descripcion')) !!}</th>
+						<th class="wdt100">{!! ucfirst(trans('textos.descripcion')) !!}</th>
 						<th class="wdt50">{!! ucfirst(trans('textos.documento')) !!}</th>
 						<th class="wdt50 text-center">{!! ucfirst(trans('textos.debe')) !!}</th>
 						<th class="wdt50 text-center">{!! ucfirst(trans('textos.haber')) !!}</th>
