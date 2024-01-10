@@ -798,7 +798,7 @@ class UserController extends Controller{
         if($from && $to && $user_id){
             //Centro de trabajo del usuario en el intervalo señalado:
             $workplace = UserWorkplaces::getEmployeeWorkplace($user_id, $from, $to);
-dd($workplace);
+
             //Indicamos si el usuario puede acceder a los conceptos que requieren autorización:
             $see_authorized = Auth::user()->can('employees-timetable.edit')? false:true;
 
