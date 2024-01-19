@@ -286,7 +286,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 					$k = 1;							//Contador de previsiones.
 					@endphp
 
-					@if($previsions->count())
+					@if($previsions && $previsions->count())
 						{{-- La sumas de los porcentajes de las previsiones de facturación no puede superar el 100% --}}
 						@foreach($previsions as $prev)
 							@php
@@ -672,39 +672,6 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 
 	<x-btn-submit name="submit_update" label="{{ trans('textos.guardar') }}"/>
 </form>			
-
-							
-					
-
-					
-				
-		
-
-	
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 	
