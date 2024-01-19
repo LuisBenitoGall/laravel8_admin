@@ -441,7 +441,7 @@
 
             {{-- Recalcular previsiones de facturación. Cuando se ha modificado el importe del pedido y los porcentajes de previsión de facturación no se ajustan al planteamiento original - condiciones:
                 1. Exclusivo proveedores.
-                2. Permisos de edicion de facturas.
+                2. Permisos de edición de facturas.
                 3. No quedan previsiones de facturación pendientes de facturar.
                 4. El importe del pedido supera al facturado.
                 5. Pedido no bloqueado.
