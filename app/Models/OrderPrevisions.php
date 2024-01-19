@@ -188,7 +188,9 @@ class OrderPrevisions extends Model{
             ->orderByRaw('order_previsions.month IS NULL, order_previsions.month ASC')
             ->orderBy('order_previsions.id', 'ASC')
             ->get();  
-        }  
+        }else{
+            return false;
+        }
     }
 
 }

@@ -1179,7 +1179,7 @@ class OrderController extends Controller{
         $previsions = OrderPrevisions::previsions($order->id, $order_amount, $generate);
 
         //Debe existir siempre al menos una previsión:
-        if(!$previsions->count()){
+        if($previsions && !$previsions->count()){
             OrderPrevisions::store($order->id);
 
             $previsions = OrderPrevisions::previsions($order->id, $order_amount, $generate);
