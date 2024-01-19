@@ -394,9 +394,10 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 								{{-- Eliminar previsión --}}
 								@if($previsions->count() > 1 && !$disabled_)
 									<div class="col-md-1 col-lg-1 pt-2">
-										<a href="{{ route('order-prevision.delete', $prev->id) }}" class="btn btn-danger btn-circle btn-circle-mini btn-confirm" rel="tooltip" title="{{ trans('textos.prevision_eliminar') }}" data-msg="{{ trans('textos.prevision_eliminar_aviso') }}">
+										<a href="#" class="btn btn-danger btn-circle btn-circle-mini btnDeletePrevision" rel="tooltip" title="{{ trans('textos.prevision_eliminar') }}" data-prev="{{ $prev->id }}" data-msg="{{ trans('textos.prevision_eliminar_aviso') }}">
 											<i class="fa fa-times"></i>
 										</a>
+										{{-- {{ route('order-prevision.delete', $prev->id) }} --}}
 									</div>
 								@endif
 

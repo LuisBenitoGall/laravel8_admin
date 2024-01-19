@@ -95,74 +95,100 @@ class OrderPrevisions extends Model{
      *
      * 28/11/2023: incluimos el parámetro $generate para generar nuevas previsiones en función si el pedido se encuentra o no bloqueado.
      * 29/12/2023: se modifica el método para que recalcule porcentajes e importes de cada previsión, y se incluye importe, que tiene prevalencia sobre el porcentaje.
+     * 18/01/2024: se introduce de nuevo la generación automática de una previsión con el importe restante sin indicación de mes.
      */
     public static function previsions($order_id, $order_amount, $generate = false){
-        $previsions = OrderPrevisions::where('order_previsions.order_id', $order_id)
-        ->orderBy('invoice_id', 'DESC')
-        ->orderBy('id', 'ASC')
-        ->get();
+        if($order_amount > 0){
+            $previsions = OrderPrevisions::where('order_previsions.order_id', $order_id)
+            ->orderBy('invoice_id', 'DESC')
+            ->orderBy('id', 'ASC')
+            ->get();
 
-        $accumulated_percent = 0;
-        $accumulated_amount = 0;
+            $accumulated_percent = 0;
+            $accumulated_amount = 0;
 
-        foreach($previsions as $p){
-            //Previsión facturada:
-            if($p->invoice_id){
-                //Importe de la factura:
-                $invoice_amount = Invoice::select('amount')->find($p->invoice_id);
+            foreach($previsions as $p){
+                //Previsión facturada:
+                if($p->invoice_id){
+                    //Importe de la factura:
+                    $invoice_amount = Invoice::select('amount')->find($p->invoice_id);
 
-                //Porcentaje sobre el total del pedido:
-                $percent = round( ($invoice_amount->amount * 100) / $order_amount, 6);
+                    //Porcentaje sobre el total del pedido:
+                    if($order_amount > 0){
+                        $percent = round( ($invoice_amount->amount * 100) / $order_amount, 6);
+                    }else{
+                        $percent = 100;
+                    }
 
-                $accumulated_percent = $accumulated_percent + $percent;
-                $accumulated_amount = $accumulated_amount + $invoice_amount->amount;
+                    $accumulated_percent = $accumulated_percent + $percent;
+                    $accumulated_amount = $accumulated_amount + $invoice_amount->amount;
 
-                //Si no se supera el importe del pedido, se actualiza la línea:
-                if($accumulated_amount <= $order_amount){
-                    $p->amount = $invoice_amount->amount;
-                    $p->percent = $percent;
+                    //Si no se supera el importe del pedido, se actualiza la línea:
+                    if($accumulated_amount <= $order_amount){
+                        $p->amount = $invoice_amount->amount;
+                        $p->percent = $percent;
+                    }
+
+                //No facturada:
+                }else{
+                    //Para 1 única previsión:
+                    // if($previsions->count() == 1){
+                    //     $p->amount = $order_amount;
+                    //     $p->percent = 100;
+
+                    // }else{
+                        //Verificamos que el importe se ajuste al total:
+                        $percent = NULL;
+                        if(!$p->amount || $p->amount == '0'){
+                            $amount = $order_amount - $accumulated_amount;
+                            $percent = round( ($amount * 100) / $order_amount, 6);
+
+                        }elseif($p->amount > 0){
+                            $amount = $p->amount <= ($order_amount - $accumulated_amount)? $p->amount:NULL;
+
+                            //Ajuste del porcentaje:
+                            if($amount > 0){
+                                $percent = round( ($amount * 100) / $order_amount, 6);
+                            }
+                        }
+
+                        $accumulated_percent = $accumulated_percent + $percent;
+                        $accumulated_amount = $accumulated_amount + $amount;
+
+                        $p->amount = $amount;
+                        $p->percent = $percent;
+                    //}
                 }
 
-            //No facturada:
-            }else{
-                //Para 1 única previsión:
-                // if($previsions->count() == 1){
-                //     $p->amount = $order_amount;
-                //     $p->percent = 100;
-
-                // }else{
-                    //Verificamos que el importe se ajuste al total:
-                    $amount = $p->amount <= ($order_amount - $accumulated_amount)? $p->amount:NULL;
-
-                    //Ajuste del porcentaje:
-                    $percent = $amount > 0? round( ($amount * 100) / $order_amount, 6):NULL;
-
-                    $p->amount = $amount;
-                    $p->percent = $percent;
-                //}
+                $p->save();
             }
 
-            $p->save();
-        }
+            $diff_percent = bcsub(100, $accumulated_percent, 6);
+            $diff_amount = $order_amount - $accumulated_amount;
 
-        //Añadimos nueva previsión si el porcentaje previsto es inferior a 100:
-        // if($sum_percent < 100 && $generate){
-        //     $diff = 100 - $sum_percent;
+            //Ajustamos porcentaje pendiente en función del importe pendiente:
+            if($diff_amount < 0.01){
+                $diff_percent = 0;    
+            }
 
-        //     $op = new OrderPrevisions();
-        //     $op->order_id = $order_id;
-        //     $op->year = date('Y');
-        //     $op->percent = $diff;
-        //     $op->save();
-        // }
+            //Añadimos nueva previsión si el porcentaje previsto es inferior a 100:  && $generate
+            if($diff_amount >= 0.01){
+                $op = new OrderPrevisions();
+                $op->order_id = $order_id;
+                $op->year = date('Y');
+                $op->amount = round($diff_amount, 2);
+                $op->percent = $diff_percent;
+                $op->save();
+            }
 
-        return OrderPrevisions::select('order_previsions.*', 'invoices.id AS invoiceId', 'invoices.invoice_num', 'invoices.amount AS invoice_amount', 'invoices.amount_with_iva')
-        ->leftJoin('invoices', 'order_previsions.invoice_id', '=', 'invoices.id')
-        ->where('order_previsions.order_id', $order_id)
-        ->orderBy('order_previsions.year', 'ASC')
-        ->orderBy('order_previsions.month', 'ASC')
-        ->orderBy('order_previsions.id', 'ASC')
-        ->get();    
+            return OrderPrevisions::select('order_previsions.*', 'invoices.id AS invoiceId', 'invoices.invoice_num', 'invoices.amount AS invoice_amount', 'invoices.amount_with_iva')
+            ->leftJoin('invoices', 'order_previsions.invoice_id', '=', 'invoices.id')
+            ->where('order_previsions.order_id', $order_id)
+            ->orderBy('order_previsions.year', 'ASC')
+            ->orderByRaw('order_previsions.month IS NULL, order_previsions.month ASC')
+            ->orderBy('order_previsions.id', 'ASC')
+            ->get();  
+        }  
     }
 
 }
