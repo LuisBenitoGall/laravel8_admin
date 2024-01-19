@@ -824,7 +824,7 @@ $order_amount_without_discount = $order_amount_without_discount_in_lines > $orde
 			$months = App\Helpers\Helpers::yearMonths();
 			@endphp
 
-			<select name="month[]" class="form-control" required>
+			<select name="month[]" class="form-control">
 				<option value="">{{ trans('textos.mes_selec') }}</option>
 
 				@foreach($months as $i => $month)
@@ -1267,6 +1267,19 @@ $(function(){
             }
 
             $('#tblItemsLinked tbody').html(html);
+        });
+    });
+
+    //Eliminar previsión de facturación:
+    $(document).on('click', '.btnDeletePrevision', function(e){
+    	e.preventDefault();	
+    	var parent = $(this).closest('.prevision');
+    	var prev = $(this).data('prev');
+
+    	$.get("/admin/order-prevision/"+prev+"/delete", function(response, state){
+            if(response){
+            	parent.remove();
+            }
         });
     });
 });

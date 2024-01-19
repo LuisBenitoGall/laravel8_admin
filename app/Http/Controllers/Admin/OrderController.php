@@ -95,6 +95,7 @@ class OrderController extends Controller{
      * 25. Exportar .xls pedidos por rango de fecha.
      * 26. Pedidos para autocomplete.
      * 27. Cerrar pedido.
+     * 28. Recálculo previsiones en pedidos pendientes.
      */
     
     private $option = 'pedidos';
@@ -256,6 +257,8 @@ class OrderController extends Controller{
             'module' => $this->module,
             'slug' => 'orders'
         ]; 
+
+        $this->resetPrevisions();
 
         $year = $year? $year:Date('Y');
 
@@ -2752,6 +2755,25 @@ class OrderController extends Controller{
 
         $msg = trans('textos.pedido_cerrado');
         return redirect()->route('orders.edit', $order)->with(compact('msg'));
+    }
+
+    /**
+     * 28. Recálculo previsiones en pedidos pendientes.
+     */
+    public function resetPrevisions(){
+        if(env('RESET_PREV_') == true){
+            $data = Order::select('id')
+            ->where('is_order', 1)
+            ->whereIn('provider_id', [3,4,8,202,227,275])
+            ->where('created_at', '>', '2023-01-01')
+            ->get();
+
+            foreach($data as $r){
+                $arr_amounts = $r->getAmount();    
+
+                OrderPrevisions::previsions($r->id, $arr_amounts['total_amount']);
+            }
+        }
     }
     
 }

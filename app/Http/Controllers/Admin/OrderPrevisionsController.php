@@ -32,19 +32,23 @@ class OrderPrevisionsController extends Controller{
     /**
      * 1. Eliminar previsión de facturación.
      */
-    public function destroy(OrderPrevisions $prevision){
-        //Si la previsión no está facturada:
-        if($prevision->invoiced == 1){
-            $alert = trans('textos.prevision_eliminar_error');
-            return redirect()->route('orders.edit', $order_id)->with(compact('alert'));
-            exit;
+    public function destroy(Request $request, OrderPrevisions $prevision){
+        if($request->ajax()){
+            //Si la previsión no está facturada:
+            if($prevision->invoiced == 1){
+                // $alert = trans('textos.prevision_eliminar_error');
+                // return redirect()->route('orders.edit', $order_id)->with(compact('alert'));
+                // exit;
+                return response()->json(false);
 
-        }else{
-            $order_id = $prevision->order_id;
-            $prevision->delete();
+            }else{
+                //$order_id = $prevision->order_id;
+                $prevision->delete();
 
-            $msg = trans('textos.prevision_deleted');
-            return redirect()->route('orders.edit', $order_id)->with(compact('msg')); 
+                // $msg = trans('textos.prevision_deleted');
+                // return redirect()->route('orders.edit', $order_id)->with(compact('msg')); 
+                return response()->json(true);
+            }
         }
     }
 
