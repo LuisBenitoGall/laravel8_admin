@@ -2139,13 +2139,14 @@ $(document).ready(function(){
         var from = $('#dtFrom').val();
         var to = $('#dtTo').val();
         var status = $('#dtStatus').val();
+        var group = $('#dtGroup').val();
 
         var tblEmployeesHours = $('#tblEmployeesHours').DataTable({
             serverSide: true,
             processing: true,
             ajax: {
                 "type": "GET",
-                "url": "/api/admin/employees-timetable/"+workplace_id+"/"+from+"/"+to+"/"+status,
+                "url": "/api/admin/employees-timetable/"+workplace_id+"/"+from+"/"+to+"/"+status+"/"+group,
                 "error": function(reason){
                     console.log(reason);
                 }

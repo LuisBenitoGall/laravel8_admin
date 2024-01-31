@@ -31,9 +31,17 @@
 							<input type="hidden" name="workplace_id" value="{{ $workplaces[0]->id }}">
 						@endif
 
+						{{-- Grupo --}}
+						<label for="group" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.grupo')) !!}</label>
+						<div class="col-lg-4">
+							<x-select name="group" class="select2" label="grupo_selecciona" :options="$groups" value="{{ $group }}" required/>
+						</div>
+					</div>
+
+					<div class="form-group row">
 						{{-- Filtro empleados --}}
 						<label for="status" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.empleados')) !!}</label>
-						<div class="col-lg-4">
+						<div class="col-lg-2">
 						    {{-- Activos --}}
 						    <label class="custom-chk-rdb mr-4" style="margin-bottom: 0; margin-top: 7px;">
 					        	<input type="radio" name="status" value="1" @if($status == 1) checked @endif required>
@@ -48,9 +56,7 @@
 					        	{{ trans('textos.todos') }}
 						    </label>  
 						</div>
-					</div>
-
-					<div class="form-group row">
+					
 						{{-- Desde --}}
 						<label for="from" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.desde')) !!}</label>
 						<div class="col-lg-2">
@@ -70,9 +76,9 @@
 
 							<x-date-picker name="to" value="{{ $to_ }}" :format="$languages[config('app.locale')][4]"/>	
 						</div>
-
-						<x-btn-submit name="submit_filter" class="ml-5" label="{{ trans('textos.buscar') }}" inline="true"/>
 					</div>
+
+					<x-btn-submit name="submit_filter" class="ml-5" label="{{ trans('textos.buscar') }}"/>
 				</form>
 			</div>
 		</div>
@@ -85,6 +91,7 @@
 	<input type="hidden" id="dtFrom" value="{{ $from }}">
 	<input type="hidden" id="dtTo" value="{{ $to }}">
 	<input type="hidden" id="dtStatus" value="{{ $status }}">
+	<input type="hidden" id="dtGroup" value="{{ $group }}">
 
 	<div class="row">
 		<div class="table-responsive">

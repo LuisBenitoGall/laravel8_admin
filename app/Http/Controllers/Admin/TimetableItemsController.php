@@ -17,6 +17,7 @@ use Yajra\DataTables\DataTables;
 //Models:
 use App\Models\DayTypes;
 use App\Models\TimetableItems;
+use App\Models\TimetableSetting;
 
 class TimetableItemsController extends Controller{
     /**
@@ -37,6 +38,9 @@ class TimetableItemsController extends Controller{
     private $languages;
 
     public function __construct(){
+        //Idiomas:
+        $this->languages = helpers::languages();
+
         $this->middleware('module_setted:timetables');
     }
 
@@ -106,7 +110,11 @@ class TimetableItemsController extends Controller{
             $exit->save();
         }
 
-        return view('admin.timetable_items.index')->with(compact('header'));
+        $settings = TimetableSetting::where('company_id', session('currentCompany'))->first();
+
+        $languages = $this->languages;
+
+        return view('admin.timetable_items.index')->with(compact('header', 'settings', 'languages'));
     }
 
     /**

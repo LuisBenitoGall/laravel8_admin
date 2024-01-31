@@ -617,7 +617,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::get('items/{item}/copy', 'ItemController@copy')->name('items.copy')->middleware('permission:budgets.edit');
     Route::get('items/{order_id}/copy-block/{block_id}', 'ItemController@copyBlock')->name('items.copy-block')->middleware('permission:budgets.edit');
     Route::post('items/store', 'ItemController@store')->name('items.store');
-    Route::get('items/{item}/edit', 'ItemController@edit')->name('items.edit');
+    Route::get('items/{item_id}/edit', 'ItemController@edit')->name('items.edit');
     Route::post('items/update', 'ItemController@update')->name('items.update');
     Route::delete('items/{item}', 'ItemController@destroy')->name('items.destroy')->middleware('permission:orders.edit');
     Route::post('items/import-items', 'ItemController@importOrderItems')->name('items.import-items')->middleware('permission:orders.edit');
@@ -1056,6 +1056,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::get('roles/sync', 'RoleController@sync')->name('roles.sync')->middleware('permission:roles.create');
     Route::get('roles/{role}/set-permission/{permission}/{action}/{module_on}/{remove_module}', 'RoleController@setPermission')->name('roles.set-permission')->middleware('permission:roles.edit');
     Route::get('roles/{role}/set-functionality-permissions/{functionality}/{action}/{module_on}/{remove_module}', 'RoleController@setFunctionalityPermissions')->name('roles.set-permission')->middleware('permission:roles.edit');
+    Route::post('roles/set-functionality-permissions-post', 'RoleController@setFunctionalityPermissionsPost')->name('roles.set-permission-post');
 
     // SAT:
     Route::get('sat', 'SatController@index')->name('sat.index')->middleware('permission:sat.index');
@@ -1242,6 +1243,9 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::post('timetable-items/store-rule', 'TimetableItemsController@storeRule')->name('timetable-items.store-rule');
     Route::get('timetable-items/status/{id}/{status}', 'TimetableItemsController@status')->name('timetable-items.status')->middleware('permission:timetable-items.edit');
 
+    // Timetable Settings:
+    Route::post('timetable-settings/update', 'TimetableSettingController@update')->name('timetable-settings.update')->middleware('permission:timetable-items.edit');
+
     // Timetable Signed:
     Route::get('timetable-signed/list/{year?}', 'TimetableSignedController@index')->name('timetable-signed.index');
     Route::post('timetable-signed', 'TimetableSignedController@getTimetablesBy')->name('timetable-signed.list');
@@ -1256,8 +1260,8 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::get('timetable/{item}/store', 'TimetableController@store')->name('timetable.store');
     Route::get('timetable/{timetable}/edit-hour', 'TimetableController@edit')->name('user-timetable.edit-hour');
     Route::post('timetable/update-hour', 'TimetableController@update')->name('timetable.update-hour');
-    Route::get('employees-timetable', 'TimetableController@index')->name('employees-timetable.index');
-    Route::post('employees-timetable', 'TimetableController@index')->name('employees-timetable.index');
+    Route::get('employees-timetable', 'TimetableController@index')->name('employees-timetable.index')->middleware('permission:employees-timetable.index');
+    Route::post('employees-timetable', 'TimetableController@index')->name('employees-timetable.index')->middleware('permission:employees-timetable.index');
     Route::post('timetable/add-hour', 'TimetableController@add')->name('timetable.add-hour')->middleware('permission:employees-timetable.edit');
     Route::delete('timetable/{timetable}', 'TimetableController@destroy')->name('timetable.destroy')->middleware('permission:employees-timetable.destroy');
     Route::post('timetable/revision', 'TimetableController@revisionHorarioOn')->name('timetable.revision-horario');
@@ -1314,7 +1318,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::post('user-recommendation-votes/store', 'UserRecommendationVoteController@store')->name('user-recommendation-votes.store');
 
     // User Timetables:
-    Route::get('user-timetables/{user_id}/show/{employee}', 'UserTimetablesController@show')->name('user-timetables.show');
+    Route::get('user-timetables/{user_id}/show/{employee}', 'UserTimetablesController@show')->name('user-timetables.show')->middleware('permission:employees-timetable.show');
     Route::post('user-timetables/store', 'UserTimetablesController@store')->name('user-timetables.store');
     //Route::post('user-timetable/update-hour', 'UserTimetablesController@update')->name('user-timetable.update-hour');
 
@@ -1334,7 +1338,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::get('users/delete-image/{image}/{return?}', 'UserController@deleteImage')->name('users.delete-image');
     Route::get('users/set-featured/{image}', 'UserController@setFeatured')->name('users.set-featured');
     Route::get('users/set-public/{image}', 'UserController@setPublic')->name('users.set-public');
-    Route::get('users/{user?}/timetables/{add_register?}', 'UserController@userTimetables')->name('users.timetables');
+    Route::get('users/{user?}/timetables/{add_register?}', 'UserController@userTimetables')->name('users.timetables')->middleware('permission:employees-timetable.show');
     Route::post('users/filter-timetables', 'UserController@userTimetables')->name('users.filter-timetables');
     Route::get('users/{user}/from-candidate', 'UserController@fromCandidate')->name('users.from-candidate');
 

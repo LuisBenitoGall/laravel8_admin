@@ -1096,14 +1096,20 @@ $(window).on('load', function () {
         $('#itemObservations_').trumbowyg('html', '');
         $.get("/admin/items/" + id + "/edit", function (response, state) {
             if(response){
+                //console.log(response);
                 var readonly = response.invoiced? true:false;
 
                 $('#itemId_').val(id);
                 $('#itemConcept_').val(response.concept);
                 $('#itemObservations_').trumbowyg('html', response.observations);
 
-                //Centro de coste:
-                var arr = [response.provider_cost_center_id];
+                //Centro de coste de cliente o proveedor, según sea compra o venta:
+                if(response.company_id == currentCompany_){
+                    var costCenterId = response.provider_cost_center_id? response.provider_cost_center_id:response.cost_center_id;
+                }else{
+                    var costCenterId = response.customer_cost_center_id? response.customer_cost_center_id:false;   
+                }
+                var arr = [costCenterId];
                 $('#itemCostCenter_').val(arr);
                 $('#itemCostCenter_').trigger('change');
 

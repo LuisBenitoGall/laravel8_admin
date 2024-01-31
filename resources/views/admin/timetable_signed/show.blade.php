@@ -11,6 +11,7 @@
 <div class="row mb-3">
 	{{-- Acciones: --}}
 	<div class="col-12">
+		{{-- Volver a horarios del empleado --}}
 		<a href="{{ route('users.timetables', Auth::user()->id) }}" class="btn btn-info">
 			<i class="fa fa-angle-left"></i>
 			{!! trans('textos.volver_horarios_usuario') !!}

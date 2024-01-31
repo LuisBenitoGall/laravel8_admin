@@ -11,7 +11,7 @@ $tbl = $env == 'invoices'? 'tblInvoiceItems':'tblOrderItems';
 		<table class="table table-hover dtabla" id="{{ $tbl }}">
 			<thead>
 				<tr>
-					<th class="text-center">#</th>
+					<th class="text-center wdt50">#</th>
 					<th>{{ ucfirst(trans('textos.producto')) }}</th>
 					<th class="text-center">{{ ucfirst(trans('textos.cantidad')) }}</th>
 					<th class="text-center">{{ ucfirst(trans('textos.precio_unidad')) }}</th>

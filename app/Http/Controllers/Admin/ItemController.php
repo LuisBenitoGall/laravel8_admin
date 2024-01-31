@@ -224,7 +224,7 @@ class ItemController extends Controller{
         $order = Order::select('id', 'modality', 'from_customer', 'provider_id', 'customer_id')->find($request->order_id);
 
         //Producto:
-        $product = $request->product_id? Product::select('name')->find($request->product_id):false;
+        $product = $request->product_id? Product::select('name', 'cost_center_id')->find($request->product_id):false;
 
         //Producto contable:
         $accounting_product = $request->accounting_product? PurchaseProduct::select('id', 'name', 'iva')->find($request->accounting_product):false;
@@ -296,7 +296,7 @@ class ItemController extends Controller{
         $item->irpf = $request->irpf? $request->irpf:NULL;
         $item->discount = $request->discount > 0? $request->discount:NULL;
         $item->calculated_by_percent = $request->price? NULL:$request->calculated_by_percent;
-        $item->provider_cost_center_id = $request->provider_cost_center;
+        $item->provider_cost_center_id = $product && $product->cost_center_id? $product->cost_center_id:($request->provider_cost_center? $request->provider_cost_center:NULL);
         $item->user_id = Auth::user()->id;
         $item->save();
 
@@ -339,8 +339,12 @@ class ItemController extends Controller{
     /**
      * 4. Obtener item por ajax.
      */
-    public function edit(Request $request, Item $item){
+    public function edit(Request $request, $item_id){
         if($request->ajax()){ 
+            $item = Item::select('items.*', 'products.cost_center_id', 'products.company_id')
+            ->leftJoin('products', 'items.product_id', '=', 'products.id')
+            ->find($item_id);
+
             return response()->json($item);    
         }
     }
@@ -404,6 +408,9 @@ class ItemController extends Controller{
         $item->discount = $request->discount;
         if($request->provider_cost_center && is_numeric($request->provider_cost_center)){
             $item->provider_cost_center_id = $request->provider_cost_center;
+        }
+        if($request->customer_cost_center && is_numeric($request->customer_cost_center)){
+            $item->customer_cost_center_id = $request->customer_cost_center;
         }
         $item->observations = $request->observations;
         $item->save();

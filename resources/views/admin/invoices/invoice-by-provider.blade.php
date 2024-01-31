@@ -96,13 +96,12 @@
 						</div>
 
 						{{-- Centros de coste --}}
-						<label for="cost_center" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.centros_coste')) !!}</label>
+						{{-- 24/01/2024: se oculta esta opción pues desde este momento se vinculan las líneas de la compra a Centros de Coste en lugar de la compra en si --}}
+						{{-- <label for="cost_center" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.centros_coste')) !!}</label>
 						<div class="col-lg-3">
 							<x-select name="cost_center" class="select2" label="centro_coste_selec" :options="$cost_centers"/>	
-						</div>
-					</div>
-
-					<div class="form-group row">
+						</div> --}}
+					
 						{{-- Fecha registro --}}
 						<label for="fiscal_date" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.fecha_registro')) !!}</label>
 						<div class="col-lg-2">
