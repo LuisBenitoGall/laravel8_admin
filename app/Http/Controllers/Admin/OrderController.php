@@ -881,6 +881,11 @@ class OrderController extends Controller{
         //Guardamos previsión de facturación por defecto:
         OrderPrevisions::store($order->id);
 
+        //Creamos proyecto:
+        // if(session('companySettings')->project_required){
+        //     Project::setProject($order);
+        // }
+
         $msg = trans('textos.pedido_creado');
         return redirect()->route('orders.edit', $order)->with(compact('msg'));
     }

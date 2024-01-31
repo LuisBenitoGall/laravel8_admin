@@ -814,6 +814,11 @@ class BudgetController extends Controller{
             $order->is_order = true;
             $order->accepted_date = date('Y-m-d');
             $order->accepted_by = Auth::user()->id;
+
+            //Creamos proyecto, si no existe previamente:
+            if(session('companySettings')->project_required){
+                Project::setProject($order);
+            }
         }
 
         //Actualizando datos:

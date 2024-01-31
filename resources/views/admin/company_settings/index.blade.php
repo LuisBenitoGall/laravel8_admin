@@ -248,6 +248,30 @@
 					</div>
 					<hr>
 
+					{{-- Proyectos --}}
+					<div class="form-group row">
+						<label class="col-lg-2 col-form-label">
+							{{ ucfirst(trans('textos.proyectos')) }}
+							<br>
+							<p class="text-warning">
+								{{ trans('textos.proyecto_requerido_text') }}
+							</p>
+						</label>	
+
+						<div class="col-lg-10">
+							<div class="row">
+								<label for="project_required" class="col-lg-2 col-form-label">{!! trans('textos.proyecto_requerido') !!}</label>
+								<div class="col-lg-1">
+									<label class="custom-chk-rdb" rel="tooltip">
+						                <input type="checkbox" name="project_required" value="{{ $i }}" @if($company_settings->project_required) checked @endif>
+						                <span class="chk" style="top: 5px;"></span>
+						            </label>
+								</div>
+							</div>
+						</div>
+					</div>
+					<hr>
+
 					{{-- Contabilidad --}}
 					<div class="form-group row">
 						<label class="col-lg-2 col-form-label">

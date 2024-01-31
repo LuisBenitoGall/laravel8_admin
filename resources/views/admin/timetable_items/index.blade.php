@@ -19,6 +19,13 @@
 				<i class="fa fa-file-export"></i> {!! ucfirst(trans('textos.exportar_valores')) !!}	
 			</a>
 		@endif
+
+		{{-- Configuración horarios --}}
+		@can('timetable-items.create')
+			<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-settings">
+				<i class="fa fa-cogs"></i> {!! ucfirst(trans('textos.horarios_configuracion')) !!}	
+			</a>
+		@endcan
 	</div>
 </div>
 
@@ -45,6 +52,10 @@
 </div>
 
 {{-- Modals --}}
+{{-- Export values --}}
 @include('admin.partials.modal-export-values', ['action' => 'timetable-items.export'])
+
+{{-- Timetable settings --}}
+@include('admin.timetable_settings.partials.modal-settings')
 
 @endsection

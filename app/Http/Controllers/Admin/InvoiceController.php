@@ -1401,6 +1401,11 @@ class InvoiceController extends Controller{
         $ivaTypeController = new IvaTypeController();
         $ivaTypes = $ivaTypeController->ivaTypes;
 
+        //24/01/2024: Centros de coste de cliente. ¡ATENCIÓN! Mantiene el nombre de variable $provider_cost_centers pues ya está funcionando en el modal correspondiente con este nombre. Se utiliza la misma vista cuando se trata de un pedido de venta. Pero aunque mantiene el nombre de variable y puede ser confuso, los valores corresponden a los centros de coste del cliente.
+        $provider_cost_centers = CostCenters::where('company_id', $order->customer_id)
+        ->pluck('name', 'id')
+        ->toArray();
+
         //Moneda:
         $currency = CompanySettings::co_currency(0);
 
@@ -1490,7 +1495,7 @@ class InvoiceController extends Controller{
         ->orderBy('name', 'ASC')
         ->get();
 
-        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'is_sale', 'order', 'invoiced', 'invoices', 'refund', 'customer', 'customer_account', 'provider', 'provider_account', 'provider_settings', 'structure_concepts', 'items', 'products', 'ivaTypes', 'currency', 'languages', 'patterns', 'payments', 'seat', 'seat_error', 'templates', 'featuredTemplate', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'payment_methods', 'concepts', 'customer_bank_accounts', 'customer_bank_featured', 'provider_bank_accounts', 'provider_bank_featured', 'accounting_products'));
+        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'is_sale', 'order', 'invoiced', 'invoices', 'refund', 'customer', 'customer_account', 'provider', 'provider_account', 'provider_settings', 'structure_concepts', 'items', 'products', 'ivaTypes', 'provider_cost_centers', 'currency', 'languages', 'patterns', 'payments', 'seat', 'seat_error', 'templates', 'featuredTemplate', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'payment_methods', 'concepts', 'customer_bank_accounts', 'customer_bank_featured', 'provider_bank_accounts', 'provider_bank_featured', 'accounting_products'));
     }
 
     /**

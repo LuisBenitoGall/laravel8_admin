@@ -74,7 +74,7 @@
 				$module_on = in_array($mod->id, $module_permissions)? 1:'0';
 				@endphp
 
-				<div class="row module_" id="module-{{ $mod->id }}" data-module="{{ $mod->id }}">
+				<div class="row module_" id="module-{{ $mod->id }}" data-module="{{ $mod->id }}" data-modulename="{{ $mod->slug }}">
 					<input type="hidden" id="mod-{{ $mod->id }}" value="{{ $module_on }}">
 					
 					<div class="col-12 mb-2">
@@ -179,19 +179,29 @@
 
 	    // Activar / desactivar todos los permisos de una funcionalidad:
 	    $(document).on('change', '.chkFunc', function(){
-	    	var elem = $(this);
-	    	var func = elem.data('functionality');
+	    	let elem = $(this);
+	    	let func = elem.data('functionality');
+	    	let chkPerm = $('.functionality-'+func);
+
 	        if($(this).is(':checked')){
 	            $('.functionality-'+func).prop('checked',true);
 	        }else{
 	            $('.functionality-'+func).prop('checked',false);    
 	        }
-	    	
-	    	var role = $('#roleId').val();
-	    	var module_id = elem.closest('.module_').data('module');
-	    	var module_on = $('#mod-'+module_id).val() == '0'? module_id:'0';
-	    	var action = 'off';
-	    	var remove_module = '0';
+
+	        let arr = [];
+
+		  	// Recorrer los checkbox con la misma data-functionality
+		  	chkPerm.each(function() {
+		    	arr.push($(this).data('permission'));
+		  	});
+		  	let permissions = JSON.stringify(arr);
+    	
+	    	let role = $('#roleId').val();
+	    	let module_id = elem.closest('.module_').data('module');
+	    	let module_on = $('#mod-'+module_id).val() == '0'? module_id:'0';
+	    	let action = 'off';
+	    	let remove_module = '0';
 
 	    	if($(this).is(':checked')){
 	    		action = 'on';
@@ -207,18 +217,36 @@
 	    		});	
 	    	}
 
-	    	$.get("/admin/roles/"+role+"/set-functionality-permissions/"+func+'/'+action+'/'+module_on+'/'+remove_module, function(response){
-	    		if(response){
-	    			if(response == 1){
-	    				$('#module-'+module_id+' h3 .fa').removeClass('fa-ban').addClass('fa-check');	
-	    				$('#mod-'+module_id).val(1);
+	    	$.ajax({
+	    		url: '/admin/roles/set-functionality-permissions-post',
+	    		type: "post",
+                dataType: "json",
+                data: {
+                    _token: $('meta[name="csrf-token"]').attr('content'),
+                    permissions: permissions,
+                    role_id: role,
+                    module_on: module_on,
+                    action: action,
+                    remove_module: remove_module
+                },
+                success: function(data){
+                	console.log(data);
 
-	    			}else if(response == 2){
-	    				$('#module-'+module_id+' h3 .fa').removeClass('fa-check').addClass('fa-ban');	
-	    				$('#mod-'+module_id).val('0');
-	    			}
-	    		}
+                }
 	    	});
+
+	    	// $.get("/admin/roles/"+role+"/set-functionality-permissions/"+func+'/'+action+'/'+module_on+'/'+remove_module, function(response){
+	    	// 	if(response){
+	    	// 		if(response == 1){
+	    	// 			$('#module-'+module_id+' h3 .fa').removeClass('fa-ban').addClass('fa-check');	
+	    	// 			$('#mod-'+module_id).val(1);
+
+	    	// 		}else if(response == 2){
+	    	// 			$('#module-'+module_id+' h3 .fa').removeClass('fa-check').addClass('fa-ban');	
+	    	// 			$('#mod-'+module_id).val('0');
+	    	// 		}
+	    	// 	}
+	    	// });
 	    });
 	});
 	</script>
