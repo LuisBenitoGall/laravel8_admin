@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Helpers\Helpers;
+use App\Helpers\helpers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
@@ -18,6 +18,7 @@ use PDF;
 use App\Models\Company;
 use App\Models\Employee;
 use App\Models\Timetable;
+use App\Models\TimetableSetting;
 use App\Models\TimetableSigned;
 use App\Models\User;
 use App\Models\Workplace;
@@ -210,12 +211,15 @@ class TimetableSignedController extends Controller{
             ->where('workplaces.featured', 1)
             ->first();
 
+            //Configuraciones horarios empresa:
+            $timetable_settings = TimetableSetting::where('company_id', $company->id)->first();
+
             //Color corporativo:
             $bg_color = $company_settings->primary_color? $company_settings->primary_color:'#10172C';
 
             $languages = $this->languages;
 
-            $pdf = PDF::loadView('pdf/user-timetable', compact('ts', 'user', 'horarios', 'desde', 'hasta', 'company_settings', 'provider', 'company', 'workplace', 'bg_color', 'languages'));
+            $pdf = PDF::loadView('pdf/user-timetable', compact('ts', 'user', 'horarios', 'desde', 'hasta', 'company_settings', 'provider', 'company', 'workplace', 'timetable_settings', 'bg_color', 'languages'));
             $pdf->setPaper('L', 'portrait');
 
             //Guardar o imprimir .pdf:

@@ -2486,7 +2486,7 @@ class Helpers{
 	/**
 	 * 7.1. Render galería imágenes.
 	 */
-	public static function renderImg($doc, $gallery = false, $schema){
+	public static function renderImg($doc, $schema, $gallery = false){
 	    $render = '<div class="gallery-item col-sm-3 mb-4">
 	        <div class="gallery-img">';
 	        if($gallery){

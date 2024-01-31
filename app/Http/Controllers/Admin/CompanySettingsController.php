@@ -129,6 +129,7 @@ class CompanySettingsController extends Controller{
         $cs->public_info = $public_info;
         $cs->accounting_method = $request->accounting_method;
         $cs->accounting_account_digits = $request->accounting_account_digits;
+        $cs->project_required = $request->project_required? true:false;
         $cs->save();
 
         session(['companySettings' => $cs]);

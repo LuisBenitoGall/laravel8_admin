@@ -291,6 +291,13 @@ class Order extends Model{
         }
     }
 
+    /**
+     * 10. Proyectos asociados.
+     */
+    public function projects(){
+        return $this->belongsToMany(Project::class, 'project_orders');
+    }
+
     public function budgetPattern()
     {
         return $this->belongsTo(BudgetPatterns::class);

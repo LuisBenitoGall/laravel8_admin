@@ -34,6 +34,7 @@ class RoleController extends Controller{
      * 10. Regenerar archivo de roles.
      * 11. Setear permiso para role.
      * 12. Setear permisos de una funcionalidad.
+     * 12.1. Setear permisos de una funcionalidad (2).
      */
     
     private $option = 'configuracion';
@@ -378,8 +379,12 @@ class RoleController extends Controller{
             //Guardar:
             if($action == 'on'){
                 foreach($methods as $m){
-                    $role->givePermissionTo($functionality.'.'.$m[0]);    
+                    $role->givePermissionTo($functionality.'.'.$m[0]);  
+
+                    //echo $m[0].'<br>';  
                 }  
+
+                //dd($action, $module_on);
 
                 //Activar permiso sobre módulo:
                 if($module_on != '0' && is_numeric($module_on)){
@@ -400,5 +405,41 @@ class RoleController extends Controller{
                 }
             }
         }    
+    }
+
+    /**
+     * 12.1. Setear permisos de una funcionalidad (2).
+     */
+    public function setFunctionalityPermissionsPost(Request $request){
+        if($request->ajax()){ 
+            $permissions = json_decode($request->permissions, true);
+
+            $role = Role::find($request->role_id);
+
+            //Guardar:
+            if($request->action == 'on'){
+                $role->givePermissionTo($permissions);
+
+                //Activar permiso sobre módulo:
+                if($request->module_on != '0' && is_numeric($request->module_on)){
+                    $pms = Permission::select('name')->find($request->module_on);
+                    $role->givePermissionTo($pms->name);
+                }
+
+                return response()->json(1);
+
+            //Eliminar:
+            }else{
+                $role->revokePermissionTo($permissions);
+
+                //Eliminar permiso de módulo:
+                if($request->remove_module != '0' && is_numeric($request->remove_module)){
+                    $pms = Permission::select('name')->find($request->remove_module);
+                    $role->revokePermissionTo($pms->name);  
+                }
+
+                return response()->json(2);     //Desactivar módulo del permiso.
+            }
+        }
     }
 }

@@ -46,15 +46,25 @@
 			@endif
 
 			{{-- Horarios. Condiciones:
-				1. Estar activo el módulo de horario.
-				2. Estar el usuario vinculado al menos a 1 centro de trabajo.
+				1. Permisos de visualización de horarios.
+				2. Estar activo el módulo de horario.
+				3. Estar el usuario vinculado al menos a 1 centro de trabajo.
+				...
 			--}}
-			@if($module_timetables && $user_workplaces && $user_workplaces->count())
-				<a href="{{ route('users.timetables', $user) }}" class="btn btn-info">
-					<i class="fa fa-clock"></i>
-					{!! ucfirst(trans('textos.horarios')) !!}
-				</a>	
-			@endif
+			@can('employees-timetable.show')
+				@if($module_timetables && $user_workplaces && $user_workplaces->count())
+					<a href="{{ route('users.timetables', $user) }}" class="btn btn-info">
+						<i class="fa fa-clock"></i>
+						{!! ucfirst(trans('textos.horarios')) !!}
+					</a>	
+				@endif
+			@endcan
+
+			{{-- Firma de horarios --}}
+			<a href="{{ route('timetable-signed.show', $user->id) }}" class="btn btn-info">
+				<i class="fa fa-signature"></i>
+				{!! trans('textos.firma_horarios') !!}
+			</a>
 
 			{{-- Calendario usuario. Condiciones:
 				1. Estar activo el módulo de calendario.
