@@ -34,7 +34,7 @@
 						{{-- Grupo --}}
 						<label for="group" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.grupo')) !!}</label>
 						<div class="col-lg-4">
-							<x-select name="group" class="select2" label="grupo_selecciona" :options="$groups" value="{{ $group }}" required/>
+							<x-select name="group" class="select2" label="grupo_selecciona" :options="$groups" value="{{ $group }}"/>
 						</div>
 					</div>
 
