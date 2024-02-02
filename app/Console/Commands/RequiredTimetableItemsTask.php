@@ -64,6 +64,7 @@ class RequiredTimetableItemsTask extends Command{
             //Conceptos horarios obligatorios para la empresa:
             $required_timetable_items_collection = TimetableItems::where('company_id', $co->id)
             ->whereNotNull('required')
+            ->where('status', 1)
             ->get();
 
             if($required_timetable_items_collection->count()){
