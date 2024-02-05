@@ -152,6 +152,13 @@ class ProductController extends Controller{
                 return '';
             }
         })  
+        ->addColumn('cost_center', function($row){
+            if($row->cost_center){
+                return $row->cost_center;
+            }else{
+                return '';
+            }
+        })
         ->addColumn('image', function($row){
             if($row->Image){
                 return '<img src="/img/products/'.$row->Image.'" width="50"><span style="display: none">1</span>';  
