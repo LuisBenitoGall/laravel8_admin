@@ -11,9 +11,16 @@
 {{-- Traducciones --}}
 <a href="#" class="btn btn-xs btn-info btn-translations" rel="tooltip" title="{{ ucfirst(trans('textos.traducciones')) }}" data-toggle="modal" data-target="#modal-translations" data-id="{{ $row->id }}" data-schema="budget_form_items"><i class="fa fa-globe"></i></a>
 
-{{-- Editar --}}
+{{-- Editar item --}}
 @can('budget-forms.edit')
-    <a href="#" class="btn btn-xs btn-info btn-module btnEditFormItem" rel="tooltip" title="{{ ucfirst(trans('textos.editar')) }}" data-toggle="modal" data-target="#modal-edit-item" data-name="{{ $row->name }}" data-id="{{ $row->id }}"><i class="fa fa-edit"></i></a>
+    <a href="#" class="btn btn-xs btn-info btn-module btnEditFormItem" rel="tooltip" title="{{ ucfirst(trans('textos.item_editar')) }}" data-toggle="modal" data-target="#modal-edit-item" data-name="{{ $row->name }}" data-id="{{ $row->id }}"><i class="fa fa-edit"></i></a>
+@endcan
+
+{{-- Editar producto --}}
+@can('products.edit')
+    @if($row->product_id)
+        <a target="_blank" href="{{ route('products.edit', $row->product_id) }}" class="btn btn-xs btn-warning" rel="tooltip" title="{{ ucfirst(trans('textos.producto_editar')) }}"><i class="fa fa-edit"></i></a>
+    @endif
 @endcan
 
 {{-- Eliminar --}}

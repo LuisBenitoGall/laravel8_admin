@@ -458,7 +458,7 @@ $(document).ready(function(){
         $('#tblBudgetFormItems thead tr').clone(true).appendTo('#tblBudgetFormItems thead');
         $('#tblBudgetFormItems thead tr:eq(1) th').each(function(i){
             var title = $(this).text();
-            if(i == 4){
+            if(i == 5){
                 $(this).html('');
             }else{
                 $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
@@ -491,6 +491,7 @@ $(document).ready(function(){
                 {data: 'block'},
                 {data: 'price', className: 'text-right'},
                 {data: 'discount', className: 'text-right'},
+                {data: 'cost_center', name: 'cost_centers.name'},
                 {data: 'acciones', className: 'text-right'}
             ]
         });
@@ -4656,11 +4657,11 @@ $(document).ready(function(){
         $('#tblProducts thead tr').clone(true).appendTo('#tblProducts thead');
         $('#tblProducts thead tr:eq(1) th').each(function(i){
             var title = $(this).text();
-            // if(i == 3 || i == 5){
-            //     $(this).html('');
-            // }else{
+            if(i == 5 || i == 7){
+                $(this).html('');
+            }else{
                 $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
-            //}
+            }
      
             $('input', this).on('keyup change', function(){
                 if(tableProducts.column(i).search() !== this.value){
@@ -4687,6 +4688,7 @@ $(document).ready(function(){
                 {data: 'ref', name: 'products.ref'},
                 {data: 'description'},
                 {data: 'price', className: 'text-right', name: 'products.price'},
+                {data: 'cost_center', name: 'cost_centers.name'},
                 {data: 'image', className: 'text-center'},
                 {data: 'on_sale', className: 'text-center'},
                 {data: 'acciones', className: 'text-right'}

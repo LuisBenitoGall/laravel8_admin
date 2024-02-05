@@ -6,8 +6,10 @@
 				<th>{!! ucfirst(trans('textos.bloque')) !!}</th>
 				<th class="text-center">{!! ucfirst(trans('textos.precio')) !!}</th>
 				<th class="text-center">{!! ucfirst(trans('textos.descuento')) !!}</th>
+				<th>{!! ucfirst(trans('textos.centro_coste')) !!}</th>
 				<th class="text-center">{!! ucfirst(trans('textos.acciones')) !!}</th>
 			</tr>
 		</thead>
 	</table>
 </div>
+

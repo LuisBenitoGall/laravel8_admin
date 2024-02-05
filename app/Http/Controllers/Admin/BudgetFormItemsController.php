@@ -89,7 +89,8 @@ class BudgetFormItemsController extends Controller{
         if($form_id){
             if($recid == '0'){
                 $data = BudgetFormItems::select('budget_form_items.*', 'cost_centers.name AS cost_center')
-                ->leftJoin('cost_centers', 'budget_form_items.cost_center_id', '=', 'cost_centers.id')
+                ->leftJoin('products', 'budget_form_items.product_id', '=', 'products.id')
+                ->leftJoin('cost_centers', 'products.cost_center_id', '=', 'cost_centers.id')
                 ->where('budget_form_items.form_id', $form_id)
                 ->where('budget_form_items.recid', $recid);
 
@@ -98,7 +99,7 @@ class BudgetFormItemsController extends Controller{
                     return $row->name;
                 })
                 ->addColumn('cost_center', function($row){
-                    return $row->cost_center;
+                    return $row->cost_center? $row->cost_center:'';
                 })
                 ->addColumn('acciones', function($row){
                     return view('admin.budget_form_items.partials.dt-actions', compact('row'));    
@@ -111,9 +112,11 @@ class BudgetFormItemsController extends Controller{
                     'budget_form_items.*',
                     'products.name AS productName',
                     'products.price',
-                    'products.calculated_by_percent AS price_by_percent'
+                    'products.calculated_by_percent AS price_by_percent',
+                    'cost_centers.name AS cost_center'
                 )
                 ->leftJoin('products', 'budget_form_items.product_id', '=', 'products.id')
+                ->leftJoin('cost_centers', 'products.cost_center_id', '=', 'cost_centers.id')
                 ->where('budget_form_items.form_id', $form_id)
                 ->where('budget_form_items.recid', '>', '0');
 
@@ -138,6 +141,9 @@ class BudgetFormItemsController extends Controller{
                     if($row->discount > 0){
                         return $row->discount.'%';
                     }
+                })
+                ->addColumn('cost_center', function($row){
+                    return $row->cost_center? $row->cost_center:'';
                 })
                 ->addColumn('acciones', function($row){
                     return view('admin.budget_form_items.partials.dt-actions-items', compact('row'));    
@@ -177,7 +183,8 @@ class BudgetFormItemsController extends Controller{
         $item->discount = $request->discount;
         $item->qty_min = $request->qty_min;
         $item->calculated_by_percent = $request->calculated_by_percent? $request->calculated_by_percent:NULL;
-        $item->cost_center_id = $request->cost_center;
+        //05/02/2024: el centro de coste quedará definido en el catálogo.
+        //$item->cost_center_id = $request->cost_center;
         $item->save();
 
         //Actualizamos precio en catálogo:
