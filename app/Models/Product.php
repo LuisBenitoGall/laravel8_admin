@@ -14,6 +14,7 @@ class Product extends Model{
      * 2. Relación con empresa. 
      * 3. Productos por empresa.
      * 3.1. Productos por empresa con gestión de stock.
+     * 4. Centro de coste.
      */
      
     use HasFactory;
@@ -47,18 +48,19 @@ class Product extends Model{
      * $for_dt -> indica si es para DataTables.
      */
     public static function companyProducts($company_id, $customer_id, $sale = true, $status = true, $limit = false, $for_dt = false){
-        $q = Product::select('id', 'name', 'ref', 'price', 'iva', 'calculated_by_percent', 'translations', 'description', 'on_sale', 'cost_center_id', 'batch', 'status', 
+        $q = Product::select('products.id', 'products.name', 'products.ref', 'products.price', 'products.iva', 'products.calculated_by_percent', 'products.translations', 'products.description', 'products.on_sale', 'products.cost_center_id', 'products.batch', 'products.status', 'cost_centers.name AS cost_center',
             DB::raw('(SELECT doc FROM product_docs WHERE product_id = products.id AND featured = 1 LIMIT 1) AS Image'),
             DB::raw('(SELECT price FROM customer_products WHERE product_id = products.id AND provider_id = '.$company_id.' AND customer_id = '.$customer_id.') AS priceForCustomer')
         )
-        ->where('company_id', $company_id);
+        ->leftJoin('cost_centers', 'products.cost_center_id', '=', 'cost_centers.id')
+        ->where('products.company_id', $company_id);
         if($sale){
-            $q->where('on_sale', 1);
+            $q->where('products.on_sale', 1);
         }
         if($status){
-            $q->where('status', 1);
+            $q->where('products.status', 1);
         }
-        $q->orderBy('name', 'ASC');
+        $q->orderBy('products.name', 'ASC');
         if($limit){
             $q->limit($limit);
         }
@@ -77,6 +79,13 @@ class Product extends Model{
     
     public function stocks(){
         return $this->hasMany(Stock::class);
+    }
+
+    /**
+     * 4. Centro de coste.
+     */
+    public function cost_center(){
+        return $this->belongsTo(CostCenters::class);    
     }
 }
 

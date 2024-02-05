@@ -42,9 +42,10 @@
 					<th>{!! ucfirst(trans('textos.producto')) !!}</th>
 					<th>{!! ucfirst(trans('textos.referencia')) !!}</th>
 					<th>{!! ucfirst(trans('textos.descripcion')) !!}</th>
-					<th class="text-center">{!! ucfirst(trans('textos.precio')) !!}</th>
+					<th class="text-center wdt100">{!! ucfirst(trans('textos.precio')) !!}</th>
+					<th>{!! ucfirst(trans('textos.centro_coste')) !!}</th>
 					<th>{!! ucfirst(trans('textos.imagen')) !!}</th>
-					<th class="wdt150">{!! ucfirst(trans('textos.producto_venta')) !!}</th>
+					<th class="wdt100">{!! ucfirst(trans('textos.producto_venta')) !!}</th>
 					<th class="text-center">{!! ucfirst(trans('textos.acciones')) !!}</th>
 				</tr>
 			</thead>
