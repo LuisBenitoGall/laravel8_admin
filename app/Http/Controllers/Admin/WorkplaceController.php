@@ -347,7 +347,7 @@ class WorkplaceController extends Controller{
         dd($workplace);
         $data = CustomerProviders::where('customer_id', $workplace->company_id)
         ->where('provider_id', session('currentCompany'))
-        ->update(['workplace_id' => $workplace->id]);
+        ->update(['customer_workplace_id' => $workplace->id]);
 
         $msg = trans('textos.centro_updated');
         return redirect()->route('workplaces.index')->with(compact('msg'));
