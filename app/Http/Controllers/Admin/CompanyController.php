@@ -580,6 +580,13 @@ class CompanyController extends Controller{
 
         $company->save();
 
+        //Modificando datos relación comercial:
+        if($request->provider_workplace_id){
+            CustomerProviders::where('provider_id', session('currentCompany'))
+            ->where('customer_id', $company->id)
+            ->update(['provider_workplace_id' => $request->provider_workplace_id]);
+        }
+
         //Modificamos datos en la sesión de empresas:
         if($request->business_relationship == 'companies'){
             session()->forget('companies');

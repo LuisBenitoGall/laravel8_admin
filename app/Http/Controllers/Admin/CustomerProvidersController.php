@@ -311,9 +311,14 @@ class CustomerProvidersController extends Controller{
         ->where('mode', 1)
         ->get();
 
+        //Centros de trabajo del proveedor:
+        $provider_workplaces = Workplace::where('company_id', session('currentCompany'))
+        ->pluck('name', 'id')
+        ->toArray();
+
         $languages = $this->languages;
 
-        return view('admin.customer_providers.edit')->with(compact('header', 'company', 'tab', 'workplaces', 'areas', 'conditions', 'business_relationship', 'environment', 'company_account', 'banks', 'bank_accounts', 'payment_methods', 'accounting_accounts', 'languages'));     
+        return view('admin.customer_providers.edit')->with(compact('header', 'company', 'tab', 'workplaces', 'areas', 'conditions', 'business_relationship', 'environment', 'company_account', 'banks', 'bank_accounts', 'payment_methods', 'accounting_accounts', 'provider_workplaces', 'languages'));     
     }
 
     /**
@@ -484,7 +489,7 @@ class CustomerProvidersController extends Controller{
      * 8. Obtener info de empresas por criterio.
      */
     private function getCompaniesData($join, $condition){
-        $data = CustomerProviders::select('customer_providers.id AS cp_id', 'customer_providers.ba_id', 'customer_providers.workplace_id', 'customer_providers.cc_id', 'customer_providers.discount', 'customer_providers.credit_risk', 'customer_providers.budget_access', 'customer_providers.syncro_invoice', 'customer_providers.status AS cp_status', 'customer_providers.accounting_concept_id', 'customer_providers.expense_account_id', 'customer_providers.bank_account_id', 'companies.id', 'companies.name', 'companies.tradename', 'companies.logo', 'companies.nif', 'company_accounts.guardian', 'company_accounts.status')
+        $data = CustomerProviders::select('customer_providers.id AS cp_id', 'customer_providers.ba_id', 'customer_providers.customer_workplace_id', 'customer_providers.cc_id', 'customer_providers.discount', 'customer_providers.credit_risk', 'customer_providers.budget_access', 'customer_providers.syncro_invoice', 'customer_providers.status AS cp_status', 'customer_providers.accounting_concept_id', 'customer_providers.expense_account_id', 'customer_providers.bank_account_id', 'companies.id', 'companies.name', 'companies.tradename', 'companies.logo', 'companies.nif', 'company_accounts.guardian', 'company_accounts.status')
         ->join('companies', 'customer_providers.'.$join, '=', 'companies.id')
         ->leftJoin('company_accounts', 'companies.id', '=', 'company_accounts.company_id')
         ->where('companies.id', '!=', session('currentCompany'))
@@ -660,7 +665,7 @@ class CustomerProvidersController extends Controller{
                         $cu_pr = new CustomerProviders(); 
                         $cu_pr->customer_id = $customerId;
                         $cu_pr->provider_id = $providerId;
-                        $cu_pr->workplace_id = $workplace_id;
+                        $cu_pr->customer_workplace_id = $workplace_id;
                         $cu_pr->accounting_concept_id = $concept? $concept->id:NULL;
                         $cu_pr->payment_method = $payment_method;
 
@@ -745,7 +750,7 @@ class CustomerProvidersController extends Controller{
                             $item->pay_after_days = $row->pay_after_days;
                             $item->payday = $row->payday;
                             $item->ba_id = $row->ba_id;
-                            $item->workplace_id = $row->workplace_id;
+                            $item->customer_workplace_id = $row->workplace_id;
                             $item->cc_id = $row->cc_id;
                             $item->discount = $row->discount;
                             $item->billing_comunication = $row->billing_comunication;
@@ -801,7 +806,7 @@ class CustomerProvidersController extends Controller{
                             $item->pay_after_days = $row->pay_after_days;
                             $item->payday = $row->payday;
                             $item->ba_id = $row->ba_id;
-                            $item->workplace_id = $row->workplace_id;
+                            $item->customer_workplace_id = $row->workplace_id;
                             $item->cc_id = $row->cc_id;
                             $item->discount = $row->discount;
                             $item->billing_comunication = $row->billing_comunication;
@@ -962,7 +967,7 @@ class CustomerProvidersController extends Controller{
         ->first();
 
         $cp->ba_id = $request->ba_id;
-        $cp->workplace_id = $request->workplace_id;
+        $cp->customer_workplace_id = $request->workplace_id;
         $cp->cc_id = $request->cc_id;
         $cp->discount = $request->discount;
         $cp->credit_risk = $request->credit_risk;
