@@ -95,4 +95,14 @@
 	</div>
 </div>
 
+@if(isset($provider_workplaces) && count($provider_workplaces))
+	<div class="form-group row">
+		{{-- Centro homologado: centro de trabajo vinculado por defecto --}}
+		<label for="provider_workplace_id" class="col-lg-2 col-form-label">{{ ucfirst(trans('textos.centro_homologado')) }}</label>
+		<div class="col-lg-4">
+			<x-select name="provider_workplace_id" class="select2" label="centro_trabajo_selec" :options="$provider_workplaces" info="workplace-approved" value="{{ $conditions->provider_workplace_id }}"/>
+		</div>
+	</div>
+@endif
+
 <x-btn-submit name="submit_update" label="{{ trans('textos.guardar') }}"/>

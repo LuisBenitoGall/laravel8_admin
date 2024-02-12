@@ -79,35 +79,45 @@ class AccountingAccount extends Model{
                 $account = $prefix.$pre_zeros.'1';
             }
 
-            //Tipo balance:
-            //18/12/23: revisar type (activo, pasivo, ganancias-pérdidas con Didac);
-            //$type = $data['account_to'] == 'customer'? 'c':'p';
-            $type = NULL;
-
-            //Cuenta principal:
-            $featured_account = AccountingAccount::select('id', 'featured')
+            //Comprobamos que no exista la cuenta:
+            $exist_account = AccountingAccount::select('id')
             ->where('company_id', $company_owner)
-            ->where('company_target', $data['company_target'])
-            ->where('mode', $data['mode'])
-            ->where('featured', 1)
+            ->where('account', $account)
             ->first();
-            $featured = $featured_account? false:true;
 
-            $aa = new AccountingAccount();
-            $aa->company_id = $company_owner;
-            $aa->account = $account;
-            $aa->name = $company_target->name? $company_target->name:'';
-            $aa->mode = $data['mode'];
-            $aa->type = $type;
-            //$aa->earnings_loses = $earnings_loses;
-            $aa->company_target = $data['company_target'];
-            $aa->status = 1;
-            $aa->featured = $featured;
-            $aa->with_iva = $data['with_iva'];
-            $aa->created_by = Auth::user()->id;
-            $aa->save(); 
+            if($exist_account){
+                return false;
+            }else{
+                //Tipo balance:
+                //18/12/23: revisar type (activo, pasivo, ganancias-pérdidas con Didac);
+                //$type = $data['account_to'] == 'customer'? 'c':'p';
+                $type = NULL;
 
-            return $aa;  
+                //Cuenta principal:
+                $featured_account = AccountingAccount::select('id', 'featured')
+                ->where('company_id', $company_owner)
+                ->where('company_target', $data['company_target'])
+                ->where('mode', $data['mode'])
+                ->where('featured', 1)
+                ->first();
+                $featured = $featured_account? false:true;
+
+                $aa = new AccountingAccount();
+                $aa->company_id = $company_owner;
+                $aa->account = $account;
+                $aa->name = $company_target->name? $company_target->name:'';
+                $aa->mode = $data['mode'];
+                $aa->type = $type;
+                //$aa->earnings_loses = $earnings_loses;
+                $aa->company_target = $data['company_target'];
+                $aa->status = 1;
+                $aa->featured = $featured;
+                $aa->with_iva = $data['with_iva'];
+                $aa->created_by = Auth::user()->id;
+                $aa->save(); 
+
+                return $aa;  
+            }
 
         }else{
             return false;

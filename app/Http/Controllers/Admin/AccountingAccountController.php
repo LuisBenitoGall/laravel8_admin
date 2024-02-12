@@ -368,19 +368,21 @@ class AccountingAccountController extends Controller{
 
             // $account = (int)$last_account_ + 1;
 
-            $aa = new AccountingAccount();
-            $aa->company_id = session('currentCompany');
-            $aa->account = $account;
-            $aa->name = $request->name;
-            $aa->mode = $request->mode;
-            $aa->type = $request->type;
-            $aa->earnings_loses = $earnings_loses;
-            $aa->company_target = $company_id;
-            $aa->status = $request->status? 1:0;
-            $aa->with_iva = $request->with_iva? 1:0;
-            $aa->iva_type_id = $request->iva_type_id;
-            $aa->created_by = Auth::user()->id;
-            $aa->save();
+            if(!$exist_account){
+                $aa = new AccountingAccount();
+                $aa->company_id = session('currentCompany');
+                $aa->account = $account;
+                $aa->name = $request->name;
+                $aa->mode = $request->mode;
+                $aa->type = $request->type;
+                $aa->earnings_loses = $earnings_loses;
+                $aa->company_target = $company_id;
+                $aa->status = $request->status? 1:0;
+                $aa->with_iva = $request->with_iva? 1:0;
+                $aa->iva_type_id = $request->iva_type_id;
+                $aa->created_by = Auth::user()->id;
+                $aa->save();
+            }
         }
 
         $msg = trans('textos.cuenta_creada');

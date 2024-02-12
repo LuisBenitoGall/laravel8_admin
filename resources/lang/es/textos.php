@@ -390,6 +390,7 @@ return array(
 	'centro_editar' => 'Editar centro de trabajo',
 	'centro_eliminar' => 'eliminar centro de trabajo',
 	'centro_estado' => 'Estado centro',
+	'centro_homologado' => 'Centro homologado',
 	'centro_nuevo' => 'Nuevo centro trabajo',
 	'centro_principal_marcar' => 'Marcar centro principal',
 	'centro_principal' => 'Centro principal',
