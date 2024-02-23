@@ -253,6 +253,17 @@ WHERE
     AND o.invoiced = 1
 ORDER BY
     o.order_num ASC;
+
+- Consulta pedidos por cliente por intervalo de tiempo:
+SELECT c.name as company, o.order_num, o.name as title, o.created_at
+FROM orders o
+INNER JOIN companies c
+ON o.customer_id = c.id
+WHERE o.is_order = 1
+AND o.provider_id = 4
+AND o.deleted_at IS NULL
+AND o.created_at BETWEEN '2021-01-01' AND '2023-12-31'
+ORDER BY o.created_at ASC
    
 
 ### Instalación de Sentry

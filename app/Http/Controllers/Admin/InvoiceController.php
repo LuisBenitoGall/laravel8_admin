@@ -2174,7 +2174,7 @@ class InvoiceController extends Controller{
         //Si no existen más facturas del mismo pedido, se dejan las líneas del pedido como no facturadas:
         $other_invoices = Invoice::select('id')->where('order_id', $order_id)->get();
         if(!$other_invoices->count()){
-            //Marcamos las líneas del pedido como facturadas:
+            //Marcamos las líneas del pedido como NO facturadas:
             Item::itemsAsInvoiced($order_id, false);    
         }
 
@@ -2275,7 +2275,7 @@ class InvoiceController extends Controller{
         $refund->template = $invoice->template;
         $refund->save();
                 
-        //Al generarse una factura de abono, sólo si el abono es íntegro, el pedido original vuelve a estado de pendiente de facturación y la factura a estado de devuelta.
+        //Al generarse una factura de abono, sólo si el abono es íntegro, el pedido original vuelve a estado de pendiente de facturación y la factura a estado de devuelta. Las líneas se marcan como no facturadas.
         //En caso de tratarse de una agrupación, los pedidos de anidados que se encuentren en la factura también a estado sin facturar.
         if($request->refund == 't'){
             $order = Order::select('id', 'is_group', 'invoiced')
@@ -2290,6 +2290,9 @@ class InvoiceController extends Controller{
                 ->where('invoice_orders.invoice_id', $invoice->id)
                 ->update(['orders.invoiced' => false]);
             }
+
+            //Marcamos las líneas del pedido como NO facturadas:
+            Item::itemsAsInvoiced($order->id, false); 
         }
 
         //Actualizando factura original:
