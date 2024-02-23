@@ -437,7 +437,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 							</a>
 						</p>
 
-					@elseif($totalPercent < 100 && $order->blocked == 1)
+					@elseif($totalPercent < config('constants.TOLERANCE_INVOICED_') && $order->blocked == 1)
 						<p class="text-warning">{!! trans('textos.pedido_cerrado_aviso') !!}</p>	
 					@endif		
 				</div>

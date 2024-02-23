@@ -96,8 +96,7 @@ $permitted = !$order || ($order && $add_items && !$order->parent && !$order->blo
                                                     @php
                                                     $price = $item->priceForCustomer? $item->priceForCustomer:$item->price;
                                                     @endphp
-                                                    <span
-                                                        style="line-height: 20px;">{{ $price }}{{ $currency->symbol }}</span>
+                                                    <span style="line-height: 20px;">{{ $price }}{{ $currency->symbol }}</span>
 
                                                     {{-- Descuento --}}
                                                     @if($item->discount)
@@ -185,12 +184,10 @@ $permitted = !$order || ($order && $add_items && !$order->parent && !$order->blo
 
                 <div class="form-group row">
                     {{-- Concepto --}}
-                    <label for="concept"
-                           class="col-3 col-sm-2 col-xl-1 col-form-label sinpadding-right">{!! ucfirst(trans('textos.concepto')) !!}
+                    <label for="concept" class="col-3 col-sm-2 col-xl-1 col-form-label sinpadding-right">{!! ucfirst(trans('textos.concepto')) !!}
                         *</label>
                     <div class="col-9 col-sm-10 col-xl-5 mb-3 mb-xl-0">
-                        <textarea name="concept" class="form-control" id="newItemConcept" required
-                                  wire:model.defer="concept"></textarea>
+                        <textarea name="concept" class="form-control" id="newItemConcept" required wire:model.defer="concept"></textarea>
                     </div>
 
                     {{-- Bloque --}}
