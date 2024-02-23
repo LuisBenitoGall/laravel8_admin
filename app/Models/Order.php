@@ -132,7 +132,12 @@ class Order extends Model{
         $amounts_by_iva = [];                   //Array que agrupa la suma de importes según tipo de IVA.
         $iva_amounts = [];                      //Array que agrupa el importe de cada tipo de IVA.
 
-        $arr_invoice_amount = [];
+        $arr_invoice_amount = [
+            'amount' => '',
+            'amount_without_discount' => '',
+            'amount_with_iva' => '',
+            'iva_amount' => ''
+        ];
 
         foreach($items as $row){
             //Omitimos los items que se calculan porcentualmente:
