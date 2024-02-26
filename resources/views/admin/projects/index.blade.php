@@ -6,7 +6,7 @@
 	<div class="col-12">
 		{{-- Acciones: --}}
 		{{-- Toggle vista - cuadrícula --}}
-        @include('admin.partials.toggle-views', ['cookie' => 'projects'])
+        {{-- @include('admin.partials.toggle-views', ['cookie' => 'projects']) --}}
 
         {{-- Nuevo proyecto --}}
 		@can('projects.create')
@@ -80,6 +80,7 @@ $str_status_values = $status_values? implode(',', $status_values):'';
 					<th class="text-center">{!! ucfirst(trans('textos.fecha_entrega')) !!}</th>
 					<th class="text-center">{!! ucfirst(trans('textos.prevision_horas')) !!}</th>
 					<th></th>
+					<th>{!! ucfirst(trans('textos.categorias')) !!}</th>
 					<th>{!! ucfirst(trans('textos.progreso')) !!}</th>
 					<th>{!! ucfirst(trans('textos.estado')) !!}</th>
 					<th class="text-center">{!! ucfirst(trans('textos.acciones')) !!}</th>
@@ -94,6 +95,7 @@ $str_status_values = $status_values? implode(',', $status_values):'';
 					<td></td>
 					<td></td>
 					<td></td>
+					<td></td>
 				</tr>
 			</tfoot>
 		</table>
@@ -101,12 +103,13 @@ $str_status_values = $status_values? implode(',', $status_values):'';
 </div>
 
 {{-- Vista cuadrícula --}}
-<div class="toggle-view-grid">
+{{-- 24/02/2024: desactivamos temporalmente esta opción --}}
+{{-- <div class="toggle-view-grid"> --}}
 	{{-- Componente Projects Grid --}}
-	@livewire('projects-grid')
+	{{-- @livewire('projects-grid')
 
 	@include('admin.partials.back-to-top')
-</div>
+</div> --}}
 
 {{-- Modals: --}}
 {{-- Favoritos --}}

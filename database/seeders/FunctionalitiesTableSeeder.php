@@ -348,6 +348,11 @@ class FunctionalitiesTableSeeder extends Seeder{
             'label' => 'proyectos',
             'module' => 'projects'
             ],
+            ['name' => 'project categories',
+            'slug' => 'project-categories',
+            'label' => 'proyectos_categorias',
+            'module' => 'projects'
+            ],
             ['name' => 'project patterns',
             'slug' => 'project-patterns',
             'label' => 'proyectos_patrones',

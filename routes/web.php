@@ -272,6 +272,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     // Categories. Tienen un index propio por cada módulo que utiliza esta funcionalidad:
     Route::get('categories', 'CategoryController@index')->name('categories.index');
     Route::get('product-categories', 'CategoryController@index')->name('product-categories.index');
+    Route::get('project-categories', 'CategoryController@index')->name('project-categories.index');
     Route::get('user-categories', 'CategoryController@index')->name('user-categories.index');
     Route::get('company-sectors', 'CategoryController@index')->name('company-sectors.index');
     Route::get('categories/{module}/create', 'CategoryController@create')->name('categories.create');

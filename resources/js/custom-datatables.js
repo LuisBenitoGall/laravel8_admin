@@ -119,8 +119,8 @@ $(document).ready(function(){
             "url": "/js/plugins/dataTables/lang/"+idm+".json"
         },
         responsive: true,
-        stateSave: false,    //Guarda página al refrescar. 
-        pageLength: 25,        //Resultados por página
+        stateSave: false,       //Guarda página al refrescar. 
+        pageLength: 25,         //Resultados por página
         initComplete: function(){
             //Búsqueda automática al clicar sobre el td.filtro:
             var api = this.api();
@@ -4819,7 +4819,7 @@ $(document).ready(function(){
         $('#tblProjects thead tr').clone(true).appendTo('#tblProjects thead');
         $('#tblProjects thead tr:eq(1) th').each(function(i){
             var title = $(this).text(); 
-            if(i == 6 || i == 7 || i == 8 || i == 10){
+            if(i == 6 || i == 7 || i == 9 || i == 11){
                 $(this).html('');
             }else{
                 let value = jsonData && jsonData.columns[i].search.search ? jsonData.columns[i].search.search : '';
@@ -4861,6 +4861,7 @@ $(document).ready(function(){
                 {data: 'entrega', className: 'text-right'},
                 {data: 'hours_forecast', className: 'text-right'},
                 {data: 'hours_worked', visible: false},
+                {data: 'category_names', name: 'category_names', searchable: true},
                 {data: 'progress', className: 'position-relative'},
                 {data: 'estado', name: 'estado'},
                 {data: 'acciones', orderable: false, searchable: false, className: 'text-right'}

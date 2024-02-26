@@ -24,6 +24,7 @@
 					<th class="text-center">{!! ucfirst(trans('textos.digitos_control')) !!}</th>
 					<th class="text-center">{!! ucfirst(trans('textos.cuenta')) !!}</th>
 					<th class="text-center">{!! ucfirst(trans('textos.cuenta_principal')) !!}</th>
+					<th class="text-center">{!! ucfirst(trans('textos.cuenta_contable')) !!}</th>
 					<th class="text-center">{!! ucfirst(trans('textos.acciones')) !!}</th>
 				</tr>
 			</thead>
@@ -49,6 +50,8 @@
 								<i class="fa fa-check text-success"></i>
 							@endif
 						</td>
+						{{-- Cuenta contable --}}
+						<td class="text-right">{{ $row->accounting_account }}</td>
 						{{-- Acciones --}}
 						<td class="text-right">
 							{{-- Estado --}}

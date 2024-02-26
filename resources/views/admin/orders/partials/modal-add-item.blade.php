@@ -223,16 +223,16 @@
 								<x-input type="text" name="calculated_by_percent" class="text-right set-decimals" autocomplete="off" maxlength="8" id="productPriceByPercent" value="0.00" group="right" groupvalue="%" readonly="{{ $readonly }}" info="item-price-by-percent"/>
 							</div>
 						</div>
+					@endif
 
-						@if(isset($provider_cost_centers) && is_array($provider_cost_centers))
-							<div class="form-group row">
-								{{-- Centro de coste --}}
-								<label for="provider_cost_center" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.centro_coste')) !!}</label>
-								<div class="col-lg-4">
-									<x-select name="provider_cost_center" class="select2" id="productCostCenter" label="centro_coste_selec" :options="$provider_cost_centers"/>
-								</div>
+					{{-- Centro de coste. 24/01/2024, ver nota del método InvoiceController/editPurchase: aunque el nombre de la variable hace mención a los centros de coste de proveedor, en las facturas de compra corresponden realmente a centros de coste del cliente, aunque el nombre preste a confusión. --}}
+					@if(isset($provider_cost_centers) && is_array($provider_cost_centers))
+						<div class="form-group row">
+							<label for="provider_cost_center" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.centro_coste')) !!}</label>
+							<div class="col-lg-4">
+								<x-select name="provider_cost_center" class="select2" id="productCostCenter" label="centro_coste_selec" :options="$provider_cost_centers"/>
 							</div>
-						@endif
+						</div>
 					@endif
 
 					<div class="form-group row">

@@ -30,7 +30,16 @@
 	<div class="col-12">
 		<div class="card mb-3">
 			<div class="card-body">	
-				<h3 class="mb-3"><u>{{ ucfirst($company->name) }}</u></h3>	
+				<h3 class="mb-3">
+					<u>
+						{{ ucfirst($company->name) }}
+						@if($business_relationship == 'customers' && $conditions->customer_num)
+							- {{ $conditions->customer_num}}
+						@elseif($business_relationship == 'providers' && $conditions->provider_num)
+							- {{ $conditions->provider_num}}
+						@endif
+					</u>
+				</h3>	
 
 				{{-- Tabs: --}}
 				<ul class="nav nav-tabs" role="tablist">
