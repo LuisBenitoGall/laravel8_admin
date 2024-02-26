@@ -12,6 +12,7 @@ class Category extends Model{
      * 2. Categorías principales por módulo y empresa. Array.
      * 3. Categoría padre de subcategoría.
      * 4. Subcategorías de categoría.
+     * 5. Proyectos por categoría.
      */
     
     use HasFactory;
@@ -57,6 +58,19 @@ class Category extends Model{
     }
 
     /**
+     * 2.1. Todas las categorías por módulo y empresa. STATIC
+     */
+    public static function getModuleCategoriesStatic($module_id, $company_id){
+        $data = Category::where('company_id', $company_id)
+        ->where('module_id', $module_id)
+        ->orderBy('name', 'ASC')
+        ->pluck('name', 'id')
+        ->toArray();
+
+        return $data;    
+    }
+
+    /**
      * 3. Categoría padre de subcategoría.
      */
     public function sub_category(){
@@ -68,5 +82,12 @@ class Category extends Model{
      */
     public function parent_category(){
         return $this->hasMany(self::class, 'id', 'subcategory');
+    }
+
+    /**
+     * 5. Proyectos por categoría.
+     */
+    public function projects(){
+        return $this->belongsToMany(Project::class, 'project_categories');
     }
 }

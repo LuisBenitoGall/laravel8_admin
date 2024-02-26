@@ -13,6 +13,7 @@ class Item extends Model{
      * 2. Ordenar items presupuestos de la migración desde Admin6.
      * 3. Marcar líneas como facturadas.
      * 4. Centro de coste del proveedor.
+     * 5. Centro de coste del cliente.
      */
      
     use HasFactory;
@@ -109,6 +110,13 @@ class Item extends Model{
      */
     public function cost_center_provider(){
         return $this->belongsTo(CostCenters::class, 'provider_cost_center_id');
+    }
+
+    /**
+     * 5. Centro de coste del cliente.
+     */
+    public function cost_center_customer(){
+        return $this->belongsTo(CostCenters::class, 'customer_cost_center_id');
     }
 
 }

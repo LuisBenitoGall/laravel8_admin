@@ -15,6 +15,7 @@ class Project extends Model{
      * 4. Actualizar horas de trabajo.
      * 5. Importación proyectos desde .json.
      * 6. Generar proyecto vinculado a pedido.
+     * 7. Categorías de un proyecto.
      */
     
     use HasFactory;
@@ -201,4 +202,12 @@ class Project extends Model{
 
         return $p;
     }
+
+    /**
+     * 7. Categorías de un proyecto.
+     */
+    public function categories(){
+        return $this->belongsToMany(Category::class, 'project_categories');
+    }
+
 }

@@ -12,7 +12,7 @@ class AddModeToAccountingAccounts extends Migration{
      */
     public function up(){
         Schema::table('accounting_accounts', function (Blueprint $table){
-            $table->integer('mode')->nullable()->after('name');
+            $table->integer('mode')->nullable()->after('name');     //Determina la modalidad de la cuenta. Leyenda: 1->clientes; 2->proveedores; 3->bancos; 4->contabilidad
         });
     }
 
