@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 
 //Models:
+use App\Models\AccountingAccount;
 use App\Models\Bank;
 use App\Models\BankAccounts;
 
@@ -32,6 +33,7 @@ class BankAccountsController extends Controller{
     private $option = 'contabilidad';
     private $module = 'accounting';
     private $languages;
+    private $accounting_account_mode = 3;   //Mode: 3 (bancos)
 
     public function __construct(){
         //Idiomas:
@@ -90,8 +92,9 @@ class BankAccountsController extends Controller{
         //Conversión de formato de cuentas bancarias:
         //$this->conversionAccount();
 
-        $accounts = BankAccounts::select('bank_accounts.*', 'banks.name', 'banks.tradename')
+        $accounts = BankAccounts::select('bank_accounts.*', 'banks.name', 'banks.tradename', 'accounting_accounts.account AS accounting_account')
         ->join('banks', 'bank_accounts.bank_id', '=', 'banks.id')
+        ->leftJoin('accounting_accounts', 'bank_accounts.accounting_account_id', '=', 'accounting_accounts.id')
         ->where('bank_accounts.company_id', session('currentCompany'))
         ->orderBy('banks.name')
         ->get();
@@ -115,7 +118,10 @@ class BankAccountsController extends Controller{
         $accounts = BankAccounts::where('company_id', session('currentCompany'))
         ->get();
 
-        return view('admin.bank_accounts.create')->with(compact('header', 'banks', 'accounts'));     
+        //Cuentas contables:
+        $accounting_accounts = AccountingAccount::arrayAccountingAccounts(session('currentCompany'), $this->accounting_account_mode); 
+
+        return view('admin.bank_accounts.create')->with(compact('header', 'banks', 'accounts', 'accounting_accounts'));     
     }
 
     /**
@@ -135,6 +141,7 @@ class BankAccountsController extends Controller{
 
         $row = new BankAccounts();
         $row->company_id = $companyId;
+        $row->accounting_account_id = $request->accounting_account;
         $row->bank_id = $request->bank_id;
         $row->account = $account;
         $row->iban = strtoupper($request->iban);
@@ -168,7 +175,10 @@ class BankAccountsController extends Controller{
 
         $banks = Bank::getBanks(1);
 
-        return view('admin.bank_accounts.edit')->with(compact('header', 'banks', 'account'));  
+        //Cuentas contables:
+        $accounting_accounts = AccountingAccount::arrayAccountingAccounts(session('currentCompany'), $this->accounting_account_mode); 
+
+        return view('admin.bank_accounts.edit')->with(compact('header', 'banks', 'account', 'accounting_accounts'));  
     }
 
     /**
@@ -184,6 +194,7 @@ class BankAccountsController extends Controller{
 
         $account_num = strtoupper($request->iban).' '.$request->entity.' '.$request->office.' '.$request->dc.' '.$request->digits;
 
+        $account->accounting_account_id = $request->accounting_account;
         $account->bank_id = $request->bank_id;
         $account->account = $account_num;
         $account->iban = strtoupper($request->iban);

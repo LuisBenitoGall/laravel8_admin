@@ -1826,8 +1826,8 @@ class OrderController extends Controller{
         ->addColumn('cost_center', function($item){
             if($item->provider_cost_center_id && $item->cost_center_provider){
                 return $item->cost_center_provider->name;    
-            }else{
-                return '';
+            }elseif($item->customer_cost_center_id && $item->cost_center_customer){
+                return $item->cost_center_customer->name;;
             }
         })
         ->addColumn('estado', function($item) use($estados){

@@ -18,6 +18,7 @@ use File;
 use PDF;
 
 //Models:
+use App\Models\Category;
 use App\Models\Company;
 use App\Models\CompanySettings;
 use App\Models\CustomerProviders;
@@ -25,8 +26,10 @@ use App\Models\Employee;
 use App\Models\Expense;
 use App\Models\Group;
 use App\Models\Invoice;
+use App\Models\Module;
 use App\Models\Order;
 use App\Models\Project;
+use App\Models\ProjectCategory;
 use App\Models\ProjectDocs;
 use App\Models\ProjectFavourite;
 use App\Models\ProjectGroup;
@@ -174,7 +177,10 @@ class ProjectController extends Controller{
         ->pluck('project_id')
         ->toArray();
 
-        $data = Project::select('projects.id', 'projects.name', 'projects.estimated_delivery_date', 'projects.delivery_date', 'projects.hours_forecast', 'projects.hours_worked', 'projects.completed', 'projects.status', 'projects.created_at', 'companies.name AS customer', 'users.name AS nombre', 'users.surname'
+        $data = Project::select('projects.id', 'projects.name', 'projects.estimated_delivery_date', 'projects.delivery_date', 'projects.hours_forecast', 'projects.hours_worked', 'projects.completed', 'projects.status', 'projects.created_at', 'companies.name AS customer', 'users.name AS nombre', 'users.surname', 
+            DB::raw('(SELECT GROUP_CONCAT(categories.name) FROM project_categories
+              JOIN categories ON project_categories.category_id = categories.id
+              WHERE project_categories.project_id = projects.id) as category_names')
         )
         ->leftJoin('companies', 'projects.customer_id', '=', 'companies.id')
         ->leftJoin('users', 'projects.owner', '=', 'users.id')
@@ -204,6 +210,9 @@ class ProjectController extends Controller{
         ->addColumn('entrega', function($row){
             return $row->entrega = $row->delivery_date? Carbon::parse($row->delivery_date)->format($this->languages[session()->get('locale')][4]):'';
         })
+        ->addColumn('category_names', function($row){
+            return $row->category_names;
+        })
         ->addColumn('progress', function($row){
             $progress = '';
             if(!$row->completed){
@@ -222,6 +231,14 @@ class ProjectController extends Controller{
         ->addColumn('acciones', function($row) use($estados, $favourites){
             $manage_status = true;
             return view('admin.projects.partials.dt-actions', compact('row', 'estados', 'favourites', 'manage_status'));    
+        })
+        ->filterColumn('category_names', function($query, $keyword) {
+            //dd('clave', $keyword);
+            $sql = "SELECT GROUP_CONCAT(categories.name) FROM project_categories
+              JOIN categories ON project_categories.category_id = categories.id
+              WHERE project_categories.project_id = projects.id like ?";
+            //$sql = "SELECT GROUP_CONCAT(name) FROM categories WHERE name like ?";
+            $query->whereRaw($sql, ["%{$keyword}%"]);
         })
         ->rawColumns(['name', 'progress'])
         ->make(true);
@@ -613,12 +630,21 @@ class ProjectController extends Controller{
         ->where('user_id', Auth::user()->id)
         ->first();
 
+        //Categorías:
+        $module_ = Module::select('id')->where('slug', $this->module)->first();
+        $categories = Category::getModuleCategoriesStatic($module_->id, session('currentCompany'));
+
+        //Categorías vinculadas al proyecto:
+        $categories_in = ProjectCategory::where('project_id', $project->id)
+        ->pluck('category_id')
+        ->toArray();
+
         $languages = $this->languages;
 
         //Moneda:
         $currency = $this->co_currency;
 
-        return view('admin.projects.edit', compact('header', 'tab', 'project', 'patterns', 'author', 'owner', 'customer', 'customers', 'users', 'team', 'team_members', 'tasks', 'task_status', 'groups', 'project_orders', 'orders', 'project_purchases', 'purchases', 'project_expenses', 'expense_types', 'expenses', 'project_groups', 'groups_in', 'project_groups', 'favourite', 'languages', 'currency'));
+        return view('admin.projects.edit', compact('header', 'tab', 'project', 'patterns', 'author', 'owner', 'customer', 'customers', 'users', 'team', 'team_members', 'tasks', 'task_status', 'groups', 'project_orders', 'orders', 'project_purchases', 'purchases', 'project_expenses', 'expense_types', 'expenses', 'project_groups', 'groups_in', 'project_groups', 'favourite', 'categories', 'categories_in', 'languages', 'currency'));
     }
 
     /**
@@ -730,6 +756,17 @@ class ProjectController extends Controller{
         $project->groups = $groups;
         $project->status = $request->status? $request->status:1;
         $project->save();
+
+        //Categorías. Limpiamos las existentes y volvemos a generarlas:
+        ProjectCategory::where('project_id', $project->id)->delete();  
+        if($request->categories && count($request->categories)){
+            foreach($request->categories as $ctg){
+                ProjectCategory::create([
+                    'project_id' => $project->id,
+                    'category_id' => $ctg
+                ]);
+            }
+        }
 
         //Generar .json de proyectos:
         $this->jsonProjects();

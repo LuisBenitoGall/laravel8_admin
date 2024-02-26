@@ -11,6 +11,7 @@ class CustomerProviders extends Model{
      * 1. Clientes por empresa.
      * 2. Proveedores por empresa.
      * 3. Relación cliente - proveedor.
+     * 4. Numeración customizada de cliente o proveedor.
      */
     
     use HasFactory;
@@ -57,5 +58,23 @@ class CustomerProviders extends Model{
         ->first();
 
         return $data;
+    }
+
+    /**
+     * 4. Numeración customizada de cliente o proveedor.
+     */
+    public static function setCustomerProviderNum($customer, $provider, $num, $define){
+        $cp = self::customerProvider($customer, $provider);
+
+        if($cp && $num){
+            if($define == 'customer'){
+                $cp->customer_num = $num;
+            }elseif($define == 'provider'){
+                $cp->provider_num = $num;
+            }
+            $cp->save();
+
+            return $cp;
+        }
     }
 }

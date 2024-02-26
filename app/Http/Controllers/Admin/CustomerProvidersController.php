@@ -316,6 +316,15 @@ class CustomerProvidersController extends Controller{
         ->pluck('name', 'id')
         ->toArray();
 
+        //Creando número de cliente si no existe:
+        if(!$conditions->customer_num){
+            //Nº de dígitos configurados por la empresa:
+            $accounting_account_digits = CompanySettings::co_account_digits();
+            //Extraer número de cliente de la cuenta contable.
+            $num_account = substr($accounting_accounts[0]->account, -$accounting_account_digits);
+            $conditions = CustomerProviders::setCustomerProviderNum($company->id, session('currentCompany'), $num_account, 'customer');
+        }
+
         $languages = $this->languages;
 
         return view('admin.customer_providers.edit')->with(compact('header', 'company', 'tab', 'workplaces', 'areas', 'conditions', 'business_relationship', 'environment', 'company_account', 'banks', 'bank_accounts', 'payment_methods', 'accounting_accounts', 'provider_workplaces', 'languages'));     
@@ -433,6 +442,15 @@ class CustomerProvidersController extends Controller{
         ->where('company_target', $company->id)
         ->where('mode', 2)
         ->get();
+
+        //Creando número de proveedor si no existe:
+        if(!$conditions->provider_num){
+            //Nº de dígitos configurados por la empresa:
+            $accounting_account_digits = CompanySettings::co_account_digits();
+            //Extraer número de proveedor de la cuenta contable.
+            $num_account = substr($accounting_accounts[0]->account, -$accounting_account_digits);
+            $conditions = CustomerProviders::setCustomerProviderNum(session('currentCompany'), $company->id, $num_account, 'provider');
+        }
 
         $languages = $this->languages;
 

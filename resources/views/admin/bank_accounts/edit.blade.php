@@ -52,6 +52,15 @@
 	                    </div>
 					</div>
 
+					<div class="form-group row">
+                    	{{-- Cuenta contable --}}
+                    	<label for="accounting_account" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.cuenta_contable')) !!}</label>
+                    	<div class="col-lg-4">
+							<x-select name="accounting_account" class="select2" label="cuenta_contable_selec" :options="$accounting_accounts" value="{{ $account->accounting_account_id }}" required/>
+						</div>
+                    </div>
+                    <br>
+
 					{{-- Cuenta --}}
 					{{-- <div class="form-group row">
 						<label for="account" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.cuenta')) !!}*</label>

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 
 class AccountingAccount extends Model{
@@ -14,6 +15,7 @@ class AccountingAccount extends Model{
      * 2. Crear cuenta contable clientes y proveedores.
      * 3. Obtener última cuenta por tipología y empresa.
      * 4. Cuentas de IVA por pedido para asientos contables.
+     * 5. Array de cuentas contables por empresa y modo.
      */
 
     use HasFactory;
@@ -65,13 +67,14 @@ class AccountingAccount extends Model{
             //Última cuenta relativa:
             $last_account = AccountingAccount::getLastAccount($prefix, $company_owner); 
 
+            //Nº de dígitos configurados por la empresa:
+            $accounting_account_digits = CompanySettings::co_account_digits();
+
             if($last_account && $last_account->account){
                 $account = (int)$last_account->account + 1;   
             }else{
                 $pre_zeros = '';
                 $z = 1;
-                //Nº de dígitos configurados por la empresa:
-                $accounting_account_digits = CompanySettings::co_account_digits();
                 while($z < $accounting_account_digits){
                     $pre_zeros .= '0';
                     $z++;
@@ -116,6 +119,17 @@ class AccountingAccount extends Model{
                 $aa->created_by = Auth::user()->id;
                 $aa->save(); 
 
+                //Guardando número de cliente o proveedor, a partir de los últimos números -la variable $accounting_account_digits-  de la cuenta contable:
+                if($aa->mode == 1 || $aa->mode == 2){
+                    $customer_ = $aa->mode == 1? $aa->company_target:$aa->company_id;
+                    $provider_ = $aa->mode == 2? $aa->company_target:$aa->company_id;
+                    $define = $aa->mode == 1? 'customer':'provider'; //Si la numeración se aplica a cliente o proveedor.
+
+                    //Número customizado:
+                    $num_account = substr($aa->account, -$accounting_account_digits);
+                    CustomerProviders::setCustomerProviderNum($customer_, $provider_, $num_account, $define);
+                }
+
                 return $aa;  
             }
 
@@ -149,5 +163,21 @@ class AccountingAccount extends Model{
         $amounts = $order->itemsAmount($items);
 
         dd($items, $amounts);
+    }
+
+    /**
+     * 5. Array de cuentas contables por empresa y modo.
+     */
+    public static function arrayAccountingAccounts($company_id, $mode = false){
+        $data = AccountingAccount::select('id', DB::raw("CONCAT(account, '-', name) as accounting_account"))
+        ->where('company_id', $company_id)
+        ->where('status', 1)
+        ->when($mode, function($q) use($mode) {
+            $q->where('mode', $mode);
+        })
+        ->pluck('accounting_account', 'id')
+        ->toArray();   
+
+        return $data; 
     }
 }
