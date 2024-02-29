@@ -54,7 +54,7 @@ class CompanyStaffPicksController extends Controller
             'name' => ['required', 'max:255', 'string'],
             'surname' => ['required', 'max:255', 'string'],
             'email' => ['required', 'email'],
-            'process_id' => ['required', 'max:8', 'numeric'],
+            'process_id' => ['required', 'max:99999999', 'numeric'],
             'observations' => ['required', 'string'],
             'doc' => ['required', 'mimes:pdf,jpeg,png'],
         ]);
