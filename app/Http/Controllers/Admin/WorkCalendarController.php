@@ -210,15 +210,8 @@ class WorkCalendarController extends Controller{
                 $hours = NULL;
             }
 
-
-
-
             //$exist->is_working && $data['hours']? $data['hours']:(!$exist->day_type_id? $data['hours']:NULL);
             //dd($exist, $hours);
-           
-
-
-
 
             //Sólo en los días especificados en el array weekdays:
             if(in_array($data['weekDay'], $data['weekdays'])){
