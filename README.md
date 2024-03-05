@@ -192,6 +192,17 @@ SELECT field, count(*) FROM table
     GROUP BY field
     HAVING COUNT(*)>1;
 
+- Eliminar registros repetidos:
+DELETE FROM table
+WHERE company_id = xxx
+and id NOT IN (
+    SELECT MAX(id)
+    FROM table
+    WHERE company_id = xxx
+    GROUP BY field
+    HAVING COUNT(*) > 1
+);
+
 - Listado de configuración datos de pago por clientes:
 SELECT companies.name, customer_providers.pay_after_days, customer_providers.payday
 FROM customer_providers
