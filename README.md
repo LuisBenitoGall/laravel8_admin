@@ -122,6 +122,9 @@ En el archivo config/constants.php se definen constantes personalizadas.
 	- En .env modificar valor de la variable BROADCAST_DRIVER = pusher
 	- Incluir cdn .js en el head: "https://js.pusher.com/7.0/pusher.min.js"
 
+- Factura Electrónica E-Factura:  PARA INVESTIGAR
+	- https://github.com/martinlaregina/Facturae-PHP
+
 - CORS:
 	- https://github.com/fruitcake/laravel-cors
 	- instalar: composer require fruitcake/laravel-cors

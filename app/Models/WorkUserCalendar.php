@@ -64,7 +64,7 @@ class WorkUserCalendar extends Model{
     static function deleteRowsByUserDate($user_id, $date){
         //Comprobamos previamente que el tipo de jornada no sea compatible con jornada laboral:
         $day = WorkUserCalendar::select('work_user_calendars.*', 'day_types.id AS dtId', 'day_types.is_working', 'day_types.working_day')
-        ->leftJoin('day_types', 'work_user_calendars.day_type_id', '=', 'day_types')
+        ->leftJoin('day_types', 'work_user_calendars.day_type_id', '=', 'day_types.id')
         ->where('work_user_calendars.user_id', $user_id)
         ->where('work_user_calendars.date', $date)
         ->first();

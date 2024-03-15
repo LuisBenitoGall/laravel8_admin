@@ -96,6 +96,8 @@ class AccountingAccountController extends Controller{
             'slug' => 'accounting-accounts'
         ]; 
 
+        $this->setIvaAccounts();
+
         //Generación masiva de cuentas:
         //$this->generateAllAccounts(); 
 
@@ -553,6 +555,7 @@ class AccountingAccountController extends Controller{
 
         //Cuentas de IVA:
         $accounts = AccountingAccount::select('id', 'account', 'name', 'mode', 'type', 'iva_type_id')
+        ->where('company_id', session('currentCompany'))
         ->whereNotNull('iva_type_id')
         ->where('status', 1)
         ->get();
@@ -657,6 +660,61 @@ class AccountingAccountController extends Controller{
                     ];
                     AccountingAccount::setAccountingAccount($accounting_account_dataP, $c); 
                 }   
+            }
+        }
+    }
+
+    /**
+     * Generación cuentas de IVA a partir cuentas de COM
+     */
+    public function setIvaAccounts(){
+        $cos = [8,202,227,275];
+
+        //477:
+        $data = AccountingAccount::where('company_id', 4)
+        ->where('account', 'LIKE', '477%')
+        ->orderBy('id')
+        ->get();
+
+        foreach($cos as $c){
+            foreach($data as $r){
+                $aa = new AccountingAccount();
+                $aa->company_id = $c;
+                $aa->account = $r->account;
+                $aa->name = $r->name;
+                $aa->mode = $r->mode;
+                $aa->type = $r->type;
+                $aa->earnings_loses = $r->earnings_loses;
+                $aa->company_target = $c;
+                $aa->status = $r->status;
+                $aa->with_iva = $r->with_iva? 1:0;
+                $aa->iva_type_id = $r->iva_type_id;
+                $aa->created_by = Auth::user()->id;
+                $aa->save();    
+            }
+        }
+
+        //472:
+        $data = AccountingAccount::where('company_id', 4)
+        ->where('account', 'LIKE', '472%')
+        ->orderBy('id')
+        ->get();
+
+        foreach($cos as $c){
+            foreach($data as $r){
+                $aa = new AccountingAccount();
+                $aa->company_id = $c;
+                $aa->account = $r->account;
+                $aa->name = $r->name;
+                $aa->mode = $r->mode;
+                $aa->type = $r->type;
+                $aa->earnings_loses = $r->earnings_loses;
+                $aa->company_target = $c;
+                $aa->status = $r->status;
+                $aa->with_iva = $r->with_iva? 1:0;
+                $aa->iva_type_id = $r->iva_type_id;
+                $aa->created_by = Auth::user()->id;
+                $aa->save();    
             }
         }
     }
