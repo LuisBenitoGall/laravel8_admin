@@ -380,6 +380,7 @@ class TimetableController extends Controller{
      */
     public function add(Request $request){
         if($request->date){
+            //dd($request->all());
             //Entrada:
             $hora_in = $request->input('hora_in').':'.$request->input('minutos_in').':'.$request->input('segundos_in');
             $hour_in = new Timetable();

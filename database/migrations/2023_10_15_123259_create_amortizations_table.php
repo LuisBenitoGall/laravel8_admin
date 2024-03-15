@@ -36,7 +36,7 @@ class CreateAmortizationsTable extends Migration{
             //FK:
             $table->unsignedBigInteger('updated_by')->nullable();
             $table->foreign('updated_by')->references('id')->on('users');
-            $table->text('status')->nullable();
+            $table->integer('status')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

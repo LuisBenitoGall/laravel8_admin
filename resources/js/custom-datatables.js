@@ -252,6 +252,32 @@ $(document).ready(function(){
         });
     }
 
+    //Tabla Amortizations:
+    if($('#tblAmortizations').length > 0){
+        $('#tblAmortizations').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                type: "GET",
+                url: "/api/admin/amortizations",
+                error: function(reason){
+                    console.log(reason);
+                }
+            },
+            "columns": [
+                {data: 'code', className: 'text-right'},
+                {data: 'description'},
+                {data: 'date', className: 'text-right'},
+                {data: 'year', className: 'text-right'},
+                {data: 'amount', className: 'text-right'},
+                {data: 'amortization_pendent', className: 'text-right'},
+                {data: 'amopor', className: 'text-right'},
+                {data: 'status', className: 'text-center'},
+                {data: 'acciones', name: 'acciones', className: 'text-right'}
+            ]
+        });
+    }
+
     //Tabla Attributes:
     if($('#tblAttributes').length > 0){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
