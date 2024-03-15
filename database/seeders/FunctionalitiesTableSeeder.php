@@ -405,6 +405,11 @@ class FunctionalitiesTableSeeder extends Seeder{
             'label' => 'gastos',
             'module' => 'accounting'
             ],
+            ['name' => 'amortizations',
+            'slug' => 'amortizations',
+            'label' => 'amortizaciones',
+            'module' => 'accounting'
+            ],
             ['name' => 'invoice-patterns',
             'slug' => 'invoice-patterns',
             'label' => 'facturas_patrones_',

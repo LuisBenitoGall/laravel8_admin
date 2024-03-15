@@ -90,6 +90,12 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     //Accounts:
     Route::get('accounts', 'AccountController@getAccountsDT');
 
+    //AmortizationItems:
+    Route::get('amortization-items/{amortization_id}', 'AmortizationController@getAmortizationItemsDT');
+
+    //Amortizations:
+    Route::get('amortizations', 'AmortizationController@getAmortizationsDT');
+
     //Attributes:
     Route::get('attributes', 'AttributeController@getAttributesDT');
 

@@ -110,6 +110,19 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::resource('accounts', 'AccountController')->middleware('permission:accounts.edit');
     Route::get('accounts/status/{id}/{status}', 'AccountController@status')->name('accounts.status')->middleware('permission:accounts.edit');
 
+    // Amortization Lines:
+    Route::post('amortization-lines/store', 'AmortizationLinesController@store')->name('amortization-lines.store')->middleware('permission:amortizations.edit');
+    Route::post('amortization-lines/update', 'AmortizationLinesController@update')->name('amortization-lines.update')->middleware('permission:amortizations.edit');
+    Route::delete('amortization-lines/{line}', 'AmortizationLinesController@destroy')->name('amortization-lines.destroy')->middleware('permission:amortizations.edit');
+
+    // Amortizations:
+    Route::get('amortizations', 'AmortizationController@index')->name('amortizations.index')->middleware('permission:amortizations.index');
+    Route::get('amortizations/create', 'AmortizationController@create')->name('amortizations.create')->middleware('permission:amortizations.create');
+    Route::post('amortizations/store', 'AmortizationController@store')->name('amortizations.store')->middleware('permission:amortizations.create');
+    Route::get('amortizations/{amortization}/edit/{tab?}', 'AmortizationController@edit')->name('amortizations.edit')->middleware('permission:amortizations.edit');
+    Route::put('amortizations/{amortization}/update', 'AmortizationController@update')->name('amortizations.update')->middleware('permission:amortizations.edit');
+    Route::delete('amortizations/{amortization}', 'AmortizationController@destroy')->name('amortizations.destroy')->middleware('permission:amortizations.destroy');
+
     // Answers:
     Route::post('answers/store', 'AnswerController@store')->name('answers.store')->middleware('permission:questions.edit');
     Route::get('answers/status/{id}/{status}', 'AnswerController@status')->name('answers.status')->middleware('permission:questions.edit');
