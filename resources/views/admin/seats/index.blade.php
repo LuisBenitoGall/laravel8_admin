@@ -26,6 +26,9 @@
 
 		{{-- Modelos --}}
 		<a class="btn btn-info" href="{{ route('seat-models.index') }}"><i class="fa fa-list"></i> {!! ucfirst(trans('textos.modelos')) !!}</a>
+
+		{{-- Importación saldos --}}
+		<a class="btn btn-info" href="{{ route('seat-lines.import-balances') }}"><i class="fa fa-file-import"></i> {!! ucfirst(trans('textos.saldos_importar')) !!}</a>
 	</div>
 </div>
 

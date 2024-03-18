@@ -252,7 +252,7 @@ class AmortizationController extends Controller{
         //$amortization->month = 
         $amortization->amortization_pendent = $request->amount;
         $amortization->created_by = Auth::user()->id;
-        $amortization->status = $request->status? 'A':'I';
+        $amortization->status = $request->status;
         //$amortization->deletion_date = 
         $amortization->save();
 

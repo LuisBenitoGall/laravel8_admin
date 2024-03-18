@@ -1121,6 +1121,8 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::get('seat-lines/{seat_id}/edit', 'SeatLinesController@getLines')->name('seat-lines.edit');
     Route::put('seat-lines/{seat}/update', 'SeatLinesController@update')->name('seat-lines.update')->middleware('permission:seats.edit');
     Route::delete('seat-lines/{line}', 'SeatLinesController@destroy')->name('seat-lines.destroy')->middleware('permission:seats.destroy');
+    Route::get('seat-lines/import-balances', 'SeatLinesController@importBalances')->name('seat-lines.import-balances');
+    Route::post('seat-lines/import', 'SeatLinesController@import')->name('seat-lines.import');
 
     // Seat Models:
     Route::get('seat-models', 'SeatModelController@index')->name('seat-models.index')->middleware('permission:seats.index');

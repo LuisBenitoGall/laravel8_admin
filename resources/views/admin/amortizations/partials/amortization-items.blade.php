@@ -12,7 +12,7 @@
 
 			<tfoot>	
 				<tr>
-					<td class="text-right">{{ trans('textos.total_amortizado') }}</td>
+					<td class="text-right">{{ trans('textos.amortizado_total') }}</td>
 					<td>{{ $amortized }}{{ $currency->symbol }}</td>
 					<td colspan="2"></td>
 				</tr>
