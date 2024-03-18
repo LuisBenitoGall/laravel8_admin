@@ -67,6 +67,7 @@ class ProjectController extends Controller{
     private $option = 'proyectos';
     private $module = 'projects';
     private $languages;
+    private $co_currency;
 
     public function __construct(){
         //Idiomas:

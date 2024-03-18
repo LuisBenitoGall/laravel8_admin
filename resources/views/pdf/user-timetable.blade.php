@@ -20,7 +20,7 @@ $provider_phones = false;
 
 <main>
 
-	@if($timetable_settings->timetable_doc_message)
+	@if($timetable_settings && $timetable_settings->timetable_doc_message)
 		<div style="font-size: 12px;">
 			{!! $timetable_settings->timetable_doc_message !!}
 		</div>

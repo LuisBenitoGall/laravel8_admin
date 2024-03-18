@@ -96,8 +96,6 @@ class AccountingAccountController extends Controller{
             'slug' => 'accounting-accounts'
         ]; 
 
-        //$this->setIvaAccounts();
-
         //Generación masiva de cuentas:
         //$this->generateAllAccounts(); 
 
