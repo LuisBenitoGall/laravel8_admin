@@ -8,13 +8,20 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Yajra\DataTables\DataTables;
 use Carbon\Carbon;
 
 //Models:
+use App\Models\AccountingAccount;
 use App\Models\AccountingAccountYearBalance;
 use App\Models\Seat;
 use App\Models\SeatLines;
+use App\Models\TempImportBalances;
+
+//Import XLS:
+use App\Imports\SeatBalancesImport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class SeatLinesController extends Controller{
     /**
@@ -22,6 +29,9 @@ class SeatLinesController extends Controller{
      * 2. Líneas por asiento contable.
      * 3. Actualizar líneas por asiento contable.
      * 4. Eliminar línea de asiento.
+     * 5. Formulario importar saldos.
+     * 6. Importar saldos desde .xls.
+     * 7. Procesando registro de importación .xls.
      */
     
     private $option = 'contabilidad';
@@ -166,5 +176,84 @@ class SeatLinesController extends Controller{
 
         $msg = trans('textos.linea_deleted');
         return redirect()->route('seats.index')->with(compact('msg'));
+    }
+
+    /**
+     * 5. Formulario importar saldos.
+     */
+    public function importBalances(){
+        //Comprobamos si existen registros .xls pendientes de tratar:
+        $data = TempImportBalances::where('user_id', Auth::user()->id)
+        ->orderBy('id', 'ASC')
+        ->get();
+
+        $arrErrors = false;
+        if($data->count()){
+            $arrErrors = $this->setXlsRegisters($data);
+        }
+
+        //Eliminamos registros pendientes de la tabla temporal:
+        TempImportBalances::where('user_id', Auth::user()->id)->delete();
+
+        $xls_errors = $arrErrors? $arrErrors['xls_errors']:[];
+        $withXlsErrors = $arrErrors? $arrErrors['withXlsErrors']:false;
+
+        $header = [
+            'option' => $this->option,
+            'suboption' => 'textos.saldos_importar',
+            'module' => $this->module,
+            'slug' => 'seats'
+        ]; 
+
+        return view('admin.seat_lines.import')->with(compact('header', 'xls_errors', 'withXlsErrors')); 
+    }
+
+    /**
+     * 6. Importar saldos desde .xls.
+     */
+    public function import(Request $request){
+        //Eliminamos registros anteriores del usuario en sesión:
+        TempImportBalances::where('user_id', Auth::user()->id)->delete();
+
+        //Importamos .xls:
+        Excel::import(new SeatBalancesImport, $request->file('balances'));
+
+        $msg = trans('textos.importacion_ok');
+        return redirect()->route('seat-lines.import-balances')->with(compact('msg'));
+    }
+
+    /**
+     * 7. Procesando registro de importación .xls.
+     */
+    public function setXlsRegisters($data){
+        $xls_errors = [];
+        $withXlsErrors = false;
+        $i = 2;     //La fila 1 corresponde a las cabeceras de las columnas.
+
+        foreach($data as $r){
+            $xls_errors[$i] = false;
+     
+            //Comprobamos si existe la cuenta contable:
+            $aa = AccountingAccount::select('id')
+            ->where('name', $r->accounting_account)
+            ->where('company_id', session('currentCompany'))
+            ->first();
+
+            if($aa){
+                //Generamos asiento contable de saldo.
+                //............  HABLAR CON DIDAC
+
+
+            //Si no existe la cuenta contable.
+            }else{
+                $xls_errors[$i] .= '<b>'.$r->accounting_account.'</b>: '.trans('textos.cuenta_contable_no_existe_esta')    
+            }
+
+            if($xls_errors[$i]) $withXlsErrors = true;
+            
+            $i++;
+        }
+
+        return ['xls_errors' => $xls_errors, 'withXlsErrors' => $withXlsErrors];
     }
 }
