@@ -78,7 +78,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::get('accounting-accounts/create', 'AccountingAccountController@create')->name('accounting-accounts.create')->middleware('permission:accounting-accounts.create');
     Route::post('accounting-accounts/store', 'AccountingAccountController@store')->name('accounting-accounts.store')->middleware('permission:accounting-accounts.edit');
     Route::post('accounting-accounts/store-auto', 'AccountingAccountController@storeAuto')->name('accounting-accounts.store-auto')->middleware('permission:accounting-accounts.edit');
-    Route::get('accounting-accounts/{account}/edit', 'AccountingAccountController@edit')->name('accounting-accounts.edit')->middleware('permission:accounting-accounts.edit');
+    Route::get('accounting-accounts/{account}/edit/{tab?}', 'AccountingAccountController@edit')->name('accounting-accounts.edit')->middleware('permission:accounting-accounts.edit');
     Route::put('accounting-accounts/{account}/update', 'AccountingAccountController@update')->name('accounting-accounts.update')->middleware('permission:accounting-accounts.edit');
     Route::get('accounting-accounts/status/{id}/{status}', 'AccountingAccountController@status')->name('accounting-accounts.status')->middleware('permission:accounting-accounts.edit');
     Route::delete('accounting-accounts/{account}', 'AccountingAccountController@destroy')->name('accounting-accounts.destroy')->middleware('permission:accounting-accounts.destroy');
@@ -152,7 +152,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::get('bank-accounts/{company_id}/company-accounts', 'BankAccountsController@companyAccounts')->name('bank-accounts.company-accounts')->middleware('permission:companies.edit');
 
     // Banks:
-    Route::get('banks', 'BankController@index')->name('banks.index')->middleware('permission:budget-forms.index');
+    Route::get('banks', 'BankController@index')->name('banks.index')->middleware('permission:banks.index');
     Route::get('banks/create', 'BankController@create')->name('banks.create')->middleware('permission:banks.create');
     Route::post('banks/store', 'BankController@store')->name('banks.store')->middleware('permission:banks.create');
     Route::get('banks/{bank}/edit', 'BankController@edit')->name('banks.edit')->middleware('permission:banks.edit');
@@ -200,6 +200,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::get('budget-forms/status/{id}/{status}', 'BudgetFormsController@status')->name('budget-forms.status')->middleware('permission:budget-forms.edit');
     Route::delete('budget-forms/{form}', 'BudgetFormsController@destroy')->name('budget-forms.destroy')->middleware('permission:budget-forms.destroy');
     Route::get('budget-forms/set-customer-forms/{id}/{form}/{status}', 'BudgetFormsController@setCustomerForm')->name('budget-forms.set-customer-forms');
+    Route::get('budget-forms/{form}/copy', 'BudgetFormsController@copy')->name('budget-forms.copy')->middleware('permission:budget-forms.create');
 
     // Budget Order Shared Fields:
     // Route::put('budget-orders/{order}/add-discount', 'BudgetOrderSharedFieldsController@addDiscount')->name('budget-orders.add-discount')->middleware('permission:budgets.edit');

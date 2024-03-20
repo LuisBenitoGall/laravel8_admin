@@ -20,6 +20,7 @@ use App\Models\AccountingAccountType;
 use App\Models\CompanySettings;
 use App\Models\CustomerProviders;
 use App\Models\IvaType;
+use App\Models\SeatLines;
 
 class AccountingAccountController extends Controller{
     /**
@@ -38,17 +39,22 @@ class AccountingAccountController extends Controller{
      * 10. Marcar cuenta IVA.
      * 10.1. Cuentas IVA.
      * 11. Cuentas por defecto.
-     * 12. Generación masiva de cuentas contables.
+     * 12. Relación de líneas de asiento por cuenta contable.
+     * 13. Generación masiva de cuentas contables.
      */
     
     private $option = 'contabilidad';
     private $module = 'accounting';
     private $languages;
     private $accounting_account_digits;
+    private $currency;
 
     public function __construct(){
         //Idiomas:
         $this->languages = helpers::languages();
+
+        //Moneda:
+        $this->currency = CompanySettings::co_currency(0);
 
         //Dígitos de cuentas contables:
         $this->accounting_account_digits = CompanySettings::co_account_digits();
@@ -416,7 +422,7 @@ class AccountingAccountController extends Controller{
     /**
      * 4. Editar cuenta.
      */
-    public function edit(AccountingAccount $account){
+    public function edit(AccountingAccount $account, $tab = false){
         $header = [
             'option' => $this->option,
             'suboption' => 'textos.cuenta_contable_editar',
@@ -431,7 +437,7 @@ class AccountingAccountController extends Controller{
 
         $languages = $this->languages;
 
-        return view('admin.accounting_accounts.edit')->with(compact('header', 'account', 'modes', 'company', 'languages'));  
+        return view('admin.accounting_accounts.edit')->with(compact('header', 'account', 'tab', 'modes', 'company', 'languages'));  
     }
 
     /**
@@ -606,7 +612,45 @@ class AccountingAccountController extends Controller{
     }
 
     /**
-     * 12. Generación masiva de cuentas contables.
+     * 12. Relación de líneas de asiento por cuenta contable.
+     */
+    public function getAccountingAccountSeatsDT($accounting_account_id){
+        $data = SeatLines::where('accounting_account_id', $accounting_account_id)
+        ->orderBy('created_at', 'ASC');
+
+        return DataTables::of($data)
+        ->addColumn('number', function($row){
+        })
+        ->addColumn('date', function ($row){
+            return $row->created_at->format($this->languages[session()->get('locale')][4].' H:i:s');
+        }) 
+        ->addColumn('debit', function ($row){
+            if($row->debit > 0){
+                return $row->debit.$this->currency->symbol;
+            }else{
+                return '';
+            }
+        })
+        ->addColumn('credit', function ($row){
+            if($row->credit > 0){
+                return $row->credit.$this->currency->symbol;
+            }else{
+                return '';
+            }
+        })
+        ->addColumn('balance', function ($row){
+            if($row->balance > 0){
+                return round($balance, 2).$this->currency->symbol;
+            }
+        })
+        ->addColumn('acciones', function ($row){
+            return view('admin.accounting_accounts.partials.dt-actions-seats', compact('row'));
+        })
+        ->make(true);
+    }
+
+    /**
+     * 13. Generación masiva de cuentas contables.
      */
     public function generateAllAccounts(){
         $companies = [4,8,202,227,275];

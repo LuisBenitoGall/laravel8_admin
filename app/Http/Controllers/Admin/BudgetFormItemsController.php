@@ -90,7 +90,7 @@ class BudgetFormItemsController extends Controller{
             if($recid == '0'){
                 $data = BudgetFormItems::select('budget_form_items.*', 'cost_centers.name AS cost_center')
                 ->leftJoin('products', 'budget_form_items.product_id', '=', 'products.id')
-                ->leftJoin('cost_centers', 'products.cost_center_id', '=', 'cost_centers.id')
+                ->leftJoin('cost_centers', 'budget_form_items.cost_center_id', '=', 'cost_centers.id')
                 ->where('budget_form_items.form_id', $form_id)
                 ->where('budget_form_items.recid', $recid);
 
@@ -116,7 +116,7 @@ class BudgetFormItemsController extends Controller{
                     'cost_centers.name AS cost_center'
                 )
                 ->leftJoin('products', 'budget_form_items.product_id', '=', 'products.id')
-                ->leftJoin('cost_centers', 'products.cost_center_id', '=', 'cost_centers.id')
+                ->leftJoin('cost_centers', 'budget_form_items.cost_center_id', '=', 'cost_centers.id')
                 ->where('budget_form_items.form_id', $form_id)
                 ->where('budget_form_items.recid', '>', '0');
 
