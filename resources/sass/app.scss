@@ -5269,6 +5269,9 @@ body.body-small .footer.fixed {
     &.modal-table{
         table-layout:fixed;
 
+        .wdt25{
+            width: 25px !important;
+        }
         .wdt50{
             width: 50px !important;
         }

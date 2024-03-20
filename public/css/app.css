@@ -22710,6 +22710,9 @@ body.body-small .footer.fixed {
 .table.dataTable, .table.dtabla, .table.modal-table {
   table-layout: fixed;
 }
+.table.dataTable .wdt25, .table.dtabla .wdt25, .table.modal-table .wdt25 {
+  width: 25px !important;
+}
 .table.dataTable .wdt50, .table.dtabla .wdt50, .table.modal-table .wdt50 {
   width: 50px !important;
 }

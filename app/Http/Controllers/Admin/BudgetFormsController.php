@@ -29,7 +29,7 @@ class BudgetFormsController extends Controller{
      * 4. Actualizar formulario.
      * 5. Activar / desactivar formulario.
      * 6. Eliminar formulario.
-     *
+     * 7. Clonar formulario.
      *
      *
      * 11. Setear formulario para cliente.
@@ -262,7 +262,69 @@ class BudgetFormsController extends Controller{
         return redirect()->route('budget-forms.index')->with(compact('msg'));   
     }
 
+    /**
+     * 7. Clonar formulario.
+     */
+    public function copy(BudgetForms $form){
+        //Items del formulario:
+        $items = BudgetFormItems::where('form_id', $form->id)
+        ->orderBy('recid', 'ASC')
+        ->get();
 
+        //Nuevo formulario:
+        $new = new BudgetForms();
+        $new->name = $form->name.' - '.trans('textos.copia');
+        $new->slug = $form->slug.'-'.trans('textos.copia');
+        $new->company_id = $form->company_id;
+        $new->conditions = $form->conditions;
+        $new->labor_journeys = $form->labor_journeys;
+        $new->status = 0;
+        $new->save();
+
+        //Referencia de bloques:
+        $blocks = [];
+
+        //Items del nuevo formulario:
+        foreach($items as $i){
+            //Bloque o item:
+            $recid = 0;
+            
+
+
+            if($i->recid > 0 && array_key_exists($i->recid, $blocks)){
+                $recid = $blocks[$i->recid];
+            }
+
+
+            $ni = new BudgetFormItems();
+            $ni->recid = $recid;
+            $ni->form_id = $new->id;
+            $ni->product_id = $i->product_id;
+            $ni->name = $i->name;
+            $ni->translations = $i->translations;
+            $ni->observations = $i->observations;
+            $ni->qty_min = $i->qty_min;
+            $ni->calculated_by_percent = $i->calculated_by_percent;
+            $ni->sort_block = $i->sort_block;
+            $ni->cost_center_id = $i->cost_center_id;
+            $ni->save();
+
+            //Referencia de bloque:
+            if($i->recid == 0 || !$i->recid){
+                $blocks[$i->id] = $ni->id;
+
+                //Guardamos en el array, si no existe:
+                // if(!in_array($i->id, $blocks)){
+                //     array_push($blocks, $i->id);
+                // }
+
+
+            }
+        }
+
+        $msg = trans('textos.formulario_clonado');
+        return redirect()->route('budget-forms.edit', $new->id)->with(compact('msg'));
+    }
 
 
 
