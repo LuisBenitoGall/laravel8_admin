@@ -77,6 +77,9 @@ use Illuminate\Support\Facades\Route;
 // ADMIN DATATABLES:
 Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('Admin')->group(function () {
 
+    //Accounting Account Seats:
+    Route::get('accounting-account-seats/{accounting_account_id}', 'AccountingAccountController@getAccountingAccountSeatsDT');
+
     //Accounting Account Types:
     Route::get('accounting-account-types', 'AccountingAccountTypeController@getAccountingAccountTypesDT');
 

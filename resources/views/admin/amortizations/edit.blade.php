@@ -72,6 +72,7 @@
 					</li>
 				</ul>
 
+				{{-- Panels --}}
 				<div class="tab-content pt-4">
 					{{-- Cabecera --}}
 					<div class="tab-pane fade @if(!$tab) show active @endif" role="tabpanel" id="tab-info">

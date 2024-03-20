@@ -246,7 +246,7 @@ class SeatLinesController extends Controller{
 
             //Si no existe la cuenta contable.
             }else{
-                $xls_errors[$i] .= '<b>'.$r->accounting_account.'</b>: '.trans('textos.cuenta_contable_no_existe_esta')    
+                $xls_errors[$i] .= '<b>'.$r->accounting_account.'</b>: '.trans('textos.cuenta_contable_no_existe_esta');    
             }
 
             if($xls_errors[$i]) $withXlsErrors = true;
