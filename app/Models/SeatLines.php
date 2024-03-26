@@ -74,7 +74,7 @@ class SeatLines extends Model{
             ->where('accounting_account_id', $accounting_account_id)
             ->first();
 
-            $balance = $lines->total_debit - $lines->total_credit;
+            $balance = $lines? $lines->total_debit - $lines->total_credit:'0';
 
         }else{
             $balance = $prev_balance->balance;
