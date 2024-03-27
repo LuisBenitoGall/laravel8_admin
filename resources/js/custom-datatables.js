@@ -516,7 +516,7 @@ $(document).ready(function(){
         $('#tblBudgetFormItems thead tr').clone(true).appendTo('#tblBudgetFormItems thead');
         $('#tblBudgetFormItems thead tr:eq(1) th').each(function(i){
             var title = $(this).text();
-            if(i == 5){
+            if(i == 3 || i == 5){
                 $(this).html('');
             }else{
                 $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
@@ -545,9 +545,9 @@ $(document).ready(function(){
                 }
             },
             columns: [
-                {data: 'name'},
-                {data: 'block'},
-                {data: 'price', className: 'text-right'},
+                {data: 'name', name: 'budget_form_items.name'},
+                {data: 'block', name: 'budget_form_items.name'},
+                {data: 'price', className: 'text-right', name: 'products.price'},
                 {data: 'discount', className: 'text-right'},
                 {data: 'cost_center', name: 'cost_centers.name'},
                 {data: 'acciones', className: 'text-right'}

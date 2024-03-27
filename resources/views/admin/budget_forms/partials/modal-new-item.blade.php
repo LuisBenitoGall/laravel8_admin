@@ -24,7 +24,7 @@
 
 	                        	@foreach($products as $product)
 	                        		@php
-	                        		$products_[$product->id] = $product->name;
+	                        		$products_[$product->id] = $product->name.' ('.$product->cost_center.')';
 	                        		@endphp
 	                        	@endforeach
 
