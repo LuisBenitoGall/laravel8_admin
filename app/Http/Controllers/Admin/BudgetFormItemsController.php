@@ -87,6 +87,7 @@ class BudgetFormItemsController extends Controller{
      */
     public function getBudgetFormItemsDT($form_id = false, $recid = '0'){
         if($form_id){
+            //Bloques:
             if($recid == '0'){
                 $data = BudgetFormItems::select('budget_form_items.*', 'cost_centers.name AS cost_center')
                 ->leftJoin('products', 'budget_form_items.product_id', '=', 'products.id')
@@ -106,6 +107,7 @@ class BudgetFormItemsController extends Controller{
                 })
                 ->make(true);
 
+            //Items:
             }else{
                 $data = BudgetFormItems::select(
                     DB::raw('(SELECT t.name FROM budget_form_items AS t WHERE budget_form_items.recid = t.id) AS block'),
@@ -116,9 +118,10 @@ class BudgetFormItemsController extends Controller{
                     'cost_centers.name AS cost_center'
                 )
                 ->leftJoin('products', 'budget_form_items.product_id', '=', 'products.id')
-                ->leftJoin('cost_centers', 'budget_form_items.cost_center_id', '=', 'cost_centers.id')
+                ->leftJoin('cost_centers', 'products.cost_center_id', '=', 'cost_centers.id')
                 ->where('budget_form_items.form_id', $form_id)
-                ->where('budget_form_items.recid', '>', '0');
+                ->where('budget_form_items.recid', '>', '0')
+                ->orderBy('budget_form_items.name', 'ASC');
 
                 //Moneda:
                 $currency = CompanySettings::co_currency(0);
@@ -174,11 +177,16 @@ class BudgetFormItemsController extends Controller{
                 ->withInput();
         }
 
+        $product = false;
+        if($request->product_id){
+            $product = Product::select('name')->find($request->product_id);
+        }
+
         $item = new BudgetFormItems;
         $item->recid = $request->recid;
         $item->form_id = $request->form_id;
         $item->product_id = $request->product_id;
-        $item->name = $request->name;
+        $item->name = $request->name? $request->name:($product? $product->name:'');
         $item->observations = $request->observations;
         $item->discount = $request->discount;
         $item->qty_min = $request->qty_min;

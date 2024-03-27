@@ -156,12 +156,13 @@ class BudgetFormsController extends Controller{
         ->toArray();
 
         //Sólo los productos que no pertenezcan al formulario, activos y en venta.
-        $products = Product::select('id', 'name', 'translations', 'price', 'calculated_by_percent')
-        ->where('company_id', session('currentCompany'))
-        ->where('status', 1)
-        ->where('on_sale', 1)
-        ->whereNotIn('id', $products_in)
-        ->orderBy('name', 'ASC')
+        $products = Product::select('products.id', 'products.name', 'products.translations', 'products.price', 'products.calculated_by_percent', 'cost_centers.name AS cost_center')
+        ->leftJoin('cost_centers', 'products.cost_center_id', '=', 'cost_centers.id')
+        ->where('products.company_id', session('currentCompany'))
+        ->where('products.status', 1)
+        ->where('products.on_sale', 1)
+        ->whereNotIn('products.id', $products_in)
+        ->orderBy('products.name', 'ASC')
         ->get();
 
         //Centros de coste:
