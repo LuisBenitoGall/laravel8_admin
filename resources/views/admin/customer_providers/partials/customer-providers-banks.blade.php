@@ -23,7 +23,9 @@
 								    </label>
 
 									{{-- Editar --}}
-									<a href="#" class="btn btn-xs btn-info btnEdit" data-toggle="modal" data-target="#modal-edit-bank-account" rel="tooltip" title="{{ ucfirst(trans('textos.editar')) }}" data-id="{{ $ba->id }}" data-account="{{ $ba->account }}" data-bank="{{ $ba->bank_id }}">
+									{{-- <a href="#" class="btn btn-xs btn-info btnEdit" data-toggle="modal" data-target="#modal-edit-bank-account" rel="tooltip" title="{{ ucfirst(trans('textos.editar')) }}" data-id="{{ $ba->id }}" data-account="{{ $ba->account }}" data-bank="{{ $ba->bank_id }}"> --}}
+
+									<a target="_blank" href="{{ route('bank-accounts.edit', $ba->id) }}" class="btn btn-xs btn-info" rel="tooltip" title="{{ ucfirst(trans('textos.editar')) }}">
 										<i class="fa fa-edit"></i>
 									</a>
 

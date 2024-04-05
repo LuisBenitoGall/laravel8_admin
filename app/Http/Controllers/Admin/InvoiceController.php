@@ -2640,7 +2640,7 @@ class InvoiceController extends Controller{
         //1. Cuenta contable del cliente (DEBIT):
         //1.1. Obtenemos los productos contables de los items del pedido:
         $purchase_products = Item::select('items.id', 'items.product_id', 'items.purchase_product_id', 'items.qty', 'items.price', 'items.item_no_price', 'items.iva', 'items.equivalence_surcharge', 'items.irpf', 'items.discount', 'items.calculated_by_percent', 'items.days', 'items.days_continue', 'items.days_continue_discount', 'purchase_products.iva AS pp_iva', 'purchase_products.accounting_account_id')
-        ->join('purchase_products', 'items.purchase_product_id', '=', 'purchase_products.id')
+        ->leftJoin('purchase_products', 'items.purchase_product_id', '=', 'purchase_products.id')
         ->where('items.order_id', $order->id)
         ->get();
 
@@ -2649,6 +2649,9 @@ class InvoiceController extends Controller{
         //HABLAR CON DIDAC PARA CERRAR LAS CUENTAS CONTABLES DE LAS BASES DE LAS COMPRAS. ESTUDIAR COMO PLANTEARLO PARA CUANDO LA FACTURA DE COMPRA VENGA DEFINIDA POR UN PEDIDO DE COMPRA Y EN EL SISTEMA YA EXISTA LA FACTURA DEL PROVEEDOR.
 
         //Si las líneas no están vinculadas a productos contables, obtenemos los items y buscamos la cuenta contable para compras por defecto o se crea nueva:
+
+        $purchase_default_account = false;
+
         if(!$purchase_products->count()){
             $purchase_products = Item::select('items.id', 'items.product_id', 'items.purchase_product_id', 'items.qty', 'items.price', 'items.item_no_price', 'items.iva', 'items.equivalence_surcharge', 'items.irpf', 'items.discount', 'items.calculated_by_percent', 'items.days', 'items.days_continue', 'items.days_continue_discount')
             ->where('items.order_id', $order->id)
@@ -2658,22 +2661,22 @@ class InvoiceController extends Controller{
             ->where('company_id', $order->customer_id)
             ->where('featured', config('constants.ACCOUNT_DEFAULT_PURCHASES_'))
             ->first();
-        
-            if(!$purchase_default_account){
-                $purchase_default_account = new AccountingAccount();
-                $purchase_default_account->company_id = $order->customer_id;
-                $purchase_default_account->account = '00000';       //Falta la generación de la cuenta.
-                $purchase_default_account->name = ucfirst(trans('textos.compras'));
-                $purchase_default_account->mode = 2;
-                $purchase_default_account->type = 'p';
-                //$purchase_default_account->earnings_loses = $earnings_loses;
-                $purchase_default_account->company_target = $order->provider_id;
-                $purchase_default_account->status = 1;
-                $purchase_default_account->featured = config('constants.ACCOUNT_DEFAULT_PURCHASES_');
-                $purchase_default_account->with_iva = 1;
-                $purchase_default_account->created_by = Auth::user()->id;
-                $purchase_default_account->save(); 
-            }
+        }
+
+        if(!$purchase_default_account){
+            $purchase_default_account = new AccountingAccount();
+            $purchase_default_account->company_id = $order->customer_id;
+            $purchase_default_account->account = '00000';       //Falta la generación de la cuenta.
+            $purchase_default_account->name = ucfirst(trans('textos.compras'));
+            $purchase_default_account->mode = 2;
+            $purchase_default_account->type = 'p';
+            //$purchase_default_account->earnings_loses = $earnings_loses;
+            $purchase_default_account->company_target = $order->provider_id;
+            $purchase_default_account->status = 1;
+            $purchase_default_account->featured = config('constants.ACCOUNT_DEFAULT_PURCHASES_');
+            $purchase_default_account->with_iva = 1;
+            $purchase_default_account->created_by = Auth::user()->id;
+            $purchase_default_account->save(); 
         }
 
         $k = 0;

@@ -186,20 +186,30 @@ $permitted = !$order || ($order && $add_items && !$order->parent && !$order->blo
                     {{-- Concepto --}}
                     <label for="concept" class="col-3 col-sm-2 col-xl-1 col-form-label sinpadding-right">{!! ucfirst(trans('textos.concepto')) !!}
                         *</label>
-                    <div class="col-9 col-sm-10 col-xl-5 mb-3 mb-xl-0">
+                    <div class="col-9 col-sm-10 col-xl-11 mb-3 mb-xl-0">
                         <textarea name="concept" class="form-control" id="newItemConcept" required wire:model.defer="concept"></textarea>
                     </div>
+                </div>
 
+                <div class="form-group row">
                     {{-- Bloque --}}
-                    <label for="block"
-                           class="col-3 col-sm-2 col-xl-1 col-form-label sinpadding-right">{!! ucfirst(trans('textos.bloque')) !!}
-                        *</label>
+                    <label for="block" class="col-3 col-sm-2 col-xl-1 col-form-label sinpadding-right">{!! ucfirst(trans('textos.bloque')) !!}*</label>
                     <div class="col-9 col-sm-10 col-xl-5" wire:ignore>
-                        <select name="block" id="newItemBlock" class="form-control select2_lw" required
-                                wire:model.defer="block">
+                        <select name="block" id="newItemBlock" class="form-control select2_lw" required wire:model.defer="block">
                             <option value="">{{ trans('textos.bloque_selec') }}</option>
-                            @foreach($blocks as $block)
-                                <option value="{{ $block->id }}">{{ $block->name }}</option>
+                            @foreach($blocks as $block_)
+                                <option value="{{ $block_->id }}">{{ $block_->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    {{-- Centro de coste --}}
+                    <label for="cost_center_id" class="col-3 col-sm-2 col-xl-2 col-form-label sinpadding-right">{!! ucfirst(trans('textos.centro_coste')) !!}*</label>
+                    <div class="col-9 col-sm-10 col-xl-4" wire:ignore>
+                        <select name="cost_center_id" id="newItemCostCenter" class="form-control select2_lw_cc" required wire:model.defer="cost_center_id">
+                            <option value="">{{ trans('textos.centro_coste_selec') }}</option>
+                            @foreach($cost_centers as $cc)
+                                <option value="{{ $cc->id }}">{{ $cc->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -617,21 +627,20 @@ $permitted = !$order || ($order && $add_items && !$order->parent && !$order->blo
 
         //Cerrar formulario tras store o update:
         $('#closeForm').on('click', function () {
-            
             // Determinamos los campos a comprobar su contenido
             let n_concept = document.getElementById('newItemConcept').value;
             let n_qty = document.getElementById('newItemQty').value;
             let n_block = $('.select2_lw').select2('val');
+            let n_cost_center = $('.select2_lw_cc').select2('val');
 
-            if (n_concept && n_block && n_qty >= 0) {
+            if (n_concept && n_block && n_cost_center && n_qty >= 0) {
                 $('.new-budget-item').slideUp();
                 $('.btnAddBudgetItem').removeClass('opened').html('<i class="fa fa-plus"></i> ' + txtLineaAdd);
                 @this.set('form_on', false);
             }
-
         });
 
-        // Select2:
+        // Selector Bloque:
         $('.select2_lw').select2();
         $('.select2_lw').on('change', function (e) {
             var block = $(this).select2('val');
@@ -650,6 +659,25 @@ $permitted = !$order || ($order && $add_items && !$order->parent && !$order->blo
         initSelect2();
         window.livewire.on('select2_lw', () => {
             initSelect2();
+        });
+
+        //Selector Centro de coste:
+        $('.select2_lw_cc').select2();
+        $('.select2_lw_cc').on('change', function (e) {
+            var cost_center_id = $(this).select2('val');
+            @this.
+            set('cost_center_id', cost_center_id);
+        });
+        window.initSelect2_ = () => {
+            jQuery("#newItemCostCenter").select2({
+                minimumResultsForSearch: 2,
+                allowClear: false,
+                width: '100%'
+            });
+        }
+        initSelect2_();
+        window.livewire.on('select2_lw_cc', () => {
+            initSelect2_();
         });
 
         //Selector opciones item sin precio:

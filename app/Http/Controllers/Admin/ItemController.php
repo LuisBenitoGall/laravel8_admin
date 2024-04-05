@@ -87,14 +87,23 @@ class ItemController extends Controller{
             //Borrado definitivo:
             $item->forcedelete();
 
+            //Actualizamos importe de la factura:
+            if($request->environment == 'invoices' && $request->invoice_id){
+                $invoice = Invoice::find($request->invoice_id);
+                $invoice->calculateAmountByItems();
+            }
+
             $msg = trans('textos.linea_deleted');
             if($request->environment == 'budgets'){
                 return redirect()->route('budgets.edit', [$item->order_id, 'items'])->with(compact('msg'));
             }elseif($request->environment == 'cash'){
                 return redirect()->route('cash.edit', $item->cash_id)->with(compact('msg'));
+            }elseif($request->environment == 'invoices'){
+                return redirect()->route('invoices.edit', [$invoice->id, 'items'])->with(compact('msg'));
             }else{
                 return redirect()->route('orders.edit', [$item->order_id, 'items'])->with(compact('msg')); 
             }   
+
         }else{
             $alert = trans('textos.linea_facturada_alert');
             if($request->environment == 'budgets'){
@@ -133,6 +142,7 @@ class ItemController extends Controller{
         $ni->days = $item->days;
         $ni->days_continue = $item->days_continue;
         $ni->days_continue_discount = $item->days_continue_discount;
+        $ni->provider_cost_center_id = $item->provider_cost_center_id;
         $ni->active = $item->active;
         $ni->status = $item->status;
         $ni->print = $item->print;
@@ -384,6 +394,8 @@ class ItemController extends Controller{
         //IVA:
         $iva = $request->iva? $request->iva:($request->without_iva? '0':$item->iva);
 
+        $concept = $request->concept;
+
         //Recargo de equivalencia:
         $equivalence_surcharge = NULL;
         if($iva > 0 && $request->environment != 'cash'){
@@ -396,9 +408,19 @@ class ItemController extends Controller{
             $equivalence_surcharge = $es? $es->equivalence_surcharge:NULL;
         }
 
+        //Concepto del producto:
+        if($item->purchase_product_id != $request->accounting_product){
+            $accounting_product = $request->accounting_product? PurchaseProduct::select('id', 'name', 'iva')->find($request->accounting_product):false;
+
+            if($accounting_product){
+                $iva = $accounting_product->iva;
+                $concept = $accounting_product->name;
+            }
+        }
+
         //Actualizando info:
         $item->purchase_product_id = $request->accounting_product;
-        $item->concept = $request->concept;
+        $item->concept = $concept;
         $item->qty = $request->qty;
         $item->price = $request->price;
         $item->days = $request->days;

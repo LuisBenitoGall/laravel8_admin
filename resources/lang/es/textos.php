@@ -1673,6 +1673,7 @@ return array(
 	'item_updated' => 'El item ha sido actualizado correctamente.',
 	'item_vinculado_eliminar_confirm' => 'Confirma que deseas desvincular el item de este pedido',
 	'item_vinculado_pedido' => 'El item se ha vinculado al pedido correctamente.',
+	'items_agregados' => 'Los items se han agregado correctamente',
 	'items_economicos_filtrar' => 'Filtrar items con valor económico',
 	'items_no_existe' => 'No existen items para este formulario.',
 	'items_vinculados_sin' => 'No existen pedidos vinculados a este item.',

@@ -70,9 +70,11 @@ class Seat extends Model{
                     'type' => $data['seat_lines'][$i]['type'],
                     'currency_id' => $data['currency_id']
                 ];
-                SeatLines::saveLine($data_line);
+                $lin = SeatLines::saveLine($data_line);
 
                 $k++;
+
+                //dd($seat, $lin);
             }
         }
 

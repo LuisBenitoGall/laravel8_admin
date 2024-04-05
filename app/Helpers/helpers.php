@@ -12,6 +12,7 @@ class Helpers{
 	 * 	1.2. Niveles de acceso a los módulos.	
 	 * 	1.3. Popover info.
 	 *  1.4. Avatar.
+	 *  1.5. Desglose de cuenta bancaria.
 	 *
 	 * 2. Fechas y hora:
 	 * 	2.1. Convertir fecha a formato inglés.
@@ -224,6 +225,26 @@ class Helpers{
 
 		// Generamos el html tag
         return "<span class='avatar' style='background-color: $bg'>$l1 $l2</span>";
+	}
+
+	/**
+	 * 1.5. Desglose de cuenta bancaria.
+	 */
+	public static function splitBankAccount($account){
+		$data = [];
+		$account = trim($account);
+        $account = str_replace(array(" ", "-"), "", $account);
+
+		if(strlen($account) == 24){
+            $data['iban'] = substr($account, 0, 4);
+            $data['entity'] = substr($account, 4, 4);
+            $data['office'] = substr($account, 8, 4);
+            $data['dc'] = substr($account, 12, 2);
+            $data['digits'] = substr($account, 14, 10); 
+            $data['account'] = strtoupper($data['iban']).' '.$data['entity'].' '.$data['office'].' '.$data['dc'].' '.$data['digits'];
+        }
+
+        return $data; 	
 	}
 
 	/**

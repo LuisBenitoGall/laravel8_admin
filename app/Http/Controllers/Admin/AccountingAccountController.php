@@ -435,6 +435,20 @@ class AccountingAccountController extends Controller{
         //Empresa target:
         $company = Company::select('name')->find($account->company_id);
 
+        //Setear saldo cuenta contable:
+        $balance = SeatLines::accountBalance($account->id);
+
+        if($balance > 0){
+            $seat_line = SeatLines::where('accounting_account_id', $account->id)
+            ->orderBy('id', 'DESC')
+            ->first();
+
+            if(!$seat_line->balance){
+                $seat_line->balance = $balance;
+                $seat_line->save();
+            }
+        }
+
         $languages = $this->languages;
 
         return view('admin.accounting_accounts.edit')->with(compact('header', 'account', 'tab', 'modes', 'company', 'languages'));  
@@ -616,7 +630,7 @@ class AccountingAccountController extends Controller{
      */
     public function getAccountingAccountSeatsDT($accounting_account_id){
         $data = SeatLines::where('accounting_account_id', $accounting_account_id)
-        ->orderBy('created_at', 'ASC');
+        ->orderBy('created_at', 'ASC')->get();
 
         return DataTables::of($data)
         ->addColumn('number', function($row){

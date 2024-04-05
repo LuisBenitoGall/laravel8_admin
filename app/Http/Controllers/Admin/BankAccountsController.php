@@ -49,11 +49,12 @@ class BankAccountsController extends Controller{
         if(isset($data['submit_save'])){
             return Validator::make($data, [
                 'bank_id' => 'required|integer',
-                'iban' => 'required|max:4',
-                'entity' => 'required|max:4',
-                'office' => 'required|max:4',
-                'dc' => 'required|max:2',
-                'digits' => 'required|max:10'
+                //'account' => 'required|max:25',
+                // 'iban' => 'required|max:4',
+                // 'entity' => 'required|max:4',
+                // 'office' => 'required|max:4',
+                // 'dc' => 'required|max:2',
+                // 'digits' => 'required|max:10'
             ]);
 
         //Validación update:
@@ -137,18 +138,43 @@ class BankAccountsController extends Controller{
 
         $companyId = $request->company_id? $request->company_id:session('currentCompany');
 
-        $account = strtoupper($request->iban).' '.$request->entity.' '.$request->office.' '.$request->dc.' '.$request->digits;
+        if($request->origin == 'modal'){
+            $data_account = helpers::splitBankAccount($request->account);
+
+            if(!empty($data_account)){
+                $iban = $data_account['iban'];
+                $entity = $data_account['entity'];
+                $office = $data_account['office'];
+                $dc = $data_account['dc'];
+                $digits = $data_account['digits'];    
+            }else{
+                $iban = '';
+                $entity = '';
+                $office = '';
+                $dc = '';
+                $digits = '';   
+            }   
+
+        }else{
+            $iban = $request->iban;
+            $entity = $request->entity;
+            $office = $request->office;
+            $dc = $request->dc;
+            $digits = $request->digits;
+        }   
+
+        $account = strtoupper($iban).' '.$entity.' '.$office.' '.$dc.' '.$digits;     
 
         $row = new BankAccounts();
         $row->company_id = $companyId;
         $row->accounting_account_id = $request->accounting_account;
         $row->bank_id = $request->bank_id;
         $row->account = $account;
-        $row->iban = strtoupper($request->iban);
-        $row->entity = $request->entity;
-        $row->office = $request->office;
-        $row->dc = $request->dc;
-        $row->digits = $request->digits;
+        $row->iban = strtoupper($iban);
+        $row->entity = $entity;
+        $row->office = $office;
+        $row->dc = $dc;
+        $row->digits = $digits;
         $row->featured = $request->featured? true:false;
         $row->status = $request->status? true:false;
         $row->save();

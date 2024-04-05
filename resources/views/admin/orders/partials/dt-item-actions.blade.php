@@ -55,6 +55,9 @@
 		    <input name="_method" type="hidden" value="DELETE">
 		    {{ csrf_field() }}
 		    <input type="hidden" name="environment" value="{{ $environment }}">
+		    @if($invoice_id)
+	    		<input type="hidden" name="invoice_id" value="{{ $invoice_id }}">
+	    	@endif
 		    <button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="{{ ucfirst(trans('textos.eliminar')) }}" data-msg="{{ ucfirst(trans('textos.pedido_item_confirm_eliminar')) }}"><i class="fa fa-trash"></i></button>
 		</form>
 	@endif
