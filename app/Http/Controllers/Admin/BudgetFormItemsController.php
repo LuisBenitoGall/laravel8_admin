@@ -177,31 +177,44 @@ class BudgetFormItemsController extends Controller{
                 ->withInput();
         }
 
-        $product = false;
-        if($request->product_id){
-            $product = Product::select('name')->find($request->product_id);
-        }
+        //Creación item:
+        if($request->recid > 0){
+            if($request->product_id && !empty($request->product_id)){
+                foreach($request->product_id as $p){
+                    $product = Product::select('name')->find($p);
 
-        $item = new BudgetFormItems;
-        $item->recid = $request->recid;
-        $item->form_id = $request->form_id;
-        $item->product_id = $request->product_id;
-        $item->name = $request->name? $request->name:($product? $product->name:'');
-        $item->observations = $request->observations;
-        $item->discount = $request->discount;
-        $item->qty_min = $request->qty_min;
-        $item->calculated_by_percent = $request->calculated_by_percent? $request->calculated_by_percent:NULL;
-        //05/02/2024: el centro de coste quedará definido en el catálogo.
-        //$item->cost_center_id = $request->cost_center;
-        $item->save();
+                    $item = new BudgetFormItems;
+                    $item->recid = $request->recid;
+                    $item->form_id = $request->form_id;
+                    $item->product_id = $p;
+                    $item->name = $request->name? $request->name:($product? $product->name:'');
+                    $item->observations = $request->observations;
+                    $item->discount = $request->discount;
+                    $item->qty_min = $request->qty_min;
+                    $item->calculated_by_percent = $request->calculated_by_percent? $request->calculated_by_percent:NULL;
+                    //05/02/2024: el centro de coste quedará definido en el catálogo.
+                    //$item->cost_center_id = $request->cost_center;
+                    $item->save();
 
-        //Actualizamos precio en catálogo:
-        if($request->price_ > 0){
-            Product::where('id', $request->product_id)
-            ->update(['price' => $request->price_]);
+                    //Actualizamos precio en catálogo:
+                    if($request->price_ > 0){
+                        Product::where('id', $p)
+                        ->update(['price' => $request->price_]);
+                    }
+                }
+            }
+
+        //Creación bloque:
+        }else{
+            $item = new BudgetFormItems;
+            $item->recid = $request->recid;
+            $item->form_id = $request->form_id;
+            $item->name = $request->name? $request->name:'';
+            $item->cost_center_id = $request->cost_center;
+            $item->save();
         }
     
-        $msg = trans('textos.bloque_creado_ok');
+        $msg = $request->input('recid') == 0? trans('textos.bloque_creado_ok'):trans('textos.items_agregados');
         $tab = $request->input('recid') == 0? 'blocks':'items';
         return redirect()->route('budget-forms.edit', [$item->form_id, $tab])->with(compact('msg'));
     }

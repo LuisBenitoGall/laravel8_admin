@@ -1733,7 +1733,7 @@ class OrderController extends Controller{
     /**
      * 9. Obtener líneas de pedido.
      */
-    public function getItemsDT(Order $order, $environment){
+    public function getItemsDT(Order $order, $environment, $invoice_id = false){
         $items = Item::where('order_id', $order->id);
 
         //Moneda:
@@ -1836,8 +1836,8 @@ class OrderController extends Controller{
         ->addColumn('observations', function($item){
             return $item->observations;
         })
-        ->addColumn('acciones', function($item) use($estados, $order, $environment, $provider_account, $invoices){
-            return view('admin.orders.partials.dt-item-actions', compact('item', 'estados', 'order', 'environment', 'provider_account', 'invoices'));    
+        ->addColumn('acciones', function($item) use($estados, $order, $environment, $provider_account, $invoices, $invoice_id){
+            return view('admin.orders.partials.dt-item-actions', compact('item', 'estados', 'order', 'environment', 'provider_account', 'invoices', 'invoice_id'));    
         })
         ->rawColumns(['price', 'amount', 'observations'])
         ->make(true);

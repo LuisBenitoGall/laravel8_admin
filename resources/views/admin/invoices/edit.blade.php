@@ -191,6 +191,7 @@ $readonly = $invoice->blocked && !$is_sale || ($order->customer_id == session('c
 <input type="hidden" id="dtController" value="items">
 <input type="hidden" id="myEnvironment" value="invoices">
 <input type="hidden" id="myOrder" value="{{ $order->id }}">
+<input type="hidden" id="myInvoice" value="{{ $invoice->id }}">
 
 <div class="row">
 	<div class="col-12">						
@@ -355,6 +356,7 @@ $readonly = $invoice->blocked && !$is_sale || ($order->customer_id == session('c
 			  		</li>
 			  	</ul>
 
+			  	{{-- Panels: --}}
 			  	<div class="tab-content pt-4">
 					{{-- Cabecera: --}}
 					<div class="tab-pane fade @if(!$tab) show active @endif" role="tabpanel" id="tab-info">

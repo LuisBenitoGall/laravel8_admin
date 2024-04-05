@@ -214,7 +214,7 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     Route::get('inventory/{product_id}', 'InventoryController@getInventoryByProduct');
 
     //InvoiceControl:
-     Route::get('invoice-control', 'InvoiceController@getControlDT');
+    Route::get('invoice-control', 'InvoiceController@getControlDT');
 
     //InvoicePatterns:
     Route::get('invoice-patterns', 'InvoicePatternsController@getPatternsDT');
@@ -239,7 +239,7 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     Route::get('order-groups/{customer}/{year}', 'OrderGroupsController@getGroupsDT');
 
     //OrderItems:
-    Route::get('order-items/{order}/{environment}', 'OrderController@getItemsDT');
+    Route::get('order-items/{order}/{environment}/{invoice_id?}', 'OrderController@getItemsDT');
 
     //OrderPatterns:
     Route::get('order-patterns', 'OrderPatternsController@getPatternsDT');

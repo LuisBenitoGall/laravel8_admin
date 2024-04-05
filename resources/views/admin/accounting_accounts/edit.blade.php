@@ -111,10 +111,6 @@
 						@include('admin.accounting_accounts.partials.accounting-seats')	
 					</div>
 				</div>
-
-
-
-				
 			</div>
 		</div>
 	</div>
