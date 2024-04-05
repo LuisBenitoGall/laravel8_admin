@@ -12,6 +12,7 @@
                 <form method="post" autocomplete="off" action="{{ route('bank-accounts.store') }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
                     {{ csrf_field() }}
                     <input type="hidden" name="company_id" value="{{ $company_->id }}">
+                    <input type="hidden" name="origin" value="modal">
                     <input type="hidden" name="return" value="{{ $business_relationship }}">
                     
                     <div class="form-group row">

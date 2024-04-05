@@ -2419,6 +2419,7 @@ $(document).ready(function(){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
         var order = $('#myOrder').val();
         var environment = 'invoices';
+        var invoice_id = $('#myInvoice').val();
 
         var tableInvoiceItems = $('#tblInvoiceItems').DataTable({
             serverSide: true,
@@ -2428,7 +2429,7 @@ $(document).ready(function(){
             // },
             ajax: {
                 "type": "GET",
-                "url": "/api/admin/order-items/"+order+"/"+environment,
+                "url": "/api/admin/order-items/"+order+"/"+environment+"/"+invoice_id,
                 "error": function(reason){
                     console.log(reason);
                 }

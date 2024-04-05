@@ -169,7 +169,7 @@ class AccountingAccount extends Model{
      * 5. Array de cuentas contables por empresa y modo.
      */
     public static function arrayAccountingAccounts($company_id, $mode = false){
-        $data = AccountingAccount::select('id', DB::raw("CONCAT(account, '-', name) as accounting_account"))
+        $data = AccountingAccount::select('id', DB::raw("CONCAT(account, ' - ', name) as accounting_account"))
         ->where('company_id', $company_id)
         ->where('status', 1)
         ->when($mode, function($q) use($mode) {

@@ -26,11 +26,12 @@ class BankAccountsGetMiddleware{
             exit; 
         } 
 
-        if($company->company_id != session('currentCompany')){
-            $alert = trans('textos.no_permisos_accion');   
-            return redirect()->route('bank-accounts.index')->with(compact('alert'));
-            exit; 
-        }
+        // TO DO: revisar acceso a las cuentas bancarias en función de los permisos y si la empresa se gestiona ella misma.
+        // if($company->company_id != session('currentCompany')){
+        //     $alert = trans('textos.no_permisos_accion');   
+        //     return redirect()->route('bank-accounts.index')->with(compact('alert'));
+        //     exit; 
+        // }
 
         return $next($request);
     }

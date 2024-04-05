@@ -5,7 +5,7 @@
 	</label>
 
 	{{-- Editar --}}
-	<a href="{{ route('accounting-accounts.edit', $row) }}" class="btn btn-xs btn-info" rel="tooltip" title="{{ ucfirst(trans('textos.editar')) }}"><i class="fa fa-edit"></i></a>
+	<a href="{{ route('accounting-accounts.edit', $row->id) }}" class="btn btn-xs btn-info" rel="tooltip" title="{{ ucfirst(trans('textos.editar')) }}"><i class="fa fa-edit"></i></a>
 @endcan
 
 @can('accounting-accounts.destroy')
