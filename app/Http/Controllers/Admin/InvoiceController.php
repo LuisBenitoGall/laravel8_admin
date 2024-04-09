@@ -1099,7 +1099,7 @@ class InvoiceController extends Controller{
         $order_amount = $order->getAmount(true, true);
 
         //Cuenta contable de proveedor:
-        $provider_accounting_account = AccountingAccount::select('id')
+        $provider_accounting_account = AccountingAccount::select('id', 'with_iva')
         ->where('company_id', $order->customer_id)
         ->where('company_target', $order->provider_id)
         ->where('mode', 2)      //Modo proveedor.
@@ -1550,7 +1550,7 @@ class InvoiceController extends Controller{
      */
     public function recalculateInvoiceAmount($invoice, $order){
         //Recalculando importe factura por sus líneas - condiciones:
-        // 1. Factura no bloqueada.ç
+        // 1. Factura no bloqueada.
         // 2. Existe pedido.
         // 3. Se factura con prioridad al porcentaje.
         if($invoice->blocked == '0' && $invoice->order_id && $invoice->amount_priority == 2){
@@ -1671,10 +1671,27 @@ class InvoiceController extends Controller{
             if((float)$request->iva_adjust != $invoice->iva_adjust){
                 $invoice->iva_adjust = (float)$request->iva_adjust;
 
+                //Recalculamos importe con IVA a partir del pedido:
+                $order_amount = $order->getAmount(true, true);
+                $base_amount = $order_amount['total_amount'];
+                $invoice_amount = $order_amount['invoice_amount'];
+
+
+
+
+
+
+
+
+
+
+
+
+
                 //Recalculamos importe con IVA:
-                $percent = helpers::percent($invoice->amount, $invoice->with_iva); 
-                $iva_amount = $invoice->amount + $percent;
-                $invoice->amount_with_iva = $iva_amount + (float)$request->iva_adjust;
+                //$percent = helpers::percent($invoice->amount, $invoice->with_iva); 
+                //$iva_amount = $invoice->amount + $percent;
+                $invoice->amount_with_iva = $invoice_amount + (float)$request->iva_adjust;
             }
         }
 
@@ -2644,34 +2661,39 @@ class InvoiceController extends Controller{
         ->where('items.order_id', $order->id)
         ->get();
 
-
         //***************************************
         //HABLAR CON DIDAC PARA CERRAR LAS CUENTAS CONTABLES DE LAS BASES DE LAS COMPRAS. ESTUDIAR COMO PLANTEARLO PARA CUANDO LA FACTURA DE COMPRA VENGA DEFINIDA POR UN PEDIDO DE COMPRA Y EN EL SISTEMA YA EXISTA LA FACTURA DEL PROVEEDOR.
 
-        //Si las líneas no están vinculadas a productos contables, obtenemos los items y buscamos la cuenta contable para compras por defecto o se crea nueva:
-
-        $purchase_default_account = false;
-
+        //Si las líneas no están vinculadas a productos contables, obtenemos los items: 
         if(!$purchase_products->count()){
             $purchase_products = Item::select('items.id', 'items.product_id', 'items.purchase_product_id', 'items.qty', 'items.price', 'items.item_no_price', 'items.iva', 'items.equivalence_surcharge', 'items.irpf', 'items.discount', 'items.calculated_by_percent', 'items.days', 'items.days_continue', 'items.days_continue_discount')
             ->where('items.order_id', $order->id)
             ->get();   
-
-            $purchase_default_account = AccountingAccount::select('id')
-            ->where('company_id', $order->customer_id)
-            ->where('featured', config('constants.ACCOUNT_DEFAULT_PURCHASES_'))
-            ->first();
         }
 
+        //Buscamos la cuenta contable para compras por defecto...:
+        $purchase_default_account = AccountingAccount::select('id')
+        ->where('company_id', $order->customer_id)
+        ->where('featured', config('constants.ACCOUNT_DEFAULT_PURCHASES_'))
+        ->first();
+
+        // ... o se crea nueva cuenta y se configura como principal:
         if(!$purchase_default_account){
+            //Tipos de cuentas específicas:
+            $account_types = helpers::accountingAccountSpecificPrefixes();
+            $prefix = $account_types['provider'];
+
+            //Número de la cuenta:
+            $account = AccountingAccount::setAccountNum($prefix, $order->customer_id);
+
             $purchase_default_account = new AccountingAccount();
             $purchase_default_account->company_id = $order->customer_id;
-            $purchase_default_account->account = '00000';       //Falta la generación de la cuenta.
+            $purchase_default_account->account = $account;       
             $purchase_default_account->name = ucfirst(trans('textos.compras'));
             $purchase_default_account->mode = 2;
             $purchase_default_account->type = 'p';
             //$purchase_default_account->earnings_loses = $earnings_loses;
-            $purchase_default_account->company_target = $order->provider_id;
+            //$purchase_default_account->company_target = NULL;
             $purchase_default_account->status = 1;
             $purchase_default_account->featured = config('constants.ACCOUNT_DEFAULT_PURCHASES_');
             $purchase_default_account->with_iva = 1;
@@ -2695,7 +2717,7 @@ class InvoiceController extends Controller{
 
         //2. Cuenta contable del proveedor (CREDIT):
         if($provider_accounting_account){
-            $seat_lines[$k]['accounting_account_id'] = $provider_accounting_account;
+            $seat_lines[$k]['accounting_account_id'] = $provider_accounting_account->id;
             $seat_lines[$k]['type'] = NULL;
             $seat_lines[$k]['debit'] = '0';
             $seat_lines[$k]['credit'] = $invoice->amount_with_iva;

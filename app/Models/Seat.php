@@ -73,8 +73,6 @@ class Seat extends Model{
                 $lin = SeatLines::saveLine($data_line);
 
                 $k++;
-
-                //dd($seat, $lin);
             }
         }
 
