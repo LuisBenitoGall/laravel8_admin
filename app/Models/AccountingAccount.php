@@ -94,14 +94,14 @@ class AccountingAccount extends Model{
                 $aa->created_by = Auth::user()->id;
                 $aa->save(); 
 
-                //Guardando número de cliente o proveedor, a partir de los últimos números -la variable $accounting_account_digits-  de la cuenta contable:
+                //Guardando número de cliente o proveedor, a partir de los últimos números -la variable $account-  de la cuenta contable:
                 if($aa->mode == 1 || $aa->mode == 2){
                     $customer_ = $aa->mode == 1? $aa->company_target:$aa->company_id;
                     $provider_ = $aa->mode == 2? $aa->company_target:$aa->company_id;
                     $define = $aa->mode == 1? 'customer':'provider'; //Si la numeración se aplica a cliente o proveedor.
 
                     //Número customizado:
-                    $num_account = substr($aa->account, -$accounting_account_digits);
+                    $num_account = substr($aa->account, -$account);
                     CustomerProviders::setCustomerProviderNum($customer_, $provider_, $num_account, $define);
                 }
 
