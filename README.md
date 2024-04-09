@@ -278,6 +278,41 @@ AND o.provider_id = 4
 AND o.deleted_at IS NULL
 AND o.created_at BETWEEN '2021-01-01' AND '2023-12-31'
 ORDER BY o.created_at ASC
+
+- Items de pedidos:
+SELECT 
+c.name AS provider, o.provider_id,
+c1.name AS customer, o.customer_id,  
+c2.name AS final_customer, o.final_customer_id, 
+o.is_budget, o.is_order, o.id AS order_id, o.order_num, o.name AS title, o.budget_num, 
+bf.name AS form, o.form_id,
+o.accepted_date,
+o.description,
+o.delivery_date,
+o.order_status,
+CONCAT(u.name, ' ', u.surname) AS customer_manager,
+
+
+
+
+
+i.id AS item_id
+FROM items i
+INNER JOIN orders o
+ON i.order_id = o.id
+INNER JOIN companies c
+ON o.provider_id = c.id
+INNER JOIN companies c1
+ON o.customer_id = c1.id
+LEFT JOIN companies c2
+ON o.final_customer_id = c2.id
+LEFT JOIN budget_forms bf
+ON o.form_id = bf.id
+LEFT JOIN users u
+ON o.customer_manager_id = u.id
+WHERE o.provider_id IN (4,8,202,227,275)
+AND i.deleted_at IS NULL
+ORDER BY o.provider_id ASC
    
 
 ### Instalación de Sentry
