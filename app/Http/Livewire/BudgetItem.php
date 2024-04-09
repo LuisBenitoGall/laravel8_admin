@@ -339,7 +339,6 @@ class BudgetItem extends Component{
      * 3. Añadir item desde bloque.
      */
     public function addItem($item){
-        //dd($item);
         $this->resetForm();
 
         //Acción del formulario:

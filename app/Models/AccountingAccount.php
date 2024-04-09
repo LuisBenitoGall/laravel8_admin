@@ -8,11 +8,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
+use App\Helpers\helpers;
 
 class AccountingAccount extends Model{
     /**
      * 1. Obtener cuentas para autocomplete.
      * 2. Crear cuenta contable clientes y proveedores.
+     * 2.1. Setear número de cuenta.
      * 3. Obtener última cuenta por tipología y empresa.
      * 4. Cuentas de IVA por pedido para asientos contables.
      * 5. Array de cuentas contables por empresa y modo.
@@ -57,40 +59,13 @@ class AccountingAccount extends Model{
             $company_owner = $company_owner? $company_owner:session('currentCompany');
 
             //Tipos de cuentas específicos:
-            $account_types = [
-                'provider' => '4000',
-                'creditor' => '4100',
-                'customer' => '4300'
-            ];
+            $account_types = helpers::accountingAccountSpecificPrefixes();
             $prefix = $account_types[$data['account_to']];
 
-            //Última cuenta relativa:
-            $last_account = AccountingAccount::getLastAccount($prefix, $company_owner); 
+            //Número de la cuenta:
+            $account = self::setAccountNum($prefix, $company_owner);
 
-            //Nº de dígitos configurados por la empresa:
-            $accounting_account_digits = CompanySettings::co_account_digits();
-
-            if($last_account && $last_account->account){
-                $account = (int)$last_account->account + 1;   
-            }else{
-                $pre_zeros = '';
-                $z = 1;
-                while($z < $accounting_account_digits){
-                    $pre_zeros .= '0';
-                    $z++;
-                }
-                $account = $prefix.$pre_zeros.'1';
-            }
-
-            //Comprobamos que no exista la cuenta:
-            $exist_account = AccountingAccount::select('id')
-            ->where('company_id', $company_owner)
-            ->where('account', $account)
-            ->first();
-
-            if($exist_account){
-                return false;
-            }else{
+            if($account){
                 //Tipo balance:
                 //18/12/23: revisar type (activo, pasivo, ganancias-pérdidas con Didac);
                 //$type = $data['account_to'] == 'customer'? 'c':'p';
@@ -131,11 +106,49 @@ class AccountingAccount extends Model{
                 }
 
                 return $aa;  
+
+            }else{
+                return false;
             }
 
         }else{
             return false;
         } 
+    }
+
+    /**
+     * 2.1. Setear número de cuenta.
+     */
+    public static function setAccountNum($prefix, $company_owner){
+        //Última cuenta relativa:
+        $last_account = AccountingAccount::getLastAccount($prefix, $company_owner); 
+
+        //Nº de dígitos configurados por la empresa:
+        $accounting_account_digits = CompanySettings::co_account_digits();
+
+        if($last_account && $last_account->account){
+            $account = (int)$last_account->account + 1;   
+        }else{
+            $pre_zeros = '';
+            $z = 1;
+            while($z < $accounting_account_digits){
+                $pre_zeros .= '0';
+                $z++;
+            }
+            $account = $prefix.$pre_zeros.'1';
+        }
+
+        //Comprobamos que no exista la cuenta:
+        $exist_account = AccountingAccount::select('id')
+        ->where('company_id', $company_owner)
+        ->where('account', $account)
+        ->first();  
+
+        if($exist_account){
+            return false;
+        }else{
+            return $account;
+        }
     }
 
     /**
