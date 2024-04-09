@@ -22,6 +22,9 @@ $tbl = $env == 'invoices'? 'tblInvoiceItems':'tblOrderItems';
 					<th class="text-center">{{ ucfirst(trans('textos.descuentos')) }}</th>
 					<th class="text-center">{{ ucfirst(trans('textos.importe')) }}</th>
 					<th>{{ ucfirst(trans('textos.centro_coste')) }}</th>
+					@if($env == 'invoices')
+						<th>{{ ucfirst(trans('textos.pedidos_asociados')) }}</th>
+					@endif
 					<th>{{ ucfirst(trans('textos.estado')) }}</th>
 					<th class="text-center">{{ ucfirst(trans('textos.acciones')) }}</th>
 				</tr>
@@ -43,6 +46,7 @@ $tbl = $env == 'invoices'? 'tblInvoiceItems':'tblOrderItems';
 	                <td></td>
 	                <td></td>
 	                <td></td>
+	                @if($env == 'invoices') <td></td> @endif
 	            </tr>
 
 	            @if(isset($invoice) && $invoice->with_iva > 0)
@@ -53,6 +57,7 @@ $tbl = $env == 'invoices'? 'tblInvoiceItems':'tblOrderItems';
 		                <td></td>
 		                <td></td>
 		                <td></td>
+		                @if($env == 'invoices') <td></td> @endif
 		            </tr>
 		        @endif
 	        </tfoot>

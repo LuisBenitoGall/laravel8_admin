@@ -291,12 +291,34 @@ o.description,
 o.delivery_date,
 o.order_status,
 CONCAT(u.name, ' ', u.surname) AS customer_manager,
-
-
-
-
-
-i.id AS item_id
+cc.name AS customer_cost_center,
+CONCAT(u1.name, ' ', u1.surname) AS provider_manager,
+cc1.name AS provider_cost_center,
+CONCAT(u2.name, ' ', u2.surname) AS commercial,
+CONCAT(u3.name, ' ', u3.surname) AS final_customer_manager,
+o.bag_amount,
+o.invoiced,
+o.created_at,
+o.updated_at,
+i.id AS item_id,
+p.name AS product,
+i.product_id,
+pp.name AS producto_contable,
+bfi.name AS budget_form_block,
+bfi1.name AS budget_form_item,
+i.concept,
+i.qty,
+i.price,
+i.item_no_price,
+i.iva,
+i.equivalence_surcharge,
+i.irpf,
+i.discount,
+i.calculated_by_percent,
+i.days,
+i.days_continue,
+i.days_continue_discount,
+cc2.name AS item_provider_cost_center
 FROM items i
 INNER JOIN orders o
 ON i.order_id = o.id
@@ -310,6 +332,26 @@ LEFT JOIN budget_forms bf
 ON o.form_id = bf.id
 LEFT JOIN users u
 ON o.customer_manager_id = u.id
+LEFT JOIN users u1
+ON o.provider_manager_id = u1.id
+LEFT JOIN users u2
+ON o.commercial_id = u2.id
+LEFT JOIN cost_centers cc
+ON o.customer_cost_center_id = cc.id
+LEFT JOIN cost_centers cc1
+ON o.provider_cost_center_id = cc1.id
+LEFT JOIN users u3
+ON o.final_customer_manager_id = u3.id
+LEFT JOIN products p
+ON i.product_id = p.id
+LEFT JOIN purchase_products pp
+ON i.purchase_product_id = pp.id
+LEFT JOIN budget_form_items bfi
+ON i.budget_form_block_id = bfi.id
+LEFT JOIN budget_form_items bfi1
+ON i.budget_form_block_id = bfi1.id
+LEFT JOIN cost_centers cc2
+ON i.provider_cost_center_id = cc2.id
 WHERE o.provider_id IN (4,8,202,227,275)
 AND i.deleted_at IS NULL
 ORDER BY o.provider_id ASC
