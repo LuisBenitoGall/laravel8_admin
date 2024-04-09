@@ -2277,6 +2277,7 @@ return array(
 	'pedido' => 'Pedido',
 	'pedidos_agregar' => 'Agregar pedidos',
 	'pedidos_agrupacion_' => 'Pedidos agrupaciones',
+	'pedidos_asociados' => 'Pedidos asociados',
 	'pedidos_configuracion_' => 'Pedidos configuración',
 	'pedidos_configuracion' => 'Configuración pedidos',
 	'pedidos_de' => 'Pedidos de',
