@@ -1676,21 +1676,6 @@ class InvoiceController extends Controller{
                 $base_amount = $order_amount['total_amount'];
                 $invoice_amount = $order_amount['invoice_amount'];
 
-
-
-
-
-
-
-
-
-
-
-
-
-                //Recalculamos importe con IVA:
-                //$percent = helpers::percent($invoice->amount, $invoice->with_iva); 
-                //$iva_amount = $invoice->amount + $percent;
                 $invoice->amount_with_iva = $invoice_amount + (float)$request->iva_adjust;
             }
         }

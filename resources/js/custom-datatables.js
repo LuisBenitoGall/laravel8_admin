@@ -2444,6 +2444,7 @@ $(document).ready(function(){
                 {data: 'discount', className: 'text-right'},
                 {data: 'amount', className: 'text-right'},
                 {data: 'cost_center'},
+                {data: 'linked_orders'},
                 {data: 'estado'},
                 {data: 'acciones', className: 'text-right'}
             ],

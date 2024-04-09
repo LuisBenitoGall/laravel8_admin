@@ -1830,6 +1830,23 @@ class OrderController extends Controller{
                 return $item->cost_center_customer->name;;
             }
         })
+        ->addColumn('linked_orders', function($item){
+            $orders_ = Order::select('orders.id', 'orders.order_num', 'orders.order_old_num')
+            ->join('item_linked_orders', 'orders.id', '=', 'item_linked_orders.order_id')
+            ->where('item_linked_orders.item_id', $item->id)
+            ->get();
+
+            if($orders_->count()){
+                $html = '';
+                foreach($orders_ as $o){
+                    $o_ = $o->order_num? $o->order_num:($o->order_old_num? $o->order_old_num:$o->id);
+                    $html .= '<a target="_blank" href="/admin/orders/'.$o->id.'/edit">'.$o_.'</a> ';
+                }
+                return $html;
+            }else{
+                return '';
+            }
+        })
         ->addColumn('estado', function($item) use($estados){
             return view('admin.orders.partials.dt-item-status', compact('item', 'estados'));    
         })
@@ -1839,7 +1856,7 @@ class OrderController extends Controller{
         ->addColumn('acciones', function($item) use($estados, $order, $environment, $provider_account, $invoices, $invoice_id){
             return view('admin.orders.partials.dt-item-actions', compact('item', 'estados', 'order', 'environment', 'provider_account', 'invoices', 'invoice_id'));    
         })
-        ->rawColumns(['price', 'amount', 'observations'])
+        ->rawColumns(['price', 'amount', 'linked_orders', 'observations'])
         ->make(true);
     }
 
