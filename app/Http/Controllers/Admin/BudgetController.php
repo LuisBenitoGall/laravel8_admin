@@ -396,7 +396,7 @@ class BudgetController extends Controller{
     private function setDefaultItems($order){
         //Si el presupuesto es de tipo formulario y éste tiene items por defecto:
         if($order->modality == config('constants.BUDGET_FORM_MODALITY_')){
-            $items = BudgetFormItems::select('budget_form_items.*', 'products.name AS Product', 'products.price', 'products.iva')
+            $items = BudgetFormItems::select('budget_form_items.*', 'products.name AS Product', 'products.price', 'products.iva', 'products.cost_center_id')
             ->join('products', 'budget_form_items.product_id', '=', 'products.id')
             ->where('budget_form_items.form_id', $order->form_id)
             ->where('budget_form_items.fixed_in_budget', 1)
@@ -424,6 +424,7 @@ class BudgetController extends Controller{
                         'discount' => $item->discount, 
                         'calculated_by_percent' => $item->calculated_by_percent,
                         'deposit_used' => NULL, 
+                        'provider_cost_center_id' => $item->cost_center_id,
                         'active' => 1, 
                         'status' => NULL, 
                         'print' => 1, 
