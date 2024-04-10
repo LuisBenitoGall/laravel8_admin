@@ -961,7 +961,7 @@ function percentController(){
         $('.btnAddPrevision').fadeIn();
     }
 
-    if(total > 100){
+    if(total > 100.001){
         $('.previsions .prevision .percent:last, .previsions .prevision .prevision-amount:last').val('');
         swal.fire({
             title: txtFacturacion100,
