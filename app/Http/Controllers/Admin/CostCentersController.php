@@ -80,9 +80,6 @@ class CostCentersController extends Controller{
 
         $company = Company::find($companyId);
 
-        //Asignación masiva de cost_center a items:
-        $this->setCostCenterToItems();
-
         return view('admin.cost_centers.index')->with(compact('header', 'company', 'business_relationship'));    
     }
 
