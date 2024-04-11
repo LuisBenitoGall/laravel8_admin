@@ -39,7 +39,7 @@
 					<th>{!! ucfirst(trans('textos.producto')) !!}</th>
 					<th>{!! ucfirst(trans('textos.descripcion')) !!}</th>
 					<th class="text-center">{!! ucfirst(trans('textos.iva')) !!}</th>
-					<th class="text-center">{!! ucfirst(trans('textos.cuenta_contable')) !!}</th>
+					<th>{!! ucfirst(trans('textos.cuenta_contable')) !!}</th>
 					<th class="text-center">{!! ucfirst(trans('textos.acciones')) !!}</th>
 				</tr>
 			</thead>

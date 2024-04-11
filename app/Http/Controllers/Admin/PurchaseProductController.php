@@ -85,7 +85,7 @@ class PurchaseProductController extends Controller{
             if($row->iva) return $row->iva.'%';
         })
         ->addColumn('account', function($row){
-            if($row->accountingAccount) return $row->accountingAccount->account;
+            if($row->accountingAccount) return $row->accountingAccount->account.' - '.$row->accountingAccount->name;
         })
         ->addColumn('acciones', function($row){
             return view('admin.purchase_products.partials.dt-actions', compact('row'));    

@@ -5306,7 +5306,7 @@ $(document).ready(function(){
                 {data: 'name', className: 'capitalize'},
                 {data: 'description'},
                 {data: 'iva', className: 'text-right'},
-                {data: 'account', className: 'text-right'},
+                {data: 'account'},
                 {data: 'acciones', className: 'text-right'}
             ]
          });
