@@ -6,8 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class BudgetForms extends Model
-{
+class BudgetForms extends Model{
     use HasFactory;
     use SoftDeletes;
 
@@ -18,8 +17,7 @@ class BudgetForms extends Model
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function orders(): \Illuminate\Database\Eloquent\Relations\HasMany
-    {
+    public function orders(): \Illuminate\Database\Eloquent\Relations\HasMany {
         return $this->hasMany(Order::class, 'form_id');
     }
 }
