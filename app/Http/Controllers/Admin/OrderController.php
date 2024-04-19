@@ -19,6 +19,7 @@ use Carbon\Carbon;
 //Models:
 use App\Models\AccountingAccount;
 use App\Models\BusinessAreas;
+use App\Models\Category;
 use App\Models\Company;
 use App\Models\CompanyAccounts;
 use App\Models\CompanySettings;
@@ -31,7 +32,9 @@ use App\Models\Group;
 use App\Models\GroupMembers;
 use App\Models\Invoice;
 use App\Models\Item;
+use App\Models\Module;
 use App\Models\Order;
+use App\Models\OrderCategory;
 use App\Models\OrderDocs;
 use App\Models\OrderPatterns;
 use App\Models\OrderPrevisions;
@@ -1320,7 +1323,16 @@ class OrderController extends Controller{
             $order->save();
         }
 
+        //Categorías vinculadas al proyecto:
+        $categories_in = OrderCategory::where('order_id', $order->id)
+        ->pluck('category_id')
+        ->toArray();
+
         $languages = $this->languages;
+
+        //Categorías:
+        $module_ = Module::select('id')->where('slug', $this->module)->first();
+        $categories = Category::getModuleCategoriesStatic($module_->id, session('currentCompany'));
 
         //Módulos activos:
         $module_accounting = $this->settedModule('accounting');
@@ -1330,7 +1342,7 @@ class OrderController extends Controller{
         $module_projects = $this->settedModule('projects');
         $module_rrhh = $this->settedModule('rrhh');
         
-        return view('admin.orders.edit')->with(compact('header', 'order', 'tab', 'patterns', 'purchase_patterns', 'provider', 'provider_account', 'provider_managers', 'provider_business_areas', 'provider_cost_centers', 'provider_workplaces', 'default_workplace', 'customer', 'final_customer', 'customer_managers', 'customer_business_areas', 'customer_cost_centers', 'customer_workplaces', 'customer_products', 'customer_settings', 'confirmed_by', 'customers', 'order_amount', 'order_amount_without_discount', 'order_amount_without_discount_in_lines', 'order_groups', 'ordersInGroup', 'orders_off', 'group_amount', 'invoiced', 'invoices', 'previsions', 'products', 'projects', 'project', 'project_purchases', 'customer_projects', 'deliveries', 'receivings', 'currency', 'items', 'author', 'owner', 'commercial', 'iva', 'ivaTypes', 'provider_accounting_account', 'customer_accounting_accounts', 'sat', 'order_type', 'templates', 'languages', 'permitted', 'module_accounting', 'module_budgets', 'module_products', 'module_projects', 'module_rrhh', 'module_logistics'));
+        return view('admin.orders.edit')->with(compact('header', 'order', 'tab', 'patterns', 'purchase_patterns', 'provider', 'provider_account', 'provider_managers', 'provider_business_areas', 'provider_cost_centers', 'provider_workplaces', 'default_workplace', 'customer', 'final_customer', 'customer_managers', 'customer_business_areas', 'customer_cost_centers', 'customer_workplaces', 'customer_products', 'customer_settings', 'confirmed_by', 'customers', 'order_amount', 'order_amount_without_discount', 'order_amount_without_discount_in_lines', 'order_groups', 'ordersInGroup', 'orders_off', 'group_amount', 'invoiced', 'invoices', 'previsions', 'products', 'projects', 'project', 'project_purchases', 'customer_projects', 'deliveries', 'receivings', 'currency', 'items', 'author', 'owner', 'commercial', 'iva', 'ivaTypes', 'provider_accounting_account', 'customer_accounting_accounts', 'sat', 'order_type', 'templates', 'categories', 'categories_in', 'languages', 'permitted', 'module_accounting', 'module_budgets', 'module_products', 'module_projects', 'module_rrhh', 'module_logistics'));
     }
 
     /**
@@ -1619,6 +1631,17 @@ class OrderController extends Controller{
                         }
                     }                            
                 }
+            }
+        }
+
+        //Categorías. Limpiamos las existentes y volvemos a generarlas:
+        OrderCategory::where('order_id', $order->id)->delete();  
+        if($request->categories && count($request->categories)){
+            foreach($request->categories as $ctg){
+                OrderCategory::create([
+                    'order_id' => $order->id,
+                    'category_id' => $ctg
+                ]);
             }
         }
 

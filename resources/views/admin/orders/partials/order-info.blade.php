@@ -255,6 +255,16 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 			<input type="hidden" name="order_status" value="{{ $order->order_status }}">
 		@endif
 	</div>
+
+	{{-- Categorías --}}
+	@if($order->provider_id == session('currentCompany'))
+		<div class="form-group row">
+			<label for="categories" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.categorias')) !!}</label>
+			<div class="col-lg-8">
+				<x-select name="categories[]" class="select2" multiple :options="$categories" :values="$categories_in"/>
+			</div>
+		</div>
+	@endif
 	<br><hr><br>
 
 	{{-- Facturación prevista - condiciones:
