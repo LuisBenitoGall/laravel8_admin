@@ -1219,7 +1219,7 @@ class InvoiceController extends Controller{
         //Pagos:
         $payments = Payment::paymentsByInvoice($invoice->id);
 
-        //Asiento contable. Filtramos por company_id, pues hay que tene en cuenta que una misma factura puede generar 2 asientos contables: el del proveedor y el del cliente.
+        //Asiento contable. Filtramos por company_id, pues hay que tener en cuenta que una misma factura puede generar 2 asientos contables: el del proveedor y el del cliente.
         $seat = false;
         if($order->provider_id == session('currentCompany')){
             $seat = Seat::select('id')

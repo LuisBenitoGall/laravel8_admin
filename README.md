@@ -130,7 +130,8 @@ En el archivo config/constants.php se definen constantes personalizadas.
 	- instalar: composer require fruitcake/laravel-cors
 
 - Emails:
-	- SMTP ADN: erp@weareadn.com
+	- SMTP ADN: erp@weareadn.com      
+	- pwd en gmail: ErpAdn2024*
 	- mail host: smtp.gmail.com
 	- pwd email: bwducgbggazgiolz
 	- pwd app (password que utiliza la app para el SMTP): rukjilbsjmylwxzj
@@ -315,6 +316,7 @@ i.equivalence_surcharge,
 i.irpf,
 i.discount,
 i.calculated_by_percent,
+round( COALESCE(i.qty * i.price, 0) - COALESCE((i.qty * i.price * i.discount) / 100, 0), 2) AS amount,
 i.days,
 i.days_continue,
 i.days_continue_discount,
