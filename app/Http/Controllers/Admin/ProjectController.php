@@ -178,7 +178,7 @@ class ProjectController extends Controller{
         ->pluck('project_id')
         ->toArray();
 
-        $data = Project::select('projects.id', 'projects.name', 'projects.estimated_delivery_date', 'projects.delivery_date', 'projects.hours_forecast', 'projects.hours_worked', 'projects.completed', 'projects.status', 'projects.created_at', 'companies.name AS customer', 'users.name AS nombre', 'users.surname', 
+        $data = Project::select('projects.id', 'projects.name', 'projects.project_num', 'projects.estimated_delivery_date', 'projects.delivery_date', 'projects.hours_forecast', 'projects.hours_worked', 'projects.completed', 'projects.status', 'projects.created_at', 'companies.name AS customer', 'users.name AS nombre', 'users.surname', 
             DB::raw('(SELECT GROUP_CONCAT(categories.name) FROM project_categories
               JOIN categories ON project_categories.category_id = categories.id
               WHERE project_categories.project_id = projects.id) as category_names')
@@ -193,6 +193,10 @@ class ProjectController extends Controller{
         ->orderBy('projects.created_at', 'DESC');
 
         return DataTables::of($data)
+        ->addColumn('num', function($row){
+            $num = $row->project_num? $row->project_num:$row->id;
+            return '<a href="/admin/projects/'.$row->id.'/edit">'.$num.'</a>';
+        })
         ->addColumn('name', function($row){
             return '<a href="/admin/projects/'.$row->id.'/edit">'.$row->name.'</a>'; 
         })
@@ -234,14 +238,13 @@ class ProjectController extends Controller{
             return view('admin.projects.partials.dt-actions', compact('row', 'estados', 'favourites', 'manage_status'));    
         })
         ->filterColumn('category_names', function($query, $keyword) {
-            //dd('clave', $keyword);
             $sql = "SELECT GROUP_CONCAT(categories.name) FROM project_categories
               JOIN categories ON project_categories.category_id = categories.id
               WHERE project_categories.project_id = projects.id like ?";
             //$sql = "SELECT GROUP_CONCAT(name) FROM categories WHERE name like ?";
             $query->whereRaw($sql, ["%{$keyword}%"]);
         })
-        ->rawColumns(['name', 'progress'])
+        ->rawColumns(['num', 'name', 'progress'])
         ->make(true);
     }
 
@@ -590,6 +593,7 @@ class ProjectController extends Controller{
         ->where('orders.is_order', true)
         ->where('orders.customer_id', session('currentCompany'))
         ->whereNotIn('orders.id', $arr_project_purchases)
+        ->where('orders.created_at', '>=', now()->subMonths(3))
         ->orderBy('orders.purchase_num', 'ASC')
         ->get();
 

@@ -72,6 +72,7 @@ $str_status_values = $status_values? implode(',', $status_values):'';
 		<table class="table table-hover dtabla" id="tblProjects">
 			<thead>
 				<tr>
+					<th class="text-center">#</th>
 					<th>{!! ucfirst(trans('textos.proyecto')) !!}</th>
 					<th>{!! ucfirst(trans('textos.manager')) !!}</th>
 					<th>{!! ucfirst(trans('textos.cliente')) !!}</th>
@@ -89,7 +90,7 @@ $str_status_values = $status_values? implode(',', $status_values):'';
 
 			<tfoot>
 				<tr>
-					<td class="text-right" colspan="6"><b>{{ trans('textos.prevision_horas') }} / {{ trans('textos.pendientes') }}</b></td>
+					<td class="text-right" colspan="7"><b>{{ trans('textos.prevision_horas') }} / {{ trans('textos.pendientes') }}</b></td>
 					<td class="text-right"></td>
 					<td></td>
 					<td></td>
