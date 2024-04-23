@@ -123,10 +123,17 @@ $readonly = $invoice->blocked && !$is_sale || ($order->customer_id == session('c
 		--}}
 		@if($module_projects && !$is_sale)
 			@can('projects.edit')
-				<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-link-project">
-					<i class="fa fa-rocket"></i>
-					{{ ucfirst(trans('textos.factura_asociar_proyecto')) }}
-				</a>
+				@if($project)
+					<a target="_blank" href="{{ route('projects.edit', $project->id) }}" class="btn btn-info">
+						<i class="fa fa-rocket"></i>
+						{{ ucfirst(trans('textos.proyecto')) }}
+					</a>
+				@else
+					<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-link-project">
+						<i class="fa fa-rocket"></i>
+						{{ ucfirst(trans('textos.factura_asociar_proyecto')) }}
+					</a>	
+				@endif
 			@endcan	
 		@endif
 

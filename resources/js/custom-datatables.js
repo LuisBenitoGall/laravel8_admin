@@ -4879,7 +4879,7 @@ $(document).ready(function(){
         $('#tblProjects thead tr').clone(true).appendTo('#tblProjects thead');
         $('#tblProjects thead tr:eq(1) th').each(function(i){
             var title = $(this).text(); 
-            if(i == 6 || i == 7 || i == 9 || i == 11){
+            if(i == 7 || i == 8 || i == 10 || i == 12){
                 $(this).html('');
             }else{
                 let value = jsonData && jsonData.columns[i].search.search ? jsonData.columns[i].search.search : '';
@@ -4913,6 +4913,7 @@ $(document).ready(function(){
                 }
             },
             columns: [
+                {data: 'num', className: 'text-right', name: 'projects.project_num'},
                 {data: 'name', name: 'projects.name'},
                 {data: 'manager', name: 'users.name'},
                 {data: 'customer', name: 'companies.name'},
@@ -4935,7 +4936,7 @@ $(document).ready(function(){
 
                 //Total por filtro aplicado:
                 hours_forecast = api
-                .column(6, { search: 'applied' })
+                .column(7, { search: 'applied' })
                 .data()
                 .reduce(function(a, b){
                     return intVal(a) + intVal(b);
@@ -4943,7 +4944,7 @@ $(document).ready(function(){
 
                 //Horas trabajadas:
                 hours_worked = api
-                .column(7, { search: 'applied' })
+                .column(8, { search: 'applied' })
                 .data()
                 .reduce(function(a, b){
                     return intVal(a) + intVal(b);
@@ -4951,7 +4952,7 @@ $(document).ready(function(){
 
                 var pending = hours_forecast - hours_worked;
 
-                $(api.column(6).footer()).html(
+                $(api.column(7).footer()).html(
                     hours_forecast.toFixed(2)+' / '+pending.toFixed(2)
                 );
             }
