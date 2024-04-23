@@ -1337,6 +1337,13 @@ class InvoiceController extends Controller{
         //     $this->recalculateInvoiceAmount($invoice, $order);
         // }
         
+        //Proyecto:
+        $project = Project::select('projects.id', 'projects.project_num')
+        ->join('project_purchases', 'projects.id', '=', 'project_purchases.project_id')
+        ->join('invoices', 'project_purchases.order_id', '=', 'invoices.order_id')
+        ->where('invoices.id', $invoice->id)
+        ->first();
+
         //Entorno: compra.
         $is_sale = false;
 
@@ -1495,7 +1502,7 @@ class InvoiceController extends Controller{
         ->orderBy('name', 'ASC')
         ->get();
 
-        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'is_sale', 'order', 'invoiced', 'invoices', 'refund', 'customer', 'customer_account', 'provider', 'provider_account', 'provider_settings', 'structure_concepts', 'items', 'products', 'ivaTypes', 'provider_cost_centers', 'currency', 'languages', 'patterns', 'payments', 'seat', 'seat_error', 'templates', 'featuredTemplate', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'payment_methods', 'concepts', 'customer_bank_accounts', 'customer_bank_featured', 'provider_bank_accounts', 'provider_bank_featured', 'accounting_products'));
+        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'project', 'is_sale', 'order', 'invoiced', 'invoices', 'refund', 'customer', 'customer_account', 'provider', 'provider_account', 'provider_settings', 'structure_concepts', 'items', 'products', 'ivaTypes', 'provider_cost_centers', 'currency', 'languages', 'patterns', 'payments', 'seat', 'seat_error', 'templates', 'featuredTemplate', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'payment_methods', 'concepts', 'customer_bank_accounts', 'customer_bank_featured', 'provider_bank_accounts', 'provider_bank_featured', 'accounting_products'));
     }
 
     /**
