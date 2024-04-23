@@ -368,7 +368,12 @@ class TimetableController extends Controller{
                 $this->mailRevision(Auth::user(), $hour, 'Concepto revisable', $item->name);
             }
 
-            return redirect()->route('users.timetables', Auth::user()->id);
+            //Redirección en función de los permisos del usuarios:
+            if(Auth::user()->can('employees-timetable.show')){
+                return redirect()->route('users.timetables', Auth::user()->id);        
+            }else{
+                return redirect()->route('dashboard');
+            }
 
         }else{
             return redirect('/');
@@ -380,7 +385,6 @@ class TimetableController extends Controller{
      */
     public function add(Request $request){
         if($request->date){
-            //dd($request->all());
             //Entrada:
             $hora_in = $request->input('hora_in').':'.$request->input('minutos_in').':'.$request->input('segundos_in');
             $hour_in = new Timetable();
