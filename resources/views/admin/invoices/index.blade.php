@@ -164,6 +164,148 @@
 @push('scripts')
 <script>
 $(function(){
+	//Tabla Invoices:
+    if($('#tblInvoices').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        var customer = $('#myCustomer').val() != ''? $('#myCustomer').val():'0';
+        var provider = $('#myProvider').val() != ''? $('#myProvider').val():'0'; 
+        var year = $('#myYear').val();
+        var month = $('#myMonth').val();
+        var group = $('#myGroup').val();
+        var orderId = $('#orderId').val();
+        var poId = $('#poId').val();        //by purchase order.
+
+        //Filters:
+
+        // Load data from localstorage
+        var jsonData = JSON.parse(localStorage.getItem('DataTables_tblInvoices_'+window.location.pathname));
+
+        $('#tblInvoices thead tr').clone(true).appendTo('#tblInvoices thead');
+        $('#tblInvoices thead tr:eq(1) th').each(function(i){
+            var title = $(this).text();
+            if(i == 11){
+                $(this).html('');
+            }else{
+                // Check field on json of localstorage
+                let value = jsonData && jsonData.columns[i].search.search ? jsonData.columns[i].search.search : '';
+                let htmlRaw = `<input type="text" class="DTsearch" placeholder="${txtBuscar+' '+title}" value="${value}" />`
+                $(this).html(htmlRaw);
+
+                // $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
+            }
+     
+            $('input', this).on('keyup change', function(){
+                if(tableInvoices.column(i).search() !== this.value){
+                    tableInvoices
+                        .column(i)
+                        .search(this.value)
+                        .draw();
+                }
+            });
+        });
+
+        // var api_route = 'invoices/'+year+'/'+customer+'/'+provider;
+        var api_route = `invoices/${year}/${customer}/${provider}/${month}/${group}`;
+
+        if(orderId){
+            api_route = 'invoices-by-order/'+orderId;
+        }else if(poId){
+            api_route = 'invoices-by-purchase/'+poId;
+        }
+        
+        var tableInvoices = $('#tblInvoices').DataTable({
+            order: [[ 5, "desc" ]],
+            serverSide: false,
+            processing: false,
+            stateSave: true,
+            autoWidth: false,
+            // drawCallback: function(){
+            //     $('.select2-dt').select2();
+            // },
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/"+api_route,
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'invoice_num', name: 'invoices.invoice_num', className: 'text-right'},
+                {data: 'company', name: 'companies.name'},
+                {data: 'order', name: 'orders.order_num', className: 'text-right'},
+                {data: 'manager', name: 'users.name'},
+                {data: 'fiscal_date', className: 'text-right'},
+                {data: 'expiration_date', className: 'text-right'},
+                {data: 'amount', name: 'invoices.amount', className: 'text-right'},
+                {data: 'amount_with_iva', name: 'invoices.amount_with_iva', className: 'text-right'},
+                {data: 'payment_method', name: 'payment_methods.method'},
+                {data: 'month'},
+                //{data: 'workplace'},
+                {data: 'estado'},
+                {data: 'acciones', className: 'text-right'}
+            ],
+            "footerCallback": function(row, data, start, end, display){
+                // if(typeof year != 'undefined'){
+                    var api = this.api(), data;
+                    var json = api.ajax.json();
+
+                    var currency = false;
+                    var refund = false;
+                    api.rows().every(function(){
+                        var data = this.data();
+                    });
+
+                    if(!currency) currency = '€';
+     
+                    // Remove the formatting to get integer data for summation
+                    var intVal = function(i){
+                        //console.log(i);
+                        return typeof i === 'string'? 
+                        i.replace(/[\'+currency+',]/g, '')*1 :
+                        typeof i === 'number' ?
+                            i : 0;
+                    };
+
+                    //Total:
+                    total = api
+                    .column(6, { search: 'applied' })
+                    .data()
+                    .reduce(function(a, b){
+                        return intVal(a) + intVal(b);
+                    }, 0);
+
+                    $(api.column(6).footer()).html(
+                        total.toFixed(2)+currency   
+                    );
+
+                    //Total con IVA:
+                    total_iva = api
+                    .column(7, { search: 'applied' })
+                    .data()
+                    .reduce(function(a, b){
+                        return intVal(a) + intVal(b);
+                    }, 0);
+
+                    $(api.column(7).footer()).html(
+                        total_iva.toFixed(2)+currency   
+                    );
+     
+                    //Total por filtro aplicado:
+                    // total_amount = api
+                    // .column(5, { search: 'applied' })
+                    // .data()
+                    // .reduce(function(a, b){
+                    //     return intVal(a) + intVal(b);
+                    // }, 0);
+
+                    // $(api.column(5).footer()).html(
+                    //     total_amount.toFixed(2)+currency    
+                    // );
+                //}
+            }
+        });
+    }
+	
 	//Toggle selector clientes o proveedores:
 	 $('#customerId').on('change', function(e){
          $('#providerId').val(['']).trigger('change.select2');

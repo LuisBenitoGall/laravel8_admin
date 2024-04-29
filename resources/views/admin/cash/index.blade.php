@@ -40,4 +40,36 @@
 	</div>
 </div>
 
+@push('scripts')
+<script>
+$(function(){
+	//Tablas Cashes:
+    if($('#tblCashes').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        
+        var tableCashes = $('#tblCashes').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/cash",
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'date', className: 'text-right'},
+                {data: 'cash_center'},
+                {data: 'customer'},
+                {data: 'amount', className: 'text-right'},
+                {data: 'payment_method'},
+                {data: 'estado', name: 'estado'},
+                {data: 'acciones', className: 'text-right'}
+            ]
+        });
+    }
+});
+</script>
+@endpush
+
 @endsection

@@ -136,7 +136,100 @@
 
 @push('scripts')
 <script>
+//Convertir segundos a minutos y horas:
+function secondsToString(seconds, viewSeconds = false){
+    var hour = Math.floor(seconds / 3600);
+    hour = (hour < 10)? '0' + hour : hour;
+    var minute = Math.floor((seconds / 60) % 60);
+    minute = (minute < 10)? '0' + minute : minute;
+    if(viewSeconds){
+        var second = seconds % 60;
+        second = (second < 10)? '0' + second : second;
+        return hour + ':' + minute + ':' + second;
+    }else{
+        return hour + ':' + minute;    
+    }
+}
+
 $(function(){
+	//Tabla User Timetables:
+    if($('#tblUserTimetables').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        var from = $('#myFrom').val();
+        var to = $('#myTo').val();
+        var user = $('#myUser').val();
+
+        $('#tblUserTimetables').DataTable({
+            serverSide: false,
+            processing: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/user-timetables/"+from+"/"+to+"/"+user,
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'fecha', className: 'text-right'},
+                {data: 'hour', className: 'text-right'},
+                {data: 'name'},
+                {data: 'accumulated', className: 'text-right'},
+                {data: 'comments'},
+                {data: 'acciones', name: 'acciones', className: 'text-right'}
+            ],
+            "footerCallback": function(row, data, start, end, display){
+                var api = this.api(), data;
+                if(api.rows().count() > 0){
+
+                    var horasTrabajadas = 0;
+                    var hoursHT = 0;
+
+                    var horasATrabajar = 0;
+                    var hoursAT = 0;
+
+                    var horasDiferencia = 0;
+                    var hoursD = 0;
+
+                    api.rows().every(function(){
+                        var data = this.data();
+
+                        //Horas trabajadas:
+                        if(data.accumulated != '' && data.accumulated_value > '0'){
+                            var pHT = data.accumulated_value? data.accumulated_value.split(':'):[0,0];
+                            var minutesHT = parseInt(pHT[0]) * 60;
+                            minutesHT = parseInt(minutesHT) + parseInt(pHT[1]);
+                            var secondsHT = parseInt(minutesHT) * 60;
+                            hoursHT = parseInt(hoursHT) + parseInt(secondsHT);    
+                        }
+
+                        //Horas a trabajar:
+                        if(data.hoursOfWork != '' && data.hoursOfWork != '0'){
+                            var pAT = data.hoursOfWork.split(':');
+                            var minutesAT = parseInt(pAT[0]) * 60;
+                            minutesAT = parseInt(minutesAT) + parseInt(pAT[1]);
+                            var secondsAT = parseInt(minutesAT) * 60;
+                            hoursAT = parseInt(hoursAT) + parseInt(secondsAT); 
+                        }
+                    });
+
+                    //Diferencia de horas:
+                    hoursD = hoursHT - hoursAT;
+                    hoursD = Math.abs(hoursD);
+                    var classDif = hoursHT >= hoursAT? 'text-success':'text-danger';
+                    horasDiferencia = secondsToString(hoursD);
+
+                    //Convertimos segundos a hora con minutos:
+                    horasTrabajadas = secondsToString(hoursHT);
+                    horasATrabajar = secondsToString(hoursAT);
+
+                    $(api.column(3).footer()).html(
+                        horasTrabajadas+' / '+horasATrabajar+' <strong class="'+classDif+' ml-2">'+horasDiferencia+'</strong>'    
+                    );
+                }
+            }
+        });
+    }
+
 	// Editar registro horario.
     $(document).on('click', '.btnRegistroHorario', function(e){
         e.preventDefault();

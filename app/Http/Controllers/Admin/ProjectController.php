@@ -719,6 +719,8 @@ class ProjectController extends Controller{
         //Slug:
         $slug = Str::slug($request->name);
 
+        $alert = false;
+
         //Número de proyecto:
         $project_num = NULL;
         if($request->pattern_id){
@@ -766,10 +768,16 @@ class ProjectController extends Controller{
         ProjectCategory::where('project_id', $project->id)->delete();  
         if($request->categories && count($request->categories)){
             foreach($request->categories as $ctg){
-                ProjectCategory::create([
-                    'project_id' => $project->id,
-                    'category_id' => $ctg
-                ]);
+                //Comprobamos que el valor recibido sea categoría:
+                $categ = Category::select('id')->find($ctg);
+                if($categ){
+                    ProjectCategory::create([
+                        'project_id' => $project->id,
+                        'category_id' => $categ->id
+                    ]);
+                }else{
+                    $alert = trans('textos.categoria_selec_aviso');
+                }
             }
         }
 
@@ -777,7 +785,7 @@ class ProjectController extends Controller{
         $this->jsonProjects();
 
         $msg = trans('textos.proyecto_updated');
-        return redirect()->route('projects.edit', $project)->with(compact('msg'));
+        return redirect()->route('projects.edit', $project)->with(compact('msg', 'alert'));
     }
 
     /**

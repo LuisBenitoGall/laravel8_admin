@@ -38,4 +38,31 @@
 {{-- Export values --}}
 @include('admin.partials.modal-export-values', ['action' => 'accounting-concepts.export'])
 
+@push('scripts')
+<script>
+$(function(){
+	//Tabla Accounting Concepts:
+    if($('#tblAccountingConcepts').length > 0){
+        $('#tblAccountingConcepts').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/accounting-concepts",
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'name'},
+                {data: 'level'},
+                {data: 'description'},
+                {data: 'acciones', name: 'acciones', className: 'text-right'}
+            ]
+        });
+    }
+});
+</script>
+@endpush
+
 @endsection

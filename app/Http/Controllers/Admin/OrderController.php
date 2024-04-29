@@ -1448,6 +1448,8 @@ class OrderController extends Controller{
         //Slug:
         $slug = Str::slug($request->name);
 
+        $alert = false;
+
         //Formateando fechas:
         $estimated_delivery_date = $request->estimated_delivery_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->estimated_delivery_date):$request->estimated_delivery_date:NULL;
         $delivery_date = $request->delivery_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->delivery_date):$request->delivery_date:NULL;
@@ -1638,15 +1640,21 @@ class OrderController extends Controller{
         OrderCategory::where('order_id', $order->id)->delete();  
         if($request->categories && count($request->categories)){
             foreach($request->categories as $ctg){
-                OrderCategory::create([
-                    'order_id' => $order->id,
-                    'category_id' => $ctg
-                ]);
+                //Comprobamos que el valor recibido sea categoría:
+                $categ = Category::select('id')->find($ctg);
+                if($categ){
+                    OrderCategory::create([
+                        'order_id' => $order->id,
+                        'category_id' => $categ->id
+                    ]);
+                }else{
+                    $alert = trans('textos.categoria_selec_aviso');
+                }
             }
         }
 
         $msg = trans('textos.pedido_updated');
-        return redirect()->route('orders.edit', [$order->id, false])->with(compact('msg')); 
+        return redirect()->route('orders.edit', [$order->id, false])->with(compact('msg', 'alert')); 
     }
 
     /**

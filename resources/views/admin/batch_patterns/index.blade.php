@@ -27,4 +27,32 @@
 	</div>
 </div>
 
+@push('scripts')
+<script>
+$(function(){
+	//Tabla Batch Patterns:
+    if($('#tblBatchPatterns').length > 0){
+        $('#tblBatchPatterns').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/batch-patterns",
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'name', className: 'capitalize'},
+                {data: 'patron'},
+                {data: 'reset', className: 'text-center'},
+                {data: 'alta', className: 'text-right'},
+                {data: 'acciones', className: 'text-right'}
+            ]
+        });
+    }
+});
+</script>
+@endpush
+
 @endsection
