@@ -383,6 +383,7 @@ $(window).on('load', function () {
     39. Búsqueda autocomplete de usuarios.
     40. Guardar Me Gusta.
     41. Búsqueda autocomplete para pedidos.
+        41.1. Búsqueda autocomplete para pedidos de compra.
     42. Búsqueda autocomplete para cuentas contables.
     43. Modal vincular pedidos de terceros.
     44. Modal editar nota.
@@ -1753,6 +1754,49 @@ $(window).on('load', function () {
 
             if(ui.item.value == ''){
                 $('#orderId_').val('');
+            }
+            
+            return false;
+        }    
+    });
+
+    // 41.1. Búsqueda autocomplete para pedidos de compra.
+    $('#search_purchase').autocomplete({
+        minLength: 0,
+        source: function(request,response){
+            // Fetch data
+            if(request.term.length > 1){
+                $.ajax({
+                    url: "/api/admin/purchases-search",
+                    type: "post",
+                    dataType: "json",
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        search: request.term
+                    },
+                    success: function(data){
+                        response($.map(data, function (item){
+                            var num_ = item.purchase_num? item.purchase_num:(item.purchase_old_num? item.purchase_old_num:item.id);
+
+                            return {
+                                label: num_+' - '+item.name,
+                                value: item.id
+                            }
+                        }));
+                    }
+                });
+
+            //Limpiamos datos:
+            }else{
+                $('#purchaseId_').val('');  
+            }
+        },
+        select: function(event,ui){
+            $('#search_purchase').val(ui.item.label);
+            $('#purchaseId_').val(ui.item.value);
+
+            if(ui.item.value == ''){
+                $('#purchaseId_').val('');
             }
             
             return false;

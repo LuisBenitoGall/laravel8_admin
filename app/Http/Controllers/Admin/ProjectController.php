@@ -526,13 +526,14 @@ class ProjectController extends Controller{
         }
 
         //Ventas para el proyecto:
-        $orders = Order::select('orders.id', 'orders.order_num', 'orders.name', 'companies.name AS customer')
-        ->join('companies', 'orders.provider_id', '=', 'companies.id')
-        ->where('orders.is_order', true)
-        ->where('orders.provider_id', session('currentCompany'))
-        ->whereNotIn('orders.id', $arr_project_orders)
-        ->orderBy('orders.order_num', 'ASC')
-        ->get();
+        //29/04/2024: se pasa a autocomplete:
+        // $orders = Order::select('orders.id', 'orders.order_num', 'orders.name', 'companies.name AS customer')
+        // ->join('companies', 'orders.provider_id', '=', 'companies.id')
+        // ->where('orders.is_order', true)
+        // ->where('orders.provider_id', session('currentCompany'))
+        // ->whereNotIn('orders.id', $arr_project_orders)
+        // ->orderBy('orders.order_num', 'ASC')
+        // ->get();
 
         //Abreviaturas modalidades de presupuesto:
         $abrev = [
@@ -649,7 +650,7 @@ class ProjectController extends Controller{
         //Moneda:
         $currency = $this->co_currency;
 
-        return view('admin.projects.edit', compact('header', 'tab', 'project', 'patterns', 'author', 'owner', 'customer', 'customers', 'users', 'team', 'team_members', 'tasks', 'task_status', 'groups', 'project_orders', 'orders', 'project_purchases', 'purchases', 'project_expenses', 'expense_types', 'expenses', 'project_groups', 'groups_in', 'project_groups', 'favourite', 'categories', 'categories_in', 'languages', 'currency'));
+        return view('admin.projects.edit', compact('header', 'tab', 'project', 'patterns', 'author', 'owner', 'customer', 'customers', 'users', 'team', 'team_members', 'tasks', 'task_status', 'groups', 'project_orders', 'project_purchases', 'purchases', 'project_expenses', 'expense_types', 'expenses', 'project_groups', 'groups_in', 'project_groups', 'favourite', 'categories', 'categories_in', 'languages', 'currency'));
     }
 
     /**
