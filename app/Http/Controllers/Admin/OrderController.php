@@ -97,6 +97,7 @@ class OrderController extends Controller{
      * 24. Pedidos según proveedor.
      * 25. Exportar .xls pedidos por rango de fecha.
      * 26. Pedidos para autocomplete.
+     * 26.1. Pedidos de compra para autocomplete.
      * 27. Cerrar pedido.
      * 28. Recálculo previsiones en pedidos pendientes.
      */
@@ -260,6 +261,9 @@ class OrderController extends Controller{
             'module' => $this->module,
             'slug' => 'orders'
         ]; 
+
+
+
 
         $year = $year? $year:Date('Y');
 
@@ -2782,6 +2786,27 @@ class OrderController extends Controller{
         ->where(function($q) use ($search){  
             $q->where('order_num', 'like', '%'.$search.'%') 
             ->orWhere('order_old_num', 'like', '%'.$search.'%')   
+            ->orWhere('name', 'like', '%'.$search.'%');
+        })
+        ->orderBy('name', 'ASC')
+        ->limit(15)
+        ->get(); 
+
+        return response()->json($data);
+    }
+
+    /**
+     * 26.1. Pedidos de compra para autocomplete.
+     */
+    public function searchPurchases(Request $request) {
+        $search = $request->search;
+
+        $data = Order::select('id', 'name', 'purchase_num', 'purchase_old_num')  
+        ->where('is_order', 1)
+        ->where('customer_id', session('currentCompany'))
+        ->where(function($q) use ($search){  
+            $q->where('purchase_num', 'like', '%'.$search.'%') 
+            ->orWhere('purchase_old_num', 'like', '%'.$search.'%')   
             ->orWhere('name', 'like', '%'.$search.'%');
         })
         ->orderBy('name', 'ASC')

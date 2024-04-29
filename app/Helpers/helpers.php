@@ -803,7 +803,11 @@ class Helpers{
 			10 => ucfirst(trans('textos.administrador'))
 		];
 		if($status){
-			return $data[$status];
+			if(isset($data[$status])){
+				return $data[$status];
+			}else{
+				return false;
+			}
 		}else{
 			return $data;
 		}	
@@ -868,7 +872,11 @@ class Helpers{
 			70 => trans('textos.finalizado')
 		];
 		if($status){
-			return $data[$status];
+			if(isset($data[$status])){
+				return $data[$status];
+			}else{
+				return false;
+			}
 		}else{
 			return $data;
 		}			
@@ -884,7 +892,11 @@ class Helpers{
 			20 => trans('textos.facturado')
 		];
 		if($status){
-			return ucfirst($data[$status]);
+			if(isset($data[$status])){
+				return ucfirst($data[$status]);
+			}else{
+				return false;
+			}
 		}else{
 			return $data;
 		}		
@@ -901,7 +913,11 @@ class Helpers{
 			30 => trans('textos.finalizado')
 		];
 		if($status){
-			return ucfirst($data[$status]);
+			if(isset($data[$status])){
+				return ucfirst($data[$status]);
+			}else{
+				return false;
+			}
 		}else{
 			return $data;
 		}		
@@ -918,7 +934,11 @@ class Helpers{
 			30 => trans('textos.entregado')
 		];
 		if($status){
-			return ucfirst($data[$status]);
+			if(isset($data[$status])){
+				return ucfirst($data[$status]);
+			}else{
+				return false;
+			}
 		}else{
 			return $data;
 		}		

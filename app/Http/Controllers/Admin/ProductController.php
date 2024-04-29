@@ -17,6 +17,7 @@ use Carbon\Carbon;
 //Models:
 use App\Models\Attribute;
 use App\Models\BudgetFormItems;
+use App\Models\BudgetForms;
 use App\Models\Category;
 use App\Models\Company;
 use App\Models\CompanySettings;
@@ -52,6 +53,7 @@ class ProductController extends Controller{
      * 10. Listado de ventas por producto para DataTable.
      * 11. Listado de compras por producto para DataTable.
      * 12. Pedidos de compra del producto.
+     * 13. Migración de catálogo y formulario de presupuestos entre empresas.
      */  
     
     private $option = 'catalogo';  
@@ -96,6 +98,8 @@ class ProductController extends Controller{
             'module' => $this->module,
             'slug' => 'products'
         ];
+
+        $this->migrateCatalogue(4,275);
 
         $view = 'list';
 
@@ -757,5 +761,72 @@ class ProductController extends Controller{
 
             return response()->json($data);
         }    
+    }
+
+    /**
+     * 13. Migración de catálogo y formulario de presupuestos entre empresas.
+     */
+    public function migrateCatalogue($company_from, $company_to){
+        $products = Product::select('products.*', 'budget_form_items.id AS bfi_id')
+        ->leftJoin('budget_form_items', 'products.id', '=', 'budget_form_items.product_id')
+        ->where('products.company_id', $company_from)
+        ->where('products.on_sale', 1)
+        ->whereNull('products.deleted_at')
+        ->groupBy('products.id')
+        ->get();
+
+        //Nuevo formulario de presupuestos:
+        $budget_form_to = new BudgetForms();
+        $budget_form_to->name = 'Plantilla presupuestos MAD';
+        $budget_form_to->slug = 'plantilla-presupuestos-mad';
+        $budget_form_to->company_id = $company_to;
+        $budget_form_to->status = 1;
+        $budget_form_to->save();
+
+        //Eliminamos los productos de la empresa de destino:
+        Product::where('company_id', $company_to)
+        ->where('on_sale', 1)
+        ->delete();
+
+        foreach($products as $p){
+            $cost_center_from = $p->cost_center_id? CostCenters::select('slug')->find($p->cost_center_id):false;
+
+            if($cost_center_from){
+                $cost_center_to = CostCenters::select('id')
+                ->where('slug', $cost_center_from->slug)
+                ->where('company_id', $company_to)
+                ->first();
+            }else{
+                $cost_center_to = false;    
+            }
+
+            $pd = new Product();
+            $pd->name = $p->name;
+            $pd->slug = $p->slug;
+            $pd->translations = $p->translations;
+            $pd->tags = $p->tags;
+            $pd->description = $p->description;
+            $pd->long_description = $p->long_description;
+            $pd->company_id = $company_to;
+            $pd->user_id = Auth::user()->id;
+            $pd->type = $p->type;
+            $pd->price = $p->price;
+            $pd->calculated_by_percent = $p->calculated_by_percent;
+            $pd->iva = $p->iva;
+            $pd->on_sale = 1;
+            $pd->cost_center_id = $cost_center_to? $cost_center_to->id:NULL;
+            $pd->production_status = $p->production_status;
+            $pd->status = $p->status;
+            $pd->save();
+
+            //Si el producto original estaba en formulario, se incluye en el nuevo formulario:
+            if($p->bfi_id){
+                $bfi = new BudgetFormItems();
+                $bfi->form_id = $budget_form_to->id;
+                $bfi->product_id = $pd->id;
+                $bfi->name = $pd->name;
+                $bfi->save();
+            }
+        }
     }
 }
