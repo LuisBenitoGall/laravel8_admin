@@ -99,8 +99,6 @@ class ProductController extends Controller{
             'slug' => 'products'
         ];
 
-        $this->migrateCatalogue(4,275);
-
         $view = 'list';
 
         //Moneda:
