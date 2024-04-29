@@ -253,6 +253,7 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     //Orders:
     Route::get('orders/{year?}/{customer?}/{provider?}/{owner?}/{groups?}/{status?}/{from?}/{to?}/{order_buy?}', 'OrderController@getOrdersDT');
     Route::post('orders-search', 'OrderController@searchOrders');
+    Route::post('purchases-search', 'OrderController@searchPurchases');
 
     //Orders Control Panel Purchases:
     Route::get('orders-control-panel-purchases/{year}', 'OrderController@getOrdersControlPanelPurchasesDT');
