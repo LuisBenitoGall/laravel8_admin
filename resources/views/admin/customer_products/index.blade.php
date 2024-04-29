@@ -128,6 +128,99 @@
 @push('scripts')
 <script>
 $(function(){
+	//Tabla Customer Products:
+    if($('#tblCustomerProducts').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        var customer = $('#dtCustomer').val();
+        var ba = $('#dtBusinessArea').val();
+
+        //Filters:
+        $('#tblCustomerProducts thead tr').clone(true).appendTo('#tblCustomerProducts thead');
+        $('#tblCustomerProducts thead tr:eq(1) th').each(function(i){
+            var title = $(this).text();
+            if(i == 2 || i == 4 || i == 5){
+                $(this).html('');
+            }else{
+                $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
+            }
+     
+            $('input', this).on('keyup change', function(){
+                if(tableCustomerProducts.column(i).search() !== this.value){
+                    tableCustomerProducts
+                        .column(i)
+                        .search(this.value)
+                        .draw();
+                }
+            });
+        });
+        
+        var tableCustomerProducts = $('#tblCustomerProducts').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/customer-products/"+customer+"/"+ba,
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'name', name: 'products.name'},
+                {data: 'descripcion', name:"products.description"},
+                {data: 'image', className: 'text-center', orderable: false, searchable: false},
+                {data: 'price', name: 'products.price', className: 'text-right'},
+                {data: 'customer_price', className: 'text-right', orderable: false, searchable: false},
+                {data: 'acciones', className: 'text-right', orderable: false, searchable: false}
+            ]
+        });
+    }
+
+    //Tabla Provider Products:
+    if($('#tblProviderProducts').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        var provider = $('#dtProvider').val();
+
+        //Filters:
+        $('#tblProviderProducts thead tr').clone(true).appendTo('#tblProviderProducts thead');
+        $('#tblProviderProducts thead tr:eq(1) th').each(function(i){
+            var title = $(this).text();
+            if(i == 3 || i == 5){
+                $(this).html('');
+            }else{
+                $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
+            }
+     
+            $('input', this).on('keyup change', function(){
+                if(tableProviderProducts.column(i).search() !== this.value){
+                    tableProviderProducts
+                        .column(i)
+                        .search(this.value)
+                        .draw();
+                }
+            });
+        });
+        
+        var tableProviderProducts = $('#tblProviderProducts').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/provider-products/"+provider,
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'name'},
+                {data: 'descripcion'},
+                {data: 'internal_ref'},
+                {data: 'image', className: 'text-center', orderable: false, searchable: false},
+                {data: 'price', className: 'text-right'},
+                {data: 'acciones', className: 'text-right', orderable: false, searchable: false}
+            ]
+        });
+    }
+
 	// Status de producto en catálogo para cliente.
     $(document).on('click', '.btnCustomerProductStatus', function(){
         var status = '';

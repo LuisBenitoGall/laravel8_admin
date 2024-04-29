@@ -43,6 +43,27 @@
 @push('scripts')
 <script>
 $(function(){
+	//Tabla Accounting Account Types:
+    if($('#tblAccountingAccountTypes').length > 0){
+        var tableAccountingAccounts = $('#tblAccountingAccountTypes').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                type: "GET",
+                url: "/api/admin/accounting-account-types",
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'code', name: 'accounting_account_types.code'},
+                {data: 'name', name: 'accounting_account_types.name'},
+                {data: 'level', className: 'text-center'},
+                {data: 'acciones', className: 'text-right'}
+            ]
+        });    
+    }
+	
 	//Modal edición tipo cuenta:
 	$(document).on('click', '.btnEditType', function(){
 		var id = $(this).data('id');

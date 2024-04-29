@@ -26,4 +26,31 @@
 	</div>
 </div>
 
+@push('scripts')
+<script>
+$(function(){
+	//Tabla Accounts:
+    if($('#tblAccounts').length > 0){
+        $('#tblAccounts').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/accounts",
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'name'},
+                {data: 'rate', className: 'text-right'},
+                {data: 'duration', className: 'text-right'},
+                {data: 'acciones', name: 'acciones', className: 'text-right'}
+            ]
+        });
+    }
+});
+</script>
+@endpush
+
 @endsection

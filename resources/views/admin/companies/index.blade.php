@@ -36,6 +36,65 @@
 @push('scripts')
 <script>
 $(function(){
+	//Tabla Companies:
+    if($('#tblCompanies').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        
+        //Filters:
+
+        // Load data from localstorage
+        var jsonData = JSON.parse(localStorage.getItem('DataTables_tblCompanies_'+window.location.pathname));
+
+        $('#tblCompanies thead tr').clone(true).appendTo('#tblCompanies thead');
+        $('#tblCompanies thead tr:eq(1) th').each(function(i){
+            var title = $(this).text();
+            if(i == 5 || i == 6){
+                $(this).html('');
+            }else{
+                // Check field on json of localstorage
+                let value = jsonData && jsonData.columns[i].search.search ? jsonData.columns[i].search.search : '';
+                let htmlRaw = `<input type="text" class="DTsearch" placeholder="${txtBuscar+' '+title}" value="${value}" />`
+                $(this).html(htmlRaw);
+
+                // $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
+            }
+     
+            $('input', this).on('keyup change', function(){
+                if(tableCompanies.column(i).search() !== this.value){
+                    tableCompanies
+                        .column(i)
+                        .search(this.value)
+                        .draw();
+                }
+            });
+        });
+
+        var tableCompanies = $('#tblCompanies').DataTable({
+            serverSide: true,
+            processing: true,
+            stateSave: true,
+            language: {
+                processing: '<i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span>'
+            },
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/companies",
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'name'},
+                {data: 'tradename'},
+                {data: 'alta', className: 'text-right'},
+                {data: 'nif'},
+                {data: 'ute', className: 'text-center'},
+                {data: 'logo', className: 'text-center'},
+                {data: 'acciones', className: 'text-right'}
+            ]
+        });
+    }
+
 	//Modal transferir empresa:
 	$(document).on('click', '.btnTransferCompany', function(){
 		var id = $(this).data('id');

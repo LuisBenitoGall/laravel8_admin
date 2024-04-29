@@ -381,6 +381,7 @@ return array(
 	'categoria_params' => 'Parámetros de la categoría',
 	'categoria_principal' => 'Categoría principal',
 	'categoria_selec' => 'Selecciona categoría',
+	'categoria_selec_aviso' => 'Selecciona categorías existentes en el desplegable. No se pueden añadir si no existen.',
 	'categoria_subcategoria' => 'Añadir subcategoría',
 	'categoria_updated' => 'La categoría ha sido actualizada correctamente.',
 	'categoria' => 'categoría',
