@@ -14,3 +14,41 @@
 		</table>
 	</div>
 </div>
+
+@push('scripts')
+<script>
+$(function(){
+	//Tabla Accounting Account Seats:
+    if($('#tblAccountingAccountSeats').length > 0){
+        var accounting_account_id = $('#myAccountingAccountId').val();
+
+        var tableAccountingAccountSeats = $('#tblAccountingAccountSeats').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                type: "GET",
+                url: "/api/admin/accounting-account-seats/"+accounting_account_id,
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'number', className: 'text-right'},
+                {data: 'date', className: 'text-right'},
+                {data: 'debit', className: 'text-right'},
+                {data: 'credit', className: 'text-right'},
+                {data: 'balance', className: 'text-right'},
+                {data: 'acciones', className: 'text-right'}
+            ],
+            columnDefs: [
+                {"targets": 0,
+                "render": function(data, type, row, meta){
+                    return meta.row + meta.settings._iDisplayStart + 1;
+                }
+                }
+            ]
+        });    
+    }
+});
+</script>
+@endpush

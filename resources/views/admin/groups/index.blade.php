@@ -26,4 +26,33 @@
 	</div>
 </div>
 
+@push('scripts')
+<script>
+$(function(){
+	//Tabla Groups:
+    if($('#tblGroups').length > 0){
+        //var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        
+        $('#tblGroups').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/groups",
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'name'},
+                {data: 'alta', name: 'alta', className: 'text-right'},
+                {data: 'description'},
+                {data: 'acciones', name: 'acciones', className: 'text-right'}
+            ]
+        });
+    }
+});
+</script>
+@endpush
+
 @endsection

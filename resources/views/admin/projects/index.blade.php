@@ -122,6 +122,97 @@ $str_status_values = $status_values? implode(',', $status_values):'';
 @push('scripts')
 <script>
 $(function(){
+	//Tabla Projects:
+    if($('#tblProjects').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        var status = $('#dtStatus').val();
+
+        //Filters:
+        var jsonData = JSON.parse(localStorage.getItem('DataTables_tblProjects_'+window.location.pathname));
+
+        $('#tblProjects thead tr').clone(true).appendTo('#tblProjects thead');
+        $('#tblProjects thead tr:eq(1) th').each(function(i){
+            var title = $(this).text(); 
+            if(i == 7 || i == 8 || i == 10 || i == 12){
+                $(this).html('');
+            }else{
+                let value = jsonData && jsonData.columns[i].search.search ? jsonData.columns[i].search.search : '';
+                let htmlRaw = `<input type="text" class="DTsearch" placeholder="${txtBuscar+' '+title}" value="${value}" />`
+                $(this).html(htmlRaw);
+
+                // $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
+                // aquí el código retirado
+                
+            }
+
+            $('input', this).on('keyup change', function(){
+                if(tableProjects.column(i).search() !== this.value){
+                    tableProjects
+                        .column(i)
+                        .search(this.value)
+                        .draw();
+                }
+            });
+        });
+
+        var tableProjects = $('#tblProjects').DataTable({
+            serverSide: true,
+            processing: true,
+            stateSave: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/projects/"+status,
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'num', className: 'text-right', name: 'projects.project_num'},
+                {data: 'name', name: 'projects.name'},
+                {data: 'manager', name: 'users.name'},
+                {data: 'customer', name: 'companies.name'},
+                {data: 'alta', className: 'text-right'},
+                {data: 'entrega_prevista', className: 'text-right'},
+                {data: 'entrega', className: 'text-right'},
+                {data: 'hours_forecast', className: 'text-right'},
+                {data: 'hours_worked', visible: false},
+                {data: 'category_names', name: 'category_names', searchable: true},
+                {data: 'progress', className: 'position-relative'},
+                {data: 'estado', name: 'estado'},
+                {data: 'acciones', orderable: false, searchable: false, className: 'text-right'}
+            ],
+            "footerCallback": function(row, data, start, end, display){
+                var api = this.api(), data;
+
+                var intVal = function(i){
+                    return i;
+                };
+
+                //Total por filtro aplicado:
+                hours_forecast = api
+                .column(7, { search: 'applied' })
+                .data()
+                .reduce(function(a, b){
+                    return intVal(a) + intVal(b);
+                }, 0);
+
+                //Horas trabajadas:
+                hours_worked = api
+                .column(8, { search: 'applied' })
+                .data()
+                .reduce(function(a, b){
+                    return intVal(a) + intVal(b);
+                }, 0);
+
+                var pending = hours_forecast - hours_worked;
+
+                $(api.column(7).footer()).html(
+                    hours_forecast.toFixed(2)+' / '+pending.toFixed(2)
+                );
+            }
+        });
+    }
+	
 	//Agregar favorito.
 	// 21/06/2023: se migra el método a custom.js pues va a ser utilizado también por projects/edit.blade.php
 

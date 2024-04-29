@@ -26,4 +26,35 @@
 	</div>
 </div>
 
+@push('scripts')
+<script>
+$(function(){
+	//Tabla Attributes:
+    if($('#tblAttributes').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+
+        var tableAttributes = $('#tblAttributes').DataTable({
+            serverSide: true,
+            processing: true, 
+            //scrollX: true,
+            //fixedColumns: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/attributes",
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'name'},
+                {data: 'description'},
+                {data: 'datatype'},
+                {data: 'acciones', className: 'text-right'}
+            ]
+        });
+    }
+});
+</script>
+@endpush
+
 @endsection

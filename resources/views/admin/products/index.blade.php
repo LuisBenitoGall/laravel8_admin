@@ -65,4 +65,58 @@
 {{-- Translations: --}}
 @include('admin.languages.partials.modal-translations')
 
+@push('scripts')
+<script>
+$(function(){
+	 //Tabla Products:
+    if($('#tblProducts').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        var company = $('#myCompany').val();
+
+        //Filters:
+        $('#tblProducts thead tr').clone(true).appendTo('#tblProducts thead');
+        $('#tblProducts thead tr:eq(1) th').each(function(i){
+            var title = $(this).text();
+            if(i == 5 || i == 7){
+                $(this).html('');
+            }else{
+                $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
+            }
+     
+            $('input', this).on('keyup change', function(){
+                if(tableProducts.column(i).search() !== this.value){
+                    tableProducts
+                        .column(i)
+                        .search(this.value)
+                        .draw();
+                }
+            });
+        });
+        
+        var tableProducts = $('#tblProducts').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/products/"+company,
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'product', name: 'products.name'},
+                {data: 'ref', name: 'products.ref'},
+                {data: 'description'},
+                {data: 'price', className: 'text-right', name: 'products.price'},
+                {data: 'cost_center', name: 'cost_centers.name'},
+                {data: 'image', className: 'text-center'},
+                {data: 'on_sale', className: 'text-center'},
+                {data: 'acciones', className: 'text-right'}
+            ]
+        });
+    }	
+});
+</script>
+@endpush
+
 @endsection

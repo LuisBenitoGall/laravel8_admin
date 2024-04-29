@@ -27,4 +27,36 @@
 	</div>
 </div>
 
+@push('scripts')
+<script>
+$(function(){
+	//Tabla Categories:
+    if($('#tblCategories').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        var module_id = $('#moduleId').val();
+
+        var tableCategories = $('#tblCategories').DataTable({
+            serverSide: true,
+            processing: true,
+            language: {
+                processing: '<i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span>'
+            },
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/categories/"+module_id,
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'name', name: 'name'},
+                {data: 'level', name: 'level'},
+                {data: 'acciones', className: 'text-right'}
+            ]
+        });
+    }
+});
+</script>
+@endpush
+
 @endsection

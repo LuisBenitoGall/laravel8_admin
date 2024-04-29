@@ -831,7 +831,11 @@ class Helpers{
 			//90 => trans('textos.preparacion_aaff')
 		];
 		if($status){
-			return ucfirst($data[$status]);
+			if(isset($data[$status])){
+				return ucfirst($data[$status]);
+			}else{
+				return false;
+			}
 		}else{
 			return $data;
 		}		
