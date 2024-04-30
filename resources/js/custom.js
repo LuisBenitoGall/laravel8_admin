@@ -1876,7 +1876,7 @@ $(window).on('load', function () {
 
             //Limpiamos datos:
             }else{
-                $('#accountingAccountId').val('');  
+                $('#accountingAccountId').val('');
             }
         },
         select: function(event,ui){
@@ -1885,6 +1885,46 @@ $(window).on('load', function () {
 
             if(ui.item.value == ''){
                 $('#search_accounting_account').val('');
+            }
+            
+            return false;
+        }
+    });
+
+    $('#search_accounting_account2').autocomplete({
+        minLength: 2,
+        source: function(request,response){
+            // Fetch data
+            if(request.term.length > 1){
+                $.ajax({
+                    url: "/api/admin/accounting-accounts-search",
+                    type: "post",
+                    dataType: "json",
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        search: request.term
+                    },
+                    success: function(data){
+                        response($.map(data, function (item){
+                            return {
+                                label: item.account+' - '+item.name,
+                                value: item.id
+                            }
+                        }));
+                    }
+                });
+
+            //Limpiamos datos:
+            }else{
+                $('#accountingAccountId2').val('');
+            }
+        },
+        select: function(event,ui){
+            $('#search_accounting_account2').val(ui.item.label);
+            $('#accountingAccountId2').val(ui.item.value);
+
+            if(ui.item.value == ''){
+                $('#search_accounting_account2').val('');
             }
             
             return false;
