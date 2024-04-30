@@ -42,7 +42,7 @@
 
                             <input type="hidden" name="accounting_sales" id="accountingAccountId1" value="{{ $val1_id }}"> --}}
 
-                            <x-input type="text" name="accounting_sales_" id="search_accounting_account" placeholder="{!! ucfirst(trans('textos.cuenta_buscar')) !!}" maxlength="150" value="{{ $val1_text }}"/>
+                            <x-input type="text" name="accounting_sales_" class="search_accounting_account" placeholder="{!! ucfirst(trans('textos.cuenta_buscar')) !!}" maxlength="150" value="{{ $val1_text }}"/>
 
 							<input type="hidden" name="accounting_sales" id="accountingAccountId" value="{{ $val1_id }}">
 						</div>
