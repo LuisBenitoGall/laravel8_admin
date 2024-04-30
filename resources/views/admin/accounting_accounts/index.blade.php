@@ -42,7 +42,7 @@
 
                             <input type="hidden" name="accounting_sales" id="accountingAccountId1" value="{{ $val1_id }}"> --}}
 
-                            <x-input type="text" name="accounting_sales_" class="search_accounting_account" placeholder="{!! ucfirst(trans('textos.cuenta_buscar')) !!}" maxlength="150" value="{{ $val1_text }}"/>
+                            <x-input type="text" name="accounting_sales_" id="search_accounting_account" placeholder="{!! ucfirst(trans('textos.cuenta_buscar')) !!}" maxlength="150" value="{{ $val1_text }}"/>
 
 							<input type="hidden" name="accounting_sales" id="accountingAccountId" value="{{ $val1_id }}">
 						</div>
@@ -73,7 +73,7 @@
 							$val2_id = isset($default_accounts[config('constants.ACCOUNT_DEFAULT_PURCHASES_')])? $default_accounts[config('constants.ACCOUNT_DEFAULT_PURCHASES_')][0]:'';
 							@endphp
 
-							<x-input type="text" name="accounting_purchases_" datas="id:2" class="search_accounting_account" id="searchAccountingAccount2" placeholder="{!! ucfirst(trans('textos.cuenta_buscar')) !!}" maxlength="250" value="{{ $val2_text }}"/>
+							<x-input type="text" name="accounting_purchases_" datas="id:2" id="search_accounting_account2" placeholder="{!! ucfirst(trans('textos.cuenta_buscar')) !!}" maxlength="250" value="{{ $val2_text }}"/>
 
                             <input type="hidden" name="accounting_purchases" id="accountingAccountId2" value="{{ $val2_id }}">
 						</div>
