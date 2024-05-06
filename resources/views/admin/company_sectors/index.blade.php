@@ -27,6 +27,29 @@
 
 <script>
 $(function(){
+    //Tabla Company Sectors:
+    if($('#tblCompanySectors').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        var company_id = $('#dtCompanyId').val();
+        
+        $('#tblCompanySectors').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/company-sectors/"+company_id,
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'name'},
+                {data: 'level'},
+                {data: 'acciones', className: 'text-right'}
+            ]
+        });
+    }
+    
 	$('#jstree').jstree({
         'core' : {
             'check_callback' : true

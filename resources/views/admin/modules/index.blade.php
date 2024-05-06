@@ -39,7 +39,7 @@ $(function(){
         
         $('#tblModules').DataTable({
             serverSide: true,
-            /*processing: true,*/
+            processing: true,
             ajax: {
                 "type": "GET",
                 "url": "/api/admin/modules",
@@ -49,56 +49,10 @@ $(function(){
             },
             columns: [
                 {data: 'module', className: 'capitalize'},
-                {data: 'nivel'},
-                {data: 'id', className: 'text-center'},
-                {data: 'id', className: 'text-center'},
-                {data: 'id', className: 'text-right'}
-            ],
-            columnDefs: [
-                {"targets": 2,
-                "render": function(data, type, row){
-                    var icon = '<i class="fa fa-'+row['icon']+'"></i>';
-
-                    return icon;
-                }
-                },
-                {"targets": 3,
-                "render": function(data, type, row){
-                    return '<span class="colorEx mr-2" style="background-color: '+row['color']+'"></span>';
-                }
-                },
-                {"targets": -1,
-                "render": function(data, type, row){
-                    //Estado, sólo para módulos opcionales:
-                    if(row['level'] == 3){
-                        var checked = (row['status'] == 1)? 'checked':'';
-                        var estado = '<label class="custom-chk-rdb" rel="tooltip" title="'+txtModuloOnOff+'">';
-                            estado += '<input type="checkbox" name="status" '+checked+'><span class="chk chk-action" data-id="'+row['id']+'" data-ctrl="modules/status"></span>';
-                        estado += '</label>';
-                    }else{
-                        var estado = '';
-                    }
-
-                    //Translations:
-                    var trans = linkTranslations(row['id'], 'modules', txtTraducciones);
-                    
-                    //Editar:
-                    var editar = '<a href="modules/'+row['id']+'/edit" class="btn btn-xs btn-info btnModuleEdit" rel="tooltip" title="'+txtEditar+'"><i class="fa fa-edit"></i></a>';
-
-                    //Eliminar:
-                    var eliminar = '<form method="POST" action="modules/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
-                        eliminar += '<input name="_method" type="hidden" value="DELETE">';
-                        eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
-                        eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtEliminar+'" data-msg="'+txtModuloConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
-                    eliminar += '</form>';
-                    
-                    //var eliminar = '<a href="#" class="btn btn-xs btn-danger btnDelete" rel="tooltip" title="'+txtEliminar+'" data-msg="'+txtModuloConfirmEliminar+'" data-model="modules" data-id="'+row['id']+'"><i class="fa fa-edit"></i></a>';
-
-                    // var eliminar = '<a class="btn btn-xs btn-danger" wire:click="$emit("destroy", '+row['id']+')" rel="tooltip" title="'+txtEliminar+'" data-msg="'+txtModuloConfirmEliminar+'"><i class="fa fa-trash"></i></a>';
-
-                    return estado+' '+trans+' '+editar+' '+eliminar;
-                }
-                }
+                {data: 'level'},
+                {data: 'icon', className: 'text-center'},
+                {data: 'color', className: 'text-center'},
+                {data: 'acciones', className: 'text-right'}
             ]
         });
     }
