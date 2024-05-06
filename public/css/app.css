@@ -22752,6 +22752,10 @@ body.body-small .footer.fixed {
   padding-left: 8px;
   padding-right: 8px;
 }
+.table.dtabla th.nowrap,
+.table.dtabla td.nowrap {
+  white-space: nowrap !important;
+}
 .table tbody .btn {
   min-width: 30px;
 }
@@ -29720,6 +29724,48 @@ ul.ui-autocomplete {
 
 .border-right3 {
   border-right: 3px solid #DDDDDD !important;
+}
+
+.dt-columns {
+  border-radius: 4px;
+  position: relative;
+}
+.dt-columns .ibox-content {
+  height: auto;
+  left: 0;
+  padding: 5px 0;
+  position: absolute;
+  width: 100%;
+  z-index: 200;
+}
+.dt-columns .ibox-content ul {
+  background-color: #FFF;
+  margin: 0;
+  max-width: 400px;
+  width: 100%;
+}
+.dt-columns .ibox-content ul li {
+  border-bottom: 1px solid #E8E8E8;
+  display: block;
+  position: relative;
+  width: 100%;
+}
+.dt-columns .ibox-content ul li:hover {
+  background-color: #E8E8E8;
+}
+.dt-columns .ibox-content ul li a {
+  color: #19ABD4;
+  display: inline-block;
+  padding: 5px 12px;
+  width: 85%;
+}
+.dt-columns .ibox-content ul li .fa {
+  float: right;
+  margin: 8px 15px 0 0;
+}
+.dt-columns .ibox-content ul li .column-ok {
+  position: absolute;
+  right: 12px;
 }
 
 /**

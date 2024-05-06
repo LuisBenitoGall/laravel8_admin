@@ -709,6 +709,11 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::get('order-prevision/{prevision}/delete', 'OrderPrevisionsController@destroy')->name('order-prevision.delete')->middleware('permission:orders.edit');
     Route::get('order-previsions/{order}/recalculate-previsions', 'OrderPrevisionsController@recalculatePrevisions')->name('order-previsions.recalculate-previsions')->middleware('permission:order-prevision.edit');
 
+    // Order Queries:
+    Route::get('order-queries', 'OrderQueryController@index')->name('order-queries.index');
+    Route::get('order-queries/by-items', 'OrderQueryController@byItems')->name('order-queries.by-items');
+    Route::post('order-queries/by-items', 'OrderQueryController@byItems')->name('order-queries.by-items');
+
     // Order Settings:
     Route::get('order-settings', 'OrderSettingsController@index')->name('order-settings.index');
     Route::get('order-settings/create', 'OrderSettingsController@create')->name('order-settings.create')->middleware('permission:order-settings.edit');

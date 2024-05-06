@@ -262,9 +262,6 @@ class OrderController extends Controller{
             'slug' => 'orders'
         ]; 
 
-
-
-
         $year = $year? $year:Date('Y');
 
         $customer = $customer_id && $customer_id != 'all'? Company::find($customer_id):false;

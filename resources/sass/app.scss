@@ -5315,6 +5315,13 @@ body.body-small .footer.fixed {
             padding-right: 8px;
         }  
     }  
+    &.dtabla{
+        th.nowrap, 
+        td.nowrap{
+            white-space: nowrap !important;
+        }
+    }
+
     tbody {
       .btn {
         min-width: 30px;
@@ -11900,6 +11907,52 @@ ul.ui-autocomplete {
 
 .border-right3{
     border-right: 3px solid #DDDDDD !important;
+}
+
+.dt-columns{
+    border-radius: 4px;
+    position: relative;
+    .ibox-content{
+        height: auto;
+        left: 0;
+        padding: 5px 0;
+        position: absolute;
+        width: 100%;
+        z-index: 200;
+        ul{
+            background-color: #FFF;
+            margin: 0;
+            max-width: 400px;
+            width: 100%;
+
+            li{
+                border-bottom: 1px solid $grey-light2;
+                display: block;
+                position: relative;
+                width: 100%;
+                &:hover{
+                    background-color: $grey-light2;
+                }
+
+                a{
+                    color: $info;
+                    display: inline-block;
+                    padding: 5px 12px;
+                    width: 85%;
+                }
+
+                .fa{
+                    float: right;
+                    margin: 8px 15px 0 0;
+                }
+
+                .column-ok{
+                    position: absolute;
+                    right: 12px;
+                }
+            }
+        }
+    }
 }
 
 /**
