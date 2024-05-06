@@ -29741,7 +29741,6 @@ ul.ui-autocomplete {
 .dt-columns .ibox-content ul {
   background-color: #FFF;
   margin: 0;
-  max-width: 400px;
   width: 100%;
 }
 .dt-columns .ibox-content ul li {
