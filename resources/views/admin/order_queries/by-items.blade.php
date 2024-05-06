@@ -130,7 +130,7 @@
         ]
         @endphp 
 
-        <div class="col-12 col-md-4 col-lg-3 mb-3">
+        <div class="col-12 col-md-4 col-lg-3">
             <div class="ibox collapsed dt-columns">
                 <div class="ibox-title bg-success">
                     <h5>{{ trans('textos.columnas_mostrar_ocultar') }}</h5>
