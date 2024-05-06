@@ -193,8 +193,8 @@ class OrderQueryController extends Controller{
             }
         })
         ->addColumn('commercial', function($row){
-            if($row->ucom_name){
-                return $row->ucom_name.' '.$row->ucom_surname;
+            if($row->com_name){
+                return $row->com_name.' '.$row->com_surname;
             }
         })
         ->addColumn('customer_manager', function($row){
