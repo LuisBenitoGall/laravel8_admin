@@ -108,10 +108,10 @@
             ['aceptado', 'text-center', 'wdt100'],
             ['entregado', 'text-center', 'wdt100'],
             ['estado', '', 'wdt100'],
-            ['proveedor_manager', '', 'wdt100'],
+            ['proveedor_manager', '', 'wdt150'],
             ['comercial', '', 'wdt100'],
-            ['cliente_manager', '', 'wdt100'],
-            ['cliente_final_manager', '', 'wdt100'],
+            ['cliente_manager', '', 'wdt150'],
+            ['cliente_final_manager', '', 'wdt150'],
             ['bolsa', '', 'wdt100'],
             ['producto', '', 'wdt100'],
             ['producto_contable', '', 'wdt100'],
@@ -130,7 +130,7 @@
         ]
         @endphp 
 
-        <div class="col-12 col-md-4 mb-3">
+        <div class="col-12 col-md-4 col-lg-3 mb-3">
             <div class="ibox collapsed dt-columns">
                 <div class="ibox-title bg-success">
                     <h5>{{ trans('textos.columnas_mostrar_ocultar') }}</h5>
@@ -143,10 +143,10 @@
                 <div class="ibox-content" style="display: none;">
                     <ul>
                         @foreach($columns as $i => $col)
-                            <li>
+                            <li class="row-{{ $i }}" data-visible="">
                                 <a href="#" class="toggle-vis" data-column="{{ $i }}">{{ ucfirst(trans('textos.'.$col[0])) }}</a>
 
-                                <i class="fa fa-check text-success"></i>
+                                {{-- <i class="fa fa-check text-success"></i> --}}
                             </li>
                         @endforeach 
                     </ul>                    
@@ -155,25 +155,12 @@
         </div>
 
         <div class="table-responsive">
-            
-            
             <table class="table table-hover dtabla" id="tblOrderQueries" style="width:1500%">
                 <thead>
                     <tr>
                         @foreach($columns as $col)
                             <th class="{{ $col[1] }} {{ $col[2] }} nowrap">{{ ucfirst(trans('textos.'.$col[0])) }}</th>
                         @endforeach
-
-                        {{-- <td>{{ trans('textos.proveedor') }}</td>
-                        <td>{{ trans('textos.cliente') }}</td>
-                        <td>{{ trans('textos.cliente_final') }}</td>
-                        <td>{{ trans('textos.presupuesto') }}</td>
-                        <td>{{ trans('textos.pedido') }}</td>
-                        <td>{{ trans('textos.titulo') }}</td>
-                        
-                        <td>{{ trans('textos.descripcion') }}</td>
-                        <td>{{ trans('textos.aceptado') }}</td>
-                        <td>{{ trans('textos.entregado') }}</td> --}}
                     </tr>
                 </thead>
             </table>
@@ -184,8 +171,6 @@
         </div>
     @endif
 </div>
-
-{{ $from_ }} ---- {{ $to_ }}
 
 @push('scripts')
 <script>
@@ -248,22 +233,37 @@ $(function(){
             ]
         });
 
+        //Obtener número de columnas:
+        var num_cols = $('#tblOrderQueries th').length;
+
+        //Seteando estado de vista inicial de la columna:
+        for (var i = 0; i < num_cols; i++){
+            if(tableOrderQueries.column(i).visible()){
+                $('.row-'+i).append('<i class="fa fa-check text-success"></i>');
+                $('.row-'+i).data('visible', 1);
+            }else{
+                $('.row-'+i).data('visible', 2);    
+            }
+        }
+
+        //Mostrar / ocultar columnas:
         document.querySelectorAll('a.toggle-vis').forEach((el) => {
             el.addEventListener('click', function (e) {
                 e.preventDefault();
+                var parent = $(this).closest('li');
+                is_ok = parent.find('.fa');
 
-                var is_ok = el.querySelector('.fa');
-
-
-                // if(is_ok){
-                //     alert('verdadero');
-                // }else{
-                //     alert('falso');
-                // }
+                if(parent.data('visible') == 1){
+                    parent.find('.fa').remove();
+                    parent.data('visible', 2);
+                }else{
+                    parent.append('<i class="fa fa-check text-success"></i>');
+                    parent.data('visible', 1);
+                }
          
                 let columnIdx = e.target.getAttribute('data-column');
                 let column = tableOrderQueries.column(columnIdx);
-         
+
                 // Toggle the visibility
                 column.visible(!column.visible());
             });
