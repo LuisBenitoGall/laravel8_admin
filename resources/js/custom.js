@@ -388,6 +388,7 @@ $(window).on('load', function () {
     43. Modal vincular pedidos de terceros.
     44. Modal editar nota.
     45. Seleccionar efectos para remesa.
+    46. Desplegable columnas para DataTables.
     */
 
     // 1. Eliminar preview imagen seleccionada:
@@ -1994,5 +1995,10 @@ $(window).on('load', function () {
         }else{
             $('.ef-'+val).remove();
         }       
+    });
+
+    //46. Desplegable columnas para DataTables.
+    $('.btn-dt-columns').on('click', function(){
+        $(".dt-columns ul").slideToggle();
     });
 });

@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Yajra\DataTables\DataTables;
 
 //Models:
 use App\Models\CompanyModules;
@@ -76,21 +77,28 @@ class ModuleController extends Controller{
      * 1.1. Listado de módulos para DataTable.
      */
     public function getModulesDT(){
-        $modules = Module::all();
+        $levels = helpers::levels();
 
-        //Ampliación de información de los objetos:
-        if($modules){
-            foreach($modules as $row){
-                $translations = unserialize($row->translations);
-                $lang = (session()->get('locale') != NULL)? session()->get('locale'):App::getLocale();
-                $row->module = isset($translations[$lang])? $translations[$lang]:ucfirst(trans('textos.'.$row->label));
+        $data = Module::orderBy('label', 'ASC');
 
-                //Pasamos el valor literal de level:
-                $row->nivel = Helpers::levels($row->level);
-            }
-        }
-
-        return datatables($modules)->toJson(); 
+        return DataTables::of($data)
+        ->addColumn('module', function($row){
+            return ucfirst(trans('textos.'.$row->label));
+        })
+        ->addColumn('level', function($row) use($levels){
+            return $levels[$row->level];
+        })
+        ->addColumn('icon', function($row){
+            return '<i class="fa fa-'.$row->icon.'"></i>';
+        })
+        ->addColumn('color', function($row){
+            return '<span class="colorEx mr-2" style="background-color: '.$row->color.'"></span>';
+        })
+        ->addColumn('acciones', function($row){
+            return view('admin.modules.partials.dt-actions', compact('row'));    
+        })
+        ->rawColumns(['icon', 'color'])
+        ->make(true);
     }
 
     /**
