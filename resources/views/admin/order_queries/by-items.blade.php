@@ -98,35 +98,39 @@
         {{-- Columnas --}}
         @php
         $columns = [
-            ['proveedor', '', 'wdt100'],
-            ['cliente', '', 'wdt100'],
-            ['cliente_final', '', 'wdt100'],
-            ['presupuesto', 'text-center', 'wdt100'],
-            ['pedido', 'text-center', 'wdt100'],
-            ['titulo', '', 'wdt100'],
-            ['creado', 'text-center', 'wdt100'],
-            ['aceptado', 'text-center', 'wdt100'],
-            ['entregado', 'text-center', 'wdt100'],
-            ['estado', '', 'wdt100'],
-            ['proveedor_manager', '', 'wdt150'],
-            ['comercial', '', 'wdt100'],
-            ['cliente_manager', '', 'wdt150'],
-            ['cliente_final_manager', '', 'wdt150'],
-            ['bolsa', '', 'wdt100'],
-            ['producto', '', 'wdt100'],
-            ['producto_contable', '', 'wdt100'],
-            ['cantidad', 'text-center', 'wdt100'],
-            ['precio', 'text-center', 'wdt100'],
-            ['iva', 'text-center', 'wdt100'],
-            ['irpf', 'text-center', 'wdt100'],
-            ['descuento', '', 'wdt100'],
-            ['por_porcentaje', '', 'wdt100'],
-            ['dias', '', 'wdt100'],
-            ['dias_continuos', '', 'wdt100'],
-            ['dias_continuos_dto', '', 'wdt150'],
-            ['importe', 'text-center', 'wdt100'],
-            ['centro_coste_proveedor', '', 'wdt200'],
-            ['centro_coste_cliente', '', 'wdt200']
+            ['proveedor', 'wdt100'],
+            ['cliente', 'wdt100'],
+            ['cliente_final', 'wdt100'],
+            ['pedido_es', 'wdt100'],
+            ['presupuesto', 'text-center wdt100'],
+            ['pedido', 'text-center wdt100'],
+            ['titulo', 'wdt100'],
+            ['creado', 'text-center wdt100'],
+            ['aceptado', 'text-center wdt100'],
+            ['entregado', 'text-center wdt100'],
+            ['estado', 'wdt100'],
+            ['facturado', 'wdt100'],
+            ['proveedor_manager', 'wdt150'],
+            ['comercial', 'wdt100'],
+            ['cliente_manager', 'wdt150'],
+            ['cliente_final_manager', 'wdt150'],
+            ['bolsa', 'text-center wdt100'],
+            ['producto', 'wdt100'],
+            ['concepto', 'wdt100'],
+            ['bloque_formulario', 'wdt100'],
+            ['producto_contable', 'wdt100'],
+            ['cantidad', 'text-center wdt100'],
+            ['precio', 'text-center wdt100'],
+            ['iva', 'text-center wdt100'],
+            ['irpf', 'text-center wdt100'],
+            ['descuento', 'wdt100'],
+            ['por_porcentaje', 'wdt100'],
+            ['dias', 'wdt100'],
+            ['dias_continuos', 'wdt100'],
+            ['dias_continuos_dto', 'wdt150'],
+            ['importe', 'text-center wdt100'],
+            ['centro_coste_proveedor', 'wdt200'],
+            ['centro_coste_cliente', 'wdt200']
         ]
         @endphp 
 
@@ -159,7 +163,7 @@
                 <thead>
                     <tr>
                         @foreach($columns as $col)
-                            <th class="{{ $col[1] }} {{ $col[2] }} nowrap">{{ ucfirst(trans('textos.'.$col[0])) }}</th>
+                            <th class="{{ $col[1] }} nowrap">{{ ucfirst(trans('textos.'.$col[0])) }}</th>
                         @endforeach
                     </tr>
                 </thead>
@@ -204,6 +208,7 @@ $(function(){
                 {data: 'provider', name: "cp.name"},
                 {data: 'customer', name: "cc.name"},
                 {data: 'final_customer', name: "cfc.name"},
+                {data: 'is_order', name: "o.is_order", className: 'text-center'},
                 {data: 'budget', name: "o.budget_num", className: 'text-right'},
                 {data: 'order', name: "o.order_num", className: 'text-right'},
                 {data: 'order_name', name: "o.name"},
@@ -211,12 +216,15 @@ $(function(){
                 {data: 'accepted', name: 'o.accepted_date', className: 'text-right'},
                 {data: 'delivered', name: 'o.delivery_date', className: 'text-right'},
                 {data: 'status', name: 'o.order_status'},
+                {data: 'invoiced', name: 'o.invoiced', className: 'text-center'},
                 {data: 'provider_manager'},
                 {data: 'commercial'},
                 {data: 'customer_manager'},
                 {data: 'final_customer_manager'},
                 {data: 'bag', className: 'text-right'},
                 {data: 'product', name: "p.name"},
+                {data: 'concept', name: "items.concept"},
+                {data: 'budget_form_block'},
                 {data: 'accounting_product', name: "p.name"},
                 {data: 'qty', className: 'text-right'},
                 {data: 'price', className: 'text-right'},
