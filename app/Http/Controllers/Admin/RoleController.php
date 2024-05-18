@@ -226,21 +226,19 @@ class RoleController extends Controller{
                 ->withInput();
         }   
 
-        //dd($request->all());
-
         //1º Actualizar role:
-        //$role->update($request->all());
+        $role->update($request->all());
 
         //2º Actualizar permisos:
         //$role->syncPermissions($request->permissions);
 
         //3º Permisos sobre los módulos:
-        $this->syncModulePermissions($role);
+        //$this->syncModulePermissions($role);
 
         //4ª Actualizar situación administrador de usuarios con este rol:
-        if($role->permissions->count()){
-            $this->syncAdminRoles($role->id);
-        }
+        // if($role->permissions->count()){
+        //     $this->syncAdminRoles($role->id);
+        // }
 
         $msg = trans('textos.rol_updated');
         return redirect()->route('roles.edit', $role->id)->with(compact('msg'));
