@@ -367,6 +367,19 @@ ON cp.provider_id = c1.id
 WHERE cp.provider_id IN (4,8,202,227,275)
 AND cp.customer_id NOT IN (4,8,202,227,275)
 ORDER BY c.name ASC
+
+- Listado clientes de ADN con pedidos
+SELECT c.name AS customer, c1.name AS provider FROM customer_providers cp
+JOIN companies c
+ON cp.customer_id = c.id
+JOIN companies c1
+ON cp.provider_id = c1.id
+JOIN orders o
+ON cp.customer_id = o.customer_id
+WHERE cp.provider_id IN (4,8,202,227,275)
+AND cp.customer_id NOT IN (4,8,202,227,275)
+GROUP BY c.id
+ORDER BY c.name ASC
    
 
 ### Instalación de Sentry
