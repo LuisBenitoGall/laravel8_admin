@@ -43,7 +43,7 @@ class UserCompanies extends Model
     public static function userCompanies()
     {
         $companies = Auth::user()->companies();
-dd($companies);
+
         //Limpiamos la session anterior:
         \Session::forget('companies');
 
