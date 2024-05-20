@@ -81,7 +81,7 @@ class LoginController extends Controller{
         ->where('user_id', Auth::user()->id)
         ->where('status', 1)
         ->first();
-dd(session('currentCompany'));
+
         session(['userEmployee' => $employee]);
     }
 
