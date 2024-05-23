@@ -209,6 +209,7 @@ $(document).ready(function () {
     7. Bloquear doble submit en formularios.
     8. Bloqueo de botones tras 1 click.
     9. Menú opciones top responsive.
+    10.
     */
 
     //Hora del control horario:
@@ -325,6 +326,8 @@ $(document).ready(function () {
     $('.pop-over').on('click', function(e){
         e.preventDefault();
     });
+
+    $('.prominent').parent('div').css({'border': '1px solid #89c5d9'});
 });
 
 // ************************************ WINDOW LOAD: ************************************

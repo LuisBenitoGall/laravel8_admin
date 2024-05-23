@@ -84,8 +84,6 @@ class OrderQueryController extends Controller{
             $order_type = 'v';
         }
 
-
-
         //Empresas vinculadas al usuario:
         $user_companies = UserCompanies::select('companies.id', 'companies.name')
         ->join('companies', 'user_companies.company_id', '=', 'companies.id')
@@ -113,7 +111,7 @@ class OrderQueryController extends Controller{
             $order_status = helpers::orderStatus();
 
 
-            $data = Item::select('items.id', 'items.order_id', 'items.concept', 'items.qty', 'items.price', 'items.iva', 'items.irpf', 'items.discount', 'items.days', 'items.days_continue', 'items.days_continue_discount', 'p.name AS product', 'pp.name AS purchase_product', 'bfi.name AS budget_form_block', 'o.is_order', 'o.invoiced', 'o.order_num', 'o.order_old_num', 'o.budget_num', 'o.budget_old_num', 'o.name AS order_name', 'o.accepted_date', 'o.delivery_date', 'o.bag_amount', 'o.created_at', 'o.order_status', 'cp.name AS provider', 'cc.name AS customer', 'cfc.name AS final_customer', 'up.name AS pm_name', 'up.surname AS pm_surname', 'ucom.name AS com_name', 'ucom.surname AS com_surname', 'uc.name AS cm_name', 'uc.surname AS cm_surname', 'ufc.name AS fcm_name', 'ufc.surname AS fcm.surname', 'pcc.name AS p_cost_center', 'ccc.name AS c_cost_center')
+            $data = Item::select('items.id', 'items.order_id', 'items.concept', 'items.qty', 'items.price', 'items.iva', 'items.irpf', 'items.discount', 'items.days', 'items.days_continue', 'items.days_continue_discount', 'p.name AS product', 'pp.name AS purchase_product', 'bfi.name AS budget_form_block', 'o.is_order', 'o.is_budget', 'o.invoiced', 'o.order_num', 'o.order_old_num', 'o.budget_num', 'o.budget_old_num', 'o.name AS order_name', 'o.accepted_date', 'o.delivery_date', 'o.bag_amount', 'o.created_at', 'o.order_status', 'cp.name AS provider', 'cc.name AS customer', 'cfc.name AS final_customer', 'up.name AS pm_name', 'up.surname AS pm_surname', 'ucom.name AS com_name', 'ucom.surname AS com_surname', 'uc.name AS cm_name', 'uc.surname AS cm_surname', 'ufc.name AS fcm_name', 'ufc.surname AS fcm.surname', 'pcc.name AS p_cost_center', 'ccc.name AS c_cost_center')
             ->join('orders AS o', 'items.order_id', '=', 'o.id')
             ->leftJoin('products AS p', 'items.product_id', '=', 'p.id')
             ->leftJoin('purchase_products AS pp', 'items.purchase_product_id', '=', 'pp.id')
@@ -157,6 +155,11 @@ class OrderQueryController extends Controller{
             })
             ->addColumn('is_order', function($row){
                 if($row->is_order == 1){
+                    return '<span style="display: none">1</span><i class="fa fa-check text-success"></i>';
+                }
+            })
+            ->addColumn('is_budget', function($row){
+                if($row->is_budget == 1){
                     return '<span style="display: none">1</span><i class="fa fa-check text-success"></i>';
                 }
             })
@@ -269,7 +272,7 @@ class OrderQueryController extends Controller{
             ->addColumn('customer_cost_center', function($row){
                 return $row->c_cost_center;
             })
-            ->rawColumns(['is_order', 'invoiced', 'budget', 'order'])
+            ->rawColumns(['is_order', 'is_budget', 'invoiced', 'budget', 'order'])
             ->make(true);
         }
     }

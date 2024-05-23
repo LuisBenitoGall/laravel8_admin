@@ -122,7 +122,7 @@ $readonly = $order->customer_id == session('currentCompany')? true:false;
 		{{-- Presupuesto título --}}
 		<label for="name" class="col-lg-2 col-form-label">{{ ucfirst(trans('textos.presupuesto_titulo')) }}</label>
 		<div class="col-lg-4">
-			<x-input type="text" name="name" value="{!! $order->name !!}" autocomplete="off" readonly="{{ $readonly }}" maxlength="255"/>
+			<x-input type="text" name="name" class="prominent" value="{!! $order->name !!}" autocomplete="off" readonly="{{ $readonly }}" maxlength="255"/>
 		</div>
 
 		{{-- Estado - condiciones: 
@@ -184,13 +184,13 @@ $readonly = $order->customer_id == session('currentCompany')? true:false;
 			@php
 			$disabled = $order->customer_id == session('currentCompany')? true:false;
 			@endphp
-			<x-select name="provider_manager_id" class="select2" :options="$provider_managers" label="manager_selec" value="{{ $order->provider_manager_id }}" disabled="{{ $disabled }}"/>
+			<x-select name="provider_manager_id" class="select2 prominent" :options="$provider_managers" label="manager_selec" value="{{ $order->provider_manager_id }}" disabled="{{ $disabled }}"/>
 		</div>
 
 		{{-- Manager del cliente --}}
 		<label for="customer_manager_id" class="col-lg-2 col-form-label">{{ ucfirst(trans('textos.responsable_cliente')) }}</label>
 		<div class="col-lg-3">	
-			<x-select name="customer_manager_id" class="select2" :options="$customer_managers" label="manager_selec" value="{{ $order->customer_manager_id }}"/>
+			<x-select name="customer_manager_id" class="select2 prominent" :options="$customer_managers" label="manager_selec" value="{{ $order->customer_manager_id }}"/>
 		</div>
 
 		{{-- Añadir nuevo responsable de cliente --}}
@@ -206,7 +206,7 @@ $readonly = $order->customer_id == session('currentCompany')? true:false;
 		<label for="commercial_id" class="col-lg-2 col-form-label">{!! trans('textos.comercial') !!}</label>
 		<div class="col-lg-4">
 			@if($order->provider_id == session('currentCompany'))
-				<x-select name="commercial_id" class="select2" label="comercial_selec" :options="$provider_managers" value="{{ $order->commercial_id }}"/>
+				<x-select name="commercial_id" class="select2 prominent" label="comercial_selec" :options="$provider_managers" value="{{ $order->commercial_id }}"/>
 			@else
 				@php
 				$commercial_id = $order->commercial_id && isset($provider_managers[$order->commercial_id])? $provider_managers[$order->commercial_id]:'';
@@ -233,7 +233,7 @@ $readonly = $order->customer_id == session('currentCompany')? true:false;
 					@endphp	
 				@endforeach
 
-				<x-select name="provider_workplace_id" class="select2" :options="$provider_workplaces_" label="centro_trabajo_selec" value="{{ $workplace_selected }}" disabled="{{ $disabled }}"/>
+				<x-select name="provider_workplace_id" class="select2 prominent" :options="$provider_workplaces_" label="centro_trabajo_selec" value="{{ $workplace_selected }}" disabled="{{ $disabled }}"/>
 
 			@elseif($provider_workplaces->count() == 1)
 				<input type="hidden" name="provider_workplace_id" value="{{ $provider_workplaces[0]->id }}">
@@ -359,7 +359,7 @@ $readonly = $order->customer_id == session('currentCompany')? true:false;
 					@endphp	
 				@endforeach
 
-				<x-select name="final_customer_id" class="select2" :options="$final_customers_" label="cliente_selec" value="{{ $order->final_customer_id }}"/>
+				<x-select name="final_customer_id" class="select2 prominent" :options="$final_customers_" label="cliente_selec" value="{{ $order->final_customer_id }}"/>
 			@else
 				<p class="text-warning pt-2">{!! trans('textos.cliente_final_no_encontrados') !!}</p>
 			@endif
