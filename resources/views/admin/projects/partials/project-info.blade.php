@@ -185,7 +185,7 @@
 				{{-- Categorías --}}
 				<label for="categories" class="col-lg-3 col-form-label">{!! ucfirst(trans('textos.categorias')) !!}</label>
 				<div class="col-lg-9">
-					<x-select name="categories[]" class="select2" multiple :options="$categories" :values="$categories_in"/>
+					<x-select name="categories[]" class="select2 prominent" multiple :options="$categories" :values="$categories_in"/>
 				</div>
 			</div>
 		</div>

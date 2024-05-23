@@ -2441,6 +2441,7 @@ return array(
 	'presupuesto_editar' => 'Editar presupuesto',
 	'presupuesto_eliminar' => 'Eliminar presupuesto',
 	'presupuesto_englobado' => 'El presupuesto ha sido englobado correctamente.',
+	'presupuesto_es' => 'Es presupuesto',
 	'presupuesto_formulario_copiar_confirm' => 'Confirma que deseas clonar este formulario de presupuesto',
 	'presupuesto_formularios' => 'Formularios de presupuesto',
 	'presupuesto_generar' => 'Generar presupuesto',
