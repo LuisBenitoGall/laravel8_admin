@@ -3221,7 +3221,10 @@ div.dt-button-info {
   width: 200px;
 }
 .form-control {
-  font-size: 0.85rem;
+    font-size: 0.85rem;
+    // &.prominent{
+    //     border: 1px solid $blue_prominent !important; 
+    // }
 }
 select.form-control:not([size]):not([multiple]) {
   /*height: 2.30rem;*/

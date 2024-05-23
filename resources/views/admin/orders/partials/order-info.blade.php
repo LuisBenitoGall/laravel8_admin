@@ -203,7 +203,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 			@endphp
 
 			@if($order->provider_id == session('currentCompany'))
-				<x-date-picker name="estimated_delivery_date" id="estimated_delivery_date" value="{{ $estimatedDeliveryDate }}" :format="$languages[config('app.locale')][4]"/>
+				<x-date-picker name="estimated_delivery_date" class="prominent" id="estimated_delivery_date" value="{{ $estimatedDeliveryDate }}" :format="$languages[config('app.locale')][4]"/>
 			@else
 				<x-input type="text" name="estimated_delivery_date" value="{{ $estimatedDeliveryDate }}" autocomplete="off" maxlength="25" readonly/>
 			@endif
@@ -217,7 +217,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 			@endphp
 
 			@if($order->provider_id == session('currentCompany'))
-				<x-date-picker name="delivery_date" id="delivery_date" value="{{ $deliveryDate }}" :format="$languages[config('app.locale')][4]" readonly="{{ $read_only_provider }}"/>
+				<x-date-picker name="delivery_date" id="delivery_date" class="prominent" value="{{ $deliveryDate }}" :format="$languages[config('app.locale')][4]" readonly="{{ $read_only_provider }}"/>
 			@else
 				<x-input type="text" name="delivery_date" value="{{ $deliveryDate }}" autocomplete="off" maxlength="255" readonly/>
 			@endif
@@ -249,7 +249,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 				{{-- 18/10/22: resolver estado de pedido para que quede disabled cuando estén todas las previsiones de facturación facturadas --}}
 				{{-- disabled="{{ $disabled }}" --}}
 
-				<x-select name="status" class="select2" label="indica_estado" :options="$estados" value="{{ $order->order_status }}" />
+				<x-select name="status" class="select2 prominent" label="indica_estado" :options="$estados" value="{{ $order->order_status }}" />
 			</div>
 		@else
 			<input type="hidden" name="order_status" value="{{ $order->order_status }}">
@@ -314,7 +314,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 								{{-- Año --}}
 								<label for="year" class="col-md-2 col-lg-1 col-form-label mb-2">{!! ucfirst(trans('textos.any')) !!}</label>
 								<div class="col-md-4 col-lg-1 sinpadding">
-									<select name="year[]" class="form-control select2 prevision-data" {{ $disabled }}>
+									<select name="year[]" class="form-control select2 prevision-data prominent" {{ $disabled }}>
 										@for($y=config('constants.MIN_YEAR_'); $y<=(date('Y')+3); $y++)
 											@php
 											$selected = $prev->year == $y? 'selected':date('Y');
@@ -338,7 +338,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 									$months = App\Helpers\helpers::yearMonths();
 									@endphp
 
-									<select name="month[]" class="form-control select2 prevision-data" {{ $disabled }}>
+									<select name="month[]" class="form-control select2 prevision-data prominent" {{ $disabled }}>
 										@if(!$prev->month)
 											<option value="">{{ trans('textos.mes_selec') }}</option>
 										@else
@@ -364,7 +364,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 								{{-- Importe --}}
 								<label for="amount" class="col-md-2 col-lg-1 col-form-label">{!! ucfirst(trans('textos.importe')) !!}</label>
 								<div class="col-md-4 col-lg-2 sinpadding text-right">
-									<x-input type="text" name="amount[]" class="text-right set-decimals prevision-amount prevision-data" autocomplete="off" maxlength="10" value="{{ $prev->amount }}" group="right" groupvalue="{{ $currency->symbol }}" required disabled="{{ $disabled_ }}"/>
+									<x-input type="text" name="amount[]" class="text-right set-decimals prevision-amount prevision-data prominent" autocomplete="off" maxlength="10" value="{{ $prev->amount }}" group="right" groupvalue="{{ $currency->symbol }}" required disabled="{{ $disabled_ }}"/>
 
 									@php
 									$accumulatedAmount = $accumulatedAmount + $prev->amount;
@@ -387,7 +387,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 									}
 									@endphp
 
-									<x-input type="text" name="percent[]" class="text-right set-decimals percent prevision-data" autocomplete="off" maxlength="10" value="{{ $percent }}" group="right" groupvalue="%" required disabled="{{ $disabled_ }}"/>
+									<x-input type="text" name="percent[]" class="text-right set-decimals percent prevision-data prominent" autocomplete="off" maxlength="10" value="{{ $percent }}" group="right" groupvalue="%" required disabled="{{ $disabled_ }}"/>
 
 									{{-- Monto de la orden, aplicando el porcentaje de cobro --}}
 									{{-- <small data-container="body" data-toggle="popover" data-placement="top" data-content="{{ trans('textos.facturacion_prevista_info_percent') }}">
@@ -470,7 +470,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 			<div class="form-group row">
 				<label for="customer_manager_id" class="col-lg-3 col-form-label">Manager {!! trans('textos.cliente') !!}</label>
 				<div class="col-lg-9">
-					<x-select name="customer_manager_id" class="select2" label="manager_selec" :options="$customer_managers" value="{{ $order->customer_manager_id }}"/>
+					<x-select name="customer_manager_id" class="select2 prominent" label="manager_selec" :options="$customer_managers" value="{{ $order->customer_manager_id }}"/>
 				</div>
 			</div>
 
@@ -544,7 +544,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 				<label for="provider_manager_id" class="col-lg-3 col-form-label">Manager {!! trans('textos.proveedor') !!}</label>
 				<div class="col-lg-9">
 					@if($order->provider_id == session('currentCompany'))
-						<x-select name="provider_manager_id" class="select2" label="manager_selec" :options="$provider_managers" value="{{ $order->provider_manager_id }}"/>
+						<x-select name="provider_manager_id" class="select2 prominent" label="manager_selec" :options="$provider_managers" value="{{ $order->provider_manager_id }}"/>
 					@else
 						@php
 						$provider_manager_id = $order->provider_manager_id && isset($provider_managers[$order->provider_manager_id])? $provider_managers[$order->provider_manager_id]:'';
