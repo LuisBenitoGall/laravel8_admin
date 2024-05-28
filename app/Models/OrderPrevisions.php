@@ -113,9 +113,6 @@ class OrderPrevisions extends Model{
                 //Previsión facturada:
                 if($p->invoice_id){
 
-
-                    //dd('facturado', $p);
-
                     //Importe de la factura:
                     $invoice_amount = Invoice::select('amount')->find($p->invoice_id);
 
@@ -199,7 +196,6 @@ class OrderPrevisions extends Model{
 
             //Añadimos nueva previsión o actualizamos una existente si el porcentaje previsto es superior a 0.01:  && $generate
             if($diff_amount >= config('constants.TOLERANCE_DECIMALS_')){
-                dd('crea nueva previsión', $diff_amount);
                 if($first_id){
                     OrderPrevisions::where('id', $first_id)
                     ->update(['amount' => round($diff_amount, 2), 'percent' => $diff_percent]);    
