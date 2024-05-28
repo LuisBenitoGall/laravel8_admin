@@ -112,6 +112,10 @@ class OrderPrevisions extends Model{
             foreach($previsions as $p){
                 //Previsión facturada:
                 if($p->invoice_id){
+
+
+                    //dd('facturado', $p);
+
                     //Importe de la factura:
                     $invoice_amount = Invoice::select('amount')->find($p->invoice_id);
 
@@ -134,6 +138,7 @@ class OrderPrevisions extends Model{
                 //No facturada:
                 //19/01/2024: las previsiones sin mes asignado se agrupan en una sola.
                 }else{
+
                     //Para 1 única previsión:
                     // if($previsions->count() == 1){
                     //     $p->amount = $order_amount;
@@ -143,6 +148,9 @@ class OrderPrevisions extends Model{
                     
                     //Con mes declarado:
                     if($p->month){
+
+
+
                         //Verificamos que el importe se ajuste al total:
                         $percent = NULL;
                         if(!$p->amount || $p->amount == '0'){
@@ -150,7 +158,7 @@ class OrderPrevisions extends Model{
                             $percent = round( ($amount * 100) / $order_amount, 6);
 
                         }elseif($p->amount > 0){
-                            $amount = $p->amount <= ($order_amount - $accumulated_amount)? $p->amount:NULL;
+                            $amount = $p->amount <= ($order_amount - $accumulated_amount) + config('constants.TOLERANCE_DECIMALS_')? $p->amount:NULL;
 
                             //Ajuste del porcentaje:
                             if($amount > 0){
@@ -176,8 +184,10 @@ class OrderPrevisions extends Model{
             $diff_percent = bcsub(100, $accumulated_percent, 6);
             $diff_amount = $order_amount - $accumulated_amount;
 
+            
+
             //Ajustamos porcentaje pendiente en función del importe pendiente:
-            if($diff_amount < 0.01){
+            if($diff_amount < config('constants.TOLERANCE_DECIMALS_')){
                 $diff_percent = 0;    
             }
 
@@ -187,8 +197,9 @@ class OrderPrevisions extends Model{
                 $first_id = $previsions_without_month[0]->id;
             }
 
-            //Añadimos nueva previsión o actualizamos una existente si el porcentaje previsto es inferior a 100:  && $generate
-            if($diff_amount >= 0.01){
+            //Añadimos nueva previsión o actualizamos una existente si el porcentaje previsto es superior a 0.01:  && $generate
+            if($diff_amount >= config('constants.TOLERANCE_DECIMALS_')){
+                dd('crea nueva previsión', $diff_amount);
                 if($first_id){
                     OrderPrevisions::where('id', $first_id)
                     ->update(['amount' => round($diff_amount, 2), 'percent' => $diff_percent]);    
