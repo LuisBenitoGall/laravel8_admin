@@ -150,7 +150,7 @@ A continuación se ejecuta en consola: composer dump-autoload
 
 
 ## IDIOMAS:
-Se definen en el método languages, en App/Helpers/helpers.php. Sigue las indicaciones descritas en el método (2.1. Idiomas).
+Se definen en el método languages, en App/Helpers/helpers.php. Sigue las indicaciones descritas en el método (3.1. Idiomas).
 
 ## NOTAS:
 - En config/database.php se modifica en el objeto 'mysql' el parámetro 'strict' de true a false. De este modo logramos que funcionen las sentencias groupBy en las consultas mysql.
