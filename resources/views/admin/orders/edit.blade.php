@@ -803,6 +803,8 @@ $order_amount_without_discount = $order_amount_without_discount_in_lines > $orde
 {{-- HTML para clonar y añadir a previsions --}}
 <div class="clones" style="display: none;">
     <div class="form-group row prevision">
+        <input type="hidden" name="invoiced[]" value="0">
+
         {{-- Año --}}
         <label for="year" class="col-md-2 col-lg-1 col-form-label mb-2">{!! ucfirst(trans('textos.any')) !!}</label>
         <div class="col-md-4 col-lg-1 sinpadding">

@@ -301,20 +301,23 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 						@foreach($previsions as $prev)
 							@php
 							$totalPercent = $totalPercent + $prev->percent;
-							$disabled = $prev->invoice_id? 'disabled':'';
+							$disabled = $prev->invoice_id? 'readonly':'';		//Previsiones ya facturadas.
 							$disabled_ = $prev->invoice_id? true:false;
+							$prev_invoiced = $prev->invoice_id? true:false;
 							if(!$prev->amount && !$prev->percent) $previsionSetted = false;
 							@endphp
 
 							<div class="form-group row prevision">
-								@if(!$disabled_)
+								{{-- Si la previsión no está facturada --}}
+								{{-- @if(!$disabled_) --}}
 									<input type="hidden" name="op_id[]" value="{{ $prev->id }}">
-								@endif
+									<input type="hidden" name="invoiced[]" value="{{ $prev_invoiced }}">
+								{{-- @endif --}}
 
 								{{-- Año --}}
 								<label for="year" class="col-md-2 col-lg-1 col-form-label mb-2">{!! ucfirst(trans('textos.any')) !!}</label>
 								<div class="col-md-4 col-lg-1 sinpadding">
-									<select name="year[]" class="form-control select2 prevision-data prominent" {{ $disabled }}>
+									<select name="year[]" class="form-control select2 prevision-data" {{ $disabled }}>
 										@for($y=config('constants.MIN_YEAR_'); $y<=(date('Y')+3); $y++)
 											@php
 											$selected = $prev->year == $y? 'selected':date('Y');
@@ -338,7 +341,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 									$months = App\Helpers\helpers::yearMonths();
 									@endphp
 
-									<select name="month[]" class="form-control select2 prevision-data prominent" {{ $disabled }}>
+									<select name="month[]" class="form-control select2 prevision-data" {{ $disabled }}>
 										@if(!$prev->month)
 											<option value="">{{ trans('textos.mes_selec') }}</option>
 										@else
