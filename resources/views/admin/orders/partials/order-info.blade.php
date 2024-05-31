@@ -367,7 +367,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 								{{-- Importe --}}
 								<label for="amount" class="col-md-2 col-lg-1 col-form-label">{!! ucfirst(trans('textos.importe')) !!}</label>
 								<div class="col-md-4 col-lg-2 sinpadding text-right">
-									<x-input type="text" name="amount[]" class="text-right set-decimals prevision-amount prevision-data prominent" autocomplete="off" maxlength="10" value="{{ $prev->amount }}" group="right" groupvalue="{{ $currency->symbol }}" required disabled="{{ $disabled_ }}"/>
+									<x-input type="text" name="amount[]" class="text-right set-decimals prevision-amount prevision-data prominent" autocomplete="off" maxlength="10" value="{{ $prev->amount }}" group="right" groupvalue="{{ $currency->symbol }}" required readonly="{{ $disabled }}"/>
 
 									@php
 									$accumulatedAmount = $accumulatedAmount + $prev->amount;
@@ -390,7 +390,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 									}
 									@endphp
 
-									<x-input type="text" name="percent[]" class="text-right set-decimals percent prevision-data prominent" autocomplete="off" maxlength="10" value="{{ $percent }}" group="right" groupvalue="%" required disabled="{{ $disabled_ }}"/>
+									<x-input type="text" name="percent[]" class="text-right set-decimals percent prevision-data prominent" autocomplete="off" maxlength="10" value="{{ $percent }}" group="right" groupvalue="%" required readonly="{{ $disabled }}"/>
 
 									{{-- Monto de la orden, aplicando el porcentaje de cobro --}}
 									{{-- <small data-container="body" data-toggle="popover" data-placement="top" data-content="{{ trans('textos.facturacion_prevista_info_percent') }}">
@@ -439,7 +439,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 						Pasamos como condición adicional que el porcentaje sea mayor a 0.02, para evitar decimales residuales.
 					--}}
 					@if($totalPercent < 100 && (100 - $totalPercent) > 0.02 && $order->blocked == '0')
-						<p class="text-warning">
+						<p class="col-md-10 text-warning text-right">
 							{!! trans('textos.facturacion_prevision_pendiente') !!}: 
 							<b class="mr-4">{{ round($order_amount - $accumulatedAmount, 2) }}{{ $currency->symbol }}</b>
 							<b class="mr-4">{{ round(100 - $totalPercent, 6) }}%</b>
