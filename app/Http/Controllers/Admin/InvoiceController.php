@@ -603,6 +603,9 @@ class InvoiceController extends Controller{
                 $percentage_invoiced = $real_percent;
 
                 //Actualizamos el porcentaje a facturar:
+                //31/05/2024: se actualiza también mes y año de la previsión acorde al mes y año de la generación de la factura.
+                $last_prevision->year = Date('Y');
+                $last_prevision->month = Date('m');
                 $last_prevision->percent = $real_percent;
                 $last_prevision->save();
 
@@ -633,6 +636,11 @@ class InvoiceController extends Controller{
 
                     //Importe con IVA:
                     $amount_with_iva = helpers::percent($order_amount['invoice_amount'], $percent_to_invoice);
+
+                    //31/05/2024: se actualiza también mes y año de la previsión acorde al mes y año de la generación de la factura.
+                    $prevision->year = Date('Y');
+                    $prevision->month = Date('m');
+                    $prevision->save();
                 }
             }
         }
@@ -2328,7 +2336,7 @@ class InvoiceController extends Controller{
             //Creamos nueva previsión por el porcentaje pendiente:
             $new_order_prevision = new OrderPrevisions();
             $new_order_prevision->order_id = $invoice->order_id;
-            $new_order_prevision->year = date('Y');
+            $new_order_prevision->year = Date('Y');
             $new_order_prevision->amount = $refund_amount;
             $new_order_prevision->percent = ($refund_amount * 100) / $invoice->amount;
             $new_order_prevision->save();

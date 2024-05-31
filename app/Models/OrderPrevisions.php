@@ -195,20 +195,20 @@ class OrderPrevisions extends Model{
             }
 
             //Añadimos nueva previsión o actualizamos una existente si el porcentaje previsto es superior a 0.01:  && $generate
-            if($diff_amount >= config('constants.TOLERANCE_DECIMALS_')){
-                if($first_id){
-                    OrderPrevisions::where('id', $first_id)
-                    ->update(['amount' => round($diff_amount, 2), 'percent' => $diff_percent]);    
+            // if($diff_amount >= config('constants.TOLERANCE_DECIMALS_')){
+            //     if($first_id){
+            //         OrderPrevisions::where('id', $first_id)
+            //         ->update(['amount' => round($diff_amount, 2), 'percent' => $diff_percent]);    
 
-                }else{
-                    $op = new OrderPrevisions();
-                    $op->order_id = $order_id;
-                    $op->year = date('Y');
-                    $op->amount = round($diff_amount, 2);
-                    $op->percent = $diff_percent;
-                    $op->save();
-                }
-            }
+            //     }else{
+            //         $op = new OrderPrevisions();
+            //         $op->order_id = $order_id;
+            //         $op->year = date('Y');
+            //         $op->amount = round($diff_amount, 2);
+            //         $op->percent = $diff_percent;
+            //         $op->save();
+            //     }
+            // }
         }
 
         return OrderPrevisions::select('order_previsions.*', 'invoices.id AS invoiceId', 'invoices.invoice_num', 'invoices.amount AS invoice_amount', 'invoices.amount_with_iva')
