@@ -1185,14 +1185,14 @@ class OrderController extends Controller{
 
         //Previsiones de facturación del pedido:    
         $generate = $order->blocked == 1? false:true;  
-        $previsions = OrderPrevisions::previsions($order->id, $order_amount, $generate);
-
+        $previsions = OrderPrevisions::previsions($order->id, $order_amount);
+//dd($previsions);
         //Debe existir siempre al menos una previsión:
-        // if($previsions && !$previsions->count()){
-        //     OrderPrevisions::store($order->id);
+        if($previsions && !$previsions->count()){
+            OrderPrevisions::store($order->id);
 
-        //     $previsions = OrderPrevisions::previsions($order->id, $order_amount, $generate);
-        // }
+            $previsions = OrderPrevisions::previsions($order->id, $order_amount);
+        }
 
         //Productos. Activos y aptos para venta:
         $products = Product::companyProducts($order->provider_id, $order->customer_id, true, true);
@@ -1562,7 +1562,7 @@ class OrderController extends Controller{
             ->whereNull('provider_cost_center_id')
             ->update(['provider_cost_center_id' => $request->provider_cost_center_id]);
         }
-//dd($request->year, $request->op_id, $request->invoiced);
+//dd($request->year, $request->month, $request->op_id, $request->amount, $request->percent);
         //Guardamos previsiones:
         if($request->year){
             $order_amount = $order->getAmount(true, false, true); 
@@ -1574,7 +1574,7 @@ class OrderController extends Controller{
                     //29/12/2023: trasladamos la actualización de las previsiones a la edición del pedido.  Como primer paso se recalcularán cada vez importes y porcentajes de las previsiones de facturación.
                     if(isset($request->op_id[$i])){
                         $op = OrderPrevisions::find($request->op_id[$i]);
-                        //dd($op);
+
                         //Actualizamos si no se encuentra facturado:
                         if(!$op->invoice_id){
                             $op->year = $request->year[$i];
