@@ -30,4 +30,34 @@
 	</div>
 </div>
 
+@push('scripts')
+<script>
+$(function(){
+	//Tabla Stock Movements:
+    if($('#tblStockMovements').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        
+        $('#tblStockMovements').DataTable({
+            serverSide: false,
+            processing: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/stock-movements",
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'name'},
+                {data: 'acronym', className: 'text-center'},
+                {data: 'sign'},
+                {data: 'explicacion'},
+                {data: 'acciones', className: 'text-right'}
+            ]
+        });
+    }
+});
+</script>
+@endpush
+
 @endsection

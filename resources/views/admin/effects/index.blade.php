@@ -98,11 +98,42 @@
 @push('scripts')
 <script>
 $(function(){
+	//Tabla Effects:
+    if($('#tblEffects').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        var customer = $('#myCustomer').val() != ''? $('#myCustomer').val():'0';
+        var provider = $('#myProvider').val() != ''? $('#myProvider').val():'0'; 
+        //var year = $('#myYear').val();
+        
+        $('#tblEffects').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/effects/"+customer+"/"+provider,
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'effect_num', className: 'text-right'},
+                {data: 'date', className: 'text-right'},
+                {data: 'company'},
+                {data: 'is_group', className: 'text-center'},
+                {data: 'invoices', className: 'text-right'},
+                {data: 'amount', className: 'text-right'},
+                {data: 'payment_method', className: 'text-right'},
+                {data: 'remittance', className: 'text-right'},
+                {data: 'estado', className: 'text-right'},
+                {data: 'acciones', className: 'text-right'}
+            ]
+        });
+    }
+	
 	//Modal vincular remesa:
 	$(document).on('click', '.btnAddRemittance', function(){
 		$('#effectId').val($(this).data('id')); 
 	});
-
 });
 </script>
 @endpush

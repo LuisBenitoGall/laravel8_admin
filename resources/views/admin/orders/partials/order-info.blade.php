@@ -341,7 +341,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 									$months = App\Helpers\helpers::yearMonths();
 									@endphp
 
-									<select name="month[]" class="form-control select2 prevision-data" {{ $disabled }}>
+									<select name="month[]" class="form-control select2 prevision-data_" {{ $disabled }}>
 										@if(!$prev->month)
 											<option value="">{{ trans('textos.mes_selec') }}</option>
 										@else
@@ -390,7 +390,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 									}
 									@endphp
 
-									<x-input type="text" name="percent[]" class="text-right set-decimals percent prevision-data prominent" autocomplete="off" maxlength="10" value="{{ $percent }}" group="right" groupvalue="%" required readonly="{{ $disabled }}"/>
+									<x-input type="text" name="percent[]" class="text-right set-decimals prevision-percent prevision-data prominent" autocomplete="off" maxlength="10" value="{{ $percent }}" group="right" groupvalue="%" required readonly="{{ $disabled }}"/>
 
 									{{-- Monto de la orden, aplicando el porcentaje de cobro --}}
 									{{-- <small data-container="body" data-toggle="popover" data-placement="top" data-content="{{ trans('textos.facturacion_prevista_info_percent') }}">
@@ -435,23 +435,23 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 						@endforeach
 					@endif
 
-					{{-- Indicador de porcentaje pendiente
-						Pasamos como condición adicional que el porcentaje sea mayor a 0.02, para evitar decimales residuales.
-					--}}
-					@if($totalPercent < 100 && (100 - $totalPercent) > 0.02 && $order->blocked == '0')
-						<p class="col-md-10 text-warning text-right">
+					{{-- Indicador de porcentaje pendiente --}}
+					{{-- Para pedidos bloqueados o con importe pendiente inferior a la tolerancia --}}
+					@if($totalPercent < config('constants.TOLERANCE_INVOICED_') && $order->blocked == 1)
+						<p class="text-warning">{!! trans('textos.pedido_cerrado_aviso') !!}</p>
+
+					{{-- Para pedidos abiertos y con cantidades pendientes de incluir en las previsiones de facturación. Pasamos como condición adicional que el porcentaje sea mayor a 0.02, para evitar decimales residuales. --}}
+					@else
+						<p class="col-md-10 text-warning text-right" id="pending-previsions" @if($totalPercent >= 100) style="display: none;" @endif>
 							{!! trans('textos.facturacion_prevision_pendiente') !!}: 
-							<b class="mr-4">{{ round($order_amount - $accumulatedAmount, 2) }}{{ $currency->symbol }}</b>
-							<b class="mr-4">{{ round(100 - $totalPercent, 6) }}%</b>
+							<b class="mr-4 pending-amount">{{ round($order_amount - $accumulatedAmount, 2) }}{{ $currency->symbol }}</b>
+							<b class="mr-4 pending-percent">{{ round(100 - $totalPercent, 6) }}%</b>
 
 							{{-- Copiar valores a la nueva previsión --}}
 							<a href="#" id="copyPrev" @if(!$previsionSetted) style="display: inline-block;" @endif rel="tooltip" title="{{ trans('textos.prevision_copiar_valores') }}" data-amount="{{ round($order_amount - $accumulatedAmount, 2) }}" data-percent="{{ round(100 - $totalPercent, 6) }}">
 								<i class="fa fa-copy"></i>
 							</a>
 						</p>
-
-					@elseif($totalPercent < config('constants.TOLERANCE_INVOICED_') && $order->blocked == 1)
-						<p class="text-warning">{!! trans('textos.pedido_cerrado_aviso') !!}</p>	
 					@endif		
 				</div>
 			</div>

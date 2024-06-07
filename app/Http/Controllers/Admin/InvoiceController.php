@@ -353,7 +353,7 @@ class InvoiceController extends Controller{
         //Miembros del grupo:
         $members = $group && $group > 0? GroupMembers::where('group_id', $group)->pluck('user_id')->toArray():false;
 
-        $data = Invoice::select('invoices.*', 'orders.id AS orderId', 'orders.order_num', 'orders.order_old_num', 'companies.id AS companyId', 'companies.name', 'companies.tradename', 'cost_centers.name AS costCenter', 'users.name AS Nombre', 'users.surname', 'payment_methods.name AS payment_method')
+        $data = Invoice::select('invoices.*', 'orders.id AS orderId', 'orders.order_num', 'orders.order_old_num', 'companies.id AS companyId', 'companies.name', 'companies.tradename', 'cost_centers.name AS costCenter', 'users.name AS nombre', 'users.surname', 'payment_methods.name AS payment_method')
         ->leftJoin('orders', 'invoices.order_id', '=', 'orders.id')
         ->leftJoin('companies', 'orders.'.$company_field.'_id', '=', 'companies.id')
         ->leftJoin('cost_centers', 'orders.'.$company_field.'_cost_center_id', '=', 'cost_centers.id')
@@ -411,7 +411,7 @@ class InvoiceController extends Controller{
             return '<a target="_blank" href="'.route('orders.edit', $row->orderId).'">'.$num.'</a>';
         })
         ->addColumn('manager', function($row) use($environment){
-            return $row->Nombre.' '.$row->surname;
+            return $row->nombre.' '.$row->surname;
         })
         ->addColumn('fiscal_date', function($row){
             return $row->fiscal_date? Carbon::parse($row->fiscal_date)->format($this->languages[session()->get('locale')][4]):'';
@@ -1760,7 +1760,7 @@ class InvoiceController extends Controller{
             exit;       
         }  
 
-        $invoice_order = Order::select('orders.*', 'users.name AS Nombre', 'users.surname', 'projects.name AS project')
+        $invoice_order = Order::select('orders.*', 'users.name AS nombre', 'users.surname', 'projects.name AS project')
         ->leftJoin('users', 'orders.provider_manager_id', '=', 'users.id')
         ->leftJoin('project_orders', 'orders.id', '=', 'project_orders.order_id')
         ->leftJoin('projects', 'project_orders.project_id', '=', 'orders.id')
@@ -2428,7 +2428,7 @@ class InvoiceController extends Controller{
 
         $estados = helpers::orderStatus();
 
-        $data = Order::select('orders.id', 'orders.order_num', 'orders.order_old_num', 'orders.delivery_date', 'orders.order_status', 'companies.name', 'companies.tradename', 'users.name AS Nombre', 'users.surname')
+        $data = Order::select('orders.id', 'orders.order_num', 'orders.order_old_num', 'orders.delivery_date', 'orders.order_status', 'companies.name', 'companies.tradename', 'users.name AS nombre', 'users.surname')
         ->join('companies', 'orders.customer_id', '=', 'companies.id')
         ->leftJoin('users', 'orders.provider_manager_id', '=', 'users.id')
         ->whereHas('previsions', function ($query){
@@ -2449,7 +2449,11 @@ class InvoiceController extends Controller{
             return $row->name;
         })
         ->addColumn('manager', function($row){
-            return $row->Nombre.' '.$row->surname;
+            if($row->nombre){
+                return $row->nombre.' '.$row->surname;
+            }else{
+                return '';
+            }
         })
         ->addColumn('delivery_date', function($row){
             return $row->delivery_date? Carbon::parse($row->delivery_date)->format($this->languages[session()->get('locale')][4]):'';

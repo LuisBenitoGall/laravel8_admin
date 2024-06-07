@@ -50,4 +50,37 @@
 	</div>
 </div>
 
+@push('scripts')
+<script>
+$(function(){
+	//Tabla Expenses:
+    if($('#tblExpenses').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+
+        var tableExpenses = $('#tblExpenses').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/expenses",
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'concept'},
+                {data: 'expensed_in', className: 'text-right'},
+                {data: 'amount', className: 'text-right'},
+                {data: 'type'},
+                {data: 'provider'},
+                {data: 'project', className: 'text-right'},
+                {data: 'doc', className: 'text-center'},
+                {data: 'acciones', className: 'text-right'}
+            ]
+        });
+    }
+});
+</script>
+@endpush
+
 @endsection

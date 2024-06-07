@@ -78,4 +78,47 @@
     </div>
 </div>
 
+@push('scripts')
+<script>
+$(function(){
+	//Tabla IP Access:
+    if($('#tblIpAccess').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        
+        $('#tblIpAccess').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/ip-access",
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'group'},
+                {data: 'ip_start'},
+                {data: 'ip_end'},
+                {data: 'id', className: 'text-right'}
+            ],
+            columnDefs: [
+                {"targets": -1,
+                "render": function(data, type, row){
+                    //Eliminar:
+                    var eliminar = '<form method="POST" action="ip-access/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
+                        eliminar += '<input name="_method" type="hidden" value="DELETE">';
+                        eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
+                        eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtEliminar+'" data-msg="'+txtIpRangoConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
+                    eliminar += '</form>';
+
+                    return eliminar;
+                }
+                }
+            ]
+        });
+    }
+});
+</script>
+@endpush
+
 @endsection
