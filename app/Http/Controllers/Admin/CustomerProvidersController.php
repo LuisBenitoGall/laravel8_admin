@@ -22,6 +22,7 @@ use App\Models\AccountingConcept;
 use App\Models\BankAccounts;
 use App\Models\Bank;
 use App\Models\BusinessAreas;
+use App\Models\Category;
 use App\Models\Company;
 use App\Models\CompanyAccounts;
 use App\Models\CompanySettings;

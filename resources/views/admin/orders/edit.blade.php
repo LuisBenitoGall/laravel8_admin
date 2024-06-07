@@ -852,9 +852,10 @@ $order_amount_without_discount = $order_amount_without_discount_in_lines > $orde
         {{-- Porcentaje --}}
         <label for="percent" class="col-md-2 col-lg-1 col-form-label">{!! ucfirst(trans('textos.porcentaje')) !!}</label>
         <div class="col-md-4 col-lg-2 sinpadding">
-            <x-input type="text" name="percent[]" class="text-right set-decimals percent" autocomplete="off" maxlength="10" group="right" groupvalue="%" required/>
+            <x-input type="text" name="percent[]" class="text-right set-decimals prevision-percent" autocomplete="off" maxlength="10" group="right" groupvalue="%" required/>
         </div>
 
+        {{-- Eliminar previsión --}}
         <div class="col-md-1 col-lg-1 pt-2">
             <button class="btn btn-danger btn-circle btn-circle-mini btnRemovePrevision" rel="tooltip" title="{{ trans('textos.prevision_eliminar') }}" data-msg="{{ trans('textos.prevision_eliminar_aviso') }}">
                 <i class="fa fa-times"></i>
@@ -941,30 +942,55 @@ if($previsions){
 
 @push('scripts')
 <script>
-//Control del porcentaje de facturación:
-var percent = '0';
-function percentController(){
-    var total = '0';
-    var min = 0.02;
+//Control del porcentaje e importe de facturación:
+function previsionsController(){
+    var total_percent = '0';
+    var total_amount = '0';
+    var tolerance_max = 100.01;
+    var tolerance_min = 0.02;
     var diff = '0';
-    $('.previsions .prevision .percent').each(function(){
+    
+    //Control de porcentaje:
+    $('.previsions .prevision .prevision-percent').each(function(){
         var percent = $(this).val();
         if(percent > 0){
-            total = (parseFloat(total) + parseFloat(percent)).toFixed(6);
+            total_percent = (parseFloat(total_percent) + parseFloat(percent)).toFixed(6);
         }
     });
 
-    diff = 100 - total;
+    //Control de importe:
+    $('.previsions .prevision .prevision-amount').each(function(){
+        var amount = $(this).val();
+        if(amount > 0){
+            total_amount = (parseFloat(total_amount) + parseFloat(amount)).toFixed(6);
+        }
+    });
+
+    var diff_amount = {{ $order_amount }} - total_amount;
+    var diff_percent = 100 - total_percent;
 
     //Bloqueamos o habilitamos la inclusión de nuevas previsiones de facturación en función del porcentaje alcanzado:
-    if(diff < min || parseFloat(total) >= 100){
+    if(diff_percent < tolerance_min || parseFloat(total_percent) >= tolerance_max){
         $('.btnAddPrevision').fadeOut();
-    }else if(diff >= min && parseFloat(total) < 100){
+        $('#pending-previsions').fadeOut();
+
+    }else if(diff_percent >= tolerance_min && parseFloat(total_percent) < 100){
         $('.btnAddPrevision').fadeIn();
+
+        //Mostramos el importe pendiente de incluir en previsión:
+        $('#pending-previsions .pending-amount').text(diff_amount.toFixed(6)+'{{ $currency->symbol }}');
+        $('#copyPrev').data('amount', diff_amount.toFixed(6));
+
+        //Mostramos el porcentaje pendiente:
+        $('#pending-previsions .pending-percent').text(diff_percent.toFixed(6)+'%');
+        $('#copyPrev').data('percent', diff_percent.toFixed(6));
+        
+        $('#pending-previsions').fadeIn();
     }
 
-    if(total > 100.001){
-        $('.previsions .prevision .percent:last, .previsions .prevision .prevision-amount:last').val('');
+    //Aviso de máximo alcanzado:
+    if(total_percent > tolerance_max){
+        $('.previsions .prevision .prevision-percent:last, .previsions .prevision .prevision-amount:last').val('');
         swal.fire({
             title: txtFacturacion100,
             text: "",
@@ -978,132 +1004,12 @@ function percentController(){
         });
 
         return 'delete';
-    }
-}
-
-//Control del importe de facturación:
-var previsions_amount = 0;
-function amountController(){
-    var total_amount_ = '0';    
-
-    $('.previsions .prevision .prevision-amount').each(function(){
-        var amount_ = $(this).val();
-        if(amount_ > 0){
-            total_amount_ = (parseFloat(total_amount_) + parseFloat(amount_)).toFixed(2);
-        }
-    });
-
-    //Bloqueamos o habilitamos la inclusión de nuevas previsiones de facturación en función del importe alcanzado:
-    if(total_amount_ > {{ $order_amount }}){
-        $('.btnAddPrevision').fadeOut();
-
-        $('.previsions .prevision .percent:last, .previsions .prevision .prevision-amount:last').val('');
-        swal.fire({
-            title: txtFacturacion100,
-            text: "",
-            icon: 'warning',
-            iconColor: color_warning,
-            showCancelButton: false,
-            confirmButtonColor: color_danger,
-            cancelButtonColor: color_danger,
-            confirmButtonText: txtCancelar,
-            cancelButtonText: txtCancelar
-        });
-
-        return 'delete';
-
-    }else{
-        $('.btnAddPrevision').fadeIn();
     }
 }
 
 $(function(){
     var customer_team = {!! json_encode($customer_team) !!};
     var provider_team = {!! json_encode($provider_team) !!};
-
-    //Añadir previsión de facturación:
-    $('.btnAddPrevision').on('click', function(e){
-        e.preventDefault();
-        var prev = $('.clones').html();
-        $('.previsions').append(prev);
-        $('.fa-spinner').remove();
-        $('#copyPrev').fadeIn();
-    });
-    $(document).on('click', '.btnRemovePrevision', function(){
-        $(this).closest('.prevision').remove();
-        $('.btnAddPrevision').fadeIn();
-        $('#copyPrev').fadeOut();
-    });
-
-    //Control previsión de facturación por porcentaje:
-    percentController();
-    amountController();
-    $(document).on('change', '.percent', function(){
-        //Calculando importe del porcentaje:
-        var pcnt = $(this).val();
-        var amnt = ((pcnt * {{ $order_amount}}) / 100).toFixed(2);
-        var father = $(this).closest('.prevision');
-        father.find('.prevision-amount').val(amnt);
-
-        var action = percentController();
-        if(action == 'delete'){
-            $(this).val('');
-        }
-    });
-
-    //Control previsión de facturación por importe:
-    $(document).on('change', '.prevision-amount', function(){
-        //Calculando porcentaje del importe:
-        var amnt = $(this).val();
-        var pcnt = ((amnt * 100) / {{ $order_amount}}).toFixed(6);
-        var father = $(this).closest('.prevision');
-        father.find('.percent').val(pcnt);
-
-        var action = amountController();
-        if(action == 'delete'){
-            $(this).val('');
-        }
-    });
-
-    //Copiar valores pendientes de previsión a nueva previsión:
-    $('#copyPrev').on('click', function(e){
-        e.preventDefault();
-        var a = $(this).data('amount');
-        var p = $(this).data('percent');
-
-        $('.previsions .prevision .prevision-amount:last').val(a);
-        $('.previsions .prevision .percent:last').val(p);
-    });
-
-    //Validación previsiones de facturación:
-    //26/10/2022: se omite -por ahora- la validación de las previsiones de facturación. Se considera que hay pedidos que deben quedar abiertos y sin mes concreto para su facturación pues distorsiona la previsión para ese mes. Se modifica selector: $('#frmOrderInfo') por $('#frmOrderInfo_')
-    $('#frmOrderInfo_').on('submit', function(){
-        var validate_previsions = true;
-        $('.prevision-data').each(function(){
-            if($(this).val() == ''){
-                validate_previsions = false;
-            }
-        });
-
-        if(!validate_previsions){
-            swal.fire({
-                title: txtFacturacionPrevisionesAviso,
-                text: "",
-                icon: 'warning',
-                iconColor: color_warning,
-                showCancelButton: false,
-                confirmButtonColor: color_primary,
-                cancelButtonColor: color_danger,
-                confirmButtonText: txtAceptar,
-                //cancelButtonText: txtCancelar
-            }).then((result) => {
-                if(result.isConfirmed){
-
-                }
-            });
-            return false;
-        }
-    });
 
     //Link a entregas.
     $('#linkDelivery').on('change', function(event){
@@ -1276,6 +1182,35 @@ $(function(){
         });
     });
 
+    //PREVISIONES DE FACTURACIÓN.
+    previsionsController();
+
+    //Añadir previsión de facturación:
+    $('.btnAddPrevision').on('click', function(e){
+        e.preventDefault();
+        var prev = $('.clones').html();
+        $('.previsions').append(prev);
+        $('.fa-spinner').remove();
+        $('#copyPrev').fadeIn();
+    });
+    $(document).on('click', '.btnRemovePrevision', function(){
+        $(this).closest('.prevision').remove();
+        $('.btnAddPrevision').fadeIn();
+        $('#copyPrev').fadeOut();
+    });
+
+    //Copiar valores pendientes de previsión a nueva previsión:
+    $('#copyPrev').on('click', function(e){
+        e.preventDefault();
+        var a = $(this).data('amount');
+        var p = $(this).data('percent');
+
+        $('.previsions .prevision .prevision-amount:last').val(a);
+        $('.previsions .prevision .prevision-percent:last').val(p);
+
+        previsionsController();
+    });
+
     //Eliminar previsión de facturación:
     $(document).on('click', '.btnDeletePrevision', function(e){
         e.preventDefault(); 
@@ -1285,8 +1220,85 @@ $(function(){
         $.get("/admin/order-prevision/"+prev+"/delete", function(response, state){
             if(response){
                 parent.remove();
+                previsionsController();
             }
         });
+    });
+
+    //Control previsión de facturación:
+    $(document).on('change', '.prevision-amount, .prevision-percent', function(e){
+        e.preventDefault();
+        var from_ = false;
+        if($(this).hasClass('prevision-amount')){
+            from_ = 'amount';
+        }else if($(this).hasClass('prevision-percent')){
+            from_ = 'percent';
+        }
+
+        if(from_ == 'amount'){
+            var amnt = $(this).val();
+            var pcnt = ((amnt * 100) / {{ $order_amount}}).toFixed(6);
+
+        }else if(from_ == 'percent'){
+            var pcnt = $(this).val();
+            var amnt = ((pcnt * {{ $order_amount}}) / 100).toFixed(2);        
+        }
+    
+        var father = $(this).closest('.prevision');
+        father.find('.prevision-amount').val(amnt);
+        father.find('.prevision-percent').val(pcnt);
+
+        var action = previsionsController();
+        if(action == 'delete'){
+            $(this).val('');
+        }
+    });
+    
+    //Validación previsiones de facturación:
+    //26/10/2022: se omite -por ahora- la validación de las previsiones de facturación. Se considera que hay pedidos que deben quedar abiertos y sin mes concreto para su facturación pues distorsiona la previsión para ese mes. Se modifica selector: $('#frmOrderInfo') por $('#frmOrderInfo_')
+    //04/06/2024: se validan de nuevo las previsiones aunque admite que no se informe el mes en las previsiones aún no facturadas.
+    $('#frmOrderInfo').on('submit', function(){
+        var validate_previsions = true;
+        var prevision_amounts = 0;
+        var order_amount = {!! round($order_amount, 2) !!};
+        $('.prevision-data').each(function(){
+            if($(this).val() == ''){
+                validate_previsions = false;
+                var msg_ = txtFacturacionPrevisionesAviso;
+            }
+        });
+
+        //Sumamos importes de las previsiones
+        $('.prevision-amount').each(function(){
+            if($(this).val() > 0){
+                prevision_amounts = parseFloat(prevision_amounts) + parseFloat($(this).val());
+            }
+        });
+
+        //Validando importes:
+        if(prevision_amounts < order_amount){
+            validate_previsions = false;  
+            var msg_ = txtImportePrevisionesError;  
+        }
+
+        if(!validate_previsions){
+            swal.fire({
+                title: msg_,
+                text: "",
+                icon: 'warning',
+                iconColor: color_warning,
+                showCancelButton: false,
+                confirmButtonColor: color_primary,
+                cancelButtonColor: color_danger,
+                confirmButtonText: txtAceptar,
+                //cancelButtonText: txtCancelar
+            }).then((result) => {
+                if(result.isConfirmed){
+
+                }
+            });
+            return false;
+        }
     });
 });
 </script>

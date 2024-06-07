@@ -34,4 +34,39 @@
 	</div>
 </div>
 
+@push('scripts')
+<script>
+$(function(){
+	//Tabla Remittances:
+    if($('#tblRemittances').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+
+        var tableRemittances = $('#tblRemittances').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/remittances",
+                "error": function(reason){
+                console.log(reason);
+            }
+            },
+            columns: [
+                {data: 'num', className: 'capitalize text-right'},
+                {data: 'created_at', className: 'text-right'},
+                {data: 'send_date', className: 'text-right'},
+                {data: 'paying_date', className: 'text-right'},
+                {data: 'amount', className: 'text-right'},
+                {data: 'entity'},
+                {data: 'bank_account', className: 'text-right'},
+                {data: 'created_by'},
+                {data: 'estado', className: 'text-right'},
+                {data: 'acciones', className: 'text-right'}
+            ]
+        });
+    }
+});
+</script>
+@endpush
+
 @endsection

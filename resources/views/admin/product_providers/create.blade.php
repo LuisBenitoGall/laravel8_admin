@@ -165,6 +165,32 @@
 @push('scripts')
 <script>
 $(function(){
+	//Tabla Product Providers Correspondences:
+    if($('#tblProductProvidersCorrespondences').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        var product_id = $('#productId').val();
+        var provider_id = $('#providerId').val();
+        
+        $('#tblProductProvidersCorrespondences').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/product-providers-correspondences/"+product_id+'/'+provider_id,
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'name', name: 'products.name'},
+                {data: 'ref', name: 'products.ref'},
+                {data: 'image', className: 'text-center', orderable: false, searchable: false},
+                {data: 'price', name: 'price', className: 'text-right'},
+                {data: 'acciones', className: 'text-right', orderable: false, searchable: false}
+            ]
+        });
+    }
+	
 	//Setear correspondencia de referencia de proveedor.
 	$(document).on('change', '.chkSetRef', function(e){
 		e.preventDefault();

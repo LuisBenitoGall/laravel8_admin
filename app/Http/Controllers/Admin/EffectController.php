@@ -42,6 +42,7 @@ class EffectController extends Controller{
      * 8. Vincular a remesa.
      * 9. Vincular facturas.
      * 10. Efectos agrupados.
+     * 10.1. Listado de efectos agrupados para DataTable.
      * 11. Filtro para agrupaciones de efectos.
      * 12. Listado de efectos para grupos para DataTable.
      * 13. Desvincular efecto del grupo.
@@ -694,6 +695,15 @@ class EffectController extends Controller{
         $currency = $this->currency;
 
         return view('admin.effects.groups', compact('header', 'provider_id', 'customer_id', 'from', 'to', 'payment_method', 'my_bank_accounts', 'featured_account', 'bank_accounts', 'payment_methods', 'payment_status', 'languages', 'currency'));
+    }
+
+    /**
+     * 10.1. Listado de efectos agrupados para DataTable.
+     */
+    public function getEffectsGroupsDT($customer_id = false, $provider_id = false, $from = false, $to = false, $payment_method = false){
+        
+        
+        //PENDIENTE DE DESARROLLO.
     }
 
     /**

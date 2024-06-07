@@ -139,6 +139,7 @@ var txtHoras = "{!! ucfirst(trans("textos.horas")) !!}";
 var txtHorasConfirmEliminar = "{!! ucfirst(trans("textos.horas_confirm_eliminar")) !!}";
 var txtHorasPrevistas = "{!! ucfirst(trans("textos.horas_previstas")) !!}"; 
 var txtImporteLineaFacturaAviso = "{!! ucfirst(trans("textos.importe_linea_factura_aviso")) !!}";
+var txtImportePrevisionesError = "{!! ucfirst(trans("textos.importe_previsiones_error")) !!}";
 var txtImprimir = "{!! ucfirst(trans("textos.imprimir")) !!}";
 var txtImprimirNo = "{!! ucfirst(trans("textos.imprimir_no")) !!}";
 var txtImprimirse = "{!! ucfirst(trans("textos.se_imprime")) !!}";

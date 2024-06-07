@@ -76,4 +76,21 @@
 	</div>
 </div>
 
+@push('scripts')
+<script>
+$(function(){
+	//Tabla TimetableSignedReports:
+    if($('#tblTimetableSignedReports').length > 0){
+        if ($.fn.DataTable.isDataTable('#tblTimetableSignedReports')) {
+            $('#tblTimetableSignedReports').destroy();
+        }
+
+        $('#tblTimetableSignedReports').DataTable({
+            order: [[ 1, "desc" ]]
+        });
+    }
+});
+</script>
+@endpush
+
 @endsection

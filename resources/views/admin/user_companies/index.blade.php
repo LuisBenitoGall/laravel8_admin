@@ -33,6 +33,53 @@
 
 @push('scripts')
 <script>
+$(function(){
+	//Tabla User Companies:
+    if($('#tblUserCompanies').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        var user = $('#myUser').val();
+        var first_row = true;
+        
+        $('#tblUserCompanies').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/user-companies/"+user,
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'name'},
+                {data: 'id', className: 'text-right'}
+            ],
+            columnDefs: [
+                {"targets": -1,
+                "render": function(data, type, row){
+                    //Estado:
+                    var checked = row['activo']? 'checked':'';
+                    var activo = row['activo']? 1:'0';
+                    var estado = '';
+                    //No se puede desvincular a un usuario que esté sólo vinculado a una empresa.
+                    if(row['num_companies'] == 1 && first_row){
+                        estado = '<i class="fa fa-check text-success mr-3"></i>';
+                        first_row = false;
+                        
+                    }else{
+                        estado = '<label class="custom-chk-rdb btnAddCompany" rel="tooltip" title="'+txtEmpresaVinculada+'">';
+                            estado += '<input type="checkbox" name="status" '+checked+' ><span class="chk" data-companyid="'+row['id']+'" data-userid="'+row['user_id']+'"></span><span style="display: none">'+activo+'</span>';
+                        estado += '</label>';    
+                    }
+
+                    return estado;
+                }
+                }
+            ]
+        });
+    }
+});
+
 $(document).on('change', '.btnAddCompany', function(){
     var status = '';
     var elem = $(this);
