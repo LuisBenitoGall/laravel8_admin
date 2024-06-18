@@ -270,8 +270,9 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 	{{-- Facturación prevista - condiciones:
 		1. Exclusivo para el proveedor.
 		2. Para agrupaciones o pedidos simples, NO para pedidos vinculados a agrupación.
+		3. Si el importe del pedido > 0.
 	--}}
-	@if($order->provider_id == session('currentCompany') && !$order->order_parent)
+	@if($order->provider_id == session('currentCompany') && !$order->order_parent && $order_amount > 0)
 		<div class="form-group row">
 			<label class="col-lg-2 col-form-label">
 				{!! ucfirst(trans('textos.facturacion_prevista')) !!}
