@@ -632,6 +632,7 @@ return array(
 	'concursos' => 'concursos',
 	'condicion_updated' => 'La condición se ha actualizado correctamente.',
 	'condiciones_cobro' => 'Condiciones de cobro',
+	'condiciones_especiales' => 'Condiciones especiales',
 	'condiciones_pago_a' => 'Condiciones de pago a',
 	'condiciones_pago_de' => 'Condiciones de pago de',
 	'condiciones_pago' => 'Condiciones de pago',
