@@ -245,7 +245,10 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     Route::get('order-patterns', 'OrderPatternsController@getPatternsDT');
 
     //OrderQueries:
-    Route::get('order-queries/by-items-dt/{companies}/{order_type}/{from?}/{to?}', 'OrderQueryController@getOrderItemsDT');
+    Route::get('order-queries/by-orders-dt/{companies}/{order_type}/{status}/{from?}/{to?}', 'OrderQueryController@getOrdersDT');
+    Route::get('order-queries/by-order-items-dt/{companies}/{order_type}/{status}/{from?}/{to?}', 'OrderQueryController@getOrderItemsDT');
+    Route::get('order-queries/by-budgets-dt/{companies}/{order_type}/{status}/{from?}/{to?}', 'OrderQueryController@getBudgetsDT');
+    Route::get('order-queries/by-budget-items-dt/{companies}/{order_type}/{status}/{from?}/{to?}', 'OrderQueryController@getBudgetItemsDT');
 
     //OrderSettings:
     Route::get('order-settings', 'OrderSettingsController@getTemplatesDT');

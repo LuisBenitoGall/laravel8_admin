@@ -711,8 +711,14 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
 
     // Order Queries:
     Route::get('order-queries', 'OrderQueryController@index')->name('order-queries.index');
-    Route::get('order-queries/by-items', 'OrderQueryController@byItems')->name('order-queries.by-items');
-    Route::post('order-queries/by-items', 'OrderQueryController@byItems')->name('order-queries.by-items');
+    Route::get('order-queries/by-orders', 'OrderQueryController@byOrders')->name('order-queries.by-orders');
+    Route::post('order-queries/by-orders', 'OrderQueryController@byOrders')->name('order-queries.by-orders');
+    Route::get('order-queries/by-order-items', 'OrderQueryController@byOrderItems')->name('order-queries.by-order-items');
+    Route::post('order-queries/by-order-items', 'OrderQueryController@byOrderItems')->name('order-queries.by-order-items');
+    Route::get('order-queries/by-budgets', 'OrderQueryController@byBudgets')->name('order-queries.by-budgets');
+    Route::post('order-queries/by-budgets', 'OrderQueryController@byBudgets')->name('order-queries.by-budgets');
+    Route::get('order-queries/by-budget-items', 'OrderQueryController@byBudgetItems')->name('order-queries.by-budget-items');
+    Route::post('order-queries/by-budget-items', 'OrderQueryController@byBudgetItems')->name('order-queries.by-budget-items');
 
     // Order Settings:
     Route::get('order-settings', 'OrderSettingsController@index')->name('order-settings.index');
