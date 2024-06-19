@@ -88,12 +88,6 @@
 
 {{-- Tabla --}}
 <div class="row">
-    {{-- <div class="col-12 mb-3">
-        <h3>
-            {!! trans('textos.resultados_consulta') !!} <b></b>
-        </h3>
-    </div> --}}
-
     @if($with_query)
         {{-- Columnas --}}
         @php
