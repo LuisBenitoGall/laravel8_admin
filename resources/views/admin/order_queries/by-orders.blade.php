@@ -6,10 +6,7 @@
     {{-- Acciones: --}}
     <div class="col-12">
         {{-- Volver a consultas --}}
-        <a href="{{ route('order-queries.index') }}" class="btn btn-info">
-            <i class="fa fa-angle-left"></i>
-            {!! trans('textos.volver_consultas') !!}
-        </a>
+        @include('admin.order_queries.partials.return-queries')
     </div>
 </div>
 
@@ -18,7 +15,7 @@
     <div class="col-12">                        
         <div class="card mb-3">
             <div class="card-body">
-                <form method="post" autocomplete="off" action="{{ route('order-queries.by-items') }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
+                <form method="post" autocomplete="off" action="{{ route('order-queries.by-orders') }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
                     {{ csrf_field() }}
                 
                     <div class="form-group row">
@@ -26,9 +23,9 @@
                         <label for="companies" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.empresas')) !!}*</label>
                         <div class="col-lg-4">
                             @if(count($user_companies) > 1)
-                                <x-select name="companies[]" class="select2" multiple="true" :options="$user_companies" :values="$companies_" required/> 
+                                <x-select name="companies[]" id="testSelect" class="select2" multiple="true" :options="$user_companies" :values="$companies_" required/> 
                             @else
-                                <x-select name="companies[]" class="select2" :options="$user_companies" disabled="true" :values="$user_companies" required/> 
+                                <x-select name="companies[]" id="testSelect" class="select2" :options="$user_companies" disabled="true" :values="$user_companies" required/> 
                             @endif
                         </div>
 
@@ -74,7 +71,10 @@
                         {{-- Estado --}}
                         <label for="status" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.estado')) !!} </label>
                         <div class="col-lg-2">
-                            <x-select name="companies[]" class="select2" :options="$order_status"/>
+                            @php
+                            $status = $status_ == 'all'? '':$status_;
+                            @endphp
+                            <x-select name="status" class="select2" :options="$order_status" label="estado_selec" value="{{ $status }}"/>
                         </div>
                     </div>
 
@@ -88,12 +88,6 @@
 
 {{-- Tabla --}}
 <div class="row">
-    {{-- <div class="col-12 mb-3">
-        <h3>
-            {!! trans('textos.resultados_consulta') !!} <b></b>
-        </h3>
-    </div> --}}
-
     @if($with_query)
         {{-- Columnas --}}
         @php
@@ -103,35 +97,20 @@
             ['cliente_final', 'wdt100'],
             ['pedido_es', 'wdt100'],
             ['presupuesto_es', 'wdt100'],
+            ['agrupacion', 'wdt100'],
             ['presupuesto', 'text-center wdt100'],
             ['pedido', 'text-center wdt100'],
+            ['importe', 'text-center wdt100'],
             ['titulo', 'wdt100'],
             ['creado', 'text-center wdt100'],
             ['aceptado', 'text-center wdt100'],
-            ['entregado', 'text-center wdt100'],
             ['estado', 'wdt100'],
             ['facturado', 'wdt100'],
             ['proveedor_manager', 'wdt150'],
             ['comercial', 'wdt100'],
             ['cliente_manager', 'wdt150'],
             ['cliente_final_manager', 'wdt150'],
-            ['bolsa', 'text-center wdt100'],
-            ['producto', 'wdt100'],
-            ['concepto', 'wdt100'],
-            ['bloque_formulario', 'wdt100'],
-            ['producto_contable', 'wdt100'],
-            ['cantidad', 'text-center wdt100'],
-            ['precio', 'text-center wdt100'],
-            ['iva', 'text-center wdt100'],
-            ['irpf', 'text-center wdt100'],
-            ['descuento', 'wdt100'],
-            ['por_porcentaje', 'wdt100'],
-            ['dias', 'wdt100'],
-            ['dias_continuos', 'wdt100'],
-            ['dias_continuos_dto', 'wdt150'],
-            ['importe', 'text-center wdt100'],
-            ['centro_coste_proveedor', 'wdt200'],
-            ['centro_coste_cliente', 'wdt200']
+            ['bolsa', 'text-center wdt100']
         ]
         @endphp 
 
@@ -160,7 +139,7 @@
         </div>
 
         <div class="table-responsive">
-            <table class="table table-hover dtabla" id="tblOrderQueries" style="width:1500%">
+            <table class="table table-hover dtabla" id="tblByOrders" style="width:1500%">
                 <thead>
                     <tr>
                         @foreach($columns as $col)
@@ -181,16 +160,17 @@
 <script>
 $(function(){
     //Tabla Order Queries:
-    if($('#tblOrderQueries').length > 0){
+    if($('#tblByOrders').length > 0){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
         var companies = {!! json_encode($companies_) !!};
         var order_type = '{{ $order_type }}';
         var from = {{ strtotime($from_) }};
         var to = {{ strtotime($to_) }};
+        var status = '{{ $status_ }}';
 
-        var jsonData = JSON.parse(localStorage.getItem('DataTables_tblOrderQueries_'+window.location.pathname));
+        var jsonData = JSON.parse(localStorage.getItem('DataTables_tblByOrders_'+window.location.pathname));
 
-        var tableOrderQueries = $('#tblOrderQueries').DataTable({
+        var tableByOrders = $('#tblByOrders').DataTable({
             serverSide: true,
             processing: true,
             stateSave: true,
@@ -200,7 +180,7 @@ $(function(){
             },
             ajax: {
                 type: "GET",
-                url: '/api/admin/order-queries/by-items-dt/'+companies+'/'+order_type+'/'+from+'/'+to,
+                url: '/api/admin/order-queries/by-orders-dt/'+companies+'/'+order_type+'/'+status+'/'+from+'/'+to,
                 error: function(reason){
                     console.log(reason);
                 }
@@ -209,46 +189,31 @@ $(function(){
                 {data: 'provider', name: "cp.name"},
                 {data: 'customer', name: "cc.name"},
                 {data: 'final_customer', name: "cfc.name"},
-                {data: 'is_order', name: "o.is_order", className: 'text-center'},
-                {data: 'is_budget', name: "o.is_budget", className: 'text-center'},
-                {data: 'budget', name: "o.budget_num", className: 'text-right'},
-                {data: 'order', name: "o.order_num", className: 'text-right'},
-                {data: 'order_name', name: "o.name"},
-                {data: 'created_at', name: 'o.created_at', className: 'text-right'},
-                {data: 'accepted', name: 'o.accepted_date', className: 'text-right'},
-                {data: 'delivered', name: 'o.delivery_date', className: 'text-right'},
-                {data: 'status', name: 'o.order_status'},
-                {data: 'invoiced', name: 'o.invoiced', className: 'text-center'},
+                {data: 'is_order', name: "orders.is_order", className: 'text-center'},
+                {data: 'is_budget', name: "orders.is_budget", className: 'text-center'},
+                {data: 'is_group', name: "orders.is_group", className: 'text-center'},
+                {data: 'budget', name: "orders.budget_num", className: 'text-right'},
+                {data: 'order', name: "orders.order_num", className: 'text-right'},
+                {data: 'amount', className: 'text-right'},
+                {data: 'order_name', name: "orders.name"},
+                {data: 'created_at', name: 'orders.created_at', className: 'text-right'},
+                {data: 'accepted', name: 'orders.accepted_date', className: 'text-right'},
+                {data: 'status', name: 'orders.order_status'},
+                {data: 'invoiced', name: 'orders.invoiced', className: 'text-center'},
                 {data: 'provider_manager'},
                 {data: 'commercial'},
                 {data: 'customer_manager'},
                 {data: 'final_customer_manager'},
-                {data: 'bag', className: 'text-right'},
-                {data: 'product', name: "p.name"},
-                {data: 'concept', name: "items.concept"},
-                {data: 'budget_form_block'},
-                {data: 'accounting_product', name: "p.name"},
-                {data: 'qty', className: 'text-right'},
-                {data: 'price', className: 'text-right'},
-                {data: 'iva', className: 'text-right'},
-                {data: 'irpf', className: 'text-right'},
-                {data: 'discount', className: 'text-right'},
-                {data: 'by_percent', className: 'text-right'},
-                {data: 'days', className: 'text-right'},
-                {data: 'days_continue', className: 'text-right'},
-                {data: 'days_continue_discount', className: 'text-right'},
-                {data: 'amount', className: 'text-right'},
-                {data: 'provider_cost_center'},
-                {data: 'customer_cost_center'}
+                {data: 'bag', className: 'text-right'}
             ]
         });
 
         //Obtener número de columnas:
-        var num_cols = $('#tblOrderQueries th').length;
+        var num_cols = $('#tblByOrders th').length;
 
         //Seteando estado de vista inicial de la columna:
         for (var i = 0; i < num_cols; i++){
-            if(tableOrderQueries.column(i).visible()){
+            if(tableByOrders.column(i).visible()){
                 $('.row-'+i).append('<i class="fa fa-check text-success"></i>');
                 $('.row-'+i).data('visible', 1);
             }else{
@@ -272,7 +237,7 @@ $(function(){
                 }
          
                 let columnIdx = e.target.getAttribute('data-column');
-                let column = tableOrderQueries.column(columnIdx);
+                let column = tableByOrders.column(columnIdx);
 
                 // Toggle the visibility
                 column.visible(!column.visible());
