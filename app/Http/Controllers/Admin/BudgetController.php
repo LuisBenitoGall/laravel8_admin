@@ -109,7 +109,25 @@ class BudgetController extends Controller{
         //Validación update:
         }elseif(isset($data['submit_update'])){
             return Validator::make($data, [
-                //'customer_id' => 'required|integer'
+                'pattern_id' => 'nullable|integer',
+                'status' => 'nullable|integer',
+                'provider_manager_id' => 'nullable|integer',
+                'provider_workplace_id' => 'nullable|integer',
+                'provider_cost_center_id' => 'nullable|integer',
+                'customer_manager_id' => 'nullable|integer',
+                'customer_workplace_id' => 'nullable|integer',
+                'customer_cost_center_id' => 'nullable|integer',
+                'commercial_id' => 'nullable|integer',
+            ],[
+                'pattern_id.integer' => trans('textos.required_valor_listado'),
+                'status.integer' => trans('textos.required_valor_listado'),
+                'provider_manager_id.integer' => trans('textos.required_valor_listado'),
+                'provider_workplace_id.integer' => trans('textos.required_valor_listado'),
+                'provider_cost_center_id.integer' => trans('textos.required_valor_listado'),
+                'customer_manager_id.integer' => trans('textos.required_valor_listado'),
+                'customer_workplace_id.integer' => trans('textos.required_valor_listado'),
+                'customer_cost_center_id.integer' => trans('textos.required_valor_listado'),
+                'commercial_id.integer' => trans('textos.required_valor_listado'),  
             ]);
 
         //Validación añadir nuevo responsable:
@@ -129,6 +147,8 @@ class BudgetController extends Controller{
         }elseif(isset($data['submit_update_template'])){
             return Validator::make($data, [
                 'template_id' => 'nullable|integer'
+            ],[
+                'template_id.integer' => trans('textos.required_valor_listado')    
             ]); 
         
         //Validación cambio proveedor:

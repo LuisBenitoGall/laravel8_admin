@@ -2817,6 +2817,7 @@ return array(
 	'required_avance_factura' => 'Para avances de factura debes indicar importe o porcentaje',
 	'required_cliente_agrupacion' => 'Debes seleccionar cliente o indicar número de agrupación',
 	'required_cliente_proveedor' => 'Debes seleccionar cliente o proveedor',
+	'required_valor_listado' => 'Debes seleccionar un valor del listado',
 	'reset_anual_texto' => '¿Deseas que la numeración se reinicie cada año? Este valor no puede modificarse posteriormente',
 	'reset_anual' => 'reinicio anual',
 	'responder_todos' => 'Responder a todos',
