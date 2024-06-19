@@ -1186,7 +1186,7 @@ class OrderController extends Controller{
         //Previsiones de facturación del pedido:    
         $generate = $order->blocked == 1? false:true;  
         $previsions = OrderPrevisions::previsions($order->id, $order_amount);
-//dd($previsions);
+
         //Debe existir siempre al menos una previsión:
         if($previsions && !$previsions->count()){
             OrderPrevisions::store($order->id);
@@ -1562,7 +1562,7 @@ class OrderController extends Controller{
             ->whereNull('provider_cost_center_id')
             ->update(['provider_cost_center_id' => $request->provider_cost_center_id]);
         }
-//dd($request->year, $request->month, $request->op_id, $request->amount, $request->percent);
+
         //Guardamos previsiones:
         if($request->year){
             $order_amount = $order->getAmount(true, false, true); 

@@ -81,4 +81,80 @@
 	</div>
 </div>
 
+@push('scripts')
+<script>
+$(function(){
+	//Tabla Teams:
+    if($('#tblTeams').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+
+        $('#tblTeams').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/teams",
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'name'},
+                {data: 'id', className: 'text-right'},
+                {data: 'id', className: 'text-center'},
+                {data: 'id', className: 'text-right'}
+            ],
+            columnDefs: [
+                {"targets": 1,
+                "render": function(data, type, row){
+                    return '<span style="display: none">'+row['created_at']+'</span>'+row['alta'];
+                }
+                },
+                {"targets": 2,
+                "render": function(data, type, row){
+                    if(row['logo']){
+                        var logo = '<img src="/img/teams/'+row['logo']+'" width="50">';
+                    }else{
+                        var logo = '<i class="fa fa-users icono"></i>';
+                    }   
+                    return logo;
+                }
+                },
+                {"targets": -1,
+                "render": function(data, type, row){
+                    var estado = '';
+                    var editar = '';
+                    var miembros = '';
+                    if(row['editar']){
+                        //Estado:
+                        var checked = (row['status'] == 1)? 'checked':'';
+                        var estado = '<label class="custom-chk-rdb" rel="tooltip" title="'+txtEquipoOnOff+'">';
+                            estado += '<input type="checkbox" name="status" '+checked+'><span class="chk chk-action" data-id="'+row['id']+'" data-ctrl="/admin/teams/status"></span>';
+                        estado += '</label>';
+
+                        //Editar:
+                        editar = '<a href="/admin/teams/'+row['id']+'/edit" class="btn btn-xs btn-info btn-module" rel="tooltip" title="'+txtEditar+'"><i class="fa fa-edit"></i></a>';
+
+                    }
+
+                    //Eliminar:
+                    var eliminar = '';
+                    if(row['eliminar']){
+                        eliminar += '<form method="POST" action="teams/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
+                            eliminar += '<input name="_method" type="hidden" value="DELETE">';
+                            eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
+                            eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtEliminar+'" data-msg="'+txtEquipoConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
+                        eliminar += '</form>';
+                    }
+
+                    return estado+' '+editar+' '+eliminar;
+                }
+                }
+            ]
+        });
+    }
+});
+</script>
+@endpush
+
 @endsection

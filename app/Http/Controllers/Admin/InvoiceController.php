@@ -353,7 +353,7 @@ class InvoiceController extends Controller{
         //Miembros del grupo:
         $members = $group && $group > 0? GroupMembers::where('group_id', $group)->pluck('user_id')->toArray():false;
 
-        $data = Invoice::select('invoices.*', 'orders.id AS orderId', 'orders.order_num', 'orders.order_old_num', 'companies.id AS companyId', 'companies.name', 'companies.tradename', 'cost_centers.name AS costCenter', 'users.name AS Nombre', 'users.surname', 'payment_methods.name AS payment_method')
+        $data = Invoice::select('invoices.*', 'orders.id AS orderId', 'orders.order_num', 'orders.order_old_num', 'companies.id AS companyId', 'companies.name', 'companies.tradename', 'cost_centers.name AS costCenter', 'users.name AS nombre', 'users.surname', 'payment_methods.name AS payment_method')
         ->leftJoin('orders', 'invoices.order_id', '=', 'orders.id')
         ->leftJoin('companies', 'orders.'.$company_field.'_id', '=', 'companies.id')
         ->leftJoin('cost_centers', 'orders.'.$company_field.'_cost_center_id', '=', 'cost_centers.id')
@@ -411,7 +411,7 @@ class InvoiceController extends Controller{
             return '<a target="_blank" href="'.route('orders.edit', $row->orderId).'">'.$num.'</a>';
         })
         ->addColumn('manager', function($row) use($environment){
-            return $row->Nombre.' '.$row->surname;
+            return $row->nombre.' '.$row->surname;
         })
         ->addColumn('fiscal_date', function($row){
             return $row->fiscal_date? Carbon::parse($row->fiscal_date)->format($this->languages[session()->get('locale')][4]):'';
@@ -534,6 +534,9 @@ class InvoiceController extends Controller{
         //Porcentaje pendiente:
         $outstanding_percent = 100 - round($previous_percent, 2);
 
+        //Previsión de facturación:
+        $prevision = false;
+
         $total_amount = 0;
         $amount_with_iva = 0;
         $advance = false;
@@ -546,14 +549,22 @@ class InvoiceController extends Controller{
         //Facturas íntegras:
         if($request->modality == 't'){
             $total_amount = $outstanding_amount;
-            //Se validarán las previsiones de facturación restantes.
-            $percentage_invoiced = false;
 
             //Calculamos importe con IVA a partir del importe restante.
             $amount_with_iva = ($total_amount * $order_amount['invoice_amount']) / $order_amount['total_amount'];
 
-            //Factura íntrega deja 0% por facturar:
-            $outstanding_percent = 0;
+            //Eliminamos las previsiones no facturadas y generamos una con el importe restante:
+            OrderPrevisions::where('order_id', $order->id)
+            ->whereNull('invoice_id')
+            ->forceDelete();
+
+            $prevision = new OrderPrevisions();
+            $prevision->order_id = $order->id;
+            $prevision->year = Date('Y');
+            $prevision->month = Date('m');
+            $prevision->amount = $outstanding_amount;
+            $prevision->percent = round($outstanding_percent, 2);
+            $prevision->save();    
 
             //Bloqueo de pedido y presupuesto:
             $order->blocked = true;
@@ -593,21 +604,21 @@ class InvoiceController extends Controller{
                 $total_amount = $request->advance_amount;
 
                 //Rectificamos la siguiente previsión de facturación:
-                $last_prevision = OrderPrevisions::where('order_id', $order->id)
-                ->whereNull('invoice_id')
-                ->orderBy('year', 'ASC')
-                ->orderBy('month', 'ASC')
-                ->first();
+                // $last_prevision = OrderPrevisions::where('order_id', $order->id)
+                // ->whereNull('invoice_id')
+                // ->orderBy('year', 'ASC')
+                // ->orderBy('month', 'ASC')
+                // ->first();
 
                 $real_percent = ($total_amount * 100) / $order_amount['total_amount'];
                 $percentage_invoiced = $real_percent;
 
                 //Actualizamos el porcentaje a facturar:
                 //31/05/2024: se actualiza también mes y año de la previsión acorde al mes y año de la generación de la factura.
-                $last_prevision->year = Date('Y');
-                $last_prevision->month = Date('m');
-                $last_prevision->percent = $real_percent;
-                $last_prevision->save();
+                // $last_prevision->year = Date('Y');
+                // $last_prevision->month = Date('m');
+                // $last_prevision->percent = $real_percent;
+                // $last_prevision->save();
 
                 //Obtenemos el importe con IVA:
                 $amount_with_iva = ($order_amount['invoice_amount'] * $request->advance_amount) / $order_amount['total_amount'];
@@ -700,38 +711,45 @@ class InvoiceController extends Controller{
             Item::itemsAsInvoiced($order->id, true);
         }
 
-        //Actualizamos los valores de la siguiente previsión no facturada:
-        $next_previsions_to_invoice = OrderPrevisions::where('order_id', $order->id)
-        ->whereNull('invoice_id')
-        ->orderBy('year', 'ASC')
-        ->orderBy('month', 'ASC')
-        ->first();
+        //Actualizamos previsiones de facturación:
+        if($percentage_invoiced){
+            //Eliminamos las previsiones no facturadas.
+            OrderPrevisions::where('order_id', $order->id)
+            ->whereNull('invoice_id')
+            ->forceDelete();
 
-        if($next_previsions_to_invoice){
-            $next_previsions_to_invoice->invoice_id = $invoice->id;
-            if($percentage_invoiced){
-                $next_previsions_to_invoice->month = $next_previsions_to_invoice->month? $next_previsions_to_invoice->month:Date('m');
-                $next_previsions_to_invoice->percent = $percentage_invoiced;
+            //Generamos previsión con el importe facturado:
+            $prevision = new OrderPrevisions();
+            $prevision->order_id = $order->id;
+            $prevision->year = Date('Y');
+            $prevision->month = Date('m');
+            $prevision->amount = $total_amount;
+            $prevision->percent = round($percentage_invoiced, 2);
+            $prevision->save();    
+
+            //Generamos nueva previsión con el importe restante:
+            $pending_amount = $previous_amount - ($outstanding_amount - $total_amount);
+            $pending_percent = 100 - ($outstanding_percent - $percentage_invoiced);
+            if($pending_amount > 0.01){
+                $prevision_ = new OrderPrevisions();
+                $prevision_->order_id = $order->id;
+                $prevision_->year = Date('Y');
+                $prevision_->month = NULL;
+                $prevision_->amount = round($pending_amount, 2);
+                $prevision_->percent = round($pending_percent, 2);
+                $prevision_->save();
             }
-            $next_previsions_to_invoice->save();
+        }
 
-        //Si no existe previsión, generamos una nueva:
-        }else{
-            $percent = ($invoice->amount * 100) / $order_amount['total_amount'];
-
-            $new_prev = new OrderPrevisions();
-            $new_prev->order_id = $order->id;
-            $new_prev->year = Date('Y');
-            $new_prev->month = Date('m');
-            $new_prev->amount = $outstanding_amount;
-            $new_prev->percent = round($percent, 2);
-            $new_prev->invoice_id = $invoice->id;
-            $new_prev->save();    
+        //Pasamos nº de factura a la previsión:
+        if($invoice && $prevision){
+            $prevision->invoice_id = $invoice->id;
+            $prevision->save();
         }
 
         //Recalculando porcentaje de las previsiones de facturación. Se considera que con un porcentaje por facturar por debajo del 0.1%, ya no queda nada por facturar.
-        $all_invoiced = $outstanding_percent < 0.1? true:false;
-        OrderPrevisions::recalculatePrevisionsPercent($order, $all_invoiced);
+        //$all_invoiced = $outstanding_percent < 0.1? true:false;
+        //OrderPrevisions::recalculatePrevisionsPercent($order, $all_invoiced);
 
         //Asiento contable:
         $this->setInvoiceSeat($invoice, $order, $order_amount, $percentage_invoiced, $request->customer_accounting_account);
@@ -1760,7 +1778,7 @@ class InvoiceController extends Controller{
             exit;       
         }  
 
-        $invoice_order = Order::select('orders.*', 'users.name AS Nombre', 'users.surname', 'projects.name AS project')
+        $invoice_order = Order::select('orders.*', 'users.name AS nombre', 'users.surname', 'projects.name AS project')
         ->leftJoin('users', 'orders.provider_manager_id', '=', 'users.id')
         ->leftJoin('project_orders', 'orders.id', '=', 'project_orders.order_id')
         ->leftJoin('projects', 'project_orders.project_id', '=', 'orders.id')
@@ -2428,7 +2446,7 @@ class InvoiceController extends Controller{
 
         $estados = helpers::orderStatus();
 
-        $data = Order::select('orders.id', 'orders.order_num', 'orders.order_old_num', 'orders.delivery_date', 'orders.order_status', 'companies.name', 'companies.tradename', 'users.name AS Nombre', 'users.surname')
+        $data = Order::select('orders.id', 'orders.order_num', 'orders.order_old_num', 'orders.delivery_date', 'orders.order_status', 'companies.name', 'companies.tradename', 'users.name AS nombre', 'users.surname')
         ->join('companies', 'orders.customer_id', '=', 'companies.id')
         ->leftJoin('users', 'orders.provider_manager_id', '=', 'users.id')
         ->whereHas('previsions', function ($query){
@@ -2449,7 +2467,11 @@ class InvoiceController extends Controller{
             return $row->name;
         })
         ->addColumn('manager', function($row){
-            return $row->Nombre.' '.$row->surname;
+            if($row->nombre){
+                return $row->nombre.' '.$row->surname;
+            }else{
+                return '';
+            }
         })
         ->addColumn('delivery_date', function($row){
             return $row->delivery_date? Carbon::parse($row->delivery_date)->format($this->languages[session()->get('locale')][4]):'';

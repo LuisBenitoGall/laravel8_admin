@@ -19,3 +19,34 @@
 		</table>
 	</div>
 </div>
+
+@push('scripts')
+<script>
+$(function(){
+	//Tabla Product Serials:
+    if($('#tblProductSerials').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        var product_id = $('#productId').val();
+
+        $('#tblProductSerials').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/product-serials/"+product_id,
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'serial'},
+                {data: 'alta', className: 'text-right'},
+                {data: 'employee'},
+                {data: 'assignment_date', className: 'text-right'},
+                {data: 'acciones', className: 'text-right'}
+            ]
+        });
+    }
+});
+</script>
+@endpush

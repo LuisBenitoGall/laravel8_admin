@@ -111,4 +111,40 @@
 	</div>
 @endif
 
+@push('scripts')
+<script>
+$(function(){
+	//Tabla Employees Hours:
+    if($('#tblEmployeesHours').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        var workplace_id = $('#dtWorkplace').val();
+        var from = $('#dtFrom').val();
+        var to = $('#dtTo').val();
+        var status = $('#dtStatus').val();
+        var group = $('#dtGroup').val();
+
+        var tblEmployeesHours = $('#tblEmployeesHours').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/employees-timetable/"+workplace_id+"/"+from+"/"+to+"/"+status+"/"+group,
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'employee'},
+                {data: 'worked_hours', className: 'text-right'},
+                {data: 'working_hours', className: 'text-right'},
+                {data: 'difference', className: 'text-right'},
+                {data: 'situation', className: 'text-center'},
+                {data: 'acciones', className: 'text-right'}
+            ]
+        });
+    }
+});
+</script>
+@endpush
+
 @endsection

@@ -58,4 +58,40 @@
 {{-- Timetable settings --}}
 @include('admin.timetable_settings.partials.modal-settings')
 
+@push('scripts')
+<script>
+$(function(){
+	//Tabla Timetable Items:
+    if($('#tblTimetableItems').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+
+        $('#tblTimetableItems').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/timetable-items",
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'name'},
+                {data: 'type'},
+                {data: 'fixed', className: 'text-right'},
+                {data: 'min_hour', className: 'text-right'},
+                {data: 'min', className: 'text-right'},
+                {data: 'max', className: 'text-right'},
+                {data: 'qty', className: 'text-right'},
+                {data: 'icon', className: 'text-center'},
+                {data: 'color'},
+                {data: 'reviewable', className: 'text-center'},
+                {data: 'acciones', className: 'text-right'}
+            ]
+        });
+    }
+});
+</script>
+@endpush
+
 @endsection

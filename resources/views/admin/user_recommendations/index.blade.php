@@ -60,4 +60,34 @@
 	</div>
 </div>
 
+@push('scripts')
+<script>
+$(function(){
+	//Tabla Recommendations:
+    if($('#tblRecommendations').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        var environment = $('#recommendationsEnvironment').val();
+
+        var tableRecommendations = $('#tblRecommendations').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/recommendations/"+environment,
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'from', className: 'text-right'},
+                {data: 'to', className: 'text-right'},
+                {data: 'user'},
+                {data: 'acciones', className: 'text-right'}
+            ]
+        });
+    }
+});
+</script>
+@endpush
+
 @endsection

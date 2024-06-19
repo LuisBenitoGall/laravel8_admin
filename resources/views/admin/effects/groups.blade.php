@@ -93,6 +93,39 @@
 @push('scripts')
 <script>
 $(function(){
+	//Tabla Effects Groups:
+    if($('#tblEffectsGroups').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        var customer = $('#myCustomer').val() != ''? $('#myCustomer').val():'0';
+        var provider = $('#myProvider').val() != ''? $('#myProvider').val():'0';
+        var from = $('#myFrom').val();
+        var to = $('#myTo').val();
+        var payment_method = $('#myPaymentMethod').val();
+
+        var tableEffectsGroups = $('#tblEffectsGroups').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/effects-groups/"+customer+"/"+provider+"/"+from+"/"+to+"/"+payment_method,
+                "error": function(reason){
+                console.log(reason);
+            }
+            },
+            columns: [
+                {data: 'num', className: 'text-right', name: 'effects.effect_num'},
+                {data: 'expiry_date', className: 'text-right'},
+                {data: 'company', className: 'text-right', name: 'companies.name'},
+                {data: 'invoices', name: 'invoices.invoice_num'},
+                {data: 'amount', className: 'text-right'},
+                {data: 'payment_method'},
+                {data: 'observations'},
+                {data: 'estado'},
+                {data: 'acciones', className: 'text-right'}
+            ]
+        });
+    }
+	
 	//Selector clientes y proveedores.
 	$('#customer-selector, #provider-selector').on('change', function(){
 		var id = $(this).val();

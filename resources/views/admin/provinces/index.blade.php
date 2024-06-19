@@ -37,107 +37,73 @@
 
 {{-- Modals --}}
 {{-- New province --}}
-<div class="modal fade modal-new-province" id="modal-new-province" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">{!! ucfirst(trans('textos.provincia_nueva')) !!}</h4>
-
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-
-            <div class="modal-body">
-				<form method="post" action="{{ route('provinces.store') }}" autocomplete="off" accept-charset="utf-8" enctype="multipart/form-data" role="form">
-					{{ csrf_field() }}
-					<input type="hidden" name="country_id" value="{{ $country->id }}">
-
-					<div class="form-group row">
-						<div class="col-lg-9">
-							<div class="row">
-								{{-- Provincia --}}
-								<label for="name" class="col-lg-12">{!! ucfirst(trans('textos.provincia')) !!} *</label>
-								<div class="col-lg-12">
-									<x-input type="text" name="name" maxlength="191" required/>
-								</div>
-							</div>
-						</div>
-
-						<div class="col-lg-3">
-							<div class="row">
-								{{-- Status --}}
-								<label for="status" class="col-lg-12">{!! ucfirst(trans('textos.estado')) !!}</label>
-								<div class="col-lg-12 text-center">
-									<label class="custom-chk-rdb">
-						        		<input type="checkbox" name="status" checked>
-						        		<span class="chk" style="top: 5px;"></span>
-						    		</label>
-								</div>
-							</div>
-						</div>
-					</div>
-					
-					<x-btn-submit name="submit_save" label="{{ trans('textos.guardar') }}"/>
-				</form>
-			</div>
-        </div>
-    </div>
-</div>
+@include('admin.provinces.partials.modal-new-province')
 
 {{-- Edit province --}}
-<div class="modal fade modal-edit-province" id="modal-edit-province" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">{!! ucfirst(trans('textos.provincia_editar')) !!}</h4>
-
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-
-            <div class="modal-body">
-				<form method="post" action="{{ route('provinces.update') }}" autocomplete="off" accept-charset="utf-8" enctype="multipart/form-data" role="form">
-					{{ csrf_field() }}
-					<input type="hidden" name="country_id" value="{{ $country->id }}">
-					<input type="hidden" name="id" id="provinceId">
-
-					<div class="form-group row">
-						<div class="col-lg-9">
-							<div class="row">
-								{{-- Provincia --}}
-								<label for="name" class="col-lg-12">{!! ucfirst(trans('textos.provincia')) !!} *</label>
-								<div class="col-lg-12">
-									<x-input type="text" name="name" id="provinceName" maxlength="191" required/>
-								</div>
-							</div>
-						</div>
-
-						<div class="col-lg-3">
-							<div class="row">
-								{{-- Status --}}
-								<label for="status" class="col-lg-12">{!! ucfirst(trans('textos.estado')) !!}</label>
-								<div class="col-lg-12 text-center">
-									<label class="custom-chk-rdb">
-						        		<input type="checkbox" name="status" id="provinceStatus">
-						        		<span class="chk" style="top: 5px;"></span>
-						    		</label>
-								</div>
-							</div>
-						</div>
-					</div>
-					
-					<x-btn-submit name="submit_update" label="{{ trans('textos.guardar') }}"/>
-				</form>
-			</div>
-        </div>
-    </div>
-</div>
+@include('admin.provinces.partials.modal-edit-province')
 
 @push('scripts')
 <script>
 $(function(){
+	//Tabla Provinces:
+    if($('#tblProvinces').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        var country_id = $('#countryId').val();
+        
+        $('#tblProvinces').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/provinces/"+country_id,
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'name'},
+                {data: 'id', className: 'text-right'}
+            ],
+            columnDefs: [
+                {"targets": -1,
+                "render": function(data, type, row){
+                    var estado = '';                    
+                    var editar = '';
+                    var eliminar = '';
+
+                    if(row['editar']){
+                        //Estado:
+                        var checked = (row['status'] == 1)? 'checked':'';
+                        estado = '<label class="custom-chk-rdb" rel="tooltip" title="'+txtProvinciaOnOff+'">';
+                            estado += '<input type="checkbox" name="status" '+checked+'><span class="chk chk-action" data-id="'+row['id']+'" data-ctrl="/admin/provinces/status"></span>';
+                        estado += '</label>';
+                    }
+
+                    var towns = '';
+                    if(row['ver']){
+                        //Poblaciones:
+                        towns = '<a href="/admin/towns/'+row['id']+'" class="btn btn-xs btn-info btn-module" rel="tooltip" title="'+txtPoblaciones+'"><i class="fa fa-city"></i></a>';
+                    }
+
+                    if(row['editar']){
+                        //Editar:
+                        editar = '<a href="#" class="btn btn-xs btn-info btn-module btnEditProvince" rel="tooltip" title="'+txtEditar+'" data-toggle="modal" data-target="#modal-edit-province" data-id="'+row['id']+'" data-province="'+row['name']+'" data-status="'+row['status']+'"><i class="fa fa-edit"></i></a>';
+
+                        //Eliminar:
+                        eliminar = '<form method="POST" action="/admin/provinces/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
+                            eliminar += '<input name="_method" type="hidden" value="DELETE">';
+                            eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
+                            eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtEliminar+'" data-msg="'+txtProvinciaConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
+                        eliminar += '</form>';
+                    }
+
+                    return estado+' '+towns+' '+editar+' '+eliminar;
+                }
+                }
+            ]
+        });
+    }
+
 	//Modal editar provincia:
 	$(document).on('click', '.btnEditProvince', function(){
 		var id = $(this).data('id');

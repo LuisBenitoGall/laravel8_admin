@@ -17,3 +17,38 @@
 		</table>
 	</div>
 </div>
+
+@push('scripts')
+<script>
+$(function(){
+	//Tabla Product Sales:
+    if($('#tblProductSales').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        var product_id = $('#productId').val();
+
+        $('#tblProductSales').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/product-sales/"+product_id,
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'date', className: 'text-right'},
+                {data: 'customer'},
+                {data: 'order', className: 'text-right'},
+                {data: 'qty', className: 'text-right'},
+                {data: 'price', className: 'text-right'},
+                {data: 'discounts', className: 'text-right'},
+                {data: 'iva', className: 'text-right'},
+                {data: 'amount', className: 'text-right'},
+                {data: 'acciones', className: 'text-right'}
+            ]
+        });
+    }
+});
+</script>
+@endpush

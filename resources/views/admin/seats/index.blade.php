@@ -225,6 +225,156 @@
 @push('scripts')
 <script>
 $(function(){
+	//Tabla Seats:
+    if($('#tblSeats').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        var year = $('#seatsYear').val();
+        var accounting_account_id = $('#seatsAccountingAccount').val()? $('#seatsAccountingAccount').val():'x';
+        var from = $('#seatsFrom').val();
+        var to = $('#seatsTo').val();
+
+        function format(d) {
+            // `d` is the original data object for the row
+            if (d.length > 0) {
+                var tr = '';
+                d.forEach(function (row, line) {
+                    var debit = row.debit? parseFloat(row.debit)+row.symbol:'';
+                    var credit = row.credit? parseFloat(row.credit)+row.symbol:'';
+                    tr += '<tr>' +
+                    '<td colspan="1" class="no-border text-right">' + row.line_num + '</td>' +
+                    '<td colspan="1" class="no-border">' + row.account+' - '+row.name+'</td>' +
+                    '<td colspan="1" class="no-border text-right">' + debit+'</td>' +
+                    '<td colspan="1" class="no-border text-right">' + credit+'</td>' +
+                    '</tr>';
+                });
+            } else {
+                tr = '<tr>' +
+                '<td colspan="4" class="no-border">' + txtObservacionesSin + '</td>' +
+                '</tr>';
+            }
+
+            var html = '<table class="tbl-subrows" cellpadding="0" cellspacing="0" border="0" width="100%">' +
+            '<thead>' +
+            '<th class="text-center">#</th>' +
+            '<th>'+txtCuentaContable+'</th>' +
+            '<th class="text-center">'+txtDebe+'</th>' +
+            '<th class="text-center">'+txtHaber+'</th>' +
+            '</thead>' +
+            tr +
+            '</table>';
+
+            return html;
+        }
+
+        // Load data from localstorage
+        var jsonData = JSON.parse(localStorage.getItem('DataTables_tblSeats_'+window.location.pathname));
+
+        $('#tblSeats thead tr').clone(true).appendTo('#tblSeats thead');
+        $('#tblSeats thead tr:eq(1) th').each(function(i){
+            var title = $(this).text();
+            if(i == 6){
+                $(this).html('');
+            }else{
+                // Check field on json of localstorage
+                let value = jsonData && jsonData.columns[i].search.search ? jsonData.columns[i].search.search : '';
+                let htmlRaw = `<input type="text" class="DTsearch" placeholder="${txtBuscar+' '+title}" value="${value}" />`
+                $(this).html(htmlRaw);
+
+                // $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
+            }
+
+            $('input', this).on('keyup change', function(){
+                if(tableSeats.column(i).search() !== this.value){
+                    tableSeats
+                    .column(i)
+                    .search(this.value)
+                    .draw();
+                }
+            });
+        });
+
+        var tableSeats = $('#tblSeats').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/seats/"+from+"/"+to+"/"+accounting_account_id,
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'num', name: 'seats.seat_date', className: 'text-right', "defaultContent": ""},
+                {data: 'seat_date', name: 'seats.seat_date', className: 'text-right', "defaultContent": ""},
+                {data: 'year', name: 'seats.year', className: 'text-right', "defaultContent": ""},
+                {data: 'concept', name: 'seats.concept', "defaultContent": ""},
+                //{data: 'amount', className: 'text-right', "defaultContent": ""},
+                // {data: 'debe', className: 'text-right', "defaultContent": ""},
+                // {data: 'haber', className: 'text-right', "defaultContent": ""},
+                // {data: 'saldo', className: 'text-right', "defaultContent": ""},
+                {data: 'company_target', name: 'companies.name', "defaultContent": ""},
+                {data: 'doc', className: 'text-center', name: 'seats.doc_num', "defaultContent": ""},
+                {data: 'acciones', className: 'text-right'}
+            ]
+        });
+
+        $('#tblSeats tbody').on('click', 'td .btnSeeItem', function () {
+            var tr = $(this).closest('tr');
+            var row = tableSeats.row(tr);
+            var seat_id = $(this).data('seat-id');
+            var route = "/api/admin/seat-lines/" + seat_id;
+
+            if (row.child.isShown()) {
+                row.child.hide();
+                tr.removeClass('shown');
+            } else {
+                $.ajax({
+                    url: route,
+                    cache: true
+                })
+                .done(function (data) {
+                    row.child(format(data)).show();
+                    tr.addClass('shown');
+                });
+            }
+        });
+    }
+	
+	//Tabla Seat Lines:
+    //14/11/2023: por ahora se cargarán los datos directamente desde PHP, pues no he hallado el modo de arrastrar el saldo de una fila a otra.
+    if($('#tblSeatLines').length > 0){
+        // var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        // var year = $('#seatsYear').val();
+        // var accounting_account_id = $('#seatsAccountingAccount').val()? $('#seatsAccountingAccount').val():'x';
+        // var from = $('#seatsFrom').val()? $('#seatsFrom').val():year+'-01-01';
+        // var to = $('#seatsTo').val()? $('#seatsTo').val():year+'-12-31'; 
+
+        var tableSeatLines = $('#tblSeatLines').DataTable({
+            order: [[1, 'asc']]
+            // serverSide: true,
+            // processing: true,
+            // ajax: {
+            //  "type": "GET",
+            //  "url": "/api/admin/seat-lines/"+accounting_account_id+"/dt/"+from+"/"+to,
+            //  "error": function(reason){
+            //      console.log(reason);
+            //  }
+            // },
+            // columns: [
+            //  {data: 'date', name: 'seats.seat_date', className: 'text-right', "defaultContent": ""},
+            //  {data: 'seat', name: 'seats.year', className: 'text-right', "defaultContent": ""},
+            //  {data: 'description', name: 'seats.description', "defaultContent": ""},
+            //  {data: 'doc', "defaultContent": ""},
+            //  {data: 'debe', className: 'text-right', "defaultContent": ""},
+            //  {data: 'haber', className: 'text-right', "defaultContent": ""},
+            //  {data: 'saldo', className: 'text-right', "defaultContent": ""},
+            //  {data: 'acciones', className: 'text-right', "defaultContent": ""}
+            // ]
+        });
+
+        //tableSeatLines.row.add(['','','','','','','xxxxxxx','yyyy']).draw();
+    }
+	
 	var seat_line_types = [];
 
 	//Selector de año:

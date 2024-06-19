@@ -32,4 +32,33 @@
 	</div>
 </div>
 
+@push('scripts')
+<script>
+$(function(){
+	//Tabla Stores:
+    if($('#tblStores').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        
+        $('#tblStores').DataTable({
+            serverSide: false,
+            processing: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/stores",
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'name'},
+                {data: 'tipo'},
+                {data: 'alta', className: 'text-right'},
+                {data: 'acciones', className: 'text-right'}
+            ]
+        });
+    }
+});
+</script>
+@endpush
+
 @endsection

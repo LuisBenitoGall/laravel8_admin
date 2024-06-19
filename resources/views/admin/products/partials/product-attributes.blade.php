@@ -37,3 +37,33 @@
 		</div>    
     </div>
 </div>
+
+@push('scripts')
+<script>
+$(function(){
+	//Tabla Product Attributes:
+    if($('#tblProductAttributes').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        var product_id = $('#productId').val();
+
+        $('#tblProductAttributes').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/product-attributes/"+product_id,
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'name'},
+                {data: 'datatype'},
+                {data: 'value'},
+                {data: 'acciones', className: 'text-right'}
+            ]
+        });
+    }
+});
+</script>
+@endpush

@@ -28,4 +28,33 @@
 	</div>
 </div>
 
+@push('scripts')
+<script>
+$(function(){
+	//Tabla Recommendation Companies:
+    if($('#tblRecommendationCompanies').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+
+        var tableRecommendationCompanies = $('#tblRecommendationCompanies').DataTable({
+            order: [[ 2, "desc" ]],
+            serverSide: true,
+            processing: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/recommendation-companies",
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'name', className: 'text-right'},
+                {data: 'tradename', className: 'text-right'},
+                {data: 'acciones', className: 'text-right'}
+            ]
+        });
+    }
+});
+</script>
+@endpush
+
 @endsection

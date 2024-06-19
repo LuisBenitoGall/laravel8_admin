@@ -71,3 +71,131 @@
 		</div>
 	</div>
 </div>
+
+@push('scripts')
+<script>
+$(function(){
+	//Tabla Order Customer Team:
+    if($('#tblOrderCustomerTeam').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        var order = $('#myOrder').val();
+
+        var tableOrderCustomerTeam = $('#tblOrderCustomerTeam').DataTable({
+            serverSide: true,
+            processing: true,
+            // drawCallback: function() {
+            //     $('.select2-dt').select2();
+            // },
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/order-teams/"+order+"/customer",
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'name'},
+                {data: 'rol'},
+                {data: 'id', className: 'text-right'}
+            ]
+            // columnDefs: [
+            //     {"targets": 0,
+            //     "render": function(data, type, row){
+            //         if(row['Image']){
+            //             var avatar = '<img src="/img/users/'+row['Image']+'" class="img-circle mr-2" width="36">';    
+            //         }else{
+            //             var avatar = setAvatar(row['name'], row['surname']);
+            //         }
+            //         return avatar+row['name']+' '+row['surname'];
+            //     }
+            //     },
+            //     {"targets": -1,
+            //     "render": function(data, type, row){
+            //         //Mostrar:
+            //         var show = '';
+            //         if(row['users_show']){
+            //             show = '<a target="_blank" href="/admin/users/'+row['id']+'/show" class="btn btn-xs btn-info" rel="tooltip" title="'+txtVer+'"><i class="fa fa-eye"></i></a>';
+            //         }                    
+
+            //         //Eliminar miembro del equipo:
+            //         var eliminar = '';
+            //         if(row['rol'] == '' && row['customers_on']){
+            //             eliminar = '<form method="POST" action="/admin/orders/'+order+'/remove-member" class="frm-inline" role="form" accept-charset="UTF-8">';
+            //                 eliminar += '<input name="_method" type="hidden" value="DELETE">';
+            //                 eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
+            //                 eliminar += '<input type="hidden" name="member" value="'+row['id']+'">';
+            //                 eliminar += '<input type="hidden" name="environment" value="customer">';
+            //                 eliminar += '<button type="submit" name="submit_member" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtEliminar+'" data-msg="'+txtMiembroConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
+            //             eliminar += '</form>';
+            //         }
+
+            //         return show+' '+eliminar;    
+            //     }
+            //     }
+            // ]
+        });
+    }
+
+    //Tabla Order Provider Team:
+    if($('#tblOrderProviderTeam').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        var order = $('#myOrder').val();
+
+        var tableOrderProviderTeam = $('#tblOrderProviderTeam').DataTable({
+            serverSide: true,
+            /*processing: true,*/
+            // drawCallback: function() {
+            //     $('.select2-dt').select2();
+            // },
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/order-teams/"+order+"/provider",
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'name'},
+                {data: 'rol'},
+                {data: 'id', className: 'text-right'}
+            ],
+            columnDefs: [
+                {"targets": 0,
+                "render": function(data, type, row){
+                    if(row['Image']){
+                        var avatar = '<img src="/img/users/'+row['Image']+'" class="img-circle mr-2" width="36">';    
+                    }else{
+                        var avatar = setAvatar(row['name'], row['surname']);
+                    }
+                    return avatar+row['name']+' '+row['surname'];
+                }
+                },
+                {"targets": -1,
+                "render": function(data, type, row){
+                    //Mostrar:
+                    var show = '';
+                    if(row['users_show']){
+                        show = '<a target="_blank" href="/admin/users/'+row['id']+'/show" class="btn btn-xs btn-info" rel="tooltip" title="'+txtVer+'"><i class="fa fa-eye"></i></a>';
+                    }         
+
+                    //Eliminar miembro del equipo:
+                    var eliminar = '';
+                    if(row['rol'] == '' && row['providers_on']){
+                        eliminar = '<form method="POST" action="/admin/orders/'+order+'/remove-member" class="frm-inline" role="form" accept-charset="UTF-8">';
+                            eliminar += '<input name="_method" type="hidden" value="DELETE">';
+                            eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
+                            eliminar += '<input type="hidden" name="member" value="'+row['id']+'">';
+                            eliminar += '<input type="hidden" name="environment" value="provider">';
+                            eliminar += '<button type="submit" name="submit_member" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtEliminar+'" data-msg="'+txtMiembroConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
+                        eliminar += '</form>';
+                    }
+
+                    return show+' '+eliminar;    
+                }
+                }
+            ]
+        });
+    }
+});
+</script>
+@endpush

@@ -103,16 +103,23 @@ class OrderPrevisions extends Model{
             ->orderBy('invoice_id', 'DESC')
             ->orderBy('id', 'ASC')
             ->get();
-
             $accumulated_percent = 0;
             $accumulated_amount = 0;
 
-            $previsions_without_month = [];
+            //07/06/2024: ya no se agrupan las previsiones sin mes en una sola.
+            //$previsions_without_month = [];
+
+            $all_invoiced = true;
+
+            //Número de previsiones para controlar la última:
+            $num_previsions = $previsions->count();
+            $k = 1;
+
+            //dd($order_amount, $previsions, $num_previsions);
 
             foreach($previsions as $p){
                 //Previsión facturada:
                 if($p->invoice_id){
-
                     //Importe de la factura:
                     $invoice_amount = Invoice::select('amount')->find($p->invoice_id);
 
@@ -136,6 +143,8 @@ class OrderPrevisions extends Model{
                 //19/01/2024: las previsiones sin mes asignado se agrupan en una sola.
                 }else{
 
+                    $all_invoiced = false;
+
                     //Para 1 única previsión:
                     // if($previsions->count() == 1){
                     //     $p->amount = $order_amount;
@@ -144,10 +153,8 @@ class OrderPrevisions extends Model{
                     // }else{
                     
                     //Con mes declarado:
-                    if($p->month){
-
-
-
+                    //07/06/2024: ya no se agrupan las previsiones sin mes en una sola.
+                    //if($p->month){
                         //Verificamos que el importe se ajuste al total:
                         $percent = NULL;
                         if(!$p->amount || $p->amount == '0'){
@@ -163,6 +170,12 @@ class OrderPrevisions extends Model{
                             }
                         }
 
+                        //Actualizando importe de la última previsión activa:
+                        if($k == $num_previsions && !$p->invoice_id){
+                            $amount = $order_amount - $accumulated_amount;
+                            $percent = 100 - $accumulated_percent;
+                        }
+
                         $accumulated_percent = $accumulated_percent + $percent;
                         $accumulated_amount = $accumulated_amount + $amount;
 
@@ -170,18 +183,18 @@ class OrderPrevisions extends Model{
                         $p->percent = $percent;
 
                     //Sin mes declarado:
-                    }else{
-                        array_push($previsions_without_month, $p);    
-                    }
+                    // }else{
+                    //     array_push($previsions_without_month, $p);    
+                    // }
                 }
 
                 $p->save();
+
+                $k++;
             }
 
             $diff_percent = bcsub(100, $accumulated_percent, 6);
             $diff_amount = $order_amount - $accumulated_amount;
-
-            
 
             //Ajustamos porcentaje pendiente en función del importe pendiente:
             if($diff_amount < config('constants.TOLERANCE_DECIMALS_')){
@@ -189,32 +202,35 @@ class OrderPrevisions extends Model{
             }
 
             //Agrupando previsiones sin mes:
-            $first_id = false;
-            if(count($previsions_without_month)){
-                $first_id = $previsions_without_month[0]->id;
-            }
-
-            //Añadimos nueva previsión o actualizamos una existente si el porcentaje previsto es superior a 0.01:  && $generate
-            // if($diff_amount >= config('constants.TOLERANCE_DECIMALS_')){
-            //     if($first_id){
-            //         OrderPrevisions::where('id', $first_id)
-            //         ->update(['amount' => round($diff_amount, 2), 'percent' => $diff_percent]);    
-
-            //     }else{
-            //         $op = new OrderPrevisions();
-            //         $op->order_id = $order_id;
-            //         $op->year = date('Y');
-            //         $op->amount = round($diff_amount, 2);
-            //         $op->percent = $diff_percent;
-            //         $op->save();
-            //     }
+            // $first_id = false;
+            // if(count($previsions_without_month)){
+            //     $first_id = $previsions_without_month[0]->id;
             // }
+
+            //Añadimos nueva previsión o actualizamos una existente - condiciones:  
+            //1. si el porcentaje previsto es superior a 0.01 
+            //2. están facturadas todas las previsiones anteriores:  
+            if($diff_amount >= config('constants.TOLERANCE_DECIMALS_') && $all_invoiced){
+                // if($first_id){
+                //     OrderPrevisions::where('id', $first_id)
+                //     ->update(['amount' => round($diff_amount, 2), 'percent' => $diff_percent]);    
+
+                // }else{
+                    $op = new OrderPrevisions();
+                    $op->order_id = $order_id;
+                    $op->year = date('Y');
+                    $op->amount = round($diff_amount, 2);
+                    $op->percent = $diff_percent;
+                    $op->save();
+                //}
+            }
         }
 
         return OrderPrevisions::select('order_previsions.*', 'invoices.id AS invoiceId', 'invoices.invoice_num', 'invoices.amount AS invoice_amount', 'invoices.amount_with_iva')
         ->leftJoin('invoices', 'order_previsions.invoice_id', '=', 'invoices.id')
         ->where('order_previsions.order_id', $order_id)
         ->orderBy('order_previsions.year', 'ASC')
+        ->orderByRaw('order_previsions.invoice_id IS NULL, order_previsions.invoice_id ASC')
         ->orderByRaw('order_previsions.month IS NULL, order_previsions.month ASC')
         ->orderBy('order_previsions.id', 'ASC')
         ->get();  
