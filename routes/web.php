@@ -753,6 +753,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::put('orders/{order}/update-template', 'OrderController@updateTemplate')->name('orders.update-template')->middleware('permission:orders.edit');
     Route::get('orders/{order}/remove-template', 'OrderController@removeTemplate')->name('orders.remove-template')->middleware('permission:orders.edit');
     Route::put('orders/{order}/add-discount', 'OrderController@addDiscount')->name('orders.add-discount')->middleware('permission:budgets.edit');
+    Route::post('orders/{order_id}/delete-discount', 'OrderController@deleteDiscount')->name('orders.delete-discount')->middleware('permission:budgets.edit');
     Route::post('orders/{order}/set-customer', 'OrderController@setCustomer')->name('orders.set-customer')->middleware('permission:orders.edit');
     Route::get('orders/{order}/remove-discount/{return?}', 'OrderController@removeDiscount')->name('orders.remove-discount')->middleware('permission:orders.edit');
     Route::post('orders/{order}/add-member', 'OrderController@addTeamMember')->name('orders.add-member')->middleware('permission:orders.edit');

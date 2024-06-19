@@ -117,7 +117,7 @@ class BudgetController extends Controller{
                 'customer_manager_id' => 'nullable|integer',
                 'customer_workplace_id' => 'nullable|integer',
                 'customer_cost_center_id' => 'nullable|integer',
-                'commercial_id' => 'nullable|integer',
+                'commercial_id' => 'nullable|integer'
             ],[
                 'pattern_id.integer' => trans('textos.required_valor_listado'),
                 'status.integer' => trans('textos.required_valor_listado'),
@@ -127,7 +127,7 @@ class BudgetController extends Controller{
                 'customer_manager_id.integer' => trans('textos.required_valor_listado'),
                 'customer_workplace_id.integer' => trans('textos.required_valor_listado'),
                 'customer_cost_center_id.integer' => trans('textos.required_valor_listado'),
-                'commercial_id.integer' => trans('textos.required_valor_listado'),  
+                'commercial_id.integer' => trans('textos.required_valor_listado')
             ]);
 
         //Validación añadir nuevo responsable:

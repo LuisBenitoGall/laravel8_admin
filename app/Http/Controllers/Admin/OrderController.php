@@ -89,6 +89,7 @@ class OrderController extends Controller{
      * 17. Eliminar plantilla del pedido.
      * 18. Añadir descuento a pedido.
      * 18.1. Eliminar descuento de pedido.
+     * 18.2. Eliminar descuento sobre todas las líneas del pedido.
      * 19. Modificar cliente de pedido.
      * 20. Eliminar documento de orden de compra.
      * 21. Imprimir pedido.
@@ -111,7 +112,7 @@ class OrderController extends Controller{
         $this->languages = helpers::languages();
 
         $this->middleware('module_setted:orders');
-        $this->middleware('order_get', ['only' => ['orderFromBudget', 'edit', 'update', 'destroy', 'print', 'setOrderDelivery', 'resetNum', 'removePurchaseDoc', 'close']]);
+        $this->middleware('order_get', ['only' => ['orderFromBudget', 'edit', 'update', 'destroy', 'print', 'setOrderDelivery', 'resetNum', 'removePurchaseDoc', 'close', 'deleteDiscount']]);
         $this->middleware('project_purchases', ['only' => ['addPurchaseToProject']]);
     }
 
@@ -171,7 +172,31 @@ class OrderController extends Controller{
                 'id' => 'required|numeric',
                 'year' => 'nullable|array',
                 'month' => 'nullable|array',
-                'percent' => 'nullable|array'
+                'percent' => 'nullable|array',
+                'pattern_id' => 'nullable|integer',
+                'purchase_pattern_id' => 'nullable|integer',
+                'status' => 'nullable|integer',
+                'customer_manager_id' => 'nullable|integer',
+                'customer_workplace_id' => 'nullable|integer',
+                'customer_business_area_id' => 'nullable|integer',
+                'customer_cost_center_id' => 'nullable|integer',
+                'provider_manager_id' => 'nullable|integer',
+                'provider_workplace_id' => 'nullable|integer',
+                'provider_business_area_id' => 'nullable|integer',
+                'provider_cost_center_id' => 'nullable|integer',
+                'commercial_id' => 'nullable|integer',
+            ],[
+                'pattern_id.integer' => trans('textos.required_valor_listado'),
+                'status.integer' => trans('textos.required_valor_listado'),
+                'provider_manager_id.integer' => trans('textos.required_valor_listado'),
+                'provider_workplace_id.integer' => trans('textos.required_valor_listado'),
+                'provider_business_area_id.integer' => trans('textos.required_valor_listado'),
+                'provider_cost_center_id.integer' => trans('textos.required_valor_listado'),
+                'customer_manager_id.integer' => trans('textos.required_valor_listado'),
+                'customer_workplace_id.integer' => trans('textos.required_valor_listado'),
+                'customer_business_area_id.integer' => trans('textos.required_valor_listado'),
+                'customer_cost_center_id.integer' => trans('textos.required_valor_listado'),
+                'commercial_id.integer' => trans('textos.required_valor_listado'), 
             ]); 
 
         //Validación update owner:
@@ -2438,6 +2463,22 @@ class OrderController extends Controller{
         }else{
             return redirect()->route('budgets.edit', [$order->id, 'items'])->with(compact('msg'));    
         }
+    }
+
+    /**
+     * 18.2. Eliminar descuento sobre todas las líneas del pedido.
+     */
+    public function deleteDiscount(Request $request, $order_id){
+        if(!$order_id || !is_numeric($order_id)){
+            $alert = trans('textos.descuento_deleted_error');
+            return redirect()->route('orders.index')->with(compact('alert'));
+        }
+
+        Item::where('order_id', $order_id)
+        ->update(['discount' => NULL]);
+
+        $msg = trans('textos.descuento_deleted_ok');
+        return redirect()->route('orders.edit', [$order_id, 'items'])->with(compact('msg'));
     }
 
     /**
