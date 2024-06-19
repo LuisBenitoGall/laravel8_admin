@@ -643,7 +643,7 @@ class InvoiceController extends Controller{
                     //Importe de la factura obteniendo el porcentaje indicado sobre el total del importe del pedido.
                     $total_amount = helpers::percent($order_amount['total_amount'], $percent_to_invoice);
                     //Porcentaje facturado:
-                    $percentage_invoiced = $percent_to_invoice;
+                    $percentage_invoiced = false;
 
                     //Importe con IVA:
                     $amount_with_iva = helpers::percent($order_amount['invoice_amount'], $percent_to_invoice);
