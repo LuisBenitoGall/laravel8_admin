@@ -93,6 +93,11 @@ class ProjectController extends Controller{
         }elseif(isset($data['submit_update'])){
             return Validator::make($data, [
                 'name' => 'required|string|max:255',
+                'pattern_id' => 'nullable|integer',
+                'status' => 'nullable|integer',
+            ],[
+                'pattern_id.integer' => trans('textos.required_valor_listado'),
+                'status.integer' => trans('textos.required_valor_listado')    
             ]); 
 
         //Validación filter:

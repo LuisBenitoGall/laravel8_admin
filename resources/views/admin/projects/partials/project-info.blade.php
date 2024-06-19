@@ -71,7 +71,7 @@
 			<x-input type="text" name="project_old_num" value="{{ $project->project_old_num }}" autocomplete="off" maxlength="150" info="order-old-num"/>
 		</div>
 
-		{{-- Gràfica destacada --}}
+		{{-- Gráfica destacada --}}
 		<label for="chart" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.grafico_principal')) !!}</label>
 		<div class="col-lg-2">
 			@php

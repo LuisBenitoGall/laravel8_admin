@@ -382,13 +382,14 @@ $order_amount_without_discount = $order_amount_without_discount_in_lines > $orde
 					@include('admin.orders.partials.data-discount-applied', ['return' => 'orders', 'remove_discount' => $remove_discount])
 
 					{{-- Modalidad --}}
-					@if($order->provider_id == session('currentCompany'))
+					@if($order->provider_id == session('currentCompany') && $order->modality)
 						<label class="mr-5">
 							{{ ucfirst(trans('textos.modalidad')) }}:
 							<b>
 								@if($order->modality == 10)
 									@php
 									$form_selected = '';
+
 									foreach($forms as $f){
 										if($f->id == $order->form_id){
 											$form_selected = $f->name;	
@@ -396,7 +397,7 @@ $order_amount_without_discount = $order_amount_without_discount_in_lines > $orde
 									}
 									@endphp
 
-									{{ trans('textos.formulario') }} <u>{{ $form_selected }}</u>
+									{{ trans('textos.formulario') }} <u>{!! $form_selected !!}</u>
 								@else
 	  					    		{!! App\Helpers\helpers::budgetModalities($order->modality) !!} 
 	  					   		@endif
