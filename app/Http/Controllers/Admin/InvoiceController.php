@@ -2624,35 +2624,35 @@ class InvoiceController extends Controller{
 
             //Se genera el asiento contable si todos los tipos de IVA están vinculados a cuenta contable:
             if(empty($iva_errors)){
-                $seat_data = [
-                    'company_id' => session('currentCompany'),
-                    'seat_num' => NULL,
-                    'seat_type' => NULL,
-                    'seat_date' => date('Y-m-d'),
-                    'operation_type' => NULL,
-                    'diary' => NULL,
-                    'concept' => trans('textos.factura_venta').' - '.$invoice->id,
-                    'description' => NULL,
-                    'serie' => NULL,
-                    'doc_num' => NULL,
-                    'doc' => NULL,
-                    'sort_num' => '',
-                    'company_target' => $order->customer_id,
-                    'mode' => NULL,
-                    'currency_id' => $this->currency->id,
-                    'invoice_id' => $invoice->id,
-                    'invoice_amount' => $invoice->amount,
-                    'invoice_amount_iva' => $invoice->amount_with_iva,
-                    'provider_doc' => NULL,
-                    'cash_id' => NULL,
-                    'pay_sign' => NULL,
-                    // 'accounting_sale_id' => NULL,
-                    'seat_lines' => $seat_lines,
-                    'iva_lines' => $iva_lines
-                ];
-                $seat = Seat::saveSeat($seat_data);
+                // $seat_data = [
+                //     'company_id' => session('currentCompany'),
+                //     'seat_num' => NULL,
+                //     'seat_type' => NULL,
+                //     'seat_date' => date('Y-m-d'),
+                //     'operation_type' => NULL,
+                //     'diary' => NULL,
+                //     'concept' => trans('textos.factura_venta').' - '.$invoice->id,
+                //     'description' => NULL,
+                //     'serie' => NULL,
+                //     'doc_num' => NULL,
+                //     'doc' => NULL,
+                //     'sort_num' => '',
+                //     'company_target' => $order->customer_id,
+                //     'mode' => NULL,
+                //     'currency_id' => $this->currency->id,
+                //     'invoice_id' => $invoice->id,
+                //     'invoice_amount' => $invoice->amount,
+                //     'invoice_amount_iva' => $invoice->amount_with_iva,
+                //     'provider_doc' => NULL,
+                //     'cash_id' => NULL,
+                //     'pay_sign' => NULL,
+                //     // 'accounting_sale_id' => NULL,
+                //     'seat_lines' => $seat_lines,
+                //     'iva_lines' => $iva_lines
+                // ];
+                // $seat = Seat::saveSeat($seat_data);
 
-                return $seat;
+                //return $seat;
 
             //Guardamos el error:
             }else{
