@@ -554,7 +554,7 @@ if(!$initial_imports->value){
                 {{-- Administrador: --}}
                 <li class="dropdown">
                     @php
-                    $avatar= null;
+                    $avatar = false;
                     if(!Auth::user()->images->isEmpty()){
                         $avatar = Auth::user()->images()->first();
                     }
@@ -562,7 +562,7 @@ if(!$initial_imports->value){
 
                     <a class="dropdown-toggle text-center" data-toggle="dropdown" href="#" role="button" aria-haspopup="false"
                        aria-expanded="false">
-                        <img class="rounded-circle avatar" src="{{ !is_null($avatar) && file_exists('img/users/'.$avatar->image) ? asset('img/users/'.$avatar->image) : asset('img/users/user.png') }}" alt="{{ Auth::user()->name }}"/>
+                        <img class="rounded-circle avatar" src="{{ $avatar && file_exists('img/users/'.$avatar->image) ? asset('img/users/'.$avatar->image) : asset('img/users/user.png') }}" alt="{{ Auth::user()->name }}"/>
                     </a>
 
                     <ul class="dropdown-menu dropdown-alerts" style="margin-top: -4px;">
