@@ -1463,13 +1463,49 @@ class BudgetController extends Controller{
         //$new_budget->updated_by = Auth::user()->id;
         $new_budget->save();
 
+        //Bloques de formulario creados exprofeso para el pedido:
+        $blocks_adhoc = BudgetFormItems::select('id', 'name', 'cost_center_id')
+        ->where('order_id', $order->id)
+        ->whereNull('form_id')
+        ->where('recid', '0')
+        ->get();
+
+        //Array para no repetir bloques:
+        $blocks_used = [];
+
         foreach($items as $i){
+            $budget_form_block_id = $i->budget_form_block_id;
+            $budget_form_item_id = $i->budget_form_item_id;
+
+            //Verificamos si se trata de un bloque ad hoc:
+            foreach($blocks_adhoc as $ba){
+                if($i->budget_form_block_id == $ba->id && in_array($ba->name, $blocks_used)){
+                    $bfi = new BudgetFormItems();
+                    $bfi->recid = '0';
+                    $bfi->form_id = NULL;
+                    $bfi->order_id = $new_budget->id;
+                    $bfi->product_id = NULL;
+                    $bfi->name = $ba->name;
+                    $bfi->cost_center_id = $ba->cost_center_id;
+                    $bfi->save();
+
+                    $budget_form_block_id = $bfi->id;
+                    $budget_form_item_id = NULL;
+                    break;
+
+                    $blocks_used[$bfi->id] = $bfi->name;
+                
+                }else{
+                    $budget_form_block_id = array_search($ba->name, $blocks_used);  
+                    $budget_form_item_id = NULL;  
+                }
+            }
+
             $it = new Item();
             $it->product_id = $i->product_id;
             $it->order_id = $new_budget->id;
-            $it->budget_form_block_id = $i->budget_form_block_id;
-            $it->budget_form_item_id = $i->budget_form_item_id;
-            $it->budget_form_block_id = $i->budget_form_block_id;
+            $it->budget_form_block_id = $budget_form_block_id;
+            $it->budget_form_item_id = $budget_form_item_id;
             $it->budget_sort = $i->budget_sort;
             $it->concept = $i->concept;
             $it->observations = $i->observations;
