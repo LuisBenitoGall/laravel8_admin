@@ -1470,13 +1470,16 @@ class BudgetController extends Controller{
         ->where('recid', '0')
         ->get();
 
+        //Array para no repetir bloques:
+        $blocks_used = [];
+
         foreach($items as $i){
             $budget_form_block_id = $i->budget_form_block_id;
             $budget_form_item_id = $i->budget_form_item_id;
 
             //Verificamos si se trata de un bloque ad hoc:
             foreach($blocks_adhoc as $ba){
-                if($i->budget_form_block_id == $ba->id){
+                if($i->budget_form_block_id == $ba->id && in_array($ba->name, $blocks_used)){
                     $bfi = new BudgetFormItems();
                     $bfi->recid = '0';
                     $bfi->form_id = NULL;
@@ -1489,6 +1492,12 @@ class BudgetController extends Controller{
                     $budget_form_block_id = $bfi->id;
                     $budget_form_item_id = NULL;
                     break;
+
+                    $blocks_used[$bfi->id] = $bfi->name;
+                
+                }else{
+                    $budget_form_block_id = array_search($ba->name, $blocks_used);  
+                    $budget_form_item_id = NULL;  
                 }
             }
 
