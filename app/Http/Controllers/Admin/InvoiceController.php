@@ -873,6 +873,7 @@ class InvoiceController extends Controller{
             // if($percentage_invoiced){
             //     $next_previsions_to_invoice->percent = $percentage_invoiced;
             // }
+            $next_previsions_to_invoice->month = Date('m');
             $next_previsions_to_invoice->save();
         }
 
