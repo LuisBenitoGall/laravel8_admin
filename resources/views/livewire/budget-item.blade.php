@@ -241,7 +241,7 @@ $permitted = !$order || ($order && $add_items && !$order->parent && !$order->blo
                             @endif
 
                             <input type="text" name="price" class="form-control text-right set-decimals"
-                                   id="newItemPrice" autocomplete="off" maxlength="8" wire:model.defer="price" wire:keydown.debounce="changePrice($event.target.value)"
+                                   id="newItemPrice" autocomplete="off" maxlength="10" wire:model.defer="price" wire:keydown.debounce="changePrice($event.target.value)"
                                    @if($field_readonly || $readonly) readonly @endif>
                             <div class="input-group-append">
                                 <span class="input-group-addon">
