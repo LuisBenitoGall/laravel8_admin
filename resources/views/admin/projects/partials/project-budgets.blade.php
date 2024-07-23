@@ -62,6 +62,15 @@
 							<td class="text-right">
 								{{-- Editar --}}
 								<a target="_blank" href="{{ route('budgets.edit', $bo->id) }}" class="btn btn-xs btn-info btn-module" rel="tooltip" title="{{ ucfirst(trans('textos.editar')) }}"><i class="fa fa-edit"></i></a>
+
+								{{-- Eliminar --}}
+								<form method="POST" action="{{ route('project-orders.destroy') }}" class="frm-inline" role="form" accept-charset="UTF-8">
+								    <input name="_method" type="hidden" value="DELETE">
+								    {{ csrf_field() }}
+								    <input type="hidden" name="project" value="{{ $project->id }}">
+								    <input type="hidden" name="order" value="{{ $bo->id }}">
+								    <button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="{{ ucfirst(trans('textos.desvincular')) }}" data-msg="{{ ucfirst(trans('textos.proyecto_presupuesto_confirm_desvincular')) }}"><i class="fa fa-trash"></i></button>
+								</form>
 							</td>
 						</tr>
 					@endif
