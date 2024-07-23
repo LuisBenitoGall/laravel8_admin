@@ -898,6 +898,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
 
     // Project Orders:
     Route::post('project-orders/store', 'ProjectOrdersController@store')->name('project-orders.store')->middleware('permission:projects.edit');
+    Route::delete('project-orders', 'ProjectOrdersController@destroy')->name('project-orders.destroy')->middleware('permission:projects.edit');
 
     // Project Patterns:
     Route::get('project-patterns', 'ProjectPatternsController@index')->name('project-patterns.index')->middleware('permission:project-patterns.index');
