@@ -810,6 +810,9 @@ class ProjectController extends Controller{
      * 7. Eliminar proyecto.
      */
     public function destroy(Project $project){
+        //Eliminamos pedidos vinculados:
+        ProjectOrders::where('project_id', $project->id)->delete();
+
         $project->delete();
 
         //Generar .json de proyectos:

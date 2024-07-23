@@ -16,6 +16,7 @@ use App\Models\ProjectOrders;
 class ProjectOrdersController extends Controller{
     /**
      * 1. Vincular venta a proyecto.
+     * 2. Desvincular pedido - presupuesto de proyecto.
      */
 
     private $option = 'proyectos';
@@ -59,5 +60,24 @@ class ProjectOrdersController extends Controller{
 
         $msg = trans('textos.ventas_vinculadas');
         return redirect()->route('projects.edit', [$request->project_id, 'orders'])->with(compact('msg'));
+    }
+
+    /**
+     * 2. Desvincular pedido - presupuesto de proyecto.
+     */
+    public function destroy(Request $request){
+        //dd($request->all());
+        if(!$request->project || !is_integer((int)$request->project) || !$request->order || !is_integer((int)$request->order)){
+            $alert = trans('textos.proyecto_pedido_error');
+            return redirect()->route('projects.edit', [$request->project, 'orders'])->with(compact('alert'));
+            exit;
+        }
+
+        ProjectOrders::where('project_id', $request->project)
+        ->where('order_id', $request->order)
+        ->delete();
+
+        $msg = trans('textos.proyecto_pedido_desvinculado');
+        return redirect()->route('projects.edit', [$request->project, 'orders'])->with(compact('msg'));        
     }
 }
