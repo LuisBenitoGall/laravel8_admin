@@ -18,6 +18,7 @@
 			<div class="card-body">
 				<form method="post" autocomplete="off" action="{{ route('remittances.store') }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
 					{{ csrf_field() }}
+					<input type="hidden" name="type" value="{{ $type }}">
 
 					<p class="text-warning">{{ trans('textos.efectos_selec_aviso') }}</p>
 
@@ -56,7 +57,13 @@
 		<table class="table table-hover dTable" id="tblAddEffectsToRemittance">
 			<thead>
 				<th class="text-center wdt50">#</th>
-				<th class="wdt100">{!! ucfirst(trans('textos.cliente')) !!}</th>
+				<th class="wdt100">
+					@if($type == 'collection')
+						{!! ucfirst(trans('textos.cliente')) !!}
+					@else
+						{!! ucfirst(trans('textos.proveedor')) !!}
+					@endif
+				</th>
 				<th class="wdt50">{!! ucfirst(trans('textos.factura')) !!}</th>
 				<th class="text-center wdt50">{!! ucfirst(trans('textos.fecha')) !!}</th>
 				<th class="text-center wdt50">{!! ucfirst(trans('textos.importe')) !!}</th>
@@ -74,9 +81,9 @@
 								<a target="_blank" href="{{ route('effects.edit', $ef->id) }}">{{ $ef->effect_num }}</a>
 							@endif
 						</td>
-						{{-- Cliente --}}
+						{{-- Cliente o proveedor --}}
 						<td>
-							{{ $ef->customer }}
+							{{ $ef->company }}
 						</td>
 						{{-- Factura --}}
 						<td class="text-right">

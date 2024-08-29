@@ -32,6 +32,7 @@ class Effect extends Model{
         'payment_status',
         'amount',
         'currency_id',
+        'type',
         'created_by',
         'updated_by',
         'status'
@@ -115,11 +116,26 @@ class Effect extends Model{
     /**
      * 4. Efectos remesables.
      */
-    public static function getEffectsToRemittance(){
-        return Effect::select('effects.id', 'effects.effect_num', 'effects.parent', 'effects.customer_id', 'effects.date', 'effects.amount', 'effects.status', 'effects.type', 'bank_accounts.account', 'companies.name AS customer', 'currencies.symbol')
-        ->where('effects.provider_id', session('currentCompany'))
+    public static function getEffectsToRemittance($type){
+        return Effect::select('effects.id', 'effects.effect_num', 'effects.parent', 'effects.customer_id', 'effects.provider_id', 'effects.date', 'effects.amount', 'effects.status', 'effects.type', 'bank_accounts.account', 'banks.name AS bank', 'companies.name AS company', 'currencies.symbol')
+        ->when($type, function($q) use($type){
+            //Cobros:
+            if($type == 'collection'){
+                return $q->where('effects.provider_id', session('currentCompany'));
+            }else{
+                return $q->where('effects.customer_id', session('currentCompany'));     
+            }
+        })
         ->join('bank_accounts', 'effects.provider_bank_account_id', '=', 'bank_accounts.id')
-        ->join('companies', 'effects.customer_id', '=', 'companies.id')
+        ->join('banks', 'bank_accounts.bank_id', '=', 'banks.id')
+        ->when($type, function($q) use($type){
+            //Cobros:
+            if($type == 'collection'){
+                return $q->join('companies', 'effects.customer_id', '=', 'companies.id');
+            }else{
+                return $q->join('companies', 'effects.provider_id', '=', 'companies.id');
+            }
+        })
         ->join('currencies', 'effects.currency_id', '=', 'currencies.id')
         ->where('effects.status', config('constants.EFFECT_STATUS_PENDENT_'))
         ->whereNull('effects.remittance_id')

@@ -79,6 +79,9 @@ En el archivo config/constants.php se definen constantes personalizadas.
 	- composer require maatwebsite/excel
 	- En php.ini se actualiza el valor de memory_limit a -1 para poder utilizar esta librería.
 
+- XML Library:
+	- composer require spatie/array-to-xml:^2.13
+	
 - Sweet Alert 2:
 	- npm install sweetalert2
 	- Incluir en el archivo resources/js/bootstrap.js: window.swal = require('sweetalert2');
