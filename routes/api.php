@@ -219,6 +219,9 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     //InvoicePatterns:
     Route::get('invoice-patterns', 'InvoicePatternsController@getPatternsDT');
 
+    //InvoiceQueries:
+    Route::get('invoice-queries/by-invoices-dt/{companies}/{invoice_type}/{status}/{from?}/{to?}', 'InvoiceQueryController@getInvoicesDT');
+
     //Invoices:
     Route::get('invoices/{year?}/{customer?}/{provider?}/{month?}/{group?}', 'InvoiceController@getInvoicesDT');
 

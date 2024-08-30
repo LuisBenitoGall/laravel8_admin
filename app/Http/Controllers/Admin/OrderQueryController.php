@@ -29,7 +29,6 @@ class OrderQueryController extends Controller{
      * 4.1. Consulta de presupuestos para DataTables.
      * 5. Por líneas de presupuesto.
      * 5.1. Consulta items de presupuestos para DataTables.
-     * 6. Empresas del usuario.
      */
     
     private $option = 'pedidos';
@@ -853,15 +852,5 @@ class OrderQueryController extends Controller{
             ->make(true);
         }
     }
-
-    /**
-     * 6. Empresas del usuario.
-     */
-    public function getUserCompanies($user_id){
-        return UserCompanies::select('companies.id', 'companies.name')
-        ->join('companies', 'user_companies.company_id', '=', 'companies.id')
-        ->where('user_companies.user_id', $user_id)
-        ->pluck('name', 'id')
-        ->toArray();    
-    }
+    
 }
