@@ -24,6 +24,7 @@
         "pusher/pusher-php-server": "^7.0",
         "sentry/sentry-laravel": "^3.1",
         "silviolleite/laravelpwa": "^2.0",
+        "spatie/array-to-xml": "2.13",
         "spatie/laravel-permission": "^5.8",
         "yajra/laravel-datatables-oracle": "~9.0"
     },
@@ -53,7 +54,8 @@
     "scripts": {
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
-            "@php artisan package:discover --ansi"
+            "@php artisan package:discover --ansi",
+            "@php artisan vendor:publish --force --tag=livewire:assets --ansi"
         ],
         "post-update-cmd": [
             "@php artisan vendor:publish --tag=laravel-assets --ansi"

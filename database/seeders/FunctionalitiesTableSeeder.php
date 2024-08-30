@@ -475,6 +475,11 @@ class FunctionalitiesTableSeeder extends Seeder{
             'label' => 'remesa_patrones',
             'module' => 'accounting'
             ],
+            ['name' => 'invoice queries',
+            'slug' => 'invoice-queries',
+            'label' => 'consultas',
+            'module' => 'accounting'
+            ],
 
             ['name' => 'incidences',
             'slug' => 'incidences',

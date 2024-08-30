@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d6ecb1eb9a36e9f95728e7ce8a2c0b75",
+    "content-hash": "aea1bacae809df905e53f2a990dbc4a9",
     "packages": [
         {
             "name": "andreaselia/laravel-api-to-postman",
@@ -6746,6 +6746,60 @@
             "time": "2020-08-20T12:19:16+00:00"
         },
         {
+            "name": "spatie/array-to-xml",
+            "version": "2.13.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/spatie/array-to-xml.git",
+                "reference": "9067a5b041a04e74d08657519c2d8ffed91b4879"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/spatie/array-to-xml/zipball/9067a5b041a04e74d08657519c2d8ffed91b4879",
+                "reference": "9067a5b041a04e74d08657519c2d8ffed91b4879",
+                "shasum": ""
+            },
+            "require": {
+                "ext-dom": "*",
+                "php": "^7.2"
+            },
+            "require-dev": {
+                "mockery/mockery": "^1.0",
+                "phpunit/phpunit": "^8.0",
+                "spatie/phpunit-snapshot-assertions": "^2.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Spatie\\ArrayToXml\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Freek Van der Herten",
+                    "email": "freek@spatie.be",
+                    "homepage": "https://murze.be",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Convert an array to xml",
+            "homepage": "https://github.com/spatie/array-to-xml",
+            "keywords": [
+                "array",
+                "convert",
+                "xml"
+            ],
+            "support": {
+                "issues": "https://github.com/spatie/array-to-xml/issues",
+                "source": "https://github.com/spatie/array-to-xml/tree/master"
+            },
+            "time": "2020-08-22T08:46:19+00:00"
+        },
+        {
             "name": "spatie/laravel-permission",
             "version": "5.11.0",
             "source": {
@@ -12184,5 +12238,5 @@
         "php": "^7.3|^8.0"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.6.0"
 }

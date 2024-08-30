@@ -30,6 +30,16 @@
 
 @if($customer || $provider)
 	<div class="row">
+		<div class="col-12 mb-3">
+			<h3>
+				@php
+				$company_name = $customer? $customer->name:$provider->name;
+				@endphp
+
+				{!! trans('textos.efectos') !!} <b>{{ $company_name }}</b>
+			</h3>
+		</div>
+
 		<div class="table-responsive">
 			<table class="table table-hover dtabla" id="tblEffects">
 				<thead>

@@ -575,6 +575,11 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::delete('invoice-patterns/{pattern}', 'InvoicePatternsController@destroy')->name('invoice-patterns.destroy')->middleware('permission:invoice-patterns.destroy');
     Route::get('invoice-patterns/status/{id}/{status}', 'InvoicePatternsController@status')->name('invoice-patterns.status')->middleware('permission:invoice-patterns.edit');
 
+    // Invoice Queries:
+    Route::get('invoice-queries', 'InvoiceQueryController@index')->name('invoice-queries.index');
+    Route::get('invoice-queries/by-invoices', 'InvoiceQueryController@byInvoices')->name('invoice-queries.by-invoices');
+    Route::post('invoice-queries/by-invoices', 'InvoiceQueryController@byInvoices')->name('invoice-queries.by-invoices');
+
     // Invoice Settings:
     Route::get('invoice-settings', 'InvoiceSettingsController@index')->name('invoice-settings.index')->middleware('permission:invoices.edit');
     Route::get('invoice-settings/create', 'InvoiceSettingsController@create')->name('invoice-settings.create')->middleware('permission:invoices.edit');
@@ -1066,12 +1071,13 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
 
     // Remittances
     Route::get('remittances', 'RemittanceController@index')->name('remittances.index')->middleware('permission:remittances.index');
-    Route::get('remittances/create', 'RemittanceController@create')->name('remittances.create')->middleware('permission:remittances.create');
+    Route::get('remittances/{type}/create', 'RemittanceController@create')->name('remittances.create')->middleware('permission:remittances.create');
     Route::post('remittances/store', 'RemittanceController@store')->name('remittances.store')->middleware('permission:remittances.create');
     Route::get('remittances/{remittance}/edit', 'RemittanceController@edit')->name('remittances.edit')->middleware('permission:remittances.edit');
     Route::put('remittances/{remittance}/update', 'RemittanceController@update')->name('remittances.update')->middleware('permission:remittances.edit');
     Route::delete('remittances/{remittance}', 'RemittanceController@destroy')->name('remittances.destroy')->middleware('permission:remittances.destroy');
-    Route::get('remittances/{remittance}/status/{status}', 'remittanceController@status')->name('remittances.status');
+    Route::get('remittances/{remittance}/status/{status}', 'RemittanceController@status')->name('remittances.status');
+    Route::get('remittances/{remittance}/generate-xml', 'RemittanceController@generateXml')->name('remittances.generate-xml')->middleware('permission:remittances.edit');
 
     // Roles:
     Route::get('roles', 'RoleController@index')->name('roles.index')->middleware('permission:roles.index');
