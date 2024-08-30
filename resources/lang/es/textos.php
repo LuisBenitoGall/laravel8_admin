@@ -2379,6 +2379,7 @@ return array(
 	'poblaciones_de' => 'Poblaciones de',
 	'poblaciones' => 'Poblaciones',
 	'por_dias' => 'por días',
+	'por_facturas' => 'Por facturas',
 	'por_lineas_pedido' => 'Por líneas de pedidos',
 	'por_lineas_presupuesto' => 'Por líneas de presupuestos',
 	'por_pedidos' => 'Por pedidos',

@@ -575,6 +575,11 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::delete('invoice-patterns/{pattern}', 'InvoicePatternsController@destroy')->name('invoice-patterns.destroy')->middleware('permission:invoice-patterns.destroy');
     Route::get('invoice-patterns/status/{id}/{status}', 'InvoicePatternsController@status')->name('invoice-patterns.status')->middleware('permission:invoice-patterns.edit');
 
+    // Invoice Queries:
+    Route::get('invoice-queries', 'InvoiceQueryController@index')->name('invoice-queries.index');
+    Route::get('invoice-queries/by-invoices', 'InvoiceQueryController@byInvoices')->name('invoice-queries.by-invoices');
+    Route::post('invoice-queries/by-invoices', 'InvoiceQueryController@byInvoices')->name('invoice-queries.by-invoices');
+
     // Invoice Settings:
     Route::get('invoice-settings', 'InvoiceSettingsController@index')->name('invoice-settings.index')->middleware('permission:invoices.edit');
     Route::get('invoice-settings/create', 'InvoiceSettingsController@create')->name('invoice-settings.create')->middleware('permission:invoices.edit');

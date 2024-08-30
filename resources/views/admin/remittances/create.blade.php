@@ -136,4 +136,35 @@
 	</div>
 </div>
 
+@push('scripts')
+<script>
+$(function(){
+	//Tabla AddEffectsToRemittance:
+    if($('#tblAddEffectsToRemittance').length > 0){
+    	//Filters:
+        $('#tblAddEffectsToRemittance thead tr').clone(true).appendTo('#tblAddEffectsToRemittance thead');
+        $('#tblAddEffectsToRemittance thead tr:eq(1) th').each(function(i){
+            var title = $(this).text();
+            if(i == 7){
+                $(this).html('');
+            }else{
+                $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
+            }
+     
+            $('input', this).on('keyup change', function(){
+                if(tableAddEffectsToRemittance.column(i).search() !== this.value){
+                    tableAddEffectsToRemittance
+                        .column(i)
+                        .search(this.value)
+                        .draw();
+                }
+            });
+        });
+
+        var tableAddEffectsToRemittance = $('#tblAddEffectsToRemittance').DataTable();
+    }
+});
+</script>
+@endpush
+
 @endsection
