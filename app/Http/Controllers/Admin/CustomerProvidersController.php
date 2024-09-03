@@ -333,9 +333,12 @@ class CustomerProvidersController extends Controller{
             $conditions = CustomerProviders::setCustomerProviderNum($company->id, session('currentCompany'), $num_account, 'customer');
         }
 
+        //¿Es agencia de transporte?
+        $is_agency = false;
+
         $languages = $this->languages;
 
-        return view('admin.customer_providers.edit')->with(compact('header', 'company', 'tab', 'workplaces', 'areas', 'conditions', 'business_relationship', 'environment', 'company_account', 'banks', 'bank_accounts', 'payment_methods', 'accounting_accounts', 'provider_workplaces', 'languages'));     
+        return view('admin.customer_providers.edit')->with(compact('header', 'company', 'tab', 'workplaces', 'areas', 'conditions', 'business_relationship', 'environment', 'company_account', 'banks', 'bank_accounts', 'payment_methods', 'accounting_accounts', 'provider_workplaces', 'is_agency', 'languages'));     
     }
 
     /**
@@ -456,7 +459,7 @@ class CustomerProvidersController extends Controller{
         ->where('company_target', $company->id)
         ->where('mode', 2)
         ->get();
-//dd($accounting_accounts, $conditions);
+
         //Creando número de proveedor si no existe:
         if(!$conditions->provider_num){
             //Nº de dígitos configurados por la empresa:
