@@ -41,7 +41,7 @@ $(function(){
         $('#tblVehicles thead tr').clone(true).appendTo('#tblVehicles thead');
         $('#tblVehicles thead tr:eq(1) th').each(function(i){
             var title = $(this).text();
-            if(i == 5){
+            if(i == 5 || i == 7){
                 $(this).html('');
             }else{
                 $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');

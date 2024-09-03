@@ -41,4 +41,11 @@ class Delivery extends Model{
 
         return $total_amount;
     }
+
+
+
+
+    public function shipments(){
+        return $this->hasMany(ShipmentDelivery::class);
+    }
 }
