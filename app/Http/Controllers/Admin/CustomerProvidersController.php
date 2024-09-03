@@ -32,6 +32,7 @@ use App\Models\Employee;
 use App\Models\PaymentMethod;
 use App\Models\TempImportCompanies;
 use App\Models\Town;
+use App\Models\TransportAgency;
 use App\Models\User;
 use App\Models\UserCompanies;
 use App\Models\Workplace;
@@ -287,6 +288,12 @@ class CustomerProvidersController extends Controller{
         ->where('customer_id', $company->id)
         ->first();
 
+        if(!$conditions){
+            $msg = trans('textos.cliente_no_existe');
+            return redirect()->route('customers.index')->with(compact('msg'));
+            exit;
+        }
+
         $business_relationship = 'customers';
         $environment = 'customers';
 
@@ -419,6 +426,12 @@ class CustomerProvidersController extends Controller{
         ->where('customer_id', session('currentCompany'))
         ->first();
 
+        if(!$conditions){
+            $msg = trans('textos.proveedor_no_existe');
+            return redirect()->route('providers.index')->with(compact('msg'));
+            exit;
+        }
+
         $business_relationship = 'providers';
         $environment = 'providers';
 
@@ -443,19 +456,24 @@ class CustomerProvidersController extends Controller{
         ->where('company_target', $company->id)
         ->where('mode', 2)
         ->get();
-
+//dd($accounting_accounts, $conditions);
         //Creando número de proveedor si no existe:
         if(!$conditions->provider_num){
             //Nº de dígitos configurados por la empresa:
             $accounting_account_digits = CompanySettings::co_account_digits();
+
             //Extraer número de proveedor de la cuenta contable.
             $num_account = substr($accounting_accounts[0]->account, -$accounting_account_digits);
+
             $conditions = CustomerProviders::setCustomerProviderNum(session('currentCompany'), $company->id, $num_account, 'provider');
         }
 
+        //¿Es agencia de transporte?
+        $is_agency = TransportAgency::select('id')->where('company_id', $company->id)->first();
+
         $languages = $this->languages;
 
-        return view('admin.customer_providers.edit')->with(compact('header', 'company', 'tab', 'workplaces', 'areas', 'conditions', 'business_relationship', 'environment', 'company_account', 'banks', 'bank_accounts', 'payment_methods', 'accounting_accounts', 'languages'));     
+        return view('admin.customer_providers.edit')->with(compact('header', 'company', 'tab', 'workplaces', 'areas', 'conditions', 'business_relationship', 'environment', 'company_account', 'banks', 'bank_accounts', 'payment_methods', 'accounting_accounts', 'is_agency', 'languages'));     
     }
 
     /**

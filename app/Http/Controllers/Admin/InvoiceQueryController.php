@@ -108,10 +108,15 @@ class InvoiceQueryController extends Controller{
 
             $invoice_status = helpers::invoiceStatus();
 
-            $data = Invoice::select('invoices.id', 'invoices.refund', 'invoices.invoice_num', 'invoices.invoice_old_num', 'invoices.amount', 'invoices.amount_with_iva', 'invoices.fiscal_date', 'invoices.invoice_date', 'invoices.expiration_date', 'invoices.status', 'payment_methods.name AS method', 'cp.name AS provider', 'cc.name AS customer')
+            $data = Invoice::select('invoices.id', 'invoices.refund', 'invoices.invoice_num', 'invoices.invoice_old_num', 'invoices.amount', 'invoices.amount_with_iva', 'invoices.fiscal_date', 'invoices.invoice_date', 'invoices.expiration_date', 'invoices.status', 'payment_methods.name AS method', 'cp.name AS provider', 'cc.name AS customer', 'cfc.name AS final_customer', 'up.name AS pm_name', 'up.surname AS pm_surname', 'ucom.name AS com_name', 'ucom.surname AS com_surname', 'uc.name AS cm_name', 'uc.surname AS cm_surname', 'ufc.name AS fcm_name', 'ufc.surname AS fcm.surname')
             ->join('orders', 'invoices.order_id', '=', 'orders.id')
             ->join('companies AS cp', 'orders.provider_id', '=', 'cp.id')
             ->join('companies AS cc', 'orders.customer_id', '=', 'cc.id')
+            ->leftJoin('companies AS cfc', 'orders.final_customer_id', '=', 'cfc.id')
+            ->leftJoin('users AS up', 'orders.provider_manager_id', '=', 'up.id')
+            ->leftJoin('users AS ucom', 'orders.commercial_id', '=', 'ucom.id')
+            ->leftJoin('users AS uc', 'orders.customer_manager_id', '=', 'uc.id')
+            ->leftJoin('users AS ufc', 'orders.final_customer_manager_id', '=', 'ufc.id')
             ->leftJoin('payment_methods', 'invoices.payment_method_id', '=', 'payment_methods.id')
             ->whereNull('invoices.deleted_at')
             //Intervalo fechas (por fecha de creación):
@@ -120,11 +125,11 @@ class InvoiceQueryController extends Controller{
             })
             //Ventas:
             ->when($order_type == 'v', function($q) use($companies){
-                return $q->whereIn('orders.customer_id', $companies);
+                return $q->whereIn('orders.provider_id', $companies);
             })
             //Compras:
             ->when($order_type == 'c', function($q) use($companies){
-                return $q->whereIn('orders.provider_id', $companies);
+                return $q->whereIn('orders.customer_id', $companies);
             })
             //Estado:
             ->when($status && $status != 'all', function($q) use($status){
@@ -158,6 +163,34 @@ class InvoiceQueryController extends Controller{
             })
             ->addColumn('expiration_date', function($row){
                 return $row->expiration_date? Carbon::parse($row->expiration_date)->format($this->languages[session()->get('locale')][4]):'';
+            })
+            ->addColumn('provider_manager', function($row){
+                if($row->pm_name){
+                    return $row->pm_name.' '.$row->pm_surname;
+                }
+            })
+            ->addColumn('commercial', function($row){
+                if($row->com_name){
+                    return $row->com_name.' '.$row->com_surname;
+                }
+            })
+            ->addColumn('customer_manager', function($row){
+                if($row->cm_name){
+                    return $row->cm_name.' '.$row->cm_surname;
+                }
+            })
+            ->addColumn('final_customer', function($row){
+                if($row->fcm_name){
+                    return $row->fcm_name.' '.$row->fcm_surname;
+                }
+            })
+            ->addColumn('final_customer', function($row){
+                return $row->final_customer; 
+            })
+            ->addColumn('final_customer_manager', function($row){
+                if($row->fcm_name){
+                    return $row->fcm_name.' '.$row->fcm_surname;
+                }
             })
             ->addColumn('status', function($row) use($invoice_status){
                 if($row->status && isset($invoice_status[$row->status])){

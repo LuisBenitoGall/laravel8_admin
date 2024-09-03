@@ -246,7 +246,8 @@ class CompanyController extends Controller{
 
         //Nueva empresa:
         }else{
-            $company = $this->saveCompany($request);
+            //$company = $this->saveCompany($request);
+            $company = Company::saveCompany($request);
             $company_id = $company->id;
         }
 
@@ -474,7 +475,8 @@ class CompanyController extends Controller{
 
             //Si no existe, la creamos:
             }else{
-                $company = $this->saveCompany($request);
+                //$company = $this->saveCompany($request);
+                $company = Company::saveCompany($request);
             }
 
             //Creando cuenta contable:
@@ -557,7 +559,7 @@ class CompanyController extends Controller{
         //Subir logo:
         $fileName = $this->loadLogo($request, 'companies');
 
-        $nif = $request->input('nif')? helpers::cleanNif($request->input('nif')):NULL;
+        $nif = $request->input('nif')? helpers::cleanNif($request->input('nif')):false;
 
         $company->name = $request->input('name');
         $company->slug = Str::slug($request->input('name'));
@@ -566,7 +568,9 @@ class CompanyController extends Controller{
         if($fileName){
             $company->logo = $fileName;
         }
-        $company->nif = $nif;
+        if($nif){
+            $company->nif = $nif;
+        }
         $company->ccc = $request->input('ccc');
 
         //UTE:

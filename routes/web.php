@@ -110,6 +110,12 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::resource('accounts', 'AccountController')->middleware('permission:accounts.edit');
     Route::get('accounts/status/{id}/{status}', 'AccountController@status')->name('accounts.status')->middleware('permission:accounts.edit');
 
+    // Agencies:
+    Route::get('agencies', 'AgencyController@index')->name('agencies.index')->middleware('permission:agencies.index');
+    Route::get('agencies/{provider_id}/store', 'AgencyController@store')->name('agencies.store')->middleware('permission:agencies.edit');
+    Route::get('agencies/{provider_id}/destroy', 'AgencyController@destroy')->name('agencies.destroy')->middleware('permission:agencies.edit');
+
+
     // Amortization Lines:
     Route::post('amortization-lines/store', 'AmortizationLinesController@store')->name('amortization-lines.store')->middleware('permission:amortizations.edit');
     Route::post('amortization-lines/update', 'AmortizationLinesController@update')->name('amortization-lines.update')->middleware('permission:amortizations.edit');
@@ -456,6 +462,16 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     // Day Types Users Config:
     Route::post('day-types-users-config/store', 'DayTypesUsersConfigController@store')->name('day-types-users-config.store')->middleware('permission:work-calendar.edit');
     Route::get('day-types-users-config/{user_id}/{day_type}/{year}/destroy', 'DayTypesUsersConfigController@destroy')->name('day-types-users-config.destroy')->middleware('permission:work-calendar.edit');
+
+    // Dealers:
+    Route::get('dealers', 'DealerController@index')->name('dealers.index');
+    Route::get('dealers/create', 'DealerController@create')->name('dealers.create')->middleware('permission:dealers.create');
+    //Route::post('dealers/store', 'DealerController@store')->name('dealers.store')->middleware('permission:dealers.create');
+    //Route::get('dealers/{dealer}/edit/{tab?}', 'DealerController@edit')->name('dealers.edit')->middleware('permission:dealers.edit');
+    Route::get('dealers/{dealer}/show/{tab?}', 'DealerController@show')->name('dealers.show');
+    //Route::put('dealers/{dealer}/update', 'DealerController@update')->name('dealers.update')->middleware('permission:dealers.edit');
+    Route::get('dealers/status/{id}/{status}', 'DealerController@status')->name('dealers.status')->middleware('permission:dealers.edit');
+    Route::delete('dealers/{dealer}', 'DealerController@destroy')->name('dealers.destroy')->middleware('permission:dealers.destroy');
 
     // Deliveries:
     Route::get('deliveries/list/{year?}/{customer_id?}/{status?}/{tab?}', 'DeliveryController@index')->name('deliveries.index');
@@ -1177,7 +1193,11 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::get('shipment-patterns/status/{id}/{status}', 'ShipmentPatternsController@status')->name('shipment-patterns.status')->middleware('permission:shipment-patterns.edit');
 
     // Shipments:
-    Route::get('shipments', 'ShipmentController@index')->name('shipments.index');
+    Route::get('shipments/{shipments_selec?}', 'ShipmentController@index')->name('shipments.index')->where('shipments_selec', '[0-9]+');
+    Route::post('shipments', 'ShipmentController@getShipmentsBy')->name('shipments.list')->middleware('permission:shipments.index');
+    Route::get('shipments/create', 'ShipmentController@create')->name('shipments.create')->middleware('permission:shipments.create');
+    Route::post('shipments/store', 'ShipmentController@store')->name('shipments.store')->middleware('permission:shipments.create');
+    Route::get('shipments/{shipment}/edit/{tab?}', 'ShipmentController@edit')->name('shipments.edit')->middleware('permission:shipments.edit');
 
     // Staff Pick:
     Route::get('staff-pick', 'StaffPickController@index')->name('staff-pick.index')->middleware('permission:staff-pick.index');
@@ -1311,6 +1331,15 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::get('towns/status/{id}/{status}', 'TownController@status')->name('towns.status')->middleware('permission:countries.edit');
     Route::post('towns/update', 'TownController@update')->name('towns.update')->middleware('permission:countries.edit');
     Route::delete('towns/{town}', 'TownController@destroy')->name('towns.destroy')->middleware('permission:countries.edit');
+
+    // Transport Agencies:
+    Route::get('transport-agencies', 'TransportAgencyController@index')->name('transport-agencies.index')->middleware('permission:transport-agencies.index');
+    Route::get('transport-agencies/create', 'TransportAgencyController@create')->name('transport-agencies.create')->middleware('permission:transport-agencies.create');
+    Route::post('transport-agencies/store', 'TransportAgencyController@store')->name('transport-agencies.store')->middleware('permission:transport-agencies.create');
+    Route::get('transport-agencies/{agency}/edit', 'TransportAgencyController@edit')->name('transport-agencies.edit')->middleware('permission:transport-agencies.edit');
+    Route::put('transport-agencies/{agency}/update', 'TransportAgencyController@update')->name('transport-agencies.update')->middleware('permission:transport-agencies.edit');
+    Route::delete('transport-agencies/{agency}', 'TransportAgencyController@destroy')->name('transport-agencies.destroy')->middleware('permission:transport-agencies.destroy');
+    Route::get('transport-agencies/status/{id}/{status}', 'TransportAgencyController@status')->name('transport-agencies.status')->middleware('permission:transport-agencies.edit');
 
     // Units:
     Route::get('units', 'UnitController@index')->name('units.index')->middleware('permission:units.index');
@@ -1469,5 +1498,7 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 //Route::get('/admin/delete-weekends', 'Admin\TimetableController@deleteWeekends')->name('timetables.delete-weekends');
 
 Auth::routes();
+
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

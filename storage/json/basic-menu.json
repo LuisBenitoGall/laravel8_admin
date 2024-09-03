@@ -295,6 +295,14 @@
 				"slug" : "accounting-account-types",
 				"permission" : "accounting-account-types.index",
 				"setted" : false	
+			},
+			{
+				"suboption" : "agencias transporte",
+				"label" : "transporte_agencias",
+				"url": "transport-agencies.index",
+				"slug" : "transport-agencies",
+				"permission" : "transport-agencies.index",
+				"setted" : false	
 			}
 		] 
 	}

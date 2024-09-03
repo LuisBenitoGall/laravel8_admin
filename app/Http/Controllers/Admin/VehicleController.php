@@ -33,7 +33,7 @@ class VehicleController extends Controller{
 
     public function __construct(){
         //Idiomas:
-        $this->languages = Helpers::languages();
+        $this->languages = helpers::languages();
 
         $this->middleware('module_setted:logistics');
         $this->middleware('vehicle_get', ['only' => ['edit', 'update', 'destroy']]);

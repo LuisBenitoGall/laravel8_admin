@@ -188,6 +188,9 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     //DayTypes:
     Route::get('day-types', 'DayTypesController@getDayTypesDT');
 
+    //Dealers:
+    Route::get('dealers', 'DealerController@getDealersDT');
+
     //Effects:
     Route::get('effects/{customer_id?}/{provider_id?}', 'EffectController@getEffectsDT');
 
@@ -441,6 +444,9 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
 
     //Towns:
     Route::get('towns/{province_id}', 'TownController@getTownsDT');
+
+    //Transport Agencies:
+    Route::get('transport-agencies', 'TransportAgencyController@getTransportAgenciesDT');
 
     //Units:
     Route::get('units', 'UnitController@getUnitsDT');
