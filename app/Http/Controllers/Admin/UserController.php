@@ -22,6 +22,7 @@ use App\Models\BusinessAreas;
 use App\Models\Category;
 use App\Models\Company;
 use App\Models\CostCenters;
+use App\Models\Dealer;
 use App\Models\Employee;
 use App\Models\Phone;
 use App\Models\Protocol;
@@ -221,15 +222,15 @@ class UserController extends Controller{
 
             return $categories;
         })
-        ->addColumn('acciones', function($row){
-            return view('admin.users.partials.dt-actions', compact('row'));
-        })
         ->addColumn('image', function($row){
             if($row->Image){
                 return '<img src="'.asset('img/users/'.$row->Image).'" class="img-circle" width="36">';
             }else{
                 return helpers::setAvatar($row->name, $row->surname);
             }
+        })
+        ->addColumn('acciones', function($row){
+            return view('admin.users.partials.dt-actions', compact('row'));
         })
         ->rawColumns(['email', 'image'])
         ->make(true);
@@ -324,8 +325,22 @@ class UserController extends Controller{
             });
         }
 
-        $msg = trans('textos.usuario_creado_ok');
-        return redirect()->route('users.edit', $user->id)->with(compact('msg'));
+        //Posición laboral del usuario:
+        //Repartidor:
+        if($request->position == 'dealer'){
+            Dealer::create([
+                'user_id' => $user->id,
+                'company_id' => session('currentCompany'),
+                'status' => 1
+            ]);   
+
+            $msg = trans('textos.repartidor_creado');
+            return redirect()->route('dealers.index')->with(compact('msg')); 
+        
+        }else{    
+            $msg = trans('textos.usuario_creado_ok');    
+            return redirect()->route('users.edit', $user->id)->with(compact('msg'));
+        }
     }
 
     /**

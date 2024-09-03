@@ -124,6 +124,8 @@ class Kernel extends HttpKernel{
 
         'day_types_get' => \App\Http\Middleware\DayTypeGetMiddleware::class,
 
+        'dealer_get' => \App\Http\Middleware\DealerGetMiddleware::class,
+
         'delivery_get' => \App\Http\Middleware\DeliveryGetMiddleware::class,
         'delivery_post' => \App\Http\Middleware\DeliveryPostMiddleware::class,
 

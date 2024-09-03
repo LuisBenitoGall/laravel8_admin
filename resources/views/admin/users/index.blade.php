@@ -26,7 +26,7 @@
 					<th>{!! ucfirst(trans('textos.usuario')) !!}</th>
 					<th class="d-none">&nbsp;</th>
 					<th class="text-center">{!! ucfirst(trans('textos.fecha_alta')) !!}</th>
-					<th>Email</th>
+					<th>{!! ucfirst(trans('textos.email')) !!}</th>
 					<th>{!! ucfirst(trans('textos.telefonos')) !!}</th>
 					<th>{!! ucfirst(trans('textos.categorias')) !!}</th>
 					<th class="text-center wdt100">{!! ucfirst(trans('textos.imagen')) !!}</th>

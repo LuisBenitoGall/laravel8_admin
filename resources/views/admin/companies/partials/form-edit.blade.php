@@ -1,16 +1,22 @@
 <input type="hidden" name="id" value="{{ $company->id }}">
 
+@php
+//Camnpos inactivos para:
+// 1. Agencias de transporte.
+$readonly_ = isset($is_agency) && $is_agency? true:false;
+@endphp
+
 <div class="form-group row">
 	{{-- Razón social de la empresa --}}
 	<label for="name" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.empresa')) !!} *</label>
 	<div class="col-lg-4">
-		<x-input type="text" name="name" id="name" value="{{ $company->name }}" autocomplete="off" maxlength="150" required info="company-name"/>
+		<x-input type="text" name="name" id="name" value="{{ $company->name }}" readonly="{{ $readonly_ }}" autocomplete="off" maxlength="150" required info="company-name"/>
 	</div>	
 
 	{{-- Nombre comercial --}}
 	<label for="tradename" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.nombre_comercial')) !!}</label>
 	<div class="col-lg-4">
-		<x-input type="text" name="tradename"  value="{{ $company->tradename }}" autocomplete="off" maxlength="150" info="company-tradename"/>
+		<x-input type="text" name="tradename" value="{{ $company->tradename }}" readonly="{{ $readonly_ }}" autocomplete="off" maxlength="150" info="company-tradename"/>
 	</div>	
 </div>
 
@@ -27,7 +33,7 @@
     		@endphp
     	@enderror
 
-    	<x-input type="text" name="nif" class="{{ $is_invalid }}" value="{{ $company->nif }}" autocomplete="off" maxlength="14" required info="company-nif"/>
+    	<x-input type="text" name="nif" class="{{ $is_invalid }}" value="{{ $company->nif }}" readonly="{{ $readonly_ }}" autocomplete="off" maxlength="14" required info="company-nif"/>
     </div>
 
     {{-- CCC --}}

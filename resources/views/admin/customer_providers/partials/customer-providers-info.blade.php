@@ -3,5 +3,5 @@
 	{{ csrf_field() }}
 	<input type="hidden" name="business_relationship" value="{{ $business_relationship }}">
 
-	@include('admin.companies.partials.form-edit', ['company' => $company])
+	@include('admin.companies.partials.form-edit', ['company' => $company, 'is_agency' => $is_agency])
 </form>

@@ -87,6 +87,11 @@ class FunctionalitiesTableSeeder extends Seeder{
             'label' => 'grupos_contables',
             'module' => 'settings'
             ],
+            ['name' => 'transport agencies',
+            'slug' => 'transport-agencies',
+            'label' => 'transporte_agencias',
+            'module' => 'settings'
+            ],
             
             ['name' => 'my account',
             'slug' => 'my-account',
@@ -399,12 +404,17 @@ class FunctionalitiesTableSeeder extends Seeder{
             'label' => 'vehiculos',
             'module' => 'logistics'
             ],
-
-            ['name' => 'accounting',
-            'slug' => 'accounting',
-            'label' => 'contabilidad',
-            'module' => 'accounting'            
+            ['name' => 'agencies',      //Adopto el título agencies para no interferir con la funcionalidad de settings de transport-agencies.
+            'slug' => 'agencies',
+            'label' => 'transporte_agencias',
+            'module' => 'logistics'
             ],
+
+            // ['name' => 'accounting',
+            // 'slug' => 'accounting',
+            // 'label' => 'contabilidad',
+            // 'module' => 'accounting'            
+            // ],
             ['name' => 'invoices',
             'slug' => 'invoices',
             'label' => 'facturas',
