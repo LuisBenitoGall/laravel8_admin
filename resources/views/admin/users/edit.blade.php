@@ -155,6 +155,7 @@
 					  	@endif --}}
 					</ul>
 
+					{{-- Panels --}}
 					<div class="tab-content pt-5">
 						{{-- Datos personales: --}}
 						<div class="tab-pane fade @if(!$tab) show active @endif" role="tabpanel" id="tab-datos-personales">

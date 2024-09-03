@@ -1198,6 +1198,8 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::get('shipments/create', 'ShipmentController@create')->name('shipments.create')->middleware('permission:shipments.create');
     Route::post('shipments/store', 'ShipmentController@store')->name('shipments.store')->middleware('permission:shipments.create');
     Route::get('shipments/{shipment}/edit/{tab?}', 'ShipmentController@edit')->name('shipments.edit')->middleware('permission:shipments.edit');
+    Route::put('shipments/{shipment}/update', 'ShipmentController@update')->name('shipments.update')->middleware('permission:shipments.edit');
+    Route::get('shipments/{shipment}/print', 'ShipmentController@print')->name('shipments.print');
 
     // Staff Pick:
     Route::get('staff-pick', 'StaffPickController@index')->name('staff-pick.index')->middleware('permission:staff-pick.index');

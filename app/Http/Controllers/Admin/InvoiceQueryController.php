@@ -108,7 +108,7 @@ class InvoiceQueryController extends Controller{
 
             $invoice_status = helpers::invoiceStatus();
 
-            $data = Invoice::select('invoices.id', 'invoices.refund', 'invoices.invoice_num', 'invoices.invoice_old_num', 'invoices.amount', 'invoices.amount_with_iva', 'invoices.fiscal_date', 'invoices.invoice_date', 'invoices.expiration_date', 'invoices.status', 'payment_methods.name AS method', 'cp.name AS provider', 'cc.name AS customer', 'cfc.name AS final_customer', 'up.name AS pm_name', 'up.surname AS pm_surname', 'ucom.name AS com_name', 'ucom.surname AS com_surname', 'uc.name AS cm_name', 'uc.surname AS cm_surname', 'ufc.name AS fcm_name', 'ufc.surname AS fcm.surname')
+            $data = Invoice::select('invoices.id', 'invoices.refund', 'invoices.invoice_num', 'invoices.invoice_old_num', 'invoices.amount', 'invoices.amount_with_iva', 'invoices.fiscal_date', 'invoices.invoice_date', 'invoices.expiration_date', 'invoices.status', 'orders.name AS order_title', 'orders.budget_num', 'orders.budget_old_num', 'orders.order_num', 'orders.order_old_num', 'orders.accepted_date', 'orders.delivery_date', 'payment_methods.name AS method', 'cp.name AS provider', 'cp.nif AS cp_nif', 'cc.name AS customer', 'cc.nif AS cc_nif', 'cfc.name AS final_customer', 'up.name AS pm_name', 'up.surname AS pm_surname', 'ucom.name AS com_name', 'ucom.surname AS com_surname', 'uc.name AS cm_name', 'uc.surname AS cm_surname', 'ufc.name AS fcm_name', 'ufc.surname AS fcm.surname', 'ccp.name AS ccp_name', 'ccc.name AS ccc_name')
             ->join('orders', 'invoices.order_id', '=', 'orders.id')
             ->join('companies AS cp', 'orders.provider_id', '=', 'cp.id')
             ->join('companies AS cc', 'orders.customer_id', '=', 'cc.id')
@@ -117,11 +117,15 @@ class InvoiceQueryController extends Controller{
             ->leftJoin('users AS ucom', 'orders.commercial_id', '=', 'ucom.id')
             ->leftJoin('users AS uc', 'orders.customer_manager_id', '=', 'uc.id')
             ->leftJoin('users AS ufc', 'orders.final_customer_manager_id', '=', 'ufc.id')
+            ->leftJoin('cost_centers AS ccp', 'orders.provider_cost_center_id', '=', 'ccp.id')
+            ->leftJoin('cost_centers AS ccc', 'orders.customer_cost_center_id', '=', 'ccc.id')
             ->leftJoin('payment_methods', 'invoices.payment_method_id', '=', 'payment_methods.id')
             ->whereNull('invoices.deleted_at')
             //Intervalo fechas (por fecha de creación):
             ->when($from && $to, function($q) use($from, $to){
-                return $q->whereBetween('invoices.created_at', [$from, $to]);
+                //return $q->whereBetween('invoices.created_at', [$from, $to]);
+                //03/09/2024: se modifica el campo para el filtro de fecha:
+                return $q->whereBetween('invoices.fiscal_date', [$from, $to]);
             })
             //Ventas:
             ->when($order_type == 'v', function($q) use($companies){
@@ -146,14 +150,45 @@ class InvoiceQueryController extends Controller{
             ->addColumn('provider', function($row){
                 return $row->provider; 
             })
+            ->addColumn('provider_nif', function($row){
+                return $row->cp_nif; 
+            })
             ->addColumn('customer', function($row){
                 return $row->customer; 
             })
+            ->addColumn('customer_nif', function($row){
+                return $row->cc_nif; 
+            })
+            ->addColumn('order', function($row){
+                $order = $row->order_num? $row->order_num:$row->order_old_num;
+                return $order; 
+            })
+            ->addColumn('budget', function($row){
+                $budget = $row->budget_num? $row->budget_num:$row->budget_old_num;
+                return $budget; 
+            })
+            ->addColumn('title', function($row){
+                return $row->order_title; 
+            })
             ->addColumn('amount', function($row){
-                return $row->amount; 
+                if($row->refund){
+                    return $row->amount * (-1);
+                }else{
+                    return $row->amount; 
+                }
             })
             ->addColumn('amount_iva', function($row){
-                return $row->amount_with_iva; 
+                if($row->refund){
+                    return $row->amount_with_iva * (-1);
+                }else{
+                    return $row->amount_with_iva; 
+                } 
+            })
+            ->addColumn('accepted_date', function($row){
+                return $row->accepted_date? Carbon::parse($row->accepted_date)->format($this->languages[session()->get('locale')][4]):'';
+            })
+            ->addColumn('delivery_date', function($row){
+                return $row->delivery_date? Carbon::parse($row->delivery_date)->format($this->languages[session()->get('locale')][4]):'';
             })
             ->addColumn('invoice_date', function($row){
                 return $row->invoice_date? Carbon::parse($row->invoice_date)->format($this->languages[session()->get('locale')][4]):'';
@@ -191,6 +226,12 @@ class InvoiceQueryController extends Controller{
                 if($row->fcm_name){
                     return $row->fcm_name.' '.$row->fcm_surname;
                 }
+            })
+            ->addColumn('provider_cost_center', function($row){
+                return $row->ccp_name; 
+            })
+            ->addColumn('customer_cost_center', function($row){
+                return $row->ccc_name; 
             })
             ->addColumn('status', function($row) use($invoice_status){
                 if($row->status && isset($invoice_status[$row->status])){

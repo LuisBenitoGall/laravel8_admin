@@ -17,7 +17,10 @@ use PDF;
 //Models:
 use App\Models\CompanySettings;
 use App\Models\Dealer;
+use App\Models\Delivery;
+use App\Models\Order;
 use App\Models\Shipment;
+use App\Models\ShipmentDealer;
 use App\Models\ShipmentPatterns;
 use App\Models\User;
 use App\Models\Vehicle;
@@ -28,6 +31,7 @@ class ShipmentController extends Controller{
      * 1.1. Listado de envíos para DataTable.
      * 2. Formulario nuevo reparto.
      * 3. Editar reparto.
+     * 4. Actualizar reparto.
      */
     
     private $option = 'envios';
@@ -43,6 +47,16 @@ class ShipmentController extends Controller{
         $this->co_currency = CompanySettings::co_currency(0);
 
         $this->middleware('module_setted:logistics');
+    }
+
+    //0. Validator:
+    protected function validator(array $data){
+        //Validación actualizar:
+        if(isset($data['submit_update'])){
+            return Validator::make($data, [
+                'status' => 'required|numeric'
+            ]);
+        }
     }
 
     /**
@@ -154,6 +168,7 @@ class ShipmentController extends Controller{
         //Estados de reparto:
         $status = Helpers::shipmentStatus();
 
+        //Vehículos:
         $vehicles = [];
         $vehicles_ = Vehicle::select('id', 'name', 'car_license')
         ->where('company_id', session('currentCompany'))
@@ -170,11 +185,13 @@ class ShipmentController extends Controller{
         ->join('users', 'dealers.user_id', '=', 'users.id')
         ->where('dealers.company_id', session('currentCompany'))
         ->orderBy('users.name', 'ASC')
-        ->pluck('id', 'dealer')
+        ->pluck('dealer', 'id')
         ->toArray();
 
-
-
+        //Repartidores seleccionados:
+        $selected_dealers = ShipmentDealer::where('shipment_id', $shipment->id)
+        ->pluck('dealer_id')
+        ->toArray();
        
 
         //Pedidos del reparto:
@@ -186,22 +203,27 @@ class ShipmentController extends Controller{
         // ->orderBy('orders.order_num', 'ASC')
         // ->get();
         
-        $orders_in = ShipmentOrders::where('shipment_orders.shipment_id', $shipment->id)
-        ->pluck('id')
-        ->toArray();
+        // $orders_in = ShipmentOrders::where('shipment_orders.shipment_id', $shipment->id)
+        // ->pluck('id')
+        // ->toArray();
+        
+        $orders_in = false;
 
         //Pedidos sin reparto:
         //1. A entregar por Viudavila.
         //2. Order_Status = pendiente o parcial.
-        $orders_out = Order::select('orders.id', 'orders.order_num', 'orders.order_old_num', 'orders.name', 'orders.delivery_date', 'orders.order_status', 'orders.created_at', 'companies.name as customer', DB::raw('(SELECT sum(i.qty * i.price) FROM items AS i WHERE i.order_id = orders.id) AS total_amount'))
-        ->join('companies', 'orders.customer_id', '=', 'companies.id')
-        //->doesntHave('shipments')     REVISAR ESTA CONDICIÓN PARA LOS PEDIDOS PARCIALES, PUES HAY QUE PREPARAR NUEVOS ALBARANES.
-        ->where('orders.provider_id', session('currentCompany'))
-        ->where('orders.is_order', 1)
-        ->where('orders.agency_id', config('constants.AGENCY_VIUDAVILA_'))
-        ->where('orders.draft', false)
-        ->whereIn('orders.order_status', [config('constants.ORDER_STATUS_PENDENT_'), config('constants.ORDER_STATUS_PARTIAL_')])
-        ->get();
+        // $orders_out = Order::select('orders.id', 'orders.order_num', 'orders.order_old_num', 'orders.name', 'orders.delivery_date', 'orders.order_status', 'orders.created_at', 'companies.name as customer', DB::raw('(SELECT sum(i.qty * i.price) FROM items AS i WHERE i.order_id = orders.id) AS total_amount'))
+        // ->join('companies', 'orders.customer_id', '=', 'companies.id')
+        // //->doesntHave('shipments')     REVISAR ESTA CONDICIÓN PARA LOS PEDIDOS PARCIALES, PUES HAY QUE PREPARAR NUEVOS ALBARANES.
+        // ->where('orders.provider_id', session('currentCompany'))
+        // ->where('orders.is_order', 1)
+        // ->where('orders.agency_id', config('constants.AGENCY_VIUDAVILA_'))
+        // ->where('orders.draft', false)
+        // ->whereIn('orders.order_status', [config('constants.ORDER_STATUS_PENDENT_'), config('constants.ORDER_STATUS_PARTIAL_')])
+        // ->get();
+
+
+        $orders_out = false;
 
         //Estados de pedido:
         $order_status = helpers::orderStatus();
@@ -216,19 +238,21 @@ class ShipmentController extends Controller{
         // ->orderBy('deliveries.delivery_num', 'ASC')
         // ->get();
 
-        $deliveries_in = Delivery::select('shipment_deliveries.id AS sdId', 'deliveries.id', 'deliveries.delivery_num', 'deliveries.delivery_old_num', 'deliveries.send_date', 'deliveries.status', 'companies.name AS customer', 'orders.id as orderId', 'orders.order_num', 'orders.order_old_num')
-        ->join('delivery_orders', 'deliveries.id', '=', 'delivery_orders.delivery_id')
-        ->join('orders', 'delivery_orders.order_id', '=', 'orders.id')
-        ->join('shipment_deliveries', 'deliveries.id', '=', 'shipment_deliveries.delivery_id' )
-        ->join('companies', 'deliveries.customer_id', '=', 'companies.id')
-        ->leftJoin('shipment_orders', 'shipment_deliveries.shipment_id', '=', 'shipment_orders.shipment_id')
-        ->where('shipment_deliveries.shipment_id', $shipment->id)
-        ->whereNull('shipment_orders.deleted_at')
-        ->whereNull('shipment_deliveries.deleted_at')
-        ->groupBy('deliveries.id')
-        ->orderBy('deliveries.delivery_num', 'ASC')
-        ->get();
+        // $deliveries_in = Delivery::select('shipment_deliveries.id AS sdId', 'deliveries.id', 'deliveries.delivery_num', 'deliveries.delivery_old_num', 'deliveries.send_date', 'deliveries.status', 'companies.name AS customer', 'orders.id as orderId', 'orders.order_num', 'orders.order_old_num')
+        // ->join('delivery_orders', 'deliveries.id', '=', 'delivery_orders.delivery_id')
+        // ->join('orders', 'delivery_orders.order_id', '=', 'orders.id')
+        // ->join('shipment_deliveries', 'deliveries.id', '=', 'shipment_deliveries.delivery_id' )
+        // ->join('companies', 'deliveries.customer_id', '=', 'companies.id')
+        // ->leftJoin('shipment_orders', 'shipment_deliveries.shipment_id', '=', 'shipment_orders.shipment_id')
+        // ->where('shipment_deliveries.shipment_id', $shipment->id)
+        // ->whereNull('shipment_orders.deleted_at')
+        // ->whereNull('shipment_deliveries.deleted_at')
+        // ->groupBy('deliveries.id')
+        // ->orderBy('deliveries.delivery_num', 'ASC')
+        // ->get();
         //dd($deliveries_in);
+
+        $deliveries_in = false;
 
         //Estados de entrega:
         $delivery_status = Helpers::deliveryStatus();
@@ -244,6 +268,52 @@ class ShipmentController extends Controller{
 
         $currency = $this->co_currency;
 
-        return view('admin.shipments.edit')->with(compact('header', 'shipment', 'tab', 'patterns', 'status', 'vehicles', 'dealers', 'orders_in', 'orders_out', 'order_status', 'deliveries_in', 'delivery_status', 'deliveries_out', 'author', 'languages', 'currency'));
+        return view('admin.shipments.edit')->with(compact('header', 'shipment', 'tab', 'patterns', 'status', 'vehicles', 'dealers', 'selected_dealers', 'orders_in', 'orders_out', 'order_status', 'deliveries_in', 'delivery_status', 'deliveries_out', 'author', 'languages', 'currency'));
+    }
+
+    /**
+     * 4. Actualizar reparto.
+     */
+    public function update(Request $request, Shipment $shipment){
+        $validator = $this->validator($request->all());
+        if($validator->fails()){
+            return redirect('/admin/shipments/'.$shipment->id.'/edit')
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        //Formateando fechas:
+        $date = $request->date != '' ? (session()->get('locale') != 'en') ? helpers::convertFecha($request->date) : $request->date : NULL;
+
+        //Número de pedido:
+        $shipment_num = NULL;
+        if($request->pattern_id){
+            $patternNum = $this->setPatternNumber('shipment', $request->pattern_id);
+
+            if(!empty($patternNum)){
+                $shipment->shipment_num = $patternNum['pattern_num'];
+                $shipment->num_cardinal = $patternNum['num'];
+            }
+            $shipment->pattern_id = $request->pattern_id;
+        }
+        $shipment->shipment_old_num = $request->shipment_old_num;
+        $shipment->vehicle_id = $request->vehicle_id;
+        $shipment->scheduled_date = $date;
+        $shipment->observations = $request->observations;
+        $shipment->status = $request->status;
+        $shipment->save();
+
+        //Repartidores:
+        ShipmentDealer::where('shipment_id', $shipment->id)
+        ->delete();
+        foreach($request->dealers as $d){
+            ShipmentDealer::create([
+                'shipment_id' => $shipment->id,
+                'dealer_id' => $d
+            ]);    
+        }
+
+        $msg = trans('textos.reparto_updated');
+        return redirect()->route('shipments.edit', $shipment)->with(compact('msg'));
     }
 }
