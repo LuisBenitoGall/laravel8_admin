@@ -30,7 +30,7 @@
                         </div>
 
                         {{-- Ventas o compras --}}
-                        {{-- <label for="order_type" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.ventas')) !!}</label>
+                        <label for="order_type" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.ventas')) !!}</label>
                         <div class="col-lg-1 sinpadding">
                             <label class="custom-chk-rdb mr-4" style="margin-bottom: 6px;">
                                 <input type="radio" name="order_type" value="v" @if($order_type == 'v') checked @endif required>
@@ -45,9 +45,7 @@
                                 <input type="radio" name="order_type" value="c" @if($order_type == 'c') checked @endif required>
                                 <span class="rdb chksmall"></span>
                             </label> 
-                        </div>   --}} 
-
-                        <input type="hidden" name="order_type" value="v">
+                        </div> 
                     </div>
 
                     <div class="form-group row">
@@ -103,6 +101,11 @@
             ['fecha_factura', 'text-center wdt100'],
             ['fecha_fiscal', 'text-center wdt100'],
             ['fecha_vencimiento', 'text-center wdt100'],
+            ['proveedor_manager', 'wdt150'],
+            ['comercial', 'wdt100'],
+            ['cliente_manager', 'wdt150'],
+            ['cliente_final', 'wdt150'],
+            ['cliente_final_manager', 'wdt150'],
             ['estado', 'wdt100'],
             ['metodo_pago', 'wdt100']
         ]
@@ -188,6 +191,11 @@ $(function(){
                 {data: 'invoice_date', name: 'invoices.invoice_date', className: 'text-right'},
                 {data: 'fiscal_date', name: 'invoices.fiscal_date', className: 'text-right'},
                 {data: 'expiration_date', name: 'invoices.expiration_date', className: 'text-right'},
+                {data: 'provider_manager'},
+                {data: 'commercial'},
+                {data: 'customer_manager'},
+                {data: 'final_customer'},
+                {data: 'final_customer_manager'},
                 {data: 'status', name: 'orders.order_status'},
                 {data: 'payment_method'},
             ]

@@ -109,6 +109,9 @@ return [
     //'ROLE_COMPANY_MANAGER_' => 2,   //id role manager empresa (extraído de la tabla 'roles'). 
     'ROLE_SUPERADMIN_' => 1,        //id role con permisos absolutos (extraído de la tabla 'roles').
     'SET_ORDER_PREVISIONS_' => false,
+    'SHIPMENT_STATUS_CLOSED_' => 20,
+    'SHIPMENT_STATUS_ON_ROUTE_' => 10,
+    'SHIPMENT_STATUS_OPENED_' => 1,
     'SUPER_ADMIN_' => 'Super Admin',
     'TOLERANCE_DECIMALS_' => 0.01,      //Tolerancia para valores con numerosos decimales.
     'TOLERANCE_INVOICED_' => 99.99,     //Indica el valor de tolerancia admitido para facturas.
