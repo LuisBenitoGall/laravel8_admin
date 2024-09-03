@@ -32,12 +32,12 @@
 		{{-- Nuevo reparto - condiciones: 
 			1. Si existen albaranes asociados.
 		--}}
-		@if($deliveries_in->count())
-			<a href="{{ route('shipments.reasign', $shipment) }}" class="btn btn-info btn-confirm" data-msg="Se reasignarán los albaranes no validados a un nuevo reparto.">
+		{{-- @if($deliveries_in->count()) --}}
+			{{-- <a href="{{ route('shipments.reasign', $shipment) }}" class="btn btn-info btn-confirm" data-msg="Se reasignarán los albaranes no validados a un nuevo reparto.">
 				<i class="fa fa-retweet"></i>
 				{!! ucfirst(trans('textos.reparto_reasignar')) !!}
-			</a>
-		@endif
+			</a> --}}
+		{{-- @endif --}}
 	</div>
 </div>
 
@@ -116,12 +116,12 @@
 
 					{{-- Pedidos: --}}
 					<div class="tab-pane fade @if($tab == 'orders') show active @endif" role="tabpanel" id="tab-orders">
-						@include('admin.shipments.partials.shipment-orders')
+						{{-- @include('admin.shipments.partials.shipment-orders') --}}
 					</div>
 
 					{{-- Albaranes: --}}
 					<div class="tab-pane fade @if($tab == 'deliveries') show active @endif" role="tabpanel" id="tab-deliveries">
-						@include('admin.shipments.partials.shipment-deliveries')
+						{{-- @include('admin.shipments.partials.shipment-deliveries') --}}
 					</div>
 				</div>
 			</div>

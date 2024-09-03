@@ -157,7 +157,7 @@ class DealerController extends Controller{
     /**
      * 5. Mostrar repartidor.
      */
-    public function show(Dealer $dealer){
+    public function show(Dealer $dealer, $tab = false){
         $header = [
             'option' => $this->option, 
             'suboption' => 'textos.repartidor_ver',
@@ -169,7 +169,7 @@ class DealerController extends Controller{
 
         $languages = $this->languages;
 
-        return view('admin.dealers.show')->with(compact('header', 'dealer', 'user', 'languages'));    
+        return view('admin.dealers.show')->with(compact('header', 'dealer', 'tab', 'user', 'languages'));    
     }
 
     /**
