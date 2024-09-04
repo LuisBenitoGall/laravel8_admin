@@ -3416,7 +3416,7 @@ return array(
 	'vista_tabla' => 'table view',
 	'volver_a' => 'Return to',
 	'volver_agencias_transportes' => 'Return to transport agencies',
-	'volver_agendas' => 'Return to agendas',
+	'volver_agendas' => 'Return to schedules',
 	'volver_agrupacion' => 'Return to grouping',
 	'volver_agrupaciones' => 'Return to groupings',
 	'volver_almacenes' => 'Return to warehouses',

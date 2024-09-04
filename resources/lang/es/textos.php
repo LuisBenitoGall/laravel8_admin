@@ -2077,7 +2077,7 @@ return array(
 	'nivel_selec' => 'Selecciona nivel',
 	'nivel' => 'Nivel',
 	'niveles' => 'niveles',
-	'no_aplica' => 'No aplica'
+	'no_aplica' => 'No aplica',
 	'no_agrupaciones' => 'No existen agrupaciones de pedidos en estos momentos.',
 	'no_asignado' => 'No asignado',
 	'no_disponible' => 'No disponible',
