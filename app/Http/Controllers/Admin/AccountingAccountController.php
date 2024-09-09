@@ -574,6 +574,7 @@ class AccountingAccountController extends Controller{
         //Cuentas de IVA:
         $accounts = AccountingAccount::select('id', 'account', 'name', 'mode', 'type', 'iva_type_id')
         ->where('company_id', session('currentCompany'))
+        ->where('company_target', session('currentCompany'))
         ->whereNotNull('iva_type_id')
         ->where('status', 1)
         ->get();

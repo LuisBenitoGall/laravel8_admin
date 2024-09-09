@@ -389,6 +389,12 @@ class BudgetController extends Controller{
         ->where('user_id', Auth::user()->id)
         ->first();
 
+        //Cuenta contable de ventas del proveedor:
+        $provider_accounting_account_default = AccountingAccount::select('id')
+        ->where('company_id', session('currentCompany'))
+        ->where('featured', config('constants.ACCOUNT_DEFAULT_SALES_'))
+        ->first();
+
         $budget = new Order();
         $budget->is_budget = true;
         $budget->modality = $request->modality;
@@ -399,6 +405,9 @@ class BudgetController extends Controller{
         $budget->provider_workplace_id = $user_workplace->workplace_id;
         $budget->created_by = Auth::user()->id; 
         $budget->discount = $cu_pr->discount;
+        $budget->num_deadlines = $cu_pr->num_deadlines;
+        $budget->days_between_deadlines = $cu_pr->days_between_deadlines;
+        $budget->accounting_sale_id = $provider_accounting_account_default? $provider_accounting_account_default->id:NULL;
         $budget->save();
 
         //Items por defecto en los presupuestos:
@@ -1293,6 +1302,9 @@ class BudgetController extends Controller{
         $version->created_by = Auth::user()->id;
         $version->discount = $order->discount;
         $version->discount_amount = $order->discount_amount;
+        $version->num_deadlines = $order->num_deadlines;
+        $version->days_between_deadlines = $order->days_between_deadlines;
+        $version->accounting_sale_id = $order->accounting_sale_id;
         $version->save();
 
         //Copiamos bloques libres e items:
@@ -1461,6 +1473,9 @@ class BudgetController extends Controller{
         //$new_budget->discount = $order->discount;
         //$new_budget->discount_amount = $order->discount_amount;
         //$new_budget->updated_by = Auth::user()->id;
+        $new_budget->num_deadlines = $order->num_deadlines;
+        $new_budget->days_between_deadlines = $order->days_between_deadlines;
+        $new_budget->accounting_sale_id = $order->accounting_sale_id;
         $new_budget->save();
 
         //Bloques de formulario creados exprofeso para el pedido:
@@ -1734,6 +1749,9 @@ class BudgetController extends Controller{
             $budget = Order::find($request->budget_id);
 
         }else{
+            //Condiciones comerciales del pedido:
+            $cu_pr = CustomerProviders::customerProvider($original_budget->final_customer_id, session('currentCompany'));
+
             $budget = new Order();
             $budget->is_budget = true;
             $budget->modality = $original_budget->modality;
@@ -1744,6 +1762,8 @@ class BudgetController extends Controller{
                 $budget->form_id = $request->form_id;
             }
             $budget->discount = $discount;
+            $budget->num_deadlines = $cu_pr->num_deadlines;
+            $budget->days_between_deadlines = $cu_pr->days_between_deadlines;
             $budget->save();
         }
 

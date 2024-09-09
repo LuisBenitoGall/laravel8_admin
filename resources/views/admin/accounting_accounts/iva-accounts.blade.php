@@ -94,6 +94,7 @@
 									@php
 									$iva_purchases_account = $a_->name.' - '.$a_->account;
 									$iva_purchases_account_id = $a_->id;
+									$iva_purchases_type = $a_->type;
 									@endphp
 								@endif
 							@endforeach

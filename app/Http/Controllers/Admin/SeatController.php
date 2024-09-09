@@ -19,6 +19,7 @@ use App\Models\AccountingAccount;
 use App\Models\AccountingAccountYearBalance;
 use App\Models\Company;
 use App\Models\CompanySettings;
+use App\Models\Effect;
 use App\Models\Invoice;
 use App\Models\Seat;
 use App\Models\SeatLines;
