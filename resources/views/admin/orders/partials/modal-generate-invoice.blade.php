@@ -10,7 +10,7 @@
 
             <div class="modal-body">
             	{{-- Se pueden generar facturas si existe la cuenta contable de ventas del proveedor --}}
-            	@if($provider_accounting_account)
+            	@if($provider_accounting_account_default)
 	                <form method="post" autocomplete="off" action="{{ route('invoices.create-from-order') }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
 	                    {{ csrf_field() }}
 	                    <input type="hidden" name="order_id" id="newInvoiceOrderId" value="@isset($order) {{ $order->id }} @endisset">

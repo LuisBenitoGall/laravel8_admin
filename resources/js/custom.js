@@ -1890,6 +1890,18 @@ $(window).on('load', function () {
             if(ui.item.value == ''){
                 $('#search_accounting_account').val('');
             }
+
+            //Búsqueda de efectos contables (para creación de asientos contables):
+            if($('#search_effects').length > 0 && ui.item.value != ''){
+                $.get("/admin/effects/"+ui.item.value+"/by-accounting-account", function(response, state){
+                    // var arr_options = values.split(",");
+                    // var arr_values = value.split(",");    EJEMPLO
+                    var arr_options = [];
+                    var arr_values = [];
+                    $("#seat-effects").select2({width: '100%', data: arr_options});
+                    $("#seat-effects").val(arr_values).trigger('change');
+                });
+            }
             
             return false;
         }

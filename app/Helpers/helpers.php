@@ -1371,8 +1371,8 @@ class Helpers{
 	public static function effectsStatus($status = false){
 		$data = [
 			1 => trans('textos.aceptado'),
-			10 => trans('textos.aceptado_no')
-			// 20 => trans('textos.cobrado'),
+			10 => trans('textos.aceptado_no'),
+			20 => trans('textos.cobrado')
 			// 30 => trans('textos.impagado')
 		];
 		if($status){

@@ -16,6 +16,7 @@ use Yajra\DataTables\DataTables;
 use Carbon\Carbon;
 
 //Models:
+use App\Models\AccountingAccount;
 use App\Models\BankAccounts;
 use App\Models\Company;
 use App\Models\CompanySettings;
@@ -44,8 +45,7 @@ class EffectController extends Controller{
      * 10. Efectos agrupados.
      * 10.1. Listado de efectos agrupados para DataTable.
      * 11. Filtro para agrupaciones de efectos.
-     * 12. Listado de efectos para grupos para DataTable.
-     * 13. Desvincular efecto del grupo.
+     * 12. Efectos por cuenta contable.
      */
     
     private $option = 'contabilidad';
@@ -726,5 +726,19 @@ class EffectController extends Controller{
         $to = $request->to? (session()->get('locale') != 'en')? helpers::convertFecha($request->to):$request->to:'x';
 
         return redirect()->route('effects.groups', [$customer_id, $provider_id, $from, $to, $request->payment_method]);
+    }
+
+    /**
+     * 12. Efectos por cuenta contable.
+     */
+    public function byAccountingAccount(Request $request, AccountingAccount $accounting_account){
+        if($request->ajax()){
+            $data = Effect::select('effects.id', 'effects.amount', 'effects.status')
+            ->where('effects.company_id', $accounting_account->company_id)
+            ->where('effects.status', config('contants.EFFECT_STATUS_PENDENT_'))
+            ->get();
+
+            return response()->json($data);
+        }
     }
 }

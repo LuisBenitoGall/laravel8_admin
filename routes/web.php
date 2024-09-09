@@ -515,6 +515,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::post('effects/set-remittance', 'EffectController@setRemittance')->name('effects.set-remittance')->middleware('permission:effects.edit');
     Route::post('effects/set-invoices', 'EffectController@setInvoices')->name('effects.set-invoices')->middleware('permission:effects.edit');
     Route::post('effects/groups-filter', 'EffectController@groupsFilter')->name('effects.groups-filter')->middleware('permission:effects.create');
+    Route::get('effects/{accounting_account}/by-accounting-account', 'EffectController@byAccountingAccount')->name('effects.by-accounting-account');
 
     // Employees:
     Route::get('employees', 'EmployeeController@index')->name('employees.index');
@@ -764,6 +765,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::get('orders/{order}/print', 'OrderController@print')->name('orders.print')->middleware('permission:orders.edit');
     Route::get('orders/{order}/show', 'OrderController@show')->name('orders.show')->middleware('permission:orders.show');
     Route::put('orders/{order}/update', 'OrderController@update')->name('orders.update')->middleware('permission:orders.edit');
+    Route::put('orders/{order}/update-conditions', 'OrderController@updateConditions')->name('orders.update-conditions')->middleware('permission:orders.edit');
     Route::post('orders/export-by-range-dates', 'OrderController@exportOrdersByDateRange')->name('orders.export-by-range-dates');
     Route::get('orders/{order}/reset-num', 'OrderController@resetNum')->name('orders.reset-num')->middleware('permission:orders.edit');
     Route::delete('orders/{order}', 'OrderController@destroy')->name('orders.destroy')->middleware('permission:orders.destroy');
