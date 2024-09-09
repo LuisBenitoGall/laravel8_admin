@@ -115,8 +115,6 @@ class OrderPrevisions extends Model{
             $num_previsions = $previsions->count();
             $k = 1;
 
-            //dd($order_amount, $previsions, $num_previsions);
-
             foreach($previsions as $p){
                 //Previsión facturada:
                 if($p->invoice_id){

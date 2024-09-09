@@ -89,8 +89,6 @@ class InvoiceItems extends Model{
 
             $invoice_amount = 0;
 
-            //dd($invoice, $order_items);
-
             foreach($order_items as $oi){
                 $amount = helpers::itemAmount($oi);
                 $invoice_amount = $invoice_amount + $amount['amount'];

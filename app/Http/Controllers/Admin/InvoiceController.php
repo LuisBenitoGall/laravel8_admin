@@ -1098,7 +1098,7 @@ class InvoiceController extends Controller{
         $order_amount = $order->getAmount(true, true);
 
         //Cuenta contable de proveedor:
-        $provider_accounting_account = AccountingAccount::select('id', 'with_iva')
+        $provider_accounting_account = AccountingAccount::select('id', 'account', 'name', 'with_iva')
         ->where('company_id', $order->customer_id)
         ->where('company_target', $order->provider_id)
         ->where('mode', 2)      //Modo proveedor.
@@ -2655,6 +2655,10 @@ class InvoiceController extends Controller{
         ->where('items.order_id', $order->id)
         ->get();
 
+
+
+
+
         //***************************************
         //HABLAR CON DIDAC PARA CERRAR LAS CUENTAS CONTABLES DE LAS BASES DE LAS COMPRAS. ESTUDIAR COMO PLANTEARLO PARA CUANDO LA FACTURA DE COMPRA VENGA DEFINIDA POR UN PEDIDO DE COMPRA Y EN EL SISTEMA YA EXISTA LA FACTURA DEL PROVEEDOR.
 
@@ -2666,7 +2670,7 @@ class InvoiceController extends Controller{
         }
 
         //Buscamos la cuenta contable para compras por defecto...:
-        $purchase_default_account = AccountingAccount::select('id')
+        $purchase_default_account = AccountingAccount::select('id', 'account', 'name')
         ->where('company_id', $order->customer_id)
         ->where('featured', config('constants.ACCOUNT_DEFAULT_PURCHASES_'))
         ->first();
@@ -2694,6 +2698,9 @@ class InvoiceController extends Controller{
             $purchase_default_account->created_by = Auth::user()->id;
             $purchase_default_account->save(); 
         }
+
+        //dd($purchase_products, $invoice, $order_amount, $provider_accounting_account, $purchase_default_account);
+
 
         $k = 0;
 
