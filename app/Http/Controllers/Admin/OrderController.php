@@ -112,7 +112,7 @@ class OrderController extends Controller{
         $this->languages = helpers::languages();
 
         $this->middleware('module_setted:orders');
-        $this->middleware('order_get', ['only' => ['orderFromBudget', 'edit', 'update', 'destroy', 'print', 'setOrderDelivery', 'resetNum', 'removePurchaseDoc', 'close', 'deleteDiscount']]);
+        $this->middleware('order_get', ['only' => ['orderFromBudget', 'edit', 'update', 'updateConditions', 'destroy', 'print', 'setOrderDelivery', 'resetNum', 'removePurchaseDoc', 'close', 'deleteDiscount']]);
         $this->middleware('project_purchases', ['only' => ['addPurchaseToProject']]);
     }
 
@@ -713,7 +713,7 @@ class OrderController extends Controller{
             }
         });
 
-        // Filtro explicito:
+        // Filtro explícito:
         foreach ($filter_data_raw as $key => $item) {
             if($item != ''){
                 $data->where($key, 'like', $item);
@@ -821,6 +821,15 @@ class OrderController extends Controller{
         //Slug:
         $slug = $request->name? Str::slug($request->name):NULL;
 
+        //Condiciones comerciales del pedido:
+        $cu_pr = CustomerProviders::customerProvider($customer_id, $provider_id);
+
+        //Cuenta contable de ventas del proveedor:
+        $provider_accounting_account_default = AccountingAccount::select('id')
+        ->where('company_id', $provider_id)
+        ->where('featured', config('constants.ACCOUNT_DEFAULT_SALES_'))
+        ->first();
+
         //Creamos pedido:
         $order = new Order();
         $order->is_order = true;
@@ -842,6 +851,9 @@ class OrderController extends Controller{
             $order->provider_manager_id = Auth::user()->id;
         }
         $order->customer_workplace_id = $customer_workplace_id;
+        $order->num_deadlines = $cu_pr->num_deadlines;
+        $order->days_between_deadlines = $cu_pr->days_between_deadlines;
+        $order->accounting_sale_id = $provider_accounting_account_default? $provider_accounting_account_default->id:NULL;
         $order->save();
 
         //Guardamos previsión de facturación por defecto:
@@ -923,6 +935,9 @@ class OrderController extends Controller{
      * 3.2. Generar pedido desde producto.
      */
     public function orderFromProduct(ProductProviders $product_provider){
+        //Condiciones comerciales del pedido:
+        $cu_pr = CustomerProviders::customerProvider(session('currentCompany'), $product_provider->provider_id);
+
         //Creamos pedido:
         $order = new Order();
         $order->is_order = true;
@@ -933,6 +948,8 @@ class OrderController extends Controller{
         $order->customer_id = session('currentCompany');
         $order->customer_manager_id = Auth::user()->id;
         $order->provider_id = $product_provider->provider_id;
+        $order->num_deadlines = $cu_pr->num_deadlines;
+        $order->days_between_deadlines = $cu_pr->days_between_deadlines;
         $order->order_status = config('constants.ORDER_STATUS_PENDENT_');
         $order->save();
 
@@ -1307,10 +1324,18 @@ class OrderController extends Controller{
         $ivaTypes = $ivaTypeController->ivaTypes;
 
         //Cuenta contable de ventas del proveedor:
-        $provider_accounting_account = AccountingAccount::select('id')
+        $provider_accounting_account_default = AccountingAccount::select('id')
         ->where('company_id', $order->provider_id)
         ->where('featured', config('constants.ACCOUNT_DEFAULT_SALES_'))
         ->first();
+
+        //Cuentas contables de proveedor:
+        $provider_accounting_accounts = AccountingAccount::select(DB::raw("CONCAT(account,' - ',name) AS cuenta"), 'id')
+        ->where('company_id', $order->provider_id)
+        ->where('company_target', $order->provider_id)
+        ->where('mode', 4)      //Mode = de contabilidad
+        ->pluck('cuenta', 'id')
+        ->toArray();
 
         //Cuentas contables de cliente:
         $customer_accounting_accounts = AccountingAccount::select('id', 'account', 'name')
@@ -1318,7 +1343,7 @@ class OrderController extends Controller{
         ->where('company_target', $order->customer_id)
         ->where('mode', 1)
         ->get();
-
+//dd($provider_accounting_account_default, $provider_accounting_accounts, $customer_accounting_accounts);
         //Servicio de Asistencia Técnica (SAT), según sea la venta o la compra:
         $sat = $order->provider_id == session('currentCompany')? Sat::select('id', 'sat_num')
         ->where('sale_id', $order->id)->first():Sat::select('id', 'sat_num')
@@ -1368,7 +1393,7 @@ class OrderController extends Controller{
         $module_projects = $this->settedModule('projects');
         $module_rrhh = $this->settedModule('rrhh');
         
-        return view('admin.orders.edit')->with(compact('header', 'order', 'tab', 'patterns', 'purchase_patterns', 'provider', 'provider_account', 'provider_managers', 'provider_business_areas', 'provider_cost_centers', 'provider_workplaces', 'default_workplace', 'customer', 'final_customer', 'customer_managers', 'customer_business_areas', 'customer_cost_centers', 'customer_workplaces', 'customer_products', 'customer_settings', 'confirmed_by', 'customers', 'order_amount', 'order_amount_without_discount', 'order_amount_without_discount_in_lines', 'order_groups', 'ordersInGroup', 'orders_off', 'group_amount', 'invoiced', 'invoices', 'previsions', 'products', 'projects', 'project', 'project_purchases', 'customer_projects', 'deliveries', 'receivings', 'currency', 'items', 'author', 'owner', 'commercial', 'iva', 'ivaTypes', 'provider_accounting_account', 'customer_accounting_accounts', 'sat', 'order_type', 'templates', 'categories', 'categories_in', 'languages', 'permitted', 'module_accounting', 'module_budgets', 'module_products', 'module_projects', 'module_rrhh', 'module_logistics'));
+        return view('admin.orders.edit')->with(compact('header', 'order', 'tab', 'patterns', 'purchase_patterns', 'provider', 'provider_account', 'provider_managers', 'provider_business_areas', 'provider_cost_centers', 'provider_workplaces', 'default_workplace', 'customer', 'final_customer', 'customer_managers', 'customer_business_areas', 'customer_cost_centers', 'customer_workplaces', 'customer_products', 'customer_settings', 'confirmed_by', 'customers', 'order_amount', 'order_amount_without_discount', 'order_amount_without_discount_in_lines', 'order_groups', 'ordersInGroup', 'orders_off', 'group_amount', 'invoiced', 'invoices', 'previsions', 'products', 'projects', 'project', 'project_purchases', 'customer_projects', 'deliveries', 'receivings', 'currency', 'items', 'author', 'owner', 'commercial', 'iva', 'ivaTypes', 'provider_accounting_account_default', 'provider_accounting_accounts', 'customer_accounting_accounts', 'sat', 'order_type', 'templates', 'categories', 'categories_in', 'languages', 'permitted', 'module_accounting', 'module_budgets', 'module_products', 'module_projects', 'module_rrhh', 'module_logistics'));
     }
 
     /**
@@ -1682,6 +1707,19 @@ class OrderController extends Controller{
 
         $msg = trans('textos.pedido_updated');
         return redirect()->route('orders.edit', [$order->id, false])->with(compact('msg', 'alert')); 
+    }
+
+    /**
+     * 5.1. Actualizar condiciones comerciales.
+     */
+    public function updateConditions(Request $request, Order $order){
+        $order->num_deadlines = $request->num_deadlines;
+        $order->days_between_deadlines = $request->days_between_deadlines;
+        $order->accounting_sale_id = $request->accounting_sale_id;
+        $order->save();
+
+        $msg = trans('textos.pedido_updated');
+        return redirect()->route('orders.edit', [$order->id, 'conditions'])->with(compact('msg'));
     }
 
     /**
@@ -2029,6 +2067,19 @@ class OrderController extends Controller{
             $order_num = $row->order_num? $row->order_num:($row->order_old_num? $row->order_old_num:$row->id);
             return '<a target="_blank" href="'.route('orders.edit', $row->id).'">'.$order_num.'</a>';
         })   
+        ->addColumn('project', function($row){
+            $projects = $row->projects;
+            if($projects->count()){
+                $projects_ = '';
+                foreach ($projects as $project){
+                    $num_ = $project->project_num ?? $project->id;
+                    $projects_ .= '<a href="/admin/projects/'.$project->id.'/edit">'.$num_.'</a> ';
+                }
+                return $projects_;
+            }else{
+                return '';
+            }
+        })
         ->addColumn('purchase_num', function($row){
             $purchase_num = $row->purchase_num? $row->purchase_num:($row->purchase_old_num? $row->purchase_old_num:'');
             return $purchase_num;
@@ -2093,7 +2144,7 @@ class OrderController extends Controller{
             $manage_status = false;
             return view('admin.orders.partials.dt-actions', compact('row', 'estados', 'manage_status'));    
         })
-        ->rawColumns(['fecha', 'order_num'])
+        ->rawColumns(['fecha', 'order_num', 'project'])
         ->orderColumn('fecha', 'customer')
         ->make(true);
     }

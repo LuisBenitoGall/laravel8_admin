@@ -739,9 +739,17 @@ $order_amount_without_discount = $order_amount_without_discount_in_lines > $orde
                         1. Exclusivo para proveedor.
                     --}}
                     @if($order->provider_id == session('currentCompany'))
+                        {{-- Template --}}
                         <li class="nav-item @if($tab == 'template') active @endif">
                             <a class="nav-link @if($tab == 'template') active @endif" href="#tab-template" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.plantilla')) !!}</a>
                         </li>
+
+                        {{-- Condiciones --}}
+                        @can('accounting.edit')
+                            <li class="nav-item @if($tab == 'conditions') active @endif">
+                                <a class="nav-link @if($tab == 'conditions') active @endif" href="#tab-conditions" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.condiciones_comerciales')) !!}</a>
+                            </li>
+                        @endcan
                     @endif
 
                     @if(count($project_purchases))
@@ -751,6 +759,7 @@ $order_amount_without_discount = $order_amount_without_discount_in_lines > $orde
                     @endif
                 </ul>
 
+                {{-- Panels --}}
                 <div class="tab-content pt-4">
                     {{-- Cabecera --}}
                     <div class="tab-pane fade @if(!$tab) show active @endif" role="tabpanel" id="tab-info">
@@ -787,6 +796,15 @@ $order_amount_without_discount = $order_amount_without_discount_in_lines > $orde
                             @include('admin.orders.partials.order-template')
                         </div>
                     @endif
+
+                    {{-- Condiciones --}}
+                    @can('accounting.edit')
+                        @if($order->provider_id == session('currentCompany'))
+                            <div class="tab-pane fade @if($tab == 'conditions') show active @endif" role="tabpanel" id="tab-conditions">
+                                @include('admin.orders.partials.order-conditions')
+                            </div>
+                        @endif
+                    @endcan
 
                     {{-- Proyectos de la compra --}}
                     @if(count($project_purchases))
@@ -846,13 +864,13 @@ $order_amount_without_discount = $order_amount_without_discount_in_lines > $orde
         {{-- Importe --}}
         <label for="amount" class="col-md-2 col-lg-1 col-form-label">{!! ucfirst(trans('textos.importe')) !!}</label>
         <div class="col-md-4 col-lg-2 sinpadding text-right">
-            <x-input type="text" name="amount[]" class="text-right set-decimals prevision-amount" autocomplete="off" maxlength="10" group="right" groupvalue="{{ $currency->symbol }}" required/>
+            <x-input type="text" name="amount[]" class="text-right set-decimals prevision-amount" autocomplete="off" maxlength="15" group="right" groupvalue="{{ $currency->symbol }}" required/>
         </div>
 
         {{-- Porcentaje --}}
         <label for="percent" class="col-md-2 col-lg-1 col-form-label">{!! ucfirst(trans('textos.porcentaje')) !!}</label>
         <div class="col-md-4 col-lg-2 sinpadding">
-            <x-input type="text" name="percent[]" class="text-right set-decimals prevision-percent" autocomplete="off" maxlength="10" group="right" groupvalue="%" required/>
+            <x-input type="text" name="percent[]" class="text-right set-decimals prevision-percent" autocomplete="off" maxlength="15" group="right" groupvalue="%" required/>
         </div>
 
         {{-- Eliminar previsión --}}

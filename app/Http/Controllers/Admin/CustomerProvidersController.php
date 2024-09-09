@@ -1131,12 +1131,12 @@ class CustomerProvidersController extends Controller{
         //if($request->payday){
             $cp->payday = $request->payday;
         //}
-        if($request->billing_comunication){
-            $cp->billing_comunication = $request->billing_comunication;
-        }
+        $cp->billing_comunication = $request->billing_comunication;
         if($request->payment_method){
             $cp->payment_method_id = $request->payment_method;
         }
+        $cp->num_deadlines = $request->num_deadlines;
+        $cp->days_between_deadlines = $request->days_between_deadlines;
         $cp->save();
 
         if($request->environment == 'customers'){

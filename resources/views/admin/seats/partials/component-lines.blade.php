@@ -5,6 +5,9 @@
 	</div>	
 </div>
 
+{{-- Variable para la búsqueda de efectos --}}
+<input type="hidden" id="search_effects" value="1">
+
 <div class="form-group row">
 	{{-- Cuenta contable --}}
 	<label for="accounting_account_" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.cuenta_contable')) !!}</label>
@@ -18,6 +21,14 @@
 	<label for="type_" class="col-lg-2 col-form-label">{{ ucfirst(trans('textos.tipo')) }}</label>
 	<div class="col-lg-2">
 		<x-select name="type_" class="select2" label="tipo_selec" :options="$seat_lines_types"/>
+	</div>
+</div>
+
+<div class="form-group row" id="seatEffects">
+	{{-- Efectos --}}
+	<label for="effects" class="col-md-2 col-form-label">{!! ucfirst(trans('textos.efectos')) !!}</label>
+	<div class="col-md-10">
+		<x-select name="effects[]" class="select2" multiple="true" :options="[]" id="seat-effects"/>
 	</div>
 </div>
 

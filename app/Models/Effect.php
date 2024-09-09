@@ -50,7 +50,7 @@ class Effect extends Model{
 
         if($data['invoice_id'] != NULL){
             $num = $invoice->invoice_num? $invoice->invoice_num:($invoice->invoice_old_num? $invoice->invoice_old_num:$invoice->id);
-            $num = $num.'/01';
+            $num = $num.'/'.$data['numerador'];
         }
 
         //Por agrupación de facturas:

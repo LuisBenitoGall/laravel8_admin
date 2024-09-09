@@ -72,7 +72,10 @@
 					<th class="wdt200">{!! ucfirst(trans('textos.'.$lbl1)) !!}</th>
 					{{-- <th class="wdt150">{!! ucfirst(trans('textos.area_negocio')) !!}</th> --}}
 					<th class="text-center wdt100">{!! ucfirst(trans('textos.pedido_num_abrv')) !!}</th>
-					<th class="text-center wdt150">{!! ucfirst(trans('textos.orden_compra')) !!}</th>
+                    @if($order_type == 'ventas')
+                        <th class="text-center wdt100">{!! ucfirst(trans('textos.proyecto')) !!}</th>
+                    @endif
+					<th class="text-center wdt100">{!! ucfirst(trans('textos.orden_compra')) !!}</th>
 					<th class="wdt200">{!! ucfirst(trans('textos.pedido_titulo')) !!}</th>
 					<th class="wdt150">{!! ucfirst(trans('textos.manager')) !!}</th>
 					<th class="d-none">&nbsp;</th>
@@ -90,6 +93,9 @@
 				<tr>
 					<td></td>
 					<td></td>
+                    @if($order_type == 'ventas')
+                        <td></td>
+                    @endif
 					<td></td>
 					<td></td>
 					<td></td>
@@ -276,7 +282,7 @@ $(function(){
         $('#tblOrdersControlPanelSales thead tr:eq(1) th').each(function(i){
             var title = $(this).text(); 
 
-            if(i == 12){
+            if(i == 13){
                 $(this).html('');
             }else{
                 // Check field on json of localstorage
@@ -286,7 +292,7 @@ $(function(){
                 let element = $(this).html(htmlRaw);
 
                 //Búsqueda por nombre y apellidos.
-                if (i == 5) {
+                if (i == 6) {
                     $('input', element).on('keyup change', function(){
                         // Diferenciamos si es nombre o apellido
                         let fullname = this.value.split(' ');
@@ -296,17 +302,17 @@ $(function(){
                         if(fullname.length == 1) {
                             // La busqueda se hace en el campo nombre
                             tableOrdersCPSales
-                                .column(5)
-                                .search(fullname[0])
                                 .column(6)
+                                .search(fullname[0])
+                                .column(7)
                                 .search('')
                                 .draw();
                         }else{
                             // La busqueda se hace en ambos campos (nombre y apellido)
                             tableOrdersCPSales
-                                .column(5)
-                                .search(fullname[0])
                                 .column(6)
+                                .search(fullname[0])
+                                .column(7)
                                 .search(fullname[1])
                                 .draw();
                         }
@@ -344,6 +350,7 @@ $(function(){
                 {data: 'customer', name: 'companies.name'},
                 //{data: 'business_area', name: 'business_areas.name'},
                 {data: 'order_num', name: 'orders.order_num', className: 'text-right'},
+                {data: 'project', name: 'projects.project_num', className: 'text-right'},
                 {data: 'purchase_num', name: 'orders.purchase_num', className: 'text-right'},
                 {data: 'name', name: 'companies.name'},
                 {data: 'manager', name: 'users.name'},
@@ -385,18 +392,6 @@ $(function(){
 
                 //Total:
                 total = api
-                .column(8, { search: 'applied' })
-                .data()
-                .reduce(function(a, b){
-                    return intVal(a) + intVal(b);
-                }, 0);
-
-                $(api.column(8).footer()).html(
-                    total.toFixed(2)+currency   
-                );
-
-                //Total por filtro aplicado:
-                a_facturar = api
                 .column(9, { search: 'applied' })
                 .data()
                 .reduce(function(a, b){
@@ -404,6 +399,18 @@ $(function(){
                 }, 0);
 
                 $(api.column(9).footer()).html(
+                    total.toFixed(2)+currency   
+                );
+
+                //Total por filtro aplicado:
+                a_facturar = api
+                .column(10, { search: 'applied' })
+                .data()
+                .reduce(function(a, b){
+                    return intVal(a) + intVal(b);
+                }, 0);
+
+                $(api.column(10).footer()).html(
                     a_facturar.toFixed(2)+currency    
                 );
             }

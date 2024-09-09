@@ -32,11 +32,11 @@ use App\Models\Effect;
 use App\Models\Group;
 use App\Models\GroupMembers;
 use App\Models\Invoice;
-//use App\Models\InvoiceItems;
 use App\Models\InvoiceOrders;
 use App\Models\InvoicePatterns;
 use App\Models\InvoiceSettings;
 use App\Models\Item;
+use App\Models\IvaType;
 use App\Models\Module;
 use App\Models\Order;
 use App\Models\OrderPrevisions;
@@ -480,6 +480,23 @@ class InvoiceController extends Controller{
 
     /**
      * 2. Generar factura desde pedido.
+     *
+     * Proceso de facturación:
+     * a. Obtener info del pedido.
+     * b. Obtener importe del pedido.
+     * c. Verificar si existen facturas previas del mismo pedido, otras previsiones futuras y extraer el importe pendiente a facturar, ya sea importe íntegro o parcial.
+     * d. Generación de la factura con obtención previa de datos necesarios:
+     * e. Obtener datos bancarios del cliente.
+     * f. Obtener datos bancarios del proveedor.
+     * g. Pagos previos realizados.
+     * h. Condiciones comerciales de la operación.
+     * i. Calcular fecha vencimiento.
+     * j. Guardar registro de la factura en el model Invoice.
+     * k. Marcar el pedido como factura (ya sea completo o parcial).
+     * l. Actualizar valores de las previsiones de facturación pendientes, por si debe crearse alguna nueva.
+     * m. Crear líneas de factura, sea desde las líneas de pedido o de albarán.
+     * n. Generación asiento contable.
+     * o. Generacion efecto contable.
      */
     public function createFromOrder(Request $request){
         $validator = $this->validator($request->all());
@@ -493,7 +510,7 @@ class InvoiceController extends Controller{
         }
 
         //Pedido:
-        $order = Order::select('id', 'order_status', 'order_parent', 'is_group', 'customer_id', 'provider_id', 'blocked', 'invoiced')
+        $order = Order::select('id', 'order_status', 'order_parent', 'is_group', 'customer_id', 'provider_id', 'blocked', 'num_deadlines', 'days_between_deadlines', 'accounting_sale_id', 'invoiced')
         ->find($request->order_id);
 
         //Facturación de pedido. 
@@ -656,132 +673,89 @@ class InvoiceController extends Controller{
             }
         }
 
-        //Cálculo IVA:
-        // if($total_amount > 0){
-        //     $iva_amount = helpers::percent($total_amount, $this->co_iva);
-        //     $amount_with_iva = $total_amount + $iva_amount;
-        // }
-        
-        //Cuenta bancaria cliente:
-        $bank_account_ = BankAccounts::select('id')
-        ->where('company_id', $order->customer_id)
-        ->where('featured', 1)
-        ->where('status', 1)
-        ->first();
-        $bank_account = $bank_account_? $bank_account_->id:NULL;
+        //Generando factura:
+        $invoice_data = [
+            'total_amount' => $total_amount,
+            'amount_with_iva' => $amount_with_iva,
+            'amount_priority' => $amount_priority,
+            'percentage_invoiced' => $percentage_invoiced,
+            'serie' => NULL
+        ];
+        $invoice = Invoice::setInvoice($order, $invoice_data);
 
-        //Cuenta bancaria proveedor:
-        $provider_bank_account_ = BankAccounts::select('id')
-        ->where('company_id', $order->provider_id)
-        ->where('featured', 1)
-        ->where('status', 1)
-        ->first();
-        $provider_bank_account = $provider_bank_account_? $provider_bank_account_->id:NULL;
-
-        //Configuraciones de proveedor:
-        $provider_settings = CustomerProviders::select('accounting_concept_id', 'pay_after_days', 'payday', 'payment_method_id')
-        ->where('customer_id', $order->customer_id)
-        ->where('provider_id', $order->provider_id)
-        ->first();
-
-        //Cálculo fecha vencimiento:
-        $expiration_date = helpers::calculateExpirationDate(date('Y-m-d'), $provider_settings->pay_after_days, $provider_settings->payday);
-
-        //Creamos cabecera de la factura, para poder utilizar su id:
-        $invoice = new Invoice();
-        $invoice->order_id = $order->id;
-        $invoice->user_id = Auth::user()->id;
-        $invoice->amount = $total_amount;
-        $invoice->amount_priority = $amount_priority;
-        $invoice->with_iva = CompanySettings::co_iva();
-        $invoice->amount_with_iva = $amount_with_iva;
-        $invoice->fiscal_date = date('Y-m-d');
-        $invoice->expiration_date = $expiration_date;
-        $invoice->bank_account_id = $bank_account;
-        $invoice->provider_bank_account_id = $provider_bank_account;
-        $invoice->status = config('constants.INVOICE_OPEN_');
-        $invoice->save();
-
-        //Marcamos el pedido como facturado:
-        if($invoice && !$order->invoiced){
-            $order->invoiced = true;
-            $order->save();
-
-            //Marcamos las líneas del pedido como facturadas:
-            Item::itemsAsInvoiced($order->id, true);
-        }
+       
 
         //Actualizamos previsiones de facturación:
-        if($percentage_invoiced){
-            //Eliminamos las previsiones no facturadas.
-            OrderPrevisions::where('order_id', $order->id)
-            ->whereNull('invoice_id')
-            ->forceDelete();
+        // if($percentage_invoiced){
+        //     //Eliminamos las previsiones no facturadas.
+        //     OrderPrevisions::where('order_id', $order->id)
+        //     ->whereNull('invoice_id')
+        //     ->forceDelete();
 
-            //Generamos previsión con el importe facturado:
-            $prevision = new OrderPrevisions();
-            $prevision->order_id = $order->id;
-            $prevision->year = Date('Y');
-            $prevision->month = Date('m');
-            $prevision->amount = $total_amount;
-            $prevision->percent = round($percentage_invoiced, 2);
-            $prevision->save();    
+        //     //Generamos previsión con el importe facturado:
+        //     $prevision = new OrderPrevisions();
+        //     $prevision->order_id = $order->id;
+        //     $prevision->year = Date('Y');
+        //     $prevision->month = Date('m');
+        //     $prevision->amount = $total_amount;
+        //     $prevision->percent = round($percentage_invoiced, 2);
+        //     $prevision->save();    
 
-            //Generamos nueva previsión con el importe restante:
-            $pending_amount = $previous_amount - ($outstanding_amount - $total_amount);
-            $pending_percent = 100 - ($outstanding_percent - $percentage_invoiced);
-            if($pending_amount > 0.01){
-                $prevision_ = new OrderPrevisions();
-                $prevision_->order_id = $order->id;
-                $prevision_->year = Date('Y');
-                $prevision_->month = NULL;
-                $prevision_->amount = round($pending_amount, 2);
-                $prevision_->percent = round($pending_percent, 2);
-                $prevision_->save();
-            }
-        }
+        //     //Generamos nueva previsión con el importe restante:
+        //     $pending_amount = $previous_amount - ($outstanding_amount - $total_amount);
+        //     $pending_percent = 100 - ($outstanding_percent - $percentage_invoiced);
+        //     if($pending_amount > 0.01){
+        //         $prevision_ = new OrderPrevisions();
+        //         $prevision_->order_id = $order->id;
+        //         $prevision_->year = Date('Y');
+        //         $prevision_->month = NULL;
+        //         $prevision_->amount = round($pending_amount, 2);
+        //         $prevision_->percent = round($pending_percent, 2);
+        //         $prevision_->save();
+        //     }
+        //}
 
         //Pasamos nº de factura a la previsión:
-        if($invoice && $prevision){
-            $prevision->invoice_id = $invoice->id;
-            $prevision->save();
-        }
+        // if($invoice && $prevision){
+        //     $prevision->invoice_id = $invoice->id;
+        //     $prevision->save();
+        // }
 
         //Recalculando porcentaje de las previsiones de facturación. Se considera que con un porcentaje por facturar por debajo del 0.1%, ya no queda nada por facturar.
         //$all_invoiced = $outstanding_percent < 0.1? true:false;
         //OrderPrevisions::recalculatePrevisionsPercent($order, $all_invoiced);
 
         //Asiento contable:
-        $this->setInvoiceSeat($invoice, $order, $order_amount, $percentage_invoiced, $request->customer_accounting_account);
+        // $this->setInvoiceSeat($invoice, $order, $order_amount, $percentage_invoiced, $request->customer_accounting_account);
 
-        //Pagas y señales:
-        $sign_payments = Payment::where('order_id', $order->id)
-        ->where('is_pay_sign', 1)
-        ->sum('amount');
+        // //Pagas y señales:
+        // $sign_payments = Payment::where('order_id', $order->id)
+        // ->where('is_pay_sign', 1)
+        // ->sum('amount');
 
         //Efecto contable:
-        $effect_amount = $invoice->amount_with_iva - $sign_payments;
-        $data_effect = [
-            'is_group' => false,
-            'parent' => NULL,
-            'date' => $invoice->fiscal_date,
-            'provider_id' => $order->provider_id,
-            'provider_bank_account_id' => $provider_bank_account,
-            'customer_id' => $order->customer_id,
-            'customer_bank_account_id' => $bank_account,
-            'invoice_id' => $invoice->id,
-            //'serie_id' => $other_data['serie'],
-            'remittance_id' => NULL,                //31/08/23 La remesa permanece NULL hasta que se incluye el efecto en alguna remesa. Es un proceso posterior y manual.
-            'payment_method_id' => $invoice->payment_method_id,
-            'payment_status' => NULL,
-            'amount' => $effect_amount,             //Se descuenta la paga y señal.
-            'currency_id' => $this->currency->id,
-            'created_by' => Auth::user()->id,
-            'updated_by' => NULL,
-            'status' => config('constants.EFFECT_STATUS_PENDENT_'),
-            'is_group' => false
-        ];
-        Effect::setEffect($data_effect);
+        // $effect_amount = $invoice->amount_with_iva - $sign_payments;
+        // $data_effect = [
+        //     'is_group' => false,
+        //     'parent' => NULL,
+        //     'date' => $invoice->fiscal_date,
+        //     'provider_id' => $order->provider_id,
+        //     'provider_bank_account_id' => $provider_bank_account,
+        //     'customer_id' => $order->customer_id,
+        //     'customer_bank_account_id' => $bank_account,
+        //     'invoice_id' => $invoice->id,
+        //     //'serie_id' => $other_data['serie'],
+        //     'remittance_id' => NULL,                //31/08/23 La remesa permanece NULL hasta que se incluye el efecto en alguna remesa. Es un proceso posterior y manual.
+        //     'payment_method_id' => $invoice->payment_method_id,
+        //     'payment_status' => NULL,
+        //     'amount' => $effect_amount,             //Se descuenta la paga y señal.
+        //     'currency_id' => $this->currency->id,
+        //     'created_by' => Auth::user()->id,
+        //     'updated_by' => NULL,
+        //     'status' => config('constants.EFFECT_STATUS_PENDENT_'),
+        //     'is_group' => false
+        // ];
+        // Effect::setEffect($data_effect);
 
         $msg = trans('textos.factura_creada');
         return redirect()->route('invoices.edit', [$invoice->id, false])->with(compact('msg'));
@@ -1009,6 +983,12 @@ class InvoiceController extends Controller{
             }
         }
 
+        //Condiciones comerciales:
+        $provider_settings = CustomerProviders::select('id', 'accounting_concept_id', 'expense_account_id', 'pay_after_days', 'payday', 'payment_method_id', 'num_deadlines', 'days_between_deadlines')
+        ->where('customer_id', session('currentCompany'))
+        ->where('provider_id', $request->provider_id)
+        ->first();
+
         //Creamos pedido si no existe. Seteamos la variable $add_items para indicar si se deben introducir líneas del pedido o no.
         if(!$request->order_id){
             $order = new Order();
@@ -1018,6 +998,8 @@ class InvoiceController extends Controller{
             $order->provider_id = $request->provider_id;
             $order->order_status = config('constants.ORDER_FINISHED_');     //Damos el pedido por finalizado.
             $order->customer_cost_center_id = $request->cost_center;
+            $order->num_deadlines = $provider_settings->num_deadlines;
+            $order->days_between_deadlines = $provider_settings->days_between_deadlines;
             $order->invoiced = 1;
             $order->blocked = true;
             $order->save();
@@ -1064,17 +1046,7 @@ class InvoiceController extends Controller{
         //Subir documento:
         $doc = $this->loadFile($request, 'invoices');
 
-        //Configuraciones con el proveedor:
-        $provider_settings = CustomerProviders::select('accounting_concept_id', 'pay_after_days', 'payday', 'payment_method_id')
-        ->where('customer_id', $order->customer_id)
-        ->where('provider_id', $order->provider_id)
-        ->first(); 
-
         //Cálculo fecha vencimiento:
-        $provider_settings = CustomerProviders::select('id', 'accounting_concept_id', 'expense_account_id', 'pay_after_days', 'payday', 'payment_method_id')
-        ->where('customer_id', $order->customer_id)
-        ->where('provider_id', $order->provider_id)
-        ->first();
         if($provider_settings && $provider_settings->pay_after_days){
             $expiration_date = helpers::calculateExpirationDate($fiscal_date, $provider_settings->pay_after_days, $provider_settings->payday);
         }
@@ -1597,7 +1569,6 @@ class InvoiceController extends Controller{
             $order_amount = $order->getAmount(true, true);
             $base_amount = $order_amount['total_amount'];
             $invoice_amount = $order_amount['invoice_amount'];
-            //$arr_amount = InvoiceItems::setInvoiceAmount($invoice);
             
             //Descontando IRPF:
             // if($invoice->irpf > 0){
@@ -2730,20 +2701,20 @@ class InvoiceController extends Controller{
         foreach($purchase_products as $pp){
             $amt = helpers::itemAmount($pp);
 
-            $seat_lines[$k]['accounting_account_id'] = isset($pp->accounting_account_id)? $pp->accounting_account_id:$purchase_default_account->id;
-            $seat_lines[$k]['type'] = NULL;
-            $seat_lines[$k]['debit'] = $amt['amount_without_iva'];
-            $seat_lines[$k]['credit'] = '0';
+            $seat_lines['accounting_account_id'][] = isset($pp->accounting_account_id)? $pp->accounting_account_id:$purchase_default_account->id;
+            $seat_lines['type'][] = NULL;
+            $seat_lines['debit'][] = $amt['amount_without_iva'];
+            $seat_lines['credit'][] = '0';
 
             $k++;
         }
 
-        //2. Cuenta contable del proveedor (CREDIT):
+        //2. Cuenta contable del proveedor (HABER - CREDIT):
         if($provider_accounting_account){
-            $seat_lines[$k]['accounting_account_id'] = $provider_accounting_account->id;
-            $seat_lines[$k]['type'] = NULL;
-            $seat_lines[$k]['debit'] = '0';
-            $seat_lines[$k]['credit'] = $invoice->amount_with_iva;
+            $seat_lines['accounting_account_id'][] = $provider_accounting_account->id;
+            $seat_lines['type'][] = NULL;
+            $seat_lines['debit'][] = '0';
+            $seat_lines['credit'][] = $invoice->amount_with_iva;
         }
 
         //3. Cuenta de ventas IVA:
@@ -2780,7 +2751,7 @@ class InvoiceController extends Controller{
         }
 
         $seat_data = [
-            'company_id' => session('currentCompany'),
+            'company_id' => $order->customer_id,
             'seat_num' => NULL,
             'seat_type' => NULL,
             'seat_date' => date('Y-m-d'),
@@ -2821,7 +2792,7 @@ class InvoiceController extends Controller{
 
         foreach($invoices as $inv){
             //Pedido:
-            $order = $inv->order_id? Order::select('id', 'order_status', 'order_parent', 'is_group', 'customer_id', 'provider_id', 'blocked', 'invoiced')
+            $order = $inv->order_id? Order::select('id', 'order_status', 'order_parent', 'is_group', 'customer_id', 'provider_id', 'blocked', 'invoiced', 'num_deadlines', 'days_between_deadlines')
             ->find($inv->order_id):false;
 
             if($order){

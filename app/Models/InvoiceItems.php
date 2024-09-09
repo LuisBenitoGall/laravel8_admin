@@ -9,9 +9,10 @@ use Illuminate\Support\Facades\DB;
 
 class InvoiceItems extends Model{
     /**
-     * 1. Líneas de factura.
-     * 2. Recalcular importe factura por sus líneas.
-     * 3. Actualizar línea de factura.
+     * 1. Guardar líneas de factura.
+     * 2. Líneas de factura.
+     * 3. Recalcular importe factura por sus líneas.
+     * 4. Actualizar línea de factura.
      */
     
     use HasFactory;
@@ -19,7 +20,47 @@ class InvoiceItems extends Model{
     protected $table = 'invoice_items';
 
     /**
-     * 1. Líneas de factura.
+     * 1. Guardar líneas de factura.
+     */
+    public static function saveInvoiceItems($invoice, $data){
+        //Guardamos los items de factura en función del origen: por pedido o albarán:
+        if($data['origin'] == 'order'){
+            $items = Item::select('items.id', 'items.qty', 'items.price', 'items.iva', 'items.discount', 'items.days', 'items.days_continue', 'items.days_continue_discount')
+            ->where('items.order_id', $data['order_id'])
+            ->orderBy('items.budget_sort', 'ASC')
+            ->get();  
+        
+        }else{
+            $items = DeliveryItem::select('delivery_items.qty', 'delivery_items.delivery_id', 'items.id', 'items.price', 'items.iva', 'items.discount', 'items.days', 'items.days_continue', 'items.days_continue_discount')
+            ->join('items', 'delivery_items.item_id', '=', 'items.id')
+            ->whereIn('delivery_items.delivery_id', $data['deliveries'])
+            ->orderBy('delivery_items.sort', 'ASC')
+            ->get();  
+        }
+
+        foreach($items as $item){
+            $amount = helpers::itemAmount($item, true);
+
+            //Calculamos el porcentaje de cada línea sobre el total facturado:
+            $amount_ = $amount['amount'] > 0? ($amount['amount'] * 100) / $invoice->amount:'0';
+
+            $ii = new InvoiceItems();
+            $ii->invoice_id = $invoice->id;
+            $ii->item_id = $item->id;
+            $ii->qty = $item->qty;
+            $ii->price = $item->price;
+            $ii->discount = $item->discount? $item->discount:'0';
+            $ii->days = $item->days;
+            $ii->days_continue = $item->days_continue;
+            $ii->days_continue_discount = $item->days_continue_discount;
+            $ii->amount = $amount_;
+            $ii->iva = $item->iva;
+            $ii->save();
+        }  
+    }
+
+    /**
+     * 2. Líneas de factura.
      */
     public static function getInvoiceItems($invoice_id){
         $data = InvoiceItems::select('items.concept', 'items.iva AS productIva', 'invoice_items.*')
@@ -31,7 +72,7 @@ class InvoiceItems extends Model{
     }
 
     /**
-     * 2. Recalcular importe factura por sus líneas.
+     * 3. Recalcular importe factura por sus líneas.
      */
     public static function setInvoiceAmount($invoice){
         $items = InvoiceItems::select('amount', 'iva')
@@ -100,7 +141,7 @@ class InvoiceItems extends Model{
     }
     
     /**
-     * 3. Actualizar línea de factura.
+     * 4. Actualizar línea de factura.
      */
     public static function updateInvoiceItem($item, $invoice_id){
         $row = InvoiceItems::where('invoice_id', $invoice_id)
