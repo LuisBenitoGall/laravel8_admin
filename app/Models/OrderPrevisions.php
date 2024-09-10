@@ -106,6 +106,9 @@ class OrderPrevisions extends Model{
             $accumulated_percent = 0;
             $accumulated_amount = 0;
 
+            //Bloqueo de pedido:
+            $is_blocked = Order::select('blocked')->find($order_id);
+
             //07/06/2024: ya no se agrupan las previsiones sin mes en una sola.
             //$previsions_without_month = [];
 
@@ -207,8 +210,9 @@ class OrderPrevisions extends Model{
 
             //Añadimos nueva previsión o actualizamos una existente - condiciones:  
             //1. si el porcentaje previsto es superior a 0.01 
-            //2. están facturadas todas las previsiones anteriores:  
-            if($diff_amount >= config('constants.TOLERANCE_DECIMALS_') && $all_invoiced){
+            //2. están facturadas todas las previsiones anteriores: 
+            //3. el pedido no está bloqueado. 
+            if($diff_amount >= config('constants.TOLERANCE_DECIMALS_') && $all_invoiced && !$is_blocked){
                 // if($first_id){
                 //     OrderPrevisions::where('id', $first_id)
                 //     ->update(['amount' => round($diff_amount, 2), 'percent' => $diff_percent]);    
