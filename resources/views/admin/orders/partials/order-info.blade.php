@@ -465,6 +465,179 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 	@endif
 	<hr><br>
 
+	{{-- Control de producción -  
+		1. Exclusivo para el proveedor.
+		2. Para agrupaciones o pedidos simples, NO para pedidos vinculados a agrupación.
+		3. Para empresas que lo seleccionen.
+	--}}
+	@if($order->provider_id == session('currentCompany') && !$order->order_parent && session('companySettings')->production_previsions)
+		<div class="form-group row">
+			<label class="col-lg-2 col-form-label">
+				{!! ucfirst(trans('textos.produccion_previsiones')) !!}
+			</label>
+
+			<div class="col-lg-1 pt-1">
+				@if($order->blocked == '0')
+					<button class="btn btn-warning btn-circle btnAddProductionPrevision" rel="tooltip" title="{{ trans('textos.agregar_prevision') }}">
+						<i class="fa fa-plus"></i>
+					</button>
+				@endif
+			</div>
+
+			<div class="col-lg-9">
+				<div class="production-previsions">
+					@php
+					$productionTotalPercent = 0;
+					$productionAccumulatedAmount = 0;			//Importe acumulado de previsiones.
+					$productionPrevisionSetted = true;			//Variable para controlar si la última previsión tiene declarado importe y porcentaje.
+					$j = 1;							//Contador de previsiones.
+					@endphp
+
+					@if($production_previsions && $production_previsions->count())
+						{{-- La sumas de los porcentajes de las previsiones de facturación no puede superar el 100% --}}
+						@foreach($production_previsions as $prev_)
+							@php
+							$productionTotalPercent = $productionTotalPercent + $prev_->percent;
+							if(!$prev_->amount && !$prev_->percent) $previsionSetted = false;
+							@endphp
+
+							<div class="form-group row pr-prevision">
+								{{-- Si la previsión no está facturada --}}
+								{{-- @if(!$disabled_) --}}
+									<input type="hidden" name="pr_op_id[]" value="{{ $prev_->id }}">
+								{{-- @endif --}}
+
+								{{-- Año --}}
+								<label for="pr_year" class="col-md-2 col-lg-1 col-form-label mb-2">{!! ucfirst(trans('textos.any')) !!}</label>
+								<div class="col-md-4 col-lg-1 sinpadding">
+									<select name="pr_year[]" class="form-control select2 prevision-data" {{ $disabled }}>
+										@for($y=config('constants.MIN_YEAR_'); $y<=(date('Y')+3); $y++)
+											@php
+											$selected = $prev_->year == $y? 'selected':date('Y');
+											@endphp
+
+											<option value="{{ $y }}" {{ $selected }}>{{ $y }}</option>
+										@endfor
+									</select>
+
+									@if($errors->has('pr_year'))
+						                <span class="invalid-feedback" role="alert">
+						                  <strong>{{ $errors->first('pr_year') }}</strong>
+						                </span>
+						            @endif
+								</div>
+
+								{{-- Mes --}}
+								<label for="pr_month" class="col-md-2 col-lg-1 col-form-label">{!! ucfirst(trans('textos.mes')) !!}</label>
+								<div class="col-md-4 col-lg-1 sinpadding">
+									@php
+									$months = App\Helpers\helpers::yearMonths();
+									@endphp
+
+									<select name="pr_month[]" class="form-control select2 prevision-data_" {{ $disabled }}>
+										@if(!$prev_->month)
+											<option value="">{{ trans('textos.mes_selec') }}</option>
+										@else
+											<option value="">{{ trans('textos.sin_definir') }}</option>
+										@endif
+
+										@foreach($months as $i => $month)
+											@php
+											$selected = $prev_->month == $i? 'selected':'';
+											@endphp
+
+											<option value="{{ $i }}" {{ $selected }}>{{ $month }}</option>
+										@endforeach
+									</select>
+
+									@if($errors->has('pr_month'))
+						                <span class="invalid-feedback" role="alert">
+						                  <strong>{{ $errors->first('pr_month') }}</strong>
+						                </span>
+						            @endif
+								</div>
+
+								{{-- Importe --}}
+								<label for="pr_amount" class="col-md-2 col-lg-1 col-form-label">{!! ucfirst(trans('textos.importe')) !!}</label>
+								<div class="col-md-4 col-lg-2 sinpadding text-right">
+									<x-input type="text" name="pr_amount[]" class="text-right set-decimals pr-prevision-amount prevision-data prominent" autocomplete="off" maxlength="15" value="{{ $prev_->amount }}" group="right" groupvalue="{{ $currency->symbol }}" required readonly="{{ $disabled }}"/>
+
+									@php
+									$accumulatedAmount = $accumulatedAmount + $prev_->amount;
+									@endphp
+								</div>
+
+								{{-- Porcentaje --}}
+								<label for="pr_percent" class="col-md-2 col-lg-1 col-form-label">{!! ucfirst(trans('textos.porcentaje')) !!}</label>
+								<div class="col-md-4 col-lg-2 sinpadding text-right">
+									@php
+									$percent = $productionTotalPercent > 100.01? '':$prev_->percent;
+
+									// Porcentaje del monto total:
+									$orden_w = $prev_->amount? $prev_->amount:($percent != ''? ($percent * $order_amount) / 100:0);
+									$orden_wo = $prev_->amount && $order_amount_without_discount == $order_amount? $prev_->amount:($percent != ''? ($percent * $order_amount_without_discount) / 100:0);
+
+									//Si se trata de la última previsión y el porcentaje es igual o superior a 100, el importe es el restante hasta completar el total del pedido:
+									if($k = $previsions->count() && $productionTotalPercent >= 100){
+										$orden_w = abs($order_amount - $accumulatedAmount);
+									}
+									@endphp
+
+									<x-input type="text" name="pr_percent[]" class="text-right set-decimals pr-prevision-percent prevision-data prominent" autocomplete="off" maxlength="15" value="{{ $percent }}" group="right" groupvalue="%" required readonly="{{ $disabled }}"/>
+
+									{{-- Monto de la orden, aplicando el porcentaje de cobro --}}
+									{{-- <small data-container="body" data-toggle="popover" data-placement="top" data-content="{{ trans('textos.facturacion_prevista_info_percent') }}">
+										{{ round($orden_w, 3) }}{{ $currency['symbol'] }} ({{ round($orden_wo, 3) }}{{ $currency['symbol'] }}) <li class="fa fa-info-circle"></li>
+									</small> --}}
+
+						            @if(round($productionTotalPercent, 2) > 100.01)
+						            	<span class="invalid-feedback" role="alert">
+						                  	<strong>{{ trans('textos.porcentaje_factura_error') }}</strong>
+						                </span>
+						            @endif
+								</div>
+
+								{{-- Eliminar previsión --}}
+								@if($production_previsions->count() > 1 && !$disabled_)
+									<div class="col-md-1 col-lg-1 pt-2">
+										<a href="#" class="btn btn-danger btn-circle btn-circle-mini btnDeleteProductionPrevision" rel="tooltip" title="{{ trans('textos.prevision_eliminar') }}" data-prev="{{ $prev_->id }}" data-msg="{{ trans('textos.prevision_eliminar_aviso') }}">
+											<i class="fa fa-times"></i>
+										</a>
+										{{-- {{ route('order-prevision.delete', $prev->id) }} --}}
+									</div>
+								@endif
+							</div>
+							
+							@php
+							$j++;
+							@endphp
+						@endforeach
+					@endif
+
+					{{-- Indicador de porcentaje pendiente --}}
+					{{-- Para pedidos bloqueados o con importe pendiente inferior a la tolerancia --}}
+					@if($productionTotalPercent < config('constants.TOLERANCE_INVOICED_') && $order->blocked == 1)
+						<p class="text-warning">{!! trans('textos.pedido_cerrado_aviso') !!}</p>
+
+					{{-- Para pedidos abiertos y con cantidades pendientes de incluir en las previsiones de facturación. Pasamos como condición adicional que el porcentaje sea mayor a 0.02, para evitar decimales residuales. --}}
+					@else
+						<p class="col-md-10 text-warning text-right" id="pr-pending-previsions" @if($productionTotalPercent >= 100) style="display: none;" @endif>
+							{!! trans('textos.produccion_prevision_pendiente') !!}: 
+							<b class="mr-4 pr-pending-amount">{{ round($order_amount - $productionAccumulatedAmount, 2) }}{{ $currency->symbol }}</b>
+							<b class="mr-4 pr-pending-percent">{{ round(100 - $productionTotalPercent, 6) }}%</b>
+
+							{{-- Copiar valores a la nueva previsión --}}
+							<a href="#" id="copyProductionPrev" @if(!$productionPrevisionSetted) style="display: inline-block;" @endif rel="tooltip" title="{{ trans('textos.prevision_copiar_valores') }}" data-amount="{{ round($order_amount - $productionAccumulatedAmount, 2) }}" data-percent="{{ round(100 - $productionTotalPercent, 6) }}">
+								<i class="fa fa-copy"></i>
+							</a>
+						</p>
+					@endif				
+				</div>
+			</div>
+		</div>
+		<hr><br>
+	@endif
+
 	<div class="row">
 		{{-- Info cliente --}}
 		<div class="col-lg-6">
