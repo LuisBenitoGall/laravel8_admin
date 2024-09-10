@@ -43,6 +43,8 @@ class OrderProductionPrevisionController extends Controller{
      */
     public function copy(){
         OrderProductionPrevision::copyRegisters();
+
+        dd('hecho');
     }
 
 }
