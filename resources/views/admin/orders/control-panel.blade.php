@@ -332,7 +332,7 @@ $(function(){
         
         var tableOrdersCPSales = $('#tblOrdersControlPanelSales').DataTable({
             order: [[ 0, "desc" ]],
-            serverSide: false,  //01/09/22: en false para permitir la suma de totales del footer.
+            serverSide: false,  //01/09/22: en false para permitir la suma de totales del footer y el filtrado por la columna fecha.
             processing: true,
             autoWidth: false,
             // drawCallback: function(){

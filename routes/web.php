@@ -734,6 +734,8 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     // Order Production Previsions:
     Route::get('order-production-prevision/{prevision}/delete', 'OrderProductionPrevisionController@destroy')->name('order-production-prevision.delete')->middleware('permission:orders.edit');
     Route::get('order-production-prevision/copy', 'OrderProductionPrevisionController@copy')->name('order-production-prevision.copy');
+    Route::get('order-production-prevision/control-panel/{year?}/{workplace_id?}', 'OrderProductionPrevisionController@controlPanel')->name('order-production-prevision.control-panel');
+    Route::post('order-production-prevision/filter-control-panel', 'OrderProductionPrevisionController@filterControlPanel')->name('order-production-prevision.filter-control-panel');
 
     // Order Queries:
     Route::get('order-queries', 'OrderQueryController@index')->name('order-queries.index');
