@@ -985,8 +985,6 @@ class OrderController extends Controller{
      * 4. Editar pedido.
      */
     public function edit(Order $order, $tab = false){
-        OrderProductionPrevision::copyRegisters();
-
         //Si no consta como pedido se redirige a budget:
         if(!$order->is_order){
             $alert = trans('textos.presupuesto_no_pedido_warning');

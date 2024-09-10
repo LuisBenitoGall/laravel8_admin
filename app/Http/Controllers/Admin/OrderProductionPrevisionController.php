@@ -16,6 +16,7 @@ use App\Models\OrderProductionPrevision;
 class OrderProductionPrevisionController extends Controller{
     /**
      * 1. Eliminar previsión de producción.
+     * 2. Copiar registros de order_previsions.
      */
     
     private $option = 'pedidos';
@@ -36,4 +37,12 @@ class OrderProductionPrevisionController extends Controller{
             return response()->json(true);
         }
     }
+
+    /**
+     * 2. Copiar registros de order_previsions.
+     */
+    public function copy(){
+        OrderProductionPrevision::copyRegisters();
+    }
+
 }
