@@ -731,6 +731,10 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::get('order-prevision/{prevision}/delete', 'OrderPrevisionsController@destroy')->name('order-prevision.delete')->middleware('permission:orders.edit');
     Route::get('order-previsions/{order}/recalculate-previsions', 'OrderPrevisionsController@recalculatePrevisions')->name('order-previsions.recalculate-previsions')->middleware('permission:order-prevision.edit');
 
+    // Order Production Previsions:
+    Route::get('order-production-prevision/{prevision}/delete', 'OrderProductionPrevisionController@destroy')->name('order-production-prevision.delete')->middleware('permission:orders.edit');
+    Route::get('order-production-prevision/copy', 'OrderProductionPrevisionController@copy')->name('order-production-prevision.copy');
+
     // Order Queries:
     Route::get('order-queries', 'OrderQueryController@index')->name('order-queries.index');
     Route::get('order-queries/by-orders', 'OrderQueryController@byOrders')->name('order-queries.by-orders');

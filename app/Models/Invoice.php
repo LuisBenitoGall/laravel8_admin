@@ -307,7 +307,7 @@ class Invoice extends Model{
         $iva_accounts = AccountingAccount::select('id', 'account', 'name', 'mode', 'type', 'iva_type_id')
         ->where('company_id', $order->provider_id)
         ->where('company_target', $order->provider_id)
-        ->where('account', 'LIKE', '477%')      //Filtro por prefijo 477 (IVA para ventas)
+        ->where('account', 'LIKE', config('constants.ACCOUNTING_ACCOUNT_IVA_PREFIX_SALES_').'%')      //Filtro por prefijo 477 (IVA para ventas)
         ->whereIn('iva_type_id', $iva_types_id)
         ->get();
 
@@ -361,7 +361,7 @@ class Invoice extends Model{
             'seat_type' => $seat_type,
             'seat_date' => $invoice->fiscal_date,
             'operation_type' => NULL,
-            'diary' => 'DV',
+            'diary' => 'dv',
             'concept' => trans('textos.factura_venta').' - '.$invoice->id,
             'description' => $invoice->invoice_num.' de '.$invoice->fiscal_date,
             'serie' => $add_data['serie'],

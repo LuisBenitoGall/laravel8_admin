@@ -248,6 +248,30 @@
 					</div>
 					<hr>
 
+					{{-- Pedidos --}}
+					<div class="form-group row">
+						<label class="col-lg-2 col-form-label">
+							{{ ucfirst(trans('textos.pedidos')) }}
+							<br>
+							<p class="text-warning">
+								{{ trans('textos.pedido_configuraciones_text') }}
+							</p>
+						</label>	
+
+						<div class="col-lg-10">
+							<div class="row">
+								<label for="production_previsions" class="col-lg-2 col-form-label">{!! trans('textos.produccion_previsiones') !!}</label>
+								<div class="col-lg-1">
+									<label class="custom-chk-rdb" rel="tooltip">
+						                <input type="checkbox" name="production_previsions" @if($company_settings->production_previsions) checked @endif>
+						                <span class="chk" style="top: 5px;"></span>
+						            </label>
+								</div>
+							</div>
+						</div>
+					</div>
+					<hr>
+
 					{{-- Proyectos --}}
 					<div class="form-group row">
 						<label class="col-lg-2 col-form-label">

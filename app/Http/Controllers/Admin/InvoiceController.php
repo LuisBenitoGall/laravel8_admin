@@ -2648,7 +2648,7 @@ class InvoiceController extends Controller{
         $iva_lines = [];
         $iva_errors = [];   //Guardo los tipos de IVA no vinculados a ninguna cuenta contable.
 
-        //1. Cuenta contable del cliente (DEBIT):
+        //1. Cuenta contable del cliente (DEBE - DEBIT):
         //1.1. Obtenemos los productos contables de los items del pedido:
         $purchase_products = Item::select('items.id', 'items.product_id', 'items.purchase_product_id', 'items.qty', 'items.price', 'items.item_no_price', 'items.iva', 'items.equivalence_surcharge', 'items.irpf', 'items.discount', 'items.calculated_by_percent', 'items.days', 'items.days_continue', 'items.days_continue_discount', 'purchase_products.iva AS pp_iva', 'purchase_products.accounting_account_id')
         ->leftJoin('purchase_products', 'items.purchase_product_id', '=', 'purchase_products.id')
@@ -2724,37 +2724,84 @@ class InvoiceController extends Controller{
             $seat_lines['credit'][] = $invoice->amount_with_iva;
         }
 
-        //3. Cuenta de ventas IVA:
+        //3. Cuentas IVA soportado:
         //3.1. Importes de IVA separados por tipo:
         $iva_amounts = $order_amount['iva_amounts'];
 
-        //3.2. Cuentas contables vinculadas a cada tipo de IVA. Atención a la condición sobre la coincidencia de la cuenta, sólo debe seleccionar, en este caso, las de IVA soportado.
-        foreach($iva_amounts as $idx => $val){
-            $line = [];
+        //3.2. Tipos de IVA presentes entre las líneas del pedido.
+        $iva_types = IvaType::select('iva_types.id', 'iva_types.iva')
+        ->join('items', 'iva_types.iva', '=', 'items.iva')
+        ->where('items.order_id', $order->id)
+        ->groupBy('iva_types.id')
+        ->get();
+        $iva_types_id = [];
+        $iva_types_value = [];
+        foreach($iva_types as $idx => $it){
+            array_push($iva_types_id, $idx);
+            $iva_types_value[$idx] = $it;
+        }
+
+        //3.3. Cuentas contables vinculadas a cada tipo de IVA. Atención a la condición sobre la coincidencia de la cuenta, sólo debe seleccionar, en este caso, las de IVA soportado.
+        $iva_accounts = AccountingAccount::select('id', 'account', 'name', 'mode', 'type', 'iva_type_id')
+        ->where('company_id', $order->customer_id)
+        ->where('company_target', $order->customer_id)
+        ->where('account', 'LIKE', config('constants.ACCOUNTING_ACCOUNT_IVA_PREFIX_PURCHASES_').'%')
+        ->whereIn('iva_type_id', $iva_types_id)
+        ->get(); 
+
+//dd($iva_types, $iva_types_id, $iva_accounts);
+
+
+        foreach($iva_accounts as $ia){
+            //Importe del IVA según el IVA asociado y proporcional al importe de la factura sobre el total del pedido:
+            $iva_amount = 0;
+
+            $iva_items = Item::select('id', 'qty', 'price', 'item_no_price', 'iva', 'discount', 'days', 'days_continue', 'days_continue_discount')
+            ->where('order_id', $order->id)
+            ->where('iva', $iva_types_value[$ia->iva_type_id])
+            ->whereNull('deleted_at')
+            ->get();
+
+            foreach($iva_items as $ii){
+                $ii_amount = helpers::itemAmount($ii, true);
+
+                $iva_amount = $iva_amount + $ii_amount['iva_amount'];
+            }
+
+            $iva_lines['accounting_account_id'][] = $ia->id;
+            $iva_lines['accounting_account'][] = $ia->account;
+            $iva_lines['type'][] = NULL;
+            $iva_lines['debit'][] = NULL;
+            $iva_lines['credit'][] = round($iva_amount, 2);
+
+
+
+
+
 
             //Obtenemos el porcentaje de IVA si la factura no es por el importe total del pedido:
-            if($percentage_invoiced && $percentage_invoiced > 0){
-                $val = round(($val * $percentage_invoiced) / 100, 2);
-            }
+            // if($percentage_invoiced && $percentage_invoiced > 0){
+            //     $val = round(($val * $percentage_invoiced) / 100, 2);
+            // }
 
-            $iva_account = AccountingAccount::select('accounting_accounts.id')
-            ->join('iva_types', 'accounting_accounts.iva_type_id', '=', 'iva_types.id')
-            ->where('accounting_accounts.company_id', $order->customer_id)
-            ->where('accounting_accounts.account', 'LIKE', config('constants.ACCOUNTING_ACCOUNT_IVA_PREFIX_PURCHASES_').'%')
-            ->where('iva_types.iva', $idx)
-            ->first(); 
+            // $iva_accounts = AccountingAccount::select('accounting_accounts.id')
+            // ->join('iva_types', 'accounting_accounts.iva_type_id', '=', 'iva_types.id')
+            // ->where('accounting_accounts.company_id', $order->customer_id)
+            // ->where('accounting_accounts.account', 'LIKE', config('constants.ACCOUNTING_ACCOUNT_IVA_PREFIX_PURCHASES_').'%')
+            // ->whereIn('iva_types.iva', $idx)
+            // ->first(); 
 
-            if($iva_account){
-                $line['accounting_account_id'] = $iva_account->id;
-                $line['type'] = NULL;
-                $line['debit'] = $val;
-                $line['credit'] = '0';
+            // if($iva_account){
+            //     $line['accounting_account_id'] = $iva_account->id;
+            //     $line['type'] = NULL;
+            //     $line['debit'] = $val;
+            //     $line['credit'] = '0';
 
-                array_push($iva_lines, $line);
+            //     array_push($iva_lines, $line);
 
-            }else{
-                array_push($iva_errors, $idx);
-            }
+            // }else{
+            //     array_push($iva_errors, $idx);
+            // }
         }
 
         $seat_data = [
