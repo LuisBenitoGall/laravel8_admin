@@ -818,7 +818,7 @@ $order_amount_without_discount = $order_amount_without_discount_in_lines > $orde
     </div>
 </div>
 
-{{-- HTML para clonar y añadir a previsions --}}
+{{-- HTML para clonar y añadir a previsiones de facturación --}}
 <div class="clones" style="display: none;">
     <div class="form-group row prevision">
         <input type="hidden" name="invoiced[]" value="0">
@@ -876,6 +876,68 @@ $order_amount_without_discount = $order_amount_without_discount_in_lines > $orde
         {{-- Eliminar previsión --}}
         <div class="col-md-1 col-lg-1 pt-2">
             <button class="btn btn-danger btn-circle btn-circle-mini btnRemovePrevision" rel="tooltip" title="{{ trans('textos.prevision_eliminar') }}" data-msg="{{ trans('textos.prevision_eliminar_aviso') }}">
+                <i class="fa fa-times"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+{{-- HTML para clonar y añadir a previsiones de producción --}}
+<div class="pr-clones" style="display: none;">
+    <div class="form-group row pr-prevision">
+        {{-- Año --}}
+        <label for="pr_year" class="col-md-2 col-lg-1 col-form-label mb-2">{!! ucfirst(trans('textos.any')) !!}</label>
+        <div class="col-md-4 col-lg-1 sinpadding">
+            <select name="pr_year[]" class="form-control">
+                @for($y=date('Y'); $y<=(date('Y')+3); $y++)
+                    <option value="{{ $y }}">{{ $y }}</option>
+                @endfor
+            </select>
+
+            @if($errors->has('pr_year'))
+                <span class="invalid-feedback" role="alert">
+                  <strong>{{ $errors->first('pr_year') }}</strong>
+                </span>
+            @endif
+        </div>
+
+        {{-- Mes --}}
+        <label for="pr_month" class="col-md-2 col-lg-1 col-form-label">{!! ucfirst(trans('textos.mes')) !!}</label>
+        <div class="col-md-4 col-lg-1 sinpadding">
+            @php
+            $months = App\Helpers\Helpers::yearMonths();
+            @endphp
+
+            <select name="pr_month[]" class="form-control">
+                <option value="">{{ trans('textos.mes_selec') }}</option>
+
+                @foreach($months as $i => $month)
+                    <option value="{{ $i }}">{{ $month }}</option>
+                @endforeach
+            </select>
+
+            @if($errors->has('pr_month'))
+                <span class="invalid-feedback" role="alert">
+                  <strong>{{ $errors->first('pr_month') }}</strong>
+                </span>
+            @endif
+        </div>
+
+        {{-- Importe --}}
+        <label for="pr_amount" class="col-md-2 col-lg-1 col-form-label">{!! ucfirst(trans('textos.importe')) !!}</label>
+        <div class="col-md-4 col-lg-2 sinpadding text-right">
+            <x-input type="text" name="pr_amount[]" class="text-right set-decimals pr-prevision-amount" autocomplete="off" maxlength="15" group="right" groupvalue="{{ $currency->symbol }}" required/>
+        </div>
+
+        {{-- Porcentaje --}}
+        <label for="pr_percent" class="col-md-2 col-lg-1 col-form-label">{!! ucfirst(trans('textos.porcentaje')) !!}</label>
+        <div class="col-md-4 col-lg-2 sinpadding">
+            <x-input type="text" name="pr_percent[]" class="text-right set-decimals pr-prevision-percent" autocomplete="off" maxlength="15" group="right" groupvalue="%" required/>
+        </div>
+
+        {{-- Eliminar previsión --}}
+        <div class="col-md-1 col-lg-1 pt-2">
+            <button class="btn btn-danger btn-circle btn-circle-mini btnRemoveProductionPrevision" rel="tooltip" title="{{ trans('textos.prevision_eliminar') }}" data-msg="{{ trans('textos.prevision_eliminar_aviso') }}">
                 <i class="fa fa-times"></i>
             </button>
         </div>
@@ -1009,6 +1071,71 @@ function previsionsController(){
     //Aviso de máximo alcanzado:
     if(total_percent > tolerance_max){
         $('.previsions .prevision .prevision-percent:last, .previsions .prevision .prevision-amount:last').val('');
+        swal.fire({
+            title: txtFacturacion100,
+            text: "",
+            icon: 'warning',
+            iconColor: color_warning,
+            showCancelButton: false,
+            confirmButtonColor: color_danger,
+            cancelButtonColor: color_danger,
+            confirmButtonText: txtCancelar,
+            cancelButtonText: txtCancelar
+        });
+
+        return 'delete';
+    }
+}
+
+//Control del porcentaje e importe de producción:
+function productionPrevisionsController(){
+    var total_percent = '0';
+    var total_amount = '0';
+    var tolerance_max = 100.01;
+    var tolerance_min = 0.02;
+    var diff = '0';
+    
+    //Control de porcentaje:
+    $('.production-previsions .pr-prevision .pr-prevision-percent').each(function(){
+        var percent = $(this).val();
+        if(percent > 0){
+            total_percent = (parseFloat(total_percent) + parseFloat(percent)).toFixed(6);
+        }
+    });
+
+    //Control de importe:
+    $('.production-previsions .pr-prevision .pr-prevision-amount').each(function(){
+        var amount = $(this).val();
+        if(amount > 0){
+            total_amount = (parseFloat(total_amount) + parseFloat(amount)).toFixed(6);
+        }
+    });
+
+    var diff_amount = {{ $order_amount }} - total_amount;
+    var diff_percent = 100 - total_percent;
+
+    //Bloqueamos o habilitamos la inclusión de nuevas previsiones de facturación en función del porcentaje alcanzado:
+    if(diff_percent < tolerance_min || parseFloat(total_percent) >= tolerance_max){
+        $('.btnAddProductionPrevision').fadeOut();
+        $('#pr-pending-previsions').fadeOut();
+
+    }else if(diff_percent >= tolerance_min && parseFloat(total_percent) < 100){
+        $('.btnAddProductionPrevision').fadeIn();
+
+        //Mostramos el importe pendiente de incluir en previsión:
+        $('#pr-pending-previsions .pr-pending-amount').text(diff_amount.toFixed(6)+'{{ $currency->symbol }}');
+        $('#copyProductionPrev').data('amount', diff_amount.toFixed(6));
+
+        //Mostramos el porcentaje pendiente:
+        $('#pr-pending-previsions .pr-pending-percent').text(diff_percent.toFixed(6)+'%');
+        $('#copyProductionPrev').data('percent', diff_percent.toFixed(6));
+        
+        $('#pr-pending-previsions').fadeIn();
+    }
+
+    //Aviso de máximo alcanzado:
+    if(total_percent > tolerance_max){
+        $('.production-previsions .pr-prevision .pr-prevision-percent:last, .production-previsions .pr-prevision .pr-prevision-amount:last').val('');
         swal.fire({
             title: txtFacturacion100,
             text: "",
@@ -1286,7 +1413,7 @@ $(function(){
             }
         });
 
-        //Sumamos importes de las previsiones
+        //Sumamos importes de las previsiones de facturación.
         $('.prevision-amount').each(function(){
             if($(this).val() > 0){
                 prevision_amounts = parseFloat(prevision_amounts) + parseFloat($(this).val());
@@ -1316,6 +1443,78 @@ $(function(){
                 }
             });
             return false;
+        }
+    });
+
+    //PREVISIONES DE PRODUCCIÓN.
+    productionPrevisionsController();
+
+    //Añadir previsión de producción:
+    $('.btnAddProductionPrevision').on('click', function(e){
+        e.preventDefault();
+        var prev = $('.pr-clones').html();
+        $('.production-previsions').append(prev);
+        $('.fa-spinner').remove();
+        $('#copyProductionPrev').fadeIn();
+    });
+    $(document).on('click', '.btnRemoveProductionPrevision', function(){
+        $(this).closest('.pr-prevision').remove();
+        $('.btnAddProductionPrevision').fadeIn();
+        $('#copyProductionPrev').fadeOut();
+    });
+
+    //Copiar valores pendientes de previsión a nueva previsión:
+    $('#copyProductionPrev').on('click', function(e){
+        e.preventDefault();
+        var a = $(this).data('amount');
+        var p = $(this).data('percent');
+
+        $('.production-previsions .pr-prevision .pr-prevision-amount:last').val(a);
+        $('.production-previsions .pr-prevision .pr-prevision-percent:last').val(p);
+
+        productionPrevisionsController();
+    });
+
+    //Eliminar previsión de producción:
+    $(document).on('click', '.btnDeleteProductionPrevision', function(e){
+        e.preventDefault(); 
+        var parent = $(this).closest('.pr-prevision');
+        var prev = $(this).data('prev');
+
+        $.get("/admin/order-production-prevision/"+prev+"/delete", function(response, state){
+            if(response){
+                parent.remove();
+                productionPrevisionsController();
+            }
+        });
+    });
+
+    //Control previsión de producción:
+    $(document).on('change', '.pr-prevision-amount, .pr-prevision-percent', function(e){
+        e.preventDefault();
+        var from_ = false;
+        if($(this).hasClass('pr-prevision-amount')){
+            from_ = 'pr_amount';
+        }else if($(this).hasClass('pr-prevision-percent')){
+            from_ = 'pr_percent';
+        }
+
+        if(from_ == 'pr_amount'){
+            var amnt = $(this).val();
+            var pcnt = ((amnt * 100) / {{ $order_amount}}).toFixed(6);
+
+        }else if(from_ == 'pr_percent'){
+            var pcnt = $(this).val();
+            var amnt = ((pcnt * {{ $order_amount}}) / 100).toFixed(2);        
+        }
+    
+        var father = $(this).closest('.pr-prevision');
+        father.find('.pr-prevision-amount').val(amnt);
+        father.find('.pr-prevision-percent').val(pcnt);
+
+        var action = productionPrevisionsController();
+        if(action == 'delete'){
+            $(this).val('');
         }
     });
 });

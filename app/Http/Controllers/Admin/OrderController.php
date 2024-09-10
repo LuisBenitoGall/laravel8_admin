@@ -38,6 +38,7 @@ use App\Models\OrderCategory;
 use App\Models\OrderDocs;
 use App\Models\OrderPatterns;
 use App\Models\OrderPrevisions;
+use App\Models\OrderProductionPrevision;
 use App\Models\OrderSettings;
 use App\Models\Phone;
 use App\Models\Product;
@@ -859,6 +860,9 @@ class OrderController extends Controller{
         //Guardamos previsión de facturación por defecto:
         OrderPrevisions::store($order->id);
 
+        //Guardamos previsión de producción por defecto:
+        OrderProductionPrevision::store($order->id);
+
         //Descuento por defecto:
         $order->setDefaultDiscount();
 
@@ -1236,6 +1240,10 @@ class OrderController extends Controller{
             $previsions = OrderPrevisions::previsions($order->id, $order_amount);
         }
 
+        //Previsiones de producción:
+        $production_previsions = OrderProductionPrevision::where('order_id', $order->id)
+        ->get();
+
         //Productos. Activos y aptos para venta:
         $products = Product::companyProducts($order->provider_id, $order->customer_id, true, true);
 
@@ -1343,7 +1351,6 @@ class OrderController extends Controller{
         ->where('company_target', $order->customer_id)
         ->where('mode', 1)
         ->get();
-//dd($provider_accounting_account_default, $provider_accounting_accounts, $customer_accounting_accounts);
         //Servicio de Asistencia Técnica (SAT), según sea la venta o la compra:
         $sat = $order->provider_id == session('currentCompany')? Sat::select('id', 'sat_num')
         ->where('sale_id', $order->id)->first():Sat::select('id', 'sat_num')
@@ -1393,7 +1400,7 @@ class OrderController extends Controller{
         $module_projects = $this->settedModule('projects');
         $module_rrhh = $this->settedModule('rrhh');
         
-        return view('admin.orders.edit')->with(compact('header', 'order', 'tab', 'patterns', 'purchase_patterns', 'provider', 'provider_account', 'provider_managers', 'provider_business_areas', 'provider_cost_centers', 'provider_workplaces', 'default_workplace', 'customer', 'final_customer', 'customer_managers', 'customer_business_areas', 'customer_cost_centers', 'customer_workplaces', 'customer_products', 'customer_settings', 'confirmed_by', 'customers', 'order_amount', 'order_amount_without_discount', 'order_amount_without_discount_in_lines', 'order_groups', 'ordersInGroup', 'orders_off', 'group_amount', 'invoiced', 'invoices', 'previsions', 'products', 'projects', 'project', 'project_purchases', 'customer_projects', 'deliveries', 'receivings', 'currency', 'items', 'author', 'owner', 'commercial', 'iva', 'ivaTypes', 'provider_accounting_account_default', 'provider_accounting_accounts', 'customer_accounting_accounts', 'sat', 'order_type', 'templates', 'categories', 'categories_in', 'languages', 'permitted', 'module_accounting', 'module_budgets', 'module_products', 'module_projects', 'module_rrhh', 'module_logistics'));
+        return view('admin.orders.edit')->with(compact('header', 'order', 'tab', 'patterns', 'purchase_patterns', 'provider', 'provider_account', 'provider_managers', 'provider_business_areas', 'provider_cost_centers', 'provider_workplaces', 'default_workplace', 'customer', 'final_customer', 'customer_managers', 'customer_business_areas', 'customer_cost_centers', 'customer_workplaces', 'customer_products', 'customer_settings', 'confirmed_by', 'customers', 'order_amount', 'order_amount_without_discount', 'order_amount_without_discount_in_lines', 'order_groups', 'ordersInGroup', 'orders_off', 'group_amount', 'invoiced', 'invoices', 'previsions', 'production_previsions', 'products', 'projects', 'project', 'project_purchases', 'customer_projects', 'deliveries', 'receivings', 'currency', 'items', 'author', 'owner', 'commercial', 'iva', 'ivaTypes', 'provider_accounting_account_default', 'provider_accounting_accounts', 'customer_accounting_accounts', 'sat', 'order_type', 'templates', 'categories', 'categories_in', 'languages', 'permitted', 'module_accounting', 'module_budgets', 'module_products', 'module_projects', 'module_rrhh', 'module_logistics'));
     }
 
     /**
@@ -1483,7 +1490,7 @@ class OrderController extends Controller{
                 ->withErrors($validator)
                 ->withInput();
         }  
-
+//dd($request->all());
         //Número de pedido:
         $order_num = NULL;
         if($request->pattern_id){
@@ -1612,11 +1619,11 @@ class OrderController extends Controller{
             ->whereNull('provider_cost_center_id')
             ->update(['provider_cost_center_id' => $request->provider_cost_center_id]);
         }
-
-        //Guardamos previsiones:
+        
         if($request->year){
             $order_amount = $order->getAmount(true, false, true); 
 
+            //Guardamos previsiones:
             for($i=0; $i<count($request->year); $i++){
                 //Validamos datos si es previsión NO facturada:
                 if(is_numeric($request->year[$i]) && !$request->invoiced[$i]){
@@ -1626,7 +1633,7 @@ class OrderController extends Controller{
                         $op = OrderPrevisions::find($request->op_id[$i]);
 
                         //Actualizamos si no se encuentra facturado:
-                        if(!$op->invoice_id){
+                        if( !$op->invoice_id){
                             $op->year = $request->year[$i];
                             $op->month = isset($request->month[$i])? $request->month[$i]:NULL;
                             $op->amount = isset($request->amount[$i])? $request->amount[$i]:NULL;
@@ -1685,6 +1692,19 @@ class OrderController extends Controller{
                         }
                     }                            
                 }
+            }
+
+            //Guardamos previsiones de producción eliminando las existentes y volviendo a crearlas:
+            OrderProductionPrevision::where('order_id', $order->id)->forceDelete();
+
+            for($j=0; $j<count($request->pr_year); $j++){
+                OrderProductionPrevision::create([
+                    'order_id' => $order->id,
+                    'year' => $request->pr_year[$j],
+                    'month' => isset($request->pr_month[$j])? $request->pr_month[$j]:NULL,
+                    'amount' => isset($request->pr_amount[$j])? $request->pr_amount[$j]:NULL,
+                    'percent' => isset($request->pr_percent[$j])? $request->pr_percent[$j]:NULL,
+                ]);    
             }
         }
 
