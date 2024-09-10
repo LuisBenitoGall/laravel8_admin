@@ -1155,6 +1155,7 @@ function productionPrevisionsController(){
 $(function(){
     var customer_team = {!! json_encode($customer_team) !!};
     var provider_team = {!! json_encode($provider_team) !!};
+    var blocked = {!! $order->blocked == 1 !!}? true:false;
 
     //Link a entregas.
     $('#linkDelivery').on('change', function(event){
@@ -1402,49 +1403,52 @@ $(function(){
     //Validación previsiones de facturación:
     //26/10/2022: se omite -por ahora- la validación de las previsiones de facturación. Se considera que hay pedidos que deben quedar abiertos y sin mes concreto para su facturación pues distorsiona la previsión para ese mes. Se modifica selector: $('#frmOrderInfo') por $('#frmOrderInfo_')
     //04/06/2024: se validan de nuevo las previsiones aunque admite que no se informe el mes en las previsiones aún no facturadas.
-    $('#frmOrderInfo').on('submit', function(){
-        var validate_previsions = true;
-        var prevision_amounts = 0;
-        var order_amount = {!! round($order_amount, 2) !!};
-        $('.prevision-data').each(function(){
-            if($(this).val() == ''){
-                validate_previsions = false;
-                var msg_ = txtFacturacionPrevisionesAviso;
-            }
-        });
-
-        //Sumamos importes de las previsiones de facturación.
-        $('.prevision-amount').each(function(){
-            if($(this).val() > 0){
-                prevision_amounts = parseFloat(prevision_amounts) + parseFloat($(this).val());
-            }
-        });
-
-        //Validando importes:
-        if(prevision_amounts < order_amount){
-            validate_previsions = false;  
-            var msg_ = txtImportePrevisionesError;  
-        }
-
-        if(!validate_previsions){
-            swal.fire({
-                title: msg_,
-                text: "",
-                icon: 'warning',
-                iconColor: color_warning,
-                showCancelButton: false,
-                confirmButtonColor: color_primary,
-                cancelButtonColor: color_danger,
-                confirmButtonText: txtAceptar,
-                //cancelButtonText: txtCancelar
-            }).then((result) => {
-                if(result.isConfirmed){
-
+    //10/09/2024: se valida si el pedido no está bloqueado:
+    if(!blocked){
+        $('#frmOrderInfo').on('submit', function(){
+            var validate_previsions = true;
+            var prevision_amounts = 0;
+            var order_amount = {!! round($order_amount, 2) !!};
+            $('.prevision-data').each(function(){
+                if($(this).val() == ''){
+                    validate_previsions = false;
+                    var msg_ = txtFacturacionPrevisionesAviso;
                 }
             });
-            return false;
-        }
-    });
+
+            //Sumamos importes de las previsiones de facturación.
+            $('.prevision-amount').each(function(){
+                if($(this).val() > 0){
+                    prevision_amounts = parseFloat(prevision_amounts) + parseFloat($(this).val());
+                }
+            });
+
+            //Validando importes:
+            if(prevision_amounts < order_amount){
+                validate_previsions = false;  
+                var msg_ = txtImportePrevisionesError;  
+            }
+
+            if(!validate_previsions){
+                swal.fire({
+                    title: msg_,
+                    text: "",
+                    icon: 'warning',
+                    iconColor: color_warning,
+                    showCancelButton: false,
+                    confirmButtonColor: color_primary,
+                    cancelButtonColor: color_danger,
+                    confirmButtonText: txtAceptar,
+                    //cancelButtonText: txtCancelar
+                }).then((result) => {
+                    if(result.isConfirmed){
+
+                    }
+                });
+                return false;
+            }
+        });
+    }
 
     //PREVISIONES DE PRODUCCIÓN.
     productionPrevisionsController();
