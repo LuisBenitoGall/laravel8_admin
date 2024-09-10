@@ -19,6 +19,14 @@
 			{!! ucfirst(trans('textos.panel_control_compras')) !!}
 		</a>
 
+		{{-- Panel producción --}}
+		@if(session('companySettings')->production_previsions)
+			<a href="{{ route('order-production-prevision.control-panel') }}" class="btn btn-info">
+				<i class="fa fa-chalkboard"></i>
+				{!! ucfirst(trans('textos.produccion_panel_control')) !!}
+			</a>
+		@endif
+
 		{{-- Nueva venta --}}
 		@if(session('companySettings') && session('companySettings')['customers_management'])
 			@can('orders.create')

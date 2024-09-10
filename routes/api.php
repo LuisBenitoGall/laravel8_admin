@@ -250,6 +250,9 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     //OrderPatterns:
     Route::get('order-patterns', 'OrderPatternsController@getPatternsDT');
 
+    //OrderProductionPrevisions:
+    Route::get('order-production-prevision/{year}/{workplace?}', 'OrderProductionPrevisionController@getPrevisionsDT');
+
     //OrderQueries:
     Route::get('order-queries/by-orders-dt/{companies}/{order_type}/{status}/{from?}/{to?}', 'OrderQueryController@getOrdersDT');
     Route::get('order-queries/by-order-items-dt/{companies}/{order_type}/{status}/{from?}/{to?}', 'OrderQueryController@getOrderItemsDT');
