@@ -673,17 +673,31 @@ class InvoiceController extends Controller{
             }
         }
 
+        //Formateando fechas:
+        $fiscal_date = $request->fiscal_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->fiscal_date):$request->fiscal_date:false;
+
         //Generando factura:
         $invoice_data = [
             'total_amount' => $total_amount,
             'amount_with_iva' => $amount_with_iva,
             'amount_priority' => $amount_priority,
             'percentage_invoiced' => $percentage_invoiced,
+            'fiscal_date' => $fiscal_date,
             'serie' => NULL
         ];
         $invoice = Invoice::setInvoice($order, $invoice_data);
 
-       
+        //Número de factura:
+        if($request->pattern_id){
+            $patternNum = $this->setPatternNumber('invoice', $request->pattern_id);
+        
+            if(!empty($patternNum)){
+                $invoice->invoice_num = $patternNum['pattern_num'];  
+                $invoice->num_cardinal = $patternNum['num']; 
+                $invoice->pattern_id = $request->pattern_id;
+                $invoice->save();
+            } 
+        }
 
         //Actualizamos previsiones de facturación:
         // if($percentage_invoiced){
@@ -2650,14 +2664,10 @@ class InvoiceController extends Controller{
 
         //1. Cuenta contable del cliente (DEBE - DEBIT):
         //1.1. Obtenemos los productos contables de los items del pedido:
-        $purchase_products = Item::select('items.id', 'items.product_id', 'items.purchase_product_id', 'items.qty', 'items.price', 'items.item_no_price', 'items.iva', 'items.equivalence_surcharge', 'items.irpf', 'items.discount', 'items.calculated_by_percent', 'items.days', 'items.days_continue', 'items.days_continue_discount', 'purchase_products.iva AS pp_iva', 'purchase_products.accounting_account_id')
+        $purchase_products = Item::select('items.id', 'items.concept', 'items.product_id', 'items.purchase_product_id', 'items.qty', 'items.price', 'items.item_no_price', 'items.iva', 'items.equivalence_surcharge', 'items.irpf', 'items.discount', 'items.calculated_by_percent', 'items.days', 'items.days_continue', 'items.days_continue_discount', 'purchase_products.iva AS pp_iva', 'purchase_products.accounting_account_id')
         ->leftJoin('purchase_products', 'items.purchase_product_id', '=', 'purchase_products.id')
         ->where('items.order_id', $order->id)
         ->get();
-
-
-
-
 
         //***************************************
         //HABLAR CON DIDAC PARA CERRAR LAS CUENTAS CONTABLES DE LAS BASES DE LAS COMPRAS. ESTUDIAR COMO PLANTEARLO PARA CUANDO LA FACTURA DE COMPRA VENGA DEFINIDA POR UN PEDIDO DE COMPRA Y EN EL SISTEMA YA EXISTA LA FACTURA DEL PROVEEDOR.
@@ -2670,13 +2680,13 @@ class InvoiceController extends Controller{
         }
 
         //Buscamos la cuenta contable para compras por defecto...:
-        $purchase_default_account = AccountingAccount::select('id', 'account', 'name')
+        $purchase_accounting_account = AccountingAccount::select('id', 'account', 'name')
         ->where('company_id', $order->customer_id)
         ->where('featured', config('constants.ACCOUNT_DEFAULT_PURCHASES_'))
         ->first();
 
         // ... o se crea nueva cuenta y se configura como principal:
-        if(!$purchase_default_account){
+        if(!$purchase_accounting_account){
             //Tipos de cuentas específicas:
             $account_types = helpers::accountingAccountSpecificPrefixes();
             $prefix = $account_types['provider'];
@@ -2684,23 +2694,20 @@ class InvoiceController extends Controller{
             //Número de la cuenta:
             $account = AccountingAccount::setAccountNum($prefix, $order->customer_id);
 
-            $purchase_default_account = new AccountingAccount();
-            $purchase_default_account->company_id = $order->customer_id;
-            $purchase_default_account->account = $account;       
-            $purchase_default_account->name = ucfirst(trans('textos.compras'));
-            $purchase_default_account->mode = 2;
-            $purchase_default_account->type = 'p';
-            //$purchase_default_account->earnings_loses = $earnings_loses;
-            //$purchase_default_account->company_target = NULL;
-            $purchase_default_account->status = 1;
-            $purchase_default_account->featured = config('constants.ACCOUNT_DEFAULT_PURCHASES_');
-            $purchase_default_account->with_iva = 1;
-            $purchase_default_account->created_by = Auth::user()->id;
-            $purchase_default_account->save(); 
+            $purchase_accounting_account = new AccountingAccount();
+            $purchase_accounting_account->company_id = $order->customer_id;
+            $purchase_accounting_account->account = $account;       
+            $purchase_accounting_account->name = ucfirst(trans('textos.compras'));
+            $purchase_accounting_account->mode = 2;
+            $purchase_accounting_account->type = 'p';
+            //$purchase_accounting_account->earnings_loses = $earnings_loses;
+            //$purchase_accounting_account->company_target = NULL;
+            $purchase_accounting_account->status = 1;
+            $purchase_accounting_account->featured = config('constants.ACCOUNT_DEFAULT_PURCHASES_');
+            $purchase_accounting_account->with_iva = 1;
+            $purchase_accounting_account->created_by = Auth::user()->id;
+            $purchase_accounting_account->save(); 
         }
-
-        //dd($purchase_products, $invoice, $order_amount, $provider_accounting_account, $purchase_default_account);
-
 
         $k = 0;
 
@@ -2708,7 +2715,7 @@ class InvoiceController extends Controller{
         foreach($purchase_products as $pp){
             $amt = helpers::itemAmount($pp);
 
-            $seat_lines['accounting_account_id'][] = isset($pp->accounting_account_id)? $pp->accounting_account_id:$purchase_default_account->id;
+            $seat_lines['accounting_account_id'][] = isset($pp->accounting_account_id)? $pp->accounting_account_id:$purchase_accounting_account->id;
             $seat_lines['type'][] = NULL;
             $seat_lines['debit'][] = $amt['amount_without_iva'];
             $seat_lines['credit'][] = '0';
@@ -2736,9 +2743,9 @@ class InvoiceController extends Controller{
         ->get();
         $iva_types_id = [];
         $iva_types_value = [];
-        foreach($iva_types as $idx => $it){
-            array_push($iva_types_id, $idx);
-            $iva_types_value[$idx] = $it;
+        foreach($iva_types as $it){
+            array_push($iva_types_id, $it->id);
+            $iva_types_value[$it->id] = $it->iva;
         }
 
         //3.3. Cuentas contables vinculadas a cada tipo de IVA. Atención a la condición sobre la coincidencia de la cuenta, sólo debe seleccionar, en este caso, las de IVA soportado.
@@ -2749,9 +2756,7 @@ class InvoiceController extends Controller{
         ->whereIn('iva_type_id', $iva_types_id)
         ->get(); 
 
-//dd($iva_types, $iva_types_id, $iva_accounts);
-
-
+        //3.4. Línea importe del IVA:
         foreach($iva_accounts as $ia){
             //Importe del IVA según el IVA asociado y proporcional al importe de la factura sobre el total del pedido:
             $iva_amount = 0;
@@ -2771,8 +2776,8 @@ class InvoiceController extends Controller{
             $iva_lines['accounting_account_id'][] = $ia->id;
             $iva_lines['accounting_account'][] = $ia->account;
             $iva_lines['type'][] = NULL;
-            $iva_lines['debit'][] = NULL;
-            $iva_lines['credit'][] = round($iva_amount, 2);
+            $iva_lines['debit'][] = round($iva_amount, 2);
+            $iva_lines['credit'][] = NULL;
 
 
 
