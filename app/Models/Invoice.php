@@ -162,7 +162,7 @@ class Invoice extends Model{
         $instance->amount_priority = $data['amount_priority'];
         $instance->with_iva = CompanySettings::co_iva();
         $instance->amount_with_iva = $data['amount_with_iva'];
-        $instance->fiscal_date = date('Y-m-d');
+        $instance->fiscal_date = isset($data['fiscal_date']) && $data['fiscal_date']? $data['fiscal_date']:date('Y-m-d');
         $instance->expiration_date = $expiration_date;
         $instance->bank_account_id = $bank_account;
         $instance->provider_bank_account_id = $provider_bank_account;

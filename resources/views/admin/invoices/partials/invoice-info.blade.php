@@ -75,8 +75,8 @@
 	</div>
 
 	<div class="form-group row">
-		{{-- Fecha registro --}}
-		<label for="fiscal_date" class="col-md-2 col-form-label">{!! ucfirst(trans('textos.fecha_registro')) !!}</label>
+		{{-- Fecha fiscal --}}
+		<label for="fiscal_date" class="col-md-2 col-form-label">{!! ucfirst(trans('textos.fecha_fiscal')) !!}</label>
 		<div class="col-md-4 col-lg-2">
 			@php
 			$fiscal_date = $invoice->fiscal_date != ''? \Carbon\Carbon::parse($invoice->fiscal_date)->format($languages[session()->get('locale')][4]):'';

@@ -75,7 +75,7 @@
                     @if($order_type == 'ventas')
                         <th class="text-center wdt100">{!! ucfirst(trans('textos.proyecto')) !!}</th>
                     @endif
-					<th class="text-center wdt100">{!! ucfirst(trans('textos.orden_compra')) !!}</th>
+					<th class="text-center wdt100">OC</th>
 					<th class="wdt200">{!! ucfirst(trans('textos.pedido_titulo')) !!}</th>
 					<th class="wdt150">{!! ucfirst(trans('textos.manager')) !!}</th>
 					<th class="d-none">&nbsp;</th>

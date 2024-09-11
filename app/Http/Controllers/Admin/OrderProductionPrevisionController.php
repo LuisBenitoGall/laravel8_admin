@@ -143,7 +143,7 @@ class OrderProductionPrevisionController extends Controller{
                 return '';
             }
         })
-         ->addColumn('name', function($row){
+        ->addColumn('name', function($row){
             return $row->name;
         })
         ->addColumn('manager', function($row){
@@ -166,6 +166,17 @@ class OrderProductionPrevisionController extends Controller{
             
             return number_format($amount, 2, '.', '');
         })  
+        ->addColumn('purchase_num', function($row){
+            $purchase_num = $row->purchase_num? $row->purchase_num:($row->purchase_old_num? $row->purchase_old_num:'');
+            return $purchase_num;
+        })
+        ->addColumn('customer_manager', function($row){
+            if($row->CustomerManagerName){
+                return $row->CustomerManagerName.' '.$row->CustomerManagerSurname;
+            }else{
+                return '';
+            }
+        })
         ->addColumn('estado', function($row) use($estados){ 
             if(isset($estados[$row->order_status])){
                 return ucfirst($estados[$row->order_status]);
