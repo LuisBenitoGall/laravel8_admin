@@ -31,6 +31,7 @@ use App\Models\Employee;
 use App\Models\Group;
 use App\Models\GroupMembers;
 use App\Models\Invoice;
+use App\Models\InvoicePatterns;
 use App\Models\Item;
 use App\Models\Module;
 use App\Models\Order;
@@ -1029,6 +1030,13 @@ class OrderController extends Controller{
             ->toArray();
         }
 
+        //Patrones de numeración de facturas:
+        $invoice_patterns = InvoicePatterns::select('id', 'name', 'yearly_reset')
+        ->where('company_id', session('currentCompany'))
+        ->where('status', 1)
+        ->pluck('name', 'id')
+        ->toArray();
+
         //PROVEEDOR:
         $provider = Company::select('id', 'name', 'tradename')->find($order->provider_id);
 
@@ -1400,7 +1408,7 @@ class OrderController extends Controller{
         $module_projects = $this->settedModule('projects');
         $module_rrhh = $this->settedModule('rrhh');
         
-        return view('admin.orders.edit')->with(compact('header', 'order', 'tab', 'patterns', 'purchase_patterns', 'provider', 'provider_account', 'provider_managers', 'provider_business_areas', 'provider_cost_centers', 'provider_workplaces', 'default_workplace', 'customer', 'final_customer', 'customer_managers', 'customer_business_areas', 'customer_cost_centers', 'customer_workplaces', 'customer_products', 'customer_settings', 'confirmed_by', 'customers', 'order_amount', 'order_amount_without_discount', 'order_amount_without_discount_in_lines', 'order_groups', 'ordersInGroup', 'orders_off', 'group_amount', 'invoiced', 'invoices', 'previsions', 'production_previsions', 'products', 'projects', 'project', 'project_purchases', 'customer_projects', 'deliveries', 'receivings', 'currency', 'items', 'author', 'owner', 'commercial', 'iva', 'ivaTypes', 'provider_accounting_account_default', 'provider_accounting_accounts', 'customer_accounting_accounts', 'sat', 'order_type', 'templates', 'categories', 'categories_in', 'languages', 'permitted', 'module_accounting', 'module_budgets', 'module_products', 'module_projects', 'module_rrhh', 'module_logistics'));
+        return view('admin.orders.edit')->with(compact('header', 'order', 'tab', 'patterns', 'purchase_patterns', 'invoice_patterns', 'provider', 'provider_account', 'provider_managers', 'provider_business_areas', 'provider_cost_centers', 'provider_workplaces', 'default_workplace', 'customer', 'final_customer', 'customer_managers', 'customer_business_areas', 'customer_cost_centers', 'customer_workplaces', 'customer_products', 'customer_settings', 'confirmed_by', 'customers', 'order_amount', 'order_amount_without_discount', 'order_amount_without_discount_in_lines', 'order_groups', 'ordersInGroup', 'orders_off', 'group_amount', 'invoiced', 'invoices', 'previsions', 'production_previsions', 'products', 'projects', 'project', 'project_purchases', 'customer_projects', 'deliveries', 'receivings', 'currency', 'items', 'author', 'owner', 'commercial', 'iva', 'ivaTypes', 'provider_accounting_account_default', 'provider_accounting_accounts', 'customer_accounting_accounts', 'sat', 'order_type', 'templates', 'categories', 'categories_in', 'languages', 'permitted', 'module_accounting', 'module_budgets', 'module_products', 'module_projects', 'module_rrhh', 'module_logistics'));
     }
 
     /**
@@ -1490,7 +1498,7 @@ class OrderController extends Controller{
                 ->withErrors($validator)
                 ->withInput();
         }  
-//dd($request->all());
+
         //Número de pedido:
         $order_num = NULL;
         if($request->pattern_id){
