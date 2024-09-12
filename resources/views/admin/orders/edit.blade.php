@@ -1155,7 +1155,7 @@ function productionPrevisionsController(){
 $(function(){
     var customer_team = {!! json_encode($customer_team) !!};
     var provider_team = {!! json_encode($provider_team) !!};
-    var blocked = {!! $order->blocked == 1 !!}? true:false;
+    var blocked = @if($order->blocked == 1) true @else false @endif;
 
     //Link a entregas.
     $('#linkDelivery').on('change', function(event){

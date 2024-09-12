@@ -510,7 +510,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 								{{-- Año --}}
 								<label for="pr_year" class="col-md-2 col-lg-1 col-form-label mb-2">{!! ucfirst(trans('textos.any')) !!}</label>
 								<div class="col-md-4 col-lg-1 sinpadding">
-									<select name="pr_year[]" class="form-control select2 prevision-data" {{ $disabled }}>
+									<select name="pr_year[]" class="form-control select2 prevision-data">
 										@for($y=config('constants.MIN_YEAR_'); $y<=(date('Y')+3); $y++)
 											@php
 											$selected = $prev_->year == $y? 'selected':date('Y');
@@ -534,7 +534,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 									$months = App\Helpers\helpers::yearMonths();
 									@endphp
 
-									<select name="pr_month[]" class="form-control select2 prevision-data_" {{ $disabled }}>
+									<select name="pr_month[]" class="form-control select2 prevision-data_">
 										@if(!$prev_->month)
 											<option value="">{{ trans('textos.mes_selec') }}</option>
 										@else
@@ -560,10 +560,10 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 								{{-- Importe --}}
 								<label for="pr_amount" class="col-md-2 col-lg-1 col-form-label">{!! ucfirst(trans('textos.importe')) !!}</label>
 								<div class="col-md-4 col-lg-2 sinpadding text-right">
-									<x-input type="text" name="pr_amount[]" class="text-right set-decimals pr-prevision-amount prevision-data prominent" autocomplete="off" maxlength="15" value="{{ $prev_->amount }}" group="right" groupvalue="{{ $currency->symbol }}" required readonly="{{ $disabled }}"/>
+									<x-input type="text" name="pr_amount[]" class="text-right set-decimals pr-prevision-amount prevision-data prominent" autocomplete="off" maxlength="15" value="{{ $prev_->amount }}" group="right" groupvalue="{{ $currency->symbol }}" required/>
 
 									@php
-									$accumulatedAmount = $accumulatedAmount + $prev_->amount;
+									$productionAccumulatedAmount = $productionAccumulatedAmount + $prev_->amount;
 									@endphp
 								</div>
 
@@ -579,11 +579,11 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 
 									//Si se trata de la última previsión y el porcentaje es igual o superior a 100, el importe es el restante hasta completar el total del pedido:
 									if($k = $previsions->count() && $productionTotalPercent >= 100){
-										$orden_w = abs($order_amount - $accumulatedAmount);
+										$orden_w = abs($order_amount - $productionAccumulatedAmount);
 									}
 									@endphp
 
-									<x-input type="text" name="pr_percent[]" class="text-right set-decimals pr-prevision-percent prevision-data prominent" autocomplete="off" maxlength="15" value="{{ $percent }}" group="right" groupvalue="%" required readonly="{{ $disabled }}"/>
+									<x-input type="text" name="pr_percent[]" class="text-right set-decimals pr-prevision-percent prevision-data prominent" autocomplete="off" maxlength="15" value="{{ $percent }}" group="right" groupvalue="%" required/>
 
 									{{-- Monto de la orden, aplicando el porcentaje de cobro --}}
 									{{-- <small data-container="body" data-toggle="popover" data-placement="top" data-content="{{ trans('textos.facturacion_prevista_info_percent') }}">
