@@ -1498,7 +1498,7 @@ class OrderController extends Controller{
                 ->withErrors($validator)
                 ->withInput();
         }  
-
+//dd($request->all());
         //Número de pedido:
         $order_num = NULL;
         if($request->pattern_id){
@@ -1702,17 +1702,19 @@ class OrderController extends Controller{
                 }
             }
 
-            //Guardamos previsiones de producción eliminando las existentes y volviendo a crearlas:
-            OrderProductionPrevision::where('order_id', $order->id)->forceDelete();
+            if($request->pr_year){
+                //Guardamos previsiones de producción eliminando las existentes y volviendo a crearlas:
+                OrderProductionPrevision::where('order_id', $order->id)->forceDelete();
 
-            for($j=0; $j<count($request->pr_year); $j++){
-                OrderProductionPrevision::create([
-                    'order_id' => $order->id,
-                    'year' => $request->pr_year[$j],
-                    'month' => isset($request->pr_month[$j])? $request->pr_month[$j]:NULL,
-                    'amount' => isset($request->pr_amount[$j])? $request->pr_amount[$j]:NULL,
-                    'percent' => isset($request->pr_percent[$j])? $request->pr_percent[$j]:NULL,
-                ]);    
+                for($j=0; $j<count($request->pr_year); $j++){
+                    OrderProductionPrevision::create([
+                        'order_id' => $order->id,
+                        'year' => $request->pr_year[$j],
+                        'month' => isset($request->pr_month[$j])? $request->pr_month[$j]:NULL,
+                        'amount' => isset($request->pr_amount[$j])? $request->pr_amount[$j]:NULL,
+                        'percent' => isset($request->pr_percent[$j])? $request->pr_percent[$j]:NULL,
+                    ]);    
+                }
             }
         }
 
