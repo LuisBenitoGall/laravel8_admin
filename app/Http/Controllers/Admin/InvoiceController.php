@@ -2809,14 +2809,16 @@ class InvoiceController extends Controller{
             // }
         }
 
+        $invoiceNum = $invoice->invoice_num? $invoice->invoice_num:($invoice->invoice_old_num? $invoice->invoice_old_num:$invoice->id);
+
         $seat_data = [
             'company_id' => $order->customer_id,
             'seat_num' => NULL,
             'seat_type' => NULL,
-            'seat_date' => date('Y-m-d'),
+            'seat_date' => $invoice->fiscal_date? $invoice->fiscal_date:date('Y-m-d'),
             'operation_type' => NULL,
             'diary' => NULL,
-            'concept' => trans('textos.factura_compra').' - '.$invoice->id,
+            'concept' => trans('textos.factura_compra').' - '.$invoiceNum,
             'description' => NULL,
             'serie' => NULL,
             'doc_num' => NULL,

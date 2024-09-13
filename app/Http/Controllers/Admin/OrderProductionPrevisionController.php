@@ -95,7 +95,7 @@ class OrderProductionPrevisionController extends Controller{
 
         $estados = helpers::orderStatus();
 
-        $data = Order::select('orders.id', 'orders.name', 'orders.order_num', 'orders.order_old_num', 'orders.purchase_num', 'orders.purchase_old_num', 'orders.is_group', 'orders.estimated_delivery_date', 'orders.delivery_date', 'orders.order_status', 'orders.invoiced', 'orders.discount', 'orders.bag_amount', 'order_production_previsions.year', 'order_production_previsions.month', 'order_production_previsions.percent', 'orders.created_at', 'companies.name AS Customer', 'users.name AS nombre', 'users.surname', 'cc.name AS finalCustomer', 'u_.name AS CustomerManagerName', 'u_.surname AS CustomerManagerSurname', 'workplaces.name AS workplace')
+        $data = Order::select('orders.id', 'orders.name', 'orders.order_num', 'orders.order_old_num', 'orders.purchase_num', 'orders.purchase_old_num', 'orders.is_group', 'orders.estimated_delivery_date', 'orders.delivery_date', 'orders.order_status', 'orders.invoiced', 'orders.discount', 'orders.bag_amount', 'order_production_previsions.year', 'order_production_previsions.month', 'order_production_previsions.amount', 'order_production_previsions.percent', 'orders.created_at', 'companies.name AS Customer', 'users.name AS nombre', 'users.surname', 'cc.name AS finalCustomer', 'u_.name AS CustomerManagerName', 'u_.surname AS CustomerManagerSurname', 'workplaces.name AS workplace')
         ->join('order_production_previsions', 'orders.id', '=', 'order_production_previsions.order_id')
         ->join('companies', 'orders.customer_id', '=', 'companies.id')
         ->leftJoin('companies AS cc', 'orders.final_customer_id', '=', 'cc.id')
@@ -157,14 +157,7 @@ class OrderProductionPrevisionController extends Controller{
             return $row->workplace;
         })
         ->addColumn('amount', function($row){
-            if($row->is_group){
-                $amount = $row->getGroupAmount();
-            }else{
-                $arr_amount = $row->getAmount();
-                $amount = $arr_amount['total_amount'];    
-            }
-            
-            return number_format($amount, 2, '.', '');
+            return round($row->amount, 2);
         })  
         ->addColumn('purchase_num', function($row){
             $purchase_num = $row->purchase_num? $row->purchase_num:($row->purchase_old_num? $row->purchase_old_num:'');

@@ -50,24 +50,57 @@
 </div>
 
 <div class="row">
+    {{-- Columnas --}}
+    @php
+    $columns = [
+        ['produccion_prevista', 'wdt150'],
+        ['cliente', 'wdt200'],
+        ['pedido_num_abrv', 'text-center wdt100'],
+        ['proyecto', 'text-center wdt100'],
+        ['oc', 'wdt100'],
+        ['pedido_titulo', 'wdt200'],
+        ['manager', 'wdt150'],
+        ['', 'd-none'],
+        ['cliente_manager', 'wdt200'],
+        ['', 'd-none'],
+        ['importe', 'text-center wdt50'],
+        ['estado', 'wdt100'],
+        ['centro_trabajo', 'wdt100'],
+        ['acciones', 'text-center wdt100']
+    ]
+    @endphp 
+
+    <div class="col-12 col-md-4 col-lg-3">
+        <div class="ibox collapsed dt-columns">
+            <div class="ibox-title bg-success">
+                <h5>{{ trans('textos.columnas_mostrar_ocultar') }}</h5>
+                <div class="ibox-tools">
+                    <a class="collapse-link">
+                        <i class="fa fa-chevron-up"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="ibox-content" style="display: none;">
+                <ul>
+                    @foreach($columns as $i => $col)
+                        <li class="row-{{ $i }}" data-visible="">
+                            <a href="#" class="toggle-vis" data-column="{{ $i }}">{{ ucfirst(trans('textos.'.$col[0])) }}</a>
+
+                            {{-- <i class="fa fa-check text-success"></i> --}}
+                        </li>
+                    @endforeach 
+                </ul>                    
+            </div>
+        </div>
+    </div>
+
 	<div class="table-responsive">
 		<table class="table table-hover dtabla" id="tblOrderProductionPrevisions">
 			<thead>
 				<tr>
-					<th class="wdt150">{!! ucfirst(trans('textos.produccion_prevista')) !!}</th>
-					<th class="wdt200">{!! ucfirst(trans('textos.cliente')) !!}</th>
-					<th class="text-center wdt100">{!! ucfirst(trans('textos.pedido_num_abrv')) !!}</th>
-					<th class="text-center wdt100">{!! ucfirst(trans('textos.proyecto')) !!}</th>
-					<th class="wdt200">{!! ucfirst(trans('textos.pedido_titulo')) !!}</th>
-					<th class="wdt150">{!! ucfirst(trans('textos.manager')) !!}</th>
-					<th class="d-none">&nbsp;</th>
-					<th class="wdt150">{!! ucfirst(trans('textos.centro_trabajo')) !!}</th>
-					<th class="text-center wdt50">{!! ucfirst(trans('textos.importe')) !!}</th>
-					<th class="text-center wdt100">OC</th>
-					<th class="wdt150">{!! ucfirst(trans('textos.cliente_manager')) !!}</th>
-					<th class="d-none">&nbsp;</th>
-					<th class="text-center wdt50">{!! ucfirst(trans('textos.estado')) !!}</th>
-					<th class="text-center wdt100">{!! ucfirst(trans('textos.acciones')) !!}</th>
+                    @foreach($columns as $col)
+                        <th class="{{ $col[1] }} nowrap">{{ ucfirst(trans('textos.'.$col[0])) }}</th>
+                    @endforeach
 				</tr>
 			</thead>
 
@@ -194,6 +227,9 @@ $(function(){
             // drawCallback: function(){
             //     $('.select2-dt').select2();
             // },
+            language: {
+                processing: '<i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span>'
+            },
             ajax: {
                 "type": "GET",
                 "url": "/api/admin/order-production-prevision/"+year+"/"+workplace,
@@ -206,15 +242,15 @@ $(function(){
                 {data: 'customer', name: 'companies.name'},
                 {data: 'order_num', name: 'orders.order_num', className: 'text-right'},
                 {data: 'project', name: 'projects.project_num', className: 'text-right'},
+                {data: 'purchase_num', name: 'orders.purchase_num', className: 'text-right'},
                 {data: 'name', name: 'companies.name'},
                 {data: 'manager', name: 'users.name'},
-                {data: 'surname', name: 'users.surname', className: 'd-none' },
-                {data: 'workplace', name: 'workplaces.name'},
-                {data: 'amount', name: 'amount', className: 'text-right'},
-                {data: 'purchase_num', name: 'orders.purchase_num', className: 'text-right'},
+                {data: 'surname', name: 'users.surname', className: 'd-none'},
                 {data: 'customer_manager', name: 'users.name'},
                 {data: 'CustomerManagerSurname', name: 'users.surname', className: 'd-none' },
+                {data: 'amount', name: 'amount', className: 'text-right'},
                 {data: 'estado', name: 'estado'},
+                {data: 'workplace', name: 'workplaces.name'},
                 {data: 'acciones', name: 'action', orderable: false, searchable: false, className: 'text-right'}
             ],
             "footerCallback": function(row, data, start, end, display){
@@ -246,16 +282,54 @@ $(function(){
 
                 //Total:
                 total = api
-                .column(8, { search: 'applied' })
+                .column(10, { search: 'applied' })
                 .data()
                 .reduce(function(a, b){
                     return intVal(a) + intVal(b);
                 }, 0);
 
-                $(api.column(8).footer()).html(
+                $(api.column(10).footer()).html(
                     total.toFixed(2)+currency   
                 );
             }
+        });
+
+        //Obtener número de columnas:
+        //13/09/24: revisar porque no cuenta correctamente el número de columnas.
+        //var num_cols = $('#tblOrderProductionPrevisions thead th').length;
+        var num_cols = 14;
+
+        //Seteando estado de vista inicial de la columna:
+        for (var i = 0; i < num_cols; i++){
+            if(tableOrderProductionPrevisions.column(i).visible()){
+                $('.row-'+i).append('<i class="fa fa-check text-success"></i>');
+                $('.row-'+i).data('visible', 1);
+            }else{
+                $('.row-'+i).data('visible', 2);    
+            }
+        }
+
+        //Mostrar / ocultar columnas:
+        document.querySelectorAll('a.toggle-vis').forEach((el) => {
+            el.addEventListener('click', function (e) {
+                e.preventDefault();
+                var parent = $(this).closest('li');
+                is_ok = parent.find('.fa');
+
+                if(parent.data('visible') == 1){
+                    parent.find('.fa').remove();
+                    parent.data('visible', 2);
+                }else{
+                    parent.append('<i class="fa fa-check text-success"></i>');
+                    parent.data('visible', 1);
+                }
+         
+                let columnIdx = e.target.getAttribute('data-column');
+                let column = tableOrderProductionPrevisions.column(columnIdx);
+
+                // Toggle the visibility
+                column.visible(!column.visible());
+            });
         });
 	}
 });
