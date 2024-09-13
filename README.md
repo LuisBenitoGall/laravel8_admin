@@ -50,6 +50,23 @@ En el archivo config/constants.php se definen constantes personalizadas.
 	- Instalar Yajra Laravel Datatables: https://github.com/yajra/laravel-datatables
 		- composer require yajra/laravel-datatables-oracle:"~9.0"
 
+	- Código Debug:
+		(function() {
+		    var url = 'https://debug.datatables.net/bookmarklet/DT_Debug.js';
+		    if (typeof DT_Debug != 'undefined') {
+		        if (DT_Debug.instance !== null) {
+		            DT_Debug.close();
+		        } else {
+		            new DT_Debug();
+		        }
+		    } else {
+		        var n = document.createElement('script');
+		        n.setAttribute('language', 'JavaScript');
+		        n.setAttribute('src', url + '?rand=' + new Date().getTime());
+		        document.body.appendChild(n);
+		    }
+		})();
+
 - Extender Auth y Session a API Controllers:
 	En config/auth.php:
 	'guards' => [

@@ -11,6 +11,7 @@ class Seat extends Model{
     /**
      * 1. Generar nuevo asiento contable.
      * 2. Relación con facturas.
+     * 3. Efectos contables.
      */
     
     use HasFactory;
@@ -121,5 +122,12 @@ class Seat extends Model{
      */
     public function invoice(){
         return $this->belongsTo(Invoice::class, 'invoice_id');
+    }
+
+    /**
+     * 3. Efectos contables.
+     */
+    public function effects(){
+        return $this->belongsToMany(Effect::class, 'seat_effects');    
     }
 }

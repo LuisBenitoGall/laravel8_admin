@@ -354,6 +354,8 @@ class Invoice extends Model{
         //     $seat_type == 20;
         // }        A REVISAR LAS CONDICIONES ANTERIORES.
 
+        $invoiceNum = $invoice->invoice_num? $invoice->invoice_num:($invoice->invoice_old_num? $invoice->invoice_old_num:$invoice->id);
+
         //Generando asiento contable:
         $data = [
             'company_id' => $order->provider_id,
@@ -362,7 +364,7 @@ class Invoice extends Model{
             'seat_date' => $invoice->fiscal_date,
             'operation_type' => NULL,
             'diary' => 'dv',
-            'concept' => trans('textos.factura_venta').' - '.$invoice->id,
+            'concept' => trans('textos.factura_venta').' - '.$invoiceNum,
             'description' => $invoice->invoice_num.' de '.$invoice->fiscal_date,
             'serie' => $add_data['serie'],
             'doc_num' => $invoice->invoice_num,
@@ -381,7 +383,7 @@ class Invoice extends Model{
             'seat_lines' => $seat_lines,
             'iva_lines' => $iva_lines
         ];
-        Seat::saveSeat($data);
+        $seat = Seat::saveSeat($data);
         //SEGÚN SEA FACTURA O TICKET, DISTINTO TRATAMIENTO.
 
         //Generando efecto contable:
@@ -426,6 +428,7 @@ class Invoice extends Model{
                 'payment_status' => NULL,
                 'amount' => $j == $n_deadlines - 1? $last_amount:$effect_amount_partial,             //Se descuenta la paga y señal.
                 'observations' => NULL,
+                'seat_id' => $seat? $seat->id:NULL,
                 'currency_id' => $add_data['currency_id'],
                 'created_by' => Auth::user()->id,
                 'updated_by' => NULL,
