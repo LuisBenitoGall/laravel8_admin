@@ -13,6 +13,7 @@ class Effect extends Model{
      * 2. Empresa vinculada.
      * 3. Facturas de un efecto.
      * 4. Efectos remesables.
+     * 5. Asientos contables.
      */
     
     use HasFactory;
@@ -96,6 +97,14 @@ class Effect extends Model{
             $ie->save();
         }
 
+        //Vincular efecto con asiento contable:
+        if(isset($data['seat_id']) && $data['seat_id']){
+            SeatEffect::create([
+                'seat_id' => $data['seat_id'],
+                'effect_id' => $instance->id
+            ]);
+        }
+
         return $instance;
     }
 
@@ -141,6 +150,13 @@ class Effect extends Model{
         ->whereNull('effects.remittance_id')
         ->orderBy('effects.created_at', 'DESC')
         ->get();    
+    }
+
+    /**
+     * 5. Asientos contables.
+     */
+    public function seats(){
+        return $this->belongsToMany(Seat::class, 'seat_effects');
     }
 
 }

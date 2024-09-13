@@ -142,56 +142,6 @@ $(function(){
                 {data: 'status'},
                 {data: 'acciones', className: 'text-right'}
             ]
-            // columnDefs: [
-            //     {"targets": 0,
-            //     "render": function(data, type, row){
-            //         var num = row['id'];
-            //         if(row['delivery_num']){
-            //             num = row['delivery_num'];
-            //         }else if(row['delivery_old_num']){
-            //             num = row['delivery_old_num'];
-            //         }
-
-            //         var html = '';
-            //         if(row['editar']){
-            //             html += '<a href="/admin/deliveries/'+row['id']+'/edit">';
-            //         }
-            //         html += num;
-            //         if(row['editar']){
-            //             html += '</a>';
-            //         }
-            //         return html;
-            //     }
-            //     },
-            //     {"targets": -2,
-            //     "render": function(data, type, row){
-            //         return '<span class="xoption-'+row['id']+'">'+row['estado']+'</span>'; 
-            //     }
-            //     }, 
-            //     {"targets": -1,
-            //     "render": function(data, type, row){
-            //         var estado = '';
-            //         var editar = '';
-            //         var eliminar = '';
-            //         if(row['editar']){
-            //             //Estado múltiple:
-            //             estado = multipleStatus(row['estados'], row['status'], row['id']);
-
-            //             //Editar:
-            //             editar = '<a href="/admin/deliveries/'+row['id']+'/edit" class="btn btn-xs btn-info" rel="tooltip" title="'+txtEditar+'"><i class="fa fa-edit"></i></a>';
-
-            //             //Eliminar:
-            //             eliminar = '<form method="POST" action="/admin/deliveries/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
-            //                 eliminar += '<input name="_method" type="hidden" value="DELETE">';
-            //                 eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
-            //                 eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtEliminar+'" data-msg="'+txtEntregaConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
-            //             eliminar += '</form>';
-
-            //             return estado+' '+editar+' '+eliminar;
-            //         }
-            //     }
-            //     }
-            // ]
         });
     }
 

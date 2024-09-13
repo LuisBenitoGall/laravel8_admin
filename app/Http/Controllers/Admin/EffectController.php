@@ -135,9 +135,10 @@ class EffectController extends Controller{
         $customer = $customer_id? Company::find($customer_id):false;
         $provider = $provider_id? Company::find($provider_id):false;
 
-        $remittances = Remittance::where('company_id', session('currentCompany'))
+        $remittances = Remittance::select(DB::raw("CONCAT('Remesa ', id) AS remittance"), 'id')
+        ->where('company_id', session('currentCompany'))
         ->where('status', config('constants.REMITTANCE_STATUS_OPEN_'))
-        ->pluck('remittance_num', 'id')
+        ->pluck('remittance', 'id')
         ->toArray();
 
         return view('admin.effects.index', compact('header', 'customer', 'provider', 'remittances'));
@@ -261,6 +262,17 @@ class EffectController extends Controller{
                 return '';
             }
         })
+        ->addColumn('seats', function ($row){
+            $seats_ = '';
+            $seats = $row->seats;
+            if($seats->count()){
+                foreach($seats as $s){
+                    $seat_num = $s->seat_num? $s->seat_num:$s->id;
+                    $seats_ .= '<a href="admin/seats/'.$s->id.'/edit">'.$seat_num.'</a> ';
+                }
+            }
+            return $seats_;
+        })
         ->addColumn('remittance', function ($row){
             if($row->remittanceId){
                 $remittance = $row->remittance_num? $row->remittance_num:($row->remittance_old_num? $row->remittance_old_num:$row->remittanceId);
@@ -278,7 +290,7 @@ class EffectController extends Controller{
         ->addColumn('acciones', function ($row) use($estados){
             return view('admin.effects.partials.dt-actions', compact('row', 'estados')); 
         })
-        ->rawColumns(['is_group', 'invoices', 'remittance', 'observations'])
+        ->rawColumns(['is_group', 'invoices', 'seats', 'remittance', 'observations'])
         ->make(true);
     }
 
