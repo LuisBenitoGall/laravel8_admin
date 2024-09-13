@@ -29,6 +29,7 @@ class OrderQueryController extends Controller{
      * 4.1. Consulta de presupuestos para DataTables.
      * 5. Por líneas de presupuesto.
      * 5.1. Consulta items de presupuestos para DataTables.
+     * 6. Setear centro de coste de proveedor para líneas NULL.
      */
     
     private $option = 'pedidos';
@@ -52,6 +53,8 @@ class OrderQueryController extends Controller{
             'module' => $this->module,
             'slug' => 'orders'
         ];  
+
+        $this->setProviderCostCenter();
 
         //Relación de consultas:
         $queries = [
@@ -301,8 +304,8 @@ class OrderQueryController extends Controller{
             ->leftJoin('users AS ucom', 'o.commercial_id', '=', 'ucom.id')
             ->leftJoin('users AS uc', 'o.customer_manager_id', '=', 'uc.id')
             ->leftJoin('users AS ufc', 'o.final_customer_manager_id', '=', 'ufc.id')
-            ->leftJoin('cost_centers AS pcc', 'p.cost_center_id', '=', 'pcc.id')
-            ->leftJoin('cost_centers AS ccc', 'o.customer_cost_center_id', '=', 'ccc.id')
+            ->leftJoin('cost_centers AS pcc', 'items.provider_cost_center_id', '=', 'pcc.id')
+            ->leftJoin('cost_centers AS ccc', 'items.customer_cost_center_id', '=', 'ccc.id')
 
             ->where('o.is_order', true)
             ->whereNull('items.deleted_at')
@@ -696,8 +699,8 @@ class OrderQueryController extends Controller{
             ->leftJoin('users AS ucom', 'o.commercial_id', '=', 'ucom.id')
             ->leftJoin('users AS uc', 'o.customer_manager_id', '=', 'uc.id')
             ->leftJoin('users AS ufc', 'o.final_customer_manager_id', '=', 'ufc.id')
-            ->leftJoin('cost_centers AS pcc', 'p.cost_center_id', '=', 'pcc.id')
-            ->leftJoin('cost_centers AS ccc', 'o.customer_cost_center_id', '=', 'ccc.id')
+            ->leftJoin('cost_centers AS pcc', 'items.provider_cost_center_id', '=', 'pcc.id')
+            ->leftJoin('cost_centers AS ccc', 'items.customer_cost_center_id', '=', 'ccc.id')
             ->where('o.is_budget', true)
             ->whereNull('items.deleted_at')
             // Intervalo fechas (por fecha de creación):
@@ -851,6 +854,31 @@ class OrderQueryController extends Controller{
             ->rawColumns(['is_order', 'is_budget', 'invoiced', 'budget', 'order'])
             ->make(true);
         }
+    }
+
+    /**
+     * 6. Setear centro de coste de proveedor para líneas NULL.
+     */
+    public function setProviderCostCenter(){
+        $data = Item::select('id', 'product_id', 'provider_cost_center_id')
+        ->whereNotNull('product_id')
+        ->whereNotNull('provider_cost_center_id')
+        ->groupBy('product_id')
+        ->get();
+
+        $sin = Item::select('id', 'product_id', 'provider_cost_center_id')
+        ->whereNotNull('product_id')
+        ->whereNull('provider_cost_center_id')
+        ->get();
+
+        // foreach($data as $r){
+        //     Item::where('product_id', $r->product_id)
+        //     ->whereNull('provider_cost_center_id')
+        //     dd($r);
+        // }
+
+
+        dd($data, $sin);
     }
     
 }

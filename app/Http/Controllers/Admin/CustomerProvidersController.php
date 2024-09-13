@@ -319,6 +319,22 @@ class CustomerProvidersController extends Controller{
         ->where('mode', 1)
         ->get();
 
+        if(!$accounting_accounts->count()){
+            //Creando cuenta contable:
+            $accounting_account_data = [
+                'account_to' => 'customer',
+                'company_target' => $company->id,
+                'mode' => 1,
+                'with_iva' => 1
+            ];
+            AccountingAccount::setAccountingAccount($accounting_account_data);
+
+            $accounting_accounts = AccountingAccount::where('company_id', session('currentCompany'))
+            ->where('company_target', $company->id)
+            ->where('mode', 1)
+            ->get();
+        }
+
         //Centros de trabajo del proveedor:
         $provider_workplaces = Workplace::where('company_id', session('currentCompany'))
         ->pluck('name', 'id')
