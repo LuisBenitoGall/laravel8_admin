@@ -55,8 +55,6 @@ class OrderQueryController extends Controller{
             'slug' => 'orders'
         ];  
 
-        $this->setProviderCostCenter();
-
         //Relación de consultas:
         $queries = [
             ['por_pedidos', 'by-orders'],
