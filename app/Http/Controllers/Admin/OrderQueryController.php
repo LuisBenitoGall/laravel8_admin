@@ -16,6 +16,7 @@ use Carbon\Carbon;
 //Models:
 use App\Models\Item;
 use App\Models\Order;
+use App\Models\Product;
 use App\Models\UserCompanies;
 
 class OrderQueryController extends Controller{
@@ -866,19 +867,29 @@ class OrderQueryController extends Controller{
         ->groupBy('product_id')
         ->get();
 
-        $sin = Item::select('id', 'product_id', 'provider_cost_center_id')
-        ->whereNotNull('product_id')
-        ->whereNull('provider_cost_center_id')
+        // $sin = Item::select('id', 'product_id', 'provider_cost_center_id')
+        // ->whereNotNull('product_id')
+        // ->whereNull('provider_cost_center_id')
+        // ->get();
+
+        foreach($data as $r){
+            Item::where('product_id', $r->product_id)
+            ->whereNull('provider_cost_center_id')
+            ->update(['provider_cost_center_id' => $r->provider_cost_center_id]);
+        }
+
+        $data_ = Item::select('items.id', 'items.product_id', 'products.cost_center_id')
+        ->join('products', 'items.product_id', '=', 'products.id')
+        ->whereNull('items.provider_cost_center_id')
+        ->whereNotNull('products.cost_center_id')
+        ->groupBy('items.product_id')
         ->get();
 
-        // foreach($data as $r){
-        //     Item::where('product_id', $r->product_id)
-        //     ->whereNull('provider_cost_center_id')
-        //     dd($r);
-        // }
-
-
-        dd($data, $sin);
+        foreach($data_ as $r_){
+            Item::where('product_id', $r_->product_id)
+            ->whereNull('provider_cost_center_id')
+            ->update(['provider_cost_center_id' => $r->cost_center_id]);
+        }
     }
     
 }
