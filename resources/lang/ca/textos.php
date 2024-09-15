@@ -11,6 +11,7 @@ return array(
 	'abono' => 'abonament',
 	'abono_concepto_aviso' => 'Indica el concepte de l\'abonament i l\'import (sense impostos).',
 	'abono_generar_aviso' => 'Selecciona si es tracta d\'un abonament íntegre o parcial. Els abonaments íntegres comprenen l\'import pendent d\'abonar si s\'han fet altres abonaments anteriors. Per als abonaments parcials has d\'indicar concepte i import.',
+	'abono_factura_num' => 'Abonament de la factura número',
 	'abono_generar' => 'Generar abonament',
 	'abono_integro' => 'Abonament íntegre',
 	'abono_linea' => 'Línia d\'abonament',
