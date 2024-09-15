@@ -11,6 +11,7 @@ return array(
 	'abono' => 'credit note',
 	'abono_concepto_aviso' => 'Indicate the concept of the credit note and the amount (without taxes).',
 	'abono_generar_aviso' => 'Select whether it is a full or partial credit note. Full credit notes include the pending amount to be credited if previous credit notes have been made. For partial credit notes, you must indicate the concept and amount.',
+	'abono_factura_num' => 'Payment of invoice number',
 	'abono_generar' => 'Generate credit note',
 	'abono_integro' => 'Full credit note',
 	'abono_linea' => 'Credit note line',

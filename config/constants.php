@@ -60,6 +60,7 @@ return [
     'INVOICE_STATUS_REFUNDED_' => [20],
     'IP_USER' => ['127.0.0.1'], // IP`s 
     'IVA_DEFAULT_' => 21,
+    'IVA_DEFAULT_ID_' => 1,
     'JOKE_' => false,
     'METHODS_' => [
         ['index', 'Ver '], 
