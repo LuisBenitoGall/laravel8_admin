@@ -418,7 +418,11 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 								{{-- Factura --}}
 								@if($prev->invoiceId)
 									<div class="col-md-1 col-lg-2 pt-2">
-										{{ ucfirst(trans('textos.factura')) }}
+										@if($prev->refund)
+											{{ ucfirst(trans('textos.abono')) }}	
+										@else
+											{{ ucfirst(trans('textos.factura')) }}
+										@endif
 										<a target="_blank" href="{{ route('invoices.edit', $prev->invoiceId) }}">
 											@if($prev->invoice_num)
 												{{ $prev->invoice_num }}

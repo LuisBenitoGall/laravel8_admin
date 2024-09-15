@@ -2295,6 +2295,16 @@ class InvoiceController extends Controller{
         $refund->template_id = $invoice->template_id;
         $refund->template = $invoice->template;
         $refund->save();
+
+        //Generamos previsión en negativo y ya facturada:
+        $prevision_refund = new OrderPrevisions();
+        $prevision_refund->order_id = $invoice->order_id;
+        $prevision_refund->year = Date('Y');
+        $prevision_refund->month = Date('m');
+        $prevision_refund->amount = $refund->amount * -1;
+        $prevision_refund->percent = '0';
+        $prevision_refund->invoice_id = $refund->id;
+        $prevision_refund->save();
                 
         //Al generarse una factura de abono, sólo si el abono es íntegro, el pedido original vuelve a estado de pendiente de facturación y la factura a estado de devuelta. Las líneas se marcan como no facturadas.
         //En caso de tratarse de una agrupación, los pedidos de anidados que se encuentren en la factura también a estado sin facturar.
@@ -2349,6 +2359,105 @@ class InvoiceController extends Controller{
             OrderPrevisions::where('invoice_id', $invoice->id)
             ->update(['month' => NULL, 'percent' => 100, 'amount' => $refund_amount, 'invoice_id' => NULL]);
         }
+
+        //Asiento contable:
+        //1. Pedido de la factura:
+        $order = Order::select('id', 'provider_id', 'customer_id')->find($invoice->order_id);
+
+        //2. Líneas del asiento contable:
+        $seat_lines = [];
+        $iva_lines = [];
+        $iva_errors = [];   //Guardo los tipos de IVA no vinculados a ninguna cuenta contable.
+
+        $seat_lines['accounting_account'] = [];
+        $seat_lines['type'] = [];
+        $seat_lines['debit'] = [];
+        $seat_lines['credit'] = [];
+
+        //3. Línea de cliente (HABER - CREDIT):
+        //3.1. Cuenta contable cliente:
+        $customer_accounting_account = AccountingAccount::select('id', 'account')
+        ->where('company_id', $order->provider_id)
+        ->where('company_target', $order->customer_id)
+        ->first();
+
+        //3.2. Líneas del HABER
+        $seat_lines['accounting_account_id'][] = $customer_accounting_account? $customer_accounting_account->id:NULL;
+        $seat_lines['accounting_account'][] = $customer_accounting_account? $customer_accounting_account->account:NULL;
+        $seat_lines['type'][] = NULL;       //15/09/24 Preguntar para definir el tipo. 
+        $seat_lines['debit'][] = NULL;
+        $seat_lines['credit'][] = $refund->amount_with_iva;
+
+        //4. Líneas de proveedor (HABER - CREDIT):
+        //4.1. Cuentas contables proveedor:
+        $provider_accounting_accounts = AccountingAccount::select('id', 'account', 'featured')
+        ->where('company_id', $order->provider_id)
+        ->where('mode', 4)
+        ->where('featured', '>', 0)
+        ->get();
+
+        //4.2. Cuentas para el DEBE:
+        $account_amount_id = NULL;
+        $account_amount = NULL;
+        
+        foreach($provider_accounting_accounts as $paa){
+            if($paa->featured == config('constants.ACCOUNT_DEFAULT_SALES_')){
+                $account_amount_id = $paa->id;
+                $account_amount = $paa->account;
+            }
+        }
+
+        //4.3. Línea base factura:
+        $seat_lines['accounting_account_id'][] = $account_amount_id;
+        $seat_lines['accounting_account'][] = $account_amount;
+        $seat_lines['type'][] = NULL;   //15/09/24 Preguntar para definir el tipo. 
+        $seat_lines['debit'][] = $refund->amount;
+        $seat_lines['credit'][] = NULL;
+
+        //2.4. Cuentas IVA soportado:
+        $iva_account = AccountingAccount::select('id', 'account', 'name', 'mode', 'type', 'iva_type_id')
+        ->where('company_id', $order->provider_id)
+        ->where('company_target', $order->provider_id)
+        ->where('account', 'LIKE', config('constants.ACCOUNTING_ACCOUNT_IVA_PREFIX_SALES_').'%')      //Filtro por prefijo 477 (IVA para ventas)
+        ->where('iva_type_id', config('constants.IVA_DEFAULT_ID_'))
+        ->first();
+
+        $iva_lines['accounting_account_id'][] = $iva_account->id;
+        $iva_lines['accounting_account'][] = $iva_account->account;
+        $iva_lines['type'][] = NULL;
+        $iva_lines['debit'][] = round( ($refund->amount_with_iva - $refund->amount), 2);
+        $iva_lines['credit'][] = NULL;
+
+        $seat_type = 30;
+
+        //Generando asiento contable:
+        $data = [
+            'company_id' => $order->provider_id,
+            'seat_num' => NULL,
+            'seat_type' => $seat_type,
+            'seat_date' => $refund->fiscal_date,
+            'operation_type' => NULL,
+            'diary' => 'dv',
+            'concept' => trans('textos.abono').' - '.$refund->id,
+            'description' => trans('textos.abono_factura_num').' '.$invoice->invoice_num,
+            'serie' => NULL,        //15/09/24 preguntar por la serie.
+            'doc_num' => $refund->id,
+            'doc' => NULL,
+            'sort_num' => 1,
+            'company_target' => $order->customer_id,
+            'mode' => NULL,
+            'currency_id' => $this->currency->id,
+            'invoice_id' => $refund->id,
+            'invoice_amount' => $refund->amount,
+            'invoice_amount_iva' => $refund->amount_with_iva,
+            'provider_doc' => NULL,
+            'cash_id' => NULL,
+            'pay_sign' => NULL,
+            // 'accounting_sale_id' => NULL,
+            'seat_lines' => $seat_lines,
+            'iva_lines' => $iva_lines
+        ];
+        $seat = Seat::saveSeat($data);
 
         $msg = trans('textos.factura_abono_creada');
         return redirect()->route('invoices.edit', $refund->id)->with(compact('msg'));
