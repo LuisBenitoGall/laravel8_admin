@@ -150,6 +150,7 @@ class OrderPrevisions extends Model{
                     }else{
 
                         $all_invoiced = false;
+                        $amount = 0;
 
                         //Para 1 única previsión:
                         // if($previsions->count() == 1){
