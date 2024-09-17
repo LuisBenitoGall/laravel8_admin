@@ -400,6 +400,24 @@ WHERE cp.provider_id IN (4,8,202,227,275)
 AND cp.customer_id NOT IN (4,8,202,227,275)
 GROUP BY c.id
 ORDER BY c.name ASC
+
+- Empresas sin pedidos desde un período de tiempo
+SELECT c.id, c.name, c.nif
+FROM companies c
+WHERE c.id NOT IN (
+    SELECT DISTINCT o.customer_id
+    FROM orders o
+    WHERE o.created_at >= '2022-09-01'
+    and o.provider_id = 4
+)
+AND c.id IN (
+    SELECT DISTINCT o.customer_id
+    FROM orders o
+    WHERE o.created_at < '2022-09-01'
+    and o.provider_id = 4
+)
+ORDER BY c.name ASC;
+
    
 
 ### Instalación de Sentry
