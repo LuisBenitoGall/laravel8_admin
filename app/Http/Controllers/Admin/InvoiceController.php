@@ -2235,7 +2235,7 @@ class InvoiceController extends Controller{
                 ->withErrors($validator)
                 ->withInput();
         }
-
+//dd($request->all());
         //Info de la factura:
         $invoice = Invoice::find($request->invoice_id);
 
@@ -2359,6 +2359,19 @@ class InvoiceController extends Controller{
             OrderPrevisions::where('invoice_id', $invoice->id)
             ->update(['month' => NULL, 'percent' => 100, 'amount' => $refund_amount, 'invoice_id' => NULL]);
         }
+
+        //Añadir línea negativa en el pedido:
+        $item_ = new Item();
+        $item_->order_id = $invoice->order_id;
+        $item_->concept = trans('textos.factura_abono').' '.$refund->id;
+        $item_->qty = 1;
+        $item_->price = $refund->amount;
+        $item_->iva = $invoice->with_iva;
+        $item_->invoiced = date('Y-m-d H:i:s');
+        $item_->active = 1;
+        $item_->status = NULL;
+        $item_->user_id = Auth::user()->id;
+        $item_->save();
 
         //Asiento contable:
         //1. Pedido de la factura:
