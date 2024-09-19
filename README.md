@@ -264,7 +264,7 @@ and o.is_order = 1
 and o.is_budget < 1;
 
 - Líneas de pedidos ya facturados, por cliente:
-select o.order_num, o.created_at, p.name, i.concept, CONCAT(u.name, ' ', u.surname) AS manager, i.qty, i.price, i.discount, 
+select o.order_num, o.created_at, p.name, p.id as productId, p.name as product, i.concept, CONCAT(u.name, ' ', u.surname) AS manager, i.qty, i.price, i.discount, 
 (i.qty * i.price) - COALESCE((i.qty * i.price * i.discount) / 100, 0) AS amount,
 inv.invoice_num, inv.fiscal_date
 from items i
@@ -281,6 +281,7 @@ and o.deleted_at is null
 and o.provider_id = 4
 and o.is_order = 1
 and inv.fiscal_date between '2024-01-01' and '2024-08-31'
+group by i.id
 
 - Comparativa importes pedidos y facturas:
 SELECT
