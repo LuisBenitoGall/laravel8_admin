@@ -630,9 +630,9 @@ class OrderController extends Controller{
                 ->orWhere('orders.purchase_old_num', 'like', "%$order_buy%");
             });
         })
-        // Intervalo fechas (por fecha de finalización):
+        // Intervalo fechas (por fecha de creación):
         ->when($from && $to, function($q) use($from, $to){
-            return $q->whereBetween('orders.finished_at', [$from, $to]);
+            return $q->whereBetween('orders.created_at', [$from, $to]);
         })
         // Por manager:
         ->when(count($owners), function($q) use($owners){
@@ -1239,14 +1239,14 @@ class OrderController extends Controller{
 
         //Previsiones de facturación del pedido:    
         $generate = $order->blocked == 1? false:true;  
-        $previsions = OrderPrevisions::previsions($order->id, $order_amount);
+        $previsions = OrderPrevisions::previsions($order->id, $order_amount, $generate);
 
         //Debe existir siempre al menos una previsión:
-        if($previsions && !$previsions->count()){
-            OrderPrevisions::store($order->id);
+        // if($previsions && !$previsions->count()){
+        //     OrderPrevisions::store($order->id);
 
-            $previsions = OrderPrevisions::previsions($order->id, $order_amount);
-        }
+        //     $previsions = OrderPrevisions::previsions($order->id, $order_amount);
+        // }
 
         //Previsiones de producción:
         $production_previsions = OrderProductionPrevision::where('order_id', $order->id)
@@ -1498,7 +1498,7 @@ class OrderController extends Controller{
                 ->withErrors($validator)
                 ->withInput();
         }  
-//dd($request->all());
+
         //Número de pedido:
         $order_num = NULL;
         if($request->pattern_id){

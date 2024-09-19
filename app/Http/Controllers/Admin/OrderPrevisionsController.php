@@ -55,7 +55,16 @@ class OrderPrevisionsController extends Controller{
      * 2. Recalcular previsiones de facturación.
      */
     public function recalculatePrevisions(Order $order){
-        OrderPrevisions::recalculatePrevisionsPercent($order);
+        //OrderPrevisions::recalculatePrevisionsPercent($order);
+        
+        //Importe del pedido:
+        if($order->bag_amount){
+            $order_amount = $order->bag_amount;
+        }else{
+            $arr_amounts = $order->getAmount();   
+            $order_amount = $arr_amounts['total_amount'];
+        }
+        OrderPrevisions::previsions($order->id, $order_amount);
 
         $msg = trans('textos.previsiones_recalculadas');
         return redirect()->route('orders.edit', [$order->id, false])->with(compact('msg')); 

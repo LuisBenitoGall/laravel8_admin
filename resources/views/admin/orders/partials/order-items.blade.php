@@ -12,21 +12,21 @@ $tbl = $env == 'invoices'? 'tblInvoiceItems':'tblOrderItems';
 			<thead>
 				<tr>
 					<th class="text-center wdt50">#</th>
-					<th>{{ ucfirst(trans('textos.producto')) }}</th>
-					<th class="text-center">{{ ucfirst(trans('textos.cantidad')) }}</th>
-					<th class="text-center">{{ ucfirst(trans('textos.precio_unidad')) }}</th>
+					<th class="wdt150">{{ ucfirst(trans('textos.producto')) }}</th>
+					<th class="text-center wdt50">{{ ucfirst(trans('textos.cantidad')) }}</th>
+					<th class="text-center wdt50">{{ ucfirst(trans('textos.precio_unidad')) }}</th>
 					@if($env == 'invoices')
-						<th class="text-center">IVA</th>
+						<th class="text-center wdt50">IVA</th>
 					@endif
-					<th class="text-center">{{ ucfirst(trans('textos.jornadas')) }}</th>
-					<th class="text-center">{{ ucfirst(trans('textos.descuentos')) }}</th>
-					<th class="text-center">{{ ucfirst(trans('textos.importe')) }}</th>
-					<th>{{ ucfirst(trans('textos.centro_coste')) }}</th>
+					<th class="text-center wdt50">{{ ucfirst(trans('textos.jornadas')) }}</th>
+					<th class="text-center wdt100">{{ ucfirst(trans('textos.descuentos')) }}</th>
+					<th class="text-center wdt100">{{ ucfirst(trans('textos.importe')) }}</th>
+					<th class="wdt100">{{ ucfirst(trans('textos.centro_coste')) }}</th>
 					@if($env == 'invoices')
-						<th>{{ ucfirst(trans('textos.pedidos_asociados')) }}</th>
+						<th class="wdt100">{{ ucfirst(trans('textos.pedidos_asociados')) }}</th>
 					@endif
-					<th>{{ ucfirst(trans('textos.estado')) }}</th>
-					<th class="text-center">{{ ucfirst(trans('textos.acciones')) }}</th>
+					<th class="wdt100">{{ ucfirst(trans('textos.estado')) }}</th>
+					<th class="text-center wdt100">{{ ucfirst(trans('textos.acciones')) }}</th>
 				</tr>
 			</thead>
 

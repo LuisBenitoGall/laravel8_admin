@@ -379,7 +379,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 								<label for="percent" class="col-md-2 col-lg-1 col-form-label">{!! ucfirst(trans('textos.porcentaje')) !!}</label>
 								<div class="col-md-4 col-lg-2 sinpadding text-right">
 									@php
-									$percent = $totalPercent > 100.01? '':$prev->percent;
+									$percent = $totalPercent > 100.01 && !$disabled? '':$prev->percent;
 
 									// Porcentaje del monto total:
 									$orden_w = $prev->amount? $prev->amount:($percent != ''? ($percent * $order_amount) / 100:0);
@@ -398,11 +398,11 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 										{{ round($orden_w, 3) }}{{ $currency['symbol'] }} ({{ round($orden_wo, 3) }}{{ $currency['symbol'] }}) <li class="fa fa-info-circle"></li>
 									</small> --}}
 
-						            @if(round($totalPercent, 2) > 100.01)
+						            {{-- @if(round($totalPercent, 2) > 100.01)
 						            	<span class="invalid-feedback" role="alert">
 						                  	<strong>{{ trans('textos.porcentaje_factura_error') }}</strong>
 						                </span>
-						            @endif
+						            @endif --}}
 								</div>
 
 								{{-- Eliminar previsión --}}
