@@ -30,7 +30,7 @@ $text_doc = $invoice->refund > 0? 'abono':'factura';
 			$line_amount = $row->qty * $row->price;
 			//Aplicando descuento:
 			if($row->discount){
-				$percentage = App\Helpers\Helpers::percent($line_amount, $row->discount);
+				$percentage = App\Helpers\helpers::percent($line_amount, $row->discount);
 				$line_amount = $line_amount - $percentage;
 			}	
 
@@ -104,7 +104,24 @@ $text_doc = $invoice->refund > 0? 'abono':'factura';
 					<td style="background-color: #efefef; text-align: right;"></td>
 					<td style="background-color: #efefef;"></td>
 					<td colspan="{{ $colspan - 1 }}" style="background-color: #efefef;">
-						<b>{{ $invoice_order->name }}</b>	
+						<b>
+							@if($invoice->refund)
+								{{-- Obtenemos el item generado --}}
+								@php
+								$refund_item = App\Models\Item::select('concept')
+								->where('invoice_id', $invoice->id)
+								->first();
+								@endphp
+
+								@if($refund_item) 
+									{{ $refund_item->concept }}
+								@else
+									{{ $invoice_order->name }}	
+								@endif
+							@else
+								{{ $invoice_order->name }}
+							@endif
+						</b>	
 					</td>
 					<td style="background-color: #efefef; text-align: right;">
 						<b>
