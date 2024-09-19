@@ -521,8 +521,6 @@ $(function(){
 			}
     	}
     });
-
-    //Selector conceptos contables:
 });
 </script>
 @endpush

@@ -123,7 +123,7 @@ class OrderPrevisions extends Model{
                 //Número de previsiones para controlar la última:
                 $num_previsions = $previsions->count();
                 $k = 1;
-                //dd($previsions);
+
                 foreach($previsions as $p){
                     //Se omiten las previsiones relativas a abonos de factura.
                     //if(!$p->refund){

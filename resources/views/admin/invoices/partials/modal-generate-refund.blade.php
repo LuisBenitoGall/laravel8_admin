@@ -15,6 +15,16 @@
 
                     <p class="text-warning">{{ trans('textos.abono_generar_aviso') }}</p>
 
+                    <div class="form-group row my-4">
+                    	{{-- Patrones de factura --}}
+                    	@if(count($invoice_patterns))
+                    		<label for="pattern_id" class="col-md-3 col-lg-2 col-form-label">{!! ucfirst(trans('textos.factura_num')) !!}</label>
+							<div class="col-md-4">
+								<x-select name="pattern_id" class="select2" label="patron_selecciona" :options="$invoice_patterns" info="invoice-pattern-num"/>
+                    		</div>
+                    	@endif
+                    </div>
+
                     <div class="form-group row mt-4">
                     	{{-- Tipo de abono --}}
                     	<div class="col-12">

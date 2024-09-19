@@ -1326,7 +1326,14 @@ class InvoiceController extends Controller{
             if($pba->featured == 1) $provider_bank_featured = $pba->id;
         }
 
-        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'is_sale', 'order', 'suborders', 'invoiced', 'invoices', 'refund', 'customer', 'customer_settings', 'provider', 'provider_account', 'provider_settings', 'items', 'products', 'ivaTypes', 'patterns', 'payments', 'seat', 'seat_error', 'templates', 'featuredTemplate', 'currency', 'languages', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'payment_methods', 'customer_bank_accounts', 'customer_bank_featured', 'provider_bank_accounts', 'provider_bank_featured'));
+        //Patrones de numeración de facturas:
+        $invoice_patterns = InvoicePatterns::select('id', 'name', 'yearly_reset')
+        ->where('company_id', $provider->id)
+        ->where('status', 1)
+        ->pluck('name', 'id')
+        ->toArray();
+
+        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'is_sale', 'order', 'suborders', 'invoiced', 'invoices', 'refund', 'customer', 'customer_settings', 'provider', 'provider_account', 'provider_settings', 'items', 'products', 'ivaTypes', 'patterns', 'payments', 'seat', 'seat_error', 'templates', 'featuredTemplate', 'currency', 'languages', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'payment_methods', 'customer_bank_accounts', 'customer_bank_featured', 'provider_bank_accounts', 'provider_bank_featured', 'invoice_patterns'));
     }
 
     /**
@@ -2244,7 +2251,7 @@ class InvoiceController extends Controller{
                 ->withErrors($validator)
                 ->withInput();
         }
-//dd($request->all());
+
         //Info de la factura:
         $invoice = Invoice::find($request->invoice_id);
 
@@ -2304,6 +2311,18 @@ class InvoiceController extends Controller{
         $refund->template_id = $invoice->template_id;
         $refund->template = $invoice->template;
         $refund->save();
+
+        //Número de factura:
+        if($request->pattern_id){
+            $patternNum = $this->setPatternNumber('invoice', $request->pattern_id);
+        
+            if(!empty($patternNum)){
+                $refund->invoice_num = $patternNum['pattern_num'];  
+                $refund->num_cardinal = $patternNum['num']; 
+                $refund->pattern_id = $request->pattern_id;
+                $refund->save();
+            } 
+        }
 
         //Info pedido:
         $order = Order::select('id', 'is_group', 'invoiced', 'provider_id', 'bag_amount')
@@ -2376,17 +2395,16 @@ class InvoiceController extends Controller{
             OrderPrevisions::where('invoice_id', $invoice->id)
             ->update(['month' => NULL, 'percent' => -100, 'amount' => $refund_amount * -1, 'invoice_id' => NULL]);
         }
- //dd($refund, $percent, $prevision_refund); 
-        //Recalculando previsiones:
-        //OrderPrevisions::recalculatePrevisionsPercent($order);
 
         //Añadir línea negativa en el pedido:
+        $refundId = $refund->invoice_num? $refund->invoice_num:$refund->id;
         $item_ = new Item();
         $item_->order_id = $invoice->order_id;
-        $item_->concept = trans('textos.factura_abono').' '.$refund->id;
+        $item_->concept = $request->concept != ''? $request->concept:trans('textos.factura_abono').' '.$refundId;
         $item_->qty = 1;
         $item_->price = $refund->amount * -1;
         $item_->iva = $invoice->with_iva;
+        $item_->invoice_id = $refund->id;
         $item_->invoiced = date('Y-m-d H:i:s');
         $item_->active = 1;
         $item_->status = NULL;
