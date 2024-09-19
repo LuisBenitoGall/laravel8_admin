@@ -2184,6 +2184,15 @@ class InvoiceController extends Controller{
         //Eliminamos las previsiones de facturación asociadas a la factura:
         OrderPrevisions::where('invoice_id', $invoice->id)->delete();
 
+        //Si se trata de un abono, eliminamos las líneas vinculadas del pedido:
+        if($invoice->refund){
+            Item::where('order_id', $order_id)
+            ->where('price', '<', 0)
+            ->whereNull('product_id') 
+            ->whereDate('created_at', '=', DATE($invoice->created_at))
+            ->delete();
+        }
+
         //Eliminamos la numeración customizada:
         $invoice->invoice_num = NULL;
         $invoice->num_cardinal = NULL;
@@ -2296,22 +2305,29 @@ class InvoiceController extends Controller{
         $refund->template = $invoice->template;
         $refund->save();
 
+        //Info pedido:
+        $order = Order::select('id', 'is_group', 'invoiced', 'provider_id', 'bag_amount')
+        ->find($invoice->order_id);
+
+        //Importe del pedido:
+        $order_amount = $order->getAmount();
+
+        //Porcentaje del pedido, sobre el importe del pedido sin ningún abono:
+        $percent = round( ($refund->amount * 100) / $order_amount['total_amount'], 6);
+
         //Generamos previsión en negativo y ya facturada:
         $prevision_refund = new OrderPrevisions();
         $prevision_refund->order_id = $invoice->order_id;
         $prevision_refund->year = Date('Y');
         $prevision_refund->month = Date('m');
         $prevision_refund->amount = $refund->amount * -1;
-        $prevision_refund->percent = '0';
+        $prevision_refund->percent = $percent * -1;
         $prevision_refund->invoice_id = $refund->id;
         $prevision_refund->save();
-                
+              
         //Al generarse una factura de abono, sólo si el abono es íntegro, el pedido original vuelve a estado de pendiente de facturación y la factura a estado de devuelta. Las líneas se marcan como no facturadas.
         //En caso de tratarse de una agrupación, los pedidos de anidados que se encuentren en la factura también a estado sin facturar.
         if($request->refund == 't'){
-            $order = Order::select('id', 'is_group', 'invoiced')
-            ->find($invoice->order_id);
-
             $order->invoiced = false;
             $order->save();
 
@@ -2352,20 +2368,24 @@ class InvoiceController extends Controller{
             $new_order_prevision->order_id = $invoice->order_id;
             $new_order_prevision->year = Date('Y');
             $new_order_prevision->amount = $refund_amount;
-            $new_order_prevision->percent = ($refund_amount * 100) / $invoice->amount;
+            // $new_order_prevision->percent = ($refund_amount * 100) / $invoice->amount;
+            $new_order_prevision->percent = $percent;
             $new_order_prevision->save();
 
         }elseif($request->refund == 't'){
             OrderPrevisions::where('invoice_id', $invoice->id)
-            ->update(['month' => NULL, 'percent' => 100, 'amount' => $refund_amount, 'invoice_id' => NULL]);
+            ->update(['month' => NULL, 'percent' => -100, 'amount' => $refund_amount * -1, 'invoice_id' => NULL]);
         }
+ //dd($refund, $percent, $prevision_refund); 
+        //Recalculando previsiones:
+        //OrderPrevisions::recalculatePrevisionsPercent($order);
 
         //Añadir línea negativa en el pedido:
         $item_ = new Item();
         $item_->order_id = $invoice->order_id;
         $item_->concept = trans('textos.factura_abono').' '.$refund->id;
         $item_->qty = 1;
-        $item_->price = $refund->amount;
+        $item_->price = $refund->amount * -1;
         $item_->iva = $invoice->with_iva;
         $item_->invoiced = date('Y-m-d H:i:s');
         $item_->active = 1;

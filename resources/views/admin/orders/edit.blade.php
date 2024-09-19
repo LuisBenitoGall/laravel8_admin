@@ -1033,17 +1033,17 @@ function previsionsController(){
     //Control de porcentaje:
     $('.previsions .prevision .prevision-percent').each(function(){
         var percent = $(this).val();
-        if(percent > 0){
+        //if(percent > 0){
             total_percent = (parseFloat(total_percent) + parseFloat(percent)).toFixed(6);
-        }
+        //}
     });
 
     //Control de importe:
     $('.previsions .prevision .prevision-amount').each(function(){
         var amount = $(this).val();
-        if(amount > 0){
+        //if(amount > 0){
             total_amount = (parseFloat(total_amount) + parseFloat(amount)).toFixed(6);
-        }
+        //}
     });
 
     var diff_amount = {{ $order_amount }} - total_amount;
@@ -1432,7 +1432,7 @@ $(function(){
             if(!validate_previsions){
                 swal.fire({
                     title: msg_,
-                    text: "",
+                    text: txtImportePrevisionesError,
                     icon: 'warning',
                     iconColor: color_warning,
                     showCancelButton: false,
