@@ -65,6 +65,8 @@ $(function () {
 // Select 2. ¡Atención! la declaración genérica de este componente NO puede ir ni en el document Ready ni en window Load, pues en ese caso no funcionan las declaraciones específicas del componente en los modal.
 if ($('.select2').length > 0) {
     $('.select2').select2({
+        allowClear: true,
+        placeholder: txtOpcionSelect,
         tags: true,
         width: '100%',
         language: {
@@ -192,7 +194,7 @@ function secondsToString(seconds, viewSeconds = false){
         second = (second < 10)? '0' + second : second;
         return hour + ':' + minute + ':' + second;
     }else{
-        return hour + ':' + minute;    
+        return hour + ':' + minute;
     }
 }
 
@@ -750,7 +752,7 @@ $(window).on('load', function () {
     // 14. Valor máximo admitido en un campo.
     $('.max-value').on('change', function () {
         var value = $(this).val();
-        var max = $(this).data('maxvalue'); 
+        var max = $(this).data('maxvalue');
 
         if (value > max) {
             swal.fire({
@@ -1127,7 +1129,7 @@ $(window).on('load', function () {
                 if(response.company_id == currentCompany_){
                     var costCenterId = response.provider_cost_center_id? response.provider_cost_center_id:response.cost_center_id;
                 }else{
-                    var costCenterId = response.customer_cost_center_id? response.customer_cost_center_id:false;   
+                    var costCenterId = response.customer_cost_center_id? response.customer_cost_center_id:false;
                 }
                 var arr = [costCenterId];
                 $('#itemCostCenter_').val(arr);
@@ -1253,13 +1255,13 @@ $(window).on('load', function () {
                 $(this).addClass('border-bottom');
                 $(this).find('.ibox-content').slideDown();
             });
-            
+
         }else{
             $('.ibox').each(function(){
                 $(this).removeClass('border-bottom');
                 $(this).find('.ibox-content').slideUp();
             });
-        } 
+        }
     });
 
     // 32. Producto exento de IVA.
@@ -1269,12 +1271,12 @@ $(window).on('load', function () {
             $('.iva0').val(arr_iva);
             $('.iva0').trigger('change');
             //$('.iva0').val('');
-        }    
+        }
     });
     $('.iva0').on('change', function(){
         if($(this).val() > 0){
             $('.withoutIva').prop('checked', false);
-                
+
         }
     });
 
@@ -1291,7 +1293,7 @@ $(window).on('load', function () {
             }else{
                 elem.before('<i class="fa fa-exclamation-triangle check-ko"></i>');
             }
-        });  
+        });
     });
 
     // 34. Búsqueda autocomplete de empresa.
@@ -1322,8 +1324,8 @@ $(window).on('load', function () {
             //Limpiamos datos:
             }else{
                 $('#company-nif').fadeOut();
-                $('#companyNif').val('');  
-                $('#companyId').val('');    
+                $('#companyNif').val('');
+                $('#companyId').val('');
             }
         },
         select: function(event,ui){
@@ -1336,9 +1338,9 @@ $(window).on('load', function () {
             }else{
                 $('#company-nif').fadeOut();
                 $('#companyNif').val('');
-                $('#companyId').val('');    
+                $('#companyId').val('');
             }
-            
+
             return false;
         }
     });
@@ -1370,16 +1372,16 @@ $(window).on('load', function () {
 
             //Limpiamos datos:
             }else{
-                $('#providerId').val('');    
+                $('#providerId').val('');
             }
         },
         select: function(event,ui){
             $('#search_provider').val(ui.item.label);
             $('#providerId').val(ui.item.value);
             if(ui.item.value == ''){
-                $('#providerId').val('');    
+                $('#providerId').val('');
             }
-            
+
             return false;
         }
     });
@@ -1411,16 +1413,16 @@ $(window).on('load', function () {
 
             //Limpiamos datos:
             }else{
-                $('#customerId').val('');    
+                $('#customerId').val('');
             }
         },
         select: function(event,ui){
             $('#search_customer').val(ui.item.label);
             $('#customerId').val(ui.item.value);
             if(ui.item.value == ''){
-                $('#customerId').val('');    
+                $('#customerId').val('');
             }
-            
+
             return false;
         }
     });
@@ -1457,9 +1459,9 @@ $(window).on('load', function () {
 
             //Limpiamos datos:
             }else{
-                $('#productId').val('');  
+                $('#productId').val('');
                 $('#productPrice').val('');
-                $('#productIva').val('');   
+                $('#productIva').val('');
                 $('#productRef').val('');
             }
         },
@@ -1474,9 +1476,9 @@ $(window).on('load', function () {
             if(ui.item.value == ''){
                 $('#productId').val('');
                 $('#productPrice').val('');
-                $('#productIva').val('');    
+                $('#productIva').val('');
             }
-            
+
             return false;
         }
     });
@@ -1508,8 +1510,8 @@ $(window).on('load', function () {
 
             //Limpiamos datos:
             }else{
-                $('#purchaseProductId').val('');  
-                $('#productIva').val('');   
+                $('#purchaseProductId').val('');
+                $('#productIva').val('');
             }
         },
         select: function(event,ui){
@@ -1521,9 +1523,9 @@ $(window).on('load', function () {
             $('#productRef').val(ref_drawn);
             if(ui.item.value == ''){
                 $('#purchaseProductId').val('');
-                $('#productIva').val('');    
+                $('#productIva').val('');
             }
-            
+
             return false;
         }
     });
@@ -1567,7 +1569,7 @@ $(window).on('load', function () {
                 if(status == 'on'){
                     elem.addClass('selected');
                 }else{
-                    elem.removeClass('selected');   
+                    elem.removeClass('selected');
                 }
             }
         });
@@ -1627,7 +1629,7 @@ $(window).on('load', function () {
                     html += '</div>';
                 }
             }
-            
+
             $('#paValueColor').html(html);
         }
 
@@ -1674,7 +1676,7 @@ $(window).on('load', function () {
 
             //Limpiamos datos:
             }else{
-                $('#userId').val('');  
+                $('#userId').val('');
             }
         },
         select: function(event,ui){
@@ -1684,7 +1686,7 @@ $(window).on('load', function () {
             if(ui.item.value == ''){
                 $('#userId').val('');
             }
-            
+
             return false;
         }
     });
@@ -1749,7 +1751,7 @@ $(window).on('load', function () {
 
             //Limpiamos datos:
             }else{
-                $('#orderId_').val('');  
+                $('#orderId_').val('');
             }
         },
         select: function(event,ui){
@@ -1759,9 +1761,9 @@ $(window).on('load', function () {
             if(ui.item.value == ''){
                 $('#orderId_').val('');
             }
-            
+
             return false;
-        }    
+        }
     });
 
     // 41.1. Búsqueda autocomplete para pedidos de compra.
@@ -1792,7 +1794,7 @@ $(window).on('load', function () {
 
             //Limpiamos datos:
             }else{
-                $('#purchaseId_').val('');  
+                $('#purchaseId_').val('');
             }
         },
         select: function(event,ui){
@@ -1802,9 +1804,9 @@ $(window).on('load', function () {
             if(ui.item.value == ''){
                 $('#purchaseId_').val('');
             }
-            
+
             return false;
-        }    
+        }
     });
 
     // 42. Búsqueda autocomplete para cuentas contables.
@@ -1836,7 +1838,7 @@ $(window).on('load', function () {
 
                 //Limpiamos datos:
                 }else{
-                    $('#searchAccountingAccount'+input_).val('');  
+                    $('#searchAccountingAccount'+input_).val('');
                 }
             },
             select: function(event,ui){
@@ -1847,11 +1849,11 @@ $(window).on('load', function () {
                 if(ui.item.value == ''){
                     $('#searchAccountingAccount'+input_).val('');
                 }
-                
+
                 return false;
             },
-            autoFocus: true, 
-            delay: 0  
+            autoFocus: true,
+            delay: 0
         });
     });
 
@@ -1902,7 +1904,7 @@ $(window).on('load', function () {
                     $("#seat-effects").val(arr_values).trigger('change');
                 });
             }
-            
+
             return false;
         }
     });
@@ -1942,7 +1944,7 @@ $(window).on('load', function () {
             if(ui.item.value == ''){
                 $('#search_accounting_account2').val('');
             }
-            
+
             return false;
         }
     });
@@ -1978,7 +1980,7 @@ $(window).on('load', function () {
                         html += '</td>';
                     html += '</tr>';
                 }
-                
+
             }else{
                 html += '<tr>';
                     html += '<td colspan="3" class="text-center text-warning pt-4">'+txtItemsVinculadosSin+'</td>';
@@ -1992,7 +1994,7 @@ $(window).on('load', function () {
     // 44. Modal editar nota.
     $(document).on('click', '.btnEditNote', function(e){
         e.preventDefault();
-        var id = $(this).data('id');  
+        var id = $(this).data('id');
         var title = $(this).closest('.note-content').find('h4').text();
         var content = $(this).closest('.note-content').find('p').text();
 
@@ -2005,11 +2007,11 @@ $(window).on('load', function () {
     $('.chkEffect').on('click', function(){
         var val = $(this).val();
         if($(this).is(':checked')){
-            var html = '<input type="hidden" class="ef-'+val+'" name="effects[]" value="'+val+'">'; 
+            var html = '<input type="hidden" class="ef-'+val+'" name="effects[]" value="'+val+'">';
             $('#effects').append(html);
         }else{
             $('.ef-'+val).remove();
-        }       
+        }
     });
 
     //46. Desplegable columnas para DataTables.
