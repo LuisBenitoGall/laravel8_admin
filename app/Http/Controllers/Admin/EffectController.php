@@ -306,9 +306,7 @@ class EffectController extends Controller{
         ];
 
         //Cuentas bancarias:
-        $bank_accounts = BankAccounts::where('company_id', session('currentCompany'))
-        ->pluck('account', 'id')
-        ->toArray();
+        $bank_accounts = BankAccounts::getBankAccountsArray(session('currentCompany'));
 
         $featured_account = BankAccounts::select('id')
         ->where('featured', 1)
@@ -427,15 +425,11 @@ class EffectController extends Controller{
         }
 
         //Cuentas bancarias propias:
-        $my_bank_accounts = BankAccounts::where('company_id', session('currentCompany'))
-        ->pluck('account', 'id')
-        ->toArray();
+        $my_bank_accounts = BankAccounts::getBankAccountsArray(session('currentCompany'));
 
         //Cuentas bancarias del cliente o proveedor:
         $bank_account_company = $effect->company_id == $effect->provider_id? $effect->customer_id:$effect->provider_id;
-        $bank_accounts = BankAccounts::where('company_id', $bank_account_company)
-        ->pluck('account', 'id')
-        ->toArray();
+        $bank_accounts = BankAccounts::getBankAccountsArray($bank_account_company);
 
         //Métodos de pago:
         $payment_methods = PaymentMethod::where('status', 1)

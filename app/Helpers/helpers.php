@@ -825,7 +825,7 @@ class Helpers{
 			10 => trans('textos.aprobado'),
 			//15 => trans('textos.cliente_dudas'),
 			//20 => trans('textos.trabajando'),
-			//25 => trans('textos.porcentaje'),
+			25 => trans('textos.porcentaje'),
 			30 => trans('textos.cancelado'),
 			//40 => trans('textos.entregado'),
 			//50 => trans('textos.incidencia'),
@@ -1408,10 +1408,10 @@ class Helpers{
 	 */
 	public static function paymentStatus($status = false){
 		$data = [
-			'A' => ucfirst(trans('textos.aprobado')),
-			'C' => ucfirst(trans('textos.efectivo')),
-			'N' =>  ucfirst(trans('textos.pagado_no')),
-			'R' => 'R'
+			1 => ucfirst(trans('textos.aprobado')),
+			2 => ucfirst(trans('textos.efectivo')),
+			3 =>  ucfirst(trans('textos.pagado_no')),
+			4 => 'R'
 		];
 		if($status){
 			return ucfirst($data[$status]);

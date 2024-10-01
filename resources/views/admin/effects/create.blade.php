@@ -107,36 +107,35 @@
 $(function(){
 	//Selector cuentas bancarias y facturas
 	$('#search_customer, #search_provider').on('change', function(){
-		var id = $(this).val();
+		//var id = $(this).val();
 		var role_ = $(this).attr('name');
 
 		//Limpiamos el concepto no seleccionado:
-		if(role_ == 'customer_id'){
-			$('#provider-selector').val('').trigger('change.select2');
+		if(role_ == 'customer'){
+			var id = $('#customerId').val();
 			$('#accountOf').text('cliente');
 		}else{
-			$('#customer-selector').val('').trigger('change.select2');
+			var id = $('#providerId').val();
 			$('#accountOf').text('proveedor');
 		}
 
-		$('#effectInvoices').val('').trigger('change.select2');
+		//$('#effectInvoices').val('').trigger('change.select2');
 
 		//Facturas:
-		$.get("/admin/invoices/"+id+"/for-effects/"+role_, function(response, state){
-		for(i=0; i<response.length; i++){
-		$('#effectInvoices').append('<option value="'+response[i].id+'">'+response[i].invoice_+'</option>');
-		}
-		});
+		// $.get("/admin/invoices/"+id+"/for-effects/"+role_, function(response, state){
+		// for(i=0; i<response.length; i++){
+		// $('#effectInvoices').append('<option value="'+response[i].id+'">'+response[i].invoice_+'</option>');
+		// }
+		// });
 
 		//Cuentas bancarias:
 		$.get("/admin/bank-accounts/"+id+"/for-effects", function(response, state){
 			if(response){
 				$('#effectBankAccount').removeAttr('disabled');
 				for(i=0; i<response.length; i++){
-					var account_ = response[i].entity+' - '+response[i].iban+' '+response[i].office+' '+response[i].dc+' '+response[i].account;
 					var selected = response[i].featured == 1? 'selected':'';
 
-					$('#effectBankAccount').append('<option value="'+response[i].id+'" '+selected+'>'+account_+'</option>');
+					$('#effectBankAccount').append('<option value="'+response[i].id+'" '+selected+'>'+response[i].cuenta+'</option>');
 				}
 			}else{
 				$('#effectBankAccount').attr('disabled', 'disabled');

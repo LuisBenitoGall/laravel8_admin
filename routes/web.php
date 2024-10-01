@@ -156,6 +156,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::delete('bank-accounts-modal/{account}', 'BankAccountsController@destroyFromModal')->name('bank-accounts-modal.destroy')->middleware('permission:companies.edit');
     Route::get('bank-accounts/{account}/featured/{return?}', 'BankAccountsController@featured')->name('bank-accounts.featured')->middleware('permission:bank-accounts.edit');
     Route::get('bank-accounts/{company_id}/company-accounts', 'BankAccountsController@companyAccounts')->name('bank-accounts.company-accounts')->middleware('permission:companies.edit');
+    Route::get('bank-accounts/{company_id}/for-effects', 'BankAccountsController@getBankAccountsEffects')->name('bank-accounts.for-effects');
 
     // Banks:
     Route::get('banks', 'BankController@index')->name('banks.index')->middleware('permission:banks.index');
