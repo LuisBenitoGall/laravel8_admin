@@ -113,7 +113,7 @@ class OrderPrevisions extends Model{
                 $accumulated_amount = 0;
 
                 //Bloqueo de pedido:
-                //$is_blocked = Order::select('blocked')->find($order_id);
+                $is_blocked = Order::select('blocked')->find($order_id);
 
                 //07/06/2024: ya no se agrupan las previsiones sin mes en una sola.
                 //$previsions_without_month = [];

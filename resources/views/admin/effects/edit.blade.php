@@ -38,10 +38,10 @@ $disabled = $effect->status == config('constants.EFFECT_STATUS_PENDENT_')? false
 			{{-- @endif --}}
 		{{-- @endcan --}}
 
-		<a href="#" class="btn btn-primary">
+		{{-- <a href="#" class="btn btn-primary">
 			<i class="fa fa-plus"></i>
 			{{ trans('textos.factura') }}
-		</a>
+		</a> --}}
 	</div>
 </div>
 
