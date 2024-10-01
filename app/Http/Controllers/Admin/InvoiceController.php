@@ -65,7 +65,7 @@ class InvoiceController extends Controller{
      * 3. Editar factura.
      * 3.1. Editar factura por parte de cliente.
      * 3.2. Mostrar factura.
-     * 3.3. Recalcular importe factura a partir de sus líneas
+     * 3.3. Recalcular importe factura a partir de sus líneas.
      * 4. Actualizar factura.
      * 5. Imprimir factura.
      * 6. Setear info para listado de facturas.
