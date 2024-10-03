@@ -24,7 +24,7 @@ $readonly = $order->customer_id == session('currentCompany')? true:false;
 						}
 						@endphp
 
-						<x-select name="pattern_id" class="select2" label="patron_selecciona" :options="$patterns_" info="budget-pattern-num"/>
+						<x-select name="pattern_id" class="select2 prominent" label="patron_selecciona" :options="$patterns_" info="budget-pattern-num"/>
 					@else
 						<label class="text-warning mt-2">{{ trans('textos.patrones_no_hay') }}</label>
 					@endif
@@ -136,7 +136,7 @@ $readonly = $order->customer_id == session('currentCompany')? true:false;
 			$name = !$disabled? 'status':'';	//En pedidos facturados no se modifica el status.
 			@endphp
 
-			<x-select name="{{ $name }}" class="select2" :options="$estados" label="estado_selec" value="{{ $order->budget_status }}" disabled="{{ $disabled }}"/>
+			<x-select name="{{ $name }}" class="select2 prominent" :options="$estados" label="estado_selec" value="{{ $order->budget_status }}" disabled="{{ $disabled }}"/>
 		</div>
 	</div>
 

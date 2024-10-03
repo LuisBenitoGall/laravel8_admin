@@ -969,6 +969,8 @@ class InvoiceController extends Controller{
         $exist = Invoice::select('invoices.id')
         ->join('orders', 'invoices.order_id', '=', 'orders.id')
         ->where('orders.provider_id', $request->provider_id)
+        ->where('orders.customer_id', session('currentCompany'))
+        ->whereYear('invoices.invoice_date', date('Y'))
         ->where(function($query) use ($invoiceNum){  
             $query->where('invoice_num', '=', $invoiceNum) 
             ->orWhere('invoice_old_num', '=', $invoiceNum);
@@ -2472,7 +2474,7 @@ class InvoiceController extends Controller{
         $seat_lines['debit'][] = $refund->amount;
         $seat_lines['credit'][] = NULL;
 
-        //2.4. Cuentas IVA soportado:
+        //4.4. Cuentas IVA soportado:
         $iva_account = AccountingAccount::select('id', 'account', 'name', 'mode', 'type', 'iva_type_id')
         ->where('company_id', $order->provider_id)
         ->where('company_target', $order->provider_id)

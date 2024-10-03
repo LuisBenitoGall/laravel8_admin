@@ -109,6 +109,9 @@ class OrderPrevisions extends Model{
             ->get();
 
             if($previsions->count()){
+                //Cambiar estado de pedido a finalizado:
+                $finish_order = true;
+
                 $accumulated_percent = 0;
                 $accumulated_amount = 0;
 
@@ -157,6 +160,7 @@ class OrderPrevisions extends Model{
                         //No facturada:
                         //19/01/2024: las previsiones sin mes asignado se agrupan en una sola.
                         }else{
+                            $finish_order = false;
 
                             $all_invoiced = false;
                             $amount = 0;
@@ -241,6 +245,12 @@ class OrderPrevisions extends Model{
                         $op->percent = $diff_percent;
                         $op->save();
                     //}
+                }
+
+                //Actualizar estado de pedido:
+                if($finish_order){
+                    Order::where('id', $order_id)
+                    ->update(['order_status' => config('constants.ORDER_FINISHED_')]);
                 }
 
             //Generamos nueva previsión en caso de no existir:

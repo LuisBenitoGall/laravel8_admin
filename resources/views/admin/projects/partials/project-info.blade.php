@@ -40,7 +40,7 @@
 					}
 					@endphp
 
-					<x-select name="pattern_id" class="select2" label="patron_selecciona" :options="$patterns_" info="order-pattern-num"/>
+					<x-select name="pattern_id" class="select2 prominent" label="patron_selecciona" :options="$patterns_" info="order-pattern-num"/>
 				@else
 					<label class="text-warning mt-2">{{ trans('textos.patrones_no_hay') }}</label>
 				@endif
@@ -91,7 +91,7 @@
 					$estados = App\Helpers\helpers::projectStatus();
 					@endphp
 
-					<x-select name="status" class="select2" label="indica_estado" :options="$estados" value="{{ $project->status }}"/>
+					<x-select name="status" class="select2 prominent" label="indica_estado" :options="$estados" value="{{ $project->status }}"/>
 				</div>
 
 				{{-- Grupos --}}
