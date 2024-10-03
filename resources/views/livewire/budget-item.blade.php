@@ -671,7 +671,8 @@ $permitted = !$order || ($order && $add_items && !$order->parent && !$order->blo
         window.initSelect2_ = () => {
             jQuery("#newItemCostCenter").select2({
                 minimumResultsForSearch: 2,
-                allowClear: false,
+                allowClear: true,
+                placeholder: txtOpcionSelect,
                 width: '100%'
             });
         }
