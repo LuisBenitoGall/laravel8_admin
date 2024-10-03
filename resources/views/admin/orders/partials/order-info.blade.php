@@ -28,7 +28,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 					}
 					@endphp
 
-					<x-select name="pattern_id" class="select2" label="patron_selecciona" :options="$patterns_" info="order-pattern-num"/>
+					<x-select name="pattern_id" class="select2 prominent" label="patron_selecciona" :options="$patterns_" info="order-pattern-num"/>
 				@else
 					<label class="text-warning mt-2">{{ trans('textos.patrones_no_hay') }}</label>
 				@endif
