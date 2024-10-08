@@ -14,7 +14,7 @@ class ChangeFieldDaysFromItemsTable extends Migration
     public function up()
     {
         Schema::table('items', function (Blueprint $table) {
-            $table->float('days')->change();
+            $table->float('days', 5, 2)->change();
         });
     }
 
