@@ -151,8 +151,10 @@ class Invoice extends Model{
         ->where('provider_id', $order->provider_id)
         ->first();
 
+        $fiscal_date = isset($data['fiscal_date']) && $data['fiscal_date']? $data['fiscal_date']:date('Y-m-d');
+
         //Cálculo fecha vencimiento:
-        $expiration_date = helpers::calculateExpirationDate(date('Y-m-d'), $customer_provider->pay_after_days, $customer_provider->payday);
+        $expiration_date = helpers::calculateExpirationDate($fiscal_date, $customer_provider->pay_after_days, $customer_provider->payday);
 
         //Crear una instancia de la clase actual:
         $instance = new self();
@@ -162,7 +164,7 @@ class Invoice extends Model{
         $instance->amount_priority = $data['amount_priority'];
         $instance->with_iva = CompanySettings::co_iva();
         $instance->amount_with_iva = $data['amount_with_iva'];
-        $instance->fiscal_date = isset($data['fiscal_date']) && $data['fiscal_date']? $data['fiscal_date']:date('Y-m-d');
+        $instance->fiscal_date = $fiscal_date;
         $instance->expiration_date = $expiration_date;
         $instance->bank_account_id = $bank_account;
         $instance->provider_bank_account_id = $provider_bank_account;

@@ -323,8 +323,8 @@ class CompanyController extends Controller{
         //Creamos centro de trabajo por defecto:
         $wp = new Workplace();
         $wp->company_id = $company->id;
-        $wp->name = ucfirst(trans('textos.sede'));
-        $wp->slug = Str::slug(trans('textos.sede'));
+        $wp->name = ucfirst(trans('textos.sede')).' '.$company->name;
+        $wp->slug = Str::slug(trans('textos.sede').' '.$company->name);
         $wp->featured = 1;
         $wp->save();
 
