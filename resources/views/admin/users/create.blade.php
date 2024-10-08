@@ -20,7 +20,7 @@
 					{{ csrf_field() }}
 					<input type="hidden" name="environment" value="true">
 
-					@include('admin.users.partials.form-new-user');
+					@include('admin.users.partials.form-new-user')
 				</form>
 			</div>
 		</div>	

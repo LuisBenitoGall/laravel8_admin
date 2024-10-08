@@ -659,8 +659,8 @@ class CustomerProvidersController extends Controller{
                             if(!$workplace){
                                 $workplace = new Workplace();
                                 $workplace->company_id = $company->id;
-                                $workplace->name = trans('textos.centro_trabajo');
-                                $workplace->slug = Str::slug(trans('textos.centro_trabajo'));
+                                $workplace->name = trans('textos.sede').' '.$company->name;
+                                $workplace->slug = Str::slug(trans('textos.sede')).' '.$company->name;
                                 $workplace->featured = 1;
                                 $workplace->address = $r->address;
                                 $workplace->cp = $r->cp;

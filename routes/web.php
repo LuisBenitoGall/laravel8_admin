@@ -869,6 +869,9 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::get('product-docs/{doc}/destroy', 'ProductDocsController@destroy')->name('product-docs.destroy')->middleware('permission:product-docs.destroy');
     Route::get('product-docs/set-featured/{product}/{doc}', 'ProductDocsController@setFeatured')->name('product-docs.set-featured')->middleware('permission:products.edit');
 
+    // Product Families:
+    //Route::get('product-families', 'ProductFamilyController@index')->name('product-families.index');
+
     // Product Favorites:
     Route::get('product-favorites/{product_id}/add-remove', 'ProductFavoritesController@add_remove')->name('product-favorites.add-remove');
 

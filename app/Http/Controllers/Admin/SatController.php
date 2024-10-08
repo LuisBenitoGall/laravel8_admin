@@ -210,8 +210,8 @@ class SatController extends Controller{
             //Centro de trabajo de la empresa:
             $wp = new Workplace();
             $wp->company_id = $company_id;
-            $wp->name = ucfirst(trans('textos.sede'));
-            $wp->slug = Str::slug(trans('textos.sede'));
+            $wp->name = ucfirst(trans('textos.sede')).' '.$co->name;
+            $wp->slug = Str::slug(trans('textos.sede')).' '.$co->name;
             $wp->featured = 1;
             $wp->save();
 
