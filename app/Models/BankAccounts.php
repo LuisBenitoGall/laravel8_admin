@@ -20,7 +20,7 @@ class BankAccounts extends Model{
      * 1. Cuentas bancarias por empresa.
      */
     public static function getBankAccounts($company_id, $status = true){
-        return BankAccounts::select(DB::raw("CONCAT(banks.name,' ',bank_accounts.iban,'-',bank_accounts.entity,'-',bank_accounts.office,'-',bank_accounts.dc,'-',bank_accounts.digits) as cuenta"), 'banks.tradename', 'bank_accounts.id', 'bank_accounts.featured')
+        return BankAccounts::select(DB::raw("CONCAT(banks.name,' ',bank_accounts.iban,'-',bank_accounts.entity,'-',bank_accounts.office,'-',bank_accounts.dc,'-',bank_accounts.digits) as cuenta"), 'banks.tradename', 'bank_accounts.id', 'bank_accounts.account', 'bank_accounts.featured')
         ->join('banks', 'bank_accounts.bank_id', '=', 'banks.id')
         ->where('bank_accounts.status', $status)
         ->where('bank_accounts.company_id', $company_id)
