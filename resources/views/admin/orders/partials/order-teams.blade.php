@@ -165,7 +165,8 @@ $(function(){
                     if(row['Image']){
                         var avatar = '<img src="/img/users/'+row['Image']+'" class="img-circle mr-2" width="36">';    
                     }else{
-                        var avatar = setAvatar(row['name'], row['surname']);
+                        //var avatar = setAvatar(row['name'], row['surname']);
+                        var avatar = '';
                     }
                     return avatar+row['name']+' '+row['surname'];
                 }

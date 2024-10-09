@@ -79,6 +79,11 @@ if ($('.select2').length > 0) {
         }
     });
 
+    // Deshabilita el Select2 si tiene la clase readonly-select
+    $('.select2.readonly-select').each(function (index) {
+        $(this).prop('readonly', true).select2('enable', false);
+    });
+
     /*$('.select2').on('change', function (e){
         var data = $('.select2').select2("val");
         //@this.set('ottPlatform', data);
