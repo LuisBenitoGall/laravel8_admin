@@ -197,6 +197,8 @@ $order_num = $order->order_num? $order->order_num:$order->id;
 				@if($provider->id == session('currentCompany'))
 					@php
 					$pendent_amount = $order_amount - $invoice_amount;
+					//09/10/2024: si el pedido está bloqueado el importe es 0:
+					if($order->blocked == 1) $pendent_amount = '0';
 					$class = $pendent_amount > 0? 'text-danger':'text-success';
 					@endphp
 					<tr>
