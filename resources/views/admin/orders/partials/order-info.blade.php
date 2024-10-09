@@ -224,35 +224,47 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 		</div>
 
 		{{-- Estado pedido - condiciones:
-			1. Exclusivo proveedor
-			2. Pedido no facturado
+			1. Pedido no bloqueado.
+			2. Exclusivo proveedor.
+			3. Pedido facturado.			
 		--}}
-		@if($order->provider_id == session('currentCompany'))
-			<label for="status" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.estado')) !!}</label>
-			<div class="col-lg-2">
-				@php
-				//Los estados se obtienen en función de si el pedido es simple o agrupación:
-				$estados = $order->is_group? App\Helpers\helpers::orderGroupStatus():App\Helpers\helpers::orderStatus();
+		@php
+		//Los estados se obtienen en función de si el pedido es simple o agrupación:
+		$estados = $order->is_group? App\Helpers\helpers::orderGroupStatus():App\Helpers\helpers::orderStatus();
+		@endphp
 
-				//01/07/2023: los estados se limitan si el pedido está ya facturado.
-				if($order->invoiced){
-					$status_after_invoice = [config('constants.ORDER_STATUS_WITH_INVOICE_')];
+		@if($order->blocked == '0')
+			@if($order->provider_id == session('currentCompany'))
+				<label for="status" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.estado')) !!}</label>
+				<div class="col-lg-2">
+					@php
+					//01/07/2023: los estados se limitan si el pedido está ya facturado.
+					if($order->invoiced){
+						$status_after_invoice = [config('constants.ORDER_STATUS_WITH_INVOICE_')];
 
-					foreach($estados as $ix => $e){
-						if(!in_array($ix, $status_after_invoice) && $ix != $order->order_status){
-							unset($estados[$ix]);
+						foreach($estados as $ix => $e){
+							if(!in_array($ix, $status_after_invoice) && $ix != $order->order_status){
+								unset($estados[$ix]);
+							}
 						}
 					}
-				}
-				@endphp
+					@endphp
 
-				{{-- 18/10/22: resolver estado de pedido para que quede disabled cuando estén todas las previsiones de facturación facturadas --}}
-				{{-- disabled="{{ $disabled }}" --}}
+					{{-- 18/10/22: resolver estado de pedido para que quede disabled cuando estén todas las previsiones de facturación facturadas --}}
+					{{-- disabled="{{ $disabled }}" --}}
 
-				<x-select name="status" class="select2 prominent" label="indica_estado" :options="$estados" value="{{ $order->order_status }}" />
-			</div>
+					<x-select name="status" class="select2 prominent" label="indica_estado" :options="$estados" value="{{ $order->order_status }}" />
+				</div>
+			@else
+				<input type="hidden" name="order_status" value="{{ $order->order_status }}">
+			@endif
 		@else
 			<input type="hidden" name="order_status" value="{{ $order->order_status }}">
+
+			<label for="status" class="col-lg-2 col-form-label">
+				{!! ucfirst(trans('textos.estado')) !!}:
+				<b>{{ ucfirst($estados[$order->order_status]) }}</b>
+			</label>
 		@endif
 	</div>
 
@@ -302,7 +314,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 						@foreach($previsions as $prev)
 							@php
 							$totalPercent = $totalPercent + $prev->percent;
-							$disabled = $prev->invoice_id? 'readonly':'';		//Previsiones ya facturadas.
+							$readonly_ = $prev->invoice_id || $order->blocked == 1? true:false;		//Previsiones ya facturadas.
 							$disabled_ = $prev->invoice_id? true:false;
 							$prev_invoiced = $prev->invoice_id? true:false;
 							if(!$prev->amount && !$prev->percent) $previsionSetted = false;
@@ -318,7 +330,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 								{{-- Año --}}
 								<label for="year" class="col-md-2 col-lg-1 col-form-label mb-2">{!! ucfirst(trans('textos.any')) !!}</label>
 								<div class="col-md-4 col-lg-1 sinpadding">
-									<select name="year[]" class="form-control select2 prevision-data" {{ $disabled }}>
+									<select name="year[]" class="form-control select2 prevision-data @if($readonly_) readonly-select @endif">
 										@for($y=config('constants.MIN_YEAR_'); $y<=(date('Y')+3); $y++)
 											@php
 											$selected = $prev->year == $y? 'selected':date('Y');
@@ -342,7 +354,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 									$months = App\Helpers\helpers::yearMonths();
 									@endphp
 
-									<select name="month[]" class="form-control select2 prevision-data_" {{ $disabled }}>
+									<select name="month[]" class="form-control select2 prevision-data_ @if($readonly_) readonly-select @endif">
 										@if(!$prev->month)
 											<option value="">{{ trans('textos.mes_selec') }}</option>
 										@else
@@ -368,7 +380,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 								{{-- Importe --}}
 								<label for="amount" class="col-md-2 col-lg-1 col-form-label">{!! ucfirst(trans('textos.importe')) !!}</label>
 								<div class="col-md-4 col-lg-2 sinpadding text-right">
-									<x-input type="text" name="amount[]" class="text-right set-decimals prevision-amount prevision-data prominent" autocomplete="off" maxlength="15" value="{{ $prev->amount }}" group="right" groupvalue="{{ $currency->symbol }}" required readonly="{{ $disabled }}"/>
+									<x-input type="text" name="amount[]" class="text-right set-decimals prevision-amount prevision-data prominent" autocomplete="off" maxlength="15" value="{{ $prev->amount }}" group="right" groupvalue="{{ $currency->symbol }}" required readonly="{{ $readonly_ }}"/>
 
 									@php
 									$accumulatedAmount = $accumulatedAmount + $prev->amount;
@@ -391,7 +403,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 									}
 									@endphp
 
-									<x-input type="text" name="percent[]" class="text-right set-decimals prevision-percent prevision-data prominent" autocomplete="off" maxlength="15" value="{{ $percent }}" group="right" groupvalue="%" required readonly="{{ $disabled }}"/>
+									<x-input type="text" name="percent[]" class="text-right set-decimals prevision-percent prevision-data prominent" autocomplete="off" maxlength="15" value="{{ $percent }}" group="right" groupvalue="%" required readonly="{{ $readonly_ }}"/>
 
 									{{-- Monto de la orden, aplicando el porcentaje de cobro --}}
 									{{-- <small data-container="body" data-toggle="popover" data-placement="top" data-content="{{ trans('textos.facturacion_prevista_info_percent') }}">
