@@ -1960,6 +1960,7 @@ class OrderController extends Controller{
             $orders_ = Order::select('orders.id', 'orders.order_num', 'orders.order_old_num')
             ->join('item_linked_orders', 'orders.id', '=', 'item_linked_orders.order_id')
             ->where('item_linked_orders.item_id', $item->id)
+            ->whereNull('item_linked_orders.deleted_at')
             ->get();
 
             if($orders_->count()){
