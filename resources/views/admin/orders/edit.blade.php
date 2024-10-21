@@ -1426,7 +1426,7 @@ $(function(){
             //Validando importes:
             if(prevision_amounts < order_amount){
                 validate_previsions = false;  
-                var msg_ = txtImportePrevisionesError;  
+                var msg_ = txtPrevisionesError;  
             }
 
             if(!validate_previsions){
