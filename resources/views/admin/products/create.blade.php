@@ -5,10 +5,21 @@
 <div class="row mb-3">
 	{{-- Acciones: --}}
 	<div class="col-12">
+		{{-- Volver a productos --}}
 		<a href="{{ route('products.index') }}" class="btn btn-info">
 			<i class="fa fa-angle-left"></i>
 			{!! trans('textos.volver_productos') !!}
 		</a>
+
+		{{-- Editar producto referencia --}}
+		@if($is_variant)
+			@can('products.edit')
+	    		<a href="{{ route('products.edit', $product_ref) }}" class="btn btn-info">
+	    			<i class="fa fa-angle-left"></i>
+	    			{!! ucfirst(trans('textos.volver_producto_ref')) !!}
+	    		</a>
+	        @endcan
+	    @endif
 	</div>
 </div>
 
@@ -16,12 +27,21 @@
 	<div class="col-12">
 		<div class="card mb-3">
 			<div class="card-body">
+				@if($is_variant)
+					<h3 class="mb-3">
+						{!! ucfirst(trans('textos.variante_de')) !!} 
+						<u>{{ $product_ref->name }}</u>
+					</h3>	
+				@endif
+
 				<form method="post" autocomplete="off" action="{{ route('products.store') }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
 					{{ csrf_field() }}
 					{{-- Id de empresa tutelada --}}
 					@if($company_id)
 						<input type="hidden" name="tutored" value="{{ $company_id }}">
 					@endif
+
+					<input type="hidden" name="variant_of" value="@if($is_variant){{ $product_ref->id }}@endif">
 
 					<div class="form-group row">
 						{{-- Nombre producto --}}

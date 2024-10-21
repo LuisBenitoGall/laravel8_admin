@@ -238,6 +238,7 @@ var txtPrecioPorcentual = "{!! ucfirst(trans("textos.precio_porcentual")) !!}";
 var txtPresupuestoConfirmEliminar = "{!! trans("textos.presupuesto_confirm_eliminar") !!}";
 var txtPresupuestoLineaConfirmDuplicar = "{!! trans("textos.presupuesto_linea_duplicar_confirm") !!}";
 var txtPresupuestoLineaConfirmEliminar = "{!! trans("textos.presupuesto_linea_confirm_eliminar") !!}";
+var txtPrevisionesError = "{!! trans("textos.previsiones_error") !!}";
 var txtPreview = "{!! trans("textos.vista_previa") !!}";
 var txtProcedimientoConfirmEliminar = "{{ ucfirst(trans("textos.procedimiento_confirm_eliminar")) }}";
 var txtProcesoConfirmEliminar = "{{ ucfirst(trans("textos.proceso_confirm_eliminar")) }}";
