@@ -1423,6 +1423,8 @@ $(function(){
                 }
             });
 
+            prevision_amounts = prevision_amounts.toFixed(2);
+
             //Validando importes:
             if(prevision_amounts < order_amount){
                 validate_previsions = false;  
