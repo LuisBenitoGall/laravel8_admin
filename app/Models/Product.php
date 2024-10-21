@@ -15,6 +15,7 @@ class Product extends Model{
      * 3. Productos por empresa.
      * 3.1. Productos por empresa con gestión de stock.
      * 4. Centro de coste.
+     * 5. Número de variantes.
      */
      
     use HasFactory;
@@ -86,6 +87,13 @@ class Product extends Model{
      */
     public function cost_center(){
         return $this->belongsTo(CostCenters::class);    
+    }
+
+    /**
+     * 5. Número de variantes.
+     */
+    public function numVariants(){
+        return $this->hasMany(Product::class, 'variant_of')->count();    
     }
 }
 

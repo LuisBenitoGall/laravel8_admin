@@ -43,6 +43,7 @@ class ProductController extends Controller{
      * 1. Listado de productos por empresa.
      * 1.1. Listado de productos para DataTable.
      * 2. Formulario nuevo producto.
+     * 2.1. Formulario variante de producto.
      * 3. Guardar nuevo producto.
      * 4. Editar producto.
      * 5. Actualizar producto.
@@ -54,6 +55,7 @@ class ProductController extends Controller{
      * 11. Listado de compras por producto para DataTable.
      * 12. Pedidos de compra del producto.
      * 13. Migración de catálogo y formulario de presupuestos entre empresas.
+     * 14. Variantes de producto.
      */  
     
     private $option = 'catalogo';  
@@ -65,7 +67,7 @@ class ProductController extends Controller{
         $this->languages = helpers::languages();
 
         $this->middleware('module_setted:products');
-        $this->middleware('product_get', ['only' => ['edit', 'update', 'destroy']]);
+        $this->middleware('product_get', ['only' => ['edit', 'update', 'destroy', 'variants']]);
     }
 
     //0. Validator:
@@ -196,10 +198,33 @@ class ProductController extends Controller{
             'slug' => 'products'
         ];
 
+        $is_variant = false;
+
         //Moneda de la empresa tutelada:
         $currency = $company_id? CompanySettings::co_currency(false, $company_id):false;
 
-        return view('admin.products.create')->with(compact('header', 'company_id', 'currency'));
+        return view('admin.products.create')->with(compact('header', 'is_variant', 'company_id', 'currency'));
+    }
+
+    /**
+     * 2.1. Formulario variante de producto.
+     */
+    public function createVariant(Product $product_ref){
+        $header = [
+            'option' => $this->option, 
+            'suboption' => 'textos.variante_nueva',
+            'module' => $this->module,
+            'slug' => 'products'
+        ];
+
+        $is_variant = true;
+
+        $company_id = false;
+
+        //Moneda de la empresa tutelada:
+        $currency = $company_id? CompanySettings::co_currency(false, $company_id):false;
+
+        return view('admin.products.create')->with(compact('header', 'product_ref', 'is_variant', 'company_id', 'currency'));
     }
 
     /**
@@ -220,6 +245,9 @@ class ProductController extends Controller{
         $slug = !$request->tutored? Str::slug($request->name):NULL;
 
         $product = new Product();
+        if($request->variant_of > 0){
+            $product->variant_of = $request->variant_of;
+        }
         $product->name = !$request->tutored? $request->name:NULL;
         $product->slug = $slug;
         $product->company_id = $request->tutored? $request->tutored:session('currentCompany');
@@ -311,6 +339,7 @@ class ProductController extends Controller{
         $attributes = Attribute::where('company_id', session('currentCompany'))
         ->where('status', 1)
         ->whereNotIn('id', $attributes_in_product)
+        ->orderBy('name', 'ASC')
         ->pluck('name', 'id')
         ->toArray();
 
@@ -826,5 +855,19 @@ class ProductController extends Controller{
                 $bfi->save();
             }
         }
+    }
+
+    /**
+     * 14. Variantes de producto.
+     */
+    public function variants(Product $product){
+        $header = [
+            'option' => $this->option, 
+            'suboption' => 'textos.producto_variantes',
+            'module' => $this->module,
+            'slug' => 'products'
+        ];
+
+        return view('admin.products.variants', compact('header', 'product'));
     }
 }

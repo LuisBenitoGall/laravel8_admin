@@ -25,6 +25,16 @@
     		</a>
         @endcan
 
+        {{-- Variantes de producto --}}
+        @can('products.edit')
+        	<a href="{{ route('products.variants', $product->id) }}" class="btn btn-info">
+    			<i class="fa fa-boxes"></i>
+    			{!! ucfirst(trans('textos.producto_variantes')) !!}
+
+    			<span class="badge badge-warning ml-2">{{ $product->numVariants() }}</span>
+    		</a>
+        @endcan
+
         {{-- Proveedores del producto - condiciones: 
         	1. Disponer de permisos de edición de proveedores.
 			2. El producto debe tener gestión de stock.

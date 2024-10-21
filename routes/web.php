@@ -908,6 +908,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     // Products:
     Route::get('products', 'ProductController@index')->name('products.index');
     Route::get('products/create/{company_id?}', 'ProductController@create')->name('products.create')->middleware('permission:products.create');
+    Route::get('products/{product_ref}/create-variant', 'ProductController@createVariant')->name('products.create-variant')->middleware('permission:products.edit');
     Route::post('products/store', 'ProductController@store')->name('products.store')->middleware('permission:products.create');
     Route::get('products/{product}/edit/{tab?}', 'ProductController@edit')->name('products.edit')->middleware('permission:products.edit');
     Route::get('products/{product}/show', 'ProductController@show')->name('products.show');
@@ -915,6 +916,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::get('products/status/{id}/{status}', 'ProductController@status')->name('products.status')->middleware('permission:products.edit');
     Route::delete('products/{product}', 'ProductController@destroy')->name('products.destroy')->middleware('permission:products.destroy');
     Route::get('products/{product_id}/purchase-orders', 'ProductController@purchaseOrders')->name('products.purchase-orders');
+    Route::get('products/{product}/variants', 'ProductController@variants')->name('products.variants')->middleware('permission:products.edit');
 
     // Project Docs:
     Route::post('project-docs/{project}/store', 'ProjectDocsController@store')->name('project-docs.store');
