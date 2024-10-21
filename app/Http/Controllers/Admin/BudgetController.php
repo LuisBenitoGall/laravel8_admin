@@ -1451,7 +1451,10 @@ class BudgetController extends Controller{
 
         //Datos presupuesto original:
         $order = Order::find($request->order_id);
-        $items = Item::where('order_id', $order->id)->get();
+        //Items: sólo items con valor positivo:
+        $items = Item::where('order_id', $order->id)
+        ->where('price', '>=', '0')
+        ->get();
 
         //Nuevo presupuesto:
         $new_budget = new Order();
@@ -1521,7 +1524,7 @@ class BudgetController extends Controller{
             $it = new Item();
             $it->product_id = $i->product_id;
             $it->order_id = $new_budget->id;
-            $it->budget_form_block_id = $budget_form_block_id;
+            $it->budget_form_block_id = $budget_form_block_id > 0? $budget_form_block_id:NULL;
             $it->budget_form_item_id = $budget_form_item_id;
             $it->budget_sort = $i->budget_sort;
             $it->concept = $i->concept;
