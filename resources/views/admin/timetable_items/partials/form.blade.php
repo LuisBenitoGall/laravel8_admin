@@ -128,7 +128,7 @@ $icons = json_decode(file_get_contents($pathIcons), true);
             </div>
 
             @php
-                $color = $item && $item->color? $item->color:'';
+            $color = $item && $item->color? $item->color:'';
             @endphp
 
             <x-color-picker name="color" value="{{ $color }}" info="timetable-color"/>

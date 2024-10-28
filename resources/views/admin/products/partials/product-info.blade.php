@@ -5,9 +5,15 @@
 	<div class="form-group row">
 		{{-- Producto --}}
 		<label for="name" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.producto')) !!}*</label>
-		<div class="col-lg-6">
+		<div class="col-lg-5">
 			<x-input type="text" name="name" id="name" value="{{ $product->name }}" autocomplete="off" maxlength="255" required/>
 		</div>
+
+		@if($attributesString != '') 
+			<div class="col-lg-1">
+				<x-input type="text" name="" value="{{ $attributesString }}" autocomplete="off" disabled/>
+			</div>
+		@endif
 
 		{{-- Tipo de producto --}}
 		<label for="production_status" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.producto_tipo')) !!}</label>

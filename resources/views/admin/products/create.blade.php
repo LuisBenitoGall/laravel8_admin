@@ -47,7 +47,10 @@
 						{{-- Nombre producto --}}
 						<label for="name" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.producto')) !!}*</label>
 						<div class="col-lg-10">
-							<x-input type="text" name="name" id="name" autocomplete="off" maxlength="100" required/>
+							@php
+							$product_name = isset($product_ref) && $product_ref? trans('textos.variante_de').' '.$product_ref->name:'';
+							@endphp
+							<x-input type="text" name="name" id="name" autocomplete="off" maxlength="100" value="{{ $product_name }}" required/>
 						</div>
 					</div>
 
@@ -63,14 +66,19 @@
 						{{-- Tipo --}}
                         <label for="type" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.tipo')) !!} *</label>
                         <div class="col-lg-3" style="padding-top: 8px;">
+                        	@php
+                        	//Para variantes:
+                        	$variant_type = $is_variant && isset($product_ref)? $product_ref->type:false;
+                        	@endphp
+
 							<label class="custom-chk-rdb">
-				    			<input class="rdb-access" type="radio" name="type" value="p" required>
+				    			<input class="rdb-access" type="radio" name="type" value="p" @if($variant_type == 'p') checked @endif required>
 				    			<span class="rdb"></span>
 				    			{!! ucfirst(trans('textos.producto')) !!}
 							</label>	
 
 							<label class="custom-chk-rdb ml-5">
-				    			<input class="rdb-access" type="radio" name="type" value="s" required>
+				    			<input class="rdb-access" type="radio" name="type" value="s" @if($variant_type == 's') checked @endif required>
 				    			<span class="rdb"></span>
 				    			{!! ucfirst(trans('textos.servicio')) !!}
 							</label>

@@ -56,6 +56,7 @@ class ProductController extends Controller{
      * 12. Pedidos de compra del producto.
      * 13. Migración de catálogo y formulario de presupuestos entre empresas.
      * 14. Variantes de producto.
+     * 14.1. Variantes de producto para DataTable.
      */  
     
     private $option = 'catalogo';  
@@ -343,6 +344,22 @@ class ProductController extends Controller{
         ->pluck('name', 'id')
         ->toArray();
 
+        //Atributos del producto de referencia:
+        $ref_attributes = false;
+        $variant_attributes = false;
+        if($product->variant_of){
+            $ref_attributes = Attribute::select('attributes.id', 'attributes.name', 'attributes.datatype', 'attributes.values', 'product_attributes.value')
+            ->join('product_attributes', 'attributes.id', '=', 'product_attributes.attribute_id')
+            ->where('product_attributes.product_id', $product->variant_of)
+            ->where('attributes.status', 1)
+            ->orderBy('attributes.name', 'ASC')
+            ->get();
+
+            $variant_attributes = ProductAttributes::select('attribute_id', 'value', 'value_in_description')
+            ->where('product_id', $product->id)
+            ->get();
+        }
+
         //Product serials:
         // $serials = ProductSerials::where('product_id', $product->id)
         // ->orderBy('id', 'ASC')
@@ -400,7 +417,7 @@ class ProductController extends Controller{
         //Módulos activos:
         $module_production = $this->settedModule('production');
 
-        return view('admin.products.edit', compact('header', 'product', 'tab', 'productions', 'patterns', 'data_types', 'attributes', 'company', 'prices', 'cost_centers', 'employees', 'movement', 'stores', 'currency', 'iva', 'production_status', 'languages', 'module_production'));
+        return view('admin.products.edit', compact('header', 'product', 'tab', 'productions', 'patterns', 'data_types', 'attributes', 'ref_attributes', 'variant_attributes', 'company', 'prices', 'cost_centers', 'employees', 'movement', 'stores', 'currency', 'iva', 'production_status', 'languages', 'module_production'));
     }
 
     /**
@@ -870,4 +887,64 @@ class ProductController extends Controller{
 
         return view('admin.products.variants', compact('header', 'product'));
     }
+
+    /**
+     * 14.1. Variantes de producto para DataTable.
+     */
+    public function getVariantsDT($product_id){
+        //Moneda:
+        $currency = CompanySettings::co_currency(0);
+
+        $data = Product::where('variant_of', $product_id)
+        ->orderBy('name', 'ASC');
+
+        return DataTables::of($data)
+        ->addColumn('product', function($row){
+            //Enviamos el nombre del producto ya traducido:
+            $trans = $row->translations? unserialize($row->translations):false;
+            //Concatenar atributos en las variantes:
+            $attributes = $row->attributeValuesAsString(' ');
+
+            if($trans){
+                $product_name = (isset($trans[session()->get('locale')]) && $trans[session()->get('locale')] != '' && $trans != '')? $trans[session()->get('locale')]:$row->name;
+                return $product_name.' <i>'.$attributes.'</i>';
+            }else{
+                return $row->name.' <i>'.$attributes.'</i>';
+            }
+        })
+        ->addColumn('ref', function($row){
+            if($row->ref){
+                return $row->ref;
+            }elseif($row->manual_ref){
+                return $row->manual_ref;
+            }else{
+                return '';
+            }
+        })
+        ->addColumn('attributes', function($row){
+            return $row->attributeValuesAsString();   
+        })
+        ->addColumn('price', function($row) use($currency){
+            if($row->price){
+                return $row->price.$currency->symbol;
+            }else{
+                return '';
+            }
+        })  
+        ->addColumn('image', function($row){
+            $img = $row->featuredImage(); // Llama al método featuredImage
+
+            if($img){ // Verifica si existe la imagen destacada
+                return '<img src="/img/products/'.$img->doc.'" width="50"><span style="display: none">1</span>';  
+            }else{
+                return '<i class="fa fa-gift icono"></i><span style="display: none">0</span>'; // Valor por defecto
+            }
+        })
+        ->addColumn('acciones', function($row){
+            return view('admin.products.partials.dt-actions', compact('row'));    
+        })
+        ->rawColumns(['product', 'image'])
+        ->make(true);
+    }
 }
+

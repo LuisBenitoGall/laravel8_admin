@@ -858,6 +858,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
 
     // Product Attributes:
     Route::post('product-attributes/store', 'ProductAttributesController@store')->name('product-attributes.store')->middleware('permission:products.edit');
+    Route::post('product-attributes-variant/store', 'ProductAttributesController@storeVariant')->name('product-attributes-variant.store')->middleware('permission:products.edit');
     Route::post('product-attributes/update', 'ProductAttributesController@update')->name('product-attributes.update')->middleware('permission:products.edit');
     Route::delete('product-attributes/{attribute}', 'ProductAttributesController@destroy')->name('product-attributes.destroy')->middleware('permission:products.edit');
 

@@ -330,7 +330,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 								{{-- Año --}}
 								<label for="year" class="col-md-2 col-lg-1 col-form-label mb-2">{!! ucfirst(trans('textos.any')) !!}</label>
 								<div class="col-md-4 col-lg-1 sinpadding">
-									<select name="year[]" class="form-control select2 prevision-data @if($readonly_) readonly-select @endif">
+									<select name="@if($readonly_) year_[] @else year[] @endif" class="form-control select2 prevision-data @if($readonly_) readonly-select @endif">
 										@for($y=config('constants.MIN_YEAR_'); $y<=(date('Y')+3); $y++)
 											@php
 											$selected = $prev->year == $y? 'selected':date('Y');
@@ -339,6 +339,10 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 											<option value="{{ $y }}" {{ $selected }}>{{ $y }}</option>
 										@endfor
 									</select>
+
+									@if($readonly_)
+										<input type="hidden" name="year[]" value="{{ $prev->year }}">
+									@endif
 
 									@if($errors->has('year'))
 						                <span class="invalid-feedback" role="alert">
@@ -354,7 +358,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 									$months = App\Helpers\helpers::yearMonths();
 									@endphp
 
-									<select name="month[]" class="form-control select2 prevision-data_ @if($readonly_) readonly-select @endif">
+									<select name="@if($readonly_) month_[] @else month[] @endif" class="form-control select2 prevision-data_ @if($readonly_) readonly-select @endif">
 										@if(!$prev->month)
 											<option value="">{{ trans('textos.mes_selec') }}</option>
 										@else
@@ -369,6 +373,10 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 											<option value="{{ $i }}" {{ $selected }}>{{ $month }}</option>
 										@endforeach
 									</select>
+
+									@if($readonly_)
+										<input type="hidden" name="month[]" value="{{ $prev->month }}">
+									@endif
 
 									@if($errors->has('month'))
 						                <span class="invalid-feedback" role="alert">
