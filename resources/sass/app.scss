@@ -11957,6 +11957,43 @@ ul.ui-autocomplete {
     }
 }
 
+.variant-attribute{
+    position: relative;
+
+    .va-confirm{
+        position: absolute;
+        right: -22px;
+        top: 3px;
+    }
+}
+
+.color-select{
+    border: 1px solid #e5e6e7;
+    border-radius: 1px;
+    display: block;
+    position: relative;   
+    width: 100%;
+
+    .color-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr); /* 4 columnas */
+        width: 100%;
+   
+        .color-cell {
+            align-items: center;
+            aspect-ratio: 1;
+            background-color: #ccc;
+            color: #FFF;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            margin: 0;
+            position: relative;
+            text-align: center; /* Centrar el texto */
+        } 
+    }
+}
+
 /**
  * RESPONSIVE MEDIA QUERIES
  */

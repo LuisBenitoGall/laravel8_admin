@@ -1,7 +1,7 @@
 @can('products.edit')
     {{-- Estado: --}}
     <label class="custom-chk-rdb" rel="tooltip" title="{{ trans('textos.producto_on_off') }}">
-        <input type="checkbox" name="status" @if($row->status == 1) checked @endif><span class="chk chk-action" data-id="{{ $row->id }}" data-ctrl="products/status"></span>
+        <input type="checkbox" name="status" @if($row->status == 1) checked @endif><span class="chk chk-action" data-id="{{ $row->id }}" data-ctrl="/admin/products/status"></span>
     </label>
 @endcan
 

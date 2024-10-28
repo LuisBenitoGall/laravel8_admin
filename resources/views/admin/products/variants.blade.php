@@ -43,11 +43,9 @@
 				<tr>
 					<th>{!! ucfirst(trans('textos.producto')) !!}</th>
 					<th>{!! ucfirst(trans('textos.referencia')) !!}</th>
-					<th>{!! ucfirst(trans('textos.descripcion')) !!}</th>
+                    <th>{!! ucfirst(trans('textos.atributos')) !!}</th>
 					<th class="text-center wdt100">{!! ucfirst(trans('textos.precio')) !!}</th>
-					<th>{!! ucfirst(trans('textos.centro_coste')) !!}</th>
 					<th>{!! ucfirst(trans('textos.imagen')) !!}</th>
-					<th class="wdt100">{!! ucfirst(trans('textos.producto_venta')) !!}</th>
 					<th class="text-center">{!! ucfirst(trans('textos.acciones')) !!}</th>
 				</tr>
 			</thead>
@@ -61,6 +59,7 @@ $(function(){
 	 //Tabla ProductVariants:
     if($('#tblProductVariants').length > 0){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        var product_id = {{ $product->id }};
 
         //Filters:
         $('#tblProductVariants thead tr').clone(true).appendTo('#tblProductVariants thead');
@@ -87,7 +86,7 @@ $(function(){
             processing: true,
             ajax: {
                 "type": "GET",
-                "url": "/api/admin/products/"+company,
+                "url": "/api/admin/product-variants/"+product_id,
                 "error": function(reason){
                     console.log(reason);
                 }
@@ -95,11 +94,9 @@ $(function(){
             columns: [
                 {data: 'product', name: 'products.name'},
                 {data: 'ref', name: 'products.ref'},
-                {data: 'description'},
+                {data: 'attributes'},
                 {data: 'price', className: 'text-right', name: 'products.price'},
-                {data: 'cost_center', name: 'cost_centers.name'},
                 {data: 'image', className: 'text-center'},
-                {data: 'on_sale', className: 'text-center'},
                 {data: 'acciones', className: 'text-right'}
             ]
         });
