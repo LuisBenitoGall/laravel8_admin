@@ -1627,7 +1627,7 @@ class OrderController extends Controller{
             ->whereNull('provider_cost_center_id')
             ->update(['provider_cost_center_id' => $request->provider_cost_center_id]);
         }
-        
+
         if($request->year){
             $order_amount = $order->getAmount(true, false, true); 
 

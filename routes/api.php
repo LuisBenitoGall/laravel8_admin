@@ -321,6 +321,9 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     //ProductUnits:
     Route::get('product-units/{product_id}', 'ProductUnitsController@getUnitsDT');
 
+    //ProductVariants:
+    Route::get('product-variants/{product_id}', 'ProductController@getVariantsDT');
+
     //Products:
     Route::get('products/{company_id?}', 'ProductController@getProductsDT');
     Route::post('products-search', 'ProductController@searchProducts');

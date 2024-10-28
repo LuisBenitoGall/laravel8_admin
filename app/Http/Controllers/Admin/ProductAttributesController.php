@@ -18,6 +18,7 @@ class ProductAttributesController extends Controller{
     /**
      * 1. Listado de atributos por producto para DataTable.
      * 2. Guardar atributo de producto.
+     * 2.1. Guardar atributos de variante.
      * 3. Actualizar atributo de producto.
      * 4. Eliminar atributo de producto.
      */
@@ -31,7 +32,7 @@ class ProductAttributesController extends Controller{
         $this->data_types = helpers::dataTypes();
 
         $this->middleware('module_setted:products');
-        $this->middleware('product_post', ['only' => ['store', 'update']]);
+        $this->middleware('product_post', ['only' => ['store', 'storeVariant', 'update']]);
     }
 
     //0. Validator:
@@ -137,6 +138,51 @@ class ProductAttributesController extends Controller{
             $pa->attribute_id = $at;
             $pa->save(); 
         }
+
+        $msg = trans('textos.atributos_vinculados');
+        return redirect()->route('products.edit', [$request->product_id, 'attributes'])->with(compact('msg'));
+    }
+
+    /**
+     * 2.1. Guardar atributos de variante.
+     */
+    public function storeVariant(Request $request){
+        $validator = $this->validator($request->all());
+        if($validator->fails()){
+            return redirect('/admin/products/'.$request->product_id.'/edit/attributes')
+                ->withErrors($validator)
+                ->withInput();
+        }   
+
+
+        //dd($request->all());
+
+        foreach($request->all() as $key => $value) {
+            if (strpos($key, 'attribute-') === 0) {
+                // Extraer el ID del atributo
+                $attribute_id = substr($key, 10); // 10 es la longitud de "attribute-"
+                $vid = $request->input('vid-'.$attribute_id)? 1:0;
+
+                // Usar updateOrCreate para actualizar o crear el registro
+                ProductAttributes::updateOrCreate(
+                    [
+                        'product_id' => $request->product_id,
+                        'attribute_id' => $attribute_id,
+                    ],
+                    [
+                        'value' => $value,
+                        'value_in_description' => $vid
+                    ]
+                );
+            }
+        }
+
+
+
+
+
+        
+
 
         $msg = trans('textos.atributos_vinculados');
         return redirect()->route('products.edit', [$request->product_id, 'attributes'])->with(compact('msg'));
