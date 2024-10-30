@@ -109,6 +109,8 @@ class OrderPrevisions extends Model{
             ->get();
 
             if($previsions->count()){
+                $order = Order::select('id', 'is_group')->find($order_id);
+
                 //Cambiar estado de pedido a finalizado:
                 $finish_order = true;
 
@@ -247,8 +249,8 @@ class OrderPrevisions extends Model{
                     //}
                 }
 
-                //Actualizar estado de pedido:
-                if($finish_order){
+                //Actualizar estado de pedido para pedidos simples:
+                if($finish_order && !$order->is_group){
                     Order::where('id', $order_id)
                     ->update(['order_status' => config('constants.ORDER_FINISHED_')]);
                 }
