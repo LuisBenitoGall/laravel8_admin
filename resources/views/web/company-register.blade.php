@@ -35,7 +35,7 @@
                         <div class="form-group row">
                             <label for="nif" class="col-md-4 col-form-label text-md-right">NIF</label>
                             <div class="col-md-6">
-                                <x-input type="text" name="nif" id="nif" autocomplete="nif" maxlength="11"/>
+                                <x-input type="text" name="nif" id="nif" autocomplete="nif" maxlength="16"/>
                             </div>
                         </div>
 
