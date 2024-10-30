@@ -132,6 +132,7 @@ class OrderPrevisions extends Model{
                 foreach($previsions as $p){
                     //Se omiten las previsiones relativas a abonos de factura.
                     //if(!$p->refund){
+                    if($p->amount > 0){
                         //Previsión facturada:
                         if($p->invoice_id){
                             //Importe de la factura:
@@ -213,7 +214,7 @@ class OrderPrevisions extends Model{
                         $p->save();
 
                         $k++;
-                    //}
+                    }
                 }
 
                 $diff_percent = bcsub(100, $accumulated_percent, 6);

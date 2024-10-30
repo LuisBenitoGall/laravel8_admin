@@ -240,7 +240,6 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 			@if($order->provider_id == session('currentCompany'))
 				<label for="status" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.estado')) !!}</label>
 				<div class="col-lg-2">
-					{{-- {{ dd($order->order_status) }} --}}
 					@php
 					//01/07/2023: los estados se limitan si el pedido está ya facturado.
 					if($order->invoiced && !$order->is_group){
@@ -397,7 +396,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 									<x-input type="text" name="amount[]" class="text-right set-decimals prevision-amount prevision-data prominent" autocomplete="off" maxlength="15" value="{{ $prev->amount }}" group="right" groupvalue="{{ $currency->symbol }}" required readonly="{{ $readonly_ }}"/>
 
 									@php
-									$accumulatedAmount = $accumulatedAmount + $prev->amount;
+									$accumulatedAmount = $prev->amount > 0? $accumulatedAmount + $prev->amount:$accumulatedAmount;
 									@endphp
 								</div>
 
