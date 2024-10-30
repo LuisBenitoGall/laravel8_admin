@@ -1156,6 +1156,7 @@ $(function(){
     var customer_team = {!! json_encode($customer_team) !!};
     var provider_team = {!! json_encode($provider_team) !!};
     var blocked = @if($order->blocked == 1) true @else false @endif;
+    var is_group = @if($order->is_group) true @else false @endif;
 
     //Link a entregas.
     $('#linkDelivery').on('change', function(event){
@@ -1403,8 +1404,8 @@ $(function(){
     //Validación previsiones de facturación:
     //26/10/2022: se omite -por ahora- la validación de las previsiones de facturación. Se considera que hay pedidos que deben quedar abiertos y sin mes concreto para su facturación pues distorsiona la previsión para ese mes. Se modifica selector: $('#frmOrderInfo') por $('#frmOrderInfo_')
     //04/06/2024: se validan de nuevo las previsiones aunque admite que no se informe el mes en las previsiones aún no facturadas.
-    //10/09/2024: se valida si el pedido no está bloqueado:
-    if(!blocked){
+    //10/09/2024: se valida si el pedido no está bloqueado y no es agrupación.
+    if(!blocked && !is_group){
         $('#frmOrderInfo').on('submit', function(){
             var validate_previsions = true;
             var prevision_amounts = 0;

@@ -33,7 +33,7 @@ $readonly_ = isset($is_agency) && $is_agency? true:false;
     		@endphp
     	@enderror
 
-    	<x-input type="text" name="nif" class="{{ $is_invalid }}" value="{{ $company->nif }}" readonly="{{ $readonly_ }}" autocomplete="off" maxlength="14" required info="company-nif"/>
+    	<x-input type="text" name="nif" class="{{ $is_invalid }}" value="{{ $company->nif }}" readonly="{{ $readonly_ }}" autocomplete="off" maxlength="16" required info="company-nif"/>
     </div>
 
     {{-- CCC --}}
