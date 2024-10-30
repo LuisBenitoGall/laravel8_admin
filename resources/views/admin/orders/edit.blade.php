@@ -1029,21 +1029,21 @@ function previsionsController(){
     var tolerance_max = 100.01;
     var tolerance_min = 0.02;
     var diff = '0';
-    
+   
     //Control de porcentaje:
     $('.previsions .prevision .prevision-percent').each(function(){
         var percent = $(this).val();
-        //if(percent > 0){
+        if(percent > 0){
             total_percent = (parseFloat(total_percent) + parseFloat(percent)).toFixed(6);
-        //}
+        }
     });
 
     //Control de importe:
     $('.previsions .prevision .prevision-amount').each(function(){
         var amount = $(this).val();
-        //if(amount > 0){
+        if(amount > 0){
             total_amount = (parseFloat(total_amount) + parseFloat(amount)).toFixed(6);
-        //}
+        }
     });
 
     var diff_amount = {{ $order_amount }} - total_amount;
