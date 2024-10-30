@@ -841,6 +841,8 @@ class OrderController extends Controller{
         if($is_group){
             $order->order_status = config('constants.ORDER_GROUPS_DEFAULT_');
             $order->bag_amount = $bag_amount;
+        }else{
+            $order->order_status = config('constants.ORDER_STATUS_APPROVED_');
         }
         $order->created_by = Auth::user()->id;
         $order->customer_id = $customer_id;
@@ -922,6 +924,7 @@ class OrderController extends Controller{
     public function orderFromBudget(Order $order){
         //Lo marcamos como pedido:
         $order->is_order = true;
+        $order->order_status = config('constants.ORDER_STATUS_APPROVED_');
         $order->save();
 
         //Guardamos previsión de facturación por defecto:
@@ -955,7 +958,7 @@ class OrderController extends Controller{
         $order->provider_id = $product_provider->provider_id;
         $order->num_deadlines = $cu_pr->num_deadlines;
         $order->days_between_deadlines = $cu_pr->days_between_deadlines;
-        $order->order_status = config('constants.ORDER_STATUS_PENDENT_');
+        $order->order_status = config('constants.ORDER_STATUS_APPROVED_');
         $order->save();
 
         //Guardamos previsión de facturación por defecto:
@@ -1786,6 +1789,7 @@ class OrderController extends Controller{
         //Si está declarado como presupuesto, sólo quitamos condición de pedido. En caso contrario, se elimina por completo.
         if($order->is_budget){
             $order->is_order = false;
+            $order->order_status = NULL;
             $order->save();
         }else{
             $order->delete();

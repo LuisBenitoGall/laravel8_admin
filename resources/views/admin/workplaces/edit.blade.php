@@ -114,7 +114,7 @@
 						{{--
 						<label for="nif" class="col-lg-2 col-form-label">NIF</label>	
 						<div class="col-lg-2">
-							<x-input type="text" name="nif" id="nif" autocomplete="off" maxlength="15" value="{{ $workplace->nif }}"/>
+							<x-input type="text" name="nif" id="nif" autocomplete="off" maxlength="16" value="{{ $workplace->nif }}"/>
 						</div>
 						--}}
 					</div>

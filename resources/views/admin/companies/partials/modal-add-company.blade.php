@@ -44,7 +44,7 @@
                                 @endphp
                             @enderror
 
-                            <x-input type="text" name="nif" class="{{ $is_invalid }}" placeholder="NIF" autocomplete="off" maxlength="14" required info="company-nif"/>
+                            <x-input type="text" name="nif" class="{{ $is_invalid }}" placeholder="NIF" autocomplete="off" maxlength="16" required info="company-nif"/>
                         </div>
                     </div>
 
