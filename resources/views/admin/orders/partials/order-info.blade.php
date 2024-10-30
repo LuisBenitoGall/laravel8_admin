@@ -230,16 +230,20 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 		--}}
 		@php
 		//Los estados se obtienen en función de si el pedido es simple o agrupación:
-		$estados = $order->is_group? App\Helpers\helpers::orderGroupStatus():App\Helpers\helpers::orderStatus();
+		//$estados = $order->is_group? App\Helpers\helpers::orderGroupStatus():App\Helpers\helpers::orderStatus();
+
+		$estados = App\Helpers\helpers::orderStatus();
 		@endphp
 
 		@if($order->blocked == '0')
+			{{-- Pedidos de venta --}}
 			@if($order->provider_id == session('currentCompany'))
 				<label for="status" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.estado')) !!}</label>
 				<div class="col-lg-2">
+					{{-- {{ dd($order->order_status) }} --}}
 					@php
 					//01/07/2023: los estados se limitan si el pedido está ya facturado.
-					if($order->invoiced){
+					if($order->invoiced && !$order->is_group){
 						$status_after_invoice = [config('constants.ORDER_STATUS_WITH_INVOICE_')];
 
 						foreach($estados as $ix => $e){
@@ -258,6 +262,8 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 			@else
 				<input type="hidden" name="order_status" value="{{ $order->order_status }}">
 			@endif
+
+		{{-- Pedidos bloqueados --}}
 		@else
 			<input type="hidden" name="order_status" value="{{ $order->order_status }}">
 
