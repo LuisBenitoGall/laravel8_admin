@@ -404,7 +404,8 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 								<label for="percent" class="col-md-2 col-lg-1 col-form-label">{!! ucfirst(trans('textos.porcentaje')) !!}</label>
 								<div class="col-md-4 col-lg-2 sinpadding text-right">
 									@php
-									$percent = $totalPercent > 100.01 && !$disabled? '':$prev->percent;
+									$percent = $totalPercent > 100.01? '':$prev->percent;
+									//&& !$disabled
 
 									// Porcentaje del monto total:
 									$orden_w = $prev->amount? $prev->amount:($percent != ''? ($percent * $order_amount) / 100:0);
