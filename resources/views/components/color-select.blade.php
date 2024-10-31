@@ -4,9 +4,12 @@
     <div class="color-grid">
         @foreach($colors as $c)
             @php
-            list($rgb, $color_name) = explode('-', $c);
+            $parts = explode('-', $c);
             @endphp
-            @if(isset($rgb) && isset($color_name))
+            @if(count($parts) === 2)
+                @php
+                list($rgb, $color_name) = $parts;
+                @endphp
                 <div class="color-cell" data-color="{{ strtolower($color_name) }}" style="background-color: {{ $rgb }};" rel="tooltip" title="{{ strtolower($color_name) }}">
                     @if(strtolower($value) == strtolower($color_name))
                         <i class="fa fa-check"></i>
