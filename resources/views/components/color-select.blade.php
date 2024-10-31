@@ -6,11 +6,13 @@
             @php
             list($rgb, $color_name) = explode('-', $c);
             @endphp
-            <div class="color-cell" data-color="{{ strtolower($color_name) }}" style="background-color: {{ $rgb }};" rel="tooltip" title="{{ strtolower($color_name) }}">
-                @if(strtolower($value) == strtolower($color_name))
-                    <i class="fa fa-check"></i>
-                @endif
-            </div>
+            @if(isset($rgb) && isset($color_name))
+                <div class="color-cell" data-color="{{ strtolower($color_name) }}" style="background-color: {{ $rgb }};" rel="tooltip" title="{{ strtolower($color_name) }}">
+                    @if(strtolower($value) == strtolower($color_name))
+                        <i class="fa fa-check"></i>
+                    @endif
+                </div>
+            @endif
         @endforeach
     </div>
 
