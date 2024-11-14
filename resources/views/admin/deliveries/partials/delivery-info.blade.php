@@ -4,7 +4,17 @@
 
 	<div class="form-group row">
 		{{-- Nº de entrega --}}
-		<label for="pattern_id" class="col-md-3 col-lg-2 col-form-label">{!! ucfirst(trans('textos.entrega_num')) !!}</label>
+		@php
+		//Patrón requerido:
+		$pattern_required = $patterns && $patterns->count() && session('companySettings')->pattern_deliveries? true:false;
+		@endphp
+
+		<label for="pattern_id" class="col-md-3 col-lg-2 col-form-label">
+			{!! ucfirst(trans('textos.entrega_num')) !!}
+			@if($pattern_required)
+				*
+			@endif
+		</label>
 		<div class="col-md-3 col-lg-2">
 			{{-- Patrón de numeración - condiciones:
 			 	1. Si existen patrones.
@@ -19,7 +29,7 @@
 					}
 					@endphp
 
-					<x-select name="pattern_id" class="select2" label="patron_selecciona" :options="$patterns_" info="delivery-pattern-num"/>
+					<x-select name="pattern_id" class="select2" label="patron_selecciona" :options="$patterns_" required="{{ $pattern_required }}" info="delivery-pattern-num"/>
 				@else
 					<label class="text-warning mt-2">{{ trans('textos.patrones_no_hay') }}</label>
 				@endif
