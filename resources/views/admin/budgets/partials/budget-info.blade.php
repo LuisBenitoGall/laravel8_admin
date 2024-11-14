@@ -8,7 +8,17 @@ $readonly = $order->customer_id == session('currentCompany')? true:false;
 
 	<div class="form-group row">
 		{{-- Nº de presupuesto --}}
-		<label for="pattern_id" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.presupuesto_num')) !!}</label>
+		@php
+		//Patrón requerido:
+		$pattern_required = $patterns && $patterns->count() && session('companySettings')->pattern_budgets? true:false;
+		@endphp
+
+		<label for="pattern_id" class="col-lg-2 col-form-label">
+			{!! ucfirst(trans('textos.presupuesto_num')) !!}
+			@if($pattern_required)
+				*
+			@endif
+		</label>
 		<div class="col-lg-2">
 			@if($order->budget_num)
 				<label class="text-warning mt-1" style="font-size: 16px;"><b><u>{{ $order->budget_num }}</u></b></label>
@@ -24,7 +34,7 @@ $readonly = $order->customer_id == session('currentCompany')? true:false;
 						}
 						@endphp
 
-						<x-select name="pattern_id" class="select2 prominent" label="patron_selecciona" :options="$patterns_" info="budget-pattern-num"/>
+						<x-select name="pattern_id" class="select2 prominent" label="patron_selecciona" :options="$patterns_" required="{{ $pattern_required }}" info="budget-pattern-num"/>
 					@else
 						<label class="text-warning mt-2">{{ trans('textos.patrones_no_hay') }}</label>
 					@endif

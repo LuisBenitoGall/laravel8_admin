@@ -1407,49 +1407,52 @@ $(function(){
     //10/09/2024: se valida si el pedido no está bloqueado y no es agrupación.
     if(!blocked && !is_group){
         $('#frmOrderInfo').on('submit', function(){
-            var validate_previsions = true;
-            var prevision_amounts = 0;
-            var order_amount = {!! round($order_amount, 2) !!};
-            $('.prevision-data').each(function(){
-                if($(this).val() == ''){
-                    validate_previsions = false;
-                    var msg_ = txtFacturacionPrevisionesAviso;
-                }
-            });
-
-            //Sumamos importes de las previsiones de facturación.
-            $('.prevision-amount').each(function(){
-                if($(this).val() > 0){
-                    prevision_amounts = parseFloat(prevision_amounts) + parseFloat($(this).val());
-                }
-            });
-
-            prevision_amounts = prevision_amounts.toFixed(2);
-
-            //Validando importes:
-            if(prevision_amounts < order_amount){
-                validate_previsions = false;  
-                var msg_ = txtPrevisionesError;  
-            }
-
-            if(!validate_previsions){
-                swal.fire({
-                    title: msg_,
-                    text: txtImportePrevisionesError,
-                    icon: 'warning',
-                    iconColor: color_warning,
-                    showCancelButton: false,
-                    confirmButtonColor: color_primary,
-                    cancelButtonColor: color_danger,
-                    confirmButtonText: txtAceptar,
-                    //cancelButtonText: txtCancelar
-                }).then((result) => {
-                    if(result.isConfirmed){
-
+            //Sólo para ventas
+            @if($order_type == 'sale')
+                var validate_previsions = true;
+                var prevision_amounts = 0;
+                var order_amount = {!! round($order_amount, 2) !!};
+                $('.prevision-data').each(function(){
+                    if($(this).val() == ''){
+                        validate_previsions = false;
+                        var msg_ = txtFacturacionPrevisionesAviso;
                     }
                 });
-                return false;
-            }
+
+                //Sumamos importes de las previsiones de facturación.
+                $('.prevision-amount').each(function(){
+                    if($(this).val() > 0){
+                        prevision_amounts = parseFloat(prevision_amounts) + parseFloat($(this).val());
+                    }
+                });
+
+                prevision_amounts = prevision_amounts.toFixed(2);
+
+                //Validando importes:
+                if(prevision_amounts < order_amount){
+                    validate_previsions = false;  
+                    var msg_ = txtPrevisionesError;  
+                }
+
+                if(!validate_previsions){
+                    swal.fire({
+                        title: msg_,
+                        text: txtImportePrevisionesError,
+                        icon: 'warning',
+                        iconColor: color_warning,
+                        showCancelButton: false,
+                        confirmButtonColor: color_primary,
+                        cancelButtonColor: color_danger,
+                        confirmButtonText: txtAceptar,
+                        //cancelButtonText: txtCancelar
+                    }).then((result) => {
+                        if(result.isConfirmed){
+
+                        }
+                    });
+                    return false;
+                }
+            @endif
         });
     }
 
