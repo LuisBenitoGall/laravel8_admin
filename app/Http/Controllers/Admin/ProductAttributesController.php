@@ -154,9 +154,6 @@ class ProductAttributesController extends Controller{
                 ->withInput();
         }   
 
-
-        //dd($request->all());
-
         foreach($request->all() as $key => $value) {
             if (strpos($key, 'attribute-') === 0) {
                 // Extraer el ID del atributo
@@ -176,13 +173,6 @@ class ProductAttributesController extends Controller{
                 );
             }
         }
-
-
-
-
-
-        
-
 
         $msg = trans('textos.atributos_vinculados');
         return redirect()->route('products.edit', [$request->product_id, 'attributes'])->with(compact('msg'));

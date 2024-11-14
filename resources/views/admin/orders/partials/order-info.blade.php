@@ -2,7 +2,7 @@
 //Acceso exclusivo proveedor:
 $read_only_provider = $order->customer_id == session('currentCompany')? true:false;
 @endphp
-
+{{-- {!! dd(session('companySettings')) !!} --}}
 <form method="post" autocomplete="off" id="frmOrderInfo" action="{{ route('orders.update', $order) }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
 	@method('PUT')
 	{{ csrf_field() }}
@@ -10,7 +10,17 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 
 	<div class="form-group row">
 		{{-- Nº de pedido --}}
-		<label for="pattern_id" class="col-md-3 col-lg-2 col-form-label">{!! ucfirst(trans('textos.pedido_num')) !!}</label>
+		@php
+		//Patrón requerido:
+		$pattern_sale_required = $patterns && $patterns->count() && $order_type == 'sale' && session('companySettings')->pattern_sales? true:false;
+		@endphp
+
+		<label for="pattern_id" class="col-md-3 col-lg-2 col-form-label">
+			{!! ucfirst(trans('textos.pedido_num')) !!}
+			@if($pattern_sale_required)
+				*
+			@endif
+		</label>
 		<div class="col-md-3 col-lg-2">
 			{{-- Patrón de numeración - condiciones:
 			 	1. Si existen patrones.
@@ -28,7 +38,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 					}
 					@endphp
 
-					<x-select name="pattern_id" class="select2 prominent" label="patron_selecciona" :options="$patterns_" info="order-pattern-num"/>
+					<x-select name="pattern_id" class="select2 prominent" label="patron_selecciona" :options="$patterns_" required="{{ $pattern_sale_required }}" info="order-pattern-num"/>
 				@else
 					<label class="text-warning mt-2">{{ trans('textos.patrones_no_hay') }}</label>
 				@endif
@@ -89,13 +99,22 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 
 	<div class="form-group row">
 		{{-- Orden de compra --}}
-		<label for="purchase_pattern_id" class="col-md-3 col-lg-2 col-form-label">{!! ucfirst(trans('textos.orden_compra')) !!}</label>
+		@php
+		//Patrón requerido:
+		$pattern_purchase_required = $purchase_patterns && count($purchase_patterns) && $order_type == 'purchase' && session('companySettings')->pattern_purchases? true:false;
+		@endphp
+		<label for="purchase_pattern_id" class="col-md-3 col-lg-2 col-form-label">
+			{!! ucfirst(trans('textos.orden_compra')) !!}
+			@if($pattern_purchase_required)
+				*
+			@endif
+		</label>
 		<div class="col-md-3 col-lg-2">
 			@if(!$order->purchase_num)
 				{{-- El número de orden de compra lo genera el cliente --}}
 				@if($order->customer_id == session('currentCompany'))
 					@if(count($purchase_patterns))
-						<x-select name="purchase_pattern_id" class="select2" label="patron_selecciona" :options="$purchase_patterns"/>
+						<x-select name="purchase_pattern_id" class="select2" label="patron_selecciona" :options="$purchase_patterns" required="{{ $pattern_purchase_required }}"/>
 					@else
 						<label class="text-warning mt-2">{{ trans('textos.patrones_no_hay') }}</label>
 					@endif
