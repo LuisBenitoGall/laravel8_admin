@@ -74,6 +74,7 @@ class Helpers{
 	 *  3.36. Tipos de efectos contables.
 	 *  3.37. Estados de pagos.
 	 *  3.38. Estados de remesas contables.
+	 *  3.39. Estados de incidencias.
 	 *
 	 * 4. Strings & Arrays:
 	 * 	4.1. Truncar texto.
@@ -84,6 +85,7 @@ class Helpers{
 	 *  4.5. Customizar strings.
 	 *  4.6. Cadena serializada.
 	 *  4.7. Detectar valores repetidos en un array.
+	 *  4.8. Etiquetas HTML permitidas en editor de texto.
 	 *
 	 * 5. Archivos:
 	 *  5.1. Allowed Image Mime Types.
@@ -1438,6 +1440,22 @@ class Helpers{
 	}
 
 	/**
+	 * 3.39. Estados de incidencias.
+	 */
+	public static function incidenceStatus($status = false){
+		$data = [
+			1 => trans('textos.abierta'),
+			10 => trans('textos.enviada'),
+			20 => trans('textos.cobrado')
+		];
+		if($status){
+			return ucfirst($data[$status]);
+		}else{
+			return $data;
+		}	
+	}
+
+	/**
 	 * 4.1. Truncar texto.
 	 */
 	public static function truncate($text, $chars = 120){
@@ -1585,6 +1603,13 @@ class Helpers{
 		$unique_values = array_unique($data);
 		$comunes = array_diff_assoc($data, $unique_values);
 		return $comunes;
+	}
+
+	/**
+	 * 4.8. Etiquetas HTML permitidas en editor de texto.
+	 */
+	public function allowedTags(){
+		return ['p', 'div', 'br', 'label', 'span', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'table', 'thead', 'tbody', 'tr', 'th', 'td', 'i', 'u', 'b', 'strong', 'a', 'img'];
 	}
 
 	/**

@@ -17,9 +17,6 @@ class CreateIncidencesTable extends Migration{
             $table->string('incidence_num_cardinal')->nullable();
             $table->integer('origin');      //1: incidencia interna     2: incidencia externa
             //FK:
-            $table->bigInteger('user_id')->unsigned()->nullable();
-            $table->foreign('user_id')->references('id')->on('users');
-            //FK:
             $table->bigInteger('provider_id')->unsigned()->nullable();
             $table->foreign('provider_id')->references('id')->on('companies');
             //FK:

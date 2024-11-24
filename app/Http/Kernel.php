@@ -135,6 +135,8 @@ class Kernel extends HttpKernel{
 
         'group_get' => \App\Http\Middleware\GroupGetMiddleware::class,
 
+        'incidence_pattern_get' => \App\Http\Middleware\IncidencePatternGetMiddleware::class,
+
         'invoice_customer_get' => \App\Http\Middleware\InvoiceCustomerGetMiddleware::class,
         'invoice_get' => \App\Http\Middleware\InvoiceGetMiddleware::class,
         'invoice_order_remove' => \App\Http\Middleware\InvoiceOrderRemoveMiddleware::class,
