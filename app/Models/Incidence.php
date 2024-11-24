@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Incidence extends Model{
     /**
      * 1. Documentos de la incidencia.
+     * 2. Autor de la incidencia.
      */
 
     use HasFactory;
@@ -23,5 +24,12 @@ class Incidence extends Model{
      */
     public function docs(){
         return $this->hasMany(IncidenceDocs::class);
+    }
+
+    /**
+     * 2. Autor de la incidencia.
+     */
+    public function author(){
+        return $this->belongsTo(User::class, 'created_by'); 
     }
 }
