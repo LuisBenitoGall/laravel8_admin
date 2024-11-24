@@ -496,6 +496,11 @@ class FunctionalitiesTableSeeder extends Seeder{
             'label' => 'incidencias',
             'module' => 'quality'
             ],
+            ['name' => 'incidence patterns',
+            'slug' => 'incidence-patterns',
+            'label' => 'incidencias_patrones',
+            'module' => 'quality'
+            ],
 
             ['name' => 'schedules',
             'slug' => 'schedules',

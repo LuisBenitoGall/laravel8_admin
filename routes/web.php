@@ -578,8 +578,21 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::get('import_db/start', 'ImportOldDBController@start')->name('import_db.start');
     Route::get('import_db/{prev}/messages', 'ImportOldDBController@messages')->name('import_db.messages');
 
+    // Incidence Patterns:
+    Route::get('incidence-patterns', 'IncidencePatternsController@index')->name('incidence-patterns.index')->middleware('permission:incidence-patterns.index');
+    Route::get('incidence-patterns/create', 'IncidencePatternsController@create')->name('incidence-patterns.create')->middleware('permission:incidence-patterns.create');
+    Route::post('incidence-patterns/store', 'IncidencePatternsController@store')->name('incidence-patterns.store')->middleware('permission:incidence-patterns.create');
+    Route::get('incidence-patterns/{pattern}/edit', 'IncidencePatternsController@edit')->name('incidence-patterns.edit')->middleware('permission:incidence-patterns.edit');
+    Route::put('incidence-patterns/{pattern}/update', 'IncidencePatternsController@update')->name('incidence-patterns.update')->middleware('permission:incidence-patterns.edit');
+    Route::delete('incidence-patterns/{pattern}', 'IncidencePatternsController@destroy')->name('incidence-patterns.destroy')->middleware('permission:incidence-patterns.destroy');
+    Route::get('incidence-patterns/status/{id}/{status}', 'IncidencePatternsController@status')->name('incidence-patterns.status')->middleware('permission:incidence-patterns.edit');
+
     // Incidences:
     Route::get('incidences', 'IncidenceController@index')->name('incidences.index');
+    Route::get('incidences/create', 'IncidenceController@create')->name('incidences.create');
+    Route::post('incidences/store', 'IncidenceController@store')->name('incidences.store')->middleware('permission:incidences.create');
+    Route::get('incidences/{incidence}/edit/{tab?}', 'IncidenceController@edit')->name('incidences.edit')->middleware('permission:incidences.edit');
+    Route::put('incidences/{incidence}/update', 'IncidenceController@update')->name('incidences.update')->middleware('permission:incidences.edit');
 
     // Inventory:
     Route::get('inventory/{tab?}', 'InventoryController@index')->name('inventory.index');

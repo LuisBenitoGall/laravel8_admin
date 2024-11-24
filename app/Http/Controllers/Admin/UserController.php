@@ -914,8 +914,7 @@ class UserController extends Controller{
         $data = User::select('id', 'name', 'surname') 
         ->where('status', 1)
         ->where(function($q) use ($search){  
-            $q->where('name', 'like', '%'.$search.'%') 
-            ->orWhere('surname', 'like', '%'.$search.'%');   
+            $q->where(DB::raw("CONCAT(name, ' ', surname)"), 'like', '%'.$search.'%');
         })
         ->orderBy('name', 'ASC')
         ->limit(15)
