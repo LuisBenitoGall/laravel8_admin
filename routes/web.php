@@ -775,8 +775,8 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     // Orders:
     Route::get('orders/list/{year?}/{customer_id?}/{provider_id?}/{owner?}/{groups_?}/{status?}/{from?}/{to?}/{order_buy?}', 'OrderController@index')->name('orders.index')->middleware('permission:orders.index');
     Route::post('orders', 'OrderController@getOrdersBy')->name('orders.list')->middleware('permission:orders.index');
-    Route::get('orders/control-panel-sales/{year?}/{workplace_id?}', 'OrderController@controlPanelSales')->name('orders.control-panel-sales')->middleware('permission:orders.index');
-    Route::get('orders/control-panel-purchases/{year?}/{workplace_id?}', 'OrderController@controlPanelPurchases')->name('orders.control-panel-purchases')->middleware('permission:orders.index');
+    Route::get('orders/control-panel-sales/{year?}/{year_to?}/{workplace_id?}', 'OrderController@controlPanelSales')->name('orders.control-panel-sales')->middleware('permission:orders.index');
+    Route::get('orders/control-panel-purchases/{year?}/{year_to?}/{workplace_id?}', 'OrderController@controlPanelPurchases')->name('orders.control-panel-purchases')->middleware('permission:orders.index');
     Route::get('orders/{order}/order-from-budget', 'OrderController@orderFromBudget')->name('orders.order-from-budget')->middleware('permission:orders.create');
     Route::get('orders/{product_provider}/order-from-product', 'OrderController@orderFromProduct')->name('orders.order-from-product')->middleware('permission:orders.create');
     Route::get('orders/{type}/create/{company_id?}', 'OrderController@create')->name('orders.create')->middleware('permission:orders.create');

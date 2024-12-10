@@ -53,7 +53,7 @@ class ProjectDocsController extends Controller{
                 //si el archivo ha sido guardado correctamente:
                 if($moved){
                     $doc = new ProjectDocs;
-                    $doc->doc = $fileName;
+                    $doc->doc = $fileName; 
                     $doc->project_id = $project;
                     $doc->type = $type;
                     $doc->featured = $featured;

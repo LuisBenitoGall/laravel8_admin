@@ -274,10 +274,10 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     Route::post('purchases-search', 'OrderController@searchPurchases');
 
     //Orders Control Panel Purchases:
-    Route::get('orders-control-panel-purchases/{year}', 'OrderController@getOrdersControlPanelPurchasesDT');
+    Route::get('orders-control-panel-purchases/{year}/{year_to}', 'OrderController@getOrdersControlPanelPurchasesDT');
 
     //Orders Control Panel Sales:
-    Route::get('orders-control-panel-sales/{year}/{workplace_id?}', 'OrderController@getOrdersControlPanelSalesDT');
+    Route::get('orders-control-panel-sales/{year}/{year_to}/{workplace_id?}', 'OrderController@getOrdersControlPanelSalesDT');
 
     //Payment Methods:
     Route::get('payment-methods', 'PaymentMethodController@getPaymentMethodsDT');
