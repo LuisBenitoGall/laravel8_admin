@@ -162,6 +162,8 @@ return array(
 	'anadir' => 'add',
 	'anulado' => 'Cancelled',
 	'any' => 'year',
+	'any_hasta' => 'Year end',
+	'any_hasta_aviso' => 'The end year cannot be less than the start year.',
 	'apellidos' => 'surnames',
 	'aprobado' => 'approved',
 	'aqui' => 'here',

@@ -3,6 +3,7 @@
 @section('content')
 
 <input type="hidden" id="dtYear" value="{{ $year }}">
+<input type="hidden" id="dtYearTo" value="{{ $year_to }}">
 <input type="hidden" id="dtWorkplace" value="{{ $workplace_id }}">
 <input type="hidden" id="dtCurrency" value="{{ $currency->symbol }}">
 
@@ -32,13 +33,27 @@
 					<input type="hidden" name="order_type" id="orderType" value="{{ $order_type }}">
 
 					<div class="form-group row">
-						{{-- Año --}}
+						{{-- Año desde --}}
 						@include('admin.partials.selector-year', ['selected_year' => $year])
+
+                        {{-- Año hasta --}}
+                        <label for="year_to" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.any_hasta')) !!} </label>
+                        <div class="col-lg-2">
+                            @php
+                            $max_year = date('Y')+1;
+                            $years = [];
+                            for($i=$max_year; $i>=config('constants.MIN_YEAR_'); $i--){
+                                $years[$i] = $i;
+                            }
+                            @endphp
+
+                            <x-select id="selectorYearTo" name="year_to" class="select2" label="selecciona_any" :options="$years" value="{{ $year_to }}"/>
+                        </div>
 
 						{{-- Centros de trabajo --}}
 						@if(count($workplaces) > 1)
 							<label for="workplace" class="col-2 col-form-label">{{ ucfirst(trans('textos.centro_trabajo')) }}</label>
-	                    	<div class="col-3">
+	                    	<div class="col-2">
 	                    		<x-select name="workplace" class="select2" label="centro_trabajo_selec" :options="$workplaces" value="{{ $workplace_id }}"/>
 	                    	</div>
 	                    @elseif(count($workplaces) == 1)
@@ -46,9 +61,9 @@
 	                    		<input type="hidden" name="workplace" value="{{ $i }}">
 	                    	@endforeach
 	                    @endif
+                    </div>
 
-						<x-btn-submit name="submit_filter" label="{{ trans('textos.buscar') }}" inline/>
-					</div>
+					<x-btn-submit name="submit_filter" label="{{ trans('textos.buscar') }}"/>
 				</form>
 			</div>
 		</div>
@@ -123,6 +138,7 @@ $(function(){
     if($('#tblOrdersControlPanelPurchases').length > 0){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
         var year = $('#dtYear').val();
+        var year_to = $('#dtYearTo').val();
         var workplace = $('#dtWorkplace').val();
         var currency = $('#dtCurrency').val();
 
@@ -192,7 +208,7 @@ $(function(){
             // },
             ajax: {
                 "type": "GET",
-                "url": "/api/admin/orders-control-panel-purchases/"+year,
+                "url": "/api/admin/orders-control-panel-purchases/"+year+"/"+year_to,
                 "error": function(reason){
                     console.log(reason);
                 }
@@ -271,6 +287,7 @@ $(function(){
     if($('#tblOrdersControlPanelSales').length > 0){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
         var year = $('#dtYear').val();
+        var year_to = $('#dtYearTo').val();
         var workplace = $('#dtWorkplace').val();
         var currency = $('#dtCurrency').val();
 
@@ -340,7 +357,7 @@ $(function(){
             // },
             ajax: {
                 "type": "GET",
-                "url": "/api/admin/orders-control-panel-sales/"+year+'/'+workplace,
+                "url": "/api/admin/orders-control-panel-sales/"+year+"/"+year_to+'/'+workplace,
                 "error": function(reason){
                     console.log(reason);
                 }
@@ -416,6 +433,33 @@ $(function(){
             }
         });
     }
+
+    //Selector de año:
+    $('#selectorYearTo').on('change', function(){
+        $year_from = $('#selectorYear').val();
+        $year_to = $('#selectorYearTo').val();
+
+        //El año fin no puede ser inferior al año inicio:
+        if($year_to < $year_from){
+            swal.fire({
+                title: "{{ trans('textos.any_hasta_aviso') }}",
+                text: "",
+                icon: 'warning',
+                iconColor: color_warning,
+                showCancelButton: false,
+                confirmButtonColor: color_danger,
+                cancelButtonColor: color_danger,
+                confirmButtonText: txtCancelar,
+                cancelButtonText: txtCancelar
+            }).then((result) => {
+                if(result.isConfirmed){
+                    let arr = [$year_from];
+                    $('#selectorYearTo').val(arr);
+                    $('#selectorYearTo').trigger('change');    
+                }
+            });
+        }
+    });
 });
 </script>
 @endpush

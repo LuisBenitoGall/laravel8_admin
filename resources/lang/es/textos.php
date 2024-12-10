@@ -162,6 +162,8 @@ return array(
 	'anadir' => 'añadir',
 	'anulado' => 'Anulado',
 	'any' => 'año',
+	'any_hasta' => 'Año fin',
+	'any_hasta_aviso' => 'El año fin no puede ser menor que el año inicial.',
 	'apellidos' => 'apellidos',
 	'aprobado' => 'aprobado',
 	'aqui' => 'aquí',

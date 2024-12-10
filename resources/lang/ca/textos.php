@@ -162,6 +162,8 @@ return array(
 	'anadir' => 'afegir',
 	'anulado' => 'Anul·lat',
 	'any' => 'any',
+	'any_hasta' => 'Any fi',
+	'any_hasta_aviso' => 'L\'any fi no pot ser menor que l\'any inicial.',
 	'apellidos' => 'cognoms',
 	'aprobado' => 'aprovat',
 	'aqui' => 'aquí',
