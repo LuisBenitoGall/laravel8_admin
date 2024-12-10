@@ -1535,7 +1535,7 @@ class BudgetController extends Controller{
             $it->iva = $i->iva;
             $it->discount = $i->discount;
             $it->calculated_by_percent = $i->calculated_by_percent;
-            $it->invoiced = $i->invoiced;
+            $it->invoiced = NULL;
             $it->deposit_used = $i->deposit_used;
             $it->days = $i->days;
             $it->days_continue = $i->days_continue;
