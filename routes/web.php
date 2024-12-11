@@ -593,6 +593,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::post('incidences/store', 'IncidenceController@store')->name('incidences.store')->middleware('permission:incidences.create');
     Route::get('incidences/{incidence}/edit/{tab?}', 'IncidenceController@edit')->name('incidences.edit')->middleware('permission:incidences.edit');
     Route::put('incidences/{incidence}/update', 'IncidenceController@update')->name('incidences.update')->middleware('permission:incidences.edit');
+    Route::delete('incidences/{incidence}', 'IncidenceController@destroy')->name('incidences.destroy')->middleware('permission:incidences.destroy');
 
     // Inventory:
     Route::get('inventory/{tab?}', 'InventoryController@index')->name('inventory.index');

@@ -2022,7 +2022,7 @@ class OrderController extends Controller{
         ]; 
 
         $year = !$year? Date('Y'):$year;
-        $year_to = !$year_to? Date('Y'):$year;
+        $year_to = !$year_to? $year:$year_to;
 
         $min_year = config('constants.MIN_YEAR_');
         $max_year = date('Y') + 1;
@@ -2067,7 +2067,6 @@ class OrderController extends Controller{
             array_push($arr_years, $year);
             $year++;
         }
-
         $data = Order::select('orders.id', 'orders.name', 'orders.order_num', 'orders.order_old_num', 'orders.purchase_num', 'orders.purchase_old_num', 'orders.is_group', 'orders.estimated_delivery_date', 'orders.delivery_date', 'orders.order_status', 'orders.invoiced', 'orders.discount', 'orders.bag_amount', 'order_previsions.year', 'order_previsions.month', 'order_previsions.percent', 'orders.created_at', 'companies.name AS Customer', 'users.name AS nombre', 'users.surname', 'cc.name AS finalCustomer', 'u_.name AS CustomerManagerName', 'u_.surname AS CustomerManagerSurname', 'business_areas.name AS businessArea', 'workplaces.name AS workplace')
         ->join('order_previsions', 'orders.id', '=', 'order_previsions.order_id')
         ->join('companies', 'orders.customer_id', '=', 'companies.id')
@@ -2204,7 +2203,7 @@ class OrderController extends Controller{
         ]; 
 
         $year = !$year? Date('Y'):$year;
-        $year_to = !$year_to? Date('Y'):$year;
+        $year_to = !$year_to? $year:$year_to;
 
         $min_year = config('constants.MIN_YEAR_');
         $max_year = date('Y') + 1;
