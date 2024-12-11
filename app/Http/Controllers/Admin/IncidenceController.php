@@ -17,12 +17,16 @@ use File;
 //Models:
 use App\Models\CompanySettings;
 use App\Models\Incidence;
+use App\Models\IncidencePatterns;
 
 class IncidenceController extends Controller{
     /**
      * 1. Listado de incidencias.
      * 2. Formulario nueva incidencia.
      * 3. Guardar incidencia.
+     * 4. Editar incidencia.
+     * 5. Actualizar incidencia.
+     * 6. Eliminar incidencia.
      */
     
     private $option = 'incidencias';
@@ -52,6 +56,15 @@ class IncidenceController extends Controller{
             ],[
                 'customer_id.required_without' => trans('textos.empresa_usuario_requerido'), 
                 'subject_id.required_without' => trans('textos.empresa_usuario_requerido')
+            ]);
+
+        //Validación update:
+        }elseif(isset($data['submit_update'])){
+            return Validator::make($data, [
+                'incidence_date' => 'required',
+                'concept' => 'required'
+            ],[
+
             ]);
         }
     }
@@ -107,6 +120,7 @@ class IncidenceController extends Controller{
         $incidence->customer_id = $request->customer_id;
         $incidence->concept = $request->concept;
         $incidence->observations = $request->observations;
+        $incidence->status = config('constants.INCIDENCE_STATUS_OPEN_');
         $incidence->created_by = Auth::user()->id;
         $incidence->save();
 
@@ -125,15 +139,53 @@ class IncidenceController extends Controller{
             'slug' => 'incidences'
         ]; 
 
+        //Patrones de numeración de incidencias:
+        $patterns = false;
+        if(!$incidence->pattern_id){
+            $patterns = IncidencePatterns::select('id', 'name', 'yearly_reset')
+            ->where('company_id', session('currentCompany'))
+            ->where('status', 1)
+            ->get();
+        }
+
+        //Estados de incidencia:
+        $incidence_status = helpers::incidenceStatus();
+
         $languages = $this->languages;
 
-        return view('admin.incidences.edit')->with(compact('header', 'incidence', 'tab', 'languages')); 
+        return view('admin.incidences.edit')->with(compact('header', 'incidence', 'tab', 'patterns', 'incidence_status', 'languages')); 
     }
 
     /**
      * 5. Actualizar incidencia.
      */
-    public function update(Request $request){
+    public function update(Request $request, Incidence $incidence){
+        $validator = $this->validator($request->all());
+        if ($validator->fails()) {
+            return redirect('/admin/incidences/'.$incidence->id.'/edit')
+                ->withErrors($validator)
+                ->withInput();
+        }   
 
+        $incidence_date = $request->incidence_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->incidence_date):$request->incidence_date:NULL;
+
+        $incidence->incidence_date = $incidence_date;
+        $incidence->concept = $request->concept;
+        $incidence->observations = $request->observations;
+        $incidence->status = $request->status;
+        $incidence->save();
+
+        $msg = trans('textos.incidencia_updated');
+        return redirect()->route('incidences.edit', $incidence)->with(compact('msg'));
+    }
+
+    /**
+     * 6. Eliminar incidencia.
+     */
+    public function destroy(Incidence $incidence){
+        $incidence->delete();
+
+        $msg = trans('textos.incidencia_deleted');
+        return redirect()->route('incidences.index')->with(compact('msg')); 
     }
 }

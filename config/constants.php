@@ -54,6 +54,7 @@ return [
     'EMPLOYEE_EXPIRED_' => 2,
     'EMPLOYEE_INACTIVED_' => 0,
 	'IDM_' => 'es',
+    'INCIDENCE_STATUS_OPEN_' => 1,
     'INVOICE_OPEN_' => 1,   //Factura pendiente
     'INVOICE_PAID_' => 10, 
     'INVOICE_REFUNDED_' => 20,
