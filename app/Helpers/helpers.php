@@ -1445,8 +1445,8 @@ class Helpers{
 	public static function incidenceStatus($status = false){
 		$data = [
 			1 => trans('textos.abierta'),
-			10 => trans('textos.enviada'),
-			20 => trans('textos.cobrado')
+			10 => trans('textos.pendiente_validacion'),
+			20 => trans('textos.cerrada')
 		];
 		if($status){
 			return ucfirst($data[$status]);
