@@ -212,8 +212,11 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     //Groups:
     Route::get('groups', 'GroupController@getGroupsDT');
 
-    //InvoicePatterns:
+    //IncidencePatterns:
     Route::get('incidence-patterns', 'IncidencePatternsController@getPatternsDT');
+
+    //Incidences:
+    Route::get('incidences', 'IncidenceController@getIncidencesDT');
 
     //Inventory:
     Route::get('inventory', 'InventoryController@getInventoryDT');

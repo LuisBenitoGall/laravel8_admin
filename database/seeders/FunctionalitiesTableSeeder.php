@@ -305,6 +305,16 @@ class FunctionalitiesTableSeeder extends Seeder{
             'label' => 'presupuestos_patrones',
             'module' => 'budgets'
             ],
+            ['name' => 'briefings',
+            'slug' => 'briefings',
+            'label' => 'briefings',
+            'module' => 'budgets'
+            ],
+            ['name' => 'briefing templates',
+            'slug' => 'briefing-templates',
+            'label' => 'briefing_plantillas',
+            'module' => 'budgets'
+            ],
 
             ['name' => 'orders',
             'slug' => 'orders',
