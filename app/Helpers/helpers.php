@@ -75,6 +75,7 @@ class Helpers{
 	 *  3.37. Estados de pagos.
 	 *  3.38. Estados de remesas contables.
 	 *  3.39. Estados de incidencias.
+	 *  3.40. Unidades de tiempo.
 	 *
 	 * 4. Strings & Arrays:
 	 * 	4.1. Truncar texto.
@@ -1453,6 +1454,34 @@ class Helpers{
 		}else{
 			return $data;
 		}	
+	}
+
+	/**
+	 * 3.40. Unidades de tiempo.
+	 */
+	public static function timeUnits($unit = false){
+		$data = [
+			1 => trans('textos.milesimas'),
+			2 => trans('textos.centesimas'),
+			3 => trans('textos.decimas'),
+			4 => trans('textos.segundos'),
+			5 => trans('textos.minutos'),
+			6 => trans('textos.horas'),
+			7 => trans('textos.dias'),
+			8 => trans('textos.semanas'),
+			9 => trans('textos.meses'),
+			10 => trans('textos.anys')
+		];
+
+		if($unit){
+			if(isset($data[$unit])){
+				return ucfirst($data[$unit]);
+			}else{
+				return false;
+			}
+		}else{
+			return $data;
+		}
 	}
 
 	/**

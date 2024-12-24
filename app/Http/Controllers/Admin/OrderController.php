@@ -114,7 +114,8 @@ class OrderController extends Controller{
         $this->languages = helpers::languages();
 
         $this->middleware('module_setted:orders');
-        $this->middleware('order_get', ['only' => ['orderFromBudget', 'edit', 'update', 'updateConditions', 'destroy', 'print', 'setOrderDelivery', 'resetNum', 'removePurchaseDoc', 'close', 'deleteDiscount']]);
+        $this->middleware('order_get', ['only' => ['orderFromBudget', 'edit', 'update', 'updateConditions', 'destroy', 'print', 'setOrderDelivery', 'resetNum', 'removePurchaseDoc', 'deleteDiscount']]);
+        $this->middleware('order_post', ['only' => ['close']]);
         $this->middleware('project_purchases', ['only' => ['addPurchaseToProject']]);
     }
 
@@ -256,6 +257,13 @@ class OrderController extends Controller{
                 'environment' => 'required',
                 'member' => 'required|integer'
             ]); 
+
+        //Validación close pedido:
+        }elseif(isset($data['submit_close_order'])){
+            return Validator::make($data, [
+                'order_id' => 'required|integer',
+                'status' => 'required|integer'
+            ]);
         } 
     }
     
@@ -2959,19 +2967,28 @@ class OrderController extends Controller{
     /**
      * 27. Cerrar pedido.
      */
-    public function close(Order $order){
+    public function close(Request $request){
+        $validator = $this->validator($request->all());
+        if($validator->fails()){
+            //Indicamos el origen de la acción realizada para manejar el modal:
+            $validator->getMessageBag()->add('accion', 'modal-close-order');
+
+            return redirect('admin/orders/'.$request->order_id.'/edit')
+            ->withErrors($validator)
+            ->withInput();    
+        }
+
         //Eliminamos las previsiones no facturadas.
-        OrderPrevisions::where('order_id', $order->id)
+        OrderPrevisions::where('order_id', $request->order_id)
         ->whereNull('invoice_id')
         ->delete();
 
         //Bloqueamos pedido:
-        $order->blocked = 1;
-        $order->order_status = config('constants.ORDER_STATUS_WITH_INVOICE_');
-        $order->save();
+        Order::where('id', $request->order_id)
+        ->update(['blocked' => 1, 'order_status' => $request->status]);
 
         $msg = trans('textos.pedido_cerrado');
-        return redirect()->route('orders.edit', $order)->with(compact('msg'));
+        return redirect()->route('orders.edit', $request->order_id)->with(compact('msg'));
     }
 
     /**

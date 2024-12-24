@@ -22,6 +22,7 @@ use App\Models\IncidencePatterns;
 class IncidenceController extends Controller{
     /**
      * 1. Listado de incidencias.
+     * 1.1. Listado de incidencias para DataTable.
      * 2. Formulario nueva incidencia.
      * 3. Guardar incidencia.
      * 4. Editar incidencia.
@@ -81,6 +82,33 @@ class IncidenceController extends Controller{
         ]; 
 
         return view('admin.incidences.index')->with(compact('header'));
+    }
+
+    /**
+     * 1.1. Listado de incidencias para DataTable.
+     */
+    public function getIncidencesDT(){
+        $data = Incidence::select('incidences.*', 'companies.name AS company')
+        ->join('companies', 'incidences.customer_id', '=', 'companies.id')   
+        ->where('incidences.provider_id', session('currentCompany'))
+        ->orderBy('incidences.id', 'DESC');
+
+        return DataTables::of($data)
+        ->addColumn('num', function($row){
+            $num = $row->incidence_num? $row->incidence_num:($row->incidence_old_num? $row->incidence_num:$row->id);
+            return '<a href="/admin/incidences/'.$row->id.'/edit">'.$num.'</a>';
+        })
+        ->addColumn('concept', function($row){
+            return $row->concept;
+        })
+        ->addColumn('date', function($row){
+            return $row->prevista = $row->estimated_delivery_date? Carbon::parse($row->estimated_delivery_date)->format($this->languages[session()->get('locale')][4]):'';
+        })
+        ->addColumn('acciones', function($row){
+            return view('admin.incidences.partials.dt-actions', compact('row'));    
+        })
+        ->rawColumns(['num'])
+        ->make(true);
     }
 
     /**

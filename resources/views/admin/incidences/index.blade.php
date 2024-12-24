@@ -71,10 +71,10 @@ $(function(){
                 }
             },
             columns: [
-                {data: 'name'},
-                {data: 'alta', name: 'alta', className: 'text-right'},
-                {data: 'description'},
-                {data: 'acciones', name: 'acciones', className: 'text-right'}
+                {data: 'num'},
+                {data: 'concept'},
+                {data: 'date', className: 'text-right'},
+                {data: 'acciones', className: 'text-right'}
             ]
         });
     }

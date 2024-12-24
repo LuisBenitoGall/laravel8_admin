@@ -188,6 +188,12 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::delete('batches/{batch}', 'BatchController@destroy')->name('batches.destroy')->middleware('permission:batches.destroy');
     Route::get('batches/{product_id}/by-store/{store_id}', 'BatchController@productBatchesByStore')->name('batches.by-store');
 
+    // Briefing Templates:
+    Route::get('briefing-templates', 'BriefingTemplateController@index')->name('briefing-templates.index')->middleware('permission:briefing-templates.index');
+
+    // Briefings:
+    Route::get('briefings', 'BriefingController@index')->name('briefings.index')->middleware('permission:briefings.index');
+
     // Budget Form Items:
     Route::post('budget-form-items/store', 'BudgetFormItemsController@store')->name('budget-form-items.store')->middleware('permission:budget-forms.edit');
     Route::post('budget-form-items/update', 'BudgetFormItemsController@update')->name('budget-form-items.update')->middleware('permission:budgets.edit');
@@ -195,8 +201,6 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::post('budget-form-items/add-block', 'BudgetFormItemsController@addBlock')->name('budget-form-items.add-block')->middleware('permission:budgets.edit');
     Route::post('budget-form-items/update-block', 'BudgetFormItemsController@updateBlock')->name('budget-form-items.update-block')->middleware('permission:budgets.edit');
     Route::post('budget-form-items/sort-blocks', 'BudgetFormItemsController@sortBlocks')->name('budget-form-items.sort-blocks')->middleware('permission:budgets.edit');
-
-
     Route::get('budget-form-items/fixed/{id}/{status}', 'BudgetFormItemsController@setFixed')->name('budget-form-items.fixed');
 
     // Budget Forms:
@@ -809,7 +813,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::get('control-panel', 'OrderController@index')->name('control-panel.index')->middleware('permission:orders.index');
     Route::post('orders/control-panel-sales-year', 'OrderController@controlPanelSalesPost')->name('orders.control-panel-sales-year')->middleware('permission:orders.index');
     Route::post('orders/control-panel-purchases-year', 'OrderController@controlPanelPurchasesPost')->name('orders.control-panel-purchases-year')->middleware('permission:orders.index');
-    Route::get('orders/{order}/close', 'OrderController@close')->name('orders.close')->middleware('permission:orders.destroy');
+    Route::post('orders/close', 'OrderController@close')->name('orders.close')->middleware('permission:orders.destroy');
 
     Route::get('orders/create/{project_id?}', 'OrderController@create')->name('orders-forms.create')->middleware('permission:orders.create');
 
