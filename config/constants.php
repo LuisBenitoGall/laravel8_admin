@@ -81,6 +81,7 @@ return [
     'ORDER_GROUPS_DEFAULT_' => 10,
     'ORDER_GROUPS_OPENED_' => [10],
 
+    'ORDER_STATUS_CLOSED_' => [30, 70],                  //Status de pedidos que se cierran.
     'ORDER_STATUS_FINISHED_' => [40, 70],
     'ORDER_STATUS_INVOICED_' => [10, 40, 70],           //Status de pedidos facturables. 
     'ORDER_STATUS_NOT_DELETED_' => [15, 40, 50, 70],    //Status de pedidos no eliminables.

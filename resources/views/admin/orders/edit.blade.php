@@ -480,7 +480,10 @@
         --}}
         @can('orders.destroy')
             @if($order->blocked == '0')
-                <a href="{{ route('orders.close', $order) }}" class="btn btn-danger btn-confirm" data-msg="{{ ucfirst(trans('textos.pedido_confirm_cerrar')) }}">
+                {{-- <a href="{{ route('orders.close', $order) }}" class="btn btn-danger btn-confirm" data-msg="{{ ucfirst(trans('textos.pedido_confirm_cerrar')) }}"> --}}
+
+                {{-- 24/12/2024: se incluye la elección de estado antes de cerrar el pedido --}}
+                <a href="#" data-toggle="modal" data-target="#modal-close-order" class="btn btn-danger">
                     <i class="fa fa-times"></i>
                     {!! trans('textos.pedido_cerrar') !!}
                 </a>
@@ -498,10 +501,11 @@
             2. Que se cumplan las condiciones: $permitted = true.
             3. Pedido no facturado.
             4. Exclusivo para proveedor.
+            5. El pedido no puede estar bloqueado.
             ...
         --}}
         @can('orders.destroy')
-            @if($permitted && !$order->invoiced && $order->provider_id == session('currentCompany'))
+            @if($permitted && !$order->invoiced && $order->provider_id == session('currentCompany') && !$order->blocked)
                 <form method="POST" action="{{ route('orders.destroy', $order) }}" class="frm-inline" role="form" accept-charset="UTF-8">
                     <input name="_method" type="hidden" value="DELETE">
                     {{ csrf_field() }}
@@ -1019,6 +1023,9 @@ if($previsions){
 
 {{-- Ronda de cambios --}}
 @include('admin.orders.partials.modal-changes-round')
+
+{{-- Close order --}}
+@include('admin.orders.partials.modal-close-order')
 
 @push('scripts')
 <script>
