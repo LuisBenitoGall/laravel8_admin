@@ -2406,19 +2406,20 @@ class InvoiceController extends Controller{
         }
 
         //Añadir línea negativa en el pedido:
-        $refundId = $refund->invoice_num? $refund->invoice_num:$refund->id;
-        $item_ = new Item();
-        $item_->order_id = $invoice->order_id;
-        $item_->concept = $request->concept != ''? $request->concept:trans('textos.factura_abono').' '.$refundId;
-        $item_->qty = 1;
-        $item_->price = $refund->amount * -1;
-        $item_->iva = $invoice->with_iva;
-        $item_->invoice_id = $refund->id;
-        $item_->invoiced = date('Y-m-d H:i:s');
-        $item_->active = 1;
-        $item_->status = NULL;
-        $item_->user_id = Auth::user()->id;
-        $item_->save();
+        //24/12/2024: se elimina esta opción para que el pedido mantenga el importe original:
+        // $refundId = $refund->invoice_num? $refund->invoice_num:$refund->id;
+        // $item_ = new Item();
+        // $item_->order_id = $invoice->order_id;
+        // $item_->concept = $request->concept != ''? $request->concept:trans('textos.factura_abono').' '.$refundId;
+        // $item_->qty = 1;
+        // $item_->price = $refund->amount * -1;
+        // $item_->iva = $invoice->with_iva;
+        // $item_->invoice_id = $refund->id;
+        // $item_->invoiced = date('Y-m-d H:i:s');
+        // $item_->active = 1;
+        // $item_->status = NULL;
+        // $item_->user_id = Auth::user()->id;
+        // $item_->save();
 
         //Asiento contable:
         //1. Pedido de la factura:
