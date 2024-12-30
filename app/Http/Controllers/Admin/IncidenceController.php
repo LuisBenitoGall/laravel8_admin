@@ -195,8 +195,21 @@ class IncidenceController extends Controller{
                 ->withInput();
         }   
 
+        //Número de orden de compra:
+        if($request->pattern_id){
+            $patternNum = $this->setPatternNumber('incidence', $request->pattern_id);
+        }
+
         $incidence_date = $request->incidence_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->incidence_date):$request->incidence_date:NULL;
 
+        if($request->pattern_id){
+            if(!empty($patternNum)){
+                $incidence->incidence_num = $patternNum['pattern_num'];  
+                $incidence->incidence_num_cardinal = $patternNum['num']; 
+            }            
+            $incidence->pattern_id = $request->pattern_id;
+        }
+        $incidence->incidence_old_num = $request->incidence_old_num;
         $incidence->incidence_date = $incidence_date;
         $incidence->concept = $request->concept;
         $incidence->observations = $request->observations;

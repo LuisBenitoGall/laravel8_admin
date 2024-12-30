@@ -728,7 +728,6 @@ class ProjectController extends Controller{
         $alert = false;
 
         //Número de proyecto:
-        $project_num = NULL;
         if($request->pattern_id){
             $patternNum = $this->setPatternNumber('project', $request->pattern_id);
         }
