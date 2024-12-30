@@ -219,7 +219,7 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     Route::get('incidence-patterns', 'IncidencePatternsController@getPatternsDT');
 
     //Incidences:
-    Route::get('incidences', 'IncidenceController@getIncidencesDT');
+    Route::post('incidences', 'IncidenceController@getIncidencesDT');
 
     //Inventory:
     Route::get('inventory', 'InventoryController@getInventoryDT');
