@@ -602,6 +602,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
 
     // Incidences:
     Route::get('incidences', 'IncidenceController@index')->name('incidences.index');
+    Route::post('incidences', 'IncidenceController@getIncidencesBy')->name('incidences.list');
     Route::get('incidences/create', 'IncidenceController@create')->name('incidences.create');
     Route::post('incidences/store', 'IncidenceController@store')->name('incidences.store')->middleware('permission:incidences.create');
     Route::get('incidences/{incidence}/edit/{tab?}', 'IncidenceController@edit')->name('incidences.edit')->middleware('permission:incidences.edit');
