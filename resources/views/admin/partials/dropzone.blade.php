@@ -23,7 +23,7 @@ var icons = {!! $icons !!};
 var myDropzone = new Dropzone('.dropzone', {
     url: '{{ $url }}',
     paramName: 'file',
-    aceptedFiles: 'image/*',
+    acceptedFiles: 'image/*',
     maxFilesize: 2, //MB    
     maxFiles: 10,
     headers: {
@@ -34,7 +34,12 @@ var myDropzone = new Dropzone('.dropzone', {
 
 //Envío correcto:
 myDropzone.on('success', function(file, res, done){
-    //Sin acciones definidas.
+    //Incidence Docs:
+    if($('#incidenceDocs').length > 0){
+        var incidence_docs = $('#incidence-docs').val();
+        incidence_docs += ','+res.id;
+        $('#incidence-docs').val(incidence_docs);
+    }
 });
 
 //Error:
@@ -44,7 +49,6 @@ myDropzone.on('error', function(file, res){
 });
 
 Dropzone.autoDiscover = false;
-
 </script>
 @endpush
 @endonce

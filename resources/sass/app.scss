@@ -4624,13 +4624,15 @@ body.tour-open .animated {
   margin: 0 auto;
 }
 /* Dropzone */
-.dropzone {
+.dropzone,
+.dropzone_{
   min-height: 140px;
   border: 1px dashed $primary;
   background: white;
   padding: 20px 20px;
 }
-.dropzone .dz-message {
+.dropzone .dz-message, 
+.dropzone_ .dz-message{
   font-size: 16px;
 }
 /* Activity stream */
@@ -10263,7 +10265,8 @@ body.md-skin {
     }
 }
 
-.dropzone {
+.dropzone,
+.dropzone_ {
     min-height: 150px;
     border: 1px solid $input-border-color !important;
     border-radius: 1px !important;
@@ -10274,6 +10277,14 @@ body.md-skin {
         color: #495057;
         font-size: 20px;
         font-weight: $flight;
+    }
+}
+.dropzone_ {
+    .dropzone_copy{
+        color: #495057;
+        font-size: 20px;
+        font-weight: $flight;
+        text-align: center;
     }
 }
 
@@ -10363,7 +10374,7 @@ body.md-skin {
     }
     &.for_chk{
         right: -10px;
-        top: 11px;
+        top: 5px;
     }
 }
 

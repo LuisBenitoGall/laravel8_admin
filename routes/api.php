@@ -212,6 +212,9 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     //Groups:
     Route::get('groups', 'GroupController@getGroupsDT');
 
+    //IncidenceMessages:
+    Route::get('incidence-messages/{incidence_id}', 'IncidenceMessageController@getMessagesDT');
+
     //IncidencePatterns:
     Route::get('incidence-patterns', 'IncidencePatternsController@getPatternsDT');
 

@@ -343,6 +343,11 @@ class Controller extends BaseController{
             case 'batch':
                 $cardinal_ = 'num_cardinal';
                 $pattern_ = 'batch_pattern_id';
+                break;
+            case 'incidence':
+                $cardinal_ = 'incidence_num_cardinal';
+                $pattern_ = 'pattern_id';
+                break;
             default:
                 $cardinal_ = 'num_cardinal';
                 $pattern_ = 'pattern_id';

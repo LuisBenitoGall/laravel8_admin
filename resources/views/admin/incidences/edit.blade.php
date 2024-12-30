@@ -18,6 +18,12 @@
 			{!! ucfirst(trans('textos.incidencia_nueva')) !!}
 		</a>
 
+		{{-- Nuevo mensaje --}}
+		<a href="#" class="btn btn-info" id="addMessage" data-toggle="modal" data-target="#modal-new-message">
+			<i class="fa fa-envelope"></i>
+			{!! ucfirst(trans('textos.mensaje_nuevo')) !!}
+		</a>
+
 		{{-- Eliminar incidencia --}}
 		@can('incidences.destroy')
 			<form method="POST" action="{{ route('incidences.destroy', $incidence) }}" class="frm-inline" role="form" accept-charset="UTF-8">
@@ -109,5 +115,9 @@
 		</div>
 	</div>
 </div>
+
+{{-- Modals: --}}
+{{-- New message --}}
+@include('admin.incidences.partials.modal-new-message', ['incidenceId' => $incidence->id])
 
 @endsection

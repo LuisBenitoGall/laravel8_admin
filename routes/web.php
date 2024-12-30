@@ -582,6 +582,15 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::get('import_db/start', 'ImportOldDBController@start')->name('import_db.start');
     Route::get('import_db/{prev}/messages', 'ImportOldDBController@messages')->name('import_db.messages');
 
+    // Incidence Docs:
+    Route::post('incidence-docs/{incidence_id}/store', 'IncidenceDocController@store')->name('incidence-docs.store');
+    Route::get('incidences-docs/{doc}/destroy', 'IncidenceDocController@destroy')->name('incidence-docs.destroy');
+
+    // Incidence Messages:
+    Route::post('incidence-messages/store', 'IncidenceMessageController@store')->name('incidence-messages.store')->middleware('permission:incidences.edit');
+    Route::delete('incidence-messages/{message}', 'IncidenceMessageController@destroy')->name('incidence-messages.destroy');
+    Route::get('incidence-messages/{message}/show/{tab?}', 'IncidenceMessageController@show')->name('incidence-messages.show');
+
     // Incidence Patterns:
     Route::get('incidence-patterns', 'IncidencePatternsController@index')->name('incidence-patterns.index')->middleware('permission:incidence-patterns.index');
     Route::get('incidence-patterns/create', 'IncidencePatternsController@create')->name('incidence-patterns.create')->middleware('permission:incidence-patterns.create');
