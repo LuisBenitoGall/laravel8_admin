@@ -1,4 +1,5 @@
 <form method="post" autocomplete="off" action="{{ route('incidences.update', $incidence) }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
+	@method('PUT')
 	{{ csrf_field() }}
 
 	<div class="form-group row mt-3">

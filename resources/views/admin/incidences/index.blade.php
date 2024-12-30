@@ -21,8 +21,6 @@
 				<form method="post" autocomplete="off" action="{{ route('invoices.list') }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
 					{{ csrf_field() }}
 
-
-
 				<x-btn-submit name="submit_save" label="{{ trans('textos.buscar') }}"/>
 				</form>
 			</div>

@@ -25,7 +25,7 @@ class Incidence extends Model{
      * 1. Documentos de la incidencia.
      */
     public function docs(){
-        return $this->hasMany(IncidenceDocs::class);
+        return $this->hasMany(IncidenceDoc::class);
     }
 
     /**
