@@ -15,6 +15,7 @@ use Carbon\Carbon;
 use File;
 
 //Models:
+use App\Models\Company;
 use App\Models\CompanySettings;
 use App\Models\Incidence;
 use App\Models\IncidencePatterns;
@@ -22,7 +23,8 @@ use App\Models\IncidencePatterns;
 class IncidenceController extends Controller{
     /**
      * 1. Listado de incidencias.
-     * 1.1. Listado de incidencias para DataTable.
+     * 1.1. Filtro de incidencias.
+     * 1.2. Listado de incidencias para DataTable.
      * 2. Formulario nueva incidencia.
      * 3. Guardar incidencia.
      * 4. Editar incidencia.
@@ -73,24 +75,93 @@ class IncidenceController extends Controller{
     /**
      * 1. Listado de incidencias.
      */
-    public function index(){
-         $header = [
+    public function index(Request $request){
+        $header = [
             'option' => $this->option, 
             'suboption' => 'textos.incidencias',
             'module' => $this->module,
             'slug' => 'incidences'
         ]; 
 
-        return view('admin.incidences.index')->with(compact('header'));
+        $incidence_status = helpers::incidenceStatus();
+
+        $languages = $this->languages;
+
+        return view('admin.incidences.index')->with(compact('header', 'incidence_status', 'languages'));
     }
 
     /**
-     * 1.1. Listado de incidencias para DataTable.
+     * 1.1. Filtro de incidencias.
      */
-    public function getIncidencesDT(){
+    public function getIncidencesBy(Request $request){
+        //Si viene declarado el número de incidencia redirigimos:
+        if($request->incidence_id){
+            $incidenceNum = $request->incidence_id;
+
+            $incidence = Incidence::select('id')
+            ->where('provider_id', session('currentCompany'))
+            ->where(function($q) use ($incidenceNum){
+                $q->where('id', $incidenceNum)
+                ->orWhere('incidence_num', $incidenceNum)
+                ->orWhere('incidence_old_num', $incidenceNum);
+            })
+            ->first();
+
+            if(!$incidence){
+                $alert = trans('textos.incidencia_no_existe');
+                return redirect()->route('incidences.index')->with(compact('alert'));   
+                exit;
+            }else{
+                return redirect()->route('incidences.edit', $incidence->id);    
+                exit;   
+            }
+        }
+
+        $header = [
+            'option' => $this->option, 
+            'suboption' => 'textos.incidencias',
+            'module' => $this->module,
+            'slug' => 'incidences'
+        ]; 
+
+        $incidence_status = helpers::incidenceStatus();
+
+        $customer = $request->customer_id? Company::select('id', 'name', 'tradename')->find($request->customer_id):false;
+        $from = $request->from != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->from):$request->from:false;
+        $to = $request->to != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->to):$request->to:false; 
+        $status = $request->status? $request->status:false;
+
+        $languages = $this->languages;
+
+        return view('admin.incidences.index')->with(compact('header', 'incidence_status', 'customer', 'from', 'to', 'status', 'languages'));
+    }
+
+    /**
+     * 1.2. Listado de incidencias para DataTable.
+     */
+    public function getIncidencesDT(Request $request){
+        $customer_id = $request->customer_id;
+        $from = $request->from;
+        $to = $request->to;
+        $status = $request->status;
+
+        $estados = helpers::incidenceStatus();
+
         $data = Incidence::select('incidences.*', 'companies.name AS company')
         ->join('companies', 'incidences.customer_id', '=', 'companies.id')   
         ->where('incidences.provider_id', session('currentCompany'))
+        //Por cliente:
+        ->when($customer_id, function($q) use($customer_id){
+            return $q->where('incidences.customer_id', $customer_id);
+        })
+        //Por intervalo fechas (por fecha de creación):
+        ->when($from && $to, function($q) use($from, $to){
+            return $q->whereBetween('incidences.created_at', [$from, $to]);
+        })
+        //Por estado:
+        ->when($status && $status > 0, function($q) use($status){
+            return $q->where('incidences.status', $status);
+        })
         ->orderBy('incidences.id', 'DESC');
 
         return DataTables::of($data)
@@ -101,8 +172,18 @@ class IncidenceController extends Controller{
         ->addColumn('concept', function($row){
             return $row->concept;
         })
+        ->addColumn('customer', function($row){
+            return $row->company;
+        })
         ->addColumn('date', function($row){
-            return $row->prevista = $row->estimated_delivery_date? Carbon::parse($row->estimated_delivery_date)->format($this->languages[session()->get('locale')][4]):'';
+            return $row->created_at->format($this->languages[session()->get('locale')][4].' H:i:s');
+        })
+        ->addColumn('status', function($row) use($estados){
+            if($row->status && isset($estados[$row->status])){
+                return $estados[$row->status];
+            }else{
+                return '';
+            }
         })
         ->addColumn('acciones', function($row){
             return view('admin.incidences.partials.dt-actions', compact('row'));    
