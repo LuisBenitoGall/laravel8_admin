@@ -1,5 +1,5 @@
 <div class="position-relative">
-    <div class="row">
+    <div class="row" style="row-gap: .5em;">
         @if($dayTypes->count())
             {{-- Tipos de jornada --}}
             <div id="day-types" class="custom-dropdown">
@@ -111,7 +111,7 @@
             $mes = ($i<10)? '0'.$i:$i;
             @endphp
 
-            <div class="col-sm-12 col-md-6 mt-4 table-responsive">
+            <div class="col-sm-12 col-md-6 mt-4 table-responsive wo-min-height">
                 <p class="text-center"><strong>{{ ucfirst(App\Helpers\helpers::yearMonths($mes)) }}</strong></p>
 
                 <table class="calendario" id="mainCalendar_">
