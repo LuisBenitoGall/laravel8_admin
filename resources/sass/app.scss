@@ -11240,6 +11240,10 @@ ul{
                 font-weight: $extrabold;  
             }
 
+            &.no-weekend{
+                min-width: 40px;
+            }
+
             /******************/
 
             &.dia{

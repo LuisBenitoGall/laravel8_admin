@@ -3133,6 +3133,7 @@ return array(
 	'seleccionado' => 'Seleccionado',
 	'seleccionar' => 'seleccionar',
 	'semana' => 'semana',
+    'semana-abbr' => 'Nº',
 	'semielaborado' => 'Semielaborado',
 	'septiembre' => 'septiembre',
 	'serial_confirm_eliminar' => '¿Estás seguro de eliminar este número de serie?',
