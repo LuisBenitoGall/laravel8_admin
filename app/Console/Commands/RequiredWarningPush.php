@@ -12,6 +12,7 @@ use App\Models\WorkUserCalendar;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Ladumor\OneSignal\OneSignal;
 
@@ -47,6 +48,9 @@ class RequiredWarningPush extends Command
      */
     public function handle()
     {
+        // Guardamos un registro en Logs
+        Log::info('Comando ejecutado: warning:push - Inicio');
+
         $slug = 'timetables';
         $companies = CompanyModules::select('companies.*')
             ->join('companies', 'company_modules.company_id', '=', 'companies.id')
@@ -137,6 +141,8 @@ class RequiredWarningPush extends Command
                 }
             }
         }
+
+        Log::info('Comando ejecutado: warning:push - Fin');
     }
 
 

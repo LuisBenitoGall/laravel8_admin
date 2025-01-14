@@ -14,6 +14,7 @@ use App\Models\Employee;
 use App\Models\Timetable;
 use App\Models\TimetableItems;
 use App\Models\WorkUserCalendar;
+use Illuminate\Support\Facades\Log;
 
 class CheckTimetableTask extends Command{
     /**
@@ -45,6 +46,10 @@ class CheckTimetableTask extends Command{
      * @return int
      */
     public function handle(){
+
+        // Guardamos un registro en Logs
+        Log::info('Comando ejecutado: check_timetable:task - Inicio');
+
         $horaCierre = '17:00:00';
         $msgCierre = trans('textos.horario_cerrado_automaticamente');
         $slug = 'timetables';
@@ -152,5 +157,7 @@ class CheckTimetableTask extends Command{
                 }
             }
         }
+
+        Log::info('Comando ejecutado: check_timetable:task - Fin');
     }
 }

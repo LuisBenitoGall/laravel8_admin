@@ -7,6 +7,7 @@ use Carbon\Carbon;
 
 //Models:
 use App\Models\CompanyAccounts;
+use Illuminate\Support\Facades\Log;
 
 class CompanyAccountsTask extends Command{
     /**
@@ -38,6 +39,10 @@ class CompanyAccountsTask extends Command{
      * @return int
      */
     public function handle(){
+
+        // Guardamos un registro en Logs
+        Log::info('Comando ejecutado: company_accounts:task - Inicio');
+
         $today = Carbon::today();
 
         $accounts = CompanyAccounts::select('id', 'start_date', 'end_date', 'status')
@@ -58,5 +63,7 @@ class CompanyAccountsTask extends Command{
                 }                
             }
         }
+
+        Log::info('Comando ejecutado: company_accounts:task - Fin');
     }
 }

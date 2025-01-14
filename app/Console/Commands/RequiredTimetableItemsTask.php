@@ -18,6 +18,7 @@ use App\Models\TimetableItems;
 use App\Models\UserTimetables;
 use App\Models\WorkCalendar;
 use App\Models\WorkUserCalendar;
+use Illuminate\Support\Facades\Log;
 
 class RequiredTimetableItemsTask extends Command{
     /**
@@ -49,6 +50,10 @@ class RequiredTimetableItemsTask extends Command{
      * @return int
      */
     public function handle(){
+
+        // Guardamos un registro en Logs
+        Log::info('Comando ejecutado: required_timetable_items:task - Inicio');
+
         $slug = 'timetables';
         $date = Carbon::today();
 
@@ -238,5 +243,7 @@ class RequiredTimetableItemsTask extends Command{
                 }
             }
         }
+
+        Log::info('Comando ejecutado: required_timetable_items:task - Fin');
     }
 }

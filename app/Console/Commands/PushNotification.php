@@ -52,6 +52,9 @@ class PushNotification extends Command
      */
     public function handle()
     {
+        // Guardamos un registro en Logs
+        Log::info('Comando ejecutado: push:send - Inicio');
+
         $slug = 'timetables';
         $companies = CompanyModules::select('companies.*')
             ->join('companies', 'company_modules.company_id', '=', 'companies.id')
@@ -141,6 +144,8 @@ class PushNotification extends Command
             }
         }
 
+        // Guardamos un registro en Logs
+        Log::info('Comando ejecutado: push:send - Fin');
 
     }
 

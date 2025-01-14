@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Models\WorkUserCalendar;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class ClosedTimeSigned extends Command{
@@ -43,6 +44,10 @@ class ClosedTimeSigned extends Command{
      * @return int
      */
     public function handle(){
+
+        // Guardamos un registro en Logs
+        Log::info('Comando ejecutado: closed:signed - Inicio');
+
         $slug = 'timetables';
         $companies = CompanyModules::select('companies.*')
             ->join('companies', 'company_modules.company_id', '=', 'companies.id')
@@ -124,5 +129,7 @@ class ClosedTimeSigned extends Command{
                 }
             }
         }
+        
+        Log::info('Comando ejecutado: closed:signed - Fin');
     }
 }
