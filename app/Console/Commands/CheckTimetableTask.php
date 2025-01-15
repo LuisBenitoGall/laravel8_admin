@@ -124,7 +124,7 @@ class CheckTimetableTask extends Command{
                             ];
 
                             Mail::send('emails.send-timetable-unclosed-user', $data_user, function($message) use($user, $co){
-                                $message->from(config('constants.EMAIL_'), $co->name);
+                                $message->from(config('mail.from.address'), $co->name);
                                 $message->to($user->email);
                                 $message->subject(trans('textos.horario_cerrado_automaticamente'));
                             });
@@ -150,7 +150,7 @@ class CheckTimetableTask extends Command{
                     ];
 
                     Mail::send('emails.send-timetable-unclosed-list', $data, function($message) use($emailsTo, $co){
-                        $message->from(config('constants.EMAIL_'), $co->name);
+                        $message->from(config('mail.from.address'), $co->name);
                         $message->to($emailsTo);
                         $message->subject(trans('textos.horarios_cerrados_automaticamente_lista'));
                     });

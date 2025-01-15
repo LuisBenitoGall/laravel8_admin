@@ -114,7 +114,7 @@ class PushNotification extends Command
                                                     'concept' => $horario->items->name,
                                                 ];
                                                 Mail::send('emails.send-push-mail', $data_user, function ($message) use ($horario, $empleado, $company) {
-                                                    $message->from(config('constants.EMAIL_'), $company->name);
+                                                    $message->from(config('mail.from.address'), $company->name);
                                                     $message->to($empleado->email);
                                                     $message->subject("Recuerda fichar la {$horario->items->name}");
                                                 });
@@ -129,7 +129,7 @@ class PushNotification extends Command
                                                 'concept' => $horario->items->name,
                                             ];
                                             Mail::send('emails.send-push-mail', $data_user, function ($message) use ($horario, $empleado, $company) {
-                                                $message->from(config('constants.EMAIL_'), $company->name);
+                                                $message->from(config('mail.from.address'), $company->name);
                                                 $message->to($empleado->email);
                                                 $message->subject("Recuerda fichar el {$horario->items->name}");
                                             });

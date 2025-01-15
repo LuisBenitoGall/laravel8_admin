@@ -102,7 +102,7 @@ class ClosedTimeSigned extends Command{
                                                     'concept' => $item->name,
                                                 ];
                                                 Mail::send('emails.send-push-mail-warning', $data_user, function ($message) use ($item, $horario, $empleado, $company) {
-                                                    $message->from(config('constants.EMAIL_'), $company->name);
+                                                    $message->from(config('mail.from.address'), $company->name);
                                                     $message->to($empleado->email);
                                                     $message->subject("Recuerda fichar la {$item->name}");
                                                 });
@@ -117,7 +117,7 @@ class ClosedTimeSigned extends Command{
                                             'concept' => $item->name,
                                         ];
                                         Mail::send('emails.send-push-mail-warning', $data_user, function ($message) use ($item, $horario, $empleado, $company) {
-                                            $message->from(config('constants.EMAIL_'), $company->name);
+                                            $message->from(config('mail.from.address'), $company->name);
                                             $message->to($empleado->email);
                                             $message->subject("Recuerda fichar el {$item->name}");
                                         });
