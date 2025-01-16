@@ -188,11 +188,29 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::delete('batches/{batch}', 'BatchController@destroy')->name('batches.destroy')->middleware('permission:batches.destroy');
     Route::get('batches/{product_id}/by-store/{store_id}', 'BatchController@productBatchesByStore')->name('batches.by-store');
 
+    // Briefing Items:
+    Route::post('briefing-items/update', 'BriefingItemController@update')->name('briefing-items.update');
+
+    // Briefing Template Items:
+    Route::post('briefing-template-items/store', 'BriefingTemplateItemController@store')->name('briefing-template-items.store')->middleware('permission:briefing-templates.edit');
+    Route::get('briefing-template-items/{item}/edit', 'BriefingTemplateItemController@edit')->name('briefing-template-items.edit')->middleware('permission:briefing-templates.edit');
+    Route::put('briefing-template-items/{item}/update', 'BriefingTemplateItemController@update')->name('briefing-template-items.update')->middleware('permission:briefing-templates.edit');
+    Route::delete('briefing-template-items/{item}', 'BriefingTemplateItemController@destroy')->name('briefing-template-items.destroy')->middleware('permission:briefing-templates.edit');
+    
     // Briefing Templates:
     Route::get('briefing-templates', 'BriefingTemplateController@index')->name('briefing-templates.index')->middleware('permission:briefing-templates.index');
+    Route::post('briefing-templates/store', 'BriefingTemplateController@store')->name('briefing-templates.store')->middleware('permission:briefing-templates.create');
+    Route::get('briefing-templates/{template}/edit/{tab?}', 'BriefingTemplateController@edit')->name('briefing-templates.edit')->middleware('permission:briefing-templates.edit');
+    Route::put('briefing-templates/{template}/update', 'BriefingTemplateController@update')->name('briefing-templates.update')->middleware('permission:briefing-templates.edit');
+    Route::delete('briefing-templates/{template}', 'BriefingTemplateController@destroy')->name('briefing-templates.destroy')->middleware('permission:briefing-templates.destroy');
 
     // Briefings:
     Route::get('briefings', 'BriefingController@index')->name('briefings.index')->middleware('permission:briefings.index');
+    Route::get('briefings/create', 'BriefingController@create')->name('briefings.create')->middleware('permission:briefings.create');
+    Route::post('briefings/store', 'BriefingController@store')->name('briefings.store')->middleware('permission:briefings.create');
+    Route::get('briefings/{briefing}/edit/{tab?}', 'BriefingController@edit')->name('briefings.edit')->middleware('permission:briefings.edit');
+    Route::put('briefings/{briefing}/update', 'BriefingController@update')->name('briefings.update')->middleware('permission:briefings.edit');
+    Route::delete('briefings/{briefing}', 'BriefingController@destroy')->name('briefings.destroy')->middleware('permission:briefings.destroy');
 
     // Budget Form Items:
     Route::post('budget-form-items/store', 'BudgetFormItemsController@store')->name('budget-form-items.store')->middleware('permission:budget-forms.edit');

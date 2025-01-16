@@ -19,6 +19,7 @@ use App\Models\Company;
 use App\Models\CompanySettings;
 use App\Models\Incidence;
 use App\Models\IncidencePatterns;
+use App\Models\User;
 
 class IncidenceController extends Controller{
     /**
@@ -127,13 +128,14 @@ class IncidenceController extends Controller{
         $incidence_status = helpers::incidenceStatus();
 
         $customer = $request->customer_id? Company::select('id', 'name', 'tradename')->find($request->customer_id):false;
+        $subject = $request->subject_id? User::select('id', 'name', 'surname')->find($request->subject_id):false;
         $from = $request->from != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->from):$request->from:false;
         $to = $request->to != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->to):$request->to:false; 
         $status = $request->status? $request->status:false;
 
         $languages = $this->languages;
 
-        return view('admin.incidences.index')->with(compact('header', 'incidence_status', 'customer', 'from', 'to', 'status', 'languages'));
+        return view('admin.incidences.index')->with(compact('header', 'incidence_status', 'customer', 'subject', 'from', 'to', 'status', 'languages'));
     }
 
     /**
@@ -141,6 +143,7 @@ class IncidenceController extends Controller{
      */
     public function getIncidencesDT(Request $request){
         $customer_id = $request->customer_id;
+        $subject_id = $request->subject_id;
         $from = $request->from;
         $to = $request->to;
         $status = $request->status;
@@ -153,6 +156,10 @@ class IncidenceController extends Controller{
         //Por cliente:
         ->when($customer_id, function($q) use($customer_id){
             return $q->where('incidences.customer_id', $customer_id);
+        })
+        //Por usuario:
+        ->when($subject_id, function($q) use($subject_id){
+            return $q->where('incidences.subject_id', $subject_id);
         })
         //Por intervalo fechas (por fecha de creación):
         ->when($from && $to, function($q) use($from, $to){

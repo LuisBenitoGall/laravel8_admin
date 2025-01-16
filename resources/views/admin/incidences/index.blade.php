@@ -4,6 +4,7 @@
 
 @php
 $customer_id = isset($customer) && $customer? $customer->id:'';
+$subject_id = isset($subject) && $subject? $subject->id:'';
 $from_ = isset($from) && $from != ''? \Carbon\Carbon::parse($from)->format($languages[session()->get('locale')][4]):'';
 $to_ = isset($to) && $to != ''? \Carbon\Carbon::parse($to)->format($languages[session()->get('locale')][4]):'';
 $status_ = isset($status) && $status? $status:'';
@@ -19,7 +20,7 @@ $status_ = isset($status) && $status? $status:'';
 		</a>
 
 		{{-- Borrar filtros --}}
-		@if($customer_id != '' || $from_ != '' || $to_ != '' || $status_ != '')
+		@if($customer_id != '' || $subject_id != '' || $from_ != '' || $to_ != '' || $status_ != '')
 			<a href="{{ route('incidences.index') }}" class="btn btn-info">
 				<i class="fa fa-undo-alt"></i>
 				{!! ucfirst(trans('textos.filtros_quitar')) !!}
@@ -45,9 +46,17 @@ $status_ = isset($status) && $status? $status:'';
 						<label for="customer" class="col-md-2 col-form-label">{!! ucfirst(trans('textos.cliente')) !!}</label>
 			            <div class="col-md-4 position-relative">
 			                <x-input type="text" name="customer" id="search_customer" placeholder="{!! ucfirst(trans('textos.cliente')) !!}" maxlength="150"/>
-			            </div>
 
-			            <input type="hidden" name="customer_id" id="customerId">
+			                <input type="hidden" name="customer_id" id="customerId">
+			            </div>			            
+
+			            {{-- Selector usuario --}}
+                        <label for="subject" class="col-md-2 col-form-label">{!! ucfirst(trans('textos.usuarios')) !!}</label>
+                        <div class="col-md-4">
+							<x-input type="text" name="subject" id="search_user" placeholder="{!! ucfirst(trans('textos.usuario')) !!}" maxlength="150"/>
+
+							<input type="hidden" name="subject_id" id="userId">
+                        </div>
 					</div>
 
 					<div class="form-group row">
@@ -96,6 +105,15 @@ $status_ = isset($status) && $status? $status:'';
 		</div>
 	@endif
 
+	@if(isset($subject) && $subject)
+		<div class="col-12 mb-3">
+			<h3>
+				{{ trans('textos.incidencias') }}
+				<u>{{ $subject->name }} {{ $subject->surname }}</u>
+			</h3>
+		</div>
+	@endif
+
 	<div class="table-responsive">
 		<table class="table table-hover dtabla" id="tblIncidences">
 			<thead>
@@ -118,6 +136,7 @@ $(function(){
 	//Tabla Incidences:
     if($('#tblIncidences').length > 0){
         var customer_id = '{{ $customer_id }}';
+        var subject_id = '{{ $subject_id }}';
         var from = '{{ $from_ }}';
         var to = '{{ $to_ }}';
         var status = '{{ $status_ }}';
@@ -128,10 +147,11 @@ $(function(){
             ajax: {
                 type: "POST",
                 url: "/api/admin/incidences",
-                //dataType: "json",
+                dataType: "json",
                 data: {
                 	_token: $('meta[name="csrf-token"]').attr('content'),
                 	customer_id: customer_id,
+                	subject_id: subject_id,
                 	from: from,
                 	to: to,
                 	status: status	

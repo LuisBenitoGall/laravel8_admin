@@ -116,7 +116,7 @@ class BudgetFormsController extends Controller{
             //Indicamos el origen de la acción realizada para manejar el modal:
             $validator->getMessageBag()->add('accion', 'modal-new-form');
             
-            return redirect('budget-forms')
+            return redirect('/admin/budget-forms')
                 ->withErrors($validator)
                 ->withInput();
         }

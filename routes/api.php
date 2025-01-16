@@ -111,6 +111,15 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     //Batches:
     Route::get('batches/{product_id?}', 'BatchController@getBatchesDT');
 
+    //Briefings:
+    Route::get('briefings', 'BriefingController@getBriefingsDT');
+
+    //BriefingTemplateItems:
+    Route::get('briefing-template-items/{template_id}', 'BriefingTemplateItemController@getBriefingTemplateItemsDT');
+
+    //BriefingTemplates:
+    Route::get('briefing-templates', 'BriefingTemplateController@getTemplatesDT');
+
     //BudgetFormCustomers:
     Route::get('budget-form-customers/{form}', 'BudgetFormsController@getBudgetFormCustomersDT');
 

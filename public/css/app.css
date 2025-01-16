@@ -29812,6 +29812,15 @@ ul.ui-autocomplete {
   text-align: center; /* Centrar el texto */
 }
 
+#briefing-items-list .bil-item {
+  background-color: #F5F8FA;
+  border-radius: 4px;
+}
+#briefing-items-list .bil-item .bil-num {
+  display: inline-block;
+  width: 30px;
+}
+
 /**
  * RESPONSIVE MEDIA QUERIES
  */

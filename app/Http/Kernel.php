@@ -84,6 +84,8 @@ class Kernel extends HttpKernel{
 
         'batch_pattern_get' => \App\Http\Middleware\BatchPatternGetMiddleware::class,
 
+        'briefing_template_item_post' => \App\Http\Middleware\BriefingTemplateItemPostMiddleware::class,
+
         'budget_get' => \App\Http\Middleware\BudgetGetMiddleware::class,
         'budget_post' => \App\Http\Middleware\BudgetPostMiddleware::class,
 
