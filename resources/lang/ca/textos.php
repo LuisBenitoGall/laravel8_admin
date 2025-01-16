@@ -3150,6 +3150,7 @@ return array(
 	'seleccionado' => 'Seleccionat',
 	'seleccionar' => 'seleccionar',
 	'semana' => 'setmana',
+	'semana_abbr' => 'Nº',
 	'semanas' => 'setmanes',
 	'semielaborado' => 'Semielaborat',
 	'septiembre' => 'setembre',

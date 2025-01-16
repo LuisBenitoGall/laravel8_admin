@@ -3150,6 +3150,7 @@ return array(
 	'seleccionado' => 'Selected',
 	'seleccionar' => 'select',
 	'semana' => 'week',
+	'semana_abbr' => 'Nº',
 	'semanas' => 'weeks',
 	'semielaborado' => 'Semi-finished',
 	'septiembre' => 'September',

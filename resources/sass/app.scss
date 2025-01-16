@@ -5359,7 +5359,7 @@ body.body-small .footer.fixed {
     }
 }
 
-.table-responsive{
+.table-responsive:not(.wo-min-height){
     min-height: 400px;
 }
 
@@ -11238,6 +11238,10 @@ ul{
                 background-color: $grey-light2;
                 color: $danger;  
                 font-weight: $extrabold;  
+            }
+
+            &.no-weekend{
+                min-width: 40px;
             }
 
             /******************/

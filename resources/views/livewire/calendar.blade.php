@@ -1,5 +1,5 @@
 <div class="position-relative">
-    <div class="row">
+    <div class="row" style="row-gap: .5em;">
         @if($dayTypes->count())
             {{-- Tipos de jornada --}}
             <div id="day-types" class="custom-dropdown">
@@ -111,16 +111,20 @@
             $mes = ($i<10)? '0'.$i:$i;
             @endphp
 
-            <div class="col-sm-12 col-md-6 mt-4">
+            <div class="col-sm-12 col-md-6 mt-4 table-responsive wo-min-height">
                 <p class="text-center"><strong>{{ ucfirst(App\Helpers\helpers::yearMonths($mes)) }}</strong></p>
 
                 <table class="calendario" id="mainCalendar_">
                     <thead>
                         <tr>
-                            <th style="font-weight: normal;">{{ trans('textos.semana') }}</th>
+                            <th style="font-weight: normal;">
+                                <span class="d-none d-md-block">{{ trans('textos.semana') }}</span>
+                                <span class="d-block d-md-none">{{ trans('textos.semana_abbr') }}</span>
+                            </th>
                             @foreach($weekDays as $wd)
                                 <th>
-                                    {{ ucfirst($wd) }} 
+                                    <span class="d-none d-md-block">{{ ucfirst($wd) }}</span>
+                                    <span class="d-block d-md-none">{{ mb_substr(ucfirst($wd), 0, 2) }}</span>
                                 </th>
                             @endforeach     
                         </tr>

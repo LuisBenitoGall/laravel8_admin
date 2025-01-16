@@ -1,8 +1,17 @@
 {
+<<<<<<< HEAD
     "/js/app.js": "/js/app.js?id=57b3b858d7894eea15358992faefc2d6",
     "/js/bootstrap.js": "/js/bootstrap.js?id=987d17770513d42b6c31818dad000de8",
     "/js/custom.js": "/js/custom.js?id=0788210c9cfaad52d86b4b28cebab200",
     "/js/custom-datatables.js": "/js/custom-datatables.js?id=b33230d85874bf818452eac1a10c190e",
     "/js/custom-fullcalendar.js": "/js/custom-fullcalendar.js?id=47a55090b761e183fd4ae00a82d99fa8",
     "/css/app.css": "/css/app.css?id=6652be0754eef50beab93271c8bdf8df"
+=======
+    "/js/app.js": "/js/app.js?id=20cdd8cc0baf3f865ca468f67a423109",
+    "/js/bootstrap.js": "/js/bootstrap.js?id=3f6669fe82930d8d6052f1da03e26ea8",
+    "/js/custom.js": "/js/custom.js?id=8b69b36c997f6da01a4a79bf3ad70d53",
+    "/js/custom-datatables.js": "/js/custom-datatables.js?id=e46f4a417564eccb15139a448eeee5c4",
+    "/js/custom-fullcalendar.js": "/js/custom-fullcalendar.js?id=b88972f258c0a6b5d3e1b14120222431",
+    "/css/app.css": "/css/app.css?id=e72226c8beca8280a89a7ab1da83f508"
+>>>>>>> master
 }

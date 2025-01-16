@@ -13,6 +13,7 @@ use App\Models\CompanyNotificationsManagement;
 use App\Models\Employee;
 use App\Models\Module;
 use App\Models\User;
+use Illuminate\Support\Facades\Log;
 
 class EmployeesExpirationTask extends Command{
     /**
@@ -44,6 +45,10 @@ class EmployeesExpirationTask extends Command{
      * @return int
      */
     public function handle(){
+
+        // Guardamos un registro en Logs
+        Log::info('Comando ejecutado: employees_expiration:task - Inicio');
+
         $today = Carbon::today()->toDateString();
         $expiration = Carbon::today()->addDays(config('constants.NOTIFICATION_PERIOD_'))->toDateString();
         $module = Module::moduleBySlug('rrhh');
@@ -82,5 +87,7 @@ class EmployeesExpirationTask extends Command{
                 $user->notify(new EmployeesExpiration($user));
             }
         }
+
+        Log::info('Comando ejecutado: employees_expiration:task - Fin');
     }
 }
