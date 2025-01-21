@@ -262,21 +262,51 @@ class Order extends Model{
     public function getInvoicedAmount(){
         //La selección de facturas debe omitir las facturas de abono y las devueltas.
         //¡Atención! se incluye la condición deleted_at IS NULL pues el borrado lógico no parece funcionar cuando se incluye Query Builder (DB::)
-        $data = Invoice::select('id',
-            DB::raw("(SELECT SUM(amount) FROM invoices
-                WHERE order_id = " . $this->id . "
-                AND refund IS NULL
-                AND deleted_at IS NULL
-                AND status != " . config('constants.INVOICE_REFUNDED_') . ") AS invoiced_amount"),
-            DB::raw("(SELECT SUM(amount_with_iva) FROM invoices
-                WHERE order_id = " . $this->id . "
-                AND refund IS NULL
-                AND deleted_at IS NULL
-                AND status != " . config('constants.INVOICE_REFUNDED_') . ") AS invoiced_amount_with_iva")
+        // $data = Invoice::select('id',
+        //     DB::raw("(SELECT SUM(amount) FROM invoices
+        //         WHERE order_id = " . $this->id . "
+        //         AND refund IS NULL
+        //         AND deleted_at IS NULL
+        //         AND status != " . config('constants.INVOICE_REFUNDED_') . ") AS invoiced_amount"),
+        //     DB::raw("(SELECT SUM(amount_with_iva) FROM invoices
+        //         WHERE order_id = " . $this->id . "
+        //         AND refund IS NULL
+        //         AND deleted_at IS NULL
+        //         AND status != " . config('constants.INVOICE_REFUNDED_') . ") AS invoiced_amount_with_iva")
+        // )
+        // ->where('order_id', $this->id)
+        // ->first();
+        
+        // Obtener la suma total de los importes de las facturas.
+        $totalAmounts = Invoice::where('order_id', $this->id)
+        ->whereNull('deleted_at')
+        ->whereNull('refund')
+        //->where('status', '!=', config('constants.INVOICE_REFUNDED_'))
+        ->select(
+            DB::raw("SUM(amount) AS total_amount"),
+            DB::raw("SUM(amount_with_iva) AS total_amount_with_iva")
         )
-        ->where('order_id', $this->id)
+        ->first();
+    
+        // Obtener la suma total de los reembolsos.
+        $totalRefunds = Invoice::where('order_id', $this->id)
+        ->where('deleted_at', NULL)
+        ->whereNotNull('refund')
+        //->where('status', '!=', config('constants.INVOICE_REFUNDED_'))
+        ->select(
+            DB::raw("SUM(amount) AS total_refund"),
+            DB::raw("SUM(amount_with_iva) AS total_refund_with_iva")
+        )
         ->first();
 
+        if($totalAmounts){
+            // Calcular los importes finales.
+            $data['invoiced_amount'] = ($totalAmounts->total_amount ?? 0) - ($totalRefunds->total_refund ?? 0);
+            $data['invoiced_amount_with_iva'] = ($totalAmounts->total_amount_with_iva ?? 0) - ($totalRefunds->total_refund_with_iva ?? 0);
+        }else{
+            $data = false;
+        }
+    
         return $data;
     }
 

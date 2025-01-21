@@ -462,7 +462,7 @@
                     }
                     @endphp
 
-                    @if($no_previsions && $invoiced && round($order_amount, 2) > round($invoiced->invoiced_amount, 2))
+                    @if($no_previsions && $invoiced && round($order_amount, 2) > round($invoiced['invoiced_amount'], 2))
                         <a href="{{ route('order-previsions.recalculate-previsions', $order) }}" class="btn btn-info btn-confirm" data-msg="{{ ucfirst(trans('textos.facturaciones_previstas_recalculo_texto')) }}">
                             <i class="fa fa-calculator"></i>
                             {{ ucfirst(trans('textos.facturaciones_previstas_recalculo')) }}
