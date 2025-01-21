@@ -337,7 +337,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 						{{-- La sumas de los porcentajes de las previsiones de facturación no puede superar el 100% --}}
 						@foreach($previsions as $prev)
 							@php
-							$totalPercent = $totalPercent + $prev->percent;
+							$totalPercent = $prev->percent >= 0? $totalPercent + $prev->percent:$totalPercent - abs($prev->percent);
 							$readonly_ = $prev->invoice_id || $order->blocked == 1? true:false;		//Previsiones ya facturadas.
 							$disabled_ = $prev->invoice_id? true:false;
 							$prev_invoiced = $prev->invoice_id? true:false;
@@ -415,7 +415,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 									<x-input type="text" name="amount[]" class="text-right set-decimals prevision-amount prevision-data prominent" autocomplete="off" maxlength="15" value="{{ $prev->amount }}" group="right" groupvalue="{{ $currency->symbol }}" required readonly="{{ $readonly_ }}"/>
 
 									@php
-									$accumulatedAmount = $prev->amount > 0? $accumulatedAmount + $prev->amount:$accumulatedAmount;
+									$accumulatedAmount = $prev->amount >= 0? $accumulatedAmount + $prev->amount:$accumulatedAmount - abs($prev->amount);
 									@endphp
 								</div>
 

@@ -117,6 +117,10 @@ class OrderPrevisions extends Model{
                 $accumulated_percent = 0;
                 $accumulated_amount = 0;
 
+                //Porcentaje e importe reintegrados (facturas con importe negativo):
+                $refunded_percent = 0;
+                $refunded_amount = 0;
+
                 //Bloqueo de pedido:
                 $is_blocked = Order::select('blocked')->find($order_id);
 
@@ -132,7 +136,7 @@ class OrderPrevisions extends Model{
                 foreach($previsions as $p){
                     //Se omiten las previsiones relativas a abonos de factura.
                     //if(!$p->refund){
-                    if($p->amount > 0){
+                    //if($p->amount > 0){
                         //Previsión facturada:
                         if($p->invoice_id){
                             //Importe de la factura:
@@ -164,7 +168,6 @@ class OrderPrevisions extends Model{
                         //19/01/2024: las previsiones sin mes asignado se agrupan en una sola.
                         }else{
                             $finish_order = false;
-
                             $all_invoiced = false;
                             $amount = 0;
 
@@ -214,7 +217,18 @@ class OrderPrevisions extends Model{
                         $p->save();
 
                         $k++;
-                    }
+
+                    //Contabilizamos el porcentaje de facturas abonadas.
+                    // }else{
+                    //     $refunded_percent = $refunded_percent + abs($p->percent);
+                    //     $refunded_amount = $refunded_amount + abs($p->amount);
+                    // }
+                }
+
+                //Descontando las facturas negativas:
+                if($refunded_percent > 0){
+                    $accumulated_percent = $accumulated_percent - $refunded_percent; 
+                    $accumulated_amount = $accumulated_amount - $refunded_amount;          
                 }
 
                 $diff_percent = bcsub(100, $accumulated_percent, 6);

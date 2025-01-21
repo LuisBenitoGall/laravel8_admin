@@ -1652,7 +1652,7 @@ class OrderController extends Controller{
                         $op = OrderPrevisions::find($request->op_id[$i]);
 
                         //Actualizamos si no se encuentra facturado:
-                        if( !$op->invoice_id){
+                        if(!$op->invoice_id){
                             $op->year = $request->year[$i];
                             $op->month = isset($request->month[$i])? $request->month[$i]:NULL;
                             $op->amount = isset($request->amount[$i])? $request->amount[$i]:NULL;
@@ -1713,6 +1713,7 @@ class OrderController extends Controller{
                 }
             }
 
+            //Previsiones de producción:
             if($request->pr_year){
                 //Guardamos previsiones de producción eliminando las existentes y volviendo a crearlas:
                 OrderProductionPrevision::where('order_id', $order->id)->forceDelete();
