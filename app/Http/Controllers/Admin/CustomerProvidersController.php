@@ -66,6 +66,8 @@ class CustomerProvidersController extends Controller{
      * 17. Actualizar condiciones de pago de cliente.
      * 18. Obtener formulario de presupuesto por defecto de cliente.
      * 19. Usuarios por empresa para DataTable.
+     * 20. Añadir descuento a cliente.
+     * 21. Eliminar descuento.
      */
     
     private $option = 'empresas';
@@ -140,6 +142,15 @@ class CustomerProvidersController extends Controller{
                 'pay_after_days.max' => trans('textos.dias_vencimiento_aviso'),
                 'payday.numeric' => trans('textos.dia_mes_aviso'),
                 'payday.max' => trans('textos.dia_mes_aviso'),
+            ]);
+
+        //Validación añadir descuento:
+        }elseif(isset($data['submit_add_discount'])){
+            return Validator::make($data, [
+                'cp_id' => 'required|integer',
+                'customer_id' => 'required|integer',
+                'concept' => 'required',
+                'discount' => 'required|numeric|max:100'
             ]);
         } 
     }
@@ -1250,6 +1261,78 @@ class CustomerProvidersController extends Controller{
         })
         ->rawColumns(['email', 'image'])
         ->make(true);
+    }
+
+    /**
+     * 20. Añadir descuento a cliente.
+     */
+    public function addDiscount(Request $request){
+        $validator = $this->validator($request->all());
+        if($validator->fails()){
+            //Indicamos el origen de la acción realizada para manejar el modal:
+            $validator->getMessageBag()->add('accion', 'modal-add-discount');
+
+            return redirect('/admin/customers/'.$request->customer_id.'/edit')
+                ->withErrors($validator)
+                ->withInput();
+        }   
+
+        //Relación cliente proveedor:
+        $cp = CustomerProviders::select('id', 'discount', 'discounts', 'updated_at')->find($request->cp_id);
+
+        if($cp){
+            $discounts = $cp->discounts? unserialize($cp->discounts):[];
+            $dto = [
+                'concept' => $request->concept,
+                'discount' => $request->discount
+            ];
+
+            //Pasamos un índice numérico correlativo:
+            $k = count($discounts) > 0? count($discounts)+1:1;
+
+            $discounts[$k] = $dto;
+            $cp->discounts = serialize($discounts);
+            $cp->save();
+
+            $msg = trans('textos.descuento_creado');
+            return redirect()->route('customers.edit', [$request->customer_id, 'commercial'])->with(compact('msg')); 
+
+        }else{
+            $alert = trans('textos.cliente_proveedor_no_existe');
+            return redirect()->route('customers.index')->with(compact('alert'));  
+            exit;  
+        }
+    }
+
+    /**
+     * 21. Eliminar descuento.
+     */
+    public function deleteDiscount(Request $request){
+        $cp = CustomerProviders::select('id', 'customer_id', 'discounts')->find($request->cp_id);
+
+        $discounts = $cp && $cp->discounts? unserialize($cp->discounts):false;
+
+        if($discounts){
+            $new_discounts = [];
+            $k = 1;
+            foreach($discounts as $i => $dto){
+                //Omitimos el descuento a eliminar.
+                if($i != $request->index){
+                    $new_discounts[$k] = $dto; 
+                    $k++;  
+                }
+            }
+
+            $cp->discounts = serialize($new_discounts);
+            $cp->save();
+
+            $msg = trans('textos.descuento_deleted_ok');
+            return redirect()->route('customers.edit', [$cp->customer_id, 'commercial'])->with(compact('msg'));
+
+        }else{
+            $alert = trans('textos.descuento_no_existe');
+            return redirect()->route('customers.edit', [$cp->customer_id, 'commercial'])->with(compact('alert')); 
+        }
     }
 
 }

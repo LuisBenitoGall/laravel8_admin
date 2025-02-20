@@ -534,3 +534,11 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+
+
+TAREAS 22/01/2025:
+1. Mejorar rendimiento ERP
+2. Resolución incidencias excel, informar a medida que se arreglan incidencias
+3. Refactoring Laravel 11 + REact
+4. Restyling nuevo diseño. Crear en rama paralela. En XD.
