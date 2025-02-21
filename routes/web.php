@@ -810,8 +810,15 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     // Orders:
     Route::get('orders/list/{year?}/{customer_id?}/{provider_id?}/{owner?}/{groups_?}/{status?}/{from?}/{to?}/{order_buy?}', 'OrderController@index')->name('orders.index')->middleware('permission:orders.index');
     Route::post('orders', 'OrderController@getOrdersBy')->name('orders.list')->middleware('permission:orders.index');
-    Route::get('orders/control-panel-sales/{from?}/{to?}/{workplace_id?}', 'OrderController@controlPanelSales')->name('orders.control-panel-sales')->middleware('permission:orders.index');
-    Route::get('orders/control-panel-purchases/{year?}/{year_to?}/{workplace_id?}', 'OrderController@controlPanelPurchases')->name('orders.control-panel-purchases')->middleware('permission:orders.index');
+    Route::get('orders/control-panel-sales', 'OrderController@controlPanelSales')->name('orders.control-panel-sales')->middleware('permission:orders.index');
+    //Route::post('orders/control-panel-sales-year', 'OrderController@controlPanelSalesPost')->name('orders.control-panel-sales-year')->middleware('permission:orders.index');
+    Route::post('orders/control-panel-sales-year', 'OrderController@controlPanelSales')->name('orders.control-panel-sales-year')->middleware('permission:orders.index');
+
+
+    
+    Route::get('orders/control-panel-purchases', 'OrderController@controlPanelPurchases')->name('orders.control-panel-purchases')->middleware('permission:orders.index');
+    // Route::post('orders/control-panel-purchases-year', 'OrderController@controlPanelPurchasesPost')->name('orders.control-panel-purchases-year')->middleware('permission:orders.index');
+    Route::post('orders/control-panel-purchases-year', 'OrderController@controlPanelPurchases')->name('orders.control-panel-purchases-year')->middleware('permission:orders.index');
     Route::get('orders/{order}/order-from-budget', 'OrderController@orderFromBudget')->name('orders.order-from-budget')->middleware('permission:orders.create');
     Route::get('orders/{product_provider}/order-from-product', 'OrderController@orderFromProduct')->name('orders.order-from-product')->middleware('permission:orders.create');
     Route::get('orders/{type}/create/{company_id?}', 'OrderController@create')->name('orders.create')->middleware('permission:orders.create');
@@ -841,8 +848,6 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::get('orders/{cash}/order-from-cash', 'OrderController@orderFromCash')->name('orders.order-from-cash')->middleware('permission:orders.create');
 
     Route::get('control-panel', 'OrderController@index')->name('control-panel.index')->middleware('permission:orders.index');
-    Route::post('orders/control-panel-sales-year', 'OrderController@controlPanelSalesPost')->name('orders.control-panel-sales-year')->middleware('permission:orders.index');
-    Route::post('orders/control-panel-purchases-year', 'OrderController@controlPanelPurchasesPost')->name('orders.control-panel-purchases-year')->middleware('permission:orders.index');
     Route::post('orders/close', 'OrderController@close')->name('orders.close')->middleware('permission:orders.destroy');
 
     Route::get('orders/create/{project_id?}', 'OrderController@create')->name('orders-forms.create')->middleware('permission:orders.create');
@@ -919,7 +924,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::get('product-docs/set-featured/{product}/{doc}', 'ProductDocsController@setFeatured')->name('product-docs.set-featured')->middleware('permission:products.edit');
 
     // Product Families:
-    //Route::get('product-families', 'ProductFamilyController@index')->name('product-families.index');
+    Route::get('product-families', 'ProductFamilyController@index')->name('product-families.index');
 
     // Product Favorites:
     Route::get('product-favorites/{product_id}/add-remove', 'ProductFavoritesController@add_remove')->name('product-favorites.add-remove');
@@ -1312,6 +1317,9 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::post('subtasks.store', 'SubtaskController@store')->name('subtasks.store')->middleware('permission:projects.edit');
     Route::get('subtasks/status/{subtask}/{status}', 'SubtaskController@status')->name('subtasks.status')->middleware('permission:projects.edit');
     Route::delete('subtasks/{subtask}', 'SubtaskController@destroy')->name('subtasks.destroy')->middleware('permission:projects.edit');
+
+    // Tariffs:
+    Route::get('tariffs', 'TariffController@index')->name('tariffs.index');
 
     // Task Messages:
     Route::post('task-messages/{task}/store', 'TaskMessagesController@store')->name('task-messages.store');

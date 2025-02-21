@@ -2,10 +2,10 @@
 
 @section('content')
 
-{{-- <input type="hidden" id="dtYear" value="{{ $year }}">
-<input type="hidden" id="dtYearTo" value="{{ $year_to }}"> --}}
-<input type="hidden" id="dtFrom" value="{{ $from }}">
-<input type="hidden" id="dtTo" value="{{ $to }}">
+<input type="hidden" id="dtYear" value="{{ $year }}">
+<input type="hidden" id="dtYearTo" value="{{ $year_to }}">
+{{-- <input type="hidden" id="dtFrom" value="{{ $from }}">
+<input type="hidden" id="dtTo" value="{{ $to }}"> --}}
 <input type="hidden" id="dtWorkplace" value="{{ $workplace_id }}">
 <input type="hidden" id="dtCurrency" value="{{ $currency->symbol }}">
 
@@ -36,11 +36,11 @@
 
 					<div class="form-group row">
 						{{-- Año desde. 20/02/2025 Se modifica el filtro de años por el de intervalo de fechas. --}}
-						{{-- @include('admin.partials.selector-year', ['selected_year' => $year]) --}}
+						@include('admin.partials.selector-year', ['selected_year' => $year])
 
                         {{-- Año hasta --}}
-                        {{-- <label for="year_to" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.any_hasta')) !!} </label> --}}
-                        {{-- <div class="col-lg-2">
+                        <label for="year_to" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.any_hasta')) !!} </label>
+                        <div class="col-lg-2">
                             @php
                             $max_year = date('Y')+1;
                             $years = [];
@@ -50,27 +50,27 @@
                             @endphp
 
                             <x-select id="selectorYearTo" name="year_to" class="select2" label="selecciona_any" :options="$years" value="{{ $year_to }}"/>
-                        </div> --}}
-
+                        </div>
+                    
                         {{-- Desde --}}
-                        <label for="from" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.desde')) !!}</label>
+                        {{-- <label for="from" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.desde')) !!}</label>
                         <div class="col-lg-2">
                             @php
                             $from_ = $from != ''? \Carbon\Carbon::parse($from)->format($languages[session()->get('locale')][4]):'';
                             @endphp
 
                             <x-date-picker name="from" value="{{ $from_ }}" :format="$languages[config('app.locale')][4]"/> 
-                        </div>
+                        </div> --}}
 
                         {{-- Hasta --}}
-                        <label for="to" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.hasta')) !!}</label>
+                        {{-- <label for="to" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.hasta')) !!}</label>
                         <div class="col-lg-2">
                             @php
                             $to_ = $to != ''? \Carbon\Carbon::parse($to)->format($languages[session()->get('locale')][4]):'';
                             @endphp
 
                             <x-date-picker name="to" value="{{ $to_ }}" :format="$languages[config('app.locale')][4]"/> 
-                        </div>                        
+                        </div>    --}}                     
 
 						{{-- Centros de trabajo --}}
 						@if(count($workplaces) > 1)
@@ -159,10 +159,10 @@ $(function(){
 	//Tabla Orders Control Panel Purchases:
     if($('#tblOrdersControlPanelPurchases').length > 0){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
-        // var year = $('#dtYear').val();
-        // var year_to = $('#dtYearTo').val();
-        var from = $('#dtFrom').val();
-        var to = $('#dtTo').val();
+        var year = $('#dtYear').val();
+        var year_to = $('#dtYearTo').val();
+        // var from = $('#dtFrom').val();
+        // var to = $('#dtTo').val();
         var workplace = $('#dtWorkplace').val();
         var currency = $('#dtCurrency').val();
 
@@ -232,7 +232,7 @@ $(function(){
             // },
             ajax: {
                 "type": "GET",
-                "url": "/api/admin/orders-control-panel-purchases/"+from+"/"+to,
+                "url": "/api/admin/orders-control-panel-purchases/"+year+"/"+year_to,
                 "error": function(reason){
                     console.log(reason);
                 }
@@ -310,10 +310,10 @@ $(function(){
     //Tabla Orders Control Panel Sales:
     if($('#tblOrdersControlPanelSales').length > 0){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
-        // var year = $('#dtYear').val();
-        // var year_to = $('#dtYearTo').val();
-        var from = $('#dtFrom').val();
-        var to = $('#dtTo').val();
+        var year = $('#dtYear').val();
+        var year_to = $('#dtYearTo').val();
+        // var from = $('#dtFrom').val();
+        // var to = $('#dtTo').val();
         var workplace = $('#dtWorkplace').val();
         var currency = $('#dtCurrency').val();
 
@@ -383,7 +383,7 @@ $(function(){
             // },
             ajax: {
                 "type": "GET",
-                "url": "/api/admin/orders-control-panel-sales/"+from+"/"+to+'/'+workplace,
+                "url": "/api/admin/orders-control-panel-sales/"+year+"/"+year_to+'/'+workplace,
                 "error": function(reason){
                     console.log(reason);
                 }
