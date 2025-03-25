@@ -12,6 +12,7 @@ $provider_phones = false;
 	'left_h1' => false,
 	'left_title' => false,
 	'left_manager' => false,
+	'left_commercial' => false,
 	'right_h1' => false,
 	'right_manager' => ''
 ])

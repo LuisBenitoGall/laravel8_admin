@@ -1209,7 +1209,13 @@ class BudgetController extends Controller{
         //Provider manager:
         $provider_manager = false;
         if($order->provider_manager_id){
-            $provider_manager = User::select('name', 'surname')->find($order->provider_manager_id);
+            $provider_manager = User::select('id', 'name', 'surname')->find($order->provider_manager_id);
+        }
+
+        //Comercial:
+        $commercial = false;
+        if($order->commercial_id){
+            $commercial = User::select('id', 'name', 'surname')->find($order->commercial_id);
         }
 
         //Customer manager:
@@ -1232,15 +1238,15 @@ class BudgetController extends Controller{
 
         //Según la modalidad de presupuesto utiliza una plantilla u otra:
         if($order->modality == config('constants.BUDGET_BASIC_MODALITY_')){
-            $pdf = PDF::loadView('pdf/budget-free', compact('order', 'company', 'customer', 'template', 'fechaLiteral', 'company_settings', 'provider_workplace', 'customer_workplace', 'provider_phones', 'provider_manager', 'customer_manager', 'blocks', 'itemsSelected', 'currency', 'bg_color', 'locale'));
+            $pdf = PDF::loadView('pdf/budget-free', compact('order', 'company', 'customer', 'template', 'fechaLiteral', 'company_settings', 'provider_workplace', 'customer_workplace', 'provider_phones', 'provider_manager', 'commercial', 'customer_manager', 'blocks', 'itemsSelected', 'currency', 'bg_color', 'locale'));
             return $pdf->download($pdf_title.'.pdf');
 
         }elseif($order->modality == config('constants.BUDGET_FORM_MODALITY_')){
-            $pdf = PDF::loadView('pdf/budget-by-form', compact('order', 'provider', 'customer', 'template', 'fechaLiteral', 'blocks', 'itemsSelected', 'arrRecid', 'amountWithoutPercentItems', 'fecha', 'company_settings', 'provider_workplace', 'customer_workplace', 'provider_phones', 'provider_manager', 'customer_manager', 'blocks', 'itemsSelected', 'currency', 'bg_color', 'noPriceLinesTexts', 'locale'));
+            $pdf = PDF::loadView('pdf/budget-by-form', compact('order', 'provider', 'customer', 'template', 'fechaLiteral', 'blocks', 'itemsSelected', 'arrRecid', 'amountWithoutPercentItems', 'fecha', 'company_settings', 'provider_workplace', 'customer_workplace', 'provider_phones', 'provider_manager', 'commercial', 'customer_manager', 'blocks', 'itemsSelected', 'currency', 'bg_color', 'noPriceLinesTexts', 'locale'));
             return $pdf->download($pdf_title.'.pdf');
 
         }elseif($order->modality == config('constants.BUDGET_CATALOGUE_MODALITY_')){
-            $pdf = PDF::loadView('pdf/budget-catalogue', compact('order', 'company', 'customer', 'template', 'fechaLiteral', 'company_settings', 'provider_workplace', 'customer_workplace', 'provider_phones', 'provider_manager', 'customer_manager', 'blocks', 'itemsSelected', 'currency', 'bg_color', 'locale'));
+            $pdf = PDF::loadView('pdf/budget-catalogue', compact('order', 'company', 'customer', 'template', 'fechaLiteral', 'company_settings', 'provider_workplace', 'customer_workplace', 'provider_phones', 'provider_manager', 'commercial', 'customer_manager', 'blocks', 'itemsSelected', 'currency', 'bg_color', 'locale'));
             return $pdf->download($pdf_title.'.pdf');
         }
     }

@@ -89,6 +89,14 @@
 									<span class="item-left" style="display: inline-block; vertical-align: top; width: 67%;">{{ $left_manager }}</span>
 								</p>	
 							@endif
+
+							{{-- Comercial --}}
+							@if($left_commercial)
+								<p style="display: block; font-size: 11px; font-weight: normal; line-height: 110%; margin: 0 0 5px 0; width: 100%;">
+									<span class="item-left" style="display: inline-block; vertical-align: top; width: 32%;"><b>{{ strtoupper(trans('textos.comercial')) }}:</b></span> 
+									<span class="item-left" style="display: inline-block; vertical-align: top; width: 67%;">{{ $left_commercial }}</span>
+								</p>	
+							@endif
 						</th>
 
 						<th class="tbl-header-right">

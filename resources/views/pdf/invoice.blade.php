@@ -13,6 +13,7 @@ $text_doc = $invoice->refund > 0? 'abono':'factura';
 	'left_h1' =>  ucfirst(trans('textos.'.$text_doc)).' Nº '.$invoiceNum,
 	'left_title' => false,
 	'left_manager' => false,
+	'left_commercial' => false,
 	'right_h1' => ucfirst(trans('textos.cliente')),
 	'right_manager' => $customer_manager? $customer_manager->name.' '.$customer_manager->surname:''
 ])

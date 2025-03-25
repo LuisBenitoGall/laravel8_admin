@@ -12,6 +12,7 @@ $bg_color = $company_settings->base_color_orders? $company_settings->base_color_
 	'left_h1' => ucfirst(trans('textos.pedido')).' Nº '.$orderNum,
 	'left_title' => $order->name? $order->name:false,
 	'left_manager' => $provider_manager? $provider_manager->name.' '.$provider_manager->surname:false,
+	'left_commercial' => false,
 	'right_h1' => ucfirst(trans('textos.cliente')),
 	'right_manager' => $customer_manager? $customer_manager->name.' '.$customer_manager->surname:'',
 ])
