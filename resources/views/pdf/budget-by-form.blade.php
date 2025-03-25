@@ -11,10 +11,10 @@ $bg_color = $company_settings->base_color_budgets? $company_settings->base_color
 	'bg_color' => $bg_color, 
 	'left_h1' => ucfirst(trans('textos.presupuesto')).' Nº '.$budgetNum,
 	'left_title' => $order->name? $order->name:false,
-	'left_manager' => $provider_manager? $provider_manager->name.' '.$provider_manager->surname:false,
-	'left_commercial' => $commercial && $commercial->id != $provider_manager->id? $commercial->name.' '.$commercial->surname:false,
+	'left_manager' => $provider_manager? ucfirst($provider_manager->name).' '.ucfirst($provider_manager->surname):false,
+	'left_commercial' => $commercial && $commercial->id != $provider_manager->id? ucfirst($commercial->name).' '.ucfirst($commercial->surname):false,
 	'right_h1' => ucfirst(trans('textos.cliente')),
-	'right_manager' => $customer_manager? $customer_manager->name.' '.$customer_manager->surname:'',
+	'right_manager' => $customer_manager? ucfirst($customer_manager->name).' '.ucfirst($customer_manager->surname):'',
 ])
 
 @php
