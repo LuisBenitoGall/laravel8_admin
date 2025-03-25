@@ -1362,6 +1362,9 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::get('teams/{team}/delete-logo', 'TeamController@deleteLogo')->name('teams.delete-logo')->middleware('permission:teams.edit');
     Route::get('teams/status/{id}/{status}', 'TeamController@status')->name('teams.status')->middleware('permission:teams.edit');
 
+    // Time Control:
+    Route::get('time-control', 'TimetableController@show')->name('time-control.show');
+
     // Timetable Items:
     Route::get('timetable-items', 'TimetableItemsController@index')->name('timetable-items.index');
     Route::get('timetable-items/create', 'TimetableItemsController@create')->name('timetable-items.create');

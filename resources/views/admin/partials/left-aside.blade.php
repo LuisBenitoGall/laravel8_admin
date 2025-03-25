@@ -55,6 +55,16 @@ if(session()->get('locale') == NULL){
 	                    </div>
 	                </li>
 
+                    {{-- Control horario --}}
+                    @if(env('HOUR_CONTROL'))
+                        <li>
+                            <a href="{{ route('time-control.show') }}">
+                                <i class="fa fa-clock"></i>
+                                <span class="nav-label">{!! ucfirst(trans('textos.control_horario')) !!}</span>
+                            </a>   
+                        </li>
+                    @endif
+
 	                {{-- MAIN MENU --}}
 	                {{-- Menu básico --}}
 					@foreach($menu as $option)
