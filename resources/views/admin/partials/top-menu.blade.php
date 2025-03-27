@@ -11,7 +11,7 @@ $controller = new App\Http\Controllers\Controller;
 //17/03/25: bloque temporal.
 //$setTimetable = $controller->settedModule('timetables');
 $setTimetable = false;
-$options_lang = false;
+$options_lang = true;
 $options_top_menu = false;
 
 // Idiomas:
