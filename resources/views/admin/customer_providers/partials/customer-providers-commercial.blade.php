@@ -11,7 +11,10 @@ $discounts = $conditions->discounts? unserialize($conditions->discounts):false;
 		<div class="form-group row">
 			<label for="tariff" class="col-lg-2 col-form-label">{{ ucfirst(trans('textos.tarifa')) }}</label>
 			<div class="col-lg-4">
-				<x-select name="tariff" class="select2" label="centro_trabajo_selec" :options="$tariffs" value="{{ $tariff_customer->id }}"/>
+				@php
+				$tc = $tariff_customer? $tariff_customer->id:'';
+				@endphp
+				<x-select name="tariff" class="select2" label="centro_trabajo_selec" :options="$tariffs" value="{{ $tc }}"/>
 			</div>
 		</div>
 
