@@ -455,6 +455,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::get('customers/{company}/pay-conditions', 'CustomerProvidersController@payConditions')->name('customers.pay-conditions')->middleware('permission:customers.edit');
     Route::put('customers/{cp}/update-conditions', 'CustomerProvidersController@updateConditions')->name('customers.update-conditions')->middleware('permission:customers.edit');
     Route::get('customers/own-budget-form/{customer_id}/{provider_id?}', 'CustomerProvidersController@ownBudgetForm')->name('customers.own-budget-form');
+    Route::post('customers/commercial-data', 'CustomerProvidersController@commercialData')->name('customers.commercial-data')->middleware('permission:customers.edit');
 
     Route::post('customers/config', 'CustomerProvidersController@updateCustomerConfig')->name('customers.config')->middleware('permission:customers.edit');
     Route::post('customers/add-responsable', 'CustomerProvidersController@addManager')->name('customers.add-responsable');
@@ -1318,8 +1319,28 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::get('subtasks/status/{subtask}/{status}', 'SubtaskController@status')->name('subtasks.status')->middleware('permission:projects.edit');
     Route::delete('subtasks/{subtask}', 'SubtaskController@destroy')->name('subtasks.destroy')->middleware('permission:projects.edit');
 
+    // Tariff Companies:
+    Route::get('tariff-companies/{tariff}', 'TariffCompanyController@index')->name('tariff-companies.index');
+    Route::post('tariff-companies/store', 'TariffCompanyController@store')->name('tariff-companies.store');
+    Route::delete('tariff-companies/{tariff}', 'TariffCompanyController@destroy')->name('tariff-companies.destroy');
+
+    // Tariff Products Excluded:
+    Route::post('tariff-products-excluded/store', 'TariffProductsExcludedController@store')->name('tariff-products-excluded.store')->middleware('permission:tariffs.edit');
+    Route::post('tariff-products-excluded/update', 'TariffProductsExcludedController@update')->name('tariff-products-excluded.update')->middleware('permission:tariffs.edit');
+    Route::post('tariff-products-excluded/update-products', 'TariffProductsExcludedController@updateProducts')->name('tariff-products-excluded.update-products')->middleware('permission:products.edit');
+    Route::get('tariff-products-excluded/{product}/delete', 'TariffProductsExcludedController@delete')->name('tariff-products-excluded.delete')->middleware();
+
     // Tariffs:
-    Route::get('tariffs', 'TariffController@index')->name('tariffs.index');
+    Route::get('tariffs', 'TariffController@index')->name('tariffs.index')->middleware('permission:tariffs.index');
+    Route::get('tariffs/create', 'TariffController@create')->name('tariffs.create')->middleware('permission:tariffs.create');
+    Route::post('tariffs/store', 'TariffController@store')->name('tariffs.store')->middleware('permission:tariffs.create');
+    Route::get('tariffs/{tariff}/edit/{tab?}', 'TariffController@edit')->name('tariffs.edit')->middleware('permission:tariffs.edit');
+    Route::put('tariffs/{tariff}/update', 'TariffController@update')->name('tariffs.update')->middleware('permission:tariffs.edit');
+    Route::delete('tariffs/{tariff}', 'TariffController@destroy')->name('tariffs.destroy')->middleware('permission:tariffs.destroy');
+    Route::get('tariffs/status/{id}/{status}', 'TariffController@status')->name('tariffs.status');
+    Route::get('tariffs/{tariff}/featured', 'TariffController@featured')->name('tariffs.featured')->middleware('permission:tariffs.edit');
+    Route::get('tariffs/{tariff}/remove-featured', 'TariffController@removeFeatured')->name('tariffs.remove-featured')->middleware('permission:tariffs.edit');
+    Route::post('tariffs/reply-products', 'TariffController@replyProducts')->name('tariffs.reply-products')->middleware('permission:tariffs.create');
 
     // Task Messages:
     Route::post('task-messages/{task}/store', 'TaskMessagesController@store')->name('task-messages.store');

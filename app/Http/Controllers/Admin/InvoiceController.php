@@ -561,6 +561,12 @@ class InvoiceController extends Controller{
         $percentage_invoiced = false;
         $amount_priority = 1;
 
+        //Formateando fechas:
+        $fiscal_date = $request->fiscal_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->fiscal_date):$request->fiscal_date:false;
+
+        //Extraemos mes y año:
+        $parts = $fiscal_date? explode('-', $fiscal_date):[];
+
         //Si la factura es un avance se incluye el importe a facturar o se obtiene el porcentaje sobre el total del pedido:
         //Se considera cada avance como una previsión de facturación, por lo que se crea registro en order_previsions.
         //Facturas íntegras:
@@ -577,8 +583,8 @@ class InvoiceController extends Controller{
 
             $prevision = new OrderPrevisions();
             $prevision->order_id = $order->id;
-            $prevision->year = Date('Y');
-            $prevision->month = Date('m');
+            $prevision->year = !empty($parts)? $parts[0]:Date('Y');
+            $prevision->month = !empty($parts)? $parts[1]:Date('m');
             $prevision->amount = $outstanding_amount;
             $prevision->percent = round($outstanding_percent, 2);
             $prevision->save();    
@@ -666,15 +672,12 @@ class InvoiceController extends Controller{
                     $amount_with_iva = helpers::percent($order_amount['invoice_amount'], $percent_to_invoice);
 
                     //31/05/2024: se actualiza también mes y año de la previsión acorde al mes y año de la generación de la factura.
-                    $prevision->year = Date('Y');
-                    $prevision->month = Date('m');
+                    $prevision->year = !empty($parts)? $parts[0]:Date('Y');
+                    $prevision->month = !empty($parts)? $parts[1]:Date('m');
                     $prevision->save();
                 }
             }
         }
-
-        //Formateando fechas:
-        $fiscal_date = $request->fiscal_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->fiscal_date):$request->fiscal_date:false;
 
         //Generando factura:
         $invoice_data = [

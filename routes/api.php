@@ -460,6 +460,12 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     //Stores:
     Route::get('stores', 'StoreController@getStoresDT');
 
+    //Tariff Companies:
+    Route::get('tariff-companies/{tariff_id?}', 'TariffCompanyController@getTariffCompaniesDT');
+
+    //Tariffs:
+    Route::get('tariffs', 'TariffController@getTariffsDT');
+
     //Teams:
     Route::get('teams', 'TeamController@getTeamsDT');
 

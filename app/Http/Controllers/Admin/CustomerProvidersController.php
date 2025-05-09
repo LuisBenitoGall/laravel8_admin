@@ -30,6 +30,8 @@ use App\Models\CostCenters;
 use App\Models\CustomerProviders;
 use App\Models\Employee;
 use App\Models\PaymentMethod;
+use App\Models\Tariff;
+use App\Models\TariffCompany;
 use App\Models\TempImportCompanies;
 use App\Models\Town;
 use App\Models\TransportAgency;
@@ -68,6 +70,7 @@ class CustomerProvidersController extends Controller{
      * 19. Usuarios por empresa para DataTable.
      * 20. Añadir descuento a cliente.
      * 21. Eliminar descuento.
+     * 22. Actualizar información comercial de cliente.
      */
     
     private $option = 'empresas';
@@ -363,9 +366,23 @@ class CustomerProvidersController extends Controller{
         //¿Es agencia de transporte?
         $is_agency = false;
 
+        $tariffs = Tariff::where('company_id', session('currentCompany'))
+        ->where('status', 1)
+        ->pluck('name', 'id')
+        ->toArray();
+
+        //Tarifa del cliente:
+        $tariff_customer = Tariff::select('tariffs.id')
+        ->join('tariff_companies', 'tariffs.id', '=', 'tariff_companies.tariff_id')
+        ->where('tariffs.company_id', session('currentCompany'))
+        ->where('tariff_companies.company_to', $company->id)
+        ->where('tariff_companies.status', 1)
+        ->whereNull('tariff_companies.deleted_at')
+        ->first();
+
         $languages = $this->languages;
 
-        return view('admin.customer_providers.edit')->with(compact('header', 'company', 'tab', 'workplaces', 'areas', 'conditions', 'business_relationship', 'environment', 'company_account', 'banks', 'bank_accounts', 'payment_methods', 'accounting_accounts', 'provider_workplaces', 'is_agency', 'languages'));     
+        return view('admin.customer_providers.edit')->with(compact('header', 'company', 'tab', 'workplaces', 'areas', 'conditions', 'business_relationship', 'environment', 'company_account', 'banks', 'bank_accounts', 'payment_methods', 'accounting_accounts', 'provider_workplaces', 'is_agency', 'tariffs', 'tariff_customer', 'languages'));     
     }
 
     /**
@@ -1333,6 +1350,38 @@ class CustomerProvidersController extends Controller{
             $alert = trans('textos.descuento_no_existe');
             return redirect()->route('customers.edit', [$cp->customer_id, 'commercial'])->with(compact('alert')); 
         }
+    }
+
+    /**
+     * 22. Actualizar información comercial de cliente.
+     */
+    public function commercialData(Request $request){
+        //Tarifas del cliente:
+        $customer_tariff = TariffCompany::select('tariff_companies.*')
+        ->join('tariffs', 'tariff_companies.tariff_id', '=', 'tariffs.id')
+        ->where('tariff_companies.company_to', $request->customer)
+        ->where('tariffs.company_id', session('currentCompany'))
+        ->first();
+
+        //Si no existe o se trata de otra tarifa.
+        if(!$customer_tariff || ($customer_tariff && $customer_tariff->tariff_id != $request->tariff)){
+            if($customer_tariff){
+                $customer_tariff->status = false;
+                $customer_tariff->save();
+
+                $customer_tariff->delete(); 
+            }
+
+            $tc = new TariffCompany();
+            $tc->tariff_id = $request->tariff;
+            $tc->company_to = $request->customer;
+            $tc->status = 1;
+            $tc->created_by = Auth::user()->id;
+            $tc->save();
+        }
+
+        $msg = trans('textos.datos_comerciales_updated');
+        return redirect()->route('customers.edit', [$request->customer, 'commercial'])->with(compact('msg'));
     }
 
 }

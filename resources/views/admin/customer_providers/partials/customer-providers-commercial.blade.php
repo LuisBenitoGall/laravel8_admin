@@ -2,7 +2,24 @@
 $discounts = $conditions->discounts? unserialize($conditions->discounts):false;
 @endphp
 
-<div class="row">
+{{-- Datos comerciales de cliente --}}
+@if($business_relationship == 'customers')
+	<form method="post" autocomplete="off" action="{{ route('customers.commercial-data') }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
+		{{ csrf_field() }}
+		<input type="hidden" name="customer" value="{{ $company->id }}">	
+
+		<div class="form-group row">
+			<label for="tariff" class="col-lg-2 col-form-label">{{ ucfirst(trans('textos.tarifa')) }}</label>
+			<div class="col-lg-4">
+				<x-select name="tariff" class="select2" label="centro_trabajo_selec" :options="$tariffs" value="{{ $tariff_customer->id }}"/>
+			</div>
+		</div>
+
+		<x-btn-submit name="submit_commercial_data" label="{{ trans('textos.guardar') }}"/>
+	</form>
+@endif
+
+<div class="row mt-4">
 	<div class="table-responsive">
  		<table class="table table-hover dtabla" id="tblCustomerProvidersCommercial">
 			<thead>
