@@ -475,7 +475,7 @@ class OrderController extends Controller{
         $company_field = $provider == session('currentCompany') || $customer == 'all'? 'customer':'provider';
 
         /* $order_buy = "%4700480218%"; */
-        // Se comrpueba que el campo no sea false
+        // Se comprueba que el campo no sea false
         $order_buy = $order_buy == 'false' ? false : $order_buy;
 
         $owners = [];
