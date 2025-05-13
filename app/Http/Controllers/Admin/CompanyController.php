@@ -84,7 +84,7 @@ class CompanyController extends Controller{
             return Validator::make($data, [
                 'name' => 'required_without:company_id|max:255',
                 'tradename' => 'nullable|max:255',
-                'nif' => 'required_without:company_id|validateNif|max:15|unique:companies,nif,NULL,id,deleted_at,NULL',
+                'nif' => 'required_without:company_id|validateNif|max:30|unique:companies,nif,NULL,id,deleted_at,NULL',
                 'account_id' => 'nullable|numeric',
                 'logo' => 'nullable|image|mimes:jpeg,jpg,png,gif|max:500'
             ],[
@@ -96,7 +96,7 @@ class CompanyController extends Controller{
             return Validator::make($data, [
                 'name' => 'required|max:255',
                 'tradename' => 'nullable|max:255',
-                'nif' => 'required|validateNif|max:15|'
+                'nif' => 'required|validateNif|max:30|'
             ]);
 
         //Validación update:
@@ -104,7 +104,7 @@ class CompanyController extends Controller{
             return Validator::make($data, [
                 'name' => "required|string|max:255",
                 'tradename' => 'nullable|max:255',
-                'nif' => "required|string|max:15|validateNif|unique:companies,nif,".$data['id'].",id,deleted_at,NULL",
+                'nif' => "required|string|max:30|validateNif|unique:companies,nif,".$data['id'].",id,deleted_at,NULL",
                 'ccc' => "max:50"
             ],[
                 'nif.unique' => trans('textos.nif_existe')
