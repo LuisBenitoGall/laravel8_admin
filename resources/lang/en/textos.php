@@ -1604,6 +1604,7 @@ return array(
 	'horas' => 'hours',
 	'iban' => 'IBAN',
 	'icono' => 'icon',
+	'id' => 'ID',
 	'idioma_confirm_eliminar' => 'Are you sure you want to delete this language?',
 	'idioma_creado_ok' => 'The language has been created successfully.',
 	'idioma_crear' => 'create new language',

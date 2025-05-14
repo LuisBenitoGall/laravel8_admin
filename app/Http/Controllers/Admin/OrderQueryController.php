@@ -328,6 +328,9 @@ class OrderQueryController extends Controller{
 
             //Tabla:
             return DataTables::of($data)
+            ->addColumn('id', function($row){
+                return $row->id; 
+            })
             ->addColumn('provider', function($row){
                 return $row->provider; 
             })
