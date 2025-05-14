@@ -844,11 +844,11 @@ class CustomerProvidersController extends Controller{
                             //Cuenta contable:
                             $accounting_account_data = [
                                 'account_to' => 'customer',
-                                'company_target' => $co,
+                                'company_target' => $row->customer_id,
                                 'mode' => 1,
                                 'with_iva' => 1
                             ];
-                            AccountingAccount::setAccountingAccount($accounting_account_data);
+                            AccountingAccount::setAccountingAccount($accounting_account_data, $co);
                         }
                     }
                 }

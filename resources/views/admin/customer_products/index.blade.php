@@ -155,6 +155,7 @@ $(function(){
         });
         
         var tableCustomerProducts = $('#tblCustomerProducts').DataTable({
+            stateSave: true,
             serverSide: true,
             processing: true,
             ajax: {
@@ -201,6 +202,7 @@ $(function(){
         });
         
         var tableProviderProducts = $('#tblProviderProducts').DataTable({
+            stateSave: true,
             serverSide: true,
             processing: true,
             ajax: {
