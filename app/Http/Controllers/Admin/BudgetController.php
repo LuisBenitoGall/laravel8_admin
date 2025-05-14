@@ -390,6 +390,19 @@ class BudgetController extends Controller{
         ->where('user_id', Auth::user()->id)
         ->first();
 
+        $workplaceId = false;
+        if($user_workplace){
+            $workplaceId = $user_workplace->id;   
+        }else{
+            $wk = Workplace::select('id')
+            ->where('company_id', session('currentCompany'))
+            ->where('featured', 1)
+            ->where('status', 1)
+            ->first();
+
+            if($wk) $workplaceId = $wk->id;
+        }
+
         //Cuenta contable de ventas del proveedor:
         $provider_accounting_account_default = AccountingAccount::select('id')
         ->where('company_id', session('currentCompany'))
@@ -403,7 +416,7 @@ class BudgetController extends Controller{
         $budget->customer_id = $request->customer_id;
         $budget->provider_id = session('currentCompany');
         $budget->provider_manager_id = Auth::user()->id;
-        $budget->provider_workplace_id = $user_workplace? $user_workplace->workplace_id:false;
+        $budget->provider_workplace_id = $workplaceId;
         $budget->created_by = Auth::user()->id;
         $budget->discount = $cu_pr->discount;
         $budget->num_deadlines = $cu_pr->num_deadlines;
