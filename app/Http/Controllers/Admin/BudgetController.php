@@ -403,7 +403,7 @@ class BudgetController extends Controller{
         $budget->customer_id = $request->customer_id;
         $budget->provider_id = session('currentCompany');
         $budget->provider_manager_id = Auth::user()->id;
-        $budget->provider_workplace_id = $user_workplace->workplace_id;
+        $budget->provider_workplace_id = $user_workplace? $user_workplace->workplace_id:false;
         $budget->created_by = Auth::user()->id;
         $budget->discount = $cu_pr->discount;
         $budget->num_deadlines = $cu_pr->num_deadlines;
