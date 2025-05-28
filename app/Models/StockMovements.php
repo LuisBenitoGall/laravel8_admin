@@ -12,5 +12,5 @@ class StockMovements extends Model{
 
     protected $table = 'stock_movements';
 
-    protected $fillable = ['name', 'acronym', 'sign', 'basic', 'domestic_consumption', 'limit'];
+    protected $fillable = ['name', 'acronym', 'sign', 'basic', 'domestic_consumption', 'limit', 'status'];
 }

@@ -12,8 +12,7 @@ db: preview_admin_laravel8
 - composer create-project laravel/laravel --prefer-dist laravel8_admin
 - cd laravel8_admin
 - composer require laravel/ui
-- Instalando sistema de login y registro: php artisan ui bootstrap --auth
-- npm install && npm run dev
+- Instalando sistema de login y registro: php artisan ui bootstrap --auth- npm install && npm run dev
 - Instalando Livewire: composer require livewire/livewire
 - Instalación Spatie (Roles y permisos): https://spatie.be/docs/laravel-permission/v4/introduction
 	- composer require spatie/laravel-permission
@@ -437,6 +436,23 @@ AND c.id IN (
     and o.provider_id = 4
 )
 ORDER BY c.name ASC;
+
+- Pedidos por proveedor con documento de orden de compra:
+SELECT o.id, o.order_num, c.name, o.created_at, od.doc FROM order_docs od
+INNER JOIN orders o
+ON od.order_id = o.id
+INNER JOIN companies c
+ON o.customer_id = c.id
+WHERE o.provider_id = 4
+AND o.created_at >= '2025-01-01'
+ORDER BY o.created_at DESC
+
+SELECT o.id, o.order_num, c.name, o.created_at, o.customer_order, o.customer_order_doc FROM orders o
+INNER JOIN companies c
+ON o.customer_id = c.id
+WHERE o.provider_id = 4
+AND o.customer_order_doc IS NOT NULL
+ORDER BY o.created_at DESC
 
    
 

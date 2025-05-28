@@ -203,7 +203,7 @@ class BudgetController extends Controller{
     /**
      * 1. Presupuestos por empresa.
      */
-    public function index(){
+    public function index($budget_from = false){
         $header = [
             'option' => $this->option,
             'suboption' => 'textos.presupuestos_mis',
@@ -211,7 +211,7 @@ class BudgetController extends Controller{
             'slug' => 'budgets'
         ];
 
-        $budget_from = 'customers';
+        $budget_from = $budget_from? $budget_from:'customers';
 
         return view('admin.budgets.index')->with(compact('header', 'budget_from'));
     }

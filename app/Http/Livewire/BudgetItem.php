@@ -515,6 +515,7 @@ class BudgetItem extends Component{
      * @return void
      */
     public function changeQty($qty){
+        $qty = (float) $qty;
         if (is_numeric($qty)) {
             if (!$this->days) {
                 $subtotal = $qty * $this->price;
