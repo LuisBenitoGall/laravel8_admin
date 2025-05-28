@@ -518,9 +518,9 @@ class BudgetItem extends Component{
         $qty = (float) $qty;
         if (is_numeric($qty)) {
             if (!$this->days) {
-                $subtotal = $qty * $this->price;
+                $subtotal = (float) $qty * $this->price;
             } else {
-                $subtotal = $qty * $this->price * $this->days;
+                $subtotal = (float) $qty * $this->price * $this->days;
             }
 
             if (!$this->discount) {
