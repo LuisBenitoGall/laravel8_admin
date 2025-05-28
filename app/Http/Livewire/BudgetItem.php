@@ -516,7 +516,7 @@ class BudgetItem extends Component{
      */
     public function changeQty($qty){
         $qty = (float) $qty;
-        if (is_numeric($qty)) {
+        if (is_numeric($qty) && $qty > 0 && $this->price > 0){
             if (!$this->days) {
                 $subtotal = (float) $qty * $this->price;
             } else {
@@ -538,7 +538,7 @@ class BudgetItem extends Component{
      * @return void
      */
     public function changePrice($price){
-        if (is_numeric($price)) {
+        if (is_numeric($price) && $this->qty > 0 && $price > 0) {
             if (!$this->days) {
                 $subtotal = $this->qty * $price;
             } else {
@@ -559,7 +559,7 @@ class BudgetItem extends Component{
      * @return void
      */
     public function changeDiscount($discount){
-        if (is_numeric($discount)) {
+        if (is_numeric($discount) && $this->qty > 0 && $this->price > 0) {
             if (!$this->days) {
                 $subtotal = $this->qty * $this->price;
             } else {
