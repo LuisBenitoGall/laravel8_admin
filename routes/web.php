@@ -258,7 +258,7 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::get('budget-settings/{template}/featured', 'BudgetSettingsController@featured')->name('budget-settings.featured')->middleware('permission:budgets.edit');
 
     // Budgets:
-    Route::get('budgets/{budget_from?}', 'BudgetController@index')->name('budgets.index');
+    Route::get('budgets/{budget_from?}', 'BudgetController@index')->where('budget_from', '^(?!create$).*')->name('budgets.index');
     Route::get('budgets/create/{customer_id?}', 'BudgetController@create')->name('budgets.create')->middleware('permission:budgets.create');
     Route::post('budgets/store', 'BudgetController@store')->name('budgets.store')->middleware('permission:budgets.create');
     Route::get('budgets/{order}/edit/{tab?}', 'BudgetController@edit')->name('budgets.edit')->middleware('permission:budgets.edit');

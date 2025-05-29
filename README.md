@@ -454,6 +454,15 @@ WHERE o.provider_id = 4
 AND o.customer_order_doc IS NOT NULL
 ORDER BY o.created_at DESC
 
+- Productos por empresa y otros filtros:
+SELECT p.id, p.name, p.price, cc.name AS cost_center
+FROM products p
+LEFT JOIN cost_centers cc
+ON p.cost_center_id = cc.id
+WHERE p.company_id = 4
+AND p.on_sale = 1
+AND p.status = 1
+ORDER BY p.name ASC
    
 
 ### Instalación de Sentry
