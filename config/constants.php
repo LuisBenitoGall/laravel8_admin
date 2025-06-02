@@ -44,6 +44,7 @@ return [
     'CURRENCY_' => '€',
     'CURRENCY_NAME_' => 'EUR',
     'DATE_NULL_' => '0000-00-00',
+    'DECIMALS_SALES_' => 2,
     'DELIVERY_STATUS_PREPARATION_' => 1,
     'EFFECT_STATUS_PENDENT_' => 1,
     'EFFECT_STATUS_REMITTANCE_' => 10,

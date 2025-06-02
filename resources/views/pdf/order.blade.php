@@ -71,7 +71,7 @@ $my_deposit_lines = [];
 					$html .= ')</small>';
 				}
 			$html .= '</td>';
-			$html .= '<td class="text-right" style="text-align: right; width: 90px;">'.$row->price.$currency->symbol;
+			$html .= '<td class="text-right" style="text-align: right; width: 90px;">'.App\Helpers\helpers::setEUNum($row->price).$currency->symbol;
 
 			//Importe de la línea, si es por porcentaje:
 			if($row->calculated_by_percent && $row->calculated_by_percent > 0){
@@ -91,7 +91,7 @@ $my_deposit_lines = [];
 			}
 			$html .= '</td>';
 
-			$html .= '<td class="text-right" style="text-align: right; width: 50px;">'.number_format($amount, 2).$currency->symbol.'</td>';
+			$html .= '<td class="text-right" style="text-align: right; width: 50px;">'.App\Helpers\helpers::setEUNum($amount).$currency->symbol.'</td>';
 			$html .= '<td class="text-left">'.$row->observations.'</td>';
 		$html .= '</tr>';
 		$i++;
@@ -120,8 +120,8 @@ $my_deposit_lines = [];
 				$html .= '<td class="td-success" style="text-align: center; width: 15px;">'.$i.'</td>';	
 				$html .= '<td class="td-success text-left" style="font-size: 10px; width: 250px;">'.trans('textos.descuento_pedido').' '.$nOrder.'</td>';
 				$html .= '<td class="td-success" style="text-align: center; width: 50px;">'.$mdl->qty.'</td>';
-				$html .= '<td class="td-success" style="text-align: center; width: 100px;">-'.$mdl->price.$currency->symbol.'</td>';
-				$html .= '<td class="td-success" style="text-align: center; width: 50px;">-'.number_format($amount, 2).$currency->symbol.'</td>';
+				$html .= '<td class="td-success" style="text-align: center; width: 100px;">-'.App\Helpers\helpers::setEUNum($mdl->price).$currency->symbol.'</td>';
+				$html .= '<td class="td-success" style="text-align: center; width: 50px;">-'.App\Helpers\helpers::setEUNum($amount).$currency->symbol.'</td>';
 				$html .= '<td class="td-success text-left">'.$mdl->observations.'</td>';
 			$html .= '</tr>';
 
@@ -158,7 +158,7 @@ $my_deposit_lines = [];
 					@endif --}} &nbsp;
 				</th>	
 				<th style="background-color: {{ $bg_color }}; width: 20%;">{{ strtoupper(trans('textos.total')) }}</th>
-				<th style="background-color: {{ $bg_color }}; text-align: right; width: 20%;">{{ number_format($total, 2) }}{{ $currency->symbol }}</th>
+				<th style="background-color: {{ $bg_color }}; text-align: right; width: 20%;">{{ App\Helpers\helpers::setEUNum($total) }}{{ $currency->symbol }}</th>
 			</tr>
 		</thead>	
 	</table>
@@ -199,7 +199,7 @@ $my_deposit_lines = [];
 					@endif
 				</td>
 				<td class="text-center">
-					{{ round($total, 2) }}{{ $currency->symbol }}
+					{{ App\Helpers\helpers::setEUNum($total) }}{{ $currency->symbol }}
 				</td>
 				<td></td>
 			</tr>	

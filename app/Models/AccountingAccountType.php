@@ -14,5 +14,5 @@ class AccountingAccountType extends Model{
 
     protected $dates = ['deleted_at'];
 
-    protected $fillable = ['autoreference', 'code', 'name'];
+    protected $fillable = ['autoreference', 'code', 'name', 'mode'];
 }

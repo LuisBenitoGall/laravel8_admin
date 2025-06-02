@@ -127,9 +127,9 @@ $text_doc = $invoice->refund > 0? 'abono':'factura';
 					<td style="background-color: #efefef; text-align: right;">
 						<b>
 							@if($invoice->refund)
-								{{ $invoice->amount * -1 }}{{ $currency->symbol }}
+								{{ App\Helpers\helpers::setEUNum($invoice->amount * -1) }}{{ $currency->symbol }}
 							@else
-								{{ $invoice->amount }}{{ $currency->symbol }}
+								{{ App\Helpers\helpers::setEUNum($invoice->amount) }}{{ $currency->symbol }}
 							@endif
 						</b>
 					</td>
@@ -162,7 +162,7 @@ $text_doc = $invoice->refund > 0? 'abono':'factura';
 							<td class="text-right" style="text-align: right;">{{ $row->qty }}</td>
 							<td>{{ $row->concept }}</td>
 							{{-- Precio / unidad --}}
-							<td class="text-right" style="text-align: right;">{{ $row->price.$currency->symbol }}
+							<td class="text-right" style="text-align: right;">{{ App\Helpers\helpers::setEUNum($row->price).$currency->symbol }}
 								@if($row->days > 1)
 									<br><small style="font-size: 9px;">(x {{ $row->days }} {{ trans('textos.jornadas') }}
 									
@@ -245,9 +245,9 @@ $text_doc = $invoice->refund > 0? 'abono':'factura';
 								@endphp
 
 								@if($invoice->refund)
-									{{ number_format($partial_amount, 2) * -1 }}{{$currency->symbol }}
+									{{ App\Helpers\helpers::setEUNum($partial_amount * -1) }}{{$currency->symbol }}
 								@else
-									{{ number_format($partial_amount, 2) }}{{$currency->symbol }}
+									{{ App\Helpers\helpers::setEUNum($partial_amount) }}{{$currency->symbol }}
 								@endif
 							</td>
 						</tr>
@@ -341,7 +341,7 @@ $text_doc = $invoice->refund > 0? 'abono':'factura';
 							$group_iva_amount = $group_iva_amount + ($amount['invoice_amount'] - $amount['total_amount']);
 
 							@endphp
-							{{ $amount['total_amount'] }}{{ $currency->symbol }}
+							{{ App\Helpers\helpers::setEUNum($amount['total_amount']) }}{{ $currency->symbol }}
 						</td>
 					</tr>
 
