@@ -561,7 +561,16 @@ class BudgetController extends Controller{
         // }
         // 09/06/2023: se modifica la consulta para traer usuarios vinculados a la empresa, aunque no sean empleados.
         $provider_managers = UserCompanies::select(
-            DB::raw("CONCAT(users.name,' ',users.surname) AS user"), 'users.id')
+            DB::raw("
+                CONCAT(
+                    UPPER(LEFT(users.name, 1)),
+                    LOWER(SUBSTRING(users.name, 2)),
+                    ' ',
+                    UPPER(LEFT(users.surname, 1)),
+                    LOWER(SUBSTRING(users.surname, 2))
+                ) AS user
+            "),
+            'users.id')
         ->join('users', 'user_companies.user_id', '=', 'users.id')
         ->where('users.status', 1)
         ->where('users.isAdmin', 1)
