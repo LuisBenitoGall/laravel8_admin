@@ -106,6 +106,12 @@ En el archivo config/constants.php se definen constantes personalizadas.
 	- php artisan notifications:table
 	- php artisan migrate
 
+- Swagger:
+	- composer require "darkaonline/l5-swagger"
+	- php artisan vendor:publish --provider="L5Swagger\L5SwaggerServiceProvider"
+
+
+
 - Cron Jobs:
 	- php artisan schedule:run -> ejecuta las tareas programadas en ese mismo momento.
 	- php artisan schedule:work -> ejecuta las tareas programadas en el momento indicado en el Kernel.

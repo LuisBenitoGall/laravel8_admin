@@ -936,15 +936,21 @@ class BudgetController extends Controller{
      * @param  str $order
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Order $order){
+    public function destroy(Request $request, Order $order){
         if($order->invoiced){
             $alert = trans('textos.pedido_facturado_aviso');
             return redirect()->route('budgets.edit', $order)->with(compact('alert'));
 
         }else{
-            //Actualizamos registro compartido:
-            $order->is_budget = false;
-            $order->save();
+            //Si no es pedido, se elimina por completo:
+            if(!$order->is_order){
+                $order->delete();
+
+            }else{
+                //Actualizamos registro compartido:
+                $order->is_budget = false;
+                $order->save();
+            }
 
             $msg = trans('textos.presupuesto_deleted');
             return redirect()->route('budgets.index')->with(compact('msg'));
