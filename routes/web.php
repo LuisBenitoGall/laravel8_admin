@@ -115,7 +115,6 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::get('agencies/{provider_id}/store', 'AgencyController@store')->name('agencies.store')->middleware('permission:agencies.edit');
     Route::get('agencies/{provider_id}/destroy', 'AgencyController@destroy')->name('agencies.destroy')->middleware('permission:agencies.edit');
 
-
     // Amortization Lines:
     Route::post('amortization-lines/store', 'AmortizationLinesController@store')->name('amortization-lines.store')->middleware('permission:amortizations.edit');
     Route::post('amortization-lines/update', 'AmortizationLinesController@update')->name('amortization-lines.update')->middleware('permission:amortizations.edit');

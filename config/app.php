@@ -179,6 +179,8 @@ return [
         Jenssegers\Agent\AgentServiceProvider::class,
 
         Maatwebsite\Excel\ExcelServiceProvider::class,
+
+        L5Swagger\L5SwaggerServiceProvider::class,
     ],
 
     /*

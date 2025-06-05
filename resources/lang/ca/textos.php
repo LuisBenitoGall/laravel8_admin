@@ -2545,6 +2545,7 @@ return array(
 	'porcentaje_completado' => 'Percentatge completat',
 	'porcentaje_factura_aviso' => 'La suma de percentatges de facturació no pot superar el 100%',
 	'porcentaje_factura_error' => 'La suma de percentatges de facturació excedeix el 100%. Modifica els valors.',
+	'porcentaje_facturable' => 'Percentatge facturable',
 	'porcentaje_mayor_100' => 'El percentatge supera el 100%',
 	'porcentaje' => 'Percentatge',
 	'porcentual' => 'Percentual',

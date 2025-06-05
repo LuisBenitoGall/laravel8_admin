@@ -1,0 +1,383 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "API del ERP",
+        "description": "Documentación de la API para leer/escribir datos en el ERP",
+        "contact": {
+            "name": "Equipo ADN COM",
+            "email": "it@weareadn.com"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://laravel8_admin.test",
+            "description": "Servidor local"
+        },
+        {
+            "url": "/api/v1"
+        }
+    ],
+    "paths": {
+        "/api/v1/companies/{company}/products": {
+            "get": {
+                "tags": [
+                    "Productos"
+                ],
+                "summary": "Obtener lista de productos por empresa",
+                "operationId": "4feaf3954c3a9b5ebd49198cb98ce4b5",
+                "parameters": [
+                    {
+                        "name": "company",
+                        "in": "path",
+                        "description": "ID de la compañía de la cual se quieren listar los productos",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Listado de productos devuelto correctamente",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Producto"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Compañía no encontrada"
+                    }
+                }
+            }
+        },
+        "/api/v1/products": {
+            "post": {
+                "tags": [
+                    "Productos"
+                ],
+                "summary": "Crear un nuevo producto",
+                "operationId": "c42372551809b54ed9829880ca18d93b",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ProductoCreateRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Producto creado correctamente",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Producto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Producto": {
+                "title": "Producto",
+                "description": "Esquema de un producto perteneciente a una compañía",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "company_id": {
+                        "description": "ID de la compañía a la que pertenece",
+                        "type": "integer",
+                        "example": 45
+                    },
+                    "name": {
+                        "description": "Nombre del producto",
+                        "type": "string",
+                        "example": "Producto A"
+                    },
+                    "slug": {
+                        "description": "Slug del producto",
+                        "type": "string",
+                        "example": "producto-a"
+                    },
+                    "ref": {
+                        "description": "Referencia interna",
+                        "type": "string",
+                        "example": "REF123"
+                    },
+                    "manual_ref": {
+                        "description": "Referencia manual",
+                        "type": "string",
+                        "example": "MANUAL-REF"
+                    },
+                    "translations": {
+                        "description": "Datos de traducciones",
+                        "type": "string",
+                        "example": "Traducciones disponibles"
+                    },
+                    "tags": {
+                        "description": "Etiquetas asociadas",
+                        "type": "string",
+                        "example": "etiqueta1,etiqueta2"
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "Descripción breve del producto"
+                    },
+                    "long_description": {
+                        "type": "string",
+                        "example": "Descripción detallada del producto"
+                    },
+                    "type": {
+                        "description": "Tipo de producto",
+                        "type": "string",
+                        "example": "A"
+                    },
+                    "price": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 9.99
+                    },
+                    "calculated_by_percent": {
+                        "description": "Precio calculado por porcentaje",
+                        "type": "number",
+                        "format": "float",
+                        "example": 5.5
+                    },
+                    "iva": {
+                        "description": "IVA aplicado",
+                        "type": "number",
+                        "format": "float",
+                        "example": 21
+                    },
+                    "batch": {
+                        "description": "Indica si se vende en lote",
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "stock_management": {
+                        "description": "Gestión de stock habilitada",
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "on_sale": {
+                        "description": "Indica si está en oferta",
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "status": {
+                        "description": "Estado del producto",
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "user_id": {
+                        "description": "ID del usuario que creó el producto",
+                        "type": "integer",
+                        "example": 5
+                    },
+                    "product_pattern_id": {
+                        "description": "ID del patrón de producto",
+                        "type": "integer",
+                        "example": 2
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-01-15T10:30:00Z"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-05-20T14:00:00Z"
+                    }
+                },
+                "type": "object"
+            },
+            "ProductoCreateRequest": {
+                "title": "ProductoCreateRequest",
+                "required": [
+                    "name",
+                    "slug",
+                    "price",
+                    "batch",
+                    "stock_management",
+                    "on_sale",
+                    "status",
+                    "user_id",
+                    "product_pattern_id"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "example": "Producto A"
+                    },
+                    "slug": {
+                        "type": "string",
+                        "example": "producto-a"
+                    },
+                    "ref": {
+                        "type": "string",
+                        "example": "REF123"
+                    },
+                    "manual_ref": {
+                        "type": "string",
+                        "example": "MANUAL-REF"
+                    },
+                    "translations": {
+                        "type": "string",
+                        "example": "Traducciones disponibles"
+                    },
+                    "tags": {
+                        "type": "string",
+                        "example": "etiqueta1,etiqueta2"
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "Descripción breve del producto"
+                    },
+                    "long_description": {
+                        "type": "string",
+                        "example": "Descripción detallada del producto"
+                    },
+                    "type": {
+                        "type": "string",
+                        "example": "A"
+                    },
+                    "price": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 9.99
+                    },
+                    "calculated_by_percent": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 5.5
+                    },
+                    "iva": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 21
+                    },
+                    "batch": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "stock_management": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "on_sale": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "status": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "user_id": {
+                        "type": "integer",
+                        "example": 5
+                    },
+                    "product_pattern_id": {
+                        "type": "integer",
+                        "example": 2
+                    }
+                },
+                "type": "object"
+            },
+            "ProductoUpdateRequest": {
+                "title": "ProductoUpdateRequest",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "example": "Producto A Modificado"
+                    },
+                    "slug": {
+                        "type": "string",
+                        "example": "producto-a-modificado"
+                    },
+                    "ref": {
+                        "type": "string",
+                        "example": "REF456"
+                    },
+                    "manual_ref": {
+                        "type": "string",
+                        "example": "MANUAL-REF-2"
+                    },
+                    "translations": {
+                        "type": "string",
+                        "example": "Traducciones actualizadas"
+                    },
+                    "tags": {
+                        "type": "string",
+                        "example": "etiqueta3,etiqueta4"
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "Descripción actualizada"
+                    },
+                    "long_description": {
+                        "type": "string",
+                        "example": "Descripción detallada actualizada"
+                    },
+                    "type": {
+                        "type": "string",
+                        "example": "B"
+                    },
+                    "price": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 12.5
+                    },
+                    "calculated_by_percent": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 7
+                    },
+                    "iva": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 18
+                    },
+                    "batch": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "stock_management": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "on_sale": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "status": {
+                        "type": "integer",
+                        "example": 2
+                    }
+                },
+                "type": "object"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Productos",
+            "description": "Endpoints para gestionar productos de una compañía"
+        }
+    ]
+}

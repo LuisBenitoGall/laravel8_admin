@@ -516,10 +516,7 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     Route::get('workplaces/{company}/{business_relationship}', 'WorkplaceController@getWorkplacesDT');
 });
 
-
 Route::prefix('v1')->namespace('Api')->group(function () {
-
-
     Route::post('/login', [AuthController::class, 'login'])->name('api.login');
 
     Route::middleware('auth:api')
@@ -531,7 +528,7 @@ Route::prefix('v1')->namespace('Api')->group(function () {
         ->name('api.user');
 
     Route::name('api.')
-        ->middleware('auth:api')
+        //->middleware('auth:api')
         ->group(function () {
             Route::apiResource('budget-forms', BudgetFormController::class);
 
@@ -1187,7 +1184,5 @@ Route::prefix('v1')->namespace('Api')->group(function () {
      * device push
      */
     Route::apiResource('device-pushes', DevicePushController::class);
-
-
 });
 

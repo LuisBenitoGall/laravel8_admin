@@ -2,27 +2,81 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\Company;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ProductResource;
 use App\Http\Resources\ProductCollection;
 
-class CompanyProductsController extends Controller
-{
+//Models:
+use App\Models\Company;
+
+/**
+ * @OA\Info(
+ *     version="1.0.0",
+ *     title="API del ERP",
+ *     description="Documentación de la API para leer/escribir datos en el ERP",
+ *     @OA\Contact(
+ *         email="it@weareadn.com",
+ *         name="Equipo ADN COM"
+ *     )
+ * )
+ *
+ * @OA\Server(
+ *     url=L5_SWAGGER_CONST_HOST, 
+ *     description="Servidor local"
+ * )
+ *
+ * @OA\Tag(
+ *     name="Productos",
+ *     description="Endpoints para gestionar productos de una compañía"
+ * )
+ */
+
+class CompanyProductsController extends Controller{
     /**
      * @param \Illuminate\Http\Request $request
      * @param \App\Models\Company $company
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request, Company $company)
-    {
+    
+     /**
+     * @OA\Get(
+     *     path="/api/v1/companies/{company}/products",
+     *     summary="Obtener lista de productos por empresa",
+     *     tags={"Productos"},
+     *
+     *     @OA\Parameter(
+     *         name="company",
+     *         in="path",
+     *         description="ID de la compañía de la cual se quieren listar los productos",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     * 
+     *     @OA\Response(
+     *         response=200,
+     *         description="Listado de productos devuelto correctamente",
+     *         @OA\JsonContent(
+     *             type="array",
+     *             @OA\Items(ref="#/components/schemas/Producto")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(response=404, description="Compañía no encontrada")
+     * )
+     */
+    public function index(Request $request, Company $company){
         // $this->authorize('view', $company);
+
+        // $products = $company
+        //     ->products()
+        //     ->latest()
+        //     ->paginate();
 
         $products = $company
             ->products()
-            ->latest()
-            ->paginate();
+            ->orderBy('name', 'ASC')
+            ->get();
 
         return new ProductCollection($products);
     }
@@ -32,8 +86,24 @@ class CompanyProductsController extends Controller
      * @param \App\Models\Company $company
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request, Company $company)
-    {
+    
+    /**
+     * @OA\Post(
+     *     path="/api/v1/products",
+     *     summary="Crear un nuevo producto",
+     *     tags={"Productos"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/ProductoCreateRequest")
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Producto creado correctamente",
+     *         @OA\JsonContent(ref="#/components/schemas/Producto")
+     *     )
+     * )
+     */
+    public function store(Request $request, Company $company){
         //$this->authorize('create', Product::class);
 
         $validated = $request->validate([

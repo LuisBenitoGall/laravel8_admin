@@ -107,9 +107,17 @@ En el archivo config/constants.php se definen constantes personalizadas.
 	- php artisan migrate
 
 - Swagger:
-	- composer require "darkaonline/l5-swagger"
-	- php artisan vendor:publish --provider="L5Swagger\L5SwaggerServiceProvider"
+	# 1. Instalar L5-Swagger
+	composer require “darkaonline/l5-swagger”
 
+	# 2. Publicar configuración y vistas
+	php artisan vendor:publish --provider="L5Swagger\L5SwaggerServiceProvider"
+
+	# 3. (Opcional) Crear carpeta para docs
+	mkdir storage\api-docs
+
+	# 4. Generar documentación manualmente
+	php artisan l5-swagger:generate
 
 
 - Cron Jobs:

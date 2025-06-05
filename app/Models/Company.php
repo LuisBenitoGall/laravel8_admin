@@ -344,4 +344,9 @@ class Company extends Model{
     {
         return $this->hasMany(StaffPick::class)->where('status',true);
     }
+
+    public function products()
+    {
+        return $this->hasMany(Product::class, 'company_id');
+    }
 }

@@ -2545,6 +2545,7 @@ return array(
 	'porcentaje_completado' => 'Percentage completed',
 	'porcentaje_factura_aviso' => 'The sum of billing percentages cannot exceed 100%',
 	'porcentaje_factura_error' => 'The sum of billing percentages exceeds 100%. Modify the values.',
+	'porcentaje_facturable' => 'Billable percentage',
 	'porcentaje_mayor_100' => 'The percentage exceeds 100%',
 	'porcentaje' => 'Percentage',
 	'porcentual' => 'Percentage',
