@@ -4,23 +4,15 @@ namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\ProductResource;
-use App\Http\Resources\ProductCollection;
 
 //Models:
 use App\Models\Company;
 
+//Resources:
+use App\Http\Resources\ProductResource;
+use App\Http\Resources\ProductCollection;
+
 /**
- * @OA\Info(
- *     version="1.0.0",
- *     title="API del ERP",
- *     description="Documentación de la API para leer/escribir datos en el ERP",
- *     @OA\Contact(
- *         email="it@weareadn.com",
- *         name="Equipo ADN COM"
- *     )
- * )
- *
  * @OA\Server(
  *     url=L5_SWAGGER_CONST_HOST, 
  *     description="Servidor local"
@@ -31,7 +23,6 @@ use App\Models\Company;
  *     description="Endpoints para gestionar productos de una compañía"
  * )
  */
-
 class CompanyProductsController extends Controller{
     /**
      * @param \Illuminate\Http\Request $request
@@ -41,7 +32,7 @@ class CompanyProductsController extends Controller{
     
      /**
      * @OA\Get(
-     *     path="/api/v1/companies/{company}/products",
+     *     path="/companies/{company}/products",
      *     summary="Obtener lista de productos por empresa",
      *     tags={"Productos"},
      *

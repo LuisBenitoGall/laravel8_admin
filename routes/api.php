@@ -35,9 +35,9 @@ use App\Http\Controllers\Api\CompanyWorkplacesController;
 use App\Http\Controllers\Api\CostCenterOrdersController;
 
 use App\Http\Controllers\Api\CountryProvincesController;
-
 use App\Http\Controllers\Api\InvoicePatternInvoicesController;
 use App\Http\Controllers\Api\InvoiceSettingInvoicesController;
+use App\Http\Controllers\Api\ItemController;
 use App\Http\Controllers\Api\OrderInvoicesController;
 use App\Http\Controllers\Api\OrderPatternOrdersController;
 
@@ -853,6 +853,9 @@ Route::prefix('v1')->namespace('Api')->group(function () {
                 InvoiceSettingInvoicesController::class,
                 'store',
             ])->name('invoice-settings.invoices.store');
+
+            // Items
+            Route::get('items/providers', [ItemController::class, 'index'])->name('items.providers');
 
             Route::apiResource('orders', OrderController::class);
 

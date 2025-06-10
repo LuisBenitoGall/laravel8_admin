@@ -1,17 +1,17 @@
 {
     "openapi": "3.0.0",
     "info": {
-        "title": "API del ERP",
-        "description": "Documentación de la API para leer/escribir datos en el ERP",
-        "contact": {
-            "name": "Equipo ADN COM",
-            "email": "it@weareadn.com"
-        },
+        "title": "ADN ERP API Documentation",
+        "description": "Documentación de la API de ADN ERP",
         "version": "1.0.0"
     },
     "servers": [
         {
-            "url": "http://laravel8_admin.test",
+            "url": "https://laravel8_admin.test/api/v1",
+            "description": "Servidor local"
+        },
+        {
+            "url": "https://laravel8_admin.test/api/v1",
             "description": "Servidor local"
         },
         {
@@ -19,13 +19,13 @@
         }
     ],
     "paths": {
-        "/api/v1/companies/{company}/products": {
+        "/companies/{company}/products": {
             "get": {
                 "tags": [
                     "Productos"
                 ],
                 "summary": "Obtener lista de productos por empresa",
-                "operationId": "4feaf3954c3a9b5ebd49198cb98ce4b5",
+                "operationId": "2a7dada8e9f939743dbc3c5ada2d5139",
                 "parameters": [
                     {
                         "name": "company",
@@ -87,10 +87,199 @@
                     }
                 }
             }
+        },
+        "/items/providers": {
+            "get": {
+                "tags": [
+                    "Líneas de pedido"
+                ],
+                "summary": "Obtener líneas de pedidos filtradas por uno o más company_id",
+                "operationId": "fea1c7b15750ba81addad2093742c82d",
+                "parameters": [
+                    {
+                        "name": "company_ids",
+                        "in": "query",
+                        "description": "IDs de las compañías, separados por comas. Ejemplo: `?company_ids=1,2,3`",
+                        "required": true,
+                        "style": "form",
+                        "explode": false,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer",
+                                "format": "int64",
+                                "example": 4
+                            }
+                        }
+                    },
+                    {
+                        "name": "start_date",
+                        "in": "query",
+                        "description": "Fecha de inicio para filtrar (YYYY-MM-DD)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2025-02-01"
+                        }
+                    },
+                    {
+                        "name": "end_date",
+                        "in": "query",
+                        "description": "Fecha de fin para filtrar (YYYY-MM-DD)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2025-06-30"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Listado de items devuelto correctamente",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Items"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No se encontraron líneas para los company_id indicados"
+                    }
+                }
+            }
         }
     },
     "components": {
         "schemas": {
+            "Items": {
+                "title": "Items",
+                "description": "Esquema de líneas de pedido por pedidos y proveedor",
+                "properties": {
+                    "id": {
+                        "description": "ID único de la línea de pedido",
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 1
+                    },
+                    "provider": {
+                        "description": "Nombre del proveedor",
+                        "type": "string",
+                        "example": "ADN COM"
+                    },
+                    "customer": {
+                        "description": "Nombre del cliente",
+                        "type": "string",
+                        "example": "ACME"
+                    },
+                    "final_customer": {
+                        "description": "Nombre del cliente final",
+                        "type": "string",
+                        "example": "ACME"
+                    },
+                    "is_order": {
+                        "description": "Línea de pedido",
+                        "type": "string",
+                        "example": ""
+                    },
+                    "is_budget": {
+                        "description": "Línea de presupuesto",
+                        "type": "string",
+                        "example": ""
+                    },
+                    "budget_num": {
+                        "description": "Número de presupuesto",
+                        "type": "string",
+                        "example": "Nº presupuesto"
+                    },
+                    "order_num": {
+                        "description": "Número de pedido",
+                        "type": "string",
+                        "example": "Nº pedido"
+                    },
+                    "order_title": {
+                        "description": "Título del pedido",
+                        "type": "string",
+                        "example": "Título del pedido"
+                    },
+                    "created_at": {
+                        "description": "Fecha de creación",
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-06-01T12:00:00Z"
+                    },
+                    "provider_manager": {
+                        "description": "Manager del proveedor",
+                        "type": "string",
+                        "example": "Nombre + Apellidos"
+                    },
+                    "commercial": {
+                        "description": "Comercial",
+                        "type": "string",
+                        "example": "Nombre + Apellidos"
+                    },
+                    "customer_manager": {
+                        "description": "Manager del cliente",
+                        "type": "string",
+                        "example": "Nombre + Apellidos"
+                    },
+                    "final_customer_manager": {
+                        "description": "Manager del cliente final",
+                        "type": "string",
+                        "example": "Nombre + Apellidos"
+                    },
+                    "product": {
+                        "description": "Nombre del producto",
+                        "type": "string",
+                        "example": "Producto"
+                    },
+                    "concept": {
+                        "description": "Concepto del producto",
+                        "type": "string",
+                        "example": "Concepto"
+                    },
+                    "qty": {
+                        "description": "Cantidad pedida",
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "price": {
+                        "description": "Precio unitario en el momento del pedido",
+                        "type": "number",
+                        "format": "float",
+                        "example": 19.99
+                    },
+                    "iva": {
+                        "description": "IVA",
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "subtotal": {
+                        "description": "Cantidad * Precio unitario",
+                        "type": "number",
+                        "format": "float",
+                        "example": 59.97
+                    },
+                    "billable_percentage": {
+                        "description": "Porcentaje facturable",
+                        "type": "number",
+                        "format": "float",
+                        "example": "60%"
+                    },
+                    "provider_cost_center": {
+                        "description": "Centro coste proveedor",
+                        "type": "string",
+                        "example": "Centro coste proveedor"
+                    }
+                },
+                "type": "object"
+            },
             "Producto": {
                 "title": "Producto",
                 "description": "Esquema de un producto perteneciente a una compañía",
@@ -378,6 +567,10 @@
         {
             "name": "Productos",
             "description": "Endpoints para gestionar productos de una compañía"
+        },
+        {
+            "name": "Líneas de pedido",
+            "description": "Líneas de pedido"
         }
     ]
 }

@@ -2,7 +2,38 @@
 
 namespace App\Swagger;
 
+use OpenApi\Annotations as OA;
+
 /**
+ * @OA\Schema(
+ *     schema="Items",
+ *     type="object",
+ *     title="Items",
+ *     description="Esquema de líneas de pedido por pedidos y proveedor",
+ *     @OA\Property(property="id", type="integer", format="int64", example=1, description="ID único de la línea de pedido"),
+ *     @OA\Property(property="provider", type="string", example="ADN COM", description="Nombre del proveedor"),
+ *     @OA\Property(property="customer", type="string", example="ACME", description="Nombre del cliente"),
+ *     @OA\Property(property="final_customer", type="string", example="ACME", description="Nombre del cliente final"),
+ *     @OA\Property(property="is_order", type="string", example="", description="Línea de pedido"),
+ *     @OA\Property(property="is_budget", type="string", example="", description="Línea de presupuesto"),
+ *     @OA\Property(property="budget_num", type="string", example="Nº presupuesto", description="Número de presupuesto"),
+ *     @OA\Property(property="order_num", type="string", example="Nº pedido", description="Número de pedido"),
+ *     @OA\Property(property="order_title", type="string", example="Título del pedido", description="Título del pedido"),
+ *     @OA\Property(property="created_at", type="string", format="date-time", example="2025-06-01T12:00:00Z", description="Fecha de creación"),
+ *     @OA\Property(property="provider_manager", type="string", example="Nombre + Apellidos", description="Manager del proveedor"),
+ *     @OA\Property(property="commercial", type="string", example="Nombre + Apellidos", description="Comercial"),
+ *     @OA\Property(property="customer_manager", type="string", example="Nombre + Apellidos", description="Manager del cliente"),
+ *     @OA\Property(property="final_customer_manager", type="string", example="Nombre + Apellidos", description="Manager del cliente final"),
+ *     @OA\Property(property="product", type="string", example="Producto", description="Nombre del producto"),
+ *     @OA\Property(property="concept", type="string", example="Concepto", description="Concepto del producto"),
+ *     @OA\Property(property="qty", type="number", format="float", description="Cantidad pedida"),
+ *     @OA\Property(property="price", type="number", format="float", example=19.99, description="Precio unitario en el momento del pedido"),
+ *     @OA\Property(property="iva", type="number", format="float", description="IVA"),
+ *     @OA\Property(property="subtotal", type="number", format="float", example=59.97, description="Cantidad * Precio unitario"),
+ *     @OA\Property(property="billable_percentage", type="number", format="float", example="60%", description="Porcentaje facturable"),
+ *     @OA\Property(property="provider_cost_center", type="string", example="Centro coste proveedor", description="Centro coste proveedor")
+ * )
+ *
  * @OA\Schema(
  *     schema="Producto",
  *     type="object",

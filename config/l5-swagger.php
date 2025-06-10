@@ -4,6 +4,7 @@ return [
     'default' => 'default',
     'documentations' => [
         'default' => [
+            'url' => env('L5_SWAGGER_DEFAULT_API_URL', '/api/documentation/json'),
             'api' => [
                 'title' => 'ADN ERP API Documentation',
             ],
@@ -13,7 +14,7 @@ return [
                  * Route for accessing api documentation interface
                  */
                 'api' => 'api/documentation',
-                'docs' => 'api/documentation/json',
+                'docs' => 'json',
             ],
             'paths' => [
                 /*
@@ -51,6 +52,20 @@ return [
             ],
         ],
     ],
+
+    'swagger_ui' => [
+        'display' => [
+            'dark_mode'    => false,
+            'doc_expansion'=> 'none',
+            'filter'       => true,
+        ],
+        'documentations' => [
+            'default' => [
+                'url' => '/api/documentation/json',
+            ],
+        ],
+    ],
+
     'defaults' => [
         'routes' => [
             /*
