@@ -76,7 +76,7 @@ class ItemController extends Controller{
         //Empresas:
         $companyIds = array_filter(explode(',', $request->query('company_ids')));
 
-        $start_date = $request->start_date? $request->start_date:'2018-01-01';
+        $start_date = $request->start_date? $request->start_date:'2022-01-01';
         $end_date = $request->end_date? $request->end_date:date('Y-m-d');
 
         $items = Item::select(DB::raw("CONCAT(pm.name,' ',pm.surname) AS provider_manager"),
@@ -84,7 +84,7 @@ class ItemController extends Controller{
             DB::raw("CONCAT(cm.name,' ',cm.surname) AS customer_manager"),
             DB::raw("CONCAT(fcm.name,' ',fcm.surname) AS final_customer_manager"),
             DB::raw("items.qty * items.price AS subtotal"),
-            'items.id', 'p.name AS provider', 'c.name AS customer', 'fc.name AS final_customer', 'orders.is_order', 'orders.is_budget', 'orders.budget_num', 'orders.order_num', 'orders.name AS order_title', 'items.created_at', 'products.name AS product', 'items.concept', 'items.qty', 'items.price', 'items.iva', 'products.billable_percentage', 'pcc.name AS provider_cost_center')
+            'items.id', 'p.name AS provider', 'c.name AS customer', 'fc.name AS final_customer', 'orders.is_order', 'orders.is_budget', 'orders.budget_num', 'orders.order_num', 'orders.name AS order_title', 'orders.created_at', 'orders.accepted_date', 'orders.delivery_date', 'products.name AS product', 'items.concept', 'items.qty', 'items.price', 'items.iva', 'products.billable_percentage', 'pcc.name AS provider_cost_center')
         ->join('orders', 'items.order_id', '=', 'orders.id')
         ->join('companies AS p', 'orders.provider_id', '=', 'p.id')
         ->join('companies AS c', 'orders.customer_id', '=', 'c.id')
@@ -95,7 +95,7 @@ class ItemController extends Controller{
         ->leftJoin('users AS fcm', 'orders.final_customer_manager_id', '=', 'fcm.id')
         ->leftJoin('products', 'items.product_id', '=', 'products.id')
         ->leftJoin('cost_centers AS pcc', 'items.provider_cost_center_id', '=', 'pcc.id')
-        ->where('orders.order_status', '!=', 70)
+        ->whereNotIn('orders.order_status', [30,70])
         ->whereIn('orders.provider_id', $companyIds)
         ->when($start_date && $end_date, function($q) use($start_date, $end_date){
             return $q->whereBetween('orders.created_at', [$start_date, $end_date]);

@@ -247,7 +247,8 @@
                     "qty": {
                         "description": "Cantidad pedida",
                         "type": "number",
-                        "format": "float"
+                        "format": "float",
+                        "example": 1
                     },
                     "price": {
                         "description": "Precio unitario en el momento del pedido",
@@ -258,13 +259,14 @@
                     "iva": {
                         "description": "IVA",
                         "type": "number",
-                        "format": "float"
+                        "format": "float",
+                        "example": "21%"
                     },
                     "subtotal": {
                         "description": "Cantidad * Precio unitario",
                         "type": "number",
                         "format": "float",
-                        "example": 59.97
+                        "example": 19.99
                     },
                     "billable_percentage": {
                         "description": "Porcentaje facturable",
