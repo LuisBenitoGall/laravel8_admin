@@ -95,6 +95,7 @@ class ItemController extends Controller{
         ->leftJoin('users AS fcm', 'orders.final_customer_manager_id', '=', 'fcm.id')
         ->leftJoin('products', 'items.product_id', '=', 'products.id')
         ->leftJoin('cost_centers AS pcc', 'items.provider_cost_center_id', '=', 'pcc.id')
+        ->whereNotNull('order.is_order')
         ->whereNotIn('orders.order_status', [30,70])
         ->whereIn('orders.provider_id', $companyIds)
         ->when($start_date && $end_date, function($q) use($start_date, $end_date){
