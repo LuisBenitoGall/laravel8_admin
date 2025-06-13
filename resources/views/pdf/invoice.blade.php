@@ -127,7 +127,7 @@ $text_doc = $invoice->refund > 0? 'abono':'factura';
 					<td style="background-color: #efefef; text-align: right;">
 						<b>
 							@if($invoice->refund)
-								{{ App\Helpers\helpers::setEUNum($invoice->amount * -1) }}{{ $currency->symbol }}
+								-{{ App\Helpers\helpers::setEUNum($invoice->amount) }}{{ $currency->symbol }}
 							@else
 								{{ App\Helpers\helpers::setEUNum($invoice->amount) }}{{ $currency->symbol }}
 							@endif
@@ -245,7 +245,7 @@ $text_doc = $invoice->refund > 0? 'abono':'factura';
 								@endphp
 
 								@if($invoice->refund)
-									{{ App\Helpers\helpers::setEUNum($partial_amount * -1) }}{{$currency->symbol }}
+									-{{ App\Helpers\helpers::setEUNum($partial_amount) }}{{$currency->symbol }}
 								@else
 									{{ App\Helpers\helpers::setEUNum($partial_amount) }}{{$currency->symbol }}
 								@endif

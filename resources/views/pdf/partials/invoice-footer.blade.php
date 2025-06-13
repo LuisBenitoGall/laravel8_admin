@@ -11,7 +11,7 @@
 					<th style="background-color: #efefef; text-align: right;">
 						<b>
 							@if($invoice->refund)
-								{{ App\Helpers\helpers::setEUNum($invoice->amount * -1) }}{{ $currency->symbol }}	
+								-{{ App\Helpers\helpers::setEUNum($invoice->amount) }}{{ $currency->symbol }}	
 							@else
 								{{ App\Helpers\helpers::setEUNum($invoice->amount) }}{{ $currency->symbol }}
 							@endif
@@ -84,7 +84,7 @@
 								{{-- <b>{{ array_sum($si) }}{{ $currency->symbol }}</b> --}}
 								<b>
 									@if($invoice->refund)
-										{{ App\Helpers\helpers::setEUNum($iva_ * -1) }}{{ $currency->symbol }}
+										-{{ App\Helpers\helpers::setEUNum($iva_) }}{{ $currency->symbol }}
 									@else
 										{{ App\Helpers\helpers::setEUNum($iva_) }}{{ $currency->symbol }}
 									@endif
@@ -109,7 +109,7 @@
 							{{-- <b>{{ array_sum($si) }}{{ $currency->symbol }}</b> --}}
 							<b>
 								@if($invoice->refund)
-									{{ App\Helpers\helpers::setEUNum($group_iva_amount * -1) }}{{ $currency->symbol }}
+									-{{ App\Helpers\helpers::setEUNum($group_iva_amount) }}{{ $currency->symbol }}
 								@else
 									{{ App\Helpers\helpers::setEUNum($group_iva_amount) }}{{ $currency->symbol }}
 								@endif
@@ -141,7 +141,7 @@
 					<td style="background-color: {{ $bg_color }}; text-align: right;">
 						<b>
 							@if($invoice->refund)
-								{{ App\Helpers\helpers::setEUNum($invoice->amount_with_iva * -1) }}{{ $currency->symbol }}
+								-{{ App\Helpers\helpers::setEUNum($invoice->amount_with_iva) }}{{ $currency->symbol }}
 							@else
 								{{ App\Helpers\helpers::setEUNum($invoice->amount_with_iva) }}{{ $currency->symbol }}
 							@endif
