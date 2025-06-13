@@ -214,6 +214,18 @@
                         "format": "date-time",
                         "example": "2025-06-01T12:00:00Z"
                     },
+                    "accepted_date": {
+                        "description": "Fecha de aceptación",
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-06-01T12:00:00Z"
+                    },
+                    "delivery_date": {
+                        "description": "Fecha de entrega",
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-06-01T12:00:00Z"
+                    },
                     "provider_manager": {
                         "description": "Manager del proveedor",
                         "type": "string",

@@ -174,6 +174,64 @@ class InvoiceController extends Controller{
      * 1. Facturas por cliente o proveedor.
      */
     public function index($year = false, $month = false, $company = false, $group = false){
+        //Pruebas API:
+        // $companyIds = [4,8,227,275];
+
+        // $start_date = '2022-01-01';
+        // $end_date = '2025-06-10';
+
+        // $items_api = Item::select(DB::raw("CONCAT(pm.name,' ',pm.surname) AS provider_manager"),
+        //     DB::raw("CONCAT(co.name,' ',co.surname) AS commercial"),
+        //     DB::raw("CONCAT(cm.name,' ',cm.surname) AS customer_manager"),
+        //     DB::raw("CONCAT(fcm.name,' ',fcm.surname) AS final_customer_manager"),
+        //     DB::raw("items.qty * items.price AS subtotal"),
+        //     'items.id', 'p.name AS provider', 'c.name AS customer', 'fc.name AS final_customer', 'orders.is_order', 'orders.is_budget', 'orders.budget_num', 'orders.order_num', 'orders.name AS order_title', 'orders.created_at', 'orders.accepted_date', 'orders.delivery_date', 'products.name AS product', 'items.concept', 'items.qty', 'items.price', 'items.iva', 'products.billable_percentage', 'pcc.name AS provider_cost_center')
+        // ->join('orders', 'items.order_id', '=', 'orders.id')
+        // ->join('companies AS p', 'orders.provider_id', '=', 'p.id')
+        // ->join('companies AS c', 'orders.customer_id', '=', 'c.id')
+        // ->leftJoin('companies AS fc', 'orders.final_customer_id', '=', 'fc.id')
+        // ->leftJoin('users AS pm', 'orders.provider_manager_id', '=', 'pm.id')
+        // ->leftJoin('users AS co', 'orders.commercial_id', '=', 'co.id')
+        // ->leftJoin('users AS cm', 'orders.customer_manager_id', '=', 'cm.id')
+        // ->leftJoin('users AS fcm', 'orders.final_customer_manager_id', '=', 'fcm.id')
+        // ->leftJoin('products', 'items.product_id', '=', 'products.id')
+        // ->leftJoin('cost_centers AS pcc', 'items.provider_cost_center_id', '=', 'pcc.id')
+        // ->where('orders.is_order', true)
+        // ->whereNotIn('orders.order_status', [30,70])
+        // ->whereIn('orders.provider_id', $companyIds)
+        // ->when($start_date && $end_date, function($q) use($start_date, $end_date){
+        //     return $q->whereBetween('orders.created_at', [$start_date, $end_date]);
+        // })
+        // ->count('items.id');
+
+
+        //Queries:
+        // $items_query = Item::select('items.id', 'items.order_id', 'items.concept', 'items.qty', 'items.price', 'items.iva', 'items.irpf', 'items.discount', 'items.days', 'items.days_continue', 'items.days_continue_discount', 'p.name AS product', 'pp.name AS purchase_product', 'bfi.name AS budget_form_block', 'o.is_order', 'o.is_budget', 'o.invoiced', 'o.order_num', 'o.order_old_num', 'o.budget_num', 'o.budget_old_num', 'o.name AS order_name', 'o.accepted_date', 'o.delivery_date', 'o.bag_amount', 'o.created_at', 'o.order_status', 'cp.name AS provider', 'cc.name AS customer', 'cfc.name AS final_customer', 'up.name AS pm_name', 'up.surname AS pm_surname', 'ucom.name AS com_name', 'ucom.surname AS com_surname', 'uc.name AS cm_name', 'uc.surname AS cm_surname', 'ufc.name AS fcm_name', 'ufc.surname AS fcm.surname', 'pcc.name AS p_cost_center', 'ccc.name AS c_cost_center')
+        // ->join('orders AS o', 'items.order_id', '=', 'o.id')
+        // ->leftJoin('products AS p', 'items.product_id', '=', 'p.id')
+        // ->leftJoin('purchase_products AS pp', 'items.purchase_product_id', '=', 'pp.id')
+        // ->leftJoin('budget_form_items AS bfi', 'items.budget_form_block_id', '=', 'bfi.id')
+        // ->join('companies AS cp', 'o.provider_id', '=', 'cp.id')
+        // ->join('companies AS cc', 'o.customer_id', '=', 'cc.id')    
+        // ->leftJoin('companies AS cfc', 'o.final_customer_id', '=', 'cfc.id')
+        // ->leftJoin('users AS up', 'o.provider_manager_id', '=', 'up.id')
+        // ->leftJoin('users AS ucom', 'o.commercial_id', '=', 'ucom.id')
+        // ->leftJoin('users AS uc', 'o.customer_manager_id', '=', 'uc.id')
+        // ->leftJoin('users AS ufc', 'o.final_customer_manager_id', '=', 'ufc.id')
+        // ->leftJoin('cost_centers AS pcc', 'items.provider_cost_center_id', '=', 'pcc.id')
+        // ->leftJoin('cost_centers AS ccc', 'items.customer_cost_center_id', '=', 'ccc.id')
+        // ->where('o.is_order', true)
+        // ->whereNull('items.deleted_at')
+        // ->whereIn('o.provider_id', $companyIds)
+        // ->whereNotIn('o.order_status', [30,70])
+        // ->when($start_date && $end_date, function($q) use($start_date, $end_date){
+        //     return $q->whereBetween('o.created_at', [$start_date, $end_date]);
+        // })
+        // ->orderBy('o.id', 'ASC')
+        // ->count('items.id');
+
+        // dd($items_api, $items_query);
+
         $customer_id = false;
         $provider_id = false;
         $invoicesType = 'facturas';
