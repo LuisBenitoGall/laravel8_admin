@@ -51,6 +51,7 @@ class BudgetItem extends Component{
     public $form_on;
     public $item;
     public $item_invoiced;
+    public $item_no_price;
     public $items_order;
     public $items_no_price;
     public $items_selected;
@@ -205,6 +206,7 @@ class BudgetItem extends Component{
                 $idx = array_search($this->price, $this->items_no_price);
 
                 $no_price = $idx;
+                //$no_price = $this->item_no_price;
             }
 
             //Precio porcentual:
@@ -321,6 +323,9 @@ class BudgetItem extends Component{
 
                 //Modificamos la acción por si se edita tras guardar:
                 $this->action = 'update';
+
+                $this->reset(['price', 'item_no_price']); // reseteo general
+                $this->dispatchBrowserEvent('reset-no-price-selector');
             }
 
             //Importe del presupuesto:

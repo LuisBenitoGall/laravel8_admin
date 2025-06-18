@@ -230,8 +230,6 @@ class InvoiceController extends Controller{
         // ->orderBy('o.id', 'ASC')
         // ->count('items.id');
 
-        // dd($items_api, $items_query);
-
         $customer_id = false;
         $provider_id = false;
         $invoicesType = 'facturas';
@@ -720,8 +718,6 @@ class InvoiceController extends Controller{
 
                     //Porcentaje pendiente de facturación. Si el porcentaje de la previsión + los porcentajes ya facturados superan el 100%, entonces el porcentaje pendiente es la diferencia entre el total y lo ya facturado.
                     $percent_to_invoice = $previous_percent + $prevision->percent > 100? 100 - $previous_percent:$prevision->percent;
-
-                    //dd($request->all(), $prevision, $more_previsions, $percent_to_invoice, $prevision->percent);
 
                     //Importe de la factura obteniendo el porcentaje indicado sobre el total del importe del pedido.
                     $total_amount = helpers::percent($order_amount['total_amount'], $percent_to_invoice);
@@ -2351,7 +2347,7 @@ class InvoiceController extends Controller{
             return redirect()->route('invoices.edit', $invoice)->with(compact('alert')); 
             exit;     
         }
-        //dd($request->all(), $invoice);
+
         //Importe de la factura de abono:
         if($request->refund == 'p'){    
             $refund_amount = $request->refund_amount;

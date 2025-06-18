@@ -258,7 +258,11 @@ $permitted = !$order || ($order && $add_items && !$order->parent && !$order->blo
                         <div class="optionsWithoutPrice">
                             <small class="text-warning">{{ trans('textos.precio_0_texto') }}</small>
                             <select name="item_no_price" id="lineNoPrice" class="form-control">
-                                <option value="" selected disabled>{{ trans('textos.opcion_selec') }}</option>
+                                {{-- <option value="" selected disabled>{{ trans('textos.opcion_selec') }}</option> --}}
+                                <option value="" {{ is_null($item_no_price) ? 'selected disabled' : '' }}>
+                                    {{ trans('textos.opcion_selec') }}
+                                </option>
+
                                 @foreach($statusBudgetLinesNoPrice as $idx => $bl)
                                     @php
                                         $selected = isset($itemSelected) && isset($itemSelected->item_no_price)? 'selected':'';
@@ -583,8 +587,38 @@ $permitted = !$order || ($order && $add_items && !$order->parent && !$order->blo
     @include('admin.budgets.partials.modal-sort-blocks')
 
     <script>
+    //Función para tratar los productos sin precio o precio pendiente.
+    function attachNoPriceSelector() {
+        // Mostrar el selector
+        $('.btnOptionsWithoutPrice').off('click').on('click', function () {
+            $('.optionsWithoutPrice').fadeIn();
+        });
+
+        // Cerrar el selector (X)
+        $('.close-line-status').off('click').on('click', function () {
+            @this.set('item_no_price', null);
+            $('.optionsWithoutPrice').fadeOut();
+        });
+
+        // Selección de opción de precio sin coste
+        $('#lineNoPrice').off('change').on('change', function () {
+            var text = $('#lineNoPrice option:selected').text();
+            $('.subtotal_').text(text);
+            @this.set('price', text);
+            $('.optionsWithoutPrice').fadeOut(); // Ocultar tras seleccionar
+        });
+    }
+
+    window.addEventListener('reset-no-price-selector', function () {
+        $('#lineNoPrice').val(''); // Reinicia el selector visualmente
+        $('.subtotal_').text('');  // Limpia el texto visible también si hace falta
+    });
+
     //Sentencia para poder utilizar JQuery con Livewire:
     document.addEventListener('DOMContentLoaded', function () {
+        //Selector opciones item sin precio:
+        attachNoPriceSelector();
+
         // Modal por si existen líneas que no pertenecen a ningún bloque de formulario:
         var set_block = '{!! $setBlock !!}';
         if (set_block == '0') {
@@ -682,18 +716,19 @@ $permitted = !$order || ($order && $add_items && !$order->parent && !$order->blo
         });
 
         //Selector opciones item sin precio:
-        $('.btnOptionsWithoutPrice').on('click', function () {
+        {{-- $('.btnOptionsWithoutPrice').on('click', function () {
             $('.optionsWithoutPrice').fadeIn();
         });
         $('.close-line-status').on('click', function () {
+            @this.set('item_no_price', null)
             $('.optionsWithoutPrice').fadeOut();
         });
         $('#lineNoPrice').on('change', function () {
             var text = $('#lineNoPrice option:selected').text();
             $('.subtotal_').text(text);
             @this.set('price', text);
-        });
-
+        }); --}}
+        
         //Actualizar el modelo con el editor trumbowyg
         window.addEventListener('observations-value', (event) => {
             $('#newItemObservations').trumbowyg("html", event.detail.observations);
@@ -707,7 +742,11 @@ $permitted = !$order || ($order && $add_items && !$order->parent && !$order->blo
         $('#sort-blocks').sortable({
             axis: "y"
         });
+    });
 
+    Livewire.hook('message.processed', (message, component) => {
+        //Selector opciones item sin precio:
+        attachNoPriceSelector();
     });
     </script>
 </div>
