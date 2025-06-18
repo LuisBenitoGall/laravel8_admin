@@ -712,7 +712,7 @@ class InvoiceController extends Controller{
 
                 if($prevision){
                     //Si se trata de la última previsión de facturación y no queda porcentaje por establecer previsión, el importe debe ser todo el pendiente:
-                    $more_previsions = OrderPrevisions::select('invoice_id')
+                    $more_previsions = OrderPrevisions::select('id', 'invoice_id')
                     ->where('order_id', $prevision->order_id)
                     ->whereNull('invoice_id')
                     ->where('id', '!=', $prevision->id)
@@ -720,6 +720,8 @@ class InvoiceController extends Controller{
 
                     //Porcentaje pendiente de facturación. Si el porcentaje de la previsión + los porcentajes ya facturados superan el 100%, entonces el porcentaje pendiente es la diferencia entre el total y lo ya facturado.
                     $percent_to_invoice = $previous_percent + $prevision->percent > 100? 100 - $previous_percent:$prevision->percent;
+
+                    //dd($request->all(), $prevision, $more_previsions, $percent_to_invoice, $prevision->percent);
 
                     //Importe de la factura obteniendo el porcentaje indicado sobre el total del importe del pedido.
                     $total_amount = helpers::percent($order_amount['total_amount'], $percent_to_invoice);
@@ -744,7 +746,8 @@ class InvoiceController extends Controller{
             'amount_priority' => $amount_priority,
             'percentage_invoiced' => $percentage_invoiced,
             'fiscal_date' => $fiscal_date,
-            'serie' => NULL
+            'serie' => NULL,
+            'prevision_id' => $prevision? $prevision->id:false
         ];
         $invoice = Invoice::setInvoice($order, $invoice_data);
 
@@ -2348,7 +2351,7 @@ class InvoiceController extends Controller{
             return redirect()->route('invoices.edit', $invoice)->with(compact('alert')); 
             exit;     
         }
-        
+        //dd($request->all(), $invoice);
         //Importe de la factura de abono:
         if($request->refund == 'p'){    
             $refund_amount = $request->refund_amount;
@@ -2395,7 +2398,7 @@ class InvoiceController extends Controller{
         }
 
         //Info pedido:
-        $order = Order::select('id', 'is_group', 'invoiced', 'provider_id', 'bag_amount')
+        $order = Order::select('id', 'is_group', 'invoiced', 'provider_id', 'customer_id', 'bag_amount', 'blocked')
         ->find($invoice->order_id);
 
         //Importe del pedido:
@@ -2404,19 +2407,33 @@ class InvoiceController extends Controller{
         //Porcentaje del pedido, sobre el importe del pedido sin ningún abono:
         $percent = round( ($refund->amount * 100) / $order_amount['total_amount'], 6);
 
+        //Obtenemos la previsión ya facturada:
+        $invoiced_prevision = OrderPrevisions::where('order_id', $order->id)
+        ->where('invoice_id', $invoice->id)
+        ->first();
+
         //Generamos previsión en negativo y ya facturada:
         $prevision_refund = new OrderPrevisions();
         $prevision_refund->order_id = $invoice->order_id;
         $prevision_refund->year = Date('Y');
         $prevision_refund->month = Date('m');
-        $prevision_refund->amount = $refund->amount * -1;
-        $prevision_refund->percent = $percent * -1;
+        $prevision_refund->amount = $invoiced_prevision && $request->refund == 't'? $invoiced_prevision->amount * -1:$refund->amount * -1;
+        $prevision_refund->percent = $invoiced_prevision && $request->refund == 't'? $invoiced_prevision->percent * -1:$percent * -1;
         $prevision_refund->invoice_id = $refund->id;
         $prevision_refund->save();
               
         //Al generarse una factura de abono, sólo si el abono es íntegro, el pedido original vuelve a estado de pendiente de facturación y la factura a estado de devuelta. Las líneas se marcan como no facturadas.
         //En caso de tratarse de una agrupación, los pedidos de anidados que se encuentren en la factura también a estado sin facturar.
         if($request->refund == 't'){
+            //Hacemos copia de la previsión original:
+            $new_prevision = new OrderPrevisions();
+            $new_prevision->order_id = $invoiced_prevision->order_id;
+            $new_prevision->year = Date('Y');
+            $new_prevision->month = NULL;
+            $new_prevision->amount = $invoiced_prevision->amount;
+            $new_prevision->percent = $invoiced_prevision->percent;
+            $new_prevision->save();
+
             $order->invoiced = false;
             $order->save();
 
@@ -2437,7 +2454,7 @@ class InvoiceController extends Controller{
 
         //Actualizando previsiones de facturación: la desvinculamos de la factura y colocamos el porcentaje correcto.
         if($request->refund == 'p'){
-            $order_previsions = OrderPrevisions::where('invoice_id', $invoice->order_id)
+            $order_previsions = OrderPrevisions::where('order_id', $invoice->order_id)
             ->get();   
 
             //Obtenemos el porcentaje que se mantiene facturado:
@@ -2462,8 +2479,8 @@ class InvoiceController extends Controller{
             $new_order_prevision->save();
 
         }elseif($request->refund == 't'){
-            OrderPrevisions::where('invoice_id', $invoice->id)
-            ->update(['month' => NULL, 'percent' => -100, 'amount' => $refund_amount * -1, 'invoice_id' => NULL]);
+            // OrderPrevisions::where('invoice_id', $invoice->id)
+            // ->update(['month' => NULL, 'invoice_id' => NULL]);
         }
 
         //Añadir línea negativa en el pedido:
@@ -2484,7 +2501,11 @@ class InvoiceController extends Controller{
 
         //Asiento contable:
         //1. Pedido de la factura:
-        $order = Order::select('id', 'provider_id', 'customer_id')->find($invoice->order_id);
+        //1.1. Los abonos dejan el pedido abierto de nuevo.
+        if($order->blocked == 1){
+            $order->blocked = false;
+            $order->save();
+        }
 
         //2. Líneas del asiento contable:
         $seat_lines = [];

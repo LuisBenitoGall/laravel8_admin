@@ -180,20 +180,44 @@ class Invoice extends Model{
             Item::itemsAsInvoiced($order->id, true);
         }
 
-        //Actualizamos los valores de la siguiente previsión no facturada:
-        $next_previsions_to_invoice = OrderPrevisions::where('order_id', $order->id)
-        ->whereNull('invoice_id')
-        ->orderBy('year', 'ASC')
-        ->orderBy('month', 'ASC')
-        ->first();
+        //Actualizamos los valores de la siguiente previsión recibida:
+        // $next_previsions_to_invoice = OrderPrevisions::where('order_id', $order->id)
+        // ->whereNull('invoice_id')
+        // ->orderBy('year', 'ASC')
+        // ->orderBy('month', 'ASC')
+        // ->orderBy('id', 'ASC')
+        // ->first();
 
-        if($next_previsions_to_invoice){
-            $next_previsions_to_invoice->invoice_id = $instance->id;
-            if($data['percentage_invoiced']){
-                $next_previsions_to_invoice->month = $next_previsions_to_invoice->month? $next_previsions_to_invoice->month:Date('m');
-                $next_previsions_to_invoice->percent = $data['percentage_invoiced'];
+        // $next_previsions_to_invoice = OrderPrevisions::where('order_id', $order->id)
+        // ->whereNull('invoice_id')
+        // ->orderBy('year', 'ASC')
+        // ->when(
+        //     OrderPrevisions::where('order_id', $order->id)->whereNull('invoice_id')->whereNotNull('month')->exists(),
+        //     function ($query) {
+        //         return $query->orderBy('month', 'ASC');
+        //     }
+        // )
+        // ->orderBy('id', 'ASC')
+        // ->first();
+
+
+        // if($next_previsions_to_invoice){
+        if(isset($data['prevision_id']) && $data['prevision_id']){
+            // $next_previsions_to_invoice->invoice_id = $instance->id;
+            // if($data['percentage_invoiced']){
+            //     $next_previsions_to_invoice->month = $next_previsions_to_invoice->month? $next_previsions_to_invoice->month:Date('m');
+            //     $next_previsions_to_invoice->percent = $data['percentage_invoiced'];
+            // }
+            // $next_previsions_to_invoice->save();
+            
+            $prevision = OrderPrevisions::find($data['prevision_id']);
+
+            if($prevision){
+                $prevision->month = $prevision->month? $prevision->month:date('m');
+                //$prevision->percent = $data['percentage_invoiced']? $data['percentage_invoiced']:NULL;
+                $prevision->invoice_id = $instance->id;
+                $prevision->save();
             }
-            $next_previsions_to_invoice->save();
 
         //Si no existe previsión, generamos una nueva:
         }else{
