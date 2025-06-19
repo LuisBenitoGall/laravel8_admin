@@ -222,7 +222,7 @@ class BudgetController extends Controller{
     public function getBudgetsDT($from = false){
         //Presupuestos para cliente:
         if($from == 'customers'){
-            $query = Order::select('orders.id', 'orders.is_order', 'orders.discount', 'orders.customer_id', 'orders.provider_id', 'orders.budget_num', 'orders.budget_old_num', 'orders.name', 'orders.budget_status', 'orders.modality', 'orders.created_at', 'companies.name AS company', 'companies.tradename', 'orders.id AS orderId', 'orders.order_num','orders.invoiced', 'users.name AS nombre', 'users.surname', 'u_.name AS CustomerManagerName', 'u_.surname AS CustomerManagerSurname', 'c_.name AS final_customer')
+            $query = Order::select('orders.id', 'orders.is_order', 'orders.discount', 'orders.customer_id', 'orders.provider_id', 'orders.budget_num', 'orders.budget_old_num', 'orders.name', 'orders.budget_status', 'orders.modality', 'orders.created_at', 'companies.name AS company', 'companies.tradename', 'orders.id AS orderId', 'orders.order_num','orders.invoiced', 'users.name AS nombre', 'users.surname', 'u_.id AS customer_manager_id_', 'u_.name AS customer_manager_name', 'u_.surname AS customer_manager_surname', 'c_.name AS final_customer')
             ->join('companies', 'orders.customer_id', '=', 'companies.id')
             ->leftJoin('companies AS c_', 'orders.final_customer_id', '=', 'c_.id')
             ->leftJoin('users', 'orders.provider_manager_id', '=', 'users.id')
@@ -233,10 +233,11 @@ class BudgetController extends Controller{
         //Presupuestos de proveedor:
         // 1. Sólo presupuestos compartidos por el proveedor.
         }elseif($from == 'providers'){
-            $query = Order::select('orders.*', 'companies.name AS company', 'users.name As Nombre', 'users.surname', 'c_.name AS final_customer')
+            $query = Order::select('orders.*', 'companies.name AS company', 'users.name As Nombre', 'users.surname', 'c_.name AS final_customer', 'u_.id AS customer_manager_id_', 'u_.name AS customer_manager_name', 'u_.surname AS customer_manager_surname')
             ->join('companies', 'orders.provider_id', '=', 'companies.id')
             ->leftJoin('companies AS c_', 'orders.final_customer_id', '=', 'c_.id')
             ->leftJoin('users', 'orders.customer_manager_id', '=', 'users.id')
+            ->leftJoin('users AS u_', 'orders.customer_manager_id', '=', 'u_.id')
             ->where('orders.is_budget', true)
             ->where('orders.budget_shared', 1)
             ->where('orders.customer_id', session('currentCompany'));
@@ -294,14 +295,25 @@ class BudgetController extends Controller{
         })
         ->addColumn('company', function($row){
             $company = $row->company;
-            if($row->CustomerManagerName){
-                $company .= ' ('.$row->CustomerManagerName;
-                if($row->CustomerManagerSurname){
-                    $company .= ' '.$row->CustomerManagerSurname;
+            if($row->customer_manager_name){
+                $company .= ' ('.$row->customer_manager_name;
+                if($row->customer_manager_surname){
+                    $company .= ' '.$row->customer_manager_surname;
                 }
                 $company .= ')';
             }
             return $company;
+        })
+        ->filterColumn('company', function($query, $keyword){
+            $keyword = mb_strtolower($keyword, 'UTF-8');
+
+            $query->where(function($q) use ($keyword){
+                // Siempre filtra por nombre de empresa
+                $q->whereRaw("LOWER(companies.name) COLLATE utf8mb4_general_ci LIKE ?", ["%{$keyword}%"])
+                ->orWhereRaw("LOWER(u_.name) COLLATE utf8mb4_general_ci LIKE ?", ["%{$keyword}%"])
+                ->orWhereRaw("LOWER(u_.surname) COLLATE utf8mb4_general_ci LIKE ?", ["%{$keyword}%"])
+                ->orWhereRaw("LOWER(CONCAT(u_.name, ' ', u_.surname)) COLLATE utf8mb4_general_ci LIKE ?", ["%{$keyword}%"]);
+            });    
         })
         ->addColumn('final_customer', function($row){
             if($row->final_customer){
