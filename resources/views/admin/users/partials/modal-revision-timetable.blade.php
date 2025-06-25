@@ -13,6 +13,8 @@
                     {{ csrf_field() }}	
                     <input type="hidden" name="id" id="timetableId">
                     <input type="hidden" name="state" id="timetableState">
+                    <input type="hidden" name="from" value="{{ $from }}">
+                    <input type="hidden" name="to" value="{{ $to }}">
 
 					<div class="form-group row">
                         {{-- Observaciones --}}

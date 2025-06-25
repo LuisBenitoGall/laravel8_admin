@@ -192,7 +192,6 @@ class UserController extends Controller{
         })
         ->when($st, function($q) use($st){
             $st = $st == "1"? 1:'0';
-            //dd($st);
             return $q->where('users.status', $st);
         })
         ->groupBy('users.id')
@@ -804,10 +803,27 @@ class UserController extends Controller{
 
         $user = User::find($userId);
 
-        $from = $request->from != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->from):$request->from:Date('Y-m-d');
+        $from = session('timetables_from', date('Y-m-d'));
+        if ($request->from != '') {
+            $from = session()->get('locale') != 'en'
+                ? helpers::convertFecha($request->from)
+                : $request->from;
+            //session(['timetables_from' => $from]);
+        }
+
+        // $from = $request->from != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->from):$request->from:(session('timetables_from')? session('timetables_from'):Date('Y-m-d'));
         //La fecha 'desde' se manipula si viene de un registro creado manualmente o editado por el administrador:
-        $from = $add_register? $add_register:$from;
-        $to = $request->to != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->to):$request->to:Date('Y-m-d');
+        //$from = $add_register? $add_register:$from;
+
+        $to = session('timetables_to', date('Y-m-d'));
+        if ($request->to != '') {
+            $to = session()->get('locale') != 'en'
+                ? helpers::convertFecha($request->to)
+                : $request->to;
+            //session(['timetables_to' => $to]);
+        }
+
+        // $to = $request->to != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->to):$request->to:(session('timetables_to')? session('timetables_to'):Date('Y-m-d'));
         //La fecha fin no puede ser posterior a la fecha actual:
         $to = $to > date('Y-m-d')? date('Y-m-d'):$to;
 

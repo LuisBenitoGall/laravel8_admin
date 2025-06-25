@@ -151,8 +151,8 @@ class Timetable extends Model{
             $arrCompanyWorkCalendar = [];
             //En otro array las horas de trabajo de la empresa, correspondientes a cada jornada:
             $arrCompanyWorkCalendarHours = [];
-            if ($work_calendar) {
-                foreach ($work_calendar as $wc) {
+            if($work_calendar){
+                foreach($work_calendar as $wc){
                     array_push($arrCompanyWorkCalendar, $wc->date);
 
                     //Comprobamos que la fecha no tenga un número de horas propio:

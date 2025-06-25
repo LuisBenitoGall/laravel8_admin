@@ -447,6 +447,15 @@ class TimetableController extends Controller{
         $timetable->comments = $request->comments;
         $timetable->save();
 
+        //Intervalo de fechas:
+        if($request->from && $request->to){
+            session(['timetables_from' => $request->from]);
+            session(['timetables_to' => $request->to]);
+        }else{
+            $request->session()->forget(['timetables_from']);
+            $request->session()->forget(['timetables_to']);
+        }
+
         $msg = trans('textos.registro_horario_updated');
         return redirect()->route('users.timetables', [$timetable->user_id, $timetable->date])->with(compact('msg'));
     }
