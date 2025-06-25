@@ -62,8 +62,9 @@
         ['manager', 'wdt150'],
         ['', 'd-none'],
         ['cliente_manager', 'wdt200'],
+        ['cliente_final', 'wdt150'],
         ['', 'd-none'],
-        ['importe', 'text-center wdt50'],
+        ['importe', 'text-center wdt100'],
         ['estado', 'wdt100'],
         ['centro_trabajo', 'wdt100'],
         ['acciones', 'text-center wdt100']
@@ -113,10 +114,11 @@
 					<td></td>
 					<td></td>
 					<td></td>
-					<td class="text-right"><b>{{ trans('textos.total') }}</b></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+					<td class="text-right xxx"><b>{{ trans('textos.total') }}</b></td>
 					<td class="text-right"></td>
-					<td></td>
-					<td></td>
 					<td></td>
 					<td></td>
 					<td></td>
@@ -143,7 +145,7 @@ $(function(){
         $('#tblOrderProductionPrevisions thead tr:eq(1) th').each(function(i){
             var title = $(this).text(); 
 
-            if(i == 13){
+            if(i == 14){
                 $(this).html('');
             }else{
                 // Check field on json of localstorage
@@ -247,7 +249,8 @@ $(function(){
                 {data: 'manager', name: 'users.name'},
                 {data: 'surname', name: 'users.surname', className: 'd-none'},
                 {data: 'customer_manager', name: 'users.name'},
-                {data: 'CustomerManagerSurname', name: 'users.surname', className: 'd-none' },
+                {data: 'CustomerManagerSurname', name: 'users.surname', className: 'd-none'},
+                {data: 'final_customer', name: 'companies.name'},
                 {data: 'amount', name: 'amount', className: 'text-right'},
                 {data: 'estado', name: 'estado'},
                 {data: 'workplace', name: 'workplaces.name'},
@@ -282,13 +285,13 @@ $(function(){
 
                 //Total:
                 total = api
-                .column(10, { search: 'applied' })
+                .column(11, { search: 'applied' })
                 .data()
                 .reduce(function(a, b){
                     return intVal(a) + intVal(b);
                 }, 0);
 
-                $(api.column(10).footer()).html(
+                $(api.column(11).footer()).html(
                     total.toFixed(2)+currency   
                 );
             }
@@ -297,7 +300,7 @@ $(function(){
         //Obtener número de columnas:
         //13/09/24: revisar porque no cuenta correctamente el número de columnas.
         //var num_cols = $('#tblOrderProductionPrevisions thead th').length;
-        var num_cols = 14;
+        var num_cols = 15;
 
         //Seteando estado de vista inicial de la columna:
         for (var i = 0; i < num_cols; i++){
