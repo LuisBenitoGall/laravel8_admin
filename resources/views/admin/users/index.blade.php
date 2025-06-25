@@ -3,6 +3,7 @@
 @section('content')
 
 <input type="hidden" id="all" value="{{ $all }}">
+<input type="hidden" id="usersStatus" value="{{ $status }}">
 
 <div class="row mb-3">
 	<div class="col-12">
@@ -16,6 +17,11 @@
 		@endcan
 	</div>
 </div>
+
+{{-- Formulario filtro --}}
+@if(!$all)
+    @include('admin.users.partials.form-filter')
+@endif
 
 {{-- Vista listado --}}
 <div class="row">
@@ -92,7 +98,8 @@ $(function(){
     if($('#tblUsers').length > 0){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
         var all = $('#all').val();
-        var method = all? '/all':'';
+        var status = $('#usersStatus').val() && $('#usersStatus').val() != ''? $('#usersStatus').val():false;
+        var method = all? 'all':'x';
 
         //Filters:
         // Load data from localstorage
@@ -163,7 +170,7 @@ $(function(){
             },
             ajax: {
                 "type": "GET",
-                "url": "/api/admin/users"+method,
+                "url": "/api/admin/users/"+method+"/"+status,
                 "error": function(reason){
                     console.log(reason);
                 }

@@ -1671,6 +1671,7 @@ return array(
 	'imprimir_no' => 'No s\'imprimeix',
 	'imprimir' => 'imprimir',
 	'inactivo' => 'inactiu',
+	'inactivos' => 'inactius',
 	'incidencia' => 'incidència',
 	'incidencia_creada' => 'La incidència s\'ha creat correctament.',
 	'incidencia_deleted' => 'La incidència ha estat eliminada correctament.',

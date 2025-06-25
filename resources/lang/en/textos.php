@@ -1671,6 +1671,7 @@ return array(
 	'imprimir_no' => 'Do not print',
 	'imprimir' => 'print',
 	'inactivo' => 'inactive',
+	'inactivos' => 'inactives',
 	'incidencia' => 'incidence',
 	'incidencia_creada' => 'The incidence has been created successfully.',
 	'incidencia_deleted' => 'The issue has been successfully resolved.',

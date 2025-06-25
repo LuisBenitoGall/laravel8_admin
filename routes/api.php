@@ -488,7 +488,7 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     Route::get('user-companies/{user}', 'UserCompaniesController@getCompaniesDT');
 
     //Users:
-    Route::get('users/{all?}', 'UserController@getUsersDT');
+    Route::get('users/{all?}/{status?}', 'UserController@getUsersDT');
     Route::post('users-search', 'UserController@searchUsers');
 
     //Users All:

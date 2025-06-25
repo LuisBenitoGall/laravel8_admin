@@ -1489,7 +1489,9 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     Route::get('user-workplaces/{workplace}/delete', 'UserWorkplacesController@destroy')->name('user-workplaces.delete');
 
     // Users:
-    Route::resource('users', 'UserController', ['except' => ['store', 'edit']]);
+    Route::resource('users', 'UserController', ['except' => ['index', 'store', 'edit']]);
+    Route::get('users', 'UserController@index')->name('users.index');
+    Route::post('users/list', 'UserController@index')->name('users.list');
     Route::post('users/store', 'UserController@store')->name('users.store');
     Route::get('users/{user}/edit/{tab?}', 'UserController@edit')->name('users.edit');
     Route::get('users/{user}/show', 'UserController@show')->name('users.show')->middleware('permission:users.show');
