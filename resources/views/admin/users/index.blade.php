@@ -34,7 +34,8 @@
 					<th class="text-center">{!! ucfirst(trans('textos.fecha_alta')) !!}</th>
 					<th>{!! ucfirst(trans('textos.email')) !!}</th>
 					<th>{!! ucfirst(trans('textos.telefonos')) !!}</th>
-					<th>{!! ucfirst(trans('textos.categorias')) !!}</th>
+					{{-- <th>{!! ucfirst(trans('textos.categorias')) !!}</th> --}}
+                    <th>{!! ucfirst(trans('textos.role')) !!}</th>
 					<th class="text-center wdt100">{!! ucfirst(trans('textos.imagen')) !!}</th>
 					<th class="text-center">{!! ucfirst(trans('textos.acciones')) !!}</th>
 				</tr>
@@ -181,7 +182,7 @@ $(function(){
                 {data: 'alta', name: "users.created_at", className: 'text-right'},
                 {data: 'email', name: "users.email"},
                 {data: 'phones', name: "phones.phone_number"},
-                {data: 'categories'},
+                {data: 'roles'},
                 {data: 'image', className: 'text-center'},
                 {data: 'acciones', name: "users.id", className: 'text-right'}
             ],

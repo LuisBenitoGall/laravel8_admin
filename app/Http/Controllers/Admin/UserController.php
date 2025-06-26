@@ -222,18 +222,28 @@ class UserController extends Controller{
             }
             return $phones;
         })
-        ->addColumn('categories', function($row){
-            $categories = '';
-            if($row->categories){
-                $arr = explode(',', $row->categories);
-                $obj_categories = Category::whereIn('id', $arr)
-                ->pluck('name')
-                ->toArray();
+        // ->addColumn('categories', function($row){
+        //     $categories = '';
+        //     if($row->categories){
+        //         $arr = explode(',', $row->categories);
+        //         $obj_categories = Category::whereIn('id', $arr)
+        //         ->pluck('name')
+        //         ->toArray();
 
-                $categories = implode(', ', $obj_categories);
+        //         $categories = implode(', ', $obj_categories);
+        //     }
+
+        //     return $categories;
+        // })
+        ->addColumn('roles', function($row){
+            $roles = $row->getRoleNames()->first();
+
+            if (strpos($roles, '/') !== false) {
+                // Si contiene '/', separa y devuelve solo la parte derecha
+                $roles = explode('/', $roles)[1];
             }
 
-            return $categories;
+            return ucfirst($roles);
         })
         ->addColumn('image', function($row){
             if($row->Image){
