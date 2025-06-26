@@ -182,7 +182,7 @@ $(function(){
                 {data: 'alta', name: "users.created_at", className: 'text-right'},
                 {data: 'email', name: "users.email"},
                 {data: 'phones', name: "phones.phone_number"},
-                {data: 'roles'},
+                {data: 'roles', name: "roles.name"},
                 {data: 'image', className: 'text-center'},
                 {data: 'acciones', name: "users.id", className: 'text-right'}
             ],

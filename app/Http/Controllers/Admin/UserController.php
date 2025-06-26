@@ -187,6 +187,8 @@ class UserController extends Controller{
             DB::raw('(SELECT image FROM user_images WHERE user_id = users.id AND featured = 1) AS Image')
             )
         ->join('user_companies', 'users.id', '=', 'user_companies.user_id')
+        ->leftJoin('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')
+        ->leftJoin('roles', 'model_has_roles.role_id', '=', 'roles.id')
         ->when($all && $all != 'all', function($q) {
             return $q->where('user_companies.company_id', session('currentCompany'));
         })
