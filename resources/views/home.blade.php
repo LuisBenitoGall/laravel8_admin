@@ -5,10 +5,10 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-8 text-center pt-5">
-            {{-- <h1 class="mb-5 mt-5">ADN Admin Systems</h1>
-            <img src="{{ asset('img/logo.png') }}" alt="ADN Admin Systems" class="mb-5 mt-5"> --}}
+            <h1 class="mb-5 mt-5">ADN Admin Systems</h1>
+            <img src="{{ asset('img/logo.png') }}" alt="ADN Admin Systems" class="mb-5 mt-5">
 
-            <h1 class="mb-5 mt-5">Admin Systems</h1>
+            {{-- <h1 class="mb-5 mt-5">Admin Systems</h1> --}}
             {{-- <img src="{{ asset('img/logo-amdt.png') }}" alt="AMDT Admin Systems" class="mb-5 mt-5" style="max-width: 350px;"> --}}
 
             <div class="clearfix mb-5"></div>
