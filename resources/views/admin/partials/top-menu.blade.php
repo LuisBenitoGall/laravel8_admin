@@ -12,7 +12,7 @@ $controller = new App\Http\Controllers\Controller;
 //$setTimetable = $controller->settedModule('timetables');
 $setTimetable = false;
 $options_lang = true;
-$options_top_menu = false;
+$options_top_menu = true;
 
 // Idiomas:
 $languages = App\Helpers\helpers::languages();
