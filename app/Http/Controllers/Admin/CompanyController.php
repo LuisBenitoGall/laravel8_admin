@@ -719,6 +719,11 @@ class CompanyController extends Controller{
 
         //Configuración de la empresa:
         $settings = CompanySettings::where('company_id', $company->id)->first();
+
+        if(!$settings){
+            $settings = CompanySettings::setCompany($company->id);
+        }
+
         session(['companySettings' => $settings]);
 
         //Regresamos a la página en que se hallaba:
@@ -748,6 +753,10 @@ class CompanyController extends Controller{
 
         //Configuración de la empresa:
         $settings = CompanySettings::where('company_id', $request->company)->first();
+
+        if(!$settings){
+            $settings = CompanySettings::setCompany($request->company);
+        }
 
         session(['companySettings' => $settings]);
 

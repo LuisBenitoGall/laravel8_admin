@@ -268,7 +268,7 @@ class Company extends Model{
             $ca->start_date = $hoy;
             $ca->end_date = $end_date;
             $ca->price = $account->rate;
-            $ca->status = '0';
+            $ca->status = 1;
             $ca->save();
         }
 
