@@ -23,7 +23,7 @@ var icons = {!! $icons !!};
 var myDropzone = new Dropzone('.dropzone', {
     url: '{{ $url }}',
     paramName: 'file',
-    acceptedFiles: 'image/*',
+    acceptedFiles: 'image/*,application/pdf',
     maxFilesize: 2, //MB    
     maxFiles: 10,
     headers: {

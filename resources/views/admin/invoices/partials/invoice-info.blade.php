@@ -144,17 +144,17 @@
 		<div class="col-lg-1">
 			<x-input type="text" name="iva_adjust" class="text-right set-decimals" autocomplete="off" maxlength="6" group="right" groupvalue="{{ $currency->symbol }}" value="{{ $invoice->iva_adjust }}"/>
 		</div>
+
+		{{-- IRPF --}}
+		<label for="irpf" class="col-lg-2 col-form-label">IRPF</label>
+		<div class="col-lg-1">
+			<x-input type="text" name="irpf" class="text-right set-decimals" autocomplete="off" maxlength="6" group="right" groupvalue="%" value="{{ $invoice->irpf }}"/>
+		</div>
 	</div>
 	
 	@if(!$is_sale)
 		{{-- Conceptos contables. Sólo para compras --}}
 		<div class="form-group row">
-			{{-- IRPF --}}
-			<label for="irpf" class="col-lg-2 col-form-label">IRPF</label>
-			<div class="col-lg-1">
-				<x-input type="text" name="irpf" class="text-right set-decimals" autocomplete="off" maxlength="6" group="right" groupvalue="%" value="{{ $invoice->irpf }}"/>
-			</div>
-
 			{{-- Estructura --}}
 			@php
 			$as_id = $invoice->accounting_structure_id? $invoice->accounting_structure_id:($provider_settings? $provider_settings->accounting_concept_id:'');
@@ -224,6 +224,14 @@
             </div>
 		</div>
 	{{-- @endif --}}
+
+	<div class="form-group row">
+		{{-- Observaciones en factura --}}
+		<label for="invoice_observations" class="col-md-2 col-form-label">{!! ucfirst(trans('textos.observaciones_factura')) !!}</label>
+		<div class="col-md-10">
+			<x-input-textarea name="invoice_observations" value="{{ $invoice->invoice_observations }}"/>
+		</div>
+	</div>
 
 	<div class="form-group row">
 		{{-- Observaciones --}}

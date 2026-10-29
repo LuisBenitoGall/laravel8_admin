@@ -12,7 +12,7 @@ class AddIrpfToInvoices extends Migration{
      */
     public function up(){
         Schema::table('invoices', function (Blueprint $table){
-            $table->float('irpf', 4, 2)->nullable()->after('amount_with_iva');
+            $table->decimal('irpf', 5, 2)->nullable()->after('amount_with_iva');
         });
     }
 

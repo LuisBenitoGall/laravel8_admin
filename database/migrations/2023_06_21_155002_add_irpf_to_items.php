@@ -12,7 +12,7 @@ class AddIrpfToItems extends Migration{
      */
     public function up(){
         Schema::table('items', function (Blueprint $table){
-            $table->float('irpf',4,2)->nullable()->after('equivalence_surcharge');
+            $table->decimal('irpf',5,2)->nullable()->after('equivalence_surcharge');
         });
     }
 

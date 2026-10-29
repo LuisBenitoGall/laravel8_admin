@@ -1,4 +1,4 @@
-@props(['class' => '', 'classdiv' => false, 'confirm_msg' => false, 'datas' => false, 'disabled' => false, 'id' => false, 'inline' => false, 'label', 'name' => false])
+@props(['class' => '', 'classdiv' => false, 'confirm_msg' => false, 'datas' => false, 'disabled' => false, 'id' => false, 'inline' => false, 'label', 'name' => false, 'reset' => false])
 
 <div class="@if($inline) col-md-2 @else form-group row mt-4 @endif">
     @if(!$inline)
@@ -20,6 +20,11 @@
             value="{{ ucfirst(trans('textos.'.$label)) }}"
             @if($datas) {!! $datas !!} @endif
         >
+
+        {{-- Reset --}}
+        @if($reset)
+            <a href="{{ route($reset) }}" class="btn btn-info">Reset</a>
+        @endif
     @if(!$inline)
         </div>
     @endif

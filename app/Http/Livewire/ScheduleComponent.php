@@ -27,6 +27,8 @@ class ScheduleComponent extends Component{
      * 6. Drag & drop, y modificar horario.
      */
 
+    public $contact;
+    public $contact_user;
     public $description;
     public $endDate;
     public $endTime;
@@ -56,7 +58,10 @@ class ScheduleComponent extends Component{
         'startTime' => 'required'
     ];
 
-    public function mount(){
+    public function mount($contact = false){
+        $this->contact = $contact;
+        $this->contact_user = $this->contact? User::select('id', 'name', 'surname', 'email')->find($this->contact->user_id):false;
+
         $this->event_types = ScheduleEventTypes::where('company_id', session('currentCompany'))
         ->where('status', 1)
         ->pluck('name', 'id')
@@ -125,6 +130,7 @@ class ScheduleComponent extends Component{
         $e->end = $end;
         $e->responsible = $this->responsible? serialize($this->responsible):NULL;
         $e->guests = $this->guests? serialize($this->guests):NULL;
+        $e->contact_id = $this->contact? $this->contact->id:NULL;
         $e->products = $this->products_on? serialize($this->products_on):NULL;
         $e->place = $this->place;
         $e->save();
@@ -148,7 +154,6 @@ class ScheduleComponent extends Component{
         $this->emit('select2_scheduleId');
     }
 
-
     /**
      * 5. Obtener eventos.
      */
@@ -157,6 +162,9 @@ class ScheduleComponent extends Component{
         ->join('schedules', 'schedule_events.schedule_id', '=', 'schedules.id')
         ->when($this->schedules_on, function($q, $schedules_on){
             return $q->whereIn('schedule_events.schedule_id', $this->schedules_on);
+        })
+        ->when($this->contact, function($q, $contact){
+            return $q->where('schedule_events.contact_id', $this->contact->id);
         })
         ->get();
         return json_encode($data);
@@ -177,7 +185,6 @@ class ScheduleComponent extends Component{
             return $schedule_on = false;
         });
     }
-
 }
  
     

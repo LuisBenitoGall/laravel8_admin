@@ -13,6 +13,7 @@ use Carbon\Carbon;
 
 //Models:
 use App\Models\Company;
+use App\Models\Contact;
 use App\Models\DayTypes;
 use App\Models\Schedule;
 use App\Models\ScheduleEvents;
@@ -120,13 +121,18 @@ class ScheduleEventsController extends Controller{
         $event->end = $end;
         $event->responsible = $responsible;
         $event->guests = $guests;
+        $event->contact_id = $request->contact_id;
         $event->products = $products;
         $event->place = $request->input('place');
         //$event->event_type_id = $request->input('event_type_id');
         $event->save();
     
         $msg = trans('textos.evento_creado');
-        return redirect()->route('schedules.index')->with(compact('msg'));
+        if($request->contact_id){
+            return redirect()->route('contacts.edit', [$request->contact_id, 'schedule'])->with(compact('msg'));
+        }else{
+            return redirect()->route('schedules.index')->with(compact('msg'));    
+        }
     }
 
     /**
@@ -153,6 +159,10 @@ class ScheduleEventsController extends Controller{
 
             //Productos:
             $event->products = $event->products? unserialize($event->products):false;
+
+            //Contacto:
+            $contact_ = $event->contact_id? Contact::select('user_id')->find($event->contact_id):false;
+            $event->contact_user = $contact_? User::select('id', 'name', 'surname', 'email')->find($contact_->user_id):false;
 
             return response()->json($event);
         }

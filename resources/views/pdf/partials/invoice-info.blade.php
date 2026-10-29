@@ -28,7 +28,7 @@
 
 		<p style="display: block; font-size: 11px; font-weight: normal; line-height: 120%; margin: 0 0 5px 0; width: 100%;">
 			<span class="item-left" style="color: {{ $bg_color }}; display: inline-block; vertical-align: top; width: 35%;"><b>{{ strtoupper(trans('textos.responsable')) }}:</b></span> 
-			<span class="item-left" style="display: inline-block; vertical-align: top; width: 64%;">@if($invoice_order) {{ $invoice_order->nombre }} {{ $invoice_order->surname }} @endif</span>
+			<span class="item-left" style="display: inline-block; vertical-align: top; width: 64%;">@if($invoice_order) {{ $invoice_order->nombre }} {{ ucwords($invoice_order->surname) }} @endif</span>
 		</p>
 	@endif	
 </th>
@@ -48,7 +48,7 @@
 
 		{{ $customer->nif }}<br>
 		@if($customer_manager)
-			{{ $customer_manager->name }} {{ $customer_manager->surname }}
+			{{ $customer_manager->name }} {{ ucwords($customer_manager->surname) }}
 		@endif
 	</p>
 </th>

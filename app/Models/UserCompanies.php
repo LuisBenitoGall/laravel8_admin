@@ -24,8 +24,7 @@ class UserCompanies extends Model
     /**
      * 1. Empleados por empresa.
      */
-    public static function getCompanyUsers($id, $status = false)
-    {
+    public static function getCompanyUsers($id, $status = false){
         $query = User::select('users.id', 'users.name', 'users.surname', 'user_companies.categories')
             ->join('user_companies', 'users.id', '=', 'user_companies.user_id')
             ->where('user_companies.company_id', $id);
@@ -41,8 +40,7 @@ class UserCompanies extends Model
     /**
      * 2. Sesión de empresas vinculadas al usuario.
      */
-    public static function userCompanies()
-    {
+    public static function userCompanies(){
         $companies = Auth::user()->companies();
 
         //Limpiamos la session anterior:
@@ -60,8 +58,7 @@ class UserCompanies extends Model
     /**
      * 3. Usuario en empresa.
      */
-    public static function userInCompany($user_id, $company_id)
-    {
+    public static function userInCompany($user_id, $company_id){
         $data = UserCompanies::select('id')
             ->where('user_id', $user_id)
             ->where('company_id', $company_id)

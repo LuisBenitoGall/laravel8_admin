@@ -24,6 +24,7 @@ use App\Models\CompanyAccounts;
 use App\Models\CompanyModules;
 use App\Models\CompanySectors;
 use App\Models\CompanySettings;
+use App\Models\Contact;
 use App\Models\CustomerProviders;
 use App\Models\TempImportCompanies;
 use App\Models\User;
@@ -398,6 +399,16 @@ class CompanyController extends Controller{
                 $mode = 2;  //Helper: accountingAccountModes();
             }
 
+            //Añadimos como contacto:
+            $contact = new Contact();
+            $contact->company_id = session('currentCompany');
+            $contact->related_company_id = $company->id;
+            $contact->user_id = $user->id;
+            $contact->status = $request->business_relationship == 'customers'? 30:40;   //Helper:crmStatus();
+            $contact->position = NULL;
+            $contact->save();
+
+            //Relación cliente - proveedor:
             $cp = new CustomerProviders();
             $cp->customer_id = $customer_id;
             $cp->provider_id = $provider_id;

@@ -191,7 +191,7 @@
 
 					{{-- Propietario --}}
 					<label class="mr-5">
-						{!! ucfirst(trans('textos.propietario')) !!}: <b>{{ $owner->name }} {{ $owner->surname }}</b>
+						{!! ucfirst(trans('textos.propietario')) !!}: <b>{{ $owner->name }} {{ ucwords($owner->surname) }}</b>
 
 						@if(Auth::user()->id == $project->owner)
 							<a href="#" data-toggle="modal" data-target="#modal-edit-owner" class="ml-2" rel="tooltip" title="{!! ucfirst(trans('textos.propietario_editar')) !!}">
@@ -202,7 +202,7 @@
 
 					{{-- Autor --}}
 					<label class="mr-5">
-						{!! ucfirst(trans('textos.autor')) !!}: <b>{{ $author->name }} {{ $author->surname }}</b>
+						{!! ucfirst(trans('textos.autor')) !!}: <b>{{ $author->name }} {{ ucwords($author->surname) }}</b>
 					</label>
 
 					{{-- Fecha alta --}}

@@ -14,6 +14,7 @@ class btnSubmit extends Component{
     public $inline;
     public $label;
     public $name;
+    public $reset;
 
     /**
      * Create a new component instance.
@@ -29,7 +30,8 @@ class btnSubmit extends Component{
         $id = false,
         $inline = false,
         $label,
-        $name = false   
+        $name = false,
+        $reset = false
     ){
         $this->class = $class;
         $this->classdiv = $classdiv;
@@ -39,6 +41,7 @@ class btnSubmit extends Component{
         $this->inline = $inline;
         $this->label = $label;
         $this->name = $name;
+        $this->reset = $reset;
 
         $datos = '';
         if($datas){

@@ -46,6 +46,17 @@
 	                    </div>
 	                @endif
 
+	                {{-- Contacto --}}
+	                @if($contact_user)
+	                	<div class="form-group row">
+	                        <label for="contact" class="col-lg-12">{!! ucfirst(trans('textos.contacto')) !!}</label>
+	                        <div class="col-lg-12" wire:ignore>
+	                        	<x-input type="text" name="contact" maxlength="255" autocomplete="off" disabled value="{{ $contact_user->name }} {{ $contact_user->surname }}"/>	
+	                        	<input type="hidden" name="contact_id" value="{{ $contact->id }}" wire="true">
+	                        </div>
+	                    </div>	
+	                @endif
+
 	                {{-- Título de evento --}}
                     <div class="form-group row">
                         <label for="title" class="col-lg-12">{!! ucfirst(trans('textos.titulo')) !!}*</label>

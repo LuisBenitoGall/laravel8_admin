@@ -140,6 +140,10 @@
                     //Tipo de evento:
                     $('#eventTypeId').val(response.event_type_id);
                     $('#eventTypeId').trigger('change');
+                    //Contacto:
+                    if(response.contact_user.name){
+                        $('#eventContact').val(response.contact_user.name+' '+response.contact_user.surname);
+                    }
                     //Título evento:
                     $('#eventTitle').val(response.title);
                     //Descripción:
@@ -187,8 +191,6 @@
                 info.draggedEl.parentNode.removeChild(info.draggedEl);
                 }
             },
-            
-            
 
             loading: function(isLoading){
                 if(!isLoading){

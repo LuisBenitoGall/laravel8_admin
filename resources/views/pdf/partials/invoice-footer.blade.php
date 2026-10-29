@@ -1,5 +1,5 @@
-	<div style="page-break-after:always;"></div>
-	<footer>
+	{{-- <div style="page-break-after:always;"></div> --}}
+	<footer style="margin-top: 490px;">
 		<table class="tblFooter">
 			<thead>
 				{{-- Subtotal: importe neto sin IVA --}}
@@ -30,6 +30,28 @@
 						</th>
 						<th style="background-color: #efefef; text-align: right;">
 							{{ App\Helpers\helpers::setEUNum($invoice_order->discount_amount) }}{{ $currency->symbol }}
+						</th>
+					</tr>
+				@endif
+
+				{{-- Retención IRPF  --}}
+				@php
+				$desc_irpf = 0;
+				@endphp
+
+				@if($invoice->irpf > 0)
+					<tr>
+						<th style="background-color: #efefef; text-align: right; width: 80%;">
+							<b>{{ strtoupper(trans('textos.retencion')) }} IRPF ({{ $invoice->irpf }}%)</b>
+						</th>
+						<th style="background-color: #efefef; text-align: right;">
+							
+						</th>
+						<th style="background-color: #efefef; text-align: right;">
+							@php
+							$desc_irpf = ($invoice->irpf * $invoice->amount) / 100;
+							@endphp
+							-{{ $desc_irpf }}{{ $currency->symbol }}
 						</th>
 					</tr>
 				@endif
@@ -143,7 +165,10 @@
 							@if($invoice->refund)
 								-{{ App\Helpers\helpers::setEUNum($invoice->amount_with_iva) }}{{ $currency->symbol }}
 							@else
-								{{ App\Helpers\helpers::setEUNum($invoice->amount_with_iva) }}{{ $currency->symbol }}
+								@php
+								$invoiceTotalAmount = $invoice->amount_with_iva - $desc_irpf;
+								@endphp
+								{{ App\Helpers\helpers::setEUNum($invoiceTotalAmount) }}{{ $currency->symbol }}
 							@endif
 						</b>
 					</td>

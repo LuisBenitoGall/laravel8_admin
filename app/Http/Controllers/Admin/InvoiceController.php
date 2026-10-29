@@ -1734,6 +1734,7 @@ class InvoiceController extends Controller{
                 $invoice->status = $request->status? $request->status:'0';
             }
             $invoice->provider_observations = $request->observations;
+            $invoice->invoice_observations = $request->invoice_observations;  
 
         //Compra:
         }else{
@@ -1742,11 +1743,10 @@ class InvoiceController extends Controller{
             //Subir documento.
             $doc = $this->loadFile($request, 'invoices');
 
-            $invoice->customer_observations = $request->observations;  
+            $invoice->customer_observations = $request->observations;
             $invoice->accounting_structure_id = $request->accounting_structure;
             $invoice->accounting_concept_id = $request->accounting_concept;
             $invoice->payment_method_id = $request->payment_method;
-            $invoice->irpf = $request->irpf;
             $invoice->check_in_date = $check_in_date;
             if($doc){
                 $invoice->doc = $doc;
@@ -1781,6 +1781,7 @@ class InvoiceController extends Controller{
 
         //Campos que sólo se actualizan si la factura NO está bloqueada:
         if(!$invoice->blocked){
+            $invoice->irpf = $request->irpf;
             $invoice->bank_account_id = $request->bank_account_id;
             $invoice->provider_bank_account_id = $request->provider_bank_account_id;
         }
@@ -1793,8 +1794,8 @@ class InvoiceController extends Controller{
             // if($request->irpf > 0){
             //     $desc_irpf = ($request->irpf * $invoice->amount) / 100;
             //     $invoice->amount_with_iva = $invoice->amount_with_iva - $desc_irpf;
-            //}else{
-                //$invoice->amount_with_iva = $order_amount['invoice_amount'];
+            // }else{
+            //     $invoice->amount_with_iva = $order_amount['invoice_amount'];
             // }
         //}
 

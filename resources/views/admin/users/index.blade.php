@@ -15,6 +15,11 @@
 		@can('users.create')
 			<a href="{{ route('users.create') }}" class="btn btn-info"><i class="fa fa-plus"></i> {!! ucfirst(trans('textos.usuario_nuevo')) !!}</a>
 		@endcan
+
+        {{-- Nuevo usuario para empresa seleccionada --}}
+        @if(isset($related_company) && $related_company)
+            <a href="{{ route('users.create') }}" class="btn btn-info"><i class="fa fa-plus"></i> {!! ucfirst(trans('textos.usuario_nuevo')) !!} <b>{{ $related_company->name }}</b></a>        
+        @endif
 	</div>
 </div>
 

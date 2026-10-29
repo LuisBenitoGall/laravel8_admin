@@ -76,6 +76,8 @@ class Helpers{
 	 *  3.38. Estados de remesas contables.
 	 *  3.39. Estados de incidencias.
 	 *  3.40. Unidades de tiempo.
+	 *  3.41. Estados de CRM.
+	 *  3.42. Categorías para comentarios de CRM.
 	 *
 	 * 4. Strings & Arrays:
 	 * 	4.1. Truncar texto.
@@ -1483,6 +1485,59 @@ class Helpers{
 		}else{
 			return $data;
 		}
+	}
+
+	/**
+	 * 3.41. Estados de CRM.
+	 */
+	public static function crmStatus($status = false){
+		$data = [
+			10 => trans('textos.lead'),
+			20 => trans('textos.prospecto'),
+			30 => trans('textos.cliente'),
+			40 => trans('textos.proveedor'),
+			50 => trans('textos.partner'),
+			60 => trans('textos.otros')
+		];
+		if($status){
+			return ucfirst($data[$status]);
+		}else{
+			return $data;
+		}		
+	}
+
+	/**
+	 * 3.42. Categorías para comentarios de CRM.
+	 */
+	public static function crmCategories(){
+	    // Opciones base con grupo asociado
+	    $items = [
+	        'follow_up'     => ['label' => trans('textos.crm_follow_up'),     'group' => trans('textos.crm_group_tracking')],
+	        'demo'          => ['label' => trans('textos.crm_demo'),          'group' => trans('textos.crm_group_tracking')],
+	        'first_contact' => ['label' => trans('textos.crm_first_contact'), 'group' => trans('textos.crm_group_interactions')],
+	        'email'         => ['label' => trans('textos.crm_email'),         'group' => trans('textos.crm_group_interactions')],
+	        'call'          => ['label' => trans('textos.crm_call'),          'group' => trans('textos.crm_group_interactions')],
+	        'incident'      => ['label' => trans('textos.crm_incident'),      'group' => trans('textos.crm_group_support')],
+	        'complaint'     => ['label' => trans('textos.crm_complaint'),     'group' => trans('textos.crm_group_support')],
+	        'other'         => ['label' => trans('textos.crm_other'),         'group' => trans('textos.crm_group_other')]
+	    ];
+
+	    $flat = collect($items)->mapWithKeys(fn($item, $key) => [$key => $item['label']])->toArray();
+
+    // Agrupado: group => [key => label]
+    $grouped = collect($items)
+        ->map(fn($item, $key) => ['key' => $key, 'label' => $item['label'], 'group' => $item['group']])
+        ->groupBy('group')
+        ->map(function ($groupItems) {
+            return $groupItems->mapWithKeys(function ($item) {
+                return [$item['key'] => $item['label']];
+            });
+        })->toArray();
+
+    return [
+        'flat' => $flat,
+        'grouped' => $grouped,
+    ];
 	}
 
 	/**

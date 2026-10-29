@@ -14,5 +14,5 @@ class Phone extends Model{
 
     protected $dates = ['deleted_at']; //Columna de borrado lógico
 
-    protected $fillable = ['workplace_id', 'phone_number']; 
+    protected $fillable = ['user_id', 'workplace_id', 'phone_number', 'concept']; 
 }

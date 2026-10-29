@@ -257,6 +257,16 @@ $text_doc = $invoice->refund > 0? 'abono':'factura';
 						@endphp
 					@endforeach
 
+					{{-- Observaciones de factura --}}
+					@if($invoice->invoice_observations)
+						<tr>
+							<td></td>
+							<td colspan="5">
+								{{ $invoice->invoice_observations }}
+							</td>
+						</tr>
+					@endif
+
 					{{-- Avances de facturas --}}
 					{{-- @if($advance_invoices->count() > 0)
 						<tr>

@@ -72,7 +72,7 @@ class Company extends Model{
 
                     $permissions = Permission::all();
 
-                    dd($permissions);
+                    //dd($permissions);
 
                     //Pasamos a un array todos los permisos válidos para el manager:
                     $arr = [];
@@ -348,5 +348,13 @@ class Company extends Model{
     public function products()
     {
         return $this->hasMany(Product::class, 'company_id');
+    }
+
+    public function contactsFromMe(){
+        return $this->hasMany(CrmCompanyContact::class, 'company_id');
+    }
+
+    public function contactsToMe(){
+        return $this->hasMany(CrmCompanyContact::class, 'related_company_id');
     }
 }

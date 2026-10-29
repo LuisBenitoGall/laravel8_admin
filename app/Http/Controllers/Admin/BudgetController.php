@@ -30,6 +30,7 @@ use App\Models\BusinessAreas;
 use App\Models\Company;
 use App\Models\CompanyAccounts;
 use App\Models\CompanySettings;
+use App\Models\Contact;
 use App\Models\CostCenters;
 use App\Models\CustomerProviders;
 use App\Models\Invoice;
@@ -1029,6 +1030,15 @@ class BudgetController extends Controller{
             ['user_id' => $user->id, 'company_id' => $order->customer_id,],
             ['user_id' => $user->id, 'company_id' => $order->customer_id, 'categories' => $request->job_title]
         );
+
+        //Añadimos como contacto:
+        $contact = new Contact();
+        $contact->company_id = session('currentCompany');
+        $contact->related_company_id = $order->customer_id;
+        $contact->user_id = $user->id;
+        $contact->status = 30;
+        $contact->position = $request->job_title;
+        $contact->save();
 
         $msg = trans('textos.responsable_cliente_agregado');
         return redirect()->route('budgets.'.$request->return_view, $order->id)->with(compact('msg'));

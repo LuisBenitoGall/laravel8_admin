@@ -21,6 +21,7 @@ use Carbon\Carbon;
 use App\Models\BusinessAreas;
 use App\Models\Category;
 use App\Models\Company;
+use App\Models\Contact;
 use App\Models\CostCenters;
 use App\Models\Dealer;
 use App\Models\Employee;

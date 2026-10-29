@@ -85,6 +85,25 @@
 				<div class="card-body">
 					<h3 class="mb-4"><u>{{ ucwords($user->name) }} {{ ucwords($user->surname) }}</u></h3>	
 
+					{{-- Info --}}
+					<div class="mb-3">
+						{{-- Fecha alta --}}
+						<label class="mr-5">
+							{!! ucfirst(trans('textos.fecha_alta')) !!}: 
+							<b>
+								{{ $user->created_at->format($languages[session()->get('locale')][4].' H:i:s') }}
+							</b>
+						</label>
+
+						{{-- Fecha última actualización --}}
+						<label class="mr-5">
+							{!! ucfirst(trans('textos.ultima_edicion')) !!}: 
+							<b>
+								{{ $user->updated_at->format($languages[session()->get('locale')][4].' H:i:s') }}
+							</b>
+						</label>
+					</div>
+
 					{{-- Tabs: --}}
 					<ul class="nav nav-tabs" role="tablist">
 				  		<li class="nav-item @if(!$tab) active @endif">

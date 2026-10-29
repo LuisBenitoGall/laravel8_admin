@@ -8,9 +8,12 @@
 		<label for="accounting_sale_id" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.cuenta_contable')) !!}</label>
 		<div class="col-lg-3">
 			@php
-			$accountingSaleId = $order->accounting_sale_id? $order->accounting_sale_id:$provider_accounting_account_default->id;
+			$accountingSaleId = $order->accounting_sale_id? $order->accounting_sale_id:($provider_accounting_account_default? $provider_accounting_account_default->id:false);
 			@endphp
-			<x-select name="accounting_sale_id" class="select2" label="cuenta_selecciona" :options="$provider_accounting_accounts" info="" value="{{ $accountingSaleId }}"/>
+
+			@if($accountingSaleId)
+				<x-select name="accounting_sale_id" class="select2" label="cuenta_selecciona" :options="$provider_accounting_accounts" info="" value="{{ $accountingSaleId }}"/>
+			@endif
 		</div>
 
 		{{-- Nº de plazos --}}

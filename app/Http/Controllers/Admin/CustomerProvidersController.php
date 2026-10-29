@@ -26,6 +26,7 @@ use App\Models\Category;
 use App\Models\Company;
 use App\Models\CompanyAccounts;
 use App\Models\CompanySettings;
+use App\Models\Contact;
 use App\Models\CostCenters;
 use App\Models\CustomerProviders;
 use App\Models\Employee;
@@ -966,9 +967,17 @@ class CustomerProvidersController extends Controller{
 
         //Vinculamos usuario a empresa, comprobando primero si existe:
         UserCompanies::firstOrCreate(
-            ['user_id' => $user->id, 'company_id' => $request->company_id,],
+            ['user_id' => $user->id, 'company_id' => $request->company_id],
             ['user_id' => $user->id, 'company_id' => $request->company_id, 'categories' => $request->job_title]
         );
+
+        //Añadimos como contacto:
+        $contact = new Contact();
+        $contact->company_id = session('currentCompany');
+        $contact->related_company_id = $request->company_id;
+        $contact->user_id = $user->id;
+        $contact->status = 60;
+        $contact->save();
 
         //Envío de password:
         if($request->role_id){

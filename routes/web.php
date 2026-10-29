@@ -390,6 +390,27 @@ Route::middleware(['auth', 'admin', 'iprestrict', 'usersituation', 'company_acco
     // Concourse Patterns:
     Route::get('concourse-patterns', 'ConcoursePatternsController@index')->name('concourse-patterns.index')->middleware('permission:budgets.edit');
 
+    // Contact Comments:
+    Route::post('contact-comments/store', 'ContactCommentController@store')->name('contact-comments.store')->middleware('permission:contacts.edit');
+    Route::post('contact-comments/update', 'ContactCommentController@update')->name('contact-comments.update')->middleware('permission:contacts.edit');
+    Route::delete('contact-comments/{comment}', 'ContactCommentController@destroy')->name('contact-comments.destroy')->middleware('permission:contacts.edit');
+
+    // Contact Docs:
+    Route::post('contact-docs/{contact}/store', 'ContactDocController@store')->name('contact-docs.store');
+    Route::get('contacts-docs/{doc}/destroy', 'ContactDocController@destroy')->name('contacts-docs.destroy')->middleware('permission:contacts.edit');
+
+    // Contacts:
+    Route::get('contacts', 'ContactController@index')->name('contacts.index')->middleware('permission:contacts.index');
+    Route::post('contacts/list', 'ContactController@index')->name('contacts.list');
+    Route::get('contacts/create/{related_company?}', 'ContactController@create')->name('contacts.create')->middleware('permission:contacts.create');
+    Route::post('contacts/verify-email', 'ContactController@create')->name('contacts.verify-email')->middleware('permission:contacts.create');
+    Route::post('contacts/store', 'ContactController@store')->name('contacts.store')->middleware('permission:contacts.create');
+    Route::get('contacts/{contact}/edit/{tab?}', 'ContactController@edit')->name('contacts.edit')->middleware('permission:contacts.edit');
+    Route::put('contacts/{contact}/update', 'ContactController@update')->name('contacts.update')->middleware('permission:contacts.edit');
+    Route::get('contacts/{contact}/show', 'ContactController@show')->name('contacts.show')->middleware('permission:contacts.show');
+    Route::get('contacts/status/{id}/{status}', 'ContactController@status')->name('contacts.status')->middleware('permission:contacts.edit');
+    Route::delete('contacts/{contact}', 'ContactController@destroy')->name('contacts.destroy')->middleware('permission:contacts.destroy');
+
     // Content Image:
     Route::post('content-image/{content}/store', 'ContentImageController@store')->name('content-image.store');
     Route::get('content-image/{content}/destroy/{image}', 'ContentImageController@destroy')->name('content-image.destroy')->middleware('permission:contents.edit');

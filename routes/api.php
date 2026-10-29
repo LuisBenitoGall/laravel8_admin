@@ -32,6 +32,8 @@ use App\Http\Controllers\Api\CompanyWorkOrderPatternsController;
 use App\Http\Controllers\Api\CompanyWorkOrdersController;
 use App\Http\Controllers\Api\CompanyWorkplacesController;
 
+use App\Http\Controllers\Api\ContactController;
+
 use App\Http\Controllers\Api\CostCenterOrdersController;
 
 use App\Http\Controllers\Api\CountryProvincesController;
@@ -159,6 +161,9 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
 
     //CompanySectors:
     Route::get('company-sectors/{company_id}', 'CompanySectorsController@getCompanySectorsDT');
+
+    //Contacts:
+    Route::post('contacts', 'ContactController@getContactsDT');
 
     //Contents:
     Route::get('contents', 'ContentController@getContentsDT');

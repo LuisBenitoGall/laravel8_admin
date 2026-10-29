@@ -204,8 +204,18 @@ $readonly = $invoice->blocked && !$is_sale || ($order->customer_id == session('c
 	<div class="col-12">						
 		<div class="card mb-3">
 			<div class="card-body">
+				@php
+				//Cálculo importe descontando IRPF:
+				$amountWithIva = $invoice->amount_with_iva;
+				$desc_irpf = 0;
+				if($invoice->irpf > 0){
+					$desc_irpf = ($invoice->irpf * $invoice->amount) / 100;
+            		$amountWithIva = $invoice->amount_with_iva - $desc_irpf;
+				}
+				@endphp
+
 				{{-- Componente importe pedido flotante: --}}
-				@livewire('budget-amount', ['budget_amount' => $invoice->amount_with_iva, 'currency' => $currency->symbol, 'budget_amount_without_discount' => false, 'environment' => 'invoices'])
+				@livewire('budget-amount', ['budget_amount' => $amountWithIva, 'currency' => $currency->symbol, 'budget_amount_without_discount' => false, 'environment' => 'invoices'])
 
 				{{-- Registro de factura. Genera su asiento y efecto contable - condiciones: 
 					1. Factura de compra.
@@ -304,8 +314,16 @@ $readonly = $invoice->blocked && !$is_sale || ($order->customer_id == session('c
 
 							<small>(-{{ $invoice->irpf }}% IRPF, {{ round($irpf_amount, 2) }}{{ $currency->symbol }})</small>
 						@endif --}}
-    					<b>{!! $invoice->amount_with_iva !!}{{ $currency->symbol }}</b>
+    					<b>{!! $amountWithIva !!}{{ $currency->symbol }}</b>
 					</label>
+
+					{{-- Retención IRPF --}}
+					@if($invoice->irpf > 0)
+						<label class="mr-5">
+							IRPF: 
+							<b>{{ $invoice->irpf }}% (-{{ $desc_irpf }}{{ $currency->symbol }})</b>
+						</label>
+					@endif
 
 					{{-- Incluir IVA: - condiciones: 
 						1. Exclusivo ventas o para compras sin gestión de proveedor:
