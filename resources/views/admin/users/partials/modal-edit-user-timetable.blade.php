@@ -18,6 +18,8 @@
 	                    {{ csrf_field() }}	
 	                    <input type="hidden" name="id" id="tmId">
 	                    <input type="hidden" name="user_id" value="{{ $user->id }}">
+	                    <input type="hidden" name="from" value="{{ $from }}">
+                    	<input type="hidden" name="to" value="{{ $to }}">
 
 						<h5 id="tmConcepto"></h5>
 

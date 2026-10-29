@@ -51,6 +51,7 @@ class BudgetItem extends Component{
     public $form_on;
     public $item;
     public $item_invoiced;
+    public $item_no_price;
     public $items_order;
     public $items_no_price;
     public $items_selected;
@@ -205,6 +206,7 @@ class BudgetItem extends Component{
                 $idx = array_search($this->price, $this->items_no_price);
 
                 $no_price = $idx;
+                //$no_price = $this->item_no_price;
             }
 
             //Precio porcentual:
@@ -321,6 +323,9 @@ class BudgetItem extends Component{
 
                 //Modificamos la acción por si se edita tras guardar:
                 $this->action = 'update';
+
+                $this->reset(['price', 'item_no_price']); // reseteo general
+                $this->dispatchBrowserEvent('reset-no-price-selector');
             }
 
             //Importe del presupuesto:
@@ -515,11 +520,12 @@ class BudgetItem extends Component{
      * @return void
      */
     public function changeQty($qty){
-        if (is_numeric($qty)) {
+        $qty = (float) $qty;
+        if (is_numeric($qty) && $qty > 0 && $this->price > 0){
             if (!$this->days) {
-                $subtotal = $qty * $this->price;
+                $subtotal = (float) $qty * $this->price;
             } else {
-                $subtotal = $qty * $this->price * $this->days;
+                $subtotal = (float) $qty * $this->price * $this->days;
             }
 
             if (!$this->discount) {
@@ -537,7 +543,7 @@ class BudgetItem extends Component{
      * @return void
      */
     public function changePrice($price){
-        if (is_numeric($price)) {
+        if (is_numeric($price) && $this->qty > 0 && $price > 0) {
             if (!$this->days) {
                 $subtotal = $this->qty * $price;
             } else {
@@ -558,7 +564,7 @@ class BudgetItem extends Component{
      * @return void
      */
     public function changeDiscount($discount){
-        if (is_numeric($discount)) {
+        if (is_numeric($discount) && $this->qty > 0 && $this->price > 0) {
             if (!$this->days) {
                 $subtotal = $this->qty * $this->price;
             } else {

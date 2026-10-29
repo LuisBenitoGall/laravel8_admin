@@ -91,6 +91,8 @@ class LoginController extends Controller{
     public function logout(Request $request){
         //Borramos sesiones:
         $request->session()->forget(['currentCompany']);
+        $request->session()->forget(['timetables_from']);
+        $request->session()->forget(['timetables_to']);
  
         $request->session()->flush();
         

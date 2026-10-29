@@ -31,7 +31,7 @@ class CompanyAccountsController extends Controller{
     
     public function __construct(){
         //Idiomas:
-        $this->languages = Helpers::languages();
+        $this->languages = helpers::languages();
 
         //Moneda:
         $this->co_currency = CompanySettings::co_currency(0);

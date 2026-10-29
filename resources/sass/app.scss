@@ -12009,6 +12009,17 @@ ul.ui-autocomplete {
     }
 }
 
+#briefing-items-list{
+    .bil-item{
+        background-color: $grey-light;
+        border-radius: 4px;
+        .bil-num{
+            display: inline-block;
+            width: 30px;
+        }    
+    }
+}
+
 /**
  * RESPONSIVE MEDIA QUERIES
  */

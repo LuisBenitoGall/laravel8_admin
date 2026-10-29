@@ -1,4 +1,4 @@
-@extends('admin.partials.layout')
+--------------------@extends('admin.partials.layout')
 
 @section('content')
 

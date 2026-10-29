@@ -66,7 +66,6 @@ $order_amount_without_discount = $order_amount_without_discount_in_lines > $orde
 				</a>
 			@endif
 		@endif
-
 		{{-- Importar presupuesto - condiciones:
 			1. Exclusivo cliente.
 			2. Para presupuestos con cliente final.

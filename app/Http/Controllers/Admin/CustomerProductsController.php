@@ -289,6 +289,7 @@ class CustomerProductsController extends Controller{
     public function updatePrice(Request $request, $customer_id, $id, $price, $ba_id = false){
         if($request->ajax()){ 
             if($customer_id && is_numeric($price)){
+                //Con Area de negocio (Business Area):
                 if($ba_id){
                     CustomerProducts::where('product_id', $id)
                     ->where('provider_id', session('currentCompany'))
@@ -300,7 +301,7 @@ class CustomerProductsController extends Controller{
                     ->where('provider_id', session('currentCompany'))
                     ->where('customer_id', $customer_id)
                     ->whereNull('ba_id')
-                    ->update(['price' => $price]);    
+                    ->update(['price' => (double) $price]);    
                 }
                 $resp = true;
             }else{

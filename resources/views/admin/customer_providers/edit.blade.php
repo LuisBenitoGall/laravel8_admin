@@ -31,6 +31,11 @@
 				<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-new-bank-account"><i class="fa fa-plus"></i> {!! ucfirst(trans('textos.banco_cuenta_nueva')) !!}</a>	
 			@endif
 		@endcan
+
+		{{-- Nuevo descuento --}}
+		@can('companies.edit')
+			<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-add-discount"><i class="fa fa-plus"></i> {!! ucfirst(trans('textos.descuento_nuevo')) !!}</a>	
+		@endcan
 	</div>
 </div>
 
@@ -62,6 +67,10 @@
 			  			<a class="nav-link @if($tab == 'users') active @endif" href="#tab-users" role="tab" data-toggle="tab">{{ ucfirst(trans('textos.usuarios')) }}</a>
 			  		</li>
 
+			  		<li class="nav-item @if($tab == 'commercial') active @endif">
+			  			<a class="nav-link @if($tab == 'commercial') active @endif" href="#tab-commercial" role="tab" data-toggle="tab">{{ ucfirst(trans('textos.condiciones_comerciales')) }}</a>
+			  		</li>
+
 			  		{{-- <li class="nav-item @if($tab == 'sectors') active @endif">
 			  			<a class="nav-link @if($tab == 'sectors') active @endif" href="#tab-sectors" role="tab" data-toggle="tab">{{ ucfirst(trans('textos.sectores')) }}</a>	
 			  		</li> --}}
@@ -88,6 +97,11 @@
 					{{-- Usuarios --}}
 					<div class="tab-pane fade @if($tab == 'users') show active @endif" role="tabpanel" id="tab-users">
 						@include('admin.customer_providers.partials.customer-providers-users')
+					</div>
+
+					{{-- Condiciones comerciales --}}
+					<div class="tab-pane fade @if($tab == 'commercial') show active @endif" role="tabpanel" id="tab-commercial">
+						@include('admin.customer_providers.partials.customer-providers-commercial')
 					</div>
 
 					{{-- Sectores --}}
@@ -121,6 +135,9 @@
 
 {{-- Editar cuenta bancaria: --}}
 @include('admin.bank_accounts.partials.modal-edit-bank-account', ['company_' => $company])
+
+{{-- Añadir descuento --}}
+@include('admin.customer_providers.partials.modal-add-discount', ['company_' => $company])
 
 @push('scripts')
 <script>

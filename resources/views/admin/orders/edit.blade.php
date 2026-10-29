@@ -462,7 +462,7 @@
                     }
                     @endphp
 
-                    @if($no_previsions && $invoiced && round($order_amount, 2) > round($invoiced->invoiced_amount, 2))
+                    @if($no_previsions && $invoiced && round($order_amount, 2) > round($invoiced['invoiced_amount'], 2))
                         <a href="{{ route('order-previsions.recalculate-previsions', $order) }}" class="btn btn-info btn-confirm" data-msg="{{ ucfirst(trans('textos.facturaciones_previstas_recalculo_texto')) }}">
                             <i class="fa fa-calculator"></i>
                             {{ ucfirst(trans('textos.facturaciones_previstas_recalculo')) }}
@@ -1040,8 +1040,10 @@ function previsionsController(){
     //Control de porcentaje:
     $('.previsions .prevision .prevision-percent').each(function(){
         var percent = $(this).val();
-        if(percent > 0){
+        if(percent >= 0){
             total_percent = (parseFloat(total_percent) + parseFloat(percent)).toFixed(6);
+        }else{
+            total_percent = (parseFloat(total_percent) - parseFloat(Math.abs(percent))).toFixed(6);
         }
     });
 
@@ -1050,6 +1052,8 @@ function previsionsController(){
         var amount = $(this).val();
         if(amount > 0){
             total_amount = (parseFloat(total_amount) + parseFloat(amount)).toFixed(6);
+        }else{
+            total_amount = (parseFloat(total_amount) - parseFloat(Math.abs(amount))).toFixed(6);    
         }
     });
 
@@ -1107,6 +1111,8 @@ function productionPrevisionsController(){
         var percent = $(this).val();
         if(percent > 0){
             total_percent = (parseFloat(total_percent) + parseFloat(percent)).toFixed(6);
+        }else{
+            total_percent = (parseFloat(total_percent) - parseFloat(Math.abs(percent))).toFixed(6);
         }
     });
 
@@ -1115,6 +1121,8 @@ function productionPrevisionsController(){
         var amount = $(this).val();
         if(amount > 0){
             total_amount = (parseFloat(total_amount) + parseFloat(amount)).toFixed(6);
+        }else{
+            total_amount = (parseFloat(total_amount) - parseFloat(Math.abs(amount))).toFixed(6);    
         }
     });
 

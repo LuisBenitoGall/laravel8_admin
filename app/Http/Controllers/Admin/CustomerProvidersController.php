@@ -30,6 +30,8 @@ use App\Models\CostCenters;
 use App\Models\CustomerProviders;
 use App\Models\Employee;
 use App\Models\PaymentMethod;
+use App\Models\Tariff;
+use App\Models\TariffCompany;
 use App\Models\TempImportCompanies;
 use App\Models\Town;
 use App\Models\TransportAgency;
@@ -66,6 +68,9 @@ class CustomerProvidersController extends Controller{
      * 17. Actualizar condiciones de pago de cliente.
      * 18. Obtener formulario de presupuesto por defecto de cliente.
      * 19. Usuarios por empresa para DataTable.
+     * 20. Añadir descuento a cliente.
+     * 21. Eliminar descuento.
+     * 22. Actualizar información comercial de cliente.
      */
     
     private $option = 'empresas';
@@ -140,6 +145,15 @@ class CustomerProvidersController extends Controller{
                 'pay_after_days.max' => trans('textos.dias_vencimiento_aviso'),
                 'payday.numeric' => trans('textos.dia_mes_aviso'),
                 'payday.max' => trans('textos.dia_mes_aviso'),
+            ]);
+
+        //Validación añadir descuento:
+        }elseif(isset($data['submit_add_discount'])){
+            return Validator::make($data, [
+                'cp_id' => 'required|integer',
+                'customer_id' => 'required|integer',
+                'concept' => 'required',
+                'discount' => 'required|numeric|max:100'
             ]);
         } 
     }
@@ -352,9 +366,23 @@ class CustomerProvidersController extends Controller{
         //¿Es agencia de transporte?
         $is_agency = false;
 
+        $tariffs = Tariff::where('company_id', session('currentCompany'))
+        ->where('status', 1)
+        ->pluck('name', 'id')
+        ->toArray();
+
+        //Tarifa del cliente:
+        $tariff_customer = Tariff::select('tariffs.id')
+        ->join('tariff_companies', 'tariffs.id', '=', 'tariff_companies.tariff_id')
+        ->where('tariffs.company_id', session('currentCompany'))
+        ->where('tariff_companies.company_to', $company->id)
+        ->where('tariff_companies.status', 1)
+        ->whereNull('tariff_companies.deleted_at')
+        ->first();
+
         $languages = $this->languages;
 
-        return view('admin.customer_providers.edit')->with(compact('header', 'company', 'tab', 'workplaces', 'areas', 'conditions', 'business_relationship', 'environment', 'company_account', 'banks', 'bank_accounts', 'payment_methods', 'accounting_accounts', 'provider_workplaces', 'is_agency', 'languages'));     
+        return view('admin.customer_providers.edit')->with(compact('header', 'company', 'tab', 'workplaces', 'areas', 'conditions', 'business_relationship', 'environment', 'company_account', 'banks', 'bank_accounts', 'payment_methods', 'accounting_accounts', 'provider_workplaces', 'is_agency', 'tariffs', 'tariff_customer', 'languages'));     
     }
 
     /**
@@ -816,11 +844,11 @@ class CustomerProvidersController extends Controller{
                             //Cuenta contable:
                             $accounting_account_data = [
                                 'account_to' => 'customer',
-                                'company_target' => $co,
+                                'company_target' => $row->customer_id,
                                 'mode' => 1,
                                 'with_iva' => 1
                             ];
-                            AccountingAccount::setAccountingAccount($accounting_account_data);
+                            AccountingAccount::setAccountingAccount($accounting_account_data, $co);
                         }
                     }
                 }
@@ -1250,6 +1278,110 @@ class CustomerProvidersController extends Controller{
         })
         ->rawColumns(['email', 'image'])
         ->make(true);
+    }
+
+    /**
+     * 20. Añadir descuento a cliente.
+     */
+    public function addDiscount(Request $request){
+        $validator = $this->validator($request->all());
+        if($validator->fails()){
+            //Indicamos el origen de la acción realizada para manejar el modal:
+            $validator->getMessageBag()->add('accion', 'modal-add-discount');
+
+            return redirect('/admin/customers/'.$request->customer_id.'/edit')
+                ->withErrors($validator)
+                ->withInput();
+        }   
+
+        //Relación cliente proveedor:
+        $cp = CustomerProviders::select('id', 'discount', 'discounts', 'updated_at')->find($request->cp_id);
+
+        if($cp){
+            $discounts = $cp->discounts? unserialize($cp->discounts):[];
+            $dto = [
+                'concept' => $request->concept,
+                'discount' => $request->discount
+            ];
+
+            //Pasamos un índice numérico correlativo:
+            $k = count($discounts) > 0? count($discounts)+1:1;
+
+            $discounts[$k] = $dto;
+            $cp->discounts = serialize($discounts);
+            $cp->save();
+
+            $msg = trans('textos.descuento_creado');
+            return redirect()->route('customers.edit', [$request->customer_id, 'commercial'])->with(compact('msg')); 
+
+        }else{
+            $alert = trans('textos.cliente_proveedor_no_existe');
+            return redirect()->route('customers.index')->with(compact('alert'));  
+            exit;  
+        }
+    }
+
+    /**
+     * 21. Eliminar descuento.
+     */
+    public function deleteDiscount(Request $request){
+        $cp = CustomerProviders::select('id', 'customer_id', 'discounts')->find($request->cp_id);
+
+        $discounts = $cp && $cp->discounts? unserialize($cp->discounts):false;
+
+        if($discounts){
+            $new_discounts = [];
+            $k = 1;
+            foreach($discounts as $i => $dto){
+                //Omitimos el descuento a eliminar.
+                if($i != $request->index){
+                    $new_discounts[$k] = $dto; 
+                    $k++;  
+                }
+            }
+
+            $cp->discounts = serialize($new_discounts);
+            $cp->save();
+
+            $msg = trans('textos.descuento_deleted_ok');
+            return redirect()->route('customers.edit', [$cp->customer_id, 'commercial'])->with(compact('msg'));
+
+        }else{
+            $alert = trans('textos.descuento_no_existe');
+            return redirect()->route('customers.edit', [$cp->customer_id, 'commercial'])->with(compact('alert')); 
+        }
+    }
+
+    /**
+     * 22. Actualizar información comercial de cliente.
+     */
+    public function commercialData(Request $request){
+        //Tarifas del cliente:
+        $customer_tariff = TariffCompany::select('tariff_companies.*')
+        ->join('tariffs', 'tariff_companies.tariff_id', '=', 'tariffs.id')
+        ->where('tariff_companies.company_to', $request->customer)
+        ->where('tariffs.company_id', session('currentCompany'))
+        ->first();
+
+        //Si no existe o se trata de otra tarifa.
+        if(!$customer_tariff || ($customer_tariff && $customer_tariff->tariff_id != $request->tariff)){
+            if($customer_tariff){
+                $customer_tariff->status = false;
+                $customer_tariff->save();
+
+                $customer_tariff->delete(); 
+            }
+
+            $tc = new TariffCompany();
+            $tc->tariff_id = $request->tariff;
+            $tc->company_to = $request->customer;
+            $tc->status = 1;
+            $tc->created_by = Auth::user()->id;
+            $tc->save();
+        }
+
+        $msg = trans('textos.datos_comerciales_updated');
+        return redirect()->route('customers.edit', [$request->customer, 'commercial'])->with(compact('msg'));
     }
 
 }

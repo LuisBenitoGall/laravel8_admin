@@ -11,9 +11,9 @@
 					<th style="background-color: #efefef; text-align: right;">
 						<b>
 							@if($invoice->refund)
-								{{ $invoice->amount * -1 }}{{ $currency->symbol }}	
+								-{{ App\Helpers\helpers::setEUNum($invoice->amount) }}{{ $currency->symbol }}	
 							@else
-								{{ $invoice->amount }}{{ $currency->symbol }}
+								{{ App\Helpers\helpers::setEUNum($invoice->amount) }}{{ $currency->symbol }}
 							@endif
 						</b>
 					</th>
@@ -29,7 +29,7 @@
 							{{ $invoice_order->discount }}%
 						</th>
 						<th style="background-color: #efefef; text-align: right;">
-							{{ $invoice_order->discount_amount }}{{ $currency->symbol }}
+							{{ App\Helpers\helpers::setEUNum($invoice_order->discount_amount) }}{{ $currency->symbol }}
 						</th>
 					</tr>
 				@endif
@@ -84,9 +84,9 @@
 								{{-- <b>{{ array_sum($si) }}{{ $currency->symbol }}</b> --}}
 								<b>
 									@if($invoice->refund)
-										{{ $iva_ * -1 }}{{ $currency->symbol }}
+										-{{ App\Helpers\helpers::setEUNum($iva_) }}{{ $currency->symbol }}
 									@else
-										{{ $iva_ }}{{ $currency->symbol }}
+										{{ App\Helpers\helpers::setEUNum($iva_) }}{{ $currency->symbol }}
 									@endif
 								</b>
 							</th>
@@ -109,9 +109,9 @@
 							{{-- <b>{{ array_sum($si) }}{{ $currency->symbol }}</b> --}}
 							<b>
 								@if($invoice->refund)
-									{{ $group_iva_amount * -1 }}{{ $currency->symbol }}
+									-{{ App\Helpers\helpers::setEUNum($group_iva_amount) }}{{ $currency->symbol }}
 								@else
-									{{ $group_iva_amount }}{{ $currency->symbol }}
+									{{ App\Helpers\helpers::setEUNum($group_iva_amount) }}{{ $currency->symbol }}
 								@endif
 							</b>
 						</th>
@@ -141,9 +141,9 @@
 					<td style="background-color: {{ $bg_color }}; text-align: right;">
 						<b>
 							@if($invoice->refund)
-								{{ $invoice->amount_with_iva * -1 }}{{ $currency->symbol }}
+								-{{ App\Helpers\helpers::setEUNum($invoice->amount_with_iva) }}{{ $currency->symbol }}
 							@else
-								{{ $invoice->amount_with_iva }}{{ $currency->symbol }}
+								{{ App\Helpers\helpers::setEUNum($invoice->amount_with_iva) }}{{ $currency->symbol }}
 							@endif
 						</b>
 					</td>

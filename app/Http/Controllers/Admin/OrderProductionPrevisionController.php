@@ -111,6 +111,11 @@ class OrderProductionPrevisionController extends Controller{
         ->when($workplace_id, function($q) use($workplace_id){
             return $q->where('orders.provider_workplace_id', $workplace_id);
         })
+        // 25/06/2025: caso Ad Hoc para Play solicitado por Victor Sánchez:
+        ->when(session('currentCompany') == 8, function($q){
+            $play_customers = [4,227,275];
+            return $q->whereIn('orders.customer_id', $play_customers);
+        })
         ->orderBy('orders.id', 'DESC')
         ->orderBy('orders.created_at', 'DESC');
 
@@ -169,6 +174,9 @@ class OrderProductionPrevisionController extends Controller{
             }else{
                 return '';
             }
+        })
+        ->addColumn('final_customer', function($row){
+            return $row->finalCustomer;
         })
         ->addColumn('estado', function($row) use($estados){ 
             if(isset($estados[$row->order_status])){

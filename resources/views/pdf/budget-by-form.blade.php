@@ -11,9 +11,10 @@ $bg_color = $company_settings->base_color_budgets? $company_settings->base_color
 	'bg_color' => $bg_color, 
 	'left_h1' => ucfirst(trans('textos.presupuesto')).' Nº '.$budgetNum,
 	'left_title' => $order->name? $order->name:false,
-	'left_manager' => $provider_manager? $provider_manager->name.' '.$provider_manager->surname:false,
-	'right_h1' => ucfirst(trans('textos.cliente')),
-	'right_manager' => $customer_manager? $customer_manager->name.' '.$customer_manager->surname:'',
+	'left_manager' => $provider_manager? ucwords($provider_manager->name).' '.ucwords($provider_manager->surname):false,
+	'left_commercial' => $commercial && $commercial->id != $provider_manager->id? ucwords($commercial->name).' '.ucwords($commercial->surname):false,
+	'right_h1' => ucwords(trans('textos.cliente')),
+	'right_manager' => $customer_manager? ucwords($customer_manager->name).' '.ucwords($customer_manager->surname):'',
 ])
 
 @php
@@ -98,8 +99,8 @@ $arr = [];
 						$importe = $noPriceLinesTexts[$its->item_no_price];
 						$amount = 0;
 					}else{
-						$precio = $its->calculated_by_percent > 0? $its->price.'%':$its->price.$currency->symbol.$discount;
-						$importe = $amount.$currency->symbol;
+						$precio = $its->calculated_by_percent > 0? App\Helpers\helpers::setEUNum($its->price).'%':App\Helpers\helpers::setEUNum($its->price).$currency->symbol.$discount;
+						$importe = App\Helpers\helpers::setEUNum($amount).$currency->symbol;
 					}
 
 					//Cálculo del importe del bloque:
@@ -154,7 +155,7 @@ $arr = [];
 							$bloques .= '<th style="background-color: '.$bg_color.'; text-align: center; width: 60px;">'.ucfirst(trans('textos.coste')).'</th>';
 							$bloques .= '<th style="background-color: '.$bg_color.'; text-align: center; width: 70px;">'.ucfirst(trans('textos.coste_total')).'</th>';
 							$bloques .= '<th style="background-color: '.$bg_color.'; width: 180px;">'.ucfirst(trans('textos.observaciones')).'</th>';
-							$bloques .= '<th style="background-color: '.$bg_color.'; text-align: right; width: 40px;">'.$blockAmount.$currency->symbol.'</th>';
+							$bloques .= '<th style="background-color: '.$bg_color.'; text-align: right; width: 40px;">'.App\Helpers\helpers::setEUNum($blockAmount).$currency->symbol.'</th>';
 						$bloques .= '</tr>';
 					$bloques .= '</thead>';
 
@@ -166,7 +167,7 @@ $arr = [];
 				// Resumen de bloque:
 				$resumen .= '<tr>';
 					$resumen .= '<td style="background-color: #dbe5f1; color: '.$bg_color.' !important; font-weight: bold;">'.$block_name.'</td>';
-					$resumen .= '<td colspan="3" style="border-bottom: 1px dotted #222; text-align: right;">'.number_format($blockAmount, 2).$currency->symbol.'</td>';
+					$resumen .= '<td colspan="3" style="border-bottom: 1px dotted #222; text-align: right;">'.App\Helpers\helpers::setEUNum($blockAmount).$currency->symbol.'</td>';
 				$resumen .= '</tr>';
 			}
 
@@ -199,7 +200,7 @@ $arr = [];
 					<td colspan="2" style="background-color: #FFF;"></td>
 					<td style="background-color: {{ $bg_color }}; color: #FFF; text-align: left;">{{ strtoupper(trans('textos.total')) }}</td>
 					<td style="background-color: {{ $bg_color }}; color: #FFF; text-align: right;">
-						{{ number_format($arr_amounts['total_amount'], 2) }}{{ $currency->symbol }}
+						{{ App\Helpers\helpers::setEUNum($arr_amounts['total_amount']) }}{{ $currency->symbol }}
 					</td>
 				</tr>
 
@@ -212,7 +213,7 @@ $arr = [];
 						<td colspan="2" style="background-color: #FFF;"></td>
 						<td style="background-color: {{ $bg_color }}; color: #FFF; text-align: left;">{{ strtoupper(trans('textos.importe_descuento')) }} ({{ $order->discount }}%)</td>	
 						<td style="background-color: {{ $bg_color }}; color: #FFF; text-align: right;">
-							{{ $arr_amounts['total_amount'] }}{{ $currency->symbol }}
+							{{ App\Helpers\helpers::setEUNum($arr_amounts['total_amount']) }}{{ $currency->symbol }}
 						</td>
 					</tr>
 				@endif
@@ -238,7 +239,7 @@ $arr = [];
 			<tfoot>
 				<tr>
 					<td style="text-align: right; width: 390px;">{{ trans('textos.total') }}</td>
-					<td style="text-align: right; width: 67px">{{ round($totalAmount, 2) }}{{ $currency->symbol }}</td>
+					<td style="text-align: right; width: 67px">{{ App\Helpers\helpers::setEUNum($totalAmount) }}{{ $currency->symbol }}</td>
 					<td style="">&nbsp;
 				</tr>
 			</tfoot>

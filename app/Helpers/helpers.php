@@ -87,6 +87,7 @@ class Helpers{
 	 *  4.6. Cadena serializada.
 	 *  4.7. Detectar valores repetidos en un array.
 	 *  4.8. Etiquetas HTML permitidas en editor de texto.
+	 *  4.9. Formato europeo para importes.
 	 *
 	 * 5. Archivos:
 	 *  5.1. Allowed Image Mime Types.
@@ -1639,6 +1640,19 @@ class Helpers{
 	 */
 	public function allowedTags(){
 		return ['p', 'div', 'br', 'label', 'span', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'table', 'thead', 'tbody', 'tr', 'th', 'td', 'i', 'u', 'b', 'strong', 'a', 'img'];
+	}
+
+	/**
+	 * 4.9. Formato europeo para importes.
+	 */
+	public static function setEUNum($num, $decimals = false){
+		if($num > 0 && is_numeric($num)){
+			if(!$decimals) $decimals = config('constants.DECIMALS_SALES_');
+
+			return number_format($num, $decimals, ',', '.');
+		}else{
+			return '0';
+		}
 	}
 
 	/**

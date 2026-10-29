@@ -108,9 +108,18 @@
 			<x-input type="text" name="price" class="text-right set-decimals" id="price" value="{{ $product->price }}" autocomplete="off" maxlength="8" group="right" groupvalue="{{ $currency->symbol }}"/>
 		</div>
 
+		{{-- Porcentaje facturable --}}
+		<label for="billable_percentage" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.porcentaje_facturable')) !!}</label>
+		<div class="col-lg-1">
+			@php
+			$billable_percentage = $product->billable_percentage? $product->billable_percentage:config('constants.BILLABLE_PERCENTAGE_DEFAULT_');
+			@endphp
+			<x-input type="text" name="billable_percentage" class="text-right set-decimals" id="billablePercentage" value="{{ $billable_percentage }}" autocomplete="off" maxlength="5" group="right" groupvalue="%"/>
+		</div>
+
 		{{-- Precio por porcentaje --}}
 		<label for="calculated_by_percent" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.por_porcentaje')) !!}</label>
-		<div class="col-lg-2">
+		<div class="col-lg-1">
 			@php
 			$disabled = $product->price > 0? true:false;
 			@endphp

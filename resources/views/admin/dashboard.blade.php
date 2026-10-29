@@ -2,7 +2,7 @@
 
 @section('content')
 
-@if($quizzes->count() || isset($recommendation))
+@if($quizzes || $recommendation)
     <div class="row mb-3">
         {{-- Quizzes --}}
         @if($quizzes->count())

@@ -28,7 +28,7 @@ class CreateCustomerProductsTable extends Migration{
             //FK:
             $table->unsignedBigInteger('cc_id')->nullable();
             $table->foreign('cc_id')->references('id')->on('cost_centers');
-            $table->float('price',5,2)->default(0);
+            $table->float('price',10,2)->default(0);
             $table->timestamps();
         });
     }

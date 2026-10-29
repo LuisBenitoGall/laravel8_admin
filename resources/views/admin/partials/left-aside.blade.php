@@ -32,7 +32,7 @@ if(session()->get('locale') == NULL){
 	                    <div class="dropdown profile-element">
 
 	                    	@php
-                    		$logo = 'img/logo.png';
+                    		$logo = false;
                     		@endphp
 
                     		@if(session('companies'))
@@ -46,14 +46,28 @@ if(session()->get('locale') == NULL){
 		                        @endforeach
 		                    @endif
 
-	                    	<a href="{{ route('dashboard') }}" class="logo">
-	                        	<img alt="image" class="img-fluid" src="{!! asset($logo) !!}"/>
-	                        </a>
+                            @if($logo)
+    	                    	<a href="{{ route('dashboard') }}" class="logo">
+    	                        	<img alt="image" class="img-fluid" src="{!! asset($logo) !!}"/>
+    	                        </a>
+                            @endif
 	                    </div>
 	                    <div class="logo-element px-3">
-	                        <img alt="image" class="img-fluid" src="{!! asset($logo) !!}"/>
+                            @if($logo)
+	                           <img alt="image" class="img-fluid" src="{!! asset($logo) !!}"/>
+                            @endif
 	                    </div>
 	                </li>
+
+                    {{-- Control horario --}}
+                    @if(env('HOUR_CONTROL'))
+                        <li>
+                            <a href="{{ route('time-control.show') }}">
+                                <i class="fa fa-clock"></i>
+                                <span class="nav-label">{!! ucfirst(trans('textos.control_horario')) !!}</span>
+                            </a>   
+                        </li>
+                    @endif
 
 	                {{-- MAIN MENU --}}
 	                {{-- Menu básico --}}

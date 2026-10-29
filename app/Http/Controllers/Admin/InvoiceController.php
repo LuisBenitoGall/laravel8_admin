@@ -174,6 +174,62 @@ class InvoiceController extends Controller{
      * 1. Facturas por cliente o proveedor.
      */
     public function index($year = false, $month = false, $company = false, $group = false){
+        //Pruebas API:
+        // $companyIds = [4,8,227,275];
+
+        // $start_date = '2022-01-01';
+        // $end_date = '2025-06-10';
+
+        // $items_api = Item::select(DB::raw("CONCAT(pm.name,' ',pm.surname) AS provider_manager"),
+        //     DB::raw("CONCAT(co.name,' ',co.surname) AS commercial"),
+        //     DB::raw("CONCAT(cm.name,' ',cm.surname) AS customer_manager"),
+        //     DB::raw("CONCAT(fcm.name,' ',fcm.surname) AS final_customer_manager"),
+        //     DB::raw("items.qty * items.price AS subtotal"),
+        //     'items.id', 'p.name AS provider', 'c.name AS customer', 'fc.name AS final_customer', 'orders.is_order', 'orders.is_budget', 'orders.budget_num', 'orders.order_num', 'orders.name AS order_title', 'orders.created_at', 'orders.accepted_date', 'orders.delivery_date', 'products.name AS product', 'items.concept', 'items.qty', 'items.price', 'items.iva', 'products.billable_percentage', 'pcc.name AS provider_cost_center')
+        // ->join('orders', 'items.order_id', '=', 'orders.id')
+        // ->join('companies AS p', 'orders.provider_id', '=', 'p.id')
+        // ->join('companies AS c', 'orders.customer_id', '=', 'c.id')
+        // ->leftJoin('companies AS fc', 'orders.final_customer_id', '=', 'fc.id')
+        // ->leftJoin('users AS pm', 'orders.provider_manager_id', '=', 'pm.id')
+        // ->leftJoin('users AS co', 'orders.commercial_id', '=', 'co.id')
+        // ->leftJoin('users AS cm', 'orders.customer_manager_id', '=', 'cm.id')
+        // ->leftJoin('users AS fcm', 'orders.final_customer_manager_id', '=', 'fcm.id')
+        // ->leftJoin('products', 'items.product_id', '=', 'products.id')
+        // ->leftJoin('cost_centers AS pcc', 'items.provider_cost_center_id', '=', 'pcc.id')
+        // ->where('orders.is_order', true)
+        // ->whereNotIn('orders.order_status', [30,70])
+        // ->whereIn('orders.provider_id', $companyIds)
+        // ->when($start_date && $end_date, function($q) use($start_date, $end_date){
+        //     return $q->whereBetween('orders.created_at', [$start_date, $end_date]);
+        // })
+        // ->count('items.id');
+
+
+        //Queries:
+        // $items_query = Item::select('items.id', 'items.order_id', 'items.concept', 'items.qty', 'items.price', 'items.iva', 'items.irpf', 'items.discount', 'items.days', 'items.days_continue', 'items.days_continue_discount', 'p.name AS product', 'pp.name AS purchase_product', 'bfi.name AS budget_form_block', 'o.is_order', 'o.is_budget', 'o.invoiced', 'o.order_num', 'o.order_old_num', 'o.budget_num', 'o.budget_old_num', 'o.name AS order_name', 'o.accepted_date', 'o.delivery_date', 'o.bag_amount', 'o.created_at', 'o.order_status', 'cp.name AS provider', 'cc.name AS customer', 'cfc.name AS final_customer', 'up.name AS pm_name', 'up.surname AS pm_surname', 'ucom.name AS com_name', 'ucom.surname AS com_surname', 'uc.name AS cm_name', 'uc.surname AS cm_surname', 'ufc.name AS fcm_name', 'ufc.surname AS fcm.surname', 'pcc.name AS p_cost_center', 'ccc.name AS c_cost_center')
+        // ->join('orders AS o', 'items.order_id', '=', 'o.id')
+        // ->leftJoin('products AS p', 'items.product_id', '=', 'p.id')
+        // ->leftJoin('purchase_products AS pp', 'items.purchase_product_id', '=', 'pp.id')
+        // ->leftJoin('budget_form_items AS bfi', 'items.budget_form_block_id', '=', 'bfi.id')
+        // ->join('companies AS cp', 'o.provider_id', '=', 'cp.id')
+        // ->join('companies AS cc', 'o.customer_id', '=', 'cc.id')    
+        // ->leftJoin('companies AS cfc', 'o.final_customer_id', '=', 'cfc.id')
+        // ->leftJoin('users AS up', 'o.provider_manager_id', '=', 'up.id')
+        // ->leftJoin('users AS ucom', 'o.commercial_id', '=', 'ucom.id')
+        // ->leftJoin('users AS uc', 'o.customer_manager_id', '=', 'uc.id')
+        // ->leftJoin('users AS ufc', 'o.final_customer_manager_id', '=', 'ufc.id')
+        // ->leftJoin('cost_centers AS pcc', 'items.provider_cost_center_id', '=', 'pcc.id')
+        // ->leftJoin('cost_centers AS ccc', 'items.customer_cost_center_id', '=', 'ccc.id')
+        // ->where('o.is_order', true)
+        // ->whereNull('items.deleted_at')
+        // ->whereIn('o.provider_id', $companyIds)
+        // ->whereNotIn('o.order_status', [30,70])
+        // ->when($start_date && $end_date, function($q) use($start_date, $end_date){
+        //     return $q->whereBetween('o.created_at', [$start_date, $end_date]);
+        // })
+        // ->orderBy('o.id', 'ASC')
+        // ->count('items.id');
+
         $customer_id = false;
         $provider_id = false;
         $invoicesType = 'facturas';
@@ -561,6 +617,12 @@ class InvoiceController extends Controller{
         $percentage_invoiced = false;
         $amount_priority = 1;
 
+        //Formateando fechas:
+        $fiscal_date = $request->fiscal_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->fiscal_date):$request->fiscal_date:false;
+
+        //Extraemos mes y año:
+        $parts = $fiscal_date? explode('-', $fiscal_date):[];
+
         //Si la factura es un avance se incluye el importe a facturar o se obtiene el porcentaje sobre el total del pedido:
         //Se considera cada avance como una previsión de facturación, por lo que se crea registro en order_previsions.
         //Facturas íntegras:
@@ -577,8 +639,8 @@ class InvoiceController extends Controller{
 
             $prevision = new OrderPrevisions();
             $prevision->order_id = $order->id;
-            $prevision->year = Date('Y');
-            $prevision->month = Date('m');
+            $prevision->year = !empty($parts)? $parts[0]:Date('Y');
+            $prevision->month = !empty($parts)? $parts[1]:Date('m');
             $prevision->amount = $outstanding_amount;
             $prevision->percent = round($outstanding_percent, 2);
             $prevision->save();    
@@ -648,7 +710,7 @@ class InvoiceController extends Controller{
 
                 if($prevision){
                     //Si se trata de la última previsión de facturación y no queda porcentaje por establecer previsión, el importe debe ser todo el pendiente:
-                    $more_previsions = OrderPrevisions::select('invoice_id')
+                    $more_previsions = OrderPrevisions::select('id', 'invoice_id')
                     ->where('order_id', $prevision->order_id)
                     ->whereNull('invoice_id')
                     ->where('id', '!=', $prevision->id)
@@ -666,15 +728,12 @@ class InvoiceController extends Controller{
                     $amount_with_iva = helpers::percent($order_amount['invoice_amount'], $percent_to_invoice);
 
                     //31/05/2024: se actualiza también mes y año de la previsión acorde al mes y año de la generación de la factura.
-                    $prevision->year = Date('Y');
-                    $prevision->month = Date('m');
+                    $prevision->year = !empty($parts)? $parts[0]:Date('Y');
+                    $prevision->month = !empty($parts)? $parts[1]:Date('m');
                     $prevision->save();
                 }
             }
         }
-
-        //Formateando fechas:
-        $fiscal_date = $request->fiscal_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->fiscal_date):$request->fiscal_date:false;
 
         //Generando factura:
         $invoice_data = [
@@ -683,7 +742,8 @@ class InvoiceController extends Controller{
             'amount_priority' => $amount_priority,
             'percentage_invoiced' => $percentage_invoiced,
             'fiscal_date' => $fiscal_date,
-            'serie' => NULL
+            'serie' => NULL,
+            'prevision_id' => $prevision? $prevision->id:false
         ];
         $invoice = Invoice::setInvoice($order, $invoice_data);
 
@@ -2287,7 +2347,7 @@ class InvoiceController extends Controller{
             return redirect()->route('invoices.edit', $invoice)->with(compact('alert')); 
             exit;     
         }
-        
+
         //Importe de la factura de abono:
         if($request->refund == 'p'){    
             $refund_amount = $request->refund_amount;
@@ -2334,7 +2394,7 @@ class InvoiceController extends Controller{
         }
 
         //Info pedido:
-        $order = Order::select('id', 'is_group', 'invoiced', 'provider_id', 'bag_amount')
+        $order = Order::select('id', 'is_group', 'invoiced', 'provider_id', 'customer_id', 'bag_amount', 'blocked')
         ->find($invoice->order_id);
 
         //Importe del pedido:
@@ -2343,19 +2403,33 @@ class InvoiceController extends Controller{
         //Porcentaje del pedido, sobre el importe del pedido sin ningún abono:
         $percent = round( ($refund->amount * 100) / $order_amount['total_amount'], 6);
 
+        //Obtenemos la previsión ya facturada:
+        $invoiced_prevision = OrderPrevisions::where('order_id', $order->id)
+        ->where('invoice_id', $invoice->id)
+        ->first();
+
         //Generamos previsión en negativo y ya facturada:
         $prevision_refund = new OrderPrevisions();
         $prevision_refund->order_id = $invoice->order_id;
         $prevision_refund->year = Date('Y');
         $prevision_refund->month = Date('m');
-        $prevision_refund->amount = $refund->amount * -1;
-        $prevision_refund->percent = $percent * -1;
+        $prevision_refund->amount = $invoiced_prevision && $request->refund == 't'? $invoiced_prevision->amount * -1:$refund->amount * -1;
+        $prevision_refund->percent = $invoiced_prevision && $request->refund == 't'? $invoiced_prevision->percent * -1:$percent * -1;
         $prevision_refund->invoice_id = $refund->id;
         $prevision_refund->save();
               
         //Al generarse una factura de abono, sólo si el abono es íntegro, el pedido original vuelve a estado de pendiente de facturación y la factura a estado de devuelta. Las líneas se marcan como no facturadas.
         //En caso de tratarse de una agrupación, los pedidos de anidados que se encuentren en la factura también a estado sin facturar.
         if($request->refund == 't'){
+            //Hacemos copia de la previsión original:
+            $new_prevision = new OrderPrevisions();
+            $new_prevision->order_id = $invoiced_prevision->order_id;
+            $new_prevision->year = Date('Y');
+            $new_prevision->month = NULL;
+            $new_prevision->amount = $invoiced_prevision->amount;
+            $new_prevision->percent = $invoiced_prevision->percent;
+            $new_prevision->save();
+
             $order->invoiced = false;
             $order->save();
 
@@ -2376,7 +2450,7 @@ class InvoiceController extends Controller{
 
         //Actualizando previsiones de facturación: la desvinculamos de la factura y colocamos el porcentaje correcto.
         if($request->refund == 'p'){
-            $order_previsions = OrderPrevisions::where('invoice_id', $invoice->order_id)
+            $order_previsions = OrderPrevisions::where('order_id', $invoice->order_id)
             ->get();   
 
             //Obtenemos el porcentaje que se mantiene facturado:
@@ -2401,8 +2475,8 @@ class InvoiceController extends Controller{
             $new_order_prevision->save();
 
         }elseif($request->refund == 't'){
-            OrderPrevisions::where('invoice_id', $invoice->id)
-            ->update(['month' => NULL, 'percent' => -100, 'amount' => $refund_amount * -1, 'invoice_id' => NULL]);
+            // OrderPrevisions::where('invoice_id', $invoice->id)
+            // ->update(['month' => NULL, 'invoice_id' => NULL]);
         }
 
         //Añadir línea negativa en el pedido:
@@ -2423,7 +2497,11 @@ class InvoiceController extends Controller{
 
         //Asiento contable:
         //1. Pedido de la factura:
-        $order = Order::select('id', 'provider_id', 'customer_id')->find($invoice->order_id);
+        //1.1. Los abonos dejan el pedido abierto de nuevo.
+        if($order->blocked == 1){
+            $order->blocked = false;
+            $order->save();
+        }
 
         //2. Líneas del asiento contable:
         $seat_lines = [];

@@ -8,6 +8,7 @@
         "php": "^7.3|^8.0",
         "andreaselia/laravel-api-to-postman": "^1.13",
         "barryvdh/laravel-dompdf": "^0.9.0",
+        "darkaonline/l5-swagger": "^8.6",
         "doctrine/dbal": "^3.5",
         "fruitcake/laravel-cors": "^3.0",
         "guzzlehttp/guzzle": "^7.5",

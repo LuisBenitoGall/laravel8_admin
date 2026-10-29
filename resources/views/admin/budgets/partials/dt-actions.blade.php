@@ -16,7 +16,7 @@
 @can('budgets.destroy')
 	{{-- Eliminar --}}
 	@if($row->provider_id == session('currentCompany'))
-		<form method="POST" action="budgets/{{ $row->id }}" class="frm-inline" role="form" accept-charset="UTF-8">
+		<form method="POST" action="{{ route('budgets.destroy', $row->id) }}" class="frm-inline" role="form" accept-charset="UTF-8">
 		    <input name="_method" type="hidden" value="DELETE">
 		    {{ csrf_field() }}
 		    <button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="{{ ucfirst(trans('textos.eliminar')) }}" data-msg="{{ ucfirst(trans('textos.presupuesto_confirm_eliminar')) }}"><i class="fa fa-trash"></i></button>

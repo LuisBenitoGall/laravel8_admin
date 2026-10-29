@@ -92,6 +92,7 @@
         {{-- Columnas --}}
         @php
         $columns = [
+            ['id', 'text-center wdt50'],
             ['proveedor', 'wdt100'],
             ['cliente', 'wdt100'],
             ['cliente_final', 'wdt100'],
@@ -186,6 +187,7 @@ $(function(){
                 }
             },
             columns: [
+                {data: 'id', name: "orders.id", className: 'text-right'},
                 {data: 'provider', name: "cp.name"},
                 {data: 'customer', name: "cc.name"},
                 {data: 'final_customer', name: "cfc.name"},

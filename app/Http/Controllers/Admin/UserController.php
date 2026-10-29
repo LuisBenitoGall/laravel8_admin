@@ -134,7 +134,13 @@ class UserController extends Controller{
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(){
+    public function index(Request $request){
+        $status = 1;
+
+        if(!empty($request->all())){
+            $status = $request->status? $request->status:'';            
+        }
+
         $header = [
             'option' => $this->option,
             'suboption' => trans('textos.usuarios_empresa'),
@@ -146,7 +152,7 @@ class UserController extends Controller{
 
         $all = false;
 
-        return view('admin.users.index')->with(compact('header', 'view', 'all'));
+        return view('admin.users.index')->with(compact('header', 'status', 'view', 'all'));
     }
 
     /**
@@ -160,29 +166,38 @@ class UserController extends Controller{
             'slug' => 'users-all'
         ];
 
+        $status = 1;
+
         $users = User::all();
 
         $view = 'list';
 
         $all = true;
 
-        return view('admin.users.index')->with(compact('header', 'users', 'view', 'all'));
+        return view('admin.users.index')->with(compact('header', 'status', 'users', 'view', 'all'));
     }
 
     /**
      * 1.2. Listado de usuarios para DataTable.
      */
-    public function getUsersDT($all = false){
-        $query = User::with('phones')->select('users.*', 'user_companies.categories',
+    public function getUsersDT($all = false, $status = false){
+        $st = $status != 't'? $status:false;
+
+        $data = User::with('phones')->select('users.*', 'user_companies.categories',
             DB::raw('(SELECT image FROM user_images WHERE user_id = users.id AND featured = 1) AS Image')
             )
-        ->join('user_companies', 'users.id', '=', 'user_companies.user_id');
-        if(!$all){
-            $query->where('user_companies.company_id', session('currentCompany'));
-        }
-        $query->groupBy('users.id')
+        ->join('user_companies', 'users.id', '=', 'user_companies.user_id')
+        ->leftJoin('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')
+        ->leftJoin('roles', 'model_has_roles.role_id', '=', 'roles.id')
+        ->when($all && $all != 'all', function($q) {
+            return $q->where('user_companies.company_id', session('currentCompany'));
+        })
+        ->when($st, function($q) use($st){
+            $st = $st == "1"? 1:'0';
+            return $q->where('users.status', $st);
+        })
+        ->groupBy('users.id')
         ->orderBy('users.name');
-        $data = $query;
 
         return DataTables::of($data)
         ->addColumn('user', function($row){
@@ -209,18 +224,28 @@ class UserController extends Controller{
             }
             return $phones;
         })
-        ->addColumn('categories', function($row){
-            $categories = '';
-            if($row->categories){
-                $arr = explode(',', $row->categories);
-                $obj_categories = Category::whereIn('id', $arr)
-                ->pluck('name')
-                ->toArray();
+        // ->addColumn('categories', function($row){
+        //     $categories = '';
+        //     if($row->categories){
+        //         $arr = explode(',', $row->categories);
+        //         $obj_categories = Category::whereIn('id', $arr)
+        //         ->pluck('name')
+        //         ->toArray();
 
-                $categories = implode(', ', $obj_categories);
+        //         $categories = implode(', ', $obj_categories);
+        //     }
+
+        //     return $categories;
+        // })
+        ->addColumn('roles', function($row){
+            $roles = $row->getRoleNames()->first();
+
+            if (strpos($roles, '/') !== false) {
+                // Si contiene '/', separa y devuelve solo la parte derecha
+                $roles = explode('/', $roles)[1];
             }
 
-            return $categories;
+            return ucfirst($roles);
         })
         ->addColumn('image', function($row){
             if($row->Image){
@@ -790,10 +815,27 @@ class UserController extends Controller{
 
         $user = User::find($userId);
 
-        $from = $request->from != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->from):$request->from:Date('Y-m-d');
+        $from = session('timetables_from', date('Y-m-d'));
+        if ($request->from != '') {
+            $from = session()->get('locale') != 'en'
+                ? helpers::convertFecha($request->from)
+                : $request->from;
+            //session(['timetables_from' => $from]);
+        }
+
+        // $from = $request->from != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->from):$request->from:(session('timetables_from')? session('timetables_from'):Date('Y-m-d'));
         //La fecha 'desde' se manipula si viene de un registro creado manualmente o editado por el administrador:
-        $from = $add_register? $add_register:$from;
-        $to = $request->to != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->to):$request->to:Date('Y-m-d');
+        //$from = $add_register? $add_register:$from;
+
+        $to = session('timetables_to', date('Y-m-d'));
+        if ($request->to != '') {
+            $to = session()->get('locale') != 'en'
+                ? helpers::convertFecha($request->to)
+                : $request->to;
+            //session(['timetables_to' => $to]);
+        }
+
+        // $to = $request->to != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->to):$request->to:(session('timetables_to')? session('timetables_to'):Date('Y-m-d'));
         //La fecha fin no puede ser posterior a la fecha actual:
         $to = $to > date('Y-m-d')? date('Y-m-d'):$to;
 

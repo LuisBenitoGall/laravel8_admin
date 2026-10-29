@@ -3,6 +3,7 @@
 @section('content')
 
 <input type="hidden" id="all" value="{{ $all }}">
+<input type="hidden" id="usersStatus" value="{{ $status }}">
 
 <div class="row mb-3">
 	<div class="col-12">
@@ -17,6 +18,11 @@
 	</div>
 </div>
 
+{{-- Formulario filtro --}}
+@if(!$all)
+    @include('admin.users.partials.form-filter')
+@endif
+
 {{-- Vista listado --}}
 <div class="row">
 	<div class="table-responsive toggle-view-list">
@@ -28,7 +34,8 @@
 					<th class="text-center">{!! ucfirst(trans('textos.fecha_alta')) !!}</th>
 					<th>{!! ucfirst(trans('textos.email')) !!}</th>
 					<th>{!! ucfirst(trans('textos.telefonos')) !!}</th>
-					<th>{!! ucfirst(trans('textos.categorias')) !!}</th>
+					{{-- <th>{!! ucfirst(trans('textos.categorias')) !!}</th> --}}
+                    <th>{!! ucfirst(trans('textos.role')) !!}</th>
 					<th class="text-center wdt100">{!! ucfirst(trans('textos.imagen')) !!}</th>
 					<th class="text-center">{!! ucfirst(trans('textos.acciones')) !!}</th>
 				</tr>
@@ -92,7 +99,8 @@ $(function(){
     if($('#tblUsers').length > 0){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
         var all = $('#all').val();
-        var method = all? '/all':'';
+        var status = $('#usersStatus').val() && $('#usersStatus').val() != ''? $('#usersStatus').val():false;
+        var method = all? 'all':'x';
 
         //Filters:
         // Load data from localstorage
@@ -163,7 +171,7 @@ $(function(){
             },
             ajax: {
                 "type": "GET",
-                "url": "/api/admin/users"+method,
+                "url": "/api/admin/users/"+method+"/"+status,
                 "error": function(reason){
                     console.log(reason);
                 }
@@ -174,7 +182,7 @@ $(function(){
                 {data: 'alta', name: "users.created_at", className: 'text-right'},
                 {data: 'email', name: "users.email"},
                 {data: 'phones', name: "phones.phone_number"},
-                {data: 'categories'},
+                {data: 'roles', name: "roles.name"},
                 {data: 'image', className: 'text-center'},
                 {data: 'acciones', name: "users.id", className: 'text-right'}
             ],

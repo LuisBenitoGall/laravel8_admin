@@ -71,29 +71,31 @@ class AdminController extends Controller{
     
 
         //Quizzes activos:
-        $quizzes = QuizEditions::select('quiz_editions.id', 'quiz_editions.name', 'quiz_editions.description', 'quiz_editions.start', 'quiz_editions.finish')
-        ->join('quiz_edition_companies', 'quiz_editions.id', '=', 'quiz_edition_companies.quiz_edition_id')
-        ->join('quizzes', 'quiz_editions.quiz_id', '=', 'quizzes.id')
-        ->where('quiz_editions.status', 1)
-        ->where('quizzes.status', 1)
-        ->where('quiz_edition_companies.company_id', session('currentCompany'))
-        ->get();
+        $quizzes = false;
+        // $quizzes = QuizEditions::select('quiz_editions.id', 'quiz_editions.name', 'quiz_editions.description', 'quiz_editions.start', 'quiz_editions.finish')
+        // ->join('quiz_edition_companies', 'quiz_editions.id', '=', 'quiz_edition_companies.quiz_edition_id')
+        // ->join('quizzes', 'quiz_editions.quiz_id', '=', 'quizzes.id')
+        // ->where('quiz_editions.status', 1)
+        // ->where('quizzes.status', 1)
+        // ->where('quiz_edition_companies.company_id', session('currentCompany'))
+        // ->get();
 
         //Recomendaciones:
-        $recommendation = UserRecommendation::select('user_recommendations.*', 'users.name', 'users.surname')
-        ->join('users', 'user_recommendations.user_id', '=', 'users.id')
-        ->where('user_recommendations.status', 1)
-        ->where('user_recommendations.published_at', '>=', Carbon::today()->format('Y-m-d 00:00:00'))
-        ->where('user_recommendations.published_end', '<=', Carbon::today()->format('Y-m-d 23:59:59'))
-        ->first();
+        $recommendation = false;
+        // $recommendation = UserRecommendation::select('user_recommendations.*', 'users.name', 'users.surname')
+        // ->join('users', 'user_recommendations.user_id', '=', 'users.id')
+        // ->where('user_recommendations.status', 1)
+        // ->where('user_recommendations.published_at', '>=', Carbon::today()->format('Y-m-d 00:00:00'))
+        // ->where('user_recommendations.published_end', '<=', Carbon::today()->format('Y-m-d 23:59:59'))
+        // ->first();
 
         //Votos de las recomendaciones:
         $votes = false;
-        if($recommendation){
-            $votes = UserRecommendationVote::where('user_id', Auth::user()->id)
-            ->where('recommendation_id', $recommendation->id)
-            ->first();
-        }
+        // if($recommendation){
+        //     $votes = UserRecommendationVote::where('user_id', Auth::user()->id)
+        //     ->where('recommendation_id', $recommendation->id)
+        //     ->first();
+        // }
 
         return view('admin.dashboard', compact('header', 'preferences', 'quizzes', 'recommendation', 'votes'));
     }

@@ -152,7 +152,7 @@ $(function(){
                 {data: 'amount', name: 'amount', className: 'text-right'},
                 // {data: 'modalidad', name: 'modalidad'},
                 {data: 'alta', name: 'orders.created_at', className: 'text-right'},
-                {data: 'company', name: 'companies.name', "defaultContent": ""},
+                {data: 'company', name: 'company', searchable: true, "defaultContent": ""},
                 {data: 'final_customer', name: 'c_.name', "defaultContent": ""},
                 {data: 'estado', name: 'orders.budget_status'},
                 {data: 'acciones', name: 'acciones', orderable: false, searchable: false, className: 'text-right'}

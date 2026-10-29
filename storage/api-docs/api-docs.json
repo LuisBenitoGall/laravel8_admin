@@ -1,0 +1,590 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "ADN ERP API Documentation",
+        "description": "Documentación de la API de ADN ERP",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "https://laravel8_admin.test/api/v1",
+            "description": "Servidor local"
+        },
+        {
+            "url": "https://laravel8_admin.test/api/v1",
+            "description": "Servidor local"
+        },
+        {
+            "url": "/api/v1"
+        }
+    ],
+    "paths": {
+        "/companies/{company}/products": {
+            "get": {
+                "tags": [
+                    "Productos"
+                ],
+                "summary": "Obtener lista de productos por empresa",
+                "operationId": "2a7dada8e9f939743dbc3c5ada2d5139",
+                "parameters": [
+                    {
+                        "name": "company",
+                        "in": "path",
+                        "description": "ID de la compañía de la cual se quieren listar los productos",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Listado de productos devuelto correctamente",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Producto"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Compañía no encontrada"
+                    }
+                }
+            }
+        },
+        "/api/v1/products": {
+            "post": {
+                "tags": [
+                    "Productos"
+                ],
+                "summary": "Crear un nuevo producto",
+                "operationId": "c42372551809b54ed9829880ca18d93b",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ProductoCreateRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Producto creado correctamente",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Producto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/items/providers": {
+            "get": {
+                "tags": [
+                    "Líneas de pedido"
+                ],
+                "summary": "Obtener líneas de pedidos filtradas por uno o más company_id",
+                "operationId": "fea1c7b15750ba81addad2093742c82d",
+                "parameters": [
+                    {
+                        "name": "company_ids",
+                        "in": "query",
+                        "description": "IDs de las compañías, separados por comas. Ejemplo: `?company_ids=1,2,3`",
+                        "required": true,
+                        "style": "form",
+                        "explode": false,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer",
+                                "format": "int64",
+                                "example": 4
+                            }
+                        }
+                    },
+                    {
+                        "name": "start_date",
+                        "in": "query",
+                        "description": "Fecha de inicio para filtrar (YYYY-MM-DD)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2025-02-01"
+                        }
+                    },
+                    {
+                        "name": "end_date",
+                        "in": "query",
+                        "description": "Fecha de fin para filtrar (YYYY-MM-DD)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2025-06-30"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Listado de items devuelto correctamente",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Items"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No se encontraron líneas para los company_id indicados"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Items": {
+                "title": "Items",
+                "description": "Esquema de líneas de pedido por pedidos y proveedor",
+                "properties": {
+                    "id": {
+                        "description": "ID único de la línea de pedido",
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 1
+                    },
+                    "provider": {
+                        "description": "Nombre del proveedor",
+                        "type": "string",
+                        "example": "ADN COM"
+                    },
+                    "customer": {
+                        "description": "Nombre del cliente",
+                        "type": "string",
+                        "example": "ACME"
+                    },
+                    "final_customer": {
+                        "description": "Nombre del cliente final",
+                        "type": "string",
+                        "example": "ACME"
+                    },
+                    "is_order": {
+                        "description": "Línea de pedido",
+                        "type": "string",
+                        "example": ""
+                    },
+                    "is_budget": {
+                        "description": "Línea de presupuesto",
+                        "type": "string",
+                        "example": ""
+                    },
+                    "budget_num": {
+                        "description": "Número de presupuesto",
+                        "type": "string",
+                        "example": "Nº presupuesto"
+                    },
+                    "order_num": {
+                        "description": "Número de pedido",
+                        "type": "string",
+                        "example": "Nº pedido"
+                    },
+                    "order_title": {
+                        "description": "Título del pedido",
+                        "type": "string",
+                        "example": "Título del pedido"
+                    },
+                    "created_at": {
+                        "description": "Fecha de creación",
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-06-01T12:00:00Z"
+                    },
+                    "accepted_date": {
+                        "description": "Fecha de aceptación",
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-06-01T12:00:00Z"
+                    },
+                    "delivery_date": {
+                        "description": "Fecha de entrega",
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-06-01T12:00:00Z"
+                    },
+                    "provider_manager": {
+                        "description": "Manager del proveedor",
+                        "type": "string",
+                        "example": "Nombre + Apellidos"
+                    },
+                    "commercial": {
+                        "description": "Comercial",
+                        "type": "string",
+                        "example": "Nombre + Apellidos"
+                    },
+                    "customer_manager": {
+                        "description": "Manager del cliente",
+                        "type": "string",
+                        "example": "Nombre + Apellidos"
+                    },
+                    "final_customer_manager": {
+                        "description": "Manager del cliente final",
+                        "type": "string",
+                        "example": "Nombre + Apellidos"
+                    },
+                    "product": {
+                        "description": "Nombre del producto",
+                        "type": "string",
+                        "example": "Producto"
+                    },
+                    "concept": {
+                        "description": "Concepto del producto",
+                        "type": "string",
+                        "example": "Concepto"
+                    },
+                    "qty": {
+                        "description": "Cantidad pedida",
+                        "type": "number",
+                        "format": "float",
+                        "example": 1
+                    },
+                    "price": {
+                        "description": "Precio unitario en el momento del pedido",
+                        "type": "number",
+                        "format": "float",
+                        "example": 19.99
+                    },
+                    "iva": {
+                        "description": "IVA",
+                        "type": "number",
+                        "format": "float",
+                        "example": "21%"
+                    },
+                    "subtotal": {
+                        "description": "Cantidad * Precio unitario",
+                        "type": "number",
+                        "format": "float",
+                        "example": 19.99
+                    },
+                    "billable_percentage": {
+                        "description": "Porcentaje facturable",
+                        "type": "number",
+                        "format": "float",
+                        "example": "60%"
+                    },
+                    "provider_cost_center": {
+                        "description": "Centro coste proveedor",
+                        "type": "string",
+                        "example": "Centro coste proveedor"
+                    }
+                },
+                "type": "object"
+            },
+            "Producto": {
+                "title": "Producto",
+                "description": "Esquema de un producto perteneciente a una compañía",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "company_id": {
+                        "description": "ID de la compañía a la que pertenece",
+                        "type": "integer",
+                        "example": 45
+                    },
+                    "name": {
+                        "description": "Nombre del producto",
+                        "type": "string",
+                        "example": "Producto A"
+                    },
+                    "slug": {
+                        "description": "Slug del producto",
+                        "type": "string",
+                        "example": "producto-a"
+                    },
+                    "ref": {
+                        "description": "Referencia interna",
+                        "type": "string",
+                        "example": "REF123"
+                    },
+                    "manual_ref": {
+                        "description": "Referencia manual",
+                        "type": "string",
+                        "example": "MANUAL-REF"
+                    },
+                    "translations": {
+                        "description": "Datos de traducciones",
+                        "type": "string",
+                        "example": "Traducciones disponibles"
+                    },
+                    "tags": {
+                        "description": "Etiquetas asociadas",
+                        "type": "string",
+                        "example": "etiqueta1,etiqueta2"
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "Descripción breve del producto"
+                    },
+                    "long_description": {
+                        "type": "string",
+                        "example": "Descripción detallada del producto"
+                    },
+                    "type": {
+                        "description": "Tipo de producto",
+                        "type": "string",
+                        "example": "A"
+                    },
+                    "price": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 9.99
+                    },
+                    "calculated_by_percent": {
+                        "description": "Precio calculado por porcentaje",
+                        "type": "number",
+                        "format": "float",
+                        "example": 5.5
+                    },
+                    "iva": {
+                        "description": "IVA aplicado",
+                        "type": "number",
+                        "format": "float",
+                        "example": 21
+                    },
+                    "batch": {
+                        "description": "Indica si se vende en lote",
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "stock_management": {
+                        "description": "Gestión de stock habilitada",
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "on_sale": {
+                        "description": "Indica si está en oferta",
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "status": {
+                        "description": "Estado del producto",
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "user_id": {
+                        "description": "ID del usuario que creó el producto",
+                        "type": "integer",
+                        "example": 5
+                    },
+                    "product_pattern_id": {
+                        "description": "ID del patrón de producto",
+                        "type": "integer",
+                        "example": 2
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-01-15T10:30:00Z"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-05-20T14:00:00Z"
+                    }
+                },
+                "type": "object"
+            },
+            "ProductoCreateRequest": {
+                "title": "ProductoCreateRequest",
+                "required": [
+                    "name",
+                    "slug",
+                    "price",
+                    "batch",
+                    "stock_management",
+                    "on_sale",
+                    "status",
+                    "user_id",
+                    "product_pattern_id"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "example": "Producto A"
+                    },
+                    "slug": {
+                        "type": "string",
+                        "example": "producto-a"
+                    },
+                    "ref": {
+                        "type": "string",
+                        "example": "REF123"
+                    },
+                    "manual_ref": {
+                        "type": "string",
+                        "example": "MANUAL-REF"
+                    },
+                    "translations": {
+                        "type": "string",
+                        "example": "Traducciones disponibles"
+                    },
+                    "tags": {
+                        "type": "string",
+                        "example": "etiqueta1,etiqueta2"
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "Descripción breve del producto"
+                    },
+                    "long_description": {
+                        "type": "string",
+                        "example": "Descripción detallada del producto"
+                    },
+                    "type": {
+                        "type": "string",
+                        "example": "A"
+                    },
+                    "price": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 9.99
+                    },
+                    "calculated_by_percent": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 5.5
+                    },
+                    "iva": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 21
+                    },
+                    "batch": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "stock_management": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "on_sale": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "status": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "user_id": {
+                        "type": "integer",
+                        "example": 5
+                    },
+                    "product_pattern_id": {
+                        "type": "integer",
+                        "example": 2
+                    }
+                },
+                "type": "object"
+            },
+            "ProductoUpdateRequest": {
+                "title": "ProductoUpdateRequest",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "example": "Producto A Modificado"
+                    },
+                    "slug": {
+                        "type": "string",
+                        "example": "producto-a-modificado"
+                    },
+                    "ref": {
+                        "type": "string",
+                        "example": "REF456"
+                    },
+                    "manual_ref": {
+                        "type": "string",
+                        "example": "MANUAL-REF-2"
+                    },
+                    "translations": {
+                        "type": "string",
+                        "example": "Traducciones actualizadas"
+                    },
+                    "tags": {
+                        "type": "string",
+                        "example": "etiqueta3,etiqueta4"
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "Descripción actualizada"
+                    },
+                    "long_description": {
+                        "type": "string",
+                        "example": "Descripción detallada actualizada"
+                    },
+                    "type": {
+                        "type": "string",
+                        "example": "B"
+                    },
+                    "price": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 12.5
+                    },
+                    "calculated_by_percent": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 7
+                    },
+                    "iva": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 18
+                    },
+                    "batch": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "stock_management": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "on_sale": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "status": {
+                        "type": "integer",
+                        "example": 2
+                    }
+                },
+                "type": "object"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Productos",
+            "description": "Endpoints para gestionar productos de una compañía"
+        },
+        {
+            "name": "Líneas de pedido",
+            "description": "Líneas de pedido"
+        }
+    ]
+}

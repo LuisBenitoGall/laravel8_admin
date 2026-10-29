@@ -18,6 +18,7 @@ return [
     'ANSWER_TYPE_BOOLEAN_' => 10,
     'ANSWER_TYPE_BY_POINTS_' => 20,
     'BASIC_TIMETABLE_ITEMS_' => false,          //Marca si se pueden utilizar las opciones básicas de fichajes para móvil.
+    'BILLABLE_PERCENTAGE_DEFAULT_' => 60,
     'BUDGET_GENERIC_BLOCK_' => 'bloque',
     'BUDGET_ITEM_ID_DEFAULT_' => 1,
     'BUDGET_BASIC_MODALITY_' => 1,
@@ -44,6 +45,7 @@ return [
     'CURRENCY_' => '€',
     'CURRENCY_NAME_' => 'EUR',
     'DATE_NULL_' => '0000-00-00',
+    'DECIMALS_SALES_' => 2,
     'DELIVERY_STATUS_PREPARATION_' => 1,
     'EFFECT_STATUS_PENDENT_' => 1,
     'EFFECT_STATUS_REMITTANCE_' => 10,

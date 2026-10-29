@@ -8,7 +8,11 @@ $agent = new Agent();
 
 // Control horario:
 $controller = new App\Http\Controllers\Controller;
-$setTimetable = $controller->settedModule('timetables');
+//17/03/25: bloque temporal.
+//$setTimetable = $controller->settedModule('timetables');
+$setTimetable = false;
+$options_lang = true;
+$options_top_menu = true;
 
 // Idiomas:
 $languages = App\Helpers\helpers::languages();
@@ -339,187 +343,191 @@ if(!$initial_imports->value){
                 @endif
 
                 {{-- Selector idioma --}}
-                @if(count($languages) > 1)
+                @if($options_lang)
+                    @if(count($languages) > 1)
+                        <li class="dropdown">
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="javascript:void(0);" role="button"
+                               rel="tooltip" title="{{ ucfirst(trans('textos.idiomas')) }}">
+
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i class="fa fa-globe"></i>
+                                        <span class="current-idm">{{ (session()->get('locale') != NULL)? session()->get('locale'):App::getLocale() }}</span>
+                                    </div>
+                                    <span class="d-block d-md-none">{{ ucfirst(trans('textos.idiomas')) }}</span>
+                                </div>
+                            </a>
+
+                            <ul class="dropdown-menu dropdown-alerts">
+                                <li class="dm-header">
+                                    {!! ucfirst(trans('textos.lenguajes')) !!}
+                                </li>
+
+                                @php
+                                $divider = 0;
+                                @endphp
+
+                                @foreach($languages as $lang)
+                                    @if($lang[0] != App::getLocale() && $lang[5])
+                                        @if($divider > 0)
+                                            <li class="dropdown-divider"></li>
+                                        @endif
+                                        <li>
+                                            <a href="{!! route('locale', $lang[0]) !!}">
+                                                {!! $lang[3] !!}
+                                            </a>
+                                        </li>
+
+                                        @php
+                                            $divider++;
+                                        @endphp
+                                    @endif
+                                @endforeach
+                            </ul>
+                        </li>
+                    @endif
+                @endif
+
+                @if($options_top_menu)
+                    {{-- Notificaciones --}}
+                    <li class="dropdown position-relative">
+                        <a class="dropdown-toggle count-info" data-toggle="dropdown" href="javascript:void(0);"
+                           role="button" rel="tooltip" title="{{ ucfirst(trans('textos.notificaciones')) }}">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <i class="fa fa-bell"></i>
+                                <span class="d-block d-md-none">{{ ucfirst(trans('textos.notificaciones')) }}</span>
+                            </div>
+                            {{--   <span class="label label-danger" id="notificationsQty"
+                                   @if(Auth::user()->unreadNotifications()->count() == 0) style="display:none;" @endif>
+                                   {{ Auth::user()->unreadNotifications()->count() }}
+                               </span>--}}
+                        </a>
+
+                        <ul class="dropdown-menu dropdown-alerts">
+                            <li class="dm-header">
+                                {!! ucfirst(trans('textos.notificaciones')) !!}
+                            </li>
+
+                            {{--@php
+                            //Mostramos un máximo de 5
+                            $i = 1;
+                            @endphp
+
+                            @forelse(auth()->user()->unreadNotifications as $notification)
+                                @if($i <= 5)
+                                    <li class="notification_">
+                                        <a href="{!! route('notifications.show', $notification->id) !!}">
+                                            <i class="fa fa-envelope"></i>
+                                            {!! $notification->data['title'] !!}
+
+                                            <small class="text-warning pull-right">{!! $notification->created_at->diffForHumans() !!}</small>
+                                        </a>
+                                    </li>
+                                @endif
+
+                                @if($i == 5 && count(auth()->user()->unreadNotifications) > 5)
+                                    <li class="notification_">
+                                        <a href="{!! route('notifications.index') !!}">
+                                            <i class="fa fa-envelope"></i>
+                                            ...
+                                        </a>
+                                @endif
+
+                                @php
+                                $i++;
+                                @endphp
+
+                            @empty
+                                <li class="notify-item" id="withoutNotifications">
+                                    <span class="special-span">{{ trans('textos.notificaciones_no_nuevas') }}</span>
+
+                                    <a href="{{ route('notifications-reload') }}" rel="tooltip" title="{{ trans('textos.notificaciones_buscar') }}" class="co-link pull-right;">
+                                        <i class="fa fa-sync"></i>
+                                    </a>
+                                </li>
+                            @endforelse--}}
+
+                            <li class="notify-all">
+                                <a href="{!! route('notifications.index') !!}">
+                                    {{ ucfirst(trans('textos.ver_todo')) }}
+                                </a>
+                            </li>
+                            <li class="notify-all">
+                                <a href="{{ route('notifications-read') }}">
+                                    {{ ucfirst(trans('textos.notificaciones_marcar')) }}
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    {{-- Nueva notificación --}}
+                    <li>
+                        <a href="{{ route('messages.create') }}" role="button" rel="tooltip"
+                           title="{{ ucfirst(trans('textos.notificacion_nueva')) }}">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <i class="fa fa-paper-plane"></i>
+                                <span class="d-block d-md-none">{{ ucfirst(trans('textos.notificacion_nueva')) }}</span>
+                            </div>
+                        </a>
+                    </li>
+
+                    {{-- Notas --}}
                     <li class="dropdown">
-                        <a class="dropdown-toggle" data-toggle="dropdown" href="javascript:void(0);" role="button"
-                           rel="tooltip" title="{{ ucfirst(trans('textos.idiomas')) }}">
+                        <a href="#" role="button" class="count-info" rel="tooltip"
+                           title="{{ ucfirst(trans('textos.notas')) }}" data-toggle="modal" data-target="#modal-add-note">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <i class="fa fa-sticky-note"></i>
+                                <span class="d-block d-md-none">{{ ucfirst(trans('textos.notas')) }}</span>
+                                <span class="label label-warning" id="notesQty">
+                                    {{ optional(Auth::user())->notes()  ?? 0}}
+                                </span>
+                            </div>
+                        </a>
+                    </li>
+
+                    {{-- Chat --}}
+                    <li class="dropdown">
+                        <a href="{{ route('chat.index') }}" role="button" class="count-info" rel="tooltip"
+                           title="{{ ucfirst(trans('textos.chat')) }}">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <i class="fa fa-comments"></i>
+                                <span class="d-block d-md-none">{{ ucfirst(trans('textos.chat')) }}</span>
+                                <span class="label label-success" id="chat-messages-num">
+                                </span>
+                            </div>
+                        </a>
+                    </li>
+
+                    {{-- Preferencias --}}
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="false"
+                           aria-expanded="false" rel="tooltip" title="{{ ucfirst(trans('textos.opciones_preferidas')) }}">
 
                             <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <i class="fa fa-globe"></i>
-                                    <span class="current-idm">{{ (session()->get('locale') != NULL)? session()->get('locale'):App::getLocale() }}</span>
-                                </div>
-                                <span class="d-block d-md-none">{{ ucfirst(trans('textos.idiomas')) }}</span>
+                                <i class="fa fa-bookmark"></i>
+                                <span class="d-block d-md-none">{{ ucfirst(trans('textos.opciones_preferidas')) }}</span>
                             </div>
                         </a>
 
                         <ul class="dropdown-menu dropdown-alerts">
                             <li class="dm-header">
-                                {!! ucfirst(trans('textos.lenguajes')) !!}
+                                {!! trans('textos.opciones_preferidas') !!}
                             </li>
 
-                            @php
-                                $divider = 0;
-                            @endphp
+                            <li class="p-3">
+                                <form method="post" action="#" id="frm_preference" role="form">
+                                    {{ csrf_field() }}
+                                    <input type="hidden" name="url" value="{!! url()->full() !!}">
 
-                            @foreach($languages as $lang)
-                                @if($lang[0] != App::getLocale() && $lang[5])
-                                    @if($divider > 0)
-                                        <li class="dropdown-divider"></li>
-                                    @endif
-                                    <li>
-                                        <a href="{!! route('locale', $lang[0]) !!}">
-                                            {!! $lang[3] !!}
-                                        </a>
-                                    </li>
-
-                                    @php
-                                        $divider++;
-                                    @endphp
-                                @endif
-                            @endforeach
+                                    <input type="text" name="name" id="preferenceName" class="form-control">
+                                    <small class="text-warning">
+                                        {!! trans('textos.guarda_pantalla') !!}
+                                    </small>
+                                </form>
+                            </li>
                         </ul>
                     </li>
                 @endif
-
-                {{-- Notificaciones --}}
-                <li class="dropdown position-relative">
-                    <a class="dropdown-toggle count-info" data-toggle="dropdown" href="javascript:void(0);"
-                       role="button" rel="tooltip" title="{{ ucfirst(trans('textos.notificaciones')) }}">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <i class="fa fa-bell"></i>
-                            <span class="d-block d-md-none">{{ ucfirst(trans('textos.notificaciones')) }}</span>
-                        </div>
-                        {{--   <span class="label label-danger" id="notificationsQty"
-                               @if(Auth::user()->unreadNotifications()->count() == 0) style="display:none;" @endif>
-                               {{ Auth::user()->unreadNotifications()->count() }}
-                           </span>--}}
-                    </a>
-
-                    <ul class="dropdown-menu dropdown-alerts">
-                        <li class="dm-header">
-                            {!! ucfirst(trans('textos.notificaciones')) !!}
-                        </li>
-
-                        {{--@php
-                        //Mostramos un máximo de 5
-                        $i = 1;
-                        @endphp
-
-                        @forelse(auth()->user()->unreadNotifications as $notification)
-                            @if($i <= 5)
-                                <li class="notification_">
-                                    <a href="{!! route('notifications.show', $notification->id) !!}">
-                                        <i class="fa fa-envelope"></i>
-                                        {!! $notification->data['title'] !!}
-
-                                        <small class="text-warning pull-right">{!! $notification->created_at->diffForHumans() !!}</small>
-                                    </a>
-                                </li>
-                            @endif
-
-                            @if($i == 5 && count(auth()->user()->unreadNotifications) > 5)
-                                <li class="notification_">
-                                    <a href="{!! route('notifications.index') !!}">
-                                        <i class="fa fa-envelope"></i>
-                                        ...
-                                    </a>
-                            @endif
-
-                            @php
-                            $i++;
-                            @endphp
-
-                        @empty
-                            <li class="notify-item" id="withoutNotifications">
-                                <span class="special-span">{{ trans('textos.notificaciones_no_nuevas') }}</span>
-
-                                <a href="{{ route('notifications-reload') }}" rel="tooltip" title="{{ trans('textos.notificaciones_buscar') }}" class="co-link pull-right;">
-                                    <i class="fa fa-sync"></i>
-                                </a>
-                            </li>
-                        @endforelse--}}
-
-                        <li class="notify-all">
-                            <a href="{!! route('notifications.index') !!}">
-                                {{ ucfirst(trans('textos.ver_todo')) }}
-                            </a>
-                        </li>
-                        <li class="notify-all">
-                            <a href="{{ route('notifications-read') }}">
-                                {{ ucfirst(trans('textos.notificaciones_marcar')) }}
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-
-                {{-- Nueva notificación --}}
-                <li>
-                    <a href="{{ route('messages.create') }}" role="button" rel="tooltip"
-                       title="{{ ucfirst(trans('textos.notificacion_nueva')) }}">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <i class="fa fa-paper-plane"></i>
-                            <span class="d-block d-md-none">{{ ucfirst(trans('textos.notificacion_nueva')) }}</span>
-                        </div>
-                    </a>
-                </li>
-
-                {{-- Notas --}}
-                <li class="dropdown">
-                    <a href="#" role="button" class="count-info" rel="tooltip"
-                       title="{{ ucfirst(trans('textos.notas')) }}" data-toggle="modal" data-target="#modal-add-note">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <i class="fa fa-sticky-note"></i>
-                            <span class="d-block d-md-none">{{ ucfirst(trans('textos.notas')) }}</span>
-                            <span class="label label-warning" id="notesQty">
-                                {{ optional(Auth::user())->notes()  ?? 0}}
-                            </span>
-                        </div>
-                    </a>
-                </li>
-
-                {{-- Chat --}}
-                <li class="dropdown">
-                    <a href="{{ route('chat.index') }}" role="button" class="count-info" rel="tooltip"
-                       title="{{ ucfirst(trans('textos.chat')) }}">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <i class="fa fa-comments"></i>
-                            <span class="d-block d-md-none">{{ ucfirst(trans('textos.chat')) }}</span>
-                            <span class="label label-success" id="chat-messages-num">
-                            </span>
-                        </div>
-                    </a>
-                </li>
-
-                {{-- Preferencias --}}
-                <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="false"
-                       aria-expanded="false" rel="tooltip" title="{{ ucfirst(trans('textos.opciones_preferidas')) }}">
-
-                        <div class="d-flex justify-content-between align-items-center">
-                            <i class="fa fa-bookmark"></i>
-                            <span class="d-block d-md-none">{{ ucfirst(trans('textos.opciones_preferidas')) }}</span>
-                        </div>
-                    </a>
-
-                    <ul class="dropdown-menu dropdown-alerts">
-                        <li class="dm-header">
-                            {!! trans('textos.opciones_preferidas') !!}
-                        </li>
-
-                        <li class="p-3">
-                            <form method="post" action="#" id="frm_preference" role="form">
-                                {{ csrf_field() }}
-                                <input type="hidden" name="url" value="{!! url()->full() !!}">
-
-                                <input type="text" name="name" id="preferenceName" class="form-control">
-                                <small class="text-warning">
-                                    {!! trans('textos.guarda_pantalla') !!}
-                                </small>
-                            </form>
-                        </li>
-                    </ul>
-                </li>
 
                 {{-- Selector de empresa: desde algunas páginas no se puede cambiar de empresa --}}
                 @if(session('companies'))

@@ -203,7 +203,7 @@ class BudgetController extends Controller{
     /**
      * 1. Presupuestos por empresa.
      */
-    public function index(){
+    public function index($budget_from = false){
         $header = [
             'option' => $this->option,
             'suboption' => 'textos.presupuestos_mis',
@@ -211,7 +211,7 @@ class BudgetController extends Controller{
             'slug' => 'budgets'
         ];
 
-        $budget_from = 'customers';
+        $budget_from = $budget_from? $budget_from:'customers';
 
         return view('admin.budgets.index')->with(compact('header', 'budget_from'));
     }
@@ -222,7 +222,7 @@ class BudgetController extends Controller{
     public function getBudgetsDT($from = false){
         //Presupuestos para cliente:
         if($from == 'customers'){
-            $query = Order::select('orders.id', 'orders.is_order', 'orders.discount', 'orders.customer_id', 'orders.provider_id', 'orders.budget_num', 'orders.budget_old_num', 'orders.name', 'orders.budget_status', 'orders.modality', 'orders.created_at', 'companies.name AS company', 'companies.tradename', 'orders.id AS orderId', 'orders.order_num','orders.invoiced', 'users.name AS nombre', 'users.surname', 'u_.name AS CustomerManagerName', 'u_.surname AS CustomerManagerSurname', 'c_.name AS final_customer')
+            $query = Order::select('orders.id', 'orders.is_order', 'orders.discount', 'orders.customer_id', 'orders.provider_id', 'orders.budget_num', 'orders.budget_old_num', 'orders.name', 'orders.budget_status', 'orders.modality', 'orders.created_at', 'companies.name AS company', 'companies.tradename', 'orders.id AS orderId', 'orders.order_num','orders.invoiced', 'users.name AS nombre', 'users.surname', 'u_.id AS customer_manager_id_', 'u_.name AS customer_manager_name', 'u_.surname AS customer_manager_surname', 'c_.name AS final_customer')
             ->join('companies', 'orders.customer_id', '=', 'companies.id')
             ->leftJoin('companies AS c_', 'orders.final_customer_id', '=', 'c_.id')
             ->leftJoin('users', 'orders.provider_manager_id', '=', 'users.id')
@@ -233,10 +233,11 @@ class BudgetController extends Controller{
         //Presupuestos de proveedor:
         // 1. Sólo presupuestos compartidos por el proveedor.
         }elseif($from == 'providers'){
-            $query = Order::select('orders.*', 'companies.name AS company', 'users.name As Nombre', 'users.surname', 'c_.name AS final_customer')
+            $query = Order::select('orders.*', 'companies.name AS company', 'users.name As Nombre', 'users.surname', 'c_.name AS final_customer', 'u_.id AS customer_manager_id_', 'u_.name AS customer_manager_name', 'u_.surname AS customer_manager_surname')
             ->join('companies', 'orders.provider_id', '=', 'companies.id')
             ->leftJoin('companies AS c_', 'orders.final_customer_id', '=', 'c_.id')
             ->leftJoin('users', 'orders.customer_manager_id', '=', 'users.id')
+            ->leftJoin('users AS u_', 'orders.customer_manager_id', '=', 'u_.id')
             ->where('orders.is_budget', true)
             ->where('orders.budget_shared', 1)
             ->where('orders.customer_id', session('currentCompany'));
@@ -294,14 +295,25 @@ class BudgetController extends Controller{
         })
         ->addColumn('company', function($row){
             $company = $row->company;
-            if($row->CustomerManagerName){
-                $company .= ' ('.$row->CustomerManagerName;
-                if($row->CustomerManagerSurname){
-                    $company .= ' '.$row->CustomerManagerSurname;
+            if($row->customer_manager_name){
+                $company .= ' ('.$row->customer_manager_name;
+                if($row->customer_manager_surname){
+                    $company .= ' '.$row->customer_manager_surname;
                 }
                 $company .= ')';
             }
             return $company;
+        })
+        ->filterColumn('company', function($query, $keyword){
+            $keyword = mb_strtolower($keyword, 'UTF-8');
+
+            $query->where(function($q) use ($keyword){
+                // Siempre filtra por nombre de empresa
+                $q->whereRaw("LOWER(companies.name) COLLATE utf8mb4_general_ci LIKE ?", ["%{$keyword}%"])
+                ->orWhereRaw("LOWER(u_.name) COLLATE utf8mb4_general_ci LIKE ?", ["%{$keyword}%"])
+                ->orWhereRaw("LOWER(u_.surname) COLLATE utf8mb4_general_ci LIKE ?", ["%{$keyword}%"])
+                ->orWhereRaw("LOWER(CONCAT(u_.name, ' ', u_.surname)) COLLATE utf8mb4_general_ci LIKE ?", ["%{$keyword}%"]);
+            });    
         })
         ->addColumn('final_customer', function($row){
             if($row->final_customer){
@@ -390,6 +402,19 @@ class BudgetController extends Controller{
         ->where('user_id', Auth::user()->id)
         ->first();
 
+        $workplaceId = false;
+        if($user_workplace){
+            $workplaceId = $user_workplace->id;   
+        }else{
+            $wk = Workplace::select('id')
+            ->where('company_id', session('currentCompany'))
+            ->where('featured', 1)
+            ->where('status', 1)
+            ->first();
+
+            if($wk) $workplaceId = $wk->id;
+        }
+
         //Cuenta contable de ventas del proveedor:
         $provider_accounting_account_default = AccountingAccount::select('id')
         ->where('company_id', session('currentCompany'))
@@ -403,7 +428,7 @@ class BudgetController extends Controller{
         $budget->customer_id = $request->customer_id;
         $budget->provider_id = session('currentCompany');
         $budget->provider_manager_id = Auth::user()->id;
-        $budget->provider_workplace_id = $user_workplace->workplace_id;
+        $budget->provider_workplace_id = $workplaceId;
         $budget->created_by = Auth::user()->id;
         $budget->discount = $cu_pr->discount;
         $budget->num_deadlines = $cu_pr->num_deadlines;
@@ -548,7 +573,16 @@ class BudgetController extends Controller{
         // }
         // 09/06/2023: se modifica la consulta para traer usuarios vinculados a la empresa, aunque no sean empleados.
         $provider_managers = UserCompanies::select(
-            DB::raw("CONCAT(users.name,' ',users.surname) AS user"), 'users.id')
+            DB::raw("
+                CONCAT(
+                    UPPER(LEFT(users.name, 1)),
+                    LOWER(SUBSTRING(users.name, 2)),
+                    ' ',
+                    UPPER(LEFT(users.surname, 1)),
+                    LOWER(SUBSTRING(users.surname, 2))
+                ) AS user
+            "),
+            'users.id')
         ->join('users', 'user_companies.user_id', '=', 'users.id')
         ->where('users.status', 1)
         ->where('users.isAdmin', 1)
@@ -914,15 +948,21 @@ class BudgetController extends Controller{
      * @param  str $order
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Order $order){
+    public function destroy(Request $request, Order $order){
         if($order->invoiced){
             $alert = trans('textos.pedido_facturado_aviso');
             return redirect()->route('budgets.edit', $order)->with(compact('alert'));
 
         }else{
-            //Actualizamos registro compartido:
-            $order->is_budget = false;
-            $order->save();
+            //Si no es pedido, se elimina por completo:
+            if(!$order->is_order){
+                $order->delete();
+
+            }else{
+                //Actualizamos registro compartido:
+                $order->is_budget = false;
+                $order->save();
+            }
 
             $msg = trans('textos.presupuesto_deleted');
             return redirect()->route('budgets.index')->with(compact('msg'));
@@ -1209,7 +1249,13 @@ class BudgetController extends Controller{
         //Provider manager:
         $provider_manager = false;
         if($order->provider_manager_id){
-            $provider_manager = User::select('name', 'surname')->find($order->provider_manager_id);
+            $provider_manager = User::select('id', 'name', 'surname')->find($order->provider_manager_id);
+        }
+
+        //Comercial:
+        $commercial = false;
+        if($order->commercial_id){
+            $commercial = User::select('id', 'name', 'surname')->find($order->commercial_id);
         }
 
         //Customer manager:
@@ -1232,15 +1278,15 @@ class BudgetController extends Controller{
 
         //Según la modalidad de presupuesto utiliza una plantilla u otra:
         if($order->modality == config('constants.BUDGET_BASIC_MODALITY_')){
-            $pdf = PDF::loadView('pdf/budget-free', compact('order', 'company', 'customer', 'template', 'fechaLiteral', 'company_settings', 'provider_workplace', 'customer_workplace', 'provider_phones', 'provider_manager', 'customer_manager', 'blocks', 'itemsSelected', 'currency', 'bg_color', 'locale'));
+            $pdf = PDF::loadView('pdf/budget-free', compact('order', 'company', 'customer', 'template', 'fechaLiteral', 'company_settings', 'provider_workplace', 'customer_workplace', 'provider_phones', 'provider_manager', 'commercial', 'customer_manager', 'blocks', 'itemsSelected', 'currency', 'bg_color', 'locale'));
             return $pdf->download($pdf_title.'.pdf');
 
         }elseif($order->modality == config('constants.BUDGET_FORM_MODALITY_')){
-            $pdf = PDF::loadView('pdf/budget-by-form', compact('order', 'provider', 'customer', 'template', 'fechaLiteral', 'blocks', 'itemsSelected', 'arrRecid', 'amountWithoutPercentItems', 'fecha', 'company_settings', 'provider_workplace', 'customer_workplace', 'provider_phones', 'provider_manager', 'customer_manager', 'blocks', 'itemsSelected', 'currency', 'bg_color', 'noPriceLinesTexts', 'locale'));
+            $pdf = PDF::loadView('pdf/budget-by-form', compact('order', 'provider', 'customer', 'template', 'fechaLiteral', 'blocks', 'itemsSelected', 'arrRecid', 'amountWithoutPercentItems', 'fecha', 'company_settings', 'provider_workplace', 'customer_workplace', 'provider_phones', 'provider_manager', 'commercial', 'customer_manager', 'blocks', 'itemsSelected', 'currency', 'bg_color', 'noPriceLinesTexts', 'locale'));
             return $pdf->download($pdf_title.'.pdf');
 
         }elseif($order->modality == config('constants.BUDGET_CATALOGUE_MODALITY_')){
-            $pdf = PDF::loadView('pdf/budget-catalogue', compact('order', 'company', 'customer', 'template', 'fechaLiteral', 'company_settings', 'provider_workplace', 'customer_workplace', 'provider_phones', 'provider_manager', 'customer_manager', 'blocks', 'itemsSelected', 'currency', 'bg_color', 'locale'));
+            $pdf = PDF::loadView('pdf/budget-catalogue', compact('order', 'company', 'customer', 'template', 'fechaLiteral', 'company_settings', 'provider_workplace', 'customer_workplace', 'provider_phones', 'provider_manager', 'commercial', 'customer_manager', 'blocks', 'itemsSelected', 'currency', 'bg_color', 'locale'));
             return $pdf->download($pdf_title.'.pdf');
         }
     }

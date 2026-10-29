@@ -19,7 +19,7 @@
 
 	                    {{-- Importe pendiente de facturar --}}
 	                    @php
-	                    $invoiced_ = $invoiced? $invoiced->invoiced_amount:'0';
+	                    $invoiced_ = $invoiced? $invoiced['invoiced_amount']:'0';
 	                    @endphp
 
 	                    <p>{{ trans('textos.pendiente_facturar') }} <b>{{ round($order_amount - $invoiced_, 2) }}{{ $currency->symbol }}</b></p>

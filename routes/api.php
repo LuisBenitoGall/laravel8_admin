@@ -35,9 +35,9 @@ use App\Http\Controllers\Api\CompanyWorkplacesController;
 use App\Http\Controllers\Api\CostCenterOrdersController;
 
 use App\Http\Controllers\Api\CountryProvincesController;
-
 use App\Http\Controllers\Api\InvoicePatternInvoicesController;
 use App\Http\Controllers\Api\InvoiceSettingInvoicesController;
+use App\Http\Controllers\Api\ItemController;
 use App\Http\Controllers\Api\OrderInvoicesController;
 use App\Http\Controllers\Api\OrderPatternOrdersController;
 
@@ -110,6 +110,15 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
 
     //Batches:
     Route::get('batches/{product_id?}', 'BatchController@getBatchesDT');
+
+    //Briefings:
+    Route::get('briefings', 'BriefingController@getBriefingsDT');
+
+    //BriefingTemplateItems:
+    Route::get('briefing-template-items/{template_id}', 'BriefingTemplateItemController@getBriefingTemplateItemsDT');
+
+    //BriefingTemplates:
+    Route::get('briefing-templates', 'BriefingTemplateController@getTemplatesDT');
 
     //BudgetFormCustomers:
     Route::get('budget-form-customers/{form}', 'BudgetFormsController@getBudgetFormCustomersDT');
@@ -280,10 +289,10 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     Route::post('purchases-search', 'OrderController@searchPurchases');
 
     //Orders Control Panel Purchases:
-    Route::get('orders-control-panel-purchases/{year}/{year_to}', 'OrderController@getOrdersControlPanelPurchasesDT');
+    Route::get('orders-control-panel-purchases/{year?}/{year_to?}/{workplace_id?}', 'OrderController@getOrdersControlPanelPurchasesDT');
 
     //Orders Control Panel Sales:
-    Route::get('orders-control-panel-sales/{year}/{year_to}/{workplace_id?}', 'OrderController@getOrdersControlPanelSalesDT');
+    Route::get('orders-control-panel-sales/{year?}/{year_to?}/{workplace_id?}', 'OrderController@getOrdersControlPanelSalesDT');
 
     //Payment Methods:
     Route::get('payment-methods', 'PaymentMethodController@getPaymentMethodsDT');
@@ -451,6 +460,12 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     //Stores:
     Route::get('stores', 'StoreController@getStoresDT');
 
+    //Tariff Companies:
+    Route::get('tariff-companies/{tariff_id?}', 'TariffCompanyController@getTariffCompaniesDT');
+
+    //Tariffs:
+    Route::get('tariffs', 'TariffController@getTariffsDT');
+
     //Teams:
     Route::get('teams', 'TeamController@getTeamsDT');
 
@@ -473,7 +488,7 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     Route::get('user-companies/{user}', 'UserCompaniesController@getCompaniesDT');
 
     //Users:
-    Route::get('users/{all?}', 'UserController@getUsersDT');
+    Route::get('users/{all?}/{status?}', 'UserController@getUsersDT');
     Route::post('users-search', 'UserController@searchUsers');
 
     //Users All:
@@ -501,10 +516,7 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     Route::get('workplaces/{company}/{business_relationship}', 'WorkplaceController@getWorkplacesDT');
 });
 
-
 Route::prefix('v1')->namespace('Api')->group(function () {
-
-
     Route::post('/login', [AuthController::class, 'login'])->name('api.login');
 
     Route::middleware('auth:api')
@@ -516,7 +528,7 @@ Route::prefix('v1')->namespace('Api')->group(function () {
         ->name('api.user');
 
     Route::name('api.')
-        ->middleware('auth:api')
+        //->middleware('auth:api')
         ->group(function () {
             Route::apiResource('budget-forms', BudgetFormController::class);
 
@@ -841,6 +853,9 @@ Route::prefix('v1')->namespace('Api')->group(function () {
                 InvoiceSettingInvoicesController::class,
                 'store',
             ])->name('invoice-settings.invoices.store');
+
+            // Items
+            Route::get('items/providers', [ItemController::class, 'index'])->name('items.providers');
 
             Route::apiResource('orders', OrderController::class);
 
@@ -1172,7 +1187,5 @@ Route::prefix('v1')->namespace('Api')->group(function () {
      * device push
      */
     Route::apiResource('device-pushes', DevicePushController::class);
-
-
 });
 

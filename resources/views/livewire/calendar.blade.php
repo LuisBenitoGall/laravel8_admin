@@ -119,7 +119,7 @@
                         <tr>
                             <th style="font-weight: normal;">
                                 <span class="d-none d-md-block">{{ trans('textos.semana') }}</span>
-                                <span class="d-block d-md-none">{{ trans('textos.semana-abbr') }}</span>
+                                <span class="d-block d-md-none">{{ trans('textos.semana_abbr') }}</span>
                             </th>
                             @foreach($weekDays as $wd)
                                 <th>

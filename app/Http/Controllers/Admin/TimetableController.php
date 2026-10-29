@@ -41,6 +41,7 @@ class TimetableController extends Controller{
      * 7. Desmarcar horario revisado.
      * 8. Enviar email revisión.
      * 9. Autorizar / desautorizar registro horario.
+     * 10. Vista de control horario.
      */
     
     private $option = 'horarios';
@@ -446,6 +447,15 @@ class TimetableController extends Controller{
         $timetable->comments = $request->comments;
         $timetable->save();
 
+        //Intervalo de fechas:
+        if($request->from && $request->to){
+            session(['timetables_from' => $request->from]);
+            session(['timetables_to' => $request->to]);
+        }else{
+            $request->session()->forget(['timetables_from']);
+            $request->session()->forget(['timetables_to']);
+        }
+
         $msg = trans('textos.registro_horario_updated');
         return redirect()->route('users.timetables', [$timetable->user_id, $timetable->date])->with(compact('msg'));
     }
@@ -545,6 +555,20 @@ class TimetableController extends Controller{
             }
             $timetable->save();
         }
+    }
+
+    /**
+     * 10. Vista de control horario.
+     */
+    public function show(){
+        $header = [
+            'option' => $this->option,
+            'suboption' => trans('textos.control_horario'),
+            'module' => $this->module,
+            'slug' => 'tiem-control'
+        ];   
+
+        return view('admin.timetables.show')->with(compact('header'));
     }
 
     /**

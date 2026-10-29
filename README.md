@@ -12,8 +12,7 @@ db: preview_admin_laravel8
 - composer create-project laravel/laravel --prefer-dist laravel8_admin
 - cd laravel8_admin
 - composer require laravel/ui
-- Instalando sistema de login y registro: php artisan ui bootstrap --auth
-- npm install && npm run dev
+- Instalando sistema de login y registro: php artisan ui bootstrap --auth- npm install && npm run dev
 - Instalando Livewire: composer require livewire/livewire
 - Instalación Spatie (Roles y permisos): https://spatie.be/docs/laravel-permission/v4/introduction
 	- composer require spatie/laravel-permission
@@ -106,6 +105,20 @@ En el archivo config/constants.php se definen constantes personalizadas.
 - Notificaciones por DataBase:
 	- php artisan notifications:table
 	- php artisan migrate
+
+- Swagger:
+	# 1. Instalar L5-Swagger
+	composer require “darkaonline/l5-swagger”
+
+	# 2. Publicar configuración y vistas
+	php artisan vendor:publish --provider="L5Swagger\L5SwaggerServiceProvider"
+
+	# 3. (Opcional) Crear carpeta para docs
+	mkdir storage\api-docs
+
+	# 4. Generar documentación manualmente
+	php artisan l5-swagger:generate
+
 
 - Cron Jobs:
 	- php artisan schedule:run -> ejecuta las tareas programadas en ese mismo momento.
@@ -438,6 +451,32 @@ AND c.id IN (
 )
 ORDER BY c.name ASC;
 
+- Pedidos por proveedor con documento de orden de compra:
+SELECT o.id, o.order_num, c.name, o.created_at, od.doc FROM order_docs od
+INNER JOIN orders o
+ON od.order_id = o.id
+INNER JOIN companies c
+ON o.customer_id = c.id
+WHERE o.provider_id = 4
+AND o.created_at >= '2025-01-01'
+ORDER BY o.created_at DESC
+
+SELECT o.id, o.order_num, c.name, o.created_at, o.customer_order, o.customer_order_doc FROM orders o
+INNER JOIN companies c
+ON o.customer_id = c.id
+WHERE o.provider_id = 4
+AND o.customer_order_doc IS NOT NULL
+ORDER BY o.created_at DESC
+
+- Productos por empresa y otros filtros:
+SELECT p.id, p.name, p.price, cc.name AS cost_center
+FROM products p
+LEFT JOIN cost_centers cc
+ON p.cost_center_id = cc.id
+WHERE p.company_id = 4
+AND p.on_sale = 1
+AND p.status = 1
+ORDER BY p.name ASC
    
 
 ### Instalación de Sentry
@@ -534,3 +573,11 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+
+
+TAREAS 22/01/2025:
+1. Mejorar rendimiento ERP
+2. Resolución incidencias excel, informar a medida que se arreglan incidencias
+3. Refactoring Laravel 11 + REact
+4. Restyling nuevo diseño. Crear en rama paralela. En XD.

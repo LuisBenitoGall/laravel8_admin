@@ -475,7 +475,7 @@ class OrderController extends Controller{
         $company_field = $provider == session('currentCompany') || $customer == 'all'? 'customer':'provider';
 
         /* $order_buy = "%4700480218%"; */
-        // Se comrpueba que el campo no sea false
+        // Se comprueba que el campo no sea false
         $order_buy = $order_buy == 'false' ? false : $order_buy;
 
         $owners = [];
@@ -1652,7 +1652,7 @@ class OrderController extends Controller{
                         $op = OrderPrevisions::find($request->op_id[$i]);
 
                         //Actualizamos si no se encuentra facturado:
-                        if( !$op->invoice_id){
+                        if(!$op->invoice_id){
                             $op->year = $request->year[$i];
                             $op->month = isset($request->month[$i])? $request->month[$i]:NULL;
                             $op->amount = isset($request->amount[$i])? $request->amount[$i]:NULL;
@@ -1713,6 +1713,7 @@ class OrderController extends Controller{
                 }
             }
 
+            //Previsiones de producción:
             if($request->pr_year){
                 //Guardamos previsiones de producción eliminando las existentes y volviendo a crearlas:
                 OrderProductionPrevision::where('order_id', $order->id)->forceDelete();
@@ -2021,7 +2022,8 @@ class OrderController extends Controller{
     /**
      * 11. Panel control de ventas.
      */
-    public function controlPanelSales($year = false, $year_to = false, $workplace_id = false){
+    //public function controlPanelSales($from = false, $to = false, $workplace_id = false){
+    public function controlPanelSales(Request $request){
         $header = [
             'option' => $this->option, 
             'suboption' => 'textos.panel_control_ventas',
@@ -2029,11 +2031,16 @@ class OrderController extends Controller{
             'slug' => 'control-panel'
         ]; 
 
-        $year = !$year? Date('Y'):$year;
-        $year_to = !$year_to? $year:$year_to;
+        $year = $request->year? $request->year:Date('Y');
+        $year_to = $request->year_to? $request->year_to:$year;
 
         $min_year = config('constants.MIN_YEAR_');
         $max_year = date('Y') + 1;
+
+        // $from = $request->from? $request->from:date('Y').'-01-01';
+        // $to = $request->to? $request->to:date('Y').'-12-31';
+
+        $workplace_id = $request->workplace_id? $request->workplace_id:false;
 
         $order_type = 'ventas';
 
@@ -2048,20 +2055,27 @@ class OrderController extends Controller{
         $workplaces[''] = trans('textos.todos');
         ksort($workplaces);     //Reordenamos array.
 
-        return view('admin.orders.control-panel')->with(compact('header', 'year', 'year_to', 'workplace_id', 'min_year', 'max_year', 'order_type', 'currency', 'workplaces'));
+        $languages = $this->languages;
+
+        return view('admin.orders.control-panel')->with(compact('header', 'year', 'year_to', 'min_year', 'max_year', 'workplace_id', 'order_type', 'currency', 'workplaces', 'languages'));
     }
 
     /**
      * 11.1. Filtrar año para panel de control de ventas.
+     *
+     * 21/02/2025 DEPRECATED.
      */
-    public function controlPanelSalesPost(Request $request){
-        return redirect()->route('orders.control-panel-sales', [$request->year, $request->year_to, $request->workplace]);
-    }
+    // public function controlPanelSalesPost(Request $request){
+    //     $from = $request->from != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->from):$request->from:false;
+    //     $to = $request->to != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->to):$request->to:false; 
+
+    //     return redirect()->route('orders.control-panel-sales', [$from, $to, $request->workplace]);
+    // }
 
     /**
      * 11.2. Listado de pedidos del panel de control de ventas para DataTable.
      */
-    public function getOrdersControlPanelSalesDT($year, $year_to, $workplace_id = false){
+    public function getOrdersControlPanelSalesDT($year = false, $year_to = false, $workplace_id = false){
         //Estados de pedido que quedan fuera del panel: pedidos cancelados,...
         $statusRejected = config('constants.ORDER_STATUS_NOT_INVOICED_');
 
@@ -2090,6 +2104,9 @@ class OrderController extends Controller{
         ->whereNull('order_previsions.invoice_id')
         ->whereNull('order_previsions.deleted_at')
         ->whereIn('order_previsions.year', $arr_years)
+        // ->when($from && $to, function($q) use($from, $to){
+        //     return $q->whereBetween('orders.created_at', [$from, $to]);
+        // })
         ->whereNotIn('orders.order_status', $statusRejected)
         ->when($workplace_id, function($q) use($workplace_id){
             return $q->where('orders.provider_workplace_id', $workplace_id);
@@ -2202,7 +2219,7 @@ class OrderController extends Controller{
     /**
      * 12. Panel control de compras.
      */
-    public function controlPanelPurchases($year = false, $year_to = false, $workplace_id = false){
+    public function controlPanelPurchases(Request $request){
         $header = [
             'option' => $this->option, 
             'suboption' => 'textos.panel_control_compras',
@@ -2210,11 +2227,16 @@ class OrderController extends Controller{
             'slug' => 'control-panel'
         ]; 
 
-        $year = !$year? Date('Y'):$year;
-        $year_to = !$year_to? $year:$year_to;
+        $year = $request->year? $request->year:Date('Y');
+        $year_to = $request->year_to? $request->year_to:$year;
 
         $min_year = config('constants.MIN_YEAR_');
         $max_year = date('Y') + 1;
+
+        // if(!$from) $from = date('Y').'-01-01';
+        // if(!$to) $to = date('Y').'-12-31';
+
+        $workplace_id = $request->workplace_id? $request->workplace_id:false;
 
         $order_type = 'compras';
 
@@ -2229,20 +2251,27 @@ class OrderController extends Controller{
 
         $currency = CompanySettings::co_currency(0);
 
-        return view('admin.orders.control-panel')->with(compact('header', 'year', 'year_to', 'min_year', 'max_year', 'order_type', 'workplaces', 'workplace_id', 'currency'));
+        $languages = $this->languages;
+
+        return view('admin.orders.control-panel')->with(compact('header', 'year', 'year_to', 'order_type', 'workplaces', 'workplace_id', 'currency', 'languages'));
     }
 
     /**
      * 12.1. Filtrar año para panel de control de compras.
+     *
+     * 21/02/2025 DEPRECATED.
      */
-    public function controlPanelPurchasesPost(Request $request){
-        return redirect()->route('orders.control-panel-purchases', [$request->year, $request->workplace]);
-    }
+    // public function controlPanelPurchasesPost(Request $request){
+    //     $from = $request->from != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->from):$request->from:false;
+    //     $to = $request->to != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->to):$request->to:false; 
+
+    //     return redirect()->route('orders.control-panel-purchases', [$from, $to, $request->workplace]);
+    // }
 
     /**
      * 12.2. Listado de pedidos del panel de control de compras para DataTable.
      */
-    public function getOrdersControlPanelPurchasesDT($year, $year_to){
+    public function getOrdersControlPanelPurchasesDT($year = false, $year_to = false, $workplace_id = false){
         //Estados de pedido que quedan fuera del panel: pedidos cancelados,...
         $statusRejected = config('constants.ORDER_STATUS_NOT_INVOICED_');
 
@@ -2272,7 +2301,13 @@ class OrderController extends Controller{
         ->whereNull('order_previsions.invoice_id')
         ->whereNull('order_previsions.deleted_at')
         ->whereIn('order_previsions.year', $arr_years)
+        // ->when($from && $to, function($q) use($from, $to){
+        //     return $q->whereBetween('orders.created_at', [$from, $to]);
+        // })
         ->whereNotIn('orders.order_status', $statusRejected)
+        ->when($workplace_id, function($q) use($workplace_id){
+            return $q->where('orders.customer_workplace_id', $workplace_id);
+        })
         ->orderBy('orders.id', 'DESC')
         ->orderBy('orders.created_at', 'DESC');
 

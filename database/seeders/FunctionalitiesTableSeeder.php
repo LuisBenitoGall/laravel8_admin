@@ -217,6 +217,11 @@ class FunctionalitiesTableSeeder extends Seeder{
             'label' => 'productos_patrones',
             'module' => 'products'
             ],
+            ['name' => 'tariffs',
+            'slug' => 'tariffs',
+            'label' => 'tarifas',
+            'module' => 'products'
+            ],
             ['name' => 'attributes',
             'slug' => 'attributes',
             'label' => 'atributos',
