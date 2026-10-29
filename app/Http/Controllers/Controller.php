@@ -25,6 +25,7 @@ use App\Models\Province;
 use App\Models\Town;
 use App\Models\Unit;
 use App\Models\User;
+use App\Models\UserCompanies;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
@@ -47,14 +48,7 @@ class Controller extends BaseController{
      * 11.1. Roles por empresa.
      * 12. Importaciones iniciales.
      * 13. Generación número por patrón.
-     *
-     *
-     * 5. Convertir fecha.
-     *
-     * 8. Obtener browser agent.
-     * 9. Módulos asociados.
-     * 13. Actualizar importe de factura por modificación en pedido.
-     * 14. Sincronizar fechas de entrega y entrega prevista para pedidos y proyectos.
+     * 14. Empresas del usuario.
      */
 
     /**
@@ -349,6 +343,11 @@ class Controller extends BaseController{
             case 'batch':
                 $cardinal_ = 'num_cardinal';
                 $pattern_ = 'batch_pattern_id';
+                break;
+            case 'incidence':
+                $cardinal_ = 'incidence_num_cardinal';
+                $pattern_ = 'pattern_id';
+                break;
             default:
                 $cardinal_ = 'num_cardinal';
                 $pattern_ = 'pattern_id';
@@ -434,6 +433,17 @@ class Controller extends BaseController{
             'num' => $num
         ];
         return $data;
+    }
+
+    /**
+     * 14. Empresas del usuario.
+     */
+    public function getUserCompanies($user_id){
+        return UserCompanies::select('companies.id', 'companies.name')
+        ->join('companies', 'user_companies.company_id', '=', 'companies.id')
+        ->where('user_companies.user_id', $user_id)
+        ->pluck('name', 'id')
+        ->toArray();    
     }
 
 }

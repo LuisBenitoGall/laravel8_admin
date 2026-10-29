@@ -1,8 +1,12 @@
 @can('orders.edit')
 	{{-- Estado - condiciones: 
-		1. Exclusivo proveedor o por cliente para facturas de proveedores sin cuenta en el ERP:
+		1. Pedidos de venta no bloqueados.
+		2. Exclusivo proveedor o por cliente para facturas de proveedores sin cuenta en el ERP.
 	--}}
-	@if($order->provider_id == session('currentCompany') || ($order->customer_id == session('currentCompany') && !$provider_account))
+	@if(
+		($order->provider_id == session('currentCompany') && $order->blocked == '0') 
+		|| ($order->customer_id == session('currentCompany') && !$provider_account)
+	)
 		@include('admin.partials.selector-status', ['estados' => $estados, 'item' => $item])
 	@endif
 
@@ -19,25 +23,28 @@
 
     {{-- Editar - condiciones 
 		1. Disponer de permisos.
+		2. Pedidos de venta no bloqueados.
 		2. Exclusivo proveedor o para cliente con facturas de proveedores sin cuenta en el ERP:
 		3. Facturas no bloqueadas.
     --}}
     {{-- 4/11/22: se omite la condición de pedido facturado. Se pueden añadir líneas incluso facturado el pedido. --}}
     {{-- @if(!$order->invoiced) --}}
     @can('invoices.edit')
-    	@if($order->provider_id == session('currentCompany') || ($order->customer_id == session('currentCompany') && !$provider_account))
-    		{{-- @if($invoice && !$invoice->blocked) --}}
-				<a href="#" class="btn btn-xs btn-info btnEditItem" data-id="{{ $item->id }}" data-toggle="modal" data-target="#modal-edit-line" rel="tooltip" title="{{ ucfirst(trans('textos.editar')) }}"><i class="fa fa-edit"></i></a>
-			{{-- @endif --}}
+    	@if(
+    		($order->provider_id == session('currentCompany') && $order->blocked == '0')
+    		|| ($order->customer_id == session('currentCompany') && !$provider_account)
+    	)
+			<a href="#" class="btn btn-xs btn-info btnEditItem" data-id="{{ $item->id }}" data-toggle="modal" data-target="#modal-edit-line" rel="tooltip" title="{{ ucfirst(trans('textos.editar')) }}"><i class="fa fa-edit"></i></a>
 		@endif
 	@endcan
 	{{-- @endif --}}
 
-	{{-- Ronda de cambios - condiciones 
-		1. Exclusivo para proveedores.
-		2. Sólo accesible en pedidos.
+	{{-- Ronda de cambios - condiciones:
+		1. Pedidos de venta no bloqueados.
+		2. Exclusivo para proveedores.
+		3. Sólo accesible en pedidos.
 	--}}
-	@if($order->provider_id == session('currentCompany'))
+	@if($order->blocked == '0' && $order->provider_id == session('currentCompany'))
 		@if($environment == 'orders')
 			<a href="#" class="btn btn-xs btn-info btnChangesRound" rel="tooltip" title="{!! ucfirst(trans('textos.ronda_cambios')) !!}" data-toggle="modal" data-target="#modal-changes-round" data-id="{{ $item->id }}" data-line="{{ $item->name }}">
 				<i class="fa fa-tasks"></i>

@@ -11,8 +11,7 @@ use App\Http\Resources\UserCollection;
 use App\Http\Requests\UserStoreRequest;
 use App\Http\Requests\UserUpdateRequest;
 
-class UserController extends Controller
-{
+class UserController extends Controller{
     /**
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response

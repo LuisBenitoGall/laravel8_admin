@@ -18,6 +18,7 @@
 			<div class="card-body">
 				<form method="post" autocomplete="off" action="{{ route('remittances.store') }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
 					{{ csrf_field() }}
+					<input type="hidden" name="type" value="{{ $type }}">
 
 					<p class="text-warning">{{ trans('textos.efectos_selec_aviso') }}</p>
 
@@ -56,7 +57,13 @@
 		<table class="table table-hover dTable" id="tblAddEffectsToRemittance">
 			<thead>
 				<th class="text-center wdt50">#</th>
-				<th class="wdt100">{!! ucfirst(trans('textos.cliente')) !!}</th>
+				<th class="wdt100">
+					@if($type == 'collection')
+						{!! ucfirst(trans('textos.cliente')) !!}
+					@else
+						{!! ucfirst(trans('textos.proveedor')) !!}
+					@endif
+				</th>
 				<th class="wdt50">{!! ucfirst(trans('textos.factura')) !!}</th>
 				<th class="text-center wdt50">{!! ucfirst(trans('textos.fecha')) !!}</th>
 				<th class="text-center wdt50">{!! ucfirst(trans('textos.importe')) !!}</th>
@@ -74,9 +81,9 @@
 								<a target="_blank" href="{{ route('effects.edit', $ef->id) }}">{{ $ef->effect_num }}</a>
 							@endif
 						</td>
-						{{-- Cliente --}}
+						{{-- Cliente o proveedor --}}
 						<td>
-							{{ $ef->customer }}
+							{{ $ef->company }}
 						</td>
 						{{-- Factura --}}
 						<td class="text-right">
@@ -128,5 +135,36 @@
 		</table>
 	</div>
 </div>
+
+@push('scripts')
+<script>
+$(function(){
+	//Tabla AddEffectsToRemittance:
+    if($('#tblAddEffectsToRemittance').length > 0){
+    	//Filters:
+        $('#tblAddEffectsToRemittance thead tr').clone(true).appendTo('#tblAddEffectsToRemittance thead');
+        $('#tblAddEffectsToRemittance thead tr:eq(1) th').each(function(i){
+            var title = $(this).text();
+            if(i == 7){
+                $(this).html('');
+            }else{
+                $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
+            }
+     
+            $('input', this).on('keyup change', function(){
+                if(tableAddEffectsToRemittance.column(i).search() !== this.value){
+                    tableAddEffectsToRemittance
+                        .column(i)
+                        .search(this.value)
+                        .draw();
+                }
+            });
+        });
+
+        var tableAddEffectsToRemittance = $('#tblAddEffectsToRemittance').DataTable();
+    }
+});
+</script>
+@endpush
 
 @endsection

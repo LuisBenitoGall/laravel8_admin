@@ -15,6 +15,10 @@ class Product extends Model{
      * 3. Productos por empresa.
      * 3.1. Productos por empresa con gestión de stock.
      * 4. Centro de coste.
+     * 5. Número de variantes.
+     * 6. Atributos.
+     * 7. Obtener valores de atributos como un string.
+     * 8. Obtener la imagen destacada del producto.
      */
      
     use HasFactory;
@@ -87,6 +91,43 @@ class Product extends Model{
     public function cost_center(){
         return $this->belongsTo(CostCenters::class);    
     }
+
+    /**
+     * 5. Número de variantes.
+     */
+    public function numVariants(){
+        return $this->hasMany(Product::class, 'variant_of')->count();    
+    }
+
+    /**
+     * 6. Atributos.
+     */
+    public function attributes(){
+        return $this->belongsToMany(Attribute::class, 'product_attributes');    
+    }
+
+    /**
+     * 7. Obtener valores de atributos como un string.
+     */
+    public function attributeValuesAsString($concat = ', '){
+        return $this->attributes()
+        ->pluck('product_attributes.value') 
+        ->filter(function($value) {
+            return !is_null($value); 
+        })
+        ->implode($concat); // Concatenar los valores con el concatenador recibido
+    }
+
+    /**
+     * 8. Obtener la imagen destacada del producto.
+     */
+    public function featuredImage(){
+        return $this->docs() // Utiliza la relación docs
+        ->where('type', 'like', 'image/%') // Filtra por tipo 'imagen'
+        ->where('featured', 1) // Asegúrate de que sea la imagen destacada
+        ->first(); // Obtiene el primer resultado
+    }
 }
+
 
 

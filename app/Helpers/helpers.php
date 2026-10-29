@@ -74,6 +74,8 @@ class Helpers{
 	 *  3.36. Tipos de efectos contables.
 	 *  3.37. Estados de pagos.
 	 *  3.38. Estados de remesas contables.
+	 *  3.39. Estados de incidencias.
+	 *  3.40. Unidades de tiempo.
 	 *
 	 * 4. Strings & Arrays:
 	 * 	4.1. Truncar texto.
@@ -84,6 +86,7 @@ class Helpers{
 	 *  4.5. Customizar strings.
 	 *  4.6. Cadena serializada.
 	 *  4.7. Detectar valores repetidos en un array.
+	 *  4.8. Etiquetas HTML permitidas en editor de texto.
 	 *
 	 * 5. Archivos:
 	 *  5.1. Allowed Image Mime Types.
@@ -624,6 +627,7 @@ class Helpers{
 		//Ajustando fecha de pago:
 		$month = $p[1];	
 		$year = $p[0];
+
 		//$day = (int)$payday > (int)$p[2]? $payday:$p[2];
 		$day = (int)$payday > 0? $payday:$p[2];
 		if($payday > 0 && (int)$p[2] > $payday){
@@ -825,7 +829,7 @@ class Helpers{
 			10 => trans('textos.aprobado'),
 			//15 => trans('textos.cliente_dudas'),
 			//20 => trans('textos.trabajando'),
-			//25 => trans('textos.porcentaje'),
+			25 => trans('textos.porcentaje'),
 			30 => trans('textos.cancelado'),
 			//40 => trans('textos.entregado'),
 			//50 => trans('textos.incidencia'),
@@ -1371,8 +1375,8 @@ class Helpers{
 	public static function effectsStatus($status = false){
 		$data = [
 			1 => trans('textos.aceptado'),
-			10 => trans('textos.aceptado_no')
-			// 20 => trans('textos.cobrado'),
+			10 => trans('textos.aceptado_no'),
+			20 => trans('textos.cobrado')
 			// 30 => trans('textos.impagado')
 		];
 		if($status){
@@ -1408,10 +1412,10 @@ class Helpers{
 	 */
 	public static function paymentStatus($status = false){
 		$data = [
-			'A' => ucfirst(trans('textos.aprobado')),
-			'C' => ucfirst(trans('textos.efectivo')),
-			'N' =>  ucfirst(trans('textos.pagado_no')),
-			'R' => 'R'
+			1 => ucfirst(trans('textos.aprobado')),
+			2 => ucfirst(trans('textos.efectivo')),
+			3 =>  ucfirst(trans('textos.pagado_no')),
+			4 => 'R'
 		];
 		if($status){
 			return ucfirst($data[$status]);
@@ -1434,6 +1438,50 @@ class Helpers{
 		}else{
 			return $data;
 		}	
+	}
+
+	/**
+	 * 3.39. Estados de incidencias.
+	 */
+	public static function incidenceStatus($status = false){
+		$data = [
+			1 => trans('textos.abierta'),
+			10 => trans('textos.pendiente_validacion'),
+			20 => trans('textos.cerrada')
+		];
+		if($status){
+			return ucfirst($data[$status]);
+		}else{
+			return $data;
+		}	
+	}
+
+	/**
+	 * 3.40. Unidades de tiempo.
+	 */
+	public static function timeUnits($unit = false){
+		$data = [
+			1 => trans('textos.milesimas'),
+			2 => trans('textos.centesimas'),
+			3 => trans('textos.decimas'),
+			4 => trans('textos.segundos'),
+			5 => trans('textos.minutos'),
+			6 => trans('textos.horas'),
+			7 => trans('textos.dias'),
+			8 => trans('textos.semanas'),
+			9 => trans('textos.meses'),
+			10 => trans('textos.anys')
+		];
+
+		if($unit){
+			if(isset($data[$unit])){
+				return ucfirst($data[$unit]);
+			}else{
+				return false;
+			}
+		}else{
+			return $data;
+		}
 	}
 
 	/**
@@ -1584,6 +1632,13 @@ class Helpers{
 		$unique_values = array_unique($data);
 		$comunes = array_diff_assoc($data, $unique_values);
 		return $comunes;
+	}
+
+	/**
+	 * 4.8. Etiquetas HTML permitidas en editor de texto.
+	 */
+	public function allowedTags(){
+		return ['p', 'div', 'br', 'label', 'span', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'table', 'thead', 'tbody', 'tr', 'th', 'td', 'i', 'u', 'b', 'strong', 'a', 'img'];
 	}
 
 	/**

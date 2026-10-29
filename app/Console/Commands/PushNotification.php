@@ -52,6 +52,9 @@ class PushNotification extends Command
      */
     public function handle()
     {
+        // Guardamos un registro en Logs
+        Log::info('Comando ejecutado: push:send - Inicio');
+
         $slug = 'timetables';
         $companies = CompanyModules::select('companies.*')
             ->join('companies', 'company_modules.company_id', '=', 'companies.id')
@@ -111,7 +114,7 @@ class PushNotification extends Command
                                                     'concept' => $horario->items->name,
                                                 ];
                                                 Mail::send('emails.send-push-mail', $data_user, function ($message) use ($horario, $empleado, $company) {
-                                                    $message->from(config('constants.EMAIL_'), $company->name);
+                                                    $message->from(config('mail.from.address'), $company->name);
                                                     $message->to($empleado->email);
                                                     $message->subject("Recuerda fichar la {$horario->items->name}");
                                                 });
@@ -126,7 +129,7 @@ class PushNotification extends Command
                                                 'concept' => $horario->items->name,
                                             ];
                                             Mail::send('emails.send-push-mail', $data_user, function ($message) use ($horario, $empleado, $company) {
-                                                $message->from(config('constants.EMAIL_'), $company->name);
+                                                $message->from(config('mail.from.address'), $company->name);
                                                 $message->to($empleado->email);
                                                 $message->subject("Recuerda fichar el {$horario->items->name}");
                                             });
@@ -141,6 +144,8 @@ class PushNotification extends Command
             }
         }
 
+        // Guardamos un registro en Logs
+        Log::info('Comando ejecutado: push:send - Fin');
 
     }
 

@@ -10,7 +10,7 @@
 
             <div class="modal-body">
             	{{-- Se pueden generar facturas si existe la cuenta contable de ventas del proveedor --}}
-            	@if($provider_accounting_account)
+            	@if($provider_accounting_account_default)
 	                <form method="post" autocomplete="off" action="{{ route('invoices.create-from-order') }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
 	                    {{ csrf_field() }}
 	                    <input type="hidden" name="order_id" id="newInvoiceOrderId" value="@isset($order) {{ $order->id }} @endisset">
@@ -23,6 +23,22 @@
 	                    @endphp
 
 	                    <p>{{ trans('textos.pendiente_facturar') }} <b>{{ round($order_amount - $invoiced_, 2) }}{{ $currency->symbol }}</b></p>
+
+	                    <div class="form-group row my-4">
+	                    	{{-- Patrones de factura --}}
+	                    	@if(count($invoice_patterns))
+	                    		<label for="pattern_id" class="col-md-3 col-lg-2 col-form-label">{!! ucfirst(trans('textos.factura_num')) !!}</label>
+								<div class="col-md-4">
+									<x-select name="pattern_id" class="select2" label="patron_selecciona" :options="$invoice_patterns" info="invoice-pattern-num"/>
+	                    		</div>
+	                    	@endif
+
+	                    	{{-- Fecha fiscal --}}
+	                    	<label for="fiscal_date" class="col-md-2 col-form-label">{!! ucfirst(trans('textos.fecha_fiscal')) !!}</label>
+							<div class="col-md-4">
+								<x-date-picker name="fiscal_date" :format="$languages[config('app.locale')][4]"/>
+							</div>
+	                    </div>
 
 	                    <div class="form-group row mt-4">
 	                    	<div class="col-12">

@@ -97,7 +97,7 @@
 		{{-- NIF --}}
 		<label for="nif" class="col-lg-2 col-form-label">NIF</label>
 		<div class="col-lg-4">
-			<x-input type="text" name="nif" id="nif" maxlength="15" placeholder="NIF" value="{{ $user->nif }}" autocomplete="off" info="user-nif"/>
+			<x-input type="text" name="nif" id="nif" maxlength="16" placeholder="NIF" value="{{ $user->nif }}" autocomplete="off" info="user-nif"/>
 		</div>
 
 		{{-- NAF --}}

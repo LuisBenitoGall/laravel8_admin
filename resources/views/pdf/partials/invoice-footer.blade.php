@@ -9,7 +9,13 @@
 					</th>
 					<th style="background-color: #efefef;"></th>
 					<th style="background-color: #efefef; text-align: right;">
-						<b>{{ $invoice->amount }}{{ $currency->symbol }}</b>
+						<b>
+							@if($invoice->refund)
+								{{ $invoice->amount * -1 }}{{ $currency->symbol }}	
+							@else
+								{{ $invoice->amount }}{{ $currency->symbol }}
+							@endif
+						</b>
 					</th>
 				</tr>
 
@@ -76,7 +82,13 @@
 							</th>
 							<th style="background-color: #efefef; text-align: right;">
 								{{-- <b>{{ array_sum($si) }}{{ $currency->symbol }}</b> --}}
-								<b>{{ $iva_ }}{{ $currency->symbol }}</b>
+								<b>
+									@if($invoice->refund)
+										{{ $iva_ * -1 }}{{ $currency->symbol }}
+									@else
+										{{ $iva_ }}{{ $currency->symbol }}
+									@endif
+								</b>
 							</th>
 						</tr>
 
@@ -95,7 +107,13 @@
 						<th style="background-color: #efefef;"></th>
 						<th style="background-color: #efefef; text-align: right;">
 							{{-- <b>{{ array_sum($si) }}{{ $currency->symbol }}</b> --}}
-							<b>{{ $group_iva_amount }}{{ $currency->symbol }}</b>
+							<b>
+								@if($invoice->refund)
+									{{ $group_iva_amount * -1 }}{{ $currency->symbol }}
+								@else
+									{{ $group_iva_amount }}{{ $currency->symbol }}
+								@endif
+							</b>
 						</th>
 					</tr>
 				@endif
@@ -121,7 +139,13 @@
 						{{ strtoupper(trans('textos.factura_total')) }}
 					</td>
 					<td style="background-color: {{ $bg_color }}; text-align: right;">
-						<b>{{ $invoice->amount_with_iva }}{{ $currency->symbol }}</b>
+						<b>
+							@if($invoice->refund)
+								{{ $invoice->amount_with_iva * -1 }}{{ $currency->symbol }}
+							@else
+								{{ $invoice->amount_with_iva }}{{ $currency->symbol }}
+							@endif
+						</b>
 					</td>
 				</tr>
 			</tbody>

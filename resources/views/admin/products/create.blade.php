@@ -5,10 +5,21 @@
 <div class="row mb-3">
 	{{-- Acciones: --}}
 	<div class="col-12">
+		{{-- Volver a productos --}}
 		<a href="{{ route('products.index') }}" class="btn btn-info">
 			<i class="fa fa-angle-left"></i>
 			{!! trans('textos.volver_productos') !!}
 		</a>
+
+		{{-- Editar producto referencia --}}
+		@if($is_variant)
+			@can('products.edit')
+	    		<a href="{{ route('products.edit', $product_ref) }}" class="btn btn-info">
+	    			<i class="fa fa-angle-left"></i>
+	    			{!! ucfirst(trans('textos.volver_producto_ref')) !!}
+	    		</a>
+	        @endcan
+	    @endif
 	</div>
 </div>
 
@@ -16,6 +27,13 @@
 	<div class="col-12">
 		<div class="card mb-3">
 			<div class="card-body">
+				@if($is_variant)
+					<h3 class="mb-3">
+						{!! ucfirst(trans('textos.variante_de')) !!} 
+						<u>{{ $product_ref->name }}</u>
+					</h3>	
+				@endif
+
 				<form method="post" autocomplete="off" action="{{ route('products.store') }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
 					{{ csrf_field() }}
 					{{-- Id de empresa tutelada --}}
@@ -23,11 +41,16 @@
 						<input type="hidden" name="tutored" value="{{ $company_id }}">
 					@endif
 
+					<input type="hidden" name="variant_of" value="@if($is_variant){{ $product_ref->id }}@endif">
+
 					<div class="form-group row">
 						{{-- Nombre producto --}}
 						<label for="name" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.producto')) !!}*</label>
 						<div class="col-lg-10">
-							<x-input type="text" name="name" id="name" autocomplete="off" maxlength="100" required/>
+							@php
+							$product_name = isset($product_ref) && $product_ref? trans('textos.variante_de').' '.$product_ref->name:'';
+							@endphp
+							<x-input type="text" name="name" id="name" autocomplete="off" maxlength="100" value="{{ $product_name }}" required/>
 						</div>
 					</div>
 
@@ -43,14 +66,19 @@
 						{{-- Tipo --}}
                         <label for="type" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.tipo')) !!} *</label>
                         <div class="col-lg-3" style="padding-top: 8px;">
+                        	@php
+                        	//Para variantes:
+                        	$variant_type = $is_variant && isset($product_ref)? $product_ref->type:false;
+                        	@endphp
+
 							<label class="custom-chk-rdb">
-				    			<input class="rdb-access" type="radio" name="type" value="p" required>
+				    			<input class="rdb-access" type="radio" name="type" value="p" @if($variant_type == 'p') checked @endif required>
 				    			<span class="rdb"></span>
 				    			{!! ucfirst(trans('textos.producto')) !!}
 							</label>	
 
 							<label class="custom-chk-rdb ml-5">
-				    			<input class="rdb-access" type="radio" name="type" value="s" required>
+				    			<input class="rdb-access" type="radio" name="type" value="s" @if($variant_type == 's') checked @endif required>
 				    			<span class="rdb"></span>
 				    			{!! ucfirst(trans('textos.servicio')) !!}
 							</label>

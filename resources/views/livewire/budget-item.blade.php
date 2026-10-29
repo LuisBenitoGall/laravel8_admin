@@ -241,7 +241,7 @@ $permitted = !$order || ($order && $add_items && !$order->parent && !$order->blo
                             @endif
 
                             <input type="text" name="price" class="form-control text-right set-decimals"
-                                   id="newItemPrice" autocomplete="off" maxlength="8" wire:model.defer="price" wire:keydown.debounce="changePrice($event.target.value)"
+                                   id="newItemPrice" autocomplete="off" maxlength="10" wire:model.defer="price" wire:keydown.debounce="changePrice($event.target.value)"
                                    @if($field_readonly || $readonly) readonly @endif>
                             <div class="input-group-append">
                                 <span class="input-group-addon">
@@ -293,7 +293,7 @@ $permitted = !$order || ($order && $add_items && !$order->parent && !$order->blo
                     <label for="days"
                            class="col-4 col-sm-2 col-xl-1 col-form-label sinpadding-right">{!! ucfirst(trans('textos.jornadas')) !!}</label>
                     <div class="col-8 col-sm-4 col-lg-3 col-xl-2 mb-3">
-                        <input type="number" class="form-control text-center set-decimals itemDays" name="days" min="0"
+                        <input type="number" class="form-control text-center set-decimals itemDays" name="days" min="0" step="0.01"
                                step="1" value="0" id="newItemDays" wire:model.defer="days" wire:change.debounce="changeDays($event.target.value)" maxlength="2"
                                @if($field_readonly || $readonly) readonly @endif>
                     </div>
@@ -325,11 +325,11 @@ $permitted = !$order || ($order && $add_items && !$order->parent && !$order->blo
                         <label class="custom-chk-rdb">
                             <input type="checkbox" wire:model.defer="add_catalogue">
                             <span class="chk" style="top: 5px;"></span>
-                        </label>  
+                        </label>
 
                         <div class="position-absolute" style="right: 40%; top: 1px;">
                             {!! App\Helpers\helpers::info('budget-add-to-catalogue') !!}
-                        </div>  
+                        </div>
                     </div>
 
                     {{-- Subtotal--}}
@@ -671,7 +671,8 @@ $permitted = !$order || ($order && $add_items && !$order->parent && !$order->blo
         window.initSelect2_ = () => {
             jQuery("#newItemCostCenter").select2({
                 minimumResultsForSearch: 2,
-                allowClear: false,
+                allowClear: true,
+                placeholder: txtOpcionSelect,
                 width: '100%'
             });
         }

@@ -14,6 +14,7 @@ use App\Models\Employee;
 use App\Models\Timetable;
 use App\Models\TimetableItems;
 use App\Models\WorkUserCalendar;
+use Illuminate\Support\Facades\Log;
 
 class CheckTimetableTask extends Command{
     /**
@@ -45,6 +46,10 @@ class CheckTimetableTask extends Command{
      * @return int
      */
     public function handle(){
+
+        // Guardamos un registro en Logs
+        Log::info('Comando ejecutado: check_timetable:task - Inicio');
+
         $horaCierre = '17:00:00';
         $msgCierre = trans('textos.horario_cerrado_automaticamente');
         $slug = 'timetables';
@@ -119,7 +124,7 @@ class CheckTimetableTask extends Command{
                             ];
 
                             Mail::send('emails.send-timetable-unclosed-user', $data_user, function($message) use($user, $co){
-                                $message->from(config('constants.EMAIL_'), $co->name);
+                                $message->from(config('mail.from.address'), $co->name);
                                 $message->to($user->email);
                                 $message->subject(trans('textos.horario_cerrado_automaticamente'));
                             });
@@ -145,12 +150,14 @@ class CheckTimetableTask extends Command{
                     ];
 
                     Mail::send('emails.send-timetable-unclosed-list', $data, function($message) use($emailsTo, $co){
-                        $message->from(config('constants.EMAIL_'), $co->name);
+                        $message->from(config('mail.from.address'), $co->name);
                         $message->to($emailsTo);
                         $message->subject(trans('textos.horarios_cerrados_automaticamente_lista'));
                     });
                 }
             }
         }
+
+        Log::info('Comando ejecutado: check_timetable:task - Fin');
     }
 }

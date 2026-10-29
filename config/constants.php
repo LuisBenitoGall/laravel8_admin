@@ -54,12 +54,14 @@ return [
     'EMPLOYEE_EXPIRED_' => 2,
     'EMPLOYEE_INACTIVED_' => 0,
 	'IDM_' => 'es',
+    'INCIDENCE_STATUS_OPEN_' => 1,
     'INVOICE_OPEN_' => 1,   //Factura pendiente
     'INVOICE_PAID_' => 10, 
     'INVOICE_REFUNDED_' => 20,
     'INVOICE_STATUS_REFUNDED_' => [20],
     'IP_USER' => ['127.0.0.1'], // IP`s 
     'IVA_DEFAULT_' => 21,
+    'IVA_DEFAULT_ID_' => 1,
     'JOKE_' => false,
     'METHODS_' => [
         ['index', 'Ver '], 
@@ -79,6 +81,7 @@ return [
     'ORDER_GROUPS_DEFAULT_' => 10,
     'ORDER_GROUPS_OPENED_' => [10],
 
+    'ORDER_STATUS_CLOSED_' => [30, 70],                  //Status de pedidos que se cierran.
     'ORDER_STATUS_FINISHED_' => [40, 70],
     'ORDER_STATUS_INVOICED_' => [10, 40, 70],           //Status de pedidos facturables. 
     'ORDER_STATUS_NOT_DELETED_' => [15, 40, 50, 70],    //Status de pedidos no eliminables.
@@ -109,6 +112,9 @@ return [
     //'ROLE_COMPANY_MANAGER_' => 2,   //id role manager empresa (extraído de la tabla 'roles'). 
     'ROLE_SUPERADMIN_' => 1,        //id role con permisos absolutos (extraído de la tabla 'roles').
     'SET_ORDER_PREVISIONS_' => false,
+    'SHIPMENT_STATUS_CLOSED_' => 20,
+    'SHIPMENT_STATUS_ON_ROUTE_' => 10,
+    'SHIPMENT_STATUS_OPENED_' => 1,
     'SUPER_ADMIN_' => 'Super Admin',
     'TOLERANCE_DECIMALS_' => 0.01,      //Tolerancia para valores con numerosos decimales.
     'TOLERANCE_INVOICED_' => 99.99,     //Indica el valor de tolerancia admitido para facturas.

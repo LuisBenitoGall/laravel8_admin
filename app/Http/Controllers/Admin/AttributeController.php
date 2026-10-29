@@ -70,8 +70,15 @@ class attributeController extends Controller{
             'module' => $this->module,
             'slug' => 'attributes'
         ]; 
-        
-        return view('admin.attributes.index')->with(compact('header'));    
+
+        //Pasamos array de tipos de datos pero sólo el primer valor.
+        $datatypes = [];
+        $datatypes_ = $this->data_types;
+        foreach($datatypes_ as $i =>$dt){
+            $datatypes[$i] = $dt[0];
+        }
+
+        return view('admin.attributes.index')->with(compact('header', 'datatypes'));    
     }
 
     /**

@@ -37,6 +37,20 @@
 		</div>
 
 		<div class="form-group row">
+			{{-- Nº de plazos --}}
+			<label for="num_deadlines" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.plazos_num')) !!}</label>
+			<div class="col-lg-1">
+				<x-input type="text" name="num_deadlines" class="text-right" autocomplete="off" maxlength="3" info="pay-conditions-deadlines" value="{{ $conditions->num_deadlines }}" disabled="{{ $disabled1 }}"/>
+			</div>
+
+			{{-- Días entre plazos --}}
+			<label for="days_between_deadlines" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.plazos_intervalo')) !!}</label>
+			<div class="col-lg-1">
+				<x-input type="text" name="days_between_deadlines" class="text-right" autocomplete="off" maxlength="3" info="pay-conditions-deadlines-days" value="{{ $conditions->days_between_deadlines }}" disabled="{{ $disabled1 }}"/>
+			</div>
+		</div>
+
+		<div class="form-group row">
 			{{-- Método envío de las facturas - condiciones: 
 				1. Lo setean los proveedores para sus clientes o si éstos carecen de cuenta.
 			--}}

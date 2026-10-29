@@ -52,12 +52,10 @@ class CustomerProviders extends Model{
      * 3. Relación cliente - proveedor.
      */
     public static function customerProvider($customer, $provider){
-        $data = CustomerProviders::where('customer_id', $customer)
+        return CustomerProviders::where('customer_id', $customer)
         ->where('provider_id', $provider)
         //->where('status', 1)
         ->first();
-
-        return $data;
     }
 
     /**

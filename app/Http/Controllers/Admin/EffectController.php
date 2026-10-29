@@ -16,6 +16,7 @@ use Yajra\DataTables\DataTables;
 use Carbon\Carbon;
 
 //Models:
+use App\Models\AccountingAccount;
 use App\Models\BankAccounts;
 use App\Models\Company;
 use App\Models\CompanySettings;
@@ -44,8 +45,7 @@ class EffectController extends Controller{
      * 10. Efectos agrupados.
      * 10.1. Listado de efectos agrupados para DataTable.
      * 11. Filtro para agrupaciones de efectos.
-     * 12. Listado de efectos para grupos para DataTable.
-     * 13. Desvincular efecto del grupo.
+     * 12. Efectos por cuenta contable.
      */
     
     private $option = 'contabilidad';
@@ -135,9 +135,10 @@ class EffectController extends Controller{
         $customer = $customer_id? Company::find($customer_id):false;
         $provider = $provider_id? Company::find($provider_id):false;
 
-        $remittances = Remittance::where('company_id', session('currentCompany'))
+        $remittances = Remittance::select(DB::raw("CONCAT('Remesa ', id) AS remittance"), 'id')
+        ->where('company_id', session('currentCompany'))
         ->where('status', config('constants.REMITTANCE_STATUS_OPEN_'))
-        ->pluck('remittance_num', 'id')
+        ->pluck('remittance', 'id')
         ->toArray();
 
         return view('admin.effects.index', compact('header', 'customer', 'provider', 'remittances'));
@@ -261,6 +262,17 @@ class EffectController extends Controller{
                 return '';
             }
         })
+        ->addColumn('seats', function ($row){
+            $seats_ = '';
+            $seats = $row->seats;
+            if($seats->count()){
+                foreach($seats as $s){
+                    $seat_num = $s->seat_num? $s->seat_num:$s->id;
+                    $seats_ .= '<a href="admin/seats/'.$s->id.'/edit">'.$seat_num.'</a> ';
+                }
+            }
+            return $seats_;
+        })
         ->addColumn('remittance', function ($row){
             if($row->remittanceId){
                 $remittance = $row->remittance_num? $row->remittance_num:($row->remittance_old_num? $row->remittance_old_num:$row->remittanceId);
@@ -278,7 +290,7 @@ class EffectController extends Controller{
         ->addColumn('acciones', function ($row) use($estados){
             return view('admin.effects.partials.dt-actions', compact('row', 'estados')); 
         })
-        ->rawColumns(['is_group', 'invoices', 'remittance', 'observations'])
+        ->rawColumns(['is_group', 'invoices', 'seats', 'remittance', 'observations'])
         ->make(true);
     }
 
@@ -294,9 +306,7 @@ class EffectController extends Controller{
         ];
 
         //Cuentas bancarias:
-        $bank_accounts = BankAccounts::where('company_id', session('currentCompany'))
-        ->pluck('account', 'id')
-        ->toArray();
+        $bank_accounts = BankAccounts::getBankAccountsArray(session('currentCompany'));
 
         $featured_account = BankAccounts::select('id')
         ->where('featured', 1)
@@ -415,15 +425,11 @@ class EffectController extends Controller{
         }
 
         //Cuentas bancarias propias:
-        $my_bank_accounts = BankAccounts::where('company_id', session('currentCompany'))
-        ->pluck('account', 'id')
-        ->toArray();
+        $my_bank_accounts = BankAccounts::getBankAccountsArray(session('currentCompany'));
 
         //Cuentas bancarias del cliente o proveedor:
         $bank_account_company = $effect->company_id == $effect->provider_id? $effect->customer_id:$effect->provider_id;
-        $bank_accounts = BankAccounts::where('company_id', $bank_account_company)
-        ->pluck('account', 'id')
-        ->toArray();
+        $bank_accounts = BankAccounts::getBankAccountsArray($bank_account_company);
 
         //Métodos de pago:
         $payment_methods = PaymentMethod::where('status', 1)
@@ -726,5 +732,19 @@ class EffectController extends Controller{
         $to = $request->to? (session()->get('locale') != 'en')? helpers::convertFecha($request->to):$request->to:'x';
 
         return redirect()->route('effects.groups', [$customer_id, $provider_id, $from, $to, $request->payment_method]);
+    }
+
+    /**
+     * 12. Efectos por cuenta contable.
+     */
+    public function byAccountingAccount(Request $request, AccountingAccount $accounting_account){
+        if($request->ajax()){
+            $data = Effect::select('effects.id', 'effects.amount', 'effects.status')
+            ->where('effects.company_id', $accounting_account->company_id)
+            ->where('effects.status', config('contants.EFFECT_STATUS_PENDENT_'))
+            ->get();
+
+            return response()->json($data);
+        }
     }
 }

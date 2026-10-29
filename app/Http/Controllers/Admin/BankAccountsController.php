@@ -352,4 +352,15 @@ class BankAccountsController extends Controller{
             }
         }
     }
+
+    /**
+     * 11. Relación de cuentas bancarias para efectos contables.
+     */
+    public function getBankAccountsEffects(Request $request, $company_id){
+        if($request->ajax()){
+            $data = BankAccounts::getBankAccounts($company_id);
+
+            return response()->json($data);
+        }
+    }
 }

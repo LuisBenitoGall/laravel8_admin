@@ -33,6 +33,7 @@ class BudgetItem extends Component{
 
     public $action;
     public $add_items;
+    public $allowed_tags;
     public $amount_by_blocks;
     public $amount_without_percentage_items;
     public $block;
@@ -106,6 +107,8 @@ class BudgetItem extends Component{
         $this->print = true;
 
         $this->items_no_price = helpers::statusBudgetLinesWithoutPrice();
+
+        $this->allowed_tags = helpers::allowedTags();
 
         $this->cost_centers = CostCenters::select('id', 'name')
         ->where('company_id', session('currentCompany'))
@@ -254,7 +257,7 @@ class BudgetItem extends Component{
                 $item = Item::find($this->item['id']);
                 $item->budget_form_block_id = $this->block;
                 $item->concept = $this->concept;
-                $item->observations = $this->observations;
+                $item->observations = strip_tags($this->observations, $this->allowed_tags);
                 $item->qty = $qty;
                 $item->price = $price;
                 $item->item_no_price = $no_price;
@@ -298,7 +301,7 @@ class BudgetItem extends Component{
                 $item->budget_form_item_id = $this->item ? $this->item['id'] : NULL;
                 $item->budget_sort = isset($this->items_order[$this->block]) ? $this->items_order[$this->block] + 1 : 1;
                 $item->concept = $this->concept;
-                $item->observations = $this->observations;
+                $item->observations = strip_tags($this->observations, $this->allowed_tags);
                 $item->qty = $qty;
                 $item->price = $price;
                 $item->item_no_price = $no_price;

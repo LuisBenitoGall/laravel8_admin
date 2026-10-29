@@ -188,6 +188,9 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     //DayTypes:
     Route::get('day-types', 'DayTypesController@getDayTypesDT');
 
+    //Dealers:
+    Route::get('dealers', 'DealerController@getDealersDT');
+
     //Effects:
     Route::get('effects/{customer_id?}/{provider_id?}', 'EffectController@getEffectsDT');
 
@@ -209,6 +212,15 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     //Groups:
     Route::get('groups', 'GroupController@getGroupsDT');
 
+    //IncidenceMessages:
+    Route::get('incidence-messages/{incidence_id}', 'IncidenceMessageController@getMessagesDT');
+
+    //IncidencePatterns:
+    Route::get('incidence-patterns', 'IncidencePatternsController@getPatternsDT');
+
+    //Incidences:
+    Route::post('incidences', 'IncidenceController@getIncidencesDT');
+
     //Inventory:
     Route::get('inventory', 'InventoryController@getInventoryDT');
     Route::get('inventory/{product_id}', 'InventoryController@getInventoryByProduct');
@@ -218,6 +230,9 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
 
     //InvoicePatterns:
     Route::get('invoice-patterns', 'InvoicePatternsController@getPatternsDT');
+
+    //InvoiceQueries:
+    Route::get('invoice-queries/by-invoices-dt/{companies}/{invoice_type}/{status}/{from?}/{to?}', 'InvoiceQueryController@getInvoicesDT');
 
     //Invoices:
     Route::get('invoices/{year?}/{customer?}/{provider?}/{month?}/{group?}', 'InvoiceController@getInvoicesDT');
@@ -244,6 +259,9 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     //OrderPatterns:
     Route::get('order-patterns', 'OrderPatternsController@getPatternsDT');
 
+    //OrderProductionPrevisions:
+    Route::get('order-production-prevision/{year}/{workplace?}', 'OrderProductionPrevisionController@getPrevisionsDT');
+
     //OrderQueries:
     Route::get('order-queries/by-orders-dt/{companies}/{order_type}/{status}/{from?}/{to?}', 'OrderQueryController@getOrdersDT');
     Route::get('order-queries/by-order-items-dt/{companies}/{order_type}/{status}/{from?}/{to?}', 'OrderQueryController@getOrderItemsDT');
@@ -262,10 +280,10 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
     Route::post('purchases-search', 'OrderController@searchPurchases');
 
     //Orders Control Panel Purchases:
-    Route::get('orders-control-panel-purchases/{year}', 'OrderController@getOrdersControlPanelPurchasesDT');
+    Route::get('orders-control-panel-purchases/{year}/{year_to}', 'OrderController@getOrdersControlPanelPurchasesDT');
 
     //Orders Control Panel Sales:
-    Route::get('orders-control-panel-sales/{year}/{workplace_id?}', 'OrderController@getOrdersControlPanelSalesDT');
+    Route::get('orders-control-panel-sales/{year}/{year_to}/{workplace_id?}', 'OrderController@getOrdersControlPanelSalesDT');
 
     //Payment Methods:
     Route::get('payment-methods', 'PaymentMethodController@getPaymentMethodsDT');
@@ -311,6 +329,9 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
 
     //ProductUnits:
     Route::get('product-units/{product_id}', 'ProductUnitsController@getUnitsDT');
+
+    //ProductVariants:
+    Route::get('product-variants/{product_id}', 'ProductController@getVariantsDT');
 
     //Products:
     Route::get('products/{company_id?}', 'ProductController@getProductsDT');
@@ -438,6 +459,9 @@ Route::middleware(['auth', 'admin', 'iprestrict'])->prefix('admin')->namespace('
 
     //Towns:
     Route::get('towns/{province_id}', 'TownController@getTownsDT');
+
+    //Transport Agencies:
+    Route::get('transport-agencies', 'TransportAgencyController@getTransportAgenciesDT');
 
     //Units:
     Route::get('units', 'UnitController@getUnitsDT');

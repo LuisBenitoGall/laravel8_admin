@@ -40,7 +40,7 @@
 								{{-- NIF --}}
 								<label for="nif_" class="col-lg-4 col-form-label">NIF</label>
 								<div class="col-lg-8 position-relative">
-									<x-input type="text" name="nif_" id="companyNif" maxlength="15" readonly/>
+									<x-input type="text" name="nif_" id="companyNif" maxlength="16" readonly/>
 								</div>
 							</div>
 						</div>
@@ -102,7 +102,7 @@
 								{{-- NIF --}}
 								<label for="nif" class="col-lg-4 col-form-label">NIF</label>
 								<div class="col-lg-8">
-									<x-input type="text" name="nif" placeholder="NIF" autocomplete="off" maxlength="15"/>
+									<x-input type="text" name="nif" placeholder="NIF" autocomplete="off" maxlength="16"/>
 								</div>
 							</div>
 

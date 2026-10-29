@@ -130,6 +130,13 @@ class CompanySettingsController extends Controller{
         $cs->accounting_method = $request->accounting_method;
         $cs->accounting_account_digits = $request->accounting_account_digits;
         $cs->project_required = $request->project_required? true:false;
+        $cs->production_previsions = $request->production_previsions? true:false;
+        $cs->pattern_budgets = $request->pattern_budgets? true:false;
+        $cs->pattern_sales = $request->pattern_sales? true:false;
+        $cs->pattern_purchases = $request->pattern_purchases? true:false;
+        $cs->pattern_deliveries = $request->pattern_deliveries? true:false;
+        $cs->pattern_projects = $request->pattern_projects? true:false;
+        $cs->pattern_invoices = $request->pattern_invoices? true:false;
         $cs->save();
 
         session(['companySettings' => $cs]);

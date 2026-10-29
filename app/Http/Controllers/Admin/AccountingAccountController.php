@@ -159,7 +159,6 @@ class AccountingAccountController extends Controller{
             return ucfirst($modes[$row->mode]);
         })
         ->filterColumn('tipo', function ($query, $keyword) use ($tipos) {
-            //dd($keyword);
             $query->whereIn('type', array_keys(array_filter($tipos, function ($type) use ($keyword) {
                 return stripos($type, $keyword) !== false;
             })));
@@ -574,6 +573,7 @@ class AccountingAccountController extends Controller{
         //Cuentas de IVA:
         $accounts = AccountingAccount::select('id', 'account', 'name', 'mode', 'type', 'iva_type_id')
         ->where('company_id', session('currentCompany'))
+        ->where('company_target', session('currentCompany'))
         ->whereNotNull('iva_type_id')
         ->where('status', 1)
         ->get();
@@ -590,7 +590,6 @@ class AccountingAccountController extends Controller{
      * 11. Cuentas por defecto.
      */
     public function defaultAccounts(Request $request){
-        //dd($request->all());
         //Eliminamos las cuentas default anteriores:
         AccountingAccount::where('company_id', session('currentCompany'))
         ->where('featured', '>', 1)

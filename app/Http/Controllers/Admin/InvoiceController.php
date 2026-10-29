@@ -32,11 +32,11 @@ use App\Models\Effect;
 use App\Models\Group;
 use App\Models\GroupMembers;
 use App\Models\Invoice;
-//use App\Models\InvoiceItems;
 use App\Models\InvoiceOrders;
 use App\Models\InvoicePatterns;
 use App\Models\InvoiceSettings;
 use App\Models\Item;
+use App\Models\IvaType;
 use App\Models\Module;
 use App\Models\Order;
 use App\Models\OrderPrevisions;
@@ -65,7 +65,7 @@ class InvoiceController extends Controller{
      * 3. Editar factura.
      * 3.1. Editar factura por parte de cliente.
      * 3.2. Mostrar factura.
-     * 3.3. Recalcular importe factura a partir de sus líneas
+     * 3.3. Recalcular importe factura a partir de sus líneas.
      * 4. Actualizar factura.
      * 5. Imprimir factura.
      * 6. Setear info para listado de facturas.
@@ -480,6 +480,23 @@ class InvoiceController extends Controller{
 
     /**
      * 2. Generar factura desde pedido.
+     *
+     * Proceso de facturación:
+     * a. Obtener info del pedido.
+     * b. Obtener importe del pedido.
+     * c. Verificar si existen facturas previas del mismo pedido, otras previsiones futuras y extraer el importe pendiente a facturar, ya sea importe íntegro o parcial.
+     * d. Generación de la factura con obtención previa de datos necesarios:
+     * e. Obtener datos bancarios del cliente.
+     * f. Obtener datos bancarios del proveedor.
+     * g. Pagos previos realizados.
+     * h. Condiciones comerciales de la operación.
+     * i. Calcular fecha vencimiento.
+     * j. Guardar registro de la factura en el model Invoice.
+     * k. Marcar el pedido como factura (ya sea completo o parcial).
+     * l. Actualizar valores de las previsiones de facturación pendientes, por si debe crearse alguna nueva.
+     * m. Crear líneas de factura, sea desde las líneas de pedido o de albarán.
+     * n. Generación asiento contable.
+     * o. Generacion efecto contable.
      */
     public function createFromOrder(Request $request){
         $validator = $this->validator($request->all());
@@ -493,7 +510,7 @@ class InvoiceController extends Controller{
         }
 
         //Pedido:
-        $order = Order::select('id', 'order_status', 'order_parent', 'is_group', 'customer_id', 'provider_id', 'blocked', 'invoiced')
+        $order = Order::select('id', 'order_status', 'order_parent', 'is_group', 'customer_id', 'provider_id', 'blocked', 'num_deadlines', 'days_between_deadlines', 'accounting_sale_id', 'invoiced')
         ->find($request->order_id);
 
         //Facturación de pedido. 
@@ -643,7 +660,7 @@ class InvoiceController extends Controller{
                     //Importe de la factura obteniendo el porcentaje indicado sobre el total del importe del pedido.
                     $total_amount = helpers::percent($order_amount['total_amount'], $percent_to_invoice);
                     //Porcentaje facturado:
-                    $percentage_invoiced = $percent_to_invoice;
+                    $percentage_invoiced = false;
 
                     //Importe con IVA:
                     $amount_with_iva = helpers::percent($order_amount['invoice_amount'], $percent_to_invoice);
@@ -656,132 +673,103 @@ class InvoiceController extends Controller{
             }
         }
 
-        //Cálculo IVA:
-        // if($total_amount > 0){
-        //     $iva_amount = helpers::percent($total_amount, $this->co_iva);
-        //     $amount_with_iva = $total_amount + $iva_amount;
-        // }
+        //Formateando fechas:
+        $fiscal_date = $request->fiscal_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->fiscal_date):$request->fiscal_date:false;
+
+        //Generando factura:
+        $invoice_data = [
+            'total_amount' => $total_amount,
+            'amount_with_iva' => $amount_with_iva,
+            'amount_priority' => $amount_priority,
+            'percentage_invoiced' => $percentage_invoiced,
+            'fiscal_date' => $fiscal_date,
+            'serie' => NULL
+        ];
+        $invoice = Invoice::setInvoice($order, $invoice_data);
+
+        //Número de factura:
+        if($request->pattern_id){
+            $patternNum = $this->setPatternNumber('invoice', $request->pattern_id);
         
-        //Cuenta bancaria cliente:
-        $bank_account_ = BankAccounts::select('id')
-        ->where('company_id', $order->customer_id)
-        ->where('featured', 1)
-        ->where('status', 1)
-        ->first();
-        $bank_account = $bank_account_? $bank_account_->id:NULL;
-
-        //Cuenta bancaria proveedor:
-        $provider_bank_account_ = BankAccounts::select('id')
-        ->where('company_id', $order->provider_id)
-        ->where('featured', 1)
-        ->where('status', 1)
-        ->first();
-        $provider_bank_account = $provider_bank_account_? $provider_bank_account_->id:NULL;
-
-        //Configuraciones de proveedor:
-        $provider_settings = CustomerProviders::select('accounting_concept_id', 'pay_after_days', 'payday', 'payment_method_id')
-        ->where('customer_id', $order->customer_id)
-        ->where('provider_id', $order->provider_id)
-        ->first();
-
-        //Cálculo fecha vencimiento:
-        $expiration_date = helpers::calculateExpirationDate(date('Y-m-d'), $provider_settings->pay_after_days, $provider_settings->payday);
-
-        //Creamos cabecera de la factura, para poder utilizar su id:
-        $invoice = new Invoice();
-        $invoice->order_id = $order->id;
-        $invoice->user_id = Auth::user()->id;
-        $invoice->amount = $total_amount;
-        $invoice->amount_priority = $amount_priority;
-        $invoice->with_iva = CompanySettings::co_iva();
-        $invoice->amount_with_iva = $amount_with_iva;
-        $invoice->fiscal_date = date('Y-m-d');
-        $invoice->expiration_date = $expiration_date;
-        $invoice->bank_account_id = $bank_account;
-        $invoice->provider_bank_account_id = $provider_bank_account;
-        $invoice->status = config('constants.INVOICE_OPEN_');
-        $invoice->save();
-
-        //Marcamos el pedido como facturado:
-        if($invoice && !$order->invoiced){
-            $order->invoiced = true;
-            $order->save();
-
-            //Marcamos las líneas del pedido como facturadas:
-            Item::itemsAsInvoiced($order->id, true);
+            if(!empty($patternNum)){
+                $invoice->invoice_num = $patternNum['pattern_num'];  
+                $invoice->num_cardinal = $patternNum['num']; 
+                $invoice->pattern_id = $request->pattern_id;
+                $invoice->save();
+            } 
         }
 
         //Actualizamos previsiones de facturación:
-        if($percentage_invoiced){
-            //Eliminamos las previsiones no facturadas.
-            OrderPrevisions::where('order_id', $order->id)
-            ->whereNull('invoice_id')
-            ->forceDelete();
+        // if($percentage_invoiced){
+        //     //Eliminamos las previsiones no facturadas.
+        //     OrderPrevisions::where('order_id', $order->id)
+        //     ->whereNull('invoice_id')
+        //     ->forceDelete();
 
-            //Generamos previsión con el importe facturado:
-            $prevision = new OrderPrevisions();
-            $prevision->order_id = $order->id;
-            $prevision->year = Date('Y');
-            $prevision->month = Date('m');
-            $prevision->amount = $total_amount;
-            $prevision->percent = round($percentage_invoiced, 2);
-            $prevision->save();    
+        //     //Generamos previsión con el importe facturado:
+        //     $prevision = new OrderPrevisions();
+        //     $prevision->order_id = $order->id;
+        //     $prevision->year = Date('Y');
+        //     $prevision->month = Date('m');
+        //     $prevision->amount = $total_amount;
+        //     $prevision->percent = round($percentage_invoiced, 2);
+        //     $prevision->save();    
 
-            //Generamos nueva previsión con el importe restante:
-            $pending_amount = $previous_amount - ($outstanding_amount - $total_amount);
-            $pending_percent = 100 - ($outstanding_percent - $percentage_invoiced);
-            if($pending_amount > 0.01){
-                $prevision_ = new OrderPrevisions();
-                $prevision_->order_id = $order->id;
-                $prevision_->year = Date('Y');
-                $prevision_->month = NULL;
-                $prevision_->amount = round($pending_amount, 2);
-                $prevision_->percent = round($pending_percent, 2);
-                $prevision_->save();
-            }
-        }
+        //     //Generamos nueva previsión con el importe restante:
+        //     $pending_amount = $previous_amount - ($outstanding_amount - $total_amount);
+        //     $pending_percent = 100 - ($outstanding_percent - $percentage_invoiced);
+        //     if($pending_amount > 0.01){
+        //         $prevision_ = new OrderPrevisions();
+        //         $prevision_->order_id = $order->id;
+        //         $prevision_->year = Date('Y');
+        //         $prevision_->month = NULL;
+        //         $prevision_->amount = round($pending_amount, 2);
+        //         $prevision_->percent = round($pending_percent, 2);
+        //         $prevision_->save();
+        //     }
+        //}
 
         //Pasamos nº de factura a la previsión:
-        if($invoice && $prevision){
-            $prevision->invoice_id = $invoice->id;
-            $prevision->save();
-        }
+        // if($invoice && $prevision){
+        //     $prevision->invoice_id = $invoice->id;
+        //     $prevision->save();
+        // }
 
         //Recalculando porcentaje de las previsiones de facturación. Se considera que con un porcentaje por facturar por debajo del 0.1%, ya no queda nada por facturar.
         //$all_invoiced = $outstanding_percent < 0.1? true:false;
         //OrderPrevisions::recalculatePrevisionsPercent($order, $all_invoiced);
 
         //Asiento contable:
-        $this->setInvoiceSeat($invoice, $order, $order_amount, $percentage_invoiced, $request->customer_accounting_account);
+        // $this->setInvoiceSeat($invoice, $order, $order_amount, $percentage_invoiced, $request->customer_accounting_account);
 
-        //Pagas y señales:
-        $sign_payments = Payment::where('order_id', $order->id)
-        ->where('is_pay_sign', 1)
-        ->sum('amount');
+        // //Pagas y señales:
+        // $sign_payments = Payment::where('order_id', $order->id)
+        // ->where('is_pay_sign', 1)
+        // ->sum('amount');
 
         //Efecto contable:
-        $effect_amount = $invoice->amount_with_iva - $sign_payments;
-        $data_effect = [
-            'is_group' => false,
-            'parent' => NULL,
-            'date' => $invoice->fiscal_date,
-            'provider_id' => $order->provider_id,
-            'provider_bank_account_id' => $provider_bank_account,
-            'customer_id' => $order->customer_id,
-            'customer_bank_account_id' => $bank_account,
-            'invoice_id' => $invoice->id,
-            //'serie_id' => $other_data['serie'],
-            'remittance_id' => NULL,                //31/08/23 La remesa permanece NULL hasta que se incluye el efecto en alguna remesa. Es un proceso posterior y manual.
-            'payment_method_id' => $invoice->payment_method_id,
-            'payment_status' => NULL,
-            'amount' => $effect_amount,             //Se descuenta la paga y señal.
-            'currency_id' => $this->currency->id,
-            'created_by' => Auth::user()->id,
-            'updated_by' => NULL,
-            'status' => config('constants.EFFECT_STATUS_PENDENT_'),
-            'is_group' => false
-        ];
-        Effect::setEffect($data_effect);
+        // $effect_amount = $invoice->amount_with_iva - $sign_payments;
+        // $data_effect = [
+        //     'is_group' => false,
+        //     'parent' => NULL,
+        //     'date' => $invoice->fiscal_date,
+        //     'provider_id' => $order->provider_id,
+        //     'provider_bank_account_id' => $provider_bank_account,
+        //     'customer_id' => $order->customer_id,
+        //     'customer_bank_account_id' => $bank_account,
+        //     'invoice_id' => $invoice->id,
+        //     //'serie_id' => $other_data['serie'],
+        //     'remittance_id' => NULL,                //31/08/23 La remesa permanece NULL hasta que se incluye el efecto en alguna remesa. Es un proceso posterior y manual.
+        //     'payment_method_id' => $invoice->payment_method_id,
+        //     'payment_status' => NULL,
+        //     'amount' => $effect_amount,             //Se descuenta la paga y señal.
+        //     'currency_id' => $this->currency->id,
+        //     'created_by' => Auth::user()->id,
+        //     'updated_by' => NULL,
+        //     'status' => config('constants.EFFECT_STATUS_PENDENT_'),
+        //     'is_group' => false
+        // ];
+        // Effect::setEffect($data_effect);
 
         $msg = trans('textos.factura_creada');
         return redirect()->route('invoices.edit', [$invoice->id, false])->with(compact('msg'));
@@ -873,6 +861,7 @@ class InvoiceController extends Controller{
             // if($percentage_invoiced){
             //     $next_previsions_to_invoice->percent = $percentage_invoiced;
             // }
+            $next_previsions_to_invoice->month = Date('m');
             $next_previsions_to_invoice->save();
         }
 
@@ -980,6 +969,8 @@ class InvoiceController extends Controller{
         $exist = Invoice::select('invoices.id')
         ->join('orders', 'invoices.order_id', '=', 'orders.id')
         ->where('orders.provider_id', $request->provider_id)
+        ->where('orders.customer_id', session('currentCompany'))
+        ->whereYear('invoices.invoice_date', date('Y'))
         ->where(function($query) use ($invoiceNum){  
             $query->where('invoice_num', '=', $invoiceNum) 
             ->orWhere('invoice_old_num', '=', $invoiceNum);
@@ -995,7 +986,7 @@ class InvoiceController extends Controller{
         $fiscal_date = $request->fiscal_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->fiscal_date):$request->fiscal_date:NULL;
         $invoice_date = $request->invoice_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->invoice_date):$request->invoice_date:NULL;
         //$expiration_date = $request->expiration_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->expiration_date):$request->expiration_date:NULL;    //Esta fecha puede verse modificada posteriormente si existen valores de configuración de condiciones de pago para el cliente.  
-        //17/12/2023: se omite esta opción para que inicialmente se calcule la fecha de vencimiento según la configuración debida, y ya en la edición se puede establecer libremente      
+        //17/12/2023: se omite esta opción para que inicialmente se calcule la fecha de vencimiento según la configuración debida, y ya en la edición se puede establecer libremente.     
         $expiration_date = NULL;
 
         //Comprobamos si la fecha fiscal es válida, que el mes y año no estén cerrados.
@@ -1008,6 +999,12 @@ class InvoiceController extends Controller{
             }
         }
 
+        //Condiciones comerciales:
+        $provider_settings = CustomerProviders::select('id', 'accounting_concept_id', 'expense_account_id', 'pay_after_days', 'payday', 'payment_method_id', 'num_deadlines', 'days_between_deadlines')
+        ->where('customer_id', session('currentCompany'))
+        ->where('provider_id', $request->provider_id)
+        ->first();
+
         //Creamos pedido si no existe. Seteamos la variable $add_items para indicar si se deben introducir líneas del pedido o no.
         if(!$request->order_id){
             $order = new Order();
@@ -1017,6 +1014,8 @@ class InvoiceController extends Controller{
             $order->provider_id = $request->provider_id;
             $order->order_status = config('constants.ORDER_FINISHED_');     //Damos el pedido por finalizado.
             $order->customer_cost_center_id = $request->cost_center;
+            $order->num_deadlines = $provider_settings->num_deadlines;
+            $order->days_between_deadlines = $provider_settings->days_between_deadlines;
             $order->invoiced = 1;
             $order->blocked = true;
             $order->save();
@@ -1063,17 +1062,7 @@ class InvoiceController extends Controller{
         //Subir documento:
         $doc = $this->loadFile($request, 'invoices');
 
-        //Configuraciones con el proveedor:
-        $provider_settings = CustomerProviders::select('accounting_concept_id', 'pay_after_days', 'payday', 'payment_method_id')
-        ->where('customer_id', $order->customer_id)
-        ->where('provider_id', $order->provider_id)
-        ->first(); 
-
         //Cálculo fecha vencimiento:
-        $provider_settings = CustomerProviders::select('id', 'accounting_concept_id', 'expense_account_id', 'pay_after_days', 'payday', 'payment_method_id')
-        ->where('customer_id', $order->customer_id)
-        ->where('provider_id', $order->provider_id)
-        ->first();
         if($provider_settings && $provider_settings->pay_after_days){
             $expiration_date = helpers::calculateExpirationDate($fiscal_date, $provider_settings->pay_after_days, $provider_settings->payday);
         }
@@ -1125,7 +1114,7 @@ class InvoiceController extends Controller{
         $order_amount = $order->getAmount(true, true);
 
         //Cuenta contable de proveedor:
-        $provider_accounting_account = AccountingAccount::select('id', 'with_iva')
+        $provider_accounting_account = AccountingAccount::select('id', 'account', 'name', 'with_iva')
         ->where('company_id', $order->customer_id)
         ->where('company_target', $order->provider_id)
         ->where('mode', 2)      //Modo proveedor.
@@ -1339,7 +1328,14 @@ class InvoiceController extends Controller{
             if($pba->featured == 1) $provider_bank_featured = $pba->id;
         }
 
-        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'is_sale', 'order', 'suborders', 'invoiced', 'invoices', 'refund', 'customer', 'customer_settings', 'provider', 'provider_account', 'provider_settings', 'items', 'products', 'ivaTypes', 'patterns', 'payments', 'seat', 'seat_error', 'templates', 'featuredTemplate', 'currency', 'languages', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'payment_methods', 'customer_bank_accounts', 'customer_bank_featured', 'provider_bank_accounts', 'provider_bank_featured'));
+        //Patrones de numeración de facturas:
+        $invoice_patterns = InvoicePatterns::select('id', 'name', 'yearly_reset')
+        ->where('company_id', $provider->id)
+        ->where('status', 1)
+        ->pluck('name', 'id')
+        ->toArray();
+
+        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'is_sale', 'order', 'suborders', 'invoiced', 'invoices', 'refund', 'customer', 'customer_settings', 'provider', 'provider_account', 'provider_settings', 'items', 'products', 'ivaTypes', 'patterns', 'payments', 'seat', 'seat_error', 'templates', 'featuredTemplate', 'currency', 'languages', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'payment_methods', 'customer_bank_accounts', 'customer_bank_featured', 'provider_bank_accounts', 'provider_bank_featured', 'invoice_patterns'));
     }
 
     /**
@@ -1528,7 +1524,14 @@ class InvoiceController extends Controller{
         ->orderBy('name', 'ASC')
         ->get();
 
-        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'project', 'is_sale', 'order', 'invoiced', 'invoices', 'refund', 'customer', 'customer_account', 'provider', 'provider_account', 'provider_settings', 'structure_concepts', 'items', 'products', 'ivaTypes', 'provider_cost_centers', 'currency', 'languages', 'patterns', 'payments', 'seat', 'seat_error', 'templates', 'featuredTemplate', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'payment_methods', 'concepts', 'customer_bank_accounts', 'customer_bank_featured', 'provider_bank_accounts', 'provider_bank_featured', 'accounting_products'));
+        //Patrones de numeración de facturas:
+        $invoice_patterns = InvoicePatterns::select('id', 'name', 'yearly_reset')
+        ->where('company_id', $order->customer_id)
+        ->where('status', 1)
+        ->pluck('name', 'id')
+        ->toArray();
+
+        return view('admin.invoices.edit')->with(compact('header', 'invoice', 'tab', 'project', 'is_sale', 'order', 'invoiced', 'invoices', 'refund', 'customer', 'customer_account', 'provider', 'provider_account', 'provider_settings', 'structure_concepts', 'items', 'products', 'ivaTypes', 'provider_cost_centers', 'currency', 'languages', 'patterns', 'payments', 'seat', 'seat_error', 'templates', 'featuredTemplate', 'permitted', 'module_budgets', 'module_products', 'module_projects', 'order_amount', 'payment_methods', 'concepts', 'customer_bank_accounts', 'customer_bank_featured', 'provider_bank_accounts', 'provider_bank_featured', 'accounting_products', 'invoice_patterns'));
     }
 
     /**
@@ -1596,7 +1599,6 @@ class InvoiceController extends Controller{
             $order_amount = $order->getAmount(true, true);
             $base_amount = $order_amount['total_amount'];
             $invoice_amount = $order_amount['invoice_amount'];
-            //$arr_amount = InvoiceItems::setInvoiceAmount($invoice);
             
             //Descontando IRPF:
             // if($invoice->irpf > 0){
@@ -2198,6 +2200,15 @@ class InvoiceController extends Controller{
         //Eliminamos las previsiones de facturación asociadas a la factura:
         OrderPrevisions::where('invoice_id', $invoice->id)->delete();
 
+        //Si se trata de un abono, eliminamos las líneas vinculadas del pedido:
+        if($invoice->refund){
+            Item::where('order_id', $order_id)
+            ->where('price', '<', 0)
+            ->whereNull('product_id') 
+            ->whereDate('created_at', '=', DATE($invoice->created_at))
+            ->delete();
+        }
+
         //Eliminamos la numeración customizada:
         $invoice->invoice_num = NULL;
         $invoice->num_cardinal = NULL;
@@ -2309,13 +2320,42 @@ class InvoiceController extends Controller{
         $refund->template_id = $invoice->template_id;
         $refund->template = $invoice->template;
         $refund->save();
-                
+
+        //Número de factura:
+        if($request->pattern_id){
+            $patternNum = $this->setPatternNumber('invoice', $request->pattern_id);
+        
+            if(!empty($patternNum)){
+                $refund->invoice_num = $patternNum['pattern_num'];  
+                $refund->num_cardinal = $patternNum['num']; 
+                $refund->pattern_id = $request->pattern_id;
+                $refund->save();
+            } 
+        }
+
+        //Info pedido:
+        $order = Order::select('id', 'is_group', 'invoiced', 'provider_id', 'bag_amount')
+        ->find($invoice->order_id);
+
+        //Importe del pedido:
+        $order_amount = $order->getAmount();
+
+        //Porcentaje del pedido, sobre el importe del pedido sin ningún abono:
+        $percent = round( ($refund->amount * 100) / $order_amount['total_amount'], 6);
+
+        //Generamos previsión en negativo y ya facturada:
+        $prevision_refund = new OrderPrevisions();
+        $prevision_refund->order_id = $invoice->order_id;
+        $prevision_refund->year = Date('Y');
+        $prevision_refund->month = Date('m');
+        $prevision_refund->amount = $refund->amount * -1;
+        $prevision_refund->percent = $percent * -1;
+        $prevision_refund->invoice_id = $refund->id;
+        $prevision_refund->save();
+              
         //Al generarse una factura de abono, sólo si el abono es íntegro, el pedido original vuelve a estado de pendiente de facturación y la factura a estado de devuelta. Las líneas se marcan como no facturadas.
         //En caso de tratarse de una agrupación, los pedidos de anidados que se encuentren en la factura también a estado sin facturar.
         if($request->refund == 't'){
-            $order = Order::select('id', 'is_group', 'invoiced')
-            ->find($invoice->order_id);
-
             $order->invoiced = false;
             $order->save();
 
@@ -2356,13 +2396,129 @@ class InvoiceController extends Controller{
             $new_order_prevision->order_id = $invoice->order_id;
             $new_order_prevision->year = Date('Y');
             $new_order_prevision->amount = $refund_amount;
-            $new_order_prevision->percent = ($refund_amount * 100) / $invoice->amount;
+            // $new_order_prevision->percent = ($refund_amount * 100) / $invoice->amount;
+            $new_order_prevision->percent = $percent;
             $new_order_prevision->save();
 
         }elseif($request->refund == 't'){
             OrderPrevisions::where('invoice_id', $invoice->id)
-            ->update(['month' => NULL, 'percent' => 100, 'amount' => $refund_amount, 'invoice_id' => NULL]);
+            ->update(['month' => NULL, 'percent' => -100, 'amount' => $refund_amount * -1, 'invoice_id' => NULL]);
         }
+
+        //Añadir línea negativa en el pedido:
+        //24/12/2024: se elimina esta opción para que el pedido mantenga el importe original:
+        // $refundId = $refund->invoice_num? $refund->invoice_num:$refund->id;
+        // $item_ = new Item();
+        // $item_->order_id = $invoice->order_id;
+        // $item_->concept = $request->concept != ''? $request->concept:trans('textos.factura_abono').' '.$refundId;
+        // $item_->qty = 1;
+        // $item_->price = $refund->amount * -1;
+        // $item_->iva = $invoice->with_iva;
+        // $item_->invoice_id = $refund->id;
+        // $item_->invoiced = date('Y-m-d H:i:s');
+        // $item_->active = 1;
+        // $item_->status = NULL;
+        // $item_->user_id = Auth::user()->id;
+        // $item_->save();
+
+        //Asiento contable:
+        //1. Pedido de la factura:
+        $order = Order::select('id', 'provider_id', 'customer_id')->find($invoice->order_id);
+
+        //2. Líneas del asiento contable:
+        $seat_lines = [];
+        $iva_lines = [];
+        $iva_errors = [];   //Guardo los tipos de IVA no vinculados a ninguna cuenta contable.
+
+        $seat_lines['accounting_account'] = [];
+        $seat_lines['type'] = [];
+        $seat_lines['debit'] = [];
+        $seat_lines['credit'] = [];
+
+        //3. Línea de cliente (HABER - CREDIT):
+        //3.1. Cuenta contable cliente:
+        $customer_accounting_account = AccountingAccount::select('id', 'account')
+        ->where('company_id', $order->provider_id)
+        ->where('company_target', $order->customer_id)
+        ->first();
+
+        //3.2. Líneas del HABER
+        $seat_lines['accounting_account_id'][] = $customer_accounting_account? $customer_accounting_account->id:NULL;
+        $seat_lines['accounting_account'][] = $customer_accounting_account? $customer_accounting_account->account:NULL;
+        $seat_lines['type'][] = NULL;       //15/09/24 Preguntar para definir el tipo. 
+        $seat_lines['debit'][] = NULL;
+        $seat_lines['credit'][] = $refund->amount_with_iva;
+
+        //4. Líneas de proveedor (HABER - CREDIT):
+        //4.1. Cuentas contables proveedor:
+        $provider_accounting_accounts = AccountingAccount::select('id', 'account', 'featured')
+        ->where('company_id', $order->provider_id)
+        ->where('mode', 4)
+        ->where('featured', '>', 0)
+        ->get();
+
+        //4.2. Cuentas para el DEBE:
+        $account_amount_id = NULL;
+        $account_amount = NULL;
+        
+        foreach($provider_accounting_accounts as $paa){
+            if($paa->featured == config('constants.ACCOUNT_DEFAULT_SALES_')){
+                $account_amount_id = $paa->id;
+                $account_amount = $paa->account;
+            }
+        }
+
+        //4.3. Línea base factura:
+        $seat_lines['accounting_account_id'][] = $account_amount_id;
+        $seat_lines['accounting_account'][] = $account_amount;
+        $seat_lines['type'][] = NULL;   //15/09/24 Preguntar para definir el tipo. 
+        $seat_lines['debit'][] = $refund->amount;
+        $seat_lines['credit'][] = NULL;
+
+        //4.4. Cuentas IVA soportado:
+        $iva_account = AccountingAccount::select('id', 'account', 'name', 'mode', 'type', 'iva_type_id')
+        ->where('company_id', $order->provider_id)
+        ->where('company_target', $order->provider_id)
+        ->where('account', 'LIKE', config('constants.ACCOUNTING_ACCOUNT_IVA_PREFIX_SALES_').'%')      //Filtro por prefijo 477 (IVA para ventas)
+        ->where('iva_type_id', config('constants.IVA_DEFAULT_ID_'))
+        ->first();
+
+        $iva_lines['accounting_account_id'][] = $iva_account->id;
+        $iva_lines['accounting_account'][] = $iva_account->account;
+        $iva_lines['type'][] = NULL;
+        $iva_lines['debit'][] = round( ($refund->amount_with_iva - $refund->amount), 2);
+        $iva_lines['credit'][] = NULL;
+
+        $seat_type = 30;
+
+        //Generando asiento contable:
+        $data = [
+            'company_id' => $order->provider_id,
+            'seat_num' => NULL,
+            'seat_type' => $seat_type,
+            'seat_date' => $refund->fiscal_date,
+            'operation_type' => NULL,
+            'diary' => 'dv',
+            'concept' => trans('textos.abono').' - '.$refund->id,
+            'description' => trans('textos.abono_factura_num').' '.$invoice->invoice_num,
+            'serie' => NULL,        //15/09/24 preguntar por la serie.
+            'doc_num' => $refund->id,
+            'doc' => NULL,
+            'sort_num' => 1,
+            'company_target' => $order->customer_id,
+            'mode' => NULL,
+            'currency_id' => $this->currency->id,
+            'invoice_id' => $refund->id,
+            'invoice_amount' => $refund->amount,
+            'invoice_amount_iva' => $refund->amount_with_iva,
+            'provider_doc' => NULL,
+            'cash_id' => NULL,
+            'pay_sign' => NULL,
+            // 'accounting_sale_id' => NULL,
+            'seat_lines' => $seat_lines,
+            'iva_lines' => $iva_lines
+        ];
+        $seat = Seat::saveSeat($data);
 
         $msg = trans('textos.factura_abono_creada');
         return redirect()->route('invoices.edit', $refund->id)->with(compact('msg'));
@@ -2624,35 +2780,35 @@ class InvoiceController extends Controller{
 
             //Se genera el asiento contable si todos los tipos de IVA están vinculados a cuenta contable:
             if(empty($iva_errors)){
-                $seat_data = [
-                    'company_id' => session('currentCompany'),
-                    'seat_num' => NULL,
-                    'seat_type' => NULL,
-                    'seat_date' => date('Y-m-d'),
-                    'operation_type' => NULL,
-                    'diary' => NULL,
-                    'concept' => trans('textos.factura_venta').' - '.$invoice->id,
-                    'description' => NULL,
-                    'serie' => NULL,
-                    'doc_num' => NULL,
-                    'doc' => NULL,
-                    'sort_num' => '',
-                    'company_target' => $order->customer_id,
-                    'mode' => NULL,
-                    'currency_id' => $this->currency->id,
-                    'invoice_id' => $invoice->id,
-                    'invoice_amount' => $invoice->amount,
-                    'invoice_amount_iva' => $invoice->amount_with_iva,
-                    'provider_doc' => NULL,
-                    'cash_id' => NULL,
-                    'pay_sign' => NULL,
-                    // 'accounting_sale_id' => NULL,
-                    'seat_lines' => $seat_lines,
-                    'iva_lines' => $iva_lines
-                ];
-                $seat = Seat::saveSeat($seat_data);
+                // $seat_data = [
+                //     'company_id' => session('currentCompany'),
+                //     'seat_num' => NULL,
+                //     'seat_type' => NULL,
+                //     'seat_date' => date('Y-m-d'),
+                //     'operation_type' => NULL,
+                //     'diary' => NULL,
+                //     'concept' => trans('textos.factura_venta').' - '.$invoice->id,
+                //     'description' => NULL,
+                //     'serie' => NULL,
+                //     'doc_num' => NULL,
+                //     'doc' => NULL,
+                //     'sort_num' => '',
+                //     'company_target' => $order->customer_id,
+                //     'mode' => NULL,
+                //     'currency_id' => $this->currency->id,
+                //     'invoice_id' => $invoice->id,
+                //     'invoice_amount' => $invoice->amount,
+                //     'invoice_amount_iva' => $invoice->amount_with_iva,
+                //     'provider_doc' => NULL,
+                //     'cash_id' => NULL,
+                //     'pay_sign' => NULL,
+                //     // 'accounting_sale_id' => NULL,
+                //     'seat_lines' => $seat_lines,
+                //     'iva_lines' => $iva_lines
+                // ];
+                // $seat = Seat::saveSeat($seat_data);
 
-                return $seat;
+                //return $seat;
 
             //Guardamos el error:
             }else{
@@ -2676,9 +2832,9 @@ class InvoiceController extends Controller{
         $iva_lines = [];
         $iva_errors = [];   //Guardo los tipos de IVA no vinculados a ninguna cuenta contable.
 
-        //1. Cuenta contable del cliente (DEBIT):
+        //1. Cuenta contable del cliente (DEBE - DEBIT):
         //1.1. Obtenemos los productos contables de los items del pedido:
-        $purchase_products = Item::select('items.id', 'items.product_id', 'items.purchase_product_id', 'items.qty', 'items.price', 'items.item_no_price', 'items.iva', 'items.equivalence_surcharge', 'items.irpf', 'items.discount', 'items.calculated_by_percent', 'items.days', 'items.days_continue', 'items.days_continue_discount', 'purchase_products.iva AS pp_iva', 'purchase_products.accounting_account_id')
+        $purchase_products = Item::select('items.id', 'items.concept', 'items.product_id', 'items.purchase_product_id', 'items.qty', 'items.price', 'items.item_no_price', 'items.iva', 'items.equivalence_surcharge', 'items.irpf', 'items.discount', 'items.calculated_by_percent', 'items.days', 'items.days_continue', 'items.days_continue_discount', 'purchase_products.iva AS pp_iva', 'purchase_products.accounting_account_id')
         ->leftJoin('purchase_products', 'items.purchase_product_id', '=', 'purchase_products.id')
         ->where('items.order_id', $order->id)
         ->get();
@@ -2694,13 +2850,13 @@ class InvoiceController extends Controller{
         }
 
         //Buscamos la cuenta contable para compras por defecto...:
-        $purchase_default_account = AccountingAccount::select('id')
+        $purchase_accounting_account = AccountingAccount::select('id', 'account', 'name')
         ->where('company_id', $order->customer_id)
         ->where('featured', config('constants.ACCOUNT_DEFAULT_PURCHASES_'))
         ->first();
 
         // ... o se crea nueva cuenta y se configura como principal:
-        if(!$purchase_default_account){
+        if(!$purchase_accounting_account){
             //Tipos de cuentas específicas:
             $account_types = helpers::accountingAccountSpecificPrefixes();
             $prefix = $account_types['provider'];
@@ -2708,19 +2864,19 @@ class InvoiceController extends Controller{
             //Número de la cuenta:
             $account = AccountingAccount::setAccountNum($prefix, $order->customer_id);
 
-            $purchase_default_account = new AccountingAccount();
-            $purchase_default_account->company_id = $order->customer_id;
-            $purchase_default_account->account = $account;       
-            $purchase_default_account->name = ucfirst(trans('textos.compras'));
-            $purchase_default_account->mode = 2;
-            $purchase_default_account->type = 'p';
-            //$purchase_default_account->earnings_loses = $earnings_loses;
-            //$purchase_default_account->company_target = NULL;
-            $purchase_default_account->status = 1;
-            $purchase_default_account->featured = config('constants.ACCOUNT_DEFAULT_PURCHASES_');
-            $purchase_default_account->with_iva = 1;
-            $purchase_default_account->created_by = Auth::user()->id;
-            $purchase_default_account->save(); 
+            $purchase_accounting_account = new AccountingAccount();
+            $purchase_accounting_account->company_id = $order->customer_id;
+            $purchase_accounting_account->account = $account;       
+            $purchase_accounting_account->name = ucfirst(trans('textos.compras'));
+            $purchase_accounting_account->mode = 2;
+            $purchase_accounting_account->type = 'p';
+            //$purchase_accounting_account->earnings_loses = $earnings_loses;
+            //$purchase_accounting_account->company_target = NULL;
+            $purchase_accounting_account->status = 1;
+            $purchase_accounting_account->featured = config('constants.ACCOUNT_DEFAULT_PURCHASES_');
+            $purchase_accounting_account->with_iva = 1;
+            $purchase_accounting_account->created_by = Auth::user()->id;
+            $purchase_accounting_account->save(); 
         }
 
         $k = 0;
@@ -2729,63 +2885,110 @@ class InvoiceController extends Controller{
         foreach($purchase_products as $pp){
             $amt = helpers::itemAmount($pp);
 
-            $seat_lines[$k]['accounting_account_id'] = isset($pp->accounting_account_id)? $pp->accounting_account_id:$purchase_default_account->id;
-            $seat_lines[$k]['type'] = NULL;
-            $seat_lines[$k]['debit'] = $amt['amount_without_iva'];
-            $seat_lines[$k]['credit'] = '0';
+            $seat_lines['accounting_account_id'][] = isset($pp->accounting_account_id)? $pp->accounting_account_id:$purchase_accounting_account->id;
+            $seat_lines['type'][] = NULL;
+            $seat_lines['debit'][] = $amt['amount_without_iva'];
+            $seat_lines['credit'][] = '0';
 
             $k++;
         }
 
-        //2. Cuenta contable del proveedor (CREDIT):
+        //2. Cuenta contable del proveedor (HABER - CREDIT):
         if($provider_accounting_account){
-            $seat_lines[$k]['accounting_account_id'] = $provider_accounting_account->id;
-            $seat_lines[$k]['type'] = NULL;
-            $seat_lines[$k]['debit'] = '0';
-            $seat_lines[$k]['credit'] = $invoice->amount_with_iva;
+            $seat_lines['accounting_account_id'][] = $provider_accounting_account->id;
+            $seat_lines['type'][] = NULL;
+            $seat_lines['debit'][] = '0';
+            $seat_lines['credit'][] = $invoice->amount_with_iva;
         }
 
-        //3. Cuenta de ventas IVA:
+        //3. Cuentas IVA soportado:
         //3.1. Importes de IVA separados por tipo:
         $iva_amounts = $order_amount['iva_amounts'];
 
-        //3.2. Cuentas contables vinculadas a cada tipo de IVA. Atención a la condición sobre la coincidencia de la cuenta, sólo debe seleccionar, en este caso, las de IVA soportado.
-        foreach($iva_amounts as $idx => $val){
-            $line = [];
-
-            //Obtenemos el porcentaje de IVA si la factura no es por el importe total del pedido:
-            if($percentage_invoiced && $percentage_invoiced > 0){
-                $val = round(($val * $percentage_invoiced) / 100, 2);
-            }
-
-            $iva_account = AccountingAccount::select('accounting_accounts.id')
-            ->join('iva_types', 'accounting_accounts.iva_type_id', '=', 'iva_types.id')
-            ->where('accounting_accounts.company_id', $order->customer_id)
-            ->where('accounting_accounts.account', 'LIKE', config('constants.ACCOUNTING_ACCOUNT_IVA_PREFIX_PURCHASES_').'%')
-            ->where('iva_types.iva', $idx)
-            ->first(); 
-
-            if($iva_account){
-                $line['accounting_account_id'] = $iva_account->id;
-                $line['type'] = NULL;
-                $line['debit'] = $val;
-                $line['credit'] = '0';
-
-                array_push($iva_lines, $line);
-
-            }else{
-                array_push($iva_errors, $idx);
-            }
+        //3.2. Tipos de IVA presentes entre las líneas del pedido.
+        $iva_types = IvaType::select('iva_types.id', 'iva_types.iva')
+        ->join('items', 'iva_types.iva', '=', 'items.iva')
+        ->where('items.order_id', $order->id)
+        ->groupBy('iva_types.id')
+        ->get();
+        $iva_types_id = [];
+        $iva_types_value = [];
+        foreach($iva_types as $it){
+            array_push($iva_types_id, $it->id);
+            $iva_types_value[$it->id] = $it->iva;
         }
 
+        //3.3. Cuentas contables vinculadas a cada tipo de IVA. Atención a la condición sobre la coincidencia de la cuenta, sólo debe seleccionar, en este caso, las de IVA soportado.
+        $iva_accounts = AccountingAccount::select('id', 'account', 'name', 'mode', 'type', 'iva_type_id')
+        ->where('company_id', $order->customer_id)
+        ->where('company_target', $order->customer_id)
+        ->where('account', 'LIKE', config('constants.ACCOUNTING_ACCOUNT_IVA_PREFIX_PURCHASES_').'%')
+        ->whereIn('iva_type_id', $iva_types_id)
+        ->get(); 
+
+        //3.4. Línea importe del IVA:
+        foreach($iva_accounts as $ia){
+            //Importe del IVA según el IVA asociado y proporcional al importe de la factura sobre el total del pedido:
+            $iva_amount = 0;
+
+            $iva_items = Item::select('id', 'qty', 'price', 'item_no_price', 'iva', 'discount', 'days', 'days_continue', 'days_continue_discount')
+            ->where('order_id', $order->id)
+            ->where('iva', $iva_types_value[$ia->iva_type_id])
+            ->whereNull('deleted_at')
+            ->get();
+
+            foreach($iva_items as $ii){
+                $ii_amount = helpers::itemAmount($ii, true);
+
+                $iva_amount = $iva_amount + $ii_amount['iva_amount'];
+            }
+
+            $iva_lines['accounting_account_id'][] = $ia->id;
+            $iva_lines['accounting_account'][] = $ia->account;
+            $iva_lines['type'][] = NULL;
+            $iva_lines['debit'][] = round($iva_amount, 2);
+            $iva_lines['credit'][] = NULL;
+
+
+
+
+
+
+            //Obtenemos el porcentaje de IVA si la factura no es por el importe total del pedido:
+            // if($percentage_invoiced && $percentage_invoiced > 0){
+            //     $val = round(($val * $percentage_invoiced) / 100, 2);
+            // }
+
+            // $iva_accounts = AccountingAccount::select('accounting_accounts.id')
+            // ->join('iva_types', 'accounting_accounts.iva_type_id', '=', 'iva_types.id')
+            // ->where('accounting_accounts.company_id', $order->customer_id)
+            // ->where('accounting_accounts.account', 'LIKE', config('constants.ACCOUNTING_ACCOUNT_IVA_PREFIX_PURCHASES_').'%')
+            // ->whereIn('iva_types.iva', $idx)
+            // ->first(); 
+
+            // if($iva_account){
+            //     $line['accounting_account_id'] = $iva_account->id;
+            //     $line['type'] = NULL;
+            //     $line['debit'] = $val;
+            //     $line['credit'] = '0';
+
+            //     array_push($iva_lines, $line);
+
+            // }else{
+            //     array_push($iva_errors, $idx);
+            // }
+        }
+
+        $invoiceNum = $invoice->invoice_num? $invoice->invoice_num:($invoice->invoice_old_num? $invoice->invoice_old_num:$invoice->id);
+
         $seat_data = [
-            'company_id' => session('currentCompany'),
+            'company_id' => $order->customer_id,
             'seat_num' => NULL,
             'seat_type' => NULL,
-            'seat_date' => date('Y-m-d'),
+            'seat_date' => $invoice->fiscal_date? $invoice->fiscal_date:date('Y-m-d'),
             'operation_type' => NULL,
             'diary' => NULL,
-            'concept' => trans('textos.factura_compra').' - '.$invoice->id,
+            'concept' => trans('textos.factura_compra').' - '.$invoiceNum,
             'description' => NULL,
             'serie' => NULL,
             'doc_num' => NULL,
@@ -2820,7 +3023,7 @@ class InvoiceController extends Controller{
 
         foreach($invoices as $inv){
             //Pedido:
-            $order = $inv->order_id? Order::select('id', 'order_status', 'order_parent', 'is_group', 'customer_id', 'provider_id', 'blocked', 'invoiced')
+            $order = $inv->order_id? Order::select('id', 'order_status', 'order_parent', 'is_group', 'customer_id', 'provider_id', 'blocked', 'invoiced', 'num_deadlines', 'days_between_deadlines')
             ->find($inv->order_id):false;
 
             if($order){

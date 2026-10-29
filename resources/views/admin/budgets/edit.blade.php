@@ -63,13 +63,13 @@ $order_amount_without_discount = $order_amount_without_discount_in_lines > $orde
 				<a href="{{ route('budgets.cancel', $order->id) }}" class="btn btn-danger btn-confirm" data-msg="{!! ucfirst(trans('textos.rechazar_presupuesto_confirm')) !!}">
 					<i class="fa fa-ban"></i>
 					{!! trans('textos.rechazar_presupuesto') !!}
-				</a>	
+				</a>
 			@endif
 		@endif
 
-		{{-- Importar presupuesto - condiciones: 
+		{{-- Importar presupuesto - condiciones:
 			1. Exclusivo cliente.
-			2. Para presupuestos con cliente final.	
+			2. Para presupuestos con cliente final.
 			...
 		--}}
 		@if($order->customer_id == session('currentCompany') && $order->final_customer_id)
@@ -79,7 +79,7 @@ $order_amount_without_discount = $order_amount_without_discount_in_lines > $orde
 			</a>
 		@endif
 
-		{{-- Vincular presupuesto de proveedor primero - condiciones: 
+		{{-- Vincular presupuesto de proveedor primero - condiciones:
 			1. Permisos de edición de presupuestos.
 			2. Exclusivo proveedor.
 			3. Que no exista un presupuesto vinculado previamente.
@@ -95,7 +95,7 @@ $order_amount_without_discount = $order_amount_without_discount_in_lines > $orde
 			@endif
 		@endcan
 
-		{{-- Cambio proveedor - condiciones: 
+		{{-- Cambio proveedor - condiciones:
 			1. Con permisos de edición de pedidos.
 			2. provider_id = empresa en sesión.
 			3. El usuario está vinculado a varias empresas.
@@ -105,7 +105,7 @@ $order_amount_without_discount = $order_amount_without_discount_in_lines > $orde
 			@if($order->provider_id == session('currentCompany') && count(session('companies')) > 1 && !$order->is_order)
 				<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-set-provider">
 					<i class="fa fa-exchange-alt"></i> {!! ucfirst(trans('textos.proveedor_cambio')) !!}
-				</a>	
+				</a>
 			@endif
 		@endcan
 
@@ -121,10 +121,10 @@ $order_amount_without_discount = $order_amount_without_discount_in_lines > $orde
 				</a>
 			@endif
 		@endcan
-		
-		{{-- Versiones - condiciones: 
+
+		{{-- Versiones - condiciones:
 			1. Permisos de edición.
-			2. Sólo proveedor.	
+			2. Sólo proveedor.
 		--}}
 		@can('budgets.edit')
 			@if($order->provider_id == session('currentCompany'))
@@ -152,14 +152,14 @@ $order_amount_without_discount = $order_amount_without_discount_in_lines > $orde
 
 							@foreach($versions as $vs)
 								<option value="{{ $vs->id }}" @if($vs->id == $order->id) selected @endif>{{ $vs->name }} {{ $vs->bkey }}</option>
-							@endforeach		
+							@endforeach
 						</select>
 					</div>
 				@endif
 			@endif
 		@endcan
 
-		{{-- Copiar presupuesto - condiciones: 
+		{{-- Copiar presupuesto - condiciones:
 			1. Permisos creación presupuestos.
 			2. Sólo proveedor.
 		--}}
@@ -177,14 +177,14 @@ $order_amount_without_discount = $order_amount_without_discount_in_lines > $orde
 			<i class="fa fa-print"></i>
 		</a>
 
-		{{-- Descuento - condiciones: 
+		{{-- Descuento - condiciones:
 			1. Disponer de permisos de edición de presupuestos.
 			2. No existir pedido o no facturado ni vinculado a una agrupación.
 			3. Exclusivo del proveedor.
 			4. No debe existir ya el descuento.
 			5. Sólo proveedor.
 			...
-		--}}	
+		--}}
 		@can('budgets.edit')
 			@if( (!$order->is_order || ($order && !$order->invoiced && !$order->order_parent)) && $order->provider_id == session('currentCompany') && !$order->discount && $order->provider_id == session('currentCompany'))
 				<a href="#" class="btn btn-warning" data-toggle="modal" data-target="#modal-budget-discount" rel="tooltip" title="{{ trans('textos.descuento_presupuesto') }}">
@@ -193,7 +193,7 @@ $order_amount_without_discount = $order_amount_without_discount_in_lines > $orde
 	    	@endif
 	    @endcan
 
-		{{-- Generar pedido - condiciones: 
+		{{-- Generar pedido - condiciones:
 			1. Estar activo el módulo de Pedidos.
 			2. Disponer de permisos para generar pedidos.
 			3. El presupuesto debe encontrarse en algún estado apto para generar pedidos.
@@ -223,7 +223,7 @@ $order_amount_without_discount = $order_amount_without_discount_in_lines > $orde
 			@endcan
 		@endif
 
-		{{-- Generar proyecto / link a proyecto - condiciones: 
+		{{-- Generar proyecto / link a proyecto - condiciones:
 			1. Estar activo el módulo de Proyectos.
 			2. Disponer de permisos para generar proyectos.
 			3. Sólo proveedor.
@@ -250,7 +250,7 @@ $order_amount_without_discount = $order_amount_without_discount_in_lines > $orde
 			@endif
 		@endif
 
-		{{-- Eliminar presupuesto - condiciones: 
+		{{-- Eliminar presupuesto - condiciones:
 			1. Disponer de permisos.
 			2. Pedido facturado.
 			3. Sólo proveedor.
@@ -268,14 +268,14 @@ $order_amount_without_discount = $order_amount_without_discount_in_lines > $orde
 </div>
 
 <div class="row">
-	<div class="col-12">						
+	<div class="col-12">
 		<div class="card mb-3">
 			<div class="card-body">
 				{{-- Componente importe presupuesto flotante: --}}
 				@livewire('budget-amount', ['budget_amount' => $order_amount, 'currency' => $currency->symbol, 'budget_amount_without_discount' => $order_amount_without_discount, 'environment' => 'budgets'])
 
 				<h3 class="mb-3">
-					{!! ucfirst(trans('textos.presupuesto')) !!} 
+					{!! ucfirst(trans('textos.presupuesto')) !!}
 					<u>
 						@if($order->budget_num)
 							{{ $order->budget_num }}
@@ -287,7 +287,7 @@ $order_amount_without_discount = $order_amount_without_discount_in_lines > $orde
 							- {{ $order->name }}
 						@endif
 					</u>
-				</h3>	
+				</h3>
 
 				{{-- Info --}}
 				<div class="mb-3" style="max-width: 95%;">
@@ -297,13 +297,13 @@ $order_amount_without_discount = $order_amount_without_discount_in_lines > $orde
 					{{-- Proveedor --}}
 					@include('admin.orders.partials.data-provider')
 
-					{{-- Proveedor primero - condiciones: 
+					{{-- Proveedor primero - condiciones:
 						1. Exclusivo proveedor.
 						2. Debe existir.
 					--}}
 					@if($order->provider_id == session('currentCompany') && $first_provider)
 						<label class="mr-5">
-							{!! ucfirst(trans('textos.proveedor_primero')) !!}: 
+							{!! ucfirst(trans('textos.proveedor_primero')) !!}:
 							<b>
 								{{ ucfirst($first_provider->name) }}
 							</b>
@@ -316,7 +316,7 @@ $order_amount_without_discount = $order_amount_without_discount_in_lines > $orde
 					{{-- Cliente Final --}}
 					@if($final_customer)
 						<label class="mr-5">
-							{!! ucfirst(trans('textos.cliente_final')) !!}: 
+							{!! ucfirst(trans('textos.cliente_final')) !!}:
 							<b>{{ $final_customer->name }}</b>
 						</label>
 					@endif
@@ -328,12 +328,12 @@ $order_amount_without_discount = $order_amount_without_discount_in_lines > $orde
 							<b><a target="_blank" href="{{ route('budgets.edit', $my_linked_budget->id) }}" class="text-warning">
 								@if($my_linked_budget->budget_num) {{ $my_linked_budget->budget_num }} @else {{ $my_linked_budget->id }} @endif
 							</a></b>
-						</label>	
+						</label>
 					@endif
 
 					{{-- Fecha alta --}}
 					<label class="mr-5">
-						{!! ucfirst(trans('textos.fecha_alta')) !!}: 
+						{!! ucfirst(trans('textos.fecha_alta')) !!}:
 						<b>
 							{{ $order->created_at->format($languages[session()->get('locale')][4].' H:i:s') }}
 						</b>
@@ -341,7 +341,7 @@ $order_amount_without_discount = $order_amount_without_discount_in_lines > $orde
 
 					{{-- Fecha última actualización --}}
 					<label class="mr-5">
-						{!! ucfirst(trans('textos.ultima_edicion')) !!}: 
+						{!! ucfirst(trans('textos.ultima_edicion')) !!}:
 						<b>
 							{{ $order->updated_at->format($languages[session()->get('locale')][4].' H:i:s') }}
 						</b>
@@ -382,23 +382,24 @@ $order_amount_without_discount = $order_amount_without_discount_in_lines > $orde
 					@include('admin.orders.partials.data-discount-applied', ['return' => 'orders', 'remove_discount' => $remove_discount])
 
 					{{-- Modalidad --}}
-					@if($order->provider_id == session('currentCompany'))
+					@if($order->provider_id == session('currentCompany') && $order->modality)
 						<label class="mr-5">
 							{{ ucfirst(trans('textos.modalidad')) }}:
 							<b>
 								@if($order->modality == 10)
 									@php
 									$form_selected = '';
+
 									foreach($forms as $f){
 										if($f->id == $order->form_id){
-											$form_selected = $f->name;	
+											$form_selected = $f->name;
 										}
 									}
 									@endphp
 
-									{{ trans('textos.formulario') }} <u>{{ $form_selected }}</u>
+									{{ trans('textos.formulario') }} <u>{!! $form_selected !!}</u>
 								@else
-	  					    		{!! App\Helpers\helpers::budgetModalities($order->modality) !!} 
+	  					    		{!! App\Helpers\helpers::budgetModalities($order->modality) !!}
 	  					   		@endif
 	  					   	</b>
 						</label>
@@ -418,7 +419,7 @@ $order_amount_without_discount = $order_amount_without_discount_in_lines > $orde
 					{{-- Proyecto --}}
 					@include('admin.orders.partials.link-project')
 
-					{{-- Acceso cliente - condiciones: 
+					{{-- Acceso cliente - condiciones:
 						1. Exclusivo proveedor.
 					--}}
 					@if($order->provider_id == session('currentCompany'))
@@ -443,18 +444,18 @@ $order_amount_without_discount = $order_amount_without_discount_in_lines > $orde
 			  		</li>
 
 			  		<li class="nav-item @if($tab == 'items') active @endif">
-			  			<a class="nav-link @if($tab == 'items') active @endif" href="#tab-items" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.lineas')) !!}</a>	
+			  			<a class="nav-link @if($tab == 'items') active @endif" href="#tab-items" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.lineas')) !!}</a>
 			  		</li>
 
 			  		<li class="nav-item @if($tab == 'docs') active @endif">
-			  			<a class="nav-link @if($tab == 'docs') active @endif" href="#tab-docs" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.documentos')) !!}</a>	
+			  			<a class="nav-link @if($tab == 'docs') active @endif" href="#tab-docs" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.documentos')) !!}</a>
 			  		</li>
 
 			  		@if($order->provider_id == session('currentCompany'))
 				  		<li class="nav-item @if($tab == 'comments') active @endif">
-				  			<a class="nav-link @if($tab == 'comments') active @endif" href="#tab-comments" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.notas')) !!}</a>	
+				  			<a class="nav-link @if($tab == 'comments') active @endif" href="#tab-comments" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.notas')) !!}</a>
 				  		</li>
-			  		
+
 				  		<li class="nav-item @if($tab == 'template') active @endif">
 				    		<a class="nav-link @if($tab == 'template') active @endif" href="#tab-budget-template" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.plantilla')) !!}</a>
 				  		</li>
@@ -464,28 +465,28 @@ $order_amount_without_discount = $order_amount_without_discount_in_lines > $orde
 				<div class="tab-content pt-4">
 					{{-- Cabecera: --}}
 					<div class="tab-pane fade @if(!$tab) show active @endif" role="tabpanel" id="tab-info">
-						@include('admin.budgets.partials.budget-info')	
+						@include('admin.budgets.partials.budget-info')
 					</div>
 
 					{{-- Items: --}}
 					<div class="tab-pane fade @if($tab == 'items') show active @endif" role="tabpanel" id="tab-items">
-						@include('admin.budgets.partials.budget-items')	
+						@include('admin.budgets.partials.budget-items')
 					</div>
 
 					{{-- Documentos --}}
 					<div class="tab-pane fade @if($tab == 'docs') show active @endif" role="tabpanel" id="tab-docs">
-						@include('admin.orders.partials.order-docs')	
+						@include('admin.orders.partials.order-docs')
 					</div>
 
 					@if($order->provider_id == session('currentCompany'))
 						{{-- Notas: --}}
 						<div class="tab-pane fade @if($tab == 'comments') show active @endif" role="tabpanel" id="tab-comments">
-							@include('admin.budgets.partials.budget-comments')	
+							@include('admin.budgets.partials.budget-comments')
 						</div>
 
 						{{-- Plantilla del presupuesto: --}}
 						<div class="tab-pane fade @if($tab == 'template') show active @endif" role="tabpanel" id="tab-budget-template">
-							@include('admin.budgets.partials.budget-template')	
+							@include('admin.budgets.partials.budget-template')
 						</div>
 					@endif
 				</div>
@@ -519,7 +520,7 @@ $order_amount_without_discount = $order_amount_without_discount_in_lines > $orde
 
 {{-- Modify customer --}}
 @if(!$order || $order->percentage_invoiced == 0)
-	@include('admin.orders.partials.modal-set-customer', ['environment_' => 'budgets'])	
+	@include('admin.orders.partials.modal-set-customer', ['environment_' => 'budgets'])
 @endif
 
 {{-- Modify provider --}}
@@ -536,7 +537,7 @@ $order_amount_without_discount = $order_amount_without_discount_in_lines > $orde
 
 {{-- Budget modality --}}
 @if(!$order->modality)
-	@include('admin.budgets.partials.modal-modality')	
+	@include('admin.budgets.partials.modal-modality')
 @endif
 
 {{-- Set items without form block --}}
@@ -559,10 +560,10 @@ $order_amount_without_discount = $order_amount_without_discount_in_lines > $orde
 $(function(){
 	//Condición sobre aplicación de descuento.
 	$('.discount-amount').on('change', function(){
-		$('.discount-percent').val('');	
+		$('.discount-percent').val('');
 	});
 	$('.discount-percent').on('change', function(){
-		$('.discount-amount').val('');	
+		$('.discount-amount').val('');
 	});
 
 	//Selector de versión de presupuesto.
@@ -585,7 +586,7 @@ $(function(){
             status = 0;
         }else{
             status = 1;
-        }  
+        }
         $.get("/admin/budgets/"+order+"/customer-access/"+status, function(response, state){});
     });
 
@@ -609,22 +610,22 @@ $(function(){
                         //Atención al modo de marcar como selected las opciones en un Select2:
                         $('#budgetForm').val(arr);
                         $('#budgetForm').trigger('change');
-                    } 
+                    }
 
                     var numforms = $('#numForms').val();
                     if(numforms > 0){
                         $('#budgetForms').slideDown(500);
-                            
+
                     }else{
                         $('#sbtNewBudget').prop('disabled', true);
-                        $('#noBudgetForms').fadeIn();    
+                        $('#noBudgetForms').fadeIn();
                     }
-                }); 
+                });
             }
 
         	$('#budgetForms').slideDown();
         }
-    });   
+    });
 
     //Modal edición nombre de bloque:
     $('.editBlockName').on('click', function(){
@@ -636,7 +637,7 @@ $(function(){
     	$('#bfiName').val(name);
     	$('#bfiCostCenter').val(cost_center);
     	$('#bfiCostCenter').trigger('change');
-    }); 
+    });
 });
 </script>
 @endpush

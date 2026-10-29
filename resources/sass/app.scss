@@ -4624,13 +4624,15 @@ body.tour-open .animated {
   margin: 0 auto;
 }
 /* Dropzone */
-.dropzone {
+.dropzone,
+.dropzone_{
   min-height: 140px;
   border: 1px dashed $primary;
   background: white;
   padding: 20px 20px;
 }
-.dropzone .dz-message {
+.dropzone .dz-message, 
+.dropzone_ .dz-message{
   font-size: 16px;
 }
 /* Activity stream */
@@ -5357,7 +5359,7 @@ body.body-small .footer.fixed {
     }
 }
 
-.table-responsive{
+.table-responsive:not(.wo-min-height){
     min-height: 400px;
 }
 
@@ -10263,7 +10265,8 @@ body.md-skin {
     }
 }
 
-.dropzone {
+.dropzone,
+.dropzone_ {
     min-height: 150px;
     border: 1px solid $input-border-color !important;
     border-radius: 1px !important;
@@ -10274,6 +10277,14 @@ body.md-skin {
         color: #495057;
         font-size: 20px;
         font-weight: $flight;
+    }
+}
+.dropzone_ {
+    .dropzone_copy{
+        color: #495057;
+        font-size: 20px;
+        font-weight: $flight;
+        text-align: center;
     }
 }
 
@@ -10363,7 +10374,7 @@ body.md-skin {
     }
     &.for_chk{
         right: -10px;
-        top: 11px;
+        top: 5px;
     }
 }
 
@@ -11229,6 +11240,10 @@ ul{
                 font-weight: $extrabold;  
             }
 
+            &.no-weekend{
+                min-width: 40px;
+            }
+
             /******************/
 
             &.dia{
@@ -11954,6 +11969,43 @@ ul.ui-autocomplete {
                 }
             }
         }
+    }
+}
+
+.variant-attribute{
+    position: relative;
+
+    .va-confirm{
+        position: absolute;
+        right: -22px;
+        top: 3px;
+    }
+}
+
+.color-select{
+    border: 1px solid #e5e6e7;
+    border-radius: 1px;
+    display: block;
+    position: relative;   
+    width: 100%;
+
+    .color-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr); /* 4 columnas */
+        width: 100%;
+   
+        .color-cell {
+            align-items: center;
+            aspect-ratio: 1;
+            background-color: #ccc;
+            color: #FFF;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            margin: 0;
+            position: relative;
+            text-align: center; /* Centrar el texto */
+        } 
     }
 }
 

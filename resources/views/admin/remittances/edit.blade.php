@@ -10,10 +10,27 @@
 			{!! trans('textos.volver_remesas') !!}
 		</a>
 
-		{{-- Nueva remesa --}}
 		@can('remittances.create')
-			<a class="btn btn-info" href="{{ route('remittances.create') }}"><i class="fa fa-plus"></i> {!! ucfirst(trans('textos.remesa_nueva')) !!}</a>
+			{{-- Nueva remesa de cobros --}}
+			<a class="btn btn-info" href="{{ route('remittances.create', 'collection') }}"><i class="fa fa-plus"></i> {!! ucfirst(trans('textos.remesa_nueva_cobros')) !!}</a>
+
+			{{-- Nueva remesa de pagos --}}
+			<a class="btn btn-info" href="{{ route('remittances.create', 'payment') }}"><i class="fa fa-plus"></i> {!! ucfirst(trans('textos.remesa_nueva_pagos')) !!}</a>
 		@endcan
+
+		{{-- Generar XML --}}
+		<a href="{{ route('remittances.generate-xml', $remittance) }}" class="btn btn-info btn-confirm" data-msg="{{ ucfirst(trans('textos.xml_generar_confirm')) }}">
+			<i class="fa fa-file-alt"></i>
+			{!! trans('textos.xml_generar') !!}
+		</a>
+
+		{{-- Descargar XML --}}
+		@if($remittance->doc)
+			<a target="_blank" href="{{ asset('storage/remittances/'.$remittance->doc) }}" class="btn btn-info">
+				<i class="fa fa-file-download"></i>
+				{!! trans('textos.xml_descargar') !!}
+			</a>	
+		@endif
 	</div>
 </div>
 
@@ -36,6 +53,18 @@
 
 				{{-- Info --}}
 				<div class="mb-4">
+					{{-- Tipo --}}
+					<label class="mr-5">
+						{!! ucfirst(trans('textos.tipo')) !!}:
+						<b>
+							@if($remittance->type == 1) 
+								{!! ucfirst(trans('textos.cobro')) !!} 
+							@else
+								{!! ucfirst(trans('textos.pago')) !!}
+							@endif
+						</b>
+					</label>
+
 					{{-- Autor --}}
 					<label class="mr-5">
 						{!! ucfirst(trans('textos.autor')) !!}: <b>{{ $author->name }} {{ $author->surname }}</b>
@@ -166,14 +195,20 @@
 	<div class="table-responsive">
 		<table class="table table-hover dTable" id="tblRemittanceEffects">
 			<thead>
-				<th class="text-center wdt50">#</th>
-				<th class="wdt100">{!! ucfirst(trans('textos.cliente')) !!}</th>
+				<th class="text-center wdt50">{!! ucfirst(trans('textos.efectos')) !!}</th>
+				<th class="wdt100">
+					@if($remittance->type == 1) 
+						{!! ucfirst(trans('textos.cliente')) !!} 
+					@else
+						{!! ucfirst(trans('textos.proveedor')) !!}
+					@endif
+				</th>
 				<th class="wdt50">{!! ucfirst(trans('textos.factura')) !!}</th>
 				<th class="text-center wdt50">{!! ucfirst(trans('textos.fecha')) !!}</th>
 				<th class="text-center wdt50">{!! ucfirst(trans('textos.importe')) !!}</th>
 				<th class="text-center wdt50">{!! ucfirst(trans('textos.tipo')) !!}</th>
-				<th class="text-center wdt100">{!! ucfirst(trans('textos.cuenta_bancaria')) !!}</th>
-				<th class="text-center wdt100">{!! ucfirst(trans('textos.acciones')) !!}</th>
+				<th class="text-center wdt150">{!! ucfirst(trans('textos.cuenta_bancaria')) !!}</th>
+				<th class="text-center wdt50">{!! ucfirst(trans('textos.acciones')) !!}</th>
 			</thead>
 
 			<tbody>
@@ -188,16 +223,30 @@
 						</td>
 						{{-- Cliente --}}
 						<td>
-							{{ $sf->customer }}
+							{{ $sf->company }}
 						</td>
 						{{-- Factura --}}
 						<td class="text-right">
-							@if($sf->invoice_id)
+							@php
+							$invoices = $sf->invoices;
+							$k = 0;
+							@endphp
+
+							@foreach($invoices as $inv)
+								@if($k > 0)
+									,
+								@endif
+
 								@php
-								$num = $sf->invoice_num? $sf->invoice_num:($sf->invoice_old_num? $sf->invoice_old_num:$sf->invoice_id);
+								$num = $inv->invoice_num? $inv->invoice_num:($inv->invoice_old_num? $inv->invoice_old_num:$inv->invoice_id);
 								@endphp
-								<a target="_blank" href="{{ route('invoices.edit', $sf->invoice_id) }}">{{ $num }}</a>
-							@endif
+
+								<a target="_blank" href="{{ route('invoices.edit', $inv->id) }}">{{ $num }}</a>
+
+								@php
+								$k++;
+								@endphp
+							@endforeach
 						</td>
 						{{-- Fecha --}}
 						<td class="text-right">
@@ -213,7 +262,7 @@
 						</td>
 						{{-- Cuenta bancaria --}}
 						<td class="text-right">
-							{{ $sf->account }}	
+							{{ $sf->bank }}, {{ $sf->account }}	
 						</td>
 						{{-- Acciones --}}
 						<td class="text-right">
@@ -236,10 +285,10 @@
 				@endforeach
 
 				{{-- Efectos remesables - condiciones: 
-					1. Si la remesa está en estado pendiente.
+					1. Si la remesa está en estado Abierto.
 					...
 				--}}
-				@if($remittance->status == config('constants.EFFECT_STATUS_PENDENT_'))
+				@if($remittance->status == config('constants.REMITTANCE_STATUS_OPEN_'))
 					@foreach($effects as $ef)
 						<tr>
 							{{-- Número --}}
@@ -250,16 +299,30 @@
 							</td>
 							{{-- Cliente --}}
 							<td>
-								{{ $ef->customer }}
+								{{ $ef->company }}
 							</td>
 							{{-- Factura --}}
 							<td class="text-right">
-								@if($ef->invoice_id)
+								@php
+								$invoices = $ef->invoices;
+								$k = 0;
+								@endphp
+
+								@foreach($invoices as $inv)
+									@if($k > 0)
+										,
+									@endif
+
 									@php
-									$num = $ef->invoice_num? $ef->invoice_num:($ef->invoice_old_num? $ef->invoice_old_num:$ef->invoice_id);
+									$num = $inv->invoice_num? $inv->invoice_num:($inv->invoice_old_num? $inv->invoice_old_num:$inv->invoice_id);
 									@endphp
-									<a target="_blank" href="{{ route('invoices.edit', $ef->invoice_id) }}">{{ $num }}</a>
-								@endif
+
+									<a target="_blank" href="{{ route('invoices.edit', $inv->id) }}">{{ $num }}</a>
+
+									@php
+									$k++;
+									@endphp
+								@endforeach
 							</td>
 							{{-- Fecha --}}
 							<td class="text-right">
@@ -275,7 +338,7 @@
 							</td>
 							{{-- Cuenta bancaria --}}
 							<td class="text-right">
-								{{ $ef->account }}	
+								{{ $ef->bank }}, {{ $ef->account }}	
 							</td>
 							{{-- Acciones --}}
 							<td class="text-right">
@@ -296,5 +359,36 @@
 		</table>
 	</div>
 </div>
+
+@push('scripts')
+<script>
+$(function(){
+	//Tabla RemittanceEffects:
+    if($('#tblRemittanceEffects').length > 0){
+    	//Filters:
+        $('#tblRemittanceEffects thead tr').clone(true).appendTo('#tblRemittanceEffects thead');
+        $('#tblRemittanceEffects thead tr:eq(1) th').each(function(i){
+            var title = $(this).text();
+            if(i == 7){
+                $(this).html('');
+            }else{
+                $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
+            }
+     
+            $('input', this).on('keyup change', function(){
+                if(tableRemittanceEffects.column(i).search() !== this.value){
+                    tableRemittanceEffects
+                        .column(i)
+                        .search(this.value)
+                        .draw();
+                }
+            });
+        });
+
+        var tableRemittanceEffects = $('#tblRemittanceEffects').DataTable();
+    }
+});
+</script>
+@endpush
 
 @endsection

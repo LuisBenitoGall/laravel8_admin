@@ -3,6 +3,7 @@
 @section('content')
 
 <input type="hidden" id="dtYear" value="{{ $year }}">
+<input type="hidden" id="dtYearTo" value="{{ $year_to }}">
 <input type="hidden" id="dtWorkplace" value="{{ $workplace_id }}">
 <input type="hidden" id="dtCurrency" value="{{ $currency->symbol }}">
 
@@ -32,13 +33,27 @@
 					<input type="hidden" name="order_type" id="orderType" value="{{ $order_type }}">
 
 					<div class="form-group row">
-						{{-- Año --}}
+						{{-- Año desde --}}
 						@include('admin.partials.selector-year', ['selected_year' => $year])
+
+                        {{-- Año hasta --}}
+                        <label for="year_to" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.any_hasta')) !!} </label>
+                        <div class="col-lg-2">
+                            @php
+                            $max_year = date('Y')+1;
+                            $years = [];
+                            for($i=$max_year; $i>=config('constants.MIN_YEAR_'); $i--){
+                                $years[$i] = $i;
+                            }
+                            @endphp
+
+                            <x-select id="selectorYearTo" name="year_to" class="select2" label="selecciona_any" :options="$years" value="{{ $year_to }}"/>
+                        </div>
 
 						{{-- Centros de trabajo --}}
 						@if(count($workplaces) > 1)
 							<label for="workplace" class="col-2 col-form-label">{{ ucfirst(trans('textos.centro_trabajo')) }}</label>
-	                    	<div class="col-3">
+	                    	<div class="col-2">
 	                    		<x-select name="workplace" class="select2" label="centro_trabajo_selec" :options="$workplaces" value="{{ $workplace_id }}"/>
 	                    	</div>
 	                    @elseif(count($workplaces) == 1)
@@ -46,9 +61,9 @@
 	                    		<input type="hidden" name="workplace" value="{{ $i }}">
 	                    	@endforeach
 	                    @endif
+                    </div>
 
-						<x-btn-submit name="submit_filter" label="{{ trans('textos.buscar') }}" inline/>
-					</div>
+					<x-btn-submit name="submit_filter" label="{{ trans('textos.buscar') }}"/>
 				</form>
 			</div>
 		</div>
@@ -72,7 +87,10 @@
 					<th class="wdt200">{!! ucfirst(trans('textos.'.$lbl1)) !!}</th>
 					{{-- <th class="wdt150">{!! ucfirst(trans('textos.area_negocio')) !!}</th> --}}
 					<th class="text-center wdt100">{!! ucfirst(trans('textos.pedido_num_abrv')) !!}</th>
-					<th class="text-center wdt150">{!! ucfirst(trans('textos.orden_compra')) !!}</th>
+                    @if($order_type == 'ventas')
+                        <th class="text-center wdt100">{!! ucfirst(trans('textos.proyecto')) !!}</th>
+                    @endif
+					<th class="text-center wdt100">OC</th>
 					<th class="wdt200">{!! ucfirst(trans('textos.pedido_titulo')) !!}</th>
 					<th class="wdt150">{!! ucfirst(trans('textos.manager')) !!}</th>
 					<th class="d-none">&nbsp;</th>
@@ -90,6 +108,9 @@
 				<tr>
 					<td></td>
 					<td></td>
+                    @if($order_type == 'ventas')
+                        <td></td>
+                    @endif
 					<td></td>
 					<td></td>
 					<td></td>
@@ -117,6 +138,7 @@ $(function(){
     if($('#tblOrdersControlPanelPurchases').length > 0){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
         var year = $('#dtYear').val();
+        var year_to = $('#dtYearTo').val();
         var workplace = $('#dtWorkplace').val();
         var currency = $('#dtCurrency').val();
 
@@ -186,7 +208,7 @@ $(function(){
             // },
             ajax: {
                 "type": "GET",
-                "url": "/api/admin/orders-control-panel-purchases/"+year,
+                "url": "/api/admin/orders-control-panel-purchases/"+year+"/"+year_to,
                 "error": function(reason){
                     console.log(reason);
                 }
@@ -265,6 +287,7 @@ $(function(){
     if($('#tblOrdersControlPanelSales').length > 0){
         var tokenDT = $('meta[name="csrf-token"]').attr('content');
         var year = $('#dtYear').val();
+        var year_to = $('#dtYearTo').val();
         var workplace = $('#dtWorkplace').val();
         var currency = $('#dtCurrency').val();
 
@@ -276,7 +299,7 @@ $(function(){
         $('#tblOrdersControlPanelSales thead tr:eq(1) th').each(function(i){
             var title = $(this).text(); 
 
-            if(i == 12){
+            if(i == 13){
                 $(this).html('');
             }else{
                 // Check field on json of localstorage
@@ -286,7 +309,7 @@ $(function(){
                 let element = $(this).html(htmlRaw);
 
                 //Búsqueda por nombre y apellidos.
-                if (i == 5) {
+                if (i == 6) {
                     $('input', element).on('keyup change', function(){
                         // Diferenciamos si es nombre o apellido
                         let fullname = this.value.split(' ');
@@ -296,17 +319,17 @@ $(function(){
                         if(fullname.length == 1) {
                             // La busqueda se hace en el campo nombre
                             tableOrdersCPSales
-                                .column(5)
-                                .search(fullname[0])
                                 .column(6)
+                                .search(fullname[0])
+                                .column(7)
                                 .search('')
                                 .draw();
                         }else{
                             // La busqueda se hace en ambos campos (nombre y apellido)
                             tableOrdersCPSales
-                                .column(5)
-                                .search(fullname[0])
                                 .column(6)
+                                .search(fullname[0])
+                                .column(7)
                                 .search(fullname[1])
                                 .draw();
                         }
@@ -326,7 +349,7 @@ $(function(){
         
         var tableOrdersCPSales = $('#tblOrdersControlPanelSales').DataTable({
             order: [[ 0, "desc" ]],
-            serverSide: false,  //01/09/22: en false para permitir la suma de totales del footer.
+            serverSide: false,  //01/09/22: en false para permitir la suma de totales del footer y el filtrado por la columna fecha.
             processing: true,
             autoWidth: false,
             // drawCallback: function(){
@@ -334,7 +357,7 @@ $(function(){
             // },
             ajax: {
                 "type": "GET",
-                "url": "/api/admin/orders-control-panel-sales/"+year+'/'+workplace,
+                "url": "/api/admin/orders-control-panel-sales/"+year+"/"+year_to+'/'+workplace,
                 "error": function(reason){
                     console.log(reason);
                 }
@@ -344,6 +367,7 @@ $(function(){
                 {data: 'customer', name: 'companies.name'},
                 //{data: 'business_area', name: 'business_areas.name'},
                 {data: 'order_num', name: 'orders.order_num', className: 'text-right'},
+                {data: 'project', name: 'projects.project_num', className: 'text-right'},
                 {data: 'purchase_num', name: 'orders.purchase_num', className: 'text-right'},
                 {data: 'name', name: 'companies.name'},
                 {data: 'manager', name: 'users.name'},
@@ -385,18 +409,6 @@ $(function(){
 
                 //Total:
                 total = api
-                .column(8, { search: 'applied' })
-                .data()
-                .reduce(function(a, b){
-                    return intVal(a) + intVal(b);
-                }, 0);
-
-                $(api.column(8).footer()).html(
-                    total.toFixed(2)+currency   
-                );
-
-                //Total por filtro aplicado:
-                a_facturar = api
                 .column(9, { search: 'applied' })
                 .data()
                 .reduce(function(a, b){
@@ -404,11 +416,50 @@ $(function(){
                 }, 0);
 
                 $(api.column(9).footer()).html(
+                    total.toFixed(2)+currency   
+                );
+
+                //Total por filtro aplicado:
+                a_facturar = api
+                .column(10, { search: 'applied' })
+                .data()
+                .reduce(function(a, b){
+                    return intVal(a) + intVal(b);
+                }, 0);
+
+                $(api.column(10).footer()).html(
                     a_facturar.toFixed(2)+currency    
                 );
             }
         });
     }
+
+    //Selector de año:
+    $('#selectorYearTo').on('change', function(){
+        $year_from = $('#selectorYear').val();
+        $year_to = $('#selectorYearTo').val();
+
+        //El año fin no puede ser inferior al año inicio:
+        if($year_to < $year_from){
+            swal.fire({
+                title: "{{ trans('textos.any_hasta_aviso') }}",
+                text: "",
+                icon: 'warning',
+                iconColor: color_warning,
+                showCancelButton: false,
+                confirmButtonColor: color_danger,
+                cancelButtonColor: color_danger,
+                confirmButtonText: txtCancelar,
+                cancelButtonText: txtCancelar
+            }).then((result) => {
+                if(result.isConfirmed){
+                    let arr = [$year_from];
+                    $('#selectorYearTo').val(arr);
+                    $('#selectorYearTo').trigger('change');    
+                }
+            });
+        }
+    });
 });
 </script>
 @endpush

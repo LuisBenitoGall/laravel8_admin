@@ -87,6 +87,11 @@ class FunctionalitiesTableSeeder extends Seeder{
             'label' => 'grupos_contables',
             'module' => 'settings'
             ],
+            ['name' => 'transport agencies',
+            'slug' => 'transport-agencies',
+            'label' => 'transporte_agencias',
+            'module' => 'settings'
+            ],
             
             ['name' => 'my account',
             'slug' => 'my-account',
@@ -300,6 +305,16 @@ class FunctionalitiesTableSeeder extends Seeder{
             'label' => 'presupuestos_patrones',
             'module' => 'budgets'
             ],
+            ['name' => 'briefings',
+            'slug' => 'briefings',
+            'label' => 'briefings',
+            'module' => 'budgets'
+            ],
+            ['name' => 'briefing templates',
+            'slug' => 'briefing-templates',
+            'label' => 'briefing_plantillas',
+            'module' => 'budgets'
+            ],
 
             ['name' => 'orders',
             'slug' => 'orders',
@@ -399,12 +414,17 @@ class FunctionalitiesTableSeeder extends Seeder{
             'label' => 'vehiculos',
             'module' => 'logistics'
             ],
-
-            ['name' => 'accounting',
-            'slug' => 'accounting',
-            'label' => 'contabilidad',
-            'module' => 'accounting'            
+            ['name' => 'agencies',      //Adopto el título agencies para no interferir con la funcionalidad de settings de transport-agencies.
+            'slug' => 'agencies',
+            'label' => 'transporte_agencias',
+            'module' => 'logistics'
             ],
+
+            // ['name' => 'accounting',
+            // 'slug' => 'accounting',
+            // 'label' => 'contabilidad',
+            // 'module' => 'accounting'            
+            // ],
             ['name' => 'invoices',
             'slug' => 'invoices',
             'label' => 'facturas',
@@ -475,10 +495,20 @@ class FunctionalitiesTableSeeder extends Seeder{
             'label' => 'remesa_patrones',
             'module' => 'accounting'
             ],
+            ['name' => 'invoice queries',
+            'slug' => 'invoice-queries',
+            'label' => 'consultas',
+            'module' => 'accounting'
+            ],
 
             ['name' => 'incidences',
             'slug' => 'incidences',
             'label' => 'incidencias',
+            'module' => 'quality'
+            ],
+            ['name' => 'incidence patterns',
+            'slug' => 'incidence-patterns',
+            'label' => 'incidencias_patrones',
             'module' => 'quality'
             ],
 

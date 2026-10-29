@@ -29,16 +29,14 @@ class Workplace extends Model{
     /**
      * 1. Empresa del centro de trabajo.
      */
-    public function company()
-    {
+    public function company(){
         return $this->belongsTo(Company::class);
     }
 
     /**
      * 2. Validación del centro de trabajo para middleware.
      */
-    static public function workplaceMiddleware($workplace_id, $business_relationship = false)
-    {
+    static public function workplaceMiddleware($workplace_id, $business_relationship = false){
         $company = Workplace::select('company_id')->find($workplace_id);
 
         $resp = false;
@@ -89,8 +87,7 @@ class Workplace extends Model{
     /**
      * 3. Centros de trabajo por empresa.
      */
-    public static function companyWorkplaces($company_id)
-    {
+    public static function companyWorkplaces($company_id){
         $data = Workplace::select('workplaces.id', 'workplaces.name', 'workplaces.address', 'workplaces.cp', 'towns.name AS Town')
             ->leftJoin('towns', 'workplaces.town_id', '=', 'towns.id')
             ->where('workplaces.company_id', $company_id)
@@ -104,8 +101,7 @@ class Workplace extends Model{
     /**
      * 4. Centro de trabajo principal de empresa.
      */
-    public static function companyFeaturedWorkplace($company_id)
-    {
+    public static function companyFeaturedWorkplace($company_id){
         $data = Workplace::select('workplaces.id', 'workplaces.name', 'workplaces.address', 'workplaces.cp', 'towns.name AS Town', 'phones.phone_number')
             ->leftJoin('towns', 'workplaces.town_id', '=', 'towns.id')
             ->leftJoin('phones', 'workplaces.id', '=', 'phones.workplace_id')
@@ -120,8 +116,7 @@ class Workplace extends Model{
     /**
      * 5. Centro de trabajo por ID.
      */
-    public static function getWorkplace($id)
-    {
+    public static function getWorkplace($id){
         $data = Workplace::select('workplaces.id', 'workplaces.name', 'workplaces.address', 'workplaces.cp', 'towns.name AS Town', 'phones.phone_number')
             ->leftJoin('towns', 'workplaces.town_id', '=', 'towns.id')
             ->leftJoin('phones', 'workplaces.id', '=', 'phones.workplace_id')
@@ -134,23 +129,19 @@ class Workplace extends Model{
     }
 
 
-    public function town()
-    {
+    public function town(){
         return $this->belongsTo(Town::class);
     }
 
-    public function users()
-    {
+    public function users(){
         return $this->belongsToMany(User::class, 'user_workplaces');
     }
 
-    public function orders()
-    {
+    public function orders(){
         return $this->hasMany(Order::class, 'customer_workplace_id');
     }
 
-    public function providerWorkplace()
-    {
+    public function providerWorkplace(){
         return $this->hasMany(Order::class, 'provider_workplace_id');
     }
 

@@ -93,6 +93,11 @@ class ProjectController extends Controller{
         }elseif(isset($data['submit_update'])){
             return Validator::make($data, [
                 'name' => 'required|string|max:255',
+                'pattern_id' => 'nullable|integer',
+                'status' => 'nullable|integer',
+            ],[
+                'pattern_id.integer' => trans('textos.required_valor_listado'),
+                'status.integer' => trans('textos.required_valor_listado')    
             ]); 
 
         //Validación filter:
@@ -723,7 +728,6 @@ class ProjectController extends Controller{
         $alert = false;
 
         //Número de proyecto:
-        $project_num = NULL;
         if($request->pattern_id){
             $patternNum = $this->setPatternNumber('project', $request->pattern_id);
         }
@@ -805,6 +809,9 @@ class ProjectController extends Controller{
      * 7. Eliminar proyecto.
      */
     public function destroy(Project $project){
+        //Eliminamos pedidos vinculados:
+        ProjectOrders::where('project_id', $project->id)->delete();
+
         $project->delete();
 
         //Generar .json de proyectos:

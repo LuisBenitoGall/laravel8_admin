@@ -32,6 +32,7 @@ use App\Models\Employee;
 use App\Models\PaymentMethod;
 use App\Models\TempImportCompanies;
 use App\Models\Town;
+use App\Models\TransportAgency;
 use App\Models\User;
 use App\Models\UserCompanies;
 use App\Models\Workplace;
@@ -287,6 +288,12 @@ class CustomerProvidersController extends Controller{
         ->where('customer_id', $company->id)
         ->first();
 
+        if(!$conditions){
+            $msg = trans('textos.cliente_no_existe');
+            return redirect()->route('customers.index')->with(compact('msg'));
+            exit;
+        }
+
         $business_relationship = 'customers';
         $environment = 'customers';
 
@@ -312,6 +319,22 @@ class CustomerProvidersController extends Controller{
         ->where('mode', 1)
         ->get();
 
+        if(!$accounting_accounts->count()){
+            //Creando cuenta contable:
+            $accounting_account_data = [
+                'account_to' => 'customer',
+                'company_target' => $company->id,
+                'mode' => 1,
+                'with_iva' => 1
+            ];
+            AccountingAccount::setAccountingAccount($accounting_account_data);
+
+            $accounting_accounts = AccountingAccount::where('company_id', session('currentCompany'))
+            ->where('company_target', $company->id)
+            ->where('mode', 1)
+            ->get();
+        }
+
         //Centros de trabajo del proveedor:
         $provider_workplaces = Workplace::where('company_id', session('currentCompany'))
         ->pluck('name', 'id')
@@ -326,9 +349,12 @@ class CustomerProvidersController extends Controller{
             $conditions = CustomerProviders::setCustomerProviderNum($company->id, session('currentCompany'), $num_account, 'customer');
         }
 
+        //¿Es agencia de transporte?
+        $is_agency = false;
+
         $languages = $this->languages;
 
-        return view('admin.customer_providers.edit')->with(compact('header', 'company', 'tab', 'workplaces', 'areas', 'conditions', 'business_relationship', 'environment', 'company_account', 'banks', 'bank_accounts', 'payment_methods', 'accounting_accounts', 'provider_workplaces', 'languages'));     
+        return view('admin.customer_providers.edit')->with(compact('header', 'company', 'tab', 'workplaces', 'areas', 'conditions', 'business_relationship', 'environment', 'company_account', 'banks', 'bank_accounts', 'payment_methods', 'accounting_accounts', 'provider_workplaces', 'is_agency', 'languages'));     
     }
 
     /**
@@ -419,6 +445,12 @@ class CustomerProvidersController extends Controller{
         ->where('customer_id', session('currentCompany'))
         ->first();
 
+        if(!$conditions){
+            $msg = trans('textos.proveedor_no_existe');
+            return redirect()->route('providers.index')->with(compact('msg'));
+            exit;
+        }
+
         $business_relationship = 'providers';
         $environment = 'providers';
 
@@ -448,14 +480,19 @@ class CustomerProvidersController extends Controller{
         if(!$conditions->provider_num){
             //Nº de dígitos configurados por la empresa:
             $accounting_account_digits = CompanySettings::co_account_digits();
+
             //Extraer número de proveedor de la cuenta contable.
             $num_account = substr($accounting_accounts[0]->account, -$accounting_account_digits);
+
             $conditions = CustomerProviders::setCustomerProviderNum(session('currentCompany'), $company->id, $num_account, 'provider');
         }
 
+        //¿Es agencia de transporte?
+        $is_agency = TransportAgency::select('id')->where('company_id', $company->id)->first();
+
         $languages = $this->languages;
 
-        return view('admin.customer_providers.edit')->with(compact('header', 'company', 'tab', 'workplaces', 'areas', 'conditions', 'business_relationship', 'environment', 'company_account', 'banks', 'bank_accounts', 'payment_methods', 'accounting_accounts', 'languages'));     
+        return view('admin.customer_providers.edit')->with(compact('header', 'company', 'tab', 'workplaces', 'areas', 'conditions', 'business_relationship', 'environment', 'company_account', 'banks', 'bank_accounts', 'payment_methods', 'accounting_accounts', 'is_agency', 'languages'));     
     }
 
     /**
@@ -622,8 +659,8 @@ class CustomerProvidersController extends Controller{
                             if(!$workplace){
                                 $workplace = new Workplace();
                                 $workplace->company_id = $company->id;
-                                $workplace->name = trans('textos.centro_trabajo');
-                                $workplace->slug = Str::slug(trans('textos.centro_trabajo'));
+                                $workplace->name = trans('textos.sede').' '.$company->name;
+                                $workplace->slug = Str::slug(trans('textos.sede')).' '.$company->name;
                                 $workplace->featured = 1;
                                 $workplace->address = $r->address;
                                 $workplace->cp = $r->cp;
@@ -1110,12 +1147,12 @@ class CustomerProvidersController extends Controller{
         //if($request->payday){
             $cp->payday = $request->payday;
         //}
-        if($request->billing_comunication){
-            $cp->billing_comunication = $request->billing_comunication;
-        }
+        $cp->billing_comunication = $request->billing_comunication;
         if($request->payment_method){
             $cp->payment_method_id = $request->payment_method;
         }
+        $cp->num_deadlines = $request->num_deadlines;
+        $cp->days_between_deadlines = $request->days_between_deadlines;
         $cp->save();
 
         if($request->environment == 'customers'){

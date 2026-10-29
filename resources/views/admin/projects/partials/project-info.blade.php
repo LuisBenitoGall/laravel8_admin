@@ -24,7 +24,17 @@
 
 	<div class="form-group row">
 		{{-- Nº de proyecto --}}
-		<label for="pattern_id" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.proyecto_num')) !!}</label>
+		@php
+		//Patrón requerido:
+		$pattern_required = $patterns && $patterns->count() && session('companySettings')->pattern_projects? true:false;
+		@endphp
+
+		<label for="pattern_id" class="col-lg-2 col-form-label">
+			{!! ucfirst(trans('textos.proyecto_num')) !!}
+			@if($pattern_required)
+				*
+			@endif
+		</label>
 		<div class="col-lg-2">
 			{{-- Patrón de numeración - condiciones:
 			 	1. Si existen patrones.
@@ -40,7 +50,7 @@
 					}
 					@endphp
 
-					<x-select name="pattern_id" class="select2" label="patron_selecciona" :options="$patterns_" info="order-pattern-num"/>
+					<x-select name="pattern_id" class="select2 prominent" label="patron_selecciona" :options="$patterns_" required="{{ $pattern_required }}" info="order-pattern-num"/>
 				@else
 					<label class="text-warning mt-2">{{ trans('textos.patrones_no_hay') }}</label>
 				@endif
@@ -71,7 +81,7 @@
 			<x-input type="text" name="project_old_num" value="{{ $project->project_old_num }}" autocomplete="off" maxlength="150" info="order-old-num"/>
 		</div>
 
-		{{-- Gràfica destacada --}}
+		{{-- Gráfica destacada --}}
 		<label for="chart" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.grafico_principal')) !!}</label>
 		<div class="col-lg-2">
 			@php
@@ -91,7 +101,7 @@
 					$estados = App\Helpers\helpers::projectStatus();
 					@endphp
 
-					<x-select name="status" class="select2" label="indica_estado" :options="$estados" value="{{ $project->status }}"/>
+					<x-select name="status" class="select2 prominent" label="indica_estado" :options="$estados" value="{{ $project->status }}"/>
 				</div>
 
 				{{-- Grupos --}}

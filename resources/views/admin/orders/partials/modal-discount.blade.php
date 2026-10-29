@@ -42,6 +42,27 @@
 
 						<x-btn-submit name="submit_order_discount" label="{{ trans('textos.guardar') }}"/>
 	                </form>    
+	                <hr>
+
+					<form method="post" autocomplete="off" action="{{ route('orders.delete-discount', $order->id) }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
+						{{ csrf_field() }}
+
+						<div class="row">
+	                    	<p class="col-12 text-warning mb-4">
+	                    		<span class="btn btn-circle btn-circle-mini btn-warning">
+	                    			<i class="fa fa-exclamation"></i>
+	                    		</span>
+	                    		{!! trans('textos.descuento_presupuesto_eliminar_texto') !!}
+	                    	</p>
+	                    </div>
+
+	                    <div class="text-right">
+	                    	<button type="submit" name="submit_delete_discount" class="btn btn-danger frm-confirm" rel="tooltip" title="{{ ucfirst(trans('textos.eliminar')) }}" data-msg="{{ ucfirst(trans('textos.descuento_confirm_eliminar')) }}">
+	                    		<i class="fa fa-trash"></i>
+	                    		{{ trans('textos.descuento_eliminar') }}
+	                    	</button>	
+	                    </div>
+					</form>	                
 	            </div>
 	        </div>
 	    </div>

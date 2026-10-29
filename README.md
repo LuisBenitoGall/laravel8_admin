@@ -50,6 +50,23 @@ En el archivo config/constants.php se definen constantes personalizadas.
 	- Instalar Yajra Laravel Datatables: https://github.com/yajra/laravel-datatables
 		- composer require yajra/laravel-datatables-oracle:"~9.0"
 
+	- Código Debug:
+		(function() {
+		    var url = 'https://debug.datatables.net/bookmarklet/DT_Debug.js';
+		    if (typeof DT_Debug != 'undefined') {
+		        if (DT_Debug.instance !== null) {
+		            DT_Debug.close();
+		        } else {
+		            new DT_Debug();
+		        }
+		    } else {
+		        var n = document.createElement('script');
+		        n.setAttribute('language', 'JavaScript');
+		        n.setAttribute('src', url + '?rand=' + new Date().getTime());
+		        document.body.appendChild(n);
+		    }
+		})();
+
 - Extender Auth y Session a API Controllers:
 	En config/auth.php:
 	'guards' => [
@@ -79,6 +96,9 @@ En el archivo config/constants.php se definen constantes personalizadas.
 	- composer require maatwebsite/excel
 	- En php.ini se actualiza el valor de memory_limit a -1 para poder utilizar esta librería.
 
+- XML Library:
+	- composer require spatie/array-to-xml:^2.13
+	
 - Sweet Alert 2:
 	- npm install sweetalert2
 	- Incluir en el archivo resources/js/bootstrap.js: window.swal = require('sweetalert2');
@@ -243,6 +263,26 @@ and o.provider_id = 4
 and o.is_order = 1
 and o.is_budget < 1;
 
+- Líneas de pedidos ya facturados, por cliente:
+select o.order_num, o.created_at, p.name, p.id as productId, p.name as product, i.concept, CONCAT(u.name, ' ', u.surname) AS manager, i.qty, i.price, i.discount, 
+(i.qty * i.price) - COALESCE((i.qty * i.price * i.discount) / 100, 0) AS amount,
+inv.invoice_num, inv.fiscal_date
+from items i
+left join products p
+on i.product_id = p.id
+inner join orders o
+on i.order_id = o.id
+inner join invoices inv
+on o.id = inv.order_id
+left join users u
+on o.customer_manager_id = u.id
+where o.customer_id = 2
+and o.deleted_at is null
+and o.provider_id = 4
+and o.is_order = 1
+and inv.fiscal_date between '2024-01-01' and '2024-08-31'
+group by i.id
+
 - Comparativa importes pedidos y facturas:
 SELECT
     o.order_num,
@@ -380,6 +420,24 @@ WHERE cp.provider_id IN (4,8,202,227,275)
 AND cp.customer_id NOT IN (4,8,202,227,275)
 GROUP BY c.id
 ORDER BY c.name ASC
+
+- Empresas sin pedidos desde un período de tiempo
+SELECT c.id, c.name, c.nif
+FROM companies c
+WHERE c.id NOT IN (
+    SELECT DISTINCT o.customer_id
+    FROM orders o
+    WHERE o.created_at >= '2022-09-01'
+    and o.provider_id = 4
+)
+AND c.id IN (
+    SELECT DISTINCT o.customer_id
+    FROM orders o
+    WHERE o.created_at < '2022-09-01'
+    and o.provider_id = 4
+)
+ORDER BY c.name ASC;
+
    
 
 ### Instalación de Sentry

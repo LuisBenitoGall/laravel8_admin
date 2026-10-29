@@ -15,6 +15,14 @@
 			{!! trans('textos.'.$text) !!}
 		</a>
 
+		{{-- Vuelta a agencia de transportes --}}
+		@if($is_agency)
+			<a href="{{ route('agencies.index') }}" class="btn btn-info">
+				<i class="fa fa-angle-left"></i>
+				{!! trans('textos.volver_agencias_transportes') !!}
+			</a>
+		@endif
+
 		@include('admin.companies.partials.actions', ['company' => $company, 'business_relationship' => $business_relationship])
 
 		{{-- Nueva cuenta bancaria --}}
@@ -54,9 +62,9 @@
 			  			<a class="nav-link @if($tab == 'users') active @endif" href="#tab-users" role="tab" data-toggle="tab">{{ ucfirst(trans('textos.usuarios')) }}</a>
 			  		</li>
 
-			  		<li class="nav-item @if($tab == 'sectors') active @endif">
+			  		{{-- <li class="nav-item @if($tab == 'sectors') active @endif">
 			  			<a class="nav-link @if($tab == 'sectors') active @endif" href="#tab-sectors" role="tab" data-toggle="tab">{{ ucfirst(trans('textos.sectores')) }}</a>	
-			  		</li>
+			  		</li> --}}
 
 			  		<li class="nav-item @if($tab == 'banks') active @endif">
 			  			<a class="nav-link @if($tab == 'banks') active @endif" href="#tab-banks" role="tab" data-toggle="tab">{{ ucfirst(trans('textos.bancos_cuentas')) }}</a>
@@ -83,9 +91,9 @@
 					</div>
 
 					{{-- Sectores --}}
-					<div class="tab-pane fade @if($tab == 'sectors') show active @endif" role="tabpanel" id="tab-sectors">
+					{{-- <div class="tab-pane fade @if($tab == 'sectors') show active @endif" role="tabpanel" id="tab-sectors">
 						@include('admin.companies.partials.company-sectors')	
-					</div>
+					</div> --}}
 
 					{{-- Datos bancarios --}}
 					<div class="tab-pane fade @if($tab == 'banks') show active @endif" role="tabpanel" id="tab-banks">

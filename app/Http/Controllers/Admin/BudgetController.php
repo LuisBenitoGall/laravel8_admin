@@ -21,6 +21,7 @@ use File;
 use PDF;
 
 //Models:
+use App\Models\AccountingAccount;
 use App\Models\BudgetFormItems;
 use App\Models\BudgetForms;
 use App\Models\BudgetPatterns;
@@ -79,7 +80,7 @@ class BudgetController extends Controller{
      * 26. Importar presupuesto de proveedor.
      * 27. Vincular presupuesto de proveedor primero.
      */
-    
+
     private $option = 'presupuestos';
     private $module = 'budgets';
     private $languages;
@@ -109,7 +110,25 @@ class BudgetController extends Controller{
         //Validación update:
         }elseif(isset($data['submit_update'])){
             return Validator::make($data, [
-                //'customer_id' => 'required|integer'
+                'pattern_id' => 'nullable|integer',
+                'status' => 'nullable|integer',
+                'provider_manager_id' => 'nullable|integer',
+                'provider_workplace_id' => 'nullable|integer',
+                'provider_cost_center_id' => 'nullable|integer',
+                'customer_manager_id' => 'nullable|integer',
+                'customer_workplace_id' => 'nullable|integer',
+                'customer_cost_center_id' => 'nullable|integer',
+                'commercial_id' => 'nullable|integer'
+            ],[
+                'pattern_id.integer' => trans('textos.required_valor_listado'),
+                'status.integer' => trans('textos.required_valor_listado'),
+                'provider_manager_id.integer' => trans('textos.required_valor_listado'),
+                'provider_workplace_id.integer' => trans('textos.required_valor_listado'),
+                'provider_cost_center_id.integer' => trans('textos.required_valor_listado'),
+                'customer_manager_id.integer' => trans('textos.required_valor_listado'),
+                'customer_workplace_id.integer' => trans('textos.required_valor_listado'),
+                'customer_cost_center_id.integer' => trans('textos.required_valor_listado'),
+                'commercial_id.integer' => trans('textos.required_valor_listado')
             ]);
 
         //Validación añadir nuevo responsable:
@@ -129,35 +148,37 @@ class BudgetController extends Controller{
         }elseif(isset($data['submit_update_template'])){
             return Validator::make($data, [
                 'template_id' => 'nullable|integer'
-            ]); 
-        
+            ],[
+                'template_id.integer' => trans('textos.required_valor_listado')
+            ]);
+
         //Validación cambio proveedor:
         }elseif(isset($data['submit-set-provider'])){
             return Validator::make($data, [
                 'order_id' => 'required|integer',
                 'company_id' => 'required|integer'
-            ]);   
+            ]);
 
-        //Validación actualizar modalidad: 
+        //Validación actualizar modalidad:
         }elseif(isset($data['submit_set_modality'])){
-            return Validator::make($data, [   
+            return Validator::make($data, [
                 'order_id' => 'required|integer',
                 'modality' => 'required'
             ]);
 
         //Validación copia presupuesto:
         }elseif(isset($data['submit_copy'])){
-            return Validator::make($data, [   
+            return Validator::make($data, [
                 'order_id' => 'required|integer',
                 'customer' => 'required|integer'
             ]);
 
-        //Validación set bloque de líneas de formulario: 
+        //Validación set bloque de líneas de formulario:
         }elseif(isset($data['submit_set_block'])){
             return Validator::make($data, [
                 'order_id' => 'required|integer',
                 'block_id' => 'required|integer'
-            ]); 
+            ]);
 
         //Validación importar presupuesto:
         }elseif(isset($data['submit_import'])){
@@ -168,7 +189,7 @@ class BudgetController extends Controller{
             ],[
                 'modality.required_without' => trans('textos.presupuesto_modalidad_aviso'),
                 'form_id.required_if' => trans('textos.formulario_presupuesto_obligatorio')
-            ]);  
+            ]);
 
         //Validación vincular presupuesto proveedor primero:
         }elseif(isset($data['submit_link'])){
@@ -180,19 +201,19 @@ class BudgetController extends Controller{
     }
 
     /**
-     * 1. Presupuestos por empresa. 
+     * 1. Presupuestos por empresa.
      */
     public function index(){
         $header = [
-            'option' => $this->option, 
+            'option' => $this->option,
             'suboption' => 'textos.presupuestos_mis',
             'module' => $this->module,
             'slug' => 'budgets'
-        ]; 
+        ];
 
-        $budget_from = 'customers'; 
+        $budget_from = 'customers';
 
-        return view('admin.budgets.index')->with(compact('header', 'budget_from'));     
+        return view('admin.budgets.index')->with(compact('header', 'budget_from'));
     }
 
     /**
@@ -236,10 +257,10 @@ class BudgetController extends Controller{
 
         return DataTables::of($data)
         ->addColumn('num', function($row) use($from){
-            return view('admin.budgets.partials.dt-num', compact('row', 'from')); 
+            return view('admin.budgets.partials.dt-num', compact('row', 'from'));
         })
         ->addColumn('budget_title', function($row){
-            return $row->name; 
+            return $row->name;
         })
         ->addColumn('manager', function($row){
             if($row->nombre){
@@ -257,19 +278,19 @@ class BudgetController extends Controller{
             }
         })
         ->addColumn('amount', function($row) use($currency){
-            $amount = $row->getAmount();    
+            $amount = $row->getAmount();
             return number_format($amount['total_amount'], 2, ',', '.').$currency->symbol;
         })
         // ->addColumn('modalidad', function($row) use($abrev){
         //     return ucfirst($abrev[$row->modality]);
         // })
-        
+
         // ->filterColumn('manager', function($query, $keyword){
         //     $sql = "CONCAT(users.name, ' ', users.surname) like ?";
         //     $query->whereRaw($sql, ["%$keyword%"]);
         // })
         ->addColumn('alta', function($row){
-            return $row->created_at->format($this->languages[session()->get('locale')][4]);    
+            return $row->created_at->format($this->languages[session()->get('locale')][4]);
         })
         ->addColumn('company', function($row){
             $company = $row->company;
@@ -290,7 +311,7 @@ class BudgetController extends Controller{
             }
         })
         ->addColumn('estado', function($row) use($estados){
-            return view('admin.budgets.partials.dt-status', compact('row', 'estados'));    
+            return view('admin.budgets.partials.dt-status', compact('row', 'estados'));
         })
         ->filterColumn('estado', function($query, $keyword) use($estados){
             //01/09/22: no filtra. Corregir código.
@@ -300,7 +321,7 @@ class BudgetController extends Controller{
             }
         })
         ->addColumn('acciones', function($row) use($estados){
-            return view('admin.budgets.partials.dt-actions', compact('row', 'estados'));    
+            return view('admin.budgets.partials.dt-actions', compact('row', 'estados'));
         })
         ->rawColumns(['order_num'])
         ->make(true);
@@ -313,11 +334,11 @@ class BudgetController extends Controller{
      */
     public function create($customer_id = false){
         $header = [
-            'option' => $this->option, 
+            'option' => $this->option,
             'suboption' => 'textos.presupuesto_nuevo',
             'module' => $this->module,
             'slug' => 'budgets-create'
-        ]; 
+        ];
 
         $customers = false;
         //La empresa ha de tener habilitada la gestión de clientes:
@@ -369,16 +390,25 @@ class BudgetController extends Controller{
         ->where('user_id', Auth::user()->id)
         ->first();
 
+        //Cuenta contable de ventas del proveedor:
+        $provider_accounting_account_default = AccountingAccount::select('id')
+        ->where('company_id', session('currentCompany'))
+        ->where('featured', config('constants.ACCOUNT_DEFAULT_SALES_'))
+        ->first();
+
         $budget = new Order();
         $budget->is_budget = true;
         $budget->modality = $request->modality;
-        $budget->form_id = $formId;   
+        $budget->form_id = $formId;
         $budget->customer_id = $request->customer_id;
         $budget->provider_id = session('currentCompany');
         $budget->provider_manager_id = Auth::user()->id;
         $budget->provider_workplace_id = $user_workplace->workplace_id;
-        $budget->created_by = Auth::user()->id; 
+        $budget->created_by = Auth::user()->id;
         $budget->discount = $cu_pr->discount;
+        $budget->num_deadlines = $cu_pr->num_deadlines;
+        $budget->days_between_deadlines = $cu_pr->days_between_deadlines;
+        $budget->accounting_sale_id = $provider_accounting_account_default? $provider_accounting_account_default->id:NULL;
         $budget->save();
 
         //Items por defecto en los presupuestos:
@@ -411,23 +441,23 @@ class BudgetController extends Controller{
 
                 foreach($items as $item){
                     $data = [
-                        'product_id' => $item->product_id, 
-                        'order_id' => $order->id, 
-                        'budget_form_block_id' => $item->recid, 
-                        'budget_form_item_id' => $item->id, 
+                        'product_id' => $item->product_id,
+                        'order_id' => $order->id,
+                        'budget_form_block_id' => $item->recid,
+                        'budget_form_item_id' => $item->id,
                         'budget_sort' => $i,
-                        'concept' => $item->Product, 
-                        'qty' => $item->qty_min, 
-                        'price' => $item->calculated_by_percent? $item->calculated_by_percent:$item->price, 
-                        'item_no_price' => NULL, 
-                        'iva' => $item->iva, 
-                        'discount' => $item->discount, 
+                        'concept' => $item->Product,
+                        'qty' => $item->qty_min,
+                        'price' => $item->calculated_by_percent? $item->calculated_by_percent:$item->price,
+                        'item_no_price' => NULL,
+                        'iva' => $item->iva,
+                        'discount' => $item->discount,
                         'calculated_by_percent' => $item->calculated_by_percent,
-                        'deposit_used' => NULL, 
+                        'deposit_used' => NULL,
                         'provider_cost_center_id' => $item->cost_center_id,
-                        'active' => 1, 
-                        'status' => NULL, 
-                        'print' => 1, 
+                        'active' => 1,
+                        'status' => NULL,
+                        'print' => 1,
                         'user_id' => Auth::user()->id
                     ];
                     $item_registered = Item::insert($data);
@@ -453,7 +483,7 @@ class BudgetController extends Controller{
             //         $row->price = $price;
             //         $row->save();
             //     }
-            // }            
+            // }
         }
     }
 
@@ -467,18 +497,18 @@ class BudgetController extends Controller{
         //Si no consta como presupuesto se redirige a order:
         if(!$order->is_budget){
             $alert = trans('textos.presupuesto_no_solicitado_warning');
-            return redirect()->route('orders.edit', $order)->with(compact('alert')); 
-            exit;   
+            return redirect()->route('orders.edit', $order)->with(compact('alert'));
+            exit;
         }
 
         $suboption = $order->provider_id == session('currentCompany')? 'presupuesto_editar':'presupuesto_proveedor_editar';
 
         $header = [
-            'option' => $this->option, 
+            'option' => $this->option,
             'suboption' => 'textos.'.$suboption,
             'module' => $this->module,
             'slug' => 'budgets'
-        ]; 
+        ];
         //Importe facturado:
         $invoiced = $order->getInvoicedAmount();
 
@@ -509,7 +539,7 @@ class BudgetController extends Controller{
         ->first();
 
         //Managers: sólo con permisos de edición de presupuestos.
-        // $provider_managers_ = UserCompanies::getCompanyUsers($order->provider_id, 1);   
+        // $provider_managers_ = UserCompanies::getCompanyUsers($order->provider_id, 1);
         // $provider_managers = [];
         // foreach($provider_managers_ as $pm){
         //     if($pm->can('budgets.edit')){
@@ -565,7 +595,7 @@ class BudgetController extends Controller{
         $final_customer = $order->final_customer_id? Company::select('id', 'name', 'tradename')->find($order->final_customer_id):false;
 
         //Managers:
-        $customer_managers_ = UserCompanies::getCompanyUsers($order->customer_id, 1); 
+        $customer_managers_ = UserCompanies::getCompanyUsers($order->customer_id, 1);
         $customer_managers = [];
         foreach($customer_managers_ as $cm){
             $customer_managers[$cm->id] = $cm->name.' '.$cm->surname;
@@ -634,13 +664,13 @@ class BudgetController extends Controller{
 
         }else{
             $items = $order->items();
-            $arr_amounts = $order->getAmount();    
+            $arr_amounts = $order->getAmount();
 
             $order_amount = $arr_amounts['total_amount'];
             $order_amount_without_discount = $arr_amounts['total_amount_without_discounts'];
             //$order_amount_without_discount_in_lines = $arr_amounts['amount_without_discount_in_lines'];
             $order_amount_without_discount_in_lines = $arr_amounts['total_amount_without_discounts'];
-        } 
+        }
 
         //Productos. Activos y aptos para venta:
         $products = [];
@@ -682,13 +712,13 @@ class BudgetController extends Controller{
             foreach($templates as $tpt){
                 if($tpt->featured == 1){
                     $default_template = $tpt;
-                    break;    
+                    break;
                 }
             }
 
-            if($default_template){      
+            if($default_template){
                 $template = [
-                    'conditions' => $default_template? $default_template->conditions:'', 
+                    'conditions' => $default_template? $default_template->conditions:'',
                     'payment_method' => $default_template? $default_template->payment_method:'',
                     'observations' => $default_template? $default_template->observations:'',
                     'footer_legend' => $default_template? $default_template->footer_legend:''
@@ -726,7 +756,7 @@ class BudgetController extends Controller{
             $first_provider->budget_status = config('constants.BUDGET_STATUS_APPROVED__');
             $first_provider->order_status = config('constants.ORDER_STATUS_APPROVED_');
             $first_provider->is_order = true;
-            $first_provider->save();    
+            $first_provider->save();
         }
 
         //Presupuesto vinculado del cliente:
@@ -759,6 +789,7 @@ class BudgetController extends Controller{
         $module_products = $this->settedModule('products');
         $module_projects = $this->settedModule('projects');
 
+
         return view('admin.budgets.edit')->with(compact('header', 'order', 'tab', 'invoiced', 'invoices', 'patterns', 'versions', 'order_amount', 'order_amount_without_discount', 'order_amount_without_discount_in_lines', 'provider', 'provider_account', 'provider_managers', 'provider_settings', 'provider_workplaces', 'provider_workplace', 'provider_cost_centers', 'provider_business_areas', 'owner', 'commercial', 'customer', 'final_customer', 'customer_managers', 'customer_workplaces', 'customer_cost_centers', 'customer_business_areas', 'final_customers', 'customers', 'customer_settings', 'forms', 'products', 'projects', 'project', 'blocks', 'currency', 'templates', 'budget_from', 'customer_budgets', 'first_provider', 'my_linked_budget', 'linkable_budgets', 'languages', 'permitted', 'module_orders', 'module_products', 'module_projects'));
     }
 
@@ -777,7 +808,7 @@ class BudgetController extends Controller{
         $patternNum = [];
         if($request->pattern_id){
             $patternNum = $this->setPatternNumber('budget', $request->pattern_id);
-            
+
             //Si existen versiones, se actualiza también su budget_num:
             $versions = Order::select('id', 'budget_num')
             ->where('recid', $order->id)
@@ -825,9 +856,9 @@ class BudgetController extends Controller{
         //Actualizando datos:
         if($request->pattern_id){
             if(!empty($patternNum)){
-                $order->budget_num = $patternNum['pattern_num'];  
-                $order->budget_num_cardinal = $patternNum['num']; 
-            }            
+                $order->budget_num = $patternNum['pattern_num'];
+                $order->budget_num_cardinal = $patternNum['num'];
+            }
             $order->budget_pattern_id = $request->pattern_id;
         }
         $order->budget_file_name = $request->budget_file_name;
@@ -838,7 +869,7 @@ class BudgetController extends Controller{
         $order->purchase_old_num = $request->purchase_old_num;
         if($purchase_doc){
             $order->purchase_doc = $purchase_doc;
-        }        
+        }
         $order->customer_manager_id = $request->customer_manager_id;
         $order->customer_workplace_id = $request->customer_workplace_id;
         $order->customer_cost_center_id = $request->customer_cost_center_id;
@@ -869,7 +900,7 @@ class BudgetController extends Controller{
         if($order->modality == config('constants.BUDGET_BASIC_MODALITY_')){
             $order->bag_amount = $request->bag_amount;
         }else{
-            $order->bag_amount = NULL;    
+            $order->bag_amount = NULL;
         }
         $order->save();
 
@@ -886,7 +917,7 @@ class BudgetController extends Controller{
     public function destroy(Order $order){
         if($order->invoiced){
             $alert = trans('textos.pedido_facturado_aviso');
-            return redirect()->route('budgets.edit', $order)->with(compact('alert')); 
+            return redirect()->route('budgets.edit', $order)->with(compact('alert'));
 
         }else{
             //Actualizamos registro compartido:
@@ -894,8 +925,8 @@ class BudgetController extends Controller{
             $order->save();
 
             $msg = trans('textos.presupuesto_deleted');
-            return redirect()->route('budgets.index')->with(compact('msg'));  
-        }  
+            return redirect()->route('budgets.index')->with(compact('msg'));
+        }
     }
 
     /**
@@ -951,7 +982,7 @@ class BudgetController extends Controller{
         //Actualizamos responsable de cliente en el proyecto:
         $order = Order::select('id', 'customer_id', 'customer_manager_id')->find($request->order_id);
         $order->customer_manager_id = $user->id;
-        $order->save(); 
+        $order->save();
 
         //Vinculamos usuario a empresa:
         UserCompanies::firstOrCreate(
@@ -977,8 +1008,8 @@ class BudgetController extends Controller{
         $order->save();
 
         $msg = trans('textos.archivo_deleted');
-        return redirect()->route('budgets.'.$return, $order->id)->with(compact('msg'));        
-    }    
+        return redirect()->route('budgets.'.$return, $order->id)->with(compact('msg'));
+    }
 
     /**
      * 10. Crear presupuesto desde pedido.
@@ -1030,10 +1061,10 @@ class BudgetController extends Controller{
                 $new_template = BudgetSettings::find($request->template_id);
 
                 $template = [
-                    'conditions' => $new_template->conditions, 
+                    'conditions' => $new_template->conditions,
                     'payment_method' => $new_template->payment_method,
                     'observations' => $new_template->observations,
-                    'footer_legend' => $new_template->footer_legend    
+                    'footer_legend' => $new_template->footer_legend
                 ];
 
             }else{
@@ -1042,25 +1073,25 @@ class BudgetController extends Controller{
 
                 if($request->conditions || $request->payment_method || $request->observations || $request->footer_legend){
                     $template = [
-                        'conditions' => $request->conditions, 
+                        'conditions' => $request->conditions,
                         'payment_method' => $request->payment_method,
                         'observations' => $request->observations,
                         'footer_legend' => $request->footer_legend
-                    ];    
+                    ];
                 }else{
                     $template = [
-                        'conditions' => $orig_template->conditions, 
+                        'conditions' => $orig_template->conditions,
                         'payment_method' => $orig_template->payment_method,
                         'observations' => $orig_template->observations,
                         'footer_legend' => $orig_template->footer_legend
-                    ];    
+                    ];
                 }
             }
 
         //No viene declarada la plantilla:
         }else{
             $template = [
-                'conditions' => $request->conditions, 
+                'conditions' => $request->conditions,
                 'payment_method' => $request->payment_method,
                 'observations' => $request->observations,
                 'footer_legend' => $request->footer_legend
@@ -1133,7 +1164,7 @@ class BudgetController extends Controller{
             ->get();
 
             $itemsSelected = BudgetItems::where('budget_id', $order->id)->get();
-        
+
         }else{
             $blocks = false;
             $itemsSelected = false;
@@ -1157,7 +1188,7 @@ class BudgetController extends Controller{
             $provider_workplace = Workplace::select('workplaces.*', 'towns.name AS Town')
             ->leftJoin('towns', 'workplaces.town_id', '=', 'towns.id')
             ->where('workplaces.id', $order->provider_workplace_id)
-            ->first();  
+            ->first();
 
             $provider_phones = $provider_workplace->id? Phone::select('phone_number')
             ->where('workplace_id', $provider_workplace->id)
@@ -1172,20 +1203,20 @@ class BudgetController extends Controller{
             $customer_workplace = Workplace::select('workplaces.*', 'towns.name AS Town')
             ->leftJoin('towns', 'workplaces.town_id', '=', 'towns.id')
             ->where('workplaces.id', $order->customer_workplace_id)
-            ->first();  
+            ->first();
         }
 
         //Provider manager:
         $provider_manager = false;
         if($order->provider_manager_id){
             $provider_manager = User::select('name', 'surname')->find($order->provider_manager_id);
-        }   
+        }
 
         //Customer manager:
         $customer_manager = false;
         if($order->customer_manager_id){
             $customer_manager = User::select('name', 'surname')->find($order->customer_manager_id);
-        }    
+        }
 
         //Moneda:
         $currency = CompanySettings::co_currency(0);
@@ -1206,7 +1237,7 @@ class BudgetController extends Controller{
 
         }elseif($order->modality == config('constants.BUDGET_FORM_MODALITY_')){
             $pdf = PDF::loadView('pdf/budget-by-form', compact('order', 'provider', 'customer', 'template', 'fechaLiteral', 'blocks', 'itemsSelected', 'arrRecid', 'amountWithoutPercentItems', 'fecha', 'company_settings', 'provider_workplace', 'customer_workplace', 'provider_phones', 'provider_manager', 'customer_manager', 'blocks', 'itemsSelected', 'currency', 'bg_color', 'noPriceLinesTexts', 'locale'));
-            return $pdf->download($pdf_title.'.pdf');  
+            return $pdf->download($pdf_title.'.pdf');
 
         }elseif($order->modality == config('constants.BUDGET_CATALOGUE_MODALITY_')){
             $pdf = PDF::loadView('pdf/budget-catalogue', compact('order', 'company', 'customer', 'template', 'fechaLiteral', 'company_settings', 'provider_workplace', 'customer_workplace', 'provider_phones', 'provider_manager', 'customer_manager', 'blocks', 'itemsSelected', 'currency', 'bg_color', 'locale'));
@@ -1234,7 +1265,7 @@ class BudgetController extends Controller{
         }
 
         $ext = 'v'.($versions+1);
-        
+
         //Nombre y budget_num deben modificarse desde el presupuesto original:
         $origBudget = Order::find($originalId);
         $name = $origBudget? $origBudget->name.' '.$ext:trans('textos.presupuesto');
@@ -1273,6 +1304,9 @@ class BudgetController extends Controller{
         $version->created_by = Auth::user()->id;
         $version->discount = $order->discount;
         $version->discount_amount = $order->discount_amount;
+        $version->num_deadlines = $order->num_deadlines;
+        $version->days_between_deadlines = $order->days_between_deadlines;
+        $version->accounting_sale_id = $order->accounting_sale_id;
         $version->save();
 
         //Copiamos bloques libres e items:
@@ -1282,7 +1316,7 @@ class BudgetController extends Controller{
             ->where('order_id', $order->id)
             ->get();
             $arrBlockId = [];
-            
+
             foreach($blocks as $block){
                 $bk = new BudgetFormItems();
                 $bk->recid = '0';
@@ -1327,14 +1361,14 @@ class BudgetController extends Controller{
         }
 
         $msg = trans('textos.presupuesto_versionado');
-        return redirect()->route('budgets.edit', $version->id)->with(compact('msg')); 
+        return redirect()->route('budgets.edit', $version->id)->with(compact('msg'));
     }
-    
+
     /**
      * 16. Actualizar estado de presupuesto.
      */
     public function status(Request $request, Order $order, $status){
-        if($request->ajax()){    
+        if($request->ajax()){
             $order->budget_status = $status;
             //Modificamos fecha de aceptación para presupuestos aprobados.
             if(in_array($status, config('constants.BUDGET_STATUS_APPROVED_'))){
@@ -1357,13 +1391,13 @@ class BudgetController extends Controller{
                 ->withErrors($validator)
                 ->withInput();
         }
-        
+
         $order = Order::select('id', 'is_order', 'provider_id', 'provider_manager_id', 'provider_workplace_id', 'provider_cost_center_id', 'provider_business_area_id', 'provider_project_id', 'provider_team', )->find($request->order_id);
 
         //Comprobamos que no exista pedido:
         if($order->is_order){
             $alert = trans('textos.proveedor_cambio_error');
-            return redirect()->route('budgets.edit', $request->order_id)->with(compact('alert'));    
+            return redirect()->route('budgets.edit', $request->order_id)->with(compact('alert'));
         }
 
         $order->provider_id = $request->company_id;
@@ -1417,7 +1451,10 @@ class BudgetController extends Controller{
 
         //Datos presupuesto original:
         $order = Order::find($request->order_id);
-        $items = Item::where('order_id', $order->id)->get();
+        //Items: sólo items con valor positivo:
+        $items = Item::where('order_id', $order->id)
+        ->where('price', '>=', '0')
+        ->get();
 
         //Nuevo presupuesto:
         $new_budget = new Order();
@@ -1427,8 +1464,8 @@ class BudgetController extends Controller{
         $new_budget->modality = $order->modality;
         $new_budget->description = $order->description;
         $new_budget->comments = $order->comments;
-        $new_budget->form_id = $order->form_id;    
-        $new_budget->created_by = Auth::user()->id; 
+        $new_budget->form_id = $order->form_id;
+        $new_budget->created_by = Auth::user()->id;
         $new_budget->budget_template_id = $order->template_id;
         $new_budget->budget_template = $order->template;
         $new_budget->customer_id = $request->customer;
@@ -1441,15 +1478,54 @@ class BudgetController extends Controller{
         //$new_budget->discount = $order->discount;
         //$new_budget->discount_amount = $order->discount_amount;
         //$new_budget->updated_by = Auth::user()->id;
+        $new_budget->num_deadlines = $order->num_deadlines;
+        $new_budget->days_between_deadlines = $order->days_between_deadlines;
+        $new_budget->accounting_sale_id = $order->accounting_sale_id;
         $new_budget->save();
 
+        //Bloques de formulario creados exprofeso para el pedido:
+        $blocks_adhoc = BudgetFormItems::select('id', 'name', 'cost_center_id')
+        ->where('order_id', $order->id)
+        ->whereNull('form_id')
+        ->where('recid', '0')
+        ->get();
+
+        //Array para no repetir bloques:
+        $blocks_used = [];
+
         foreach($items as $i){
+            $budget_form_block_id = $i->budget_form_block_id;
+            $budget_form_item_id = $i->budget_form_item_id;
+
+            //Verificamos si se trata de un bloque ad hoc:
+            foreach($blocks_adhoc as $ba){
+                if($i->budget_form_block_id == $ba->id && in_array($ba->name, $blocks_used)){
+                    $bfi = new BudgetFormItems();
+                    $bfi->recid = '0';
+                    $bfi->form_id = NULL;
+                    $bfi->order_id = $new_budget->id;
+                    $bfi->product_id = NULL;
+                    $bfi->name = $ba->name;
+                    $bfi->cost_center_id = $ba->cost_center_id;
+                    $bfi->save();
+
+                    $budget_form_block_id = $bfi->id;
+                    $budget_form_item_id = NULL;
+                    break;
+
+                    $blocks_used[$bfi->id] = $bfi->name;
+
+                }else{
+                    $budget_form_block_id = array_search($ba->name, $blocks_used);
+                    $budget_form_item_id = NULL;
+                }
+            }
+
             $it = new Item();
             $it->product_id = $i->product_id;
             $it->order_id = $new_budget->id;
-            $it->budget_form_block_id = $i->budget_form_block_id;
-            $it->budget_form_item_id = $i->budget_form_item_id;
-            $it->budget_form_block_id = $i->budget_form_block_id;
+            $it->budget_form_block_id = $budget_form_block_id > 0? $budget_form_block_id:NULL;
+            $it->budget_form_item_id = $budget_form_item_id;
             $it->budget_sort = $i->budget_sort;
             $it->concept = $i->concept;
             $it->observations = $i->observations;
@@ -1459,7 +1535,7 @@ class BudgetController extends Controller{
             $it->iva = $i->iva;
             $it->discount = $i->discount;
             $it->calculated_by_percent = $i->calculated_by_percent;
-            $it->invoiced = $i->invoiced;
+            $it->invoiced = NULL;
             $it->deposit_used = $i->deposit_used;
             $it->days = $i->days;
             $it->days_continue = $i->days_continue;
@@ -1507,15 +1583,15 @@ class BudgetController extends Controller{
      */
     public function fromProviders(){
         $header = [
-            'option' => $this->option, 
+            'option' => $this->option,
             'suboption' => 'textos.presupuestos_proveedores',
             'module' => $this->module,
             'slug' => 'budgets'
-        ]; 
+        ];
 
-        $budget_from = 'providers'; 
+        $budget_from = 'providers';
 
-        return view('admin.budgets.index')->with(compact('header', 'budget_from'));    
+        return view('admin.budgets.index')->with(compact('header', 'budget_from'));
     }
 
     /**
@@ -1525,7 +1601,7 @@ class BudgetController extends Controller{
         if($request->ajax()){
             Order::where('id', $order_id)
             ->update(['budget_shared' => $status]);
-        }    
+        }
     }
 
     /**
@@ -1533,11 +1609,11 @@ class BudgetController extends Controller{
      */
     public function show(Order $order){
         $header = [
-            'option' => $this->option, 
+            'option' => $this->option,
             'suboption' => 'textos.presupuesto_ver',
             'module' => $this->module,
             'slug' => 'budgets'
-        ];  
+        ];
 
         //PROVEEDOR:
         $provider = Company::select('id', 'name', 'tradename')->find($order->provider_id);
@@ -1553,16 +1629,16 @@ class BudgetController extends Controller{
             $order_amount = $order->bag_amount;
         }else{
             $items = $order->items();
-            $arr_amounts = $order->getAmount();    
+            $arr_amounts = $order->getAmount();
 
             $order_amount = $arr_amounts['total_amount'];
             $order_amount_without_discount = $arr_amounts['total_amount_without_discounts'];
-        } 
+        }
 
         //Moneda:
         $currency = CompanySettings::co_currency(0);
 
-        return view('admin.budgets.show')->with(compact('header', 'order', 'provider', 'customer', 'final_customer', 'order_amount', 'currency'));   
+        return view('admin.budgets.show')->with(compact('header', 'order', 'provider', 'customer', 'final_customer', 'order_amount', 'currency'));
     }
 
     /**
@@ -1602,16 +1678,16 @@ class BudgetController extends Controller{
                     $arr_amount = helpers::itemAmount($item);
                     $amount = $arr_amount['amount'];
                     return $amount.$currency->symbol;
-                }            
+                }
             }else{
                 return trans('textos.precio_sin_definir');
-            }              
+            }
         })
         ->addColumn('observations', function($item){
             return $item->observations;
         })
         ->addColumn('acciones', function($item) use($order){
-            return '<a href="#" class="btn btn-xs btn-info btnSeeItem" rel="tooltip" title="'.ucfirst(trans('textos.ver')).'"><i class="fa fa-eye"></i></a>';    
+            return '<a href="#" class="btn btn-xs btn-info btnSeeItem" rel="tooltip" title="'.ucfirst(trans('textos.ver')).'"><i class="fa fa-eye"></i></a>';
         })
         ->rawColumns(['amount', 'observations', 'acciones'])
         ->make(true);
@@ -1640,7 +1716,7 @@ class BudgetController extends Controller{
         $order->save();
 
         $msg = trans('textos.presupuesto_cancelado');
-        return redirect()->route('budgets.edit', [$order->id])->with(compact('msg'));    
+        return redirect()->route('budgets.edit', [$order->id])->with(compact('msg'));
     }
 
     /**
@@ -1666,7 +1742,7 @@ class BudgetController extends Controller{
         $discount = NULL;
         if($original_budget->final_customer_id){
             $original_discount = CustomerProviders::select('discount')
-            ->where('customer_id', $original_budget->final_customer_id)    
+            ->where('customer_id', $original_budget->final_customer_id)
             ->where('provider_id', $original_budget->provider_id)
             ->first();
 
@@ -1678,6 +1754,9 @@ class BudgetController extends Controller{
             $budget = Order::find($request->budget_id);
 
         }else{
+            //Condiciones comerciales del pedido:
+            $cu_pr = CustomerProviders::customerProvider($original_budget->final_customer_id, session('currentCompany'));
+
             $budget = new Order();
             $budget->is_budget = true;
             $budget->modality = $original_budget->modality;
@@ -1688,6 +1767,8 @@ class BudgetController extends Controller{
                 $budget->form_id = $request->form_id;
             }
             $budget->discount = $discount;
+            $budget->num_deadlines = $cu_pr->num_deadlines;
+            $budget->days_between_deadlines = $cu_pr->days_between_deadlines;
             $budget->save();
         }
 
@@ -1716,7 +1797,7 @@ class BudgetController extends Controller{
                     $exist->save();
 
                 //Si no existe se crea nuevo:
-                }else{              
+                }else{
                     Item::create([
                         'order_id' => $budget->id,
                         'budget_sort' => $i,

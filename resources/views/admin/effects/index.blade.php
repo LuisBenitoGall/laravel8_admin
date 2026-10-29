@@ -30,6 +30,16 @@
 
 @if($customer || $provider)
 	<div class="row">
+		<div class="col-12 mb-3">
+			<h3>
+				@php
+				$company_name = $customer? $customer->name:$provider->name;
+				@endphp
+
+				{!! trans('textos.efectos') !!} <b>{{ $company_name }}</b>
+			</h3>
+		</div>
+
 		<div class="table-responsive">
 			<table class="table table-hover dtabla" id="tblEffects">
 				<thead>
@@ -70,6 +80,9 @@
 							{{ ucfirst(trans('textos.pago_metodo')) }}
 						</th>
 						<th class="text-center">
+							{{ ucfirst(trans('textos.asientos')) }}
+						</th>
+						<th class="text-center">
 							{{ ucfirst(trans('textos.remesa')) }}
 						</th>
 						<th>
@@ -105,7 +118,28 @@ $(function(){
         var provider = $('#myProvider').val() != ''? $('#myProvider').val():'0'; 
         //var year = $('#myYear').val();
         
-        $('#tblEffects').DataTable({
+        //Filters:
+        $('#tblEffects thead tr').clone(true).appendTo('#tblEffects thead');
+        $('#tblEffects thead tr:eq(1) th').each(function(i){
+            var title = $(this).text(); 
+            if(i == 9){
+                $(this).html('');
+            }else{
+                $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
+                // aquí el código retirado
+            }
+
+            $('input', this).on('keyup change', function(){
+                if(tableEffects.column(i).search() !== this.value){
+                    tableEffects
+                        .column(i)
+                        .search(this.value)
+                        .draw();
+                }
+            });
+        });
+        
+        var tableEffects = $('#tblEffects').DataTable({
             serverSide: true,
             processing: true,
             ajax: {
@@ -116,14 +150,15 @@ $(function(){
                 }
             },
             columns: [
-                {data: 'effect_num', className: 'text-right'},
-                {data: 'date', className: 'text-right'},
-                {data: 'company'},
+                {data: 'effect_num', name: 'effects.effect_num', className: 'text-right'},
+                {data: 'date', name: 'effects.date', className: 'text-right'},
+                {data: 'company', name: 'companies.name'},
                 {data: 'is_group', className: 'text-center'},
                 {data: 'invoices', className: 'text-right'},
-                {data: 'amount', className: 'text-right'},
+                {data: 'amount', name: 'effects.amount', className: 'text-right'},
                 {data: 'payment_method', className: 'text-right'},
-                {data: 'remittance', className: 'text-right'},
+                {data: 'seats', name: 'seats.id', className: 'text-right'},
+                {data: 'remittance', name: 'remittances.remittance_num', className: 'text-right'},
                 {data: 'estado', className: 'text-right'},
                 {data: 'acciones', className: 'text-right'}
             ]

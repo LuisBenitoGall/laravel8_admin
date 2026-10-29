@@ -11,3 +11,14 @@
 		</table>
 	</div>
 </div>
+
+@push('scripts')
+<script>
+$(function(){
+	//Tabla Company Sectors:
+    if($('#tblCompanySectors').length > 0){
+        $('#tblCompanySectors').DataTable();
+    }
+});
+</script>
+@endpush
