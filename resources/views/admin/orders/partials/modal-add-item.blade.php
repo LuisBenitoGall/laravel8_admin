@@ -80,18 +80,36 @@
 							</div>
 						@endif
 					</div>
-
-					{{-- Línea manual. Para pedidos de compra si el producto no consta en el catálogo. Su precio es 0 --}}
+					
+					{{-- Opciones de cliente: --}}
 					@if(session('currentCompany') == $order->customer_id)
+						{{-- Línea manual. Para pedidos de compra si el producto no consta en el catálogo. Su precio es 0 --}}
 						<div class="form-group row">
 							<label for="concept" class="col-md-2 col-form-label sinpadding-left">{!! ucfirst(trans('textos.producto_manual')) !!}</label>	
 							<div class="col-md-10">
 								<x-input type="text" name="concept" id="productManual" autocomplete="off" info="order-product-manual"/>
 							</div>
 						</div>
+
+						{{-- Producto contable --}}
+						@if(isset($accounting_products) && $accounting_products->count())
+							@php
+							$accounting_products_arr = [];
+							foreach($accounting_products as $ap){
+								$accounting_products_arr[$ap->id] = $ap->name;	
+							}
+							@endphp
+
+							<div class="form-group row">
+								<label for="accounting_product" class="col-md-2 col-form-label sinpadding-left">{!! ucfirst(trans('textos.producto_contable')) !!}</label>	
+								<div class="col-md-10">
+									<x-select name="accounting_product" class="select2" id="accountingProduct" label="producto_contable_selec" :options="$accounting_products_arr"/>
+								</div>
+							</div>
+						@endif
 					@endif
 
-					{{-- Correspondencia de referencia de producto para compras. --}}
+					{{-- Correspondencia de referencia de producto contable. --}}
 					@if(session('currentCompany') == $order->customer_id)
 						<div class="form-group row" id="customerRef">
 							<div class="col-md-10 offset-md-2">
@@ -130,7 +148,18 @@
 						@if($environment_ == 'orders' || $environment_ == 'invoices')
 							<label for="iva" class="col-lg-2 col-form-label">IVA</label>
 							<div class="col-lg-2">
-								<x-input type="text" name="iva" class="text-right set-decimals iva0" id="productIva" autocomplete="off" maxlength="5" group="right" groupvalue="%" readonly="{{ $readonly }}" value="{{ config('constants.IVA_DEFAULT_') }}"/>
+								{{-- 04/01/2023: se sustituye el input por un selecto con los tipos de IVA disponibles. --}}
+								@php
+								$iva_types = [];
+								$iva_default = config('constants.IVA_DEFAULT_');
+								foreach($ivaTypes as $it){
+									$iva_types[$it->iva] = $it->iva.'%'; 
+								}
+								@endphp
+
+								<x-select name="iva" class="select2 iva0" id="productIva" label="iva_selec" :options="$iva_types" value="{{ $iva_default }}"/>
+
+								{{-- <x-input type="text" name="iva" class="text-right set-decimals iva0" id="productIva" autocomplete="off" maxlength="5" group="right" groupvalue="%" readonly="{{ $readonly }}" value="{{ $iva_default }}"/> --}}
 							</div>
 
 							{{-- Exento IVA --}}
@@ -194,16 +223,16 @@
 								<x-input type="text" name="calculated_by_percent" class="text-right set-decimals" autocomplete="off" maxlength="8" id="productPriceByPercent" value="0.00" group="right" groupvalue="%" readonly="{{ $readonly }}" info="item-price-by-percent"/>
 							</div>
 						</div>
+					@endif
 
-						@if(isset($provider_cost_centers) && is_array($provider_cost_centers))
-							<div class="form-group row">
-								{{-- Centro de coste --}}
-								<label for="provider_cost_center" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.centro_coste')) !!}</label>
-								<div class="col-lg-4">
-									<x-select name="provider_cost_center" class="select2" id="productCostCenter" label="centro_coste_selec" :options="$provider_cost_centers"/>
-								</div>
+					{{-- Centro de coste. 24/01/2024, ver nota del método InvoiceController/editPurchase: aunque el nombre de la variable hace mención a los centros de coste de proveedor, en las facturas de compra corresponden realmente a centros de coste del cliente, aunque el nombre preste a confusión. --}}
+					@if(isset($provider_cost_centers) && is_array($provider_cost_centers))
+						<div class="form-group row">
+							<label for="provider_cost_center" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.centro_coste')) !!}</label>
+							<div class="col-lg-4">
+								<x-select name="provider_cost_center" class="select2" id="productCostCenter" label="centro_coste_selec" :options="$provider_cost_centers"/>
 							</div>
-						@endif
+						</div>
 					@endif
 
 					<div class="form-group row">
@@ -225,6 +254,7 @@
 <script>
 $(function(){
 	var products = {!! json_encode($products) !!}
+	var accounting_products = @if(isset($accounting_products) && $accounting_products->count()) {!! json_encode($accounting_products) !!} @else false @endif;
 	var perspective = $('#myPerspective').val();
 
 	// Limpiar formulario nuevo item.
@@ -239,7 +269,7 @@ $(function(){
 	    //Buscamos precio:
 	    products.forEach(function(i){
 	        if(i.id == product_id){
-	        	console.log(i);
+	        	//console.log(i);
 	        	//Centro de coste:
 	        	var arr = [i.cost_center_id];
 	        	$('#productCostCenter').val(arr);
@@ -281,14 +311,35 @@ $(function(){
 	    }
 	});
 	
+	// Seteando producto manual.
 	$('#productManual').on('change', function(){
 		var valor = $(this).val();
 		var arr = [''];
-        $('#productId').val(arr);
-        $('#productId').trigger('change');
+        $('#productId, #accountingProduct').val(arr);
+        $('#productId, #accountingProduct').trigger('change');
 
 		$('#productPrice').val('0.00');
+		$('#productIva').val('');
 		$(this).val(valor);
+	});
+
+	// Seteando producto contable.
+	$('#accountingProduct').on('change', function(e){
+		var product_id_ = e.target.value;
+		var arr = [''];
+        $('#productId').val(arr);
+        $('#productId').trigger('change');
+        $('#productManual').val('');
+
+		$('#productPrice').val('0.00');
+		if(accounting_products){
+			accounting_products.forEach(function(i){
+				if(i.id == product_id_){
+					$('#productIva').val(i.iva);
+				}
+			});
+		}
+		$(this).val(product_id_);
 	});
 });
 </script>

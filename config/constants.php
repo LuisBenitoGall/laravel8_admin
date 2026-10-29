@@ -9,9 +9,15 @@ return [
     'ACCOUNT_DEFAULT_CASH_SALES_' => 50,
     'ACCOUNT_DEFAULT_CASH_PURCHASES_' => 60,
     'ACCOUNTING_ACCOUNT_DIGITS_DEFAULT_' => 4,
+    'ACCOUNTING_ACCOUNT_IVA_PREFIX_PURCHASES_' => '4720',   //Prefijo cuentas contable IVA soportado.
+    'ACCOUNTING_ACCOUNT_IVA_PREFIX_SALES_' => '4770',       //Prefijo cuentas contable IVA repercutido.
+    'ACCOUNTING_ACCOUNT_MODE_DEFAULT_' => 4,    //Modo por defecto del helper::accountingAccountModes.
+    'ACCOUNTING_METHOD_DEFAULT_' => 2,          //Método contable por defecto.
+    'ACCOUNTING_METHODS_INVOICE_' => [1,8],     //Métodos contables a ejecutar en facturas.
+    'ACCOUNTING_METHODS_PAYMENT_' => [2],       //Métodos contables a ejecutar en pagos.
     'ANSWER_TYPE_BOOLEAN_' => 10,
     'ANSWER_TYPE_BY_POINTS_' => 20,
-    'BASIC_TIMETABLE_ITEMS_' => false,      //Marca si se pueden utilizar las opciones básicas de fichajes para móvil.
+    'BASIC_TIMETABLE_ITEMS_' => false,          //Marca si se pueden utilizar las opciones básicas de fichajes para móvil.
     'BUDGET_GENERIC_BLOCK_' => 'bloque',
     'BUDGET_ITEM_ID_DEFAULT_' => 1,
     'BUDGET_BASIC_MODALITY_' => 1,
@@ -39,6 +45,10 @@ return [
     'CURRENCY_NAME_' => 'EUR',
     'DATE_NULL_' => '0000-00-00',
     'DELIVERY_STATUS_PREPARATION_' => 1,
+    'EFFECT_STATUS_PENDENT_' => 1,
+    'EFFECT_STATUS_REMITTANCE_' => 10,
+    'EFFECT_STATUS_PAID_' => 20,
+    'EFFECT_STATUS_UNPDAID_' => 30,
     'EMAIL_' => 'lbenito@weareadn.com',
     'EMPLOYEE_ACTIVED_' => 1,
     'EMPLOYEE_EXPIRED_' => 2,
@@ -90,6 +100,9 @@ return [
     'QUESTION_CROSSWORD_' => 30,
     'QUESTION_FREE_TEXT_' => 20,
     'QUESTION_TEST_' => 10,
+    'REMITTANCE_STATUS_DELIVERED_' => 10,        //Remesa enviada.
+    'REMITTANCE_STATUS_OPEN_' => 1,              //Remesa abierta.
+    'REMITTANCE_STATUS_PAYED_' => 20,            //Remesa pagada.
 	'ROLE_' => 'usuario',			//role sin permisos.
     'ROLE_BASICO_' => 'basico',
 	//'ROLE_ID_' => 3,				//id role sin permisos (extraído de la tabla 'roles').
@@ -97,6 +110,8 @@ return [
     'ROLE_SUPERADMIN_' => 1,        //id role con permisos absolutos (extraído de la tabla 'roles').
     'SET_ORDER_PREVISIONS_' => false,
     'SUPER_ADMIN_' => 'Super Admin',
+    'TOLERANCE_DECIMALS_' => 0.01,      //Tolerancia para valores con numerosos decimales.
+    'TOLERANCE_INVOICED_' => 99.99,     //Indica el valor de tolerancia admitido para facturas.
     'UNDEFINED_DATE_' => '9999-12-31',
     
 ];

@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 
 //Models:
+use App\Models\AccountingAccount;
 use App\Models\Bank;
 use App\Models\BankAccounts;
 
@@ -32,6 +33,7 @@ class BankAccountsController extends Controller{
     private $option = 'contabilidad';
     private $module = 'accounting';
     private $languages;
+    private $accounting_account_mode = 3;   //Mode: 3 (bancos)
 
     public function __construct(){
         //Idiomas:
@@ -47,14 +49,23 @@ class BankAccountsController extends Controller{
         if(isset($data['submit_save'])){
             return Validator::make($data, [
                 'bank_id' => 'required|integer',
-                'account' => 'required|max:25'
+                //'account' => 'required|max:25',
+                // 'iban' => 'required|max:4',
+                // 'entity' => 'required|max:4',
+                // 'office' => 'required|max:4',
+                // 'dc' => 'required|max:2',
+                // 'digits' => 'required|max:10'
             ]);
 
         //Validación update:
         }elseif(isset($data['submit_update'])){
             return Validator::make($data, [
                 'bank_id' => 'required|integer',
-                'account' => 'required|max:25'
+                'iban' => 'required|max:4',
+                'entity' => 'required|max:4',
+                'office' => 'required|max:4',
+                'dc' => 'required|max:2',
+                'digits' => 'required|max:10'
             ]);
 
         //Validación update modal:
@@ -63,7 +74,7 @@ class BankAccountsController extends Controller{
                 'id' => 'required|integer',
                 'company_id' => 'required|integer',
                 'bank_id' => 'required|integer',
-                'account' => 'required|max:25'
+                //'account' => 'required|max:25'
             ]);
         }
     } 
@@ -79,8 +90,12 @@ class BankAccountsController extends Controller{
             'slug' => 'bank_accounts'
         ]; 
 
-        $accounts = BankAccounts::select('bank_accounts.*', 'banks.name', 'banks.tradename')
+        //Conversión de formato de cuentas bancarias:
+        //$this->conversionAccount();
+
+        $accounts = BankAccounts::select('bank_accounts.*', 'banks.name', 'banks.tradename', 'accounting_accounts.account AS accounting_account')
         ->join('banks', 'bank_accounts.bank_id', '=', 'banks.id')
+        ->leftJoin('accounting_accounts', 'bank_accounts.accounting_account_id', '=', 'accounting_accounts.id')
         ->where('bank_accounts.company_id', session('currentCompany'))
         ->orderBy('banks.name')
         ->get();
@@ -99,12 +114,15 @@ class BankAccountsController extends Controller{
             'slug' => 'bank_accounts'
         ];
 
-        $banks = Bank::getBanks(true);
+        $banks = Bank::getBanks(1);
 
         $accounts = BankAccounts::where('company_id', session('currentCompany'))
         ->get();
 
-        return view('admin.bank_accounts.create')->with(compact('header', 'banks', 'accounts'));     
+        //Cuentas contables:
+        $accounting_accounts = AccountingAccount::arrayAccountingAccounts(session('currentCompany'), $this->accounting_account_mode); 
+
+        return view('admin.bank_accounts.create')->with(compact('header', 'banks', 'accounts', 'accounting_accounts'));     
     }
 
     /**
@@ -120,10 +138,43 @@ class BankAccountsController extends Controller{
 
         $companyId = $request->company_id? $request->company_id:session('currentCompany');
 
+        if($request->origin == 'modal'){
+            $data_account = helpers::splitBankAccount($request->account);
+
+            if(!empty($data_account)){
+                $iban = $data_account['iban'];
+                $entity = $data_account['entity'];
+                $office = $data_account['office'];
+                $dc = $data_account['dc'];
+                $digits = $data_account['digits'];    
+            }else{
+                $iban = '';
+                $entity = '';
+                $office = '';
+                $dc = '';
+                $digits = '';   
+            }   
+
+        }else{
+            $iban = $request->iban;
+            $entity = $request->entity;
+            $office = $request->office;
+            $dc = $request->dc;
+            $digits = $request->digits;
+        }   
+
+        $account = strtoupper($iban).' '.$entity.' '.$office.' '.$dc.' '.$digits;     
+
         $row = new BankAccounts();
         $row->company_id = $companyId;
+        $row->accounting_account_id = $request->accounting_account;
         $row->bank_id = $request->bank_id;
-        $row->account = $request->account;
+        $row->account = $account;
+        $row->iban = strtoupper($iban);
+        $row->entity = $entity;
+        $row->office = $office;
+        $row->dc = $dc;
+        $row->digits = $digits;
         $row->featured = $request->featured? true:false;
         $row->status = $request->status? true:false;
         $row->save();
@@ -148,9 +199,12 @@ class BankAccountsController extends Controller{
             'slug' => 'banks'
         ];
 
-        $banks = Bank::getBanks(true);
+        $banks = Bank::getBanks(1);
 
-        return view('admin.bank_accounts.edit')->with(compact('header', 'banks', 'account'));  
+        //Cuentas contables:
+        $accounting_accounts = AccountingAccount::arrayAccountingAccounts(session('currentCompany'), $this->accounting_account_mode); 
+
+        return view('admin.bank_accounts.edit')->with(compact('header', 'banks', 'account', 'accounting_accounts'));  
     }
 
     /**
@@ -164,8 +218,16 @@ class BankAccountsController extends Controller{
             ->withInput();    
         }
 
+        $account_num = strtoupper($request->iban).' '.$request->entity.' '.$request->office.' '.$request->dc.' '.$request->digits;
+
+        $account->accounting_account_id = $request->accounting_account;
         $account->bank_id = $request->bank_id;
-        $account->account = $request->account;
+        $account->account = $account_num;
+        $account->iban = strtoupper($request->iban);
+        $account->entity = $request->entity;
+        $account->office = $request->office;
+        $account->dc = $request->dc;
+        $account->digits = $request->digits;
         $account->featured = $request->featured? true:false;
         $account->status = $request->status? true:false;
         $account->save();
@@ -256,5 +318,38 @@ class BankAccountsController extends Controller{
             $data = BankAccounts::getBankAccounts($company_id);
             return response()->json($data);
         }    
+    }
+
+    /**
+     * 10. Conversión formato cuentas.
+     */
+    public function conversionAccount(){
+        $data = BankAccounts::whereNull('iban')->get();
+
+        if($data->count()){
+            foreach($data as $row) {
+                // if(strlen($row->account) !== 24){
+                //     return false; // La cuenta no tiene la longitud esperada
+                // }
+                
+                $account = str_replace(' ', '', $row->account);
+
+                $iban = substr($account, 0, 4);
+                $entity = substr($account, 4, 4);
+                $office = substr($account, 8, 4);
+                $dc = substr($account, 12, 2);
+                $digits = substr($account, 14, 10);
+
+                $account_ = strtoupper($iban).' '.$entity.' '.$office.' '.$dc.' '.$digits;
+
+                $row->account = $account_;
+                $row->iban = $iban;
+                $row->entity = $entity;
+                $row->office = $office;
+                $row->dc = $dc;
+                $row->digits = $digits;    
+                $row->save();
+            }
+        }
     }
 }

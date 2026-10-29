@@ -56,6 +56,33 @@
 @push('scripts')
 <script>
 $(function(){
+    //Tabla Day Types:
+    if($('#tblDayTypes').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+
+        $('#tblDayTypes').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/day-types",
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'name'},
+                {data: 'color'},
+                {data: 'is_working', className: 'text-center'},
+                {data: 'user_enabled', className: 'text-center'},
+                {data: 'cumulative', className: 'text-center'},
+                {data: 'modifiable', className: 'text-center'},
+                {data: 'repetition', className: 'text-center'},
+                {data: 'acciones', className: 'text-right'}
+            ]
+        });
+    }
+    
     //Modal configuración tipo de jornada.
     $(document).on('click', '.btnDayTypeConfig', function(){
         var id = $(this).data('id');

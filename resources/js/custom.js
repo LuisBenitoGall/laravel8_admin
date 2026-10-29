@@ -181,6 +181,21 @@ function calculateDate(fecha, operacion, dias){
     // return resultado;
 }
 
+//Convertir segundos a minutos y horas:
+function secondsToString(seconds, viewSeconds = false){
+    var hour = Math.floor(seconds / 3600);
+    hour = (hour < 10)? '0' + hour : hour;
+    var minute = Math.floor((seconds / 60) % 60);
+    minute = (minute < 10)? '0' + minute : minute;
+    if(viewSeconds){
+        var second = seconds % 60;
+        second = (second < 10)? '0' + second : second;
+        return hour + ':' + minute + ':' + second;
+    }else{
+        return hour + ':' + minute;    
+    }
+}
+
 // ************************************ DOCUMENT READY: ************************************
 $(document).ready(function () {
     /* ***************** INDICE DE MÉTODOS: *****************
@@ -194,6 +209,7 @@ $(document).ready(function () {
     7. Bloquear doble submit en formularios.
     8. Bloqueo de botones tras 1 click.
     9. Menú opciones top responsive.
+    10.
     */
 
     //Hora del control horario:
@@ -310,6 +326,8 @@ $(document).ready(function () {
     $('.pop-over').on('click', function(e){
         e.preventDefault();
     });
+
+    $('.prominent').parent('div').css({'border': '1px solid #89c5d9'});
 });
 
 // ************************************ WINDOW LOAD: ************************************
@@ -359,11 +377,21 @@ $(window).on('load', function () {
     33. Vincular / desvincular sectores a empresa.
     34. Búsqueda autocomplete de empresa.
     35. Búsqueda autocomplete de proveedor.
+        35.1. Búsqueda autocomplete de cliente.
+        35.2. Búsqueda autocomplete de productos.
+        35.3. Búsqueda autocomplete de productos de compra.
     36. Proyectos por empresa.
     37. Marcar proyecto como favorito.
     38. Modal editar atributo de producto o unidad de producto.
     39. Búsqueda autocomplete de usuarios.
     40. Guardar Me Gusta.
+    41. Búsqueda autocomplete para pedidos.
+        41.1. Búsqueda autocomplete para pedidos de compra.
+    42. Búsqueda autocomplete para cuentas contables.
+    43. Modal vincular pedidos de terceros.
+    44. Modal editar nota.
+    45. Seleccionar efectos para remesa.
+    46. Desplegable columnas para DataTables.
     */
 
     // 1. Eliminar preview imagen seleccionada:
@@ -748,7 +776,10 @@ $(window).on('load', function () {
         //Reemplazamos comas por puntos:
         var value = value.replace(/,/g, '.');
         //Patrón de formato correcto con 2 decimales:
-        var regexp = /^-?\d*(\.\d{1})?\d{0,1}$/;
+        //var regexp = /^-?\d*(\.\d{1})?\d{0,1}$/;
+        //29/12/2023: se modifica el patrón para que admita hasta 6 decimales.
+        var regexp = /^-?\d*(\.\d{1})?\d{0,6}$/;
+
         //7/12/22: se permite incluir valor 0 ( value == '0' || )
         if (!regexp.test(value) ||  value == '') {
             swal.fire({
@@ -1085,14 +1116,20 @@ $(window).on('load', function () {
         $('#itemObservations_').trumbowyg('html', '');
         $.get("/admin/items/" + id + "/edit", function (response, state) {
             if(response){
+                //console.log(response);
                 var readonly = response.invoiced? true:false;
 
                 $('#itemId_').val(id);
                 $('#itemConcept_').val(response.concept);
                 $('#itemObservations_').trumbowyg('html', response.observations);
 
-                //Centro de coste:
-                var arr = [response.provider_cost_center_id];
+                //Centro de coste de cliente o proveedor, según sea compra o venta:
+                if(response.company_id == currentCompany_){
+                    var costCenterId = response.provider_cost_center_id? response.provider_cost_center_id:response.cost_center_id;
+                }else{
+                    var costCenterId = response.customer_cost_center_id? response.customer_cost_center_id:false;   
+                }
+                var arr = [costCenterId];
                 $('#itemCostCenter_').val(arr);
                 $('#itemCostCenter_').trigger('change');
 
@@ -1113,8 +1150,18 @@ $(window).on('load', function () {
                     $('#itemDays_').val(response.days).prop('readonly', readonly);
                     $('#itemPrice_').val(response.price).prop('readonly', readonly);
                     $('#itemDiscount_').val(response.discount).prop('readonly', readonly);
-                    $('#itemIva_').val(response.iva).prop('readonly', readonly);
                     $('#itemCalculatedByPercent_').val('').prop('readonly', readonly);
+
+                    //Producto contable:
+                    var arr_accounting_product = [response.purchase_product_id];
+                    $('#itemAccountingProduct_').val(arr_accounting_product);
+                    $('#itemAccountingProduct_').trigger('change');
+
+                    //IVA:
+                    var arr_iva = [response.iva];
+                    $('#itemIva_').val(arr_iva);
+                    $('#itemIva_').trigger('change');
+                    //$('#itemIva_').val(response.iva).prop('readonly', readonly);
 
                     if(response.iva == ''){
                         $('#frmEditItem .withoutIva').prop('checked', true);
@@ -1218,7 +1265,10 @@ $(window).on('load', function () {
     // 32. Producto exento de IVA.
     $('.withoutIva').on('change', function(){
         if($(this).is(':checked')){
-            $('.iva0').val('');
+            var arr_iva = ['0'];
+            $('.iva0').val(arr_iva);
+            $('.iva0').trigger('change');
+            //$('.iva0').val('');
         }    
     });
     $('.iva0').on('change', function(){
@@ -1334,7 +1384,48 @@ $(window).on('load', function () {
         }
     });
 
-    // 35.1. Búsqueda autocomplete de productos.
+    // 35.1. Búsqueda autocomplete de cliente.
+    $('#search_customer').autocomplete({
+        minLength: 0,
+        source: function(request,response){
+            // Fetch data
+            if(request.term.length > 1){
+                $.ajax({
+                    url: "/api/admin/customers-search",
+                    type: "post",
+                    dataType: "json",
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        search: request.term
+                    },
+                    success: function(data){
+                        response($.map(data, function (item){
+                            return {
+                                label: item.name,
+                                value: item.id,
+                                code: item.nif
+                            }
+                        }));
+                    }
+                });
+
+            //Limpiamos datos:
+            }else{
+                $('#customerId').val('');    
+            }
+        },
+        select: function(event,ui){
+            $('#search_customer').val(ui.item.label);
+            $('#customerId').val(ui.item.value);
+            if(ui.item.value == ''){
+                $('#customerId').val('');    
+            }
+            
+            return false;
+        }
+    });
+
+    // 35.2. Búsqueda autocomplete de productos.
     $('#search_product').autocomplete({
         minLength: 0,
         source: function(request,response){
@@ -1383,6 +1474,53 @@ $(window).on('load', function () {
             if(ui.item.value == ''){
                 $('#productId').val('');
                 $('#productPrice').val('');
+                $('#productIva').val('');    
+            }
+            
+            return false;
+        }
+    });
+
+    // 35.3. Búsqueda autocomplete de productos de compra.
+    $('.search_purchase_product').autocomplete({
+        minLength: 0,
+        source: function(request,response){
+            // Fetch data
+            if(request.term.length > 1){
+                $.ajax({
+                    url: "/api/admin/purchase-products-search",
+                    type: "post",
+                    dataType: "json",
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        search: request.term,
+                    },
+                    success: function(data){
+                        response($.map(data, function (item){
+                            return {
+                                label: item.name,
+                                value: item.id,
+                                iva: item.iva
+                            }
+                        }));
+                    }
+                });
+
+            //Limpiamos datos:
+            }else{
+                $('#purchaseProductId').val('');  
+                $('#productIva').val('');   
+            }
+        },
+        select: function(event,ui){
+            $('.search_purchase_product').val(ui.item.label);
+            $('#purchaseProductId').val(ui.item.value);
+            $('#productIva').val(ui.item.iva);
+
+            ref_drawn = ui.item.ref? ui.item.ref:(ui.item.manual_ref? ui.item.manual_ref:'');
+            $('#productRef').val(ref_drawn);
+            if(ui.item.value == ''){
+                $('#purchaseProductId').val('');
                 $('#productIva').val('');    
             }
             
@@ -1581,5 +1719,289 @@ $(window).on('load', function () {
                 }
             }
         });
+    });
+
+    // 41. Búsqueda autocomplete para pedidos.
+    $('#search_order').autocomplete({
+        minLength: 0,
+        source: function(request,response){
+            // Fetch data
+            if(request.term.length > 1){
+                $.ajax({
+                    url: "/api/admin/orders-search",
+                    type: "post",
+                    dataType: "json",
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        search: request.term
+                    },
+                    success: function(data){
+                        response($.map(data, function (item){
+                            var num_ = item.order_num? item.order_num:(item.order_old_num? item.order_old_num:item.id);
+
+                            return {
+                                label: num_+' - '+item.name,
+                                value: item.id
+                            }
+                        }));
+                    }
+                });
+
+            //Limpiamos datos:
+            }else{
+                $('#orderId_').val('');  
+            }
+        },
+        select: function(event,ui){
+            $('#search_order').val(ui.item.label);
+            $('#orderId_').val(ui.item.value);
+
+            if(ui.item.value == ''){
+                $('#orderId_').val('');
+            }
+            
+            return false;
+        }    
+    });
+
+    // 41.1. Búsqueda autocomplete para pedidos de compra.
+    $('#search_purchase').autocomplete({
+        minLength: 0,
+        source: function(request,response){
+            // Fetch data
+            if(request.term.length > 1){
+                $.ajax({
+                    url: "/api/admin/purchases-search",
+                    type: "post",
+                    dataType: "json",
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        search: request.term
+                    },
+                    success: function(data){
+                        response($.map(data, function (item){
+                            var num_ = item.purchase_num? item.purchase_num:(item.purchase_old_num? item.purchase_old_num:item.id);
+
+                            return {
+                                label: num_+' - '+item.name,
+                                value: item.id
+                            }
+                        }));
+                    }
+                });
+
+            //Limpiamos datos:
+            }else{
+                $('#purchaseId_').val('');  
+            }
+        },
+        select: function(event,ui){
+            $('#search_purchase').val(ui.item.label);
+            $('#purchaseId_').val(ui.item.value);
+
+            if(ui.item.value == ''){
+                $('#purchaseId_').val('');
+            }
+            
+            return false;
+        }    
+    });
+
+    // 42. Búsqueda autocomplete para cuentas contables.
+    $('.search_accounting_account').each(function(){
+        var input_ = $(this).data('id');
+
+        $(this).autocomplete({
+            minLength: 2,
+            source: function(request,response){
+                // Fetch data
+                if(request.term.length > 1){
+                    $.ajax({
+                        url: "/api/admin/accounting-accounts-search",
+                        type: "post",
+                        dataType: "json",
+                        data: {
+                            _token: $('meta[name="csrf-token"]').attr('content'),
+                            search: request.term
+                        },
+                        success: function(data){
+                            response($.map(data, function (item){
+                                return {
+                                    label: item.account+' - '+item.name,
+                                    value: item.id
+                                }
+                            }));
+                        }
+                    });
+
+                //Limpiamos datos:
+                }else{
+                    $('#searchAccountingAccount'+input_).val('');  
+                }
+            },
+            select: function(event,ui){
+                event.preventDefault(event);
+                $('#searchAccountingAccount'+input_).val(ui.item.label);
+                $('#accountingAccountId'+input_).val(ui.item.value);
+
+                if(ui.item.value == ''){
+                    $('#searchAccountingAccount'+input_).val('');
+                }
+                
+                return false;
+            },
+            autoFocus: true, 
+            delay: 0  
+        });
+    });
+
+    $('#search_accounting_account').autocomplete({
+        minLength: 2,
+        source: function(request,response){
+            // Fetch data
+            if(request.term.length > 1){
+                $.ajax({
+                    url: "/api/admin/accounting-accounts-search",
+                    type: "post",
+                    dataType: "json",
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        search: request.term
+                    },
+                    success: function(data){
+                        response($.map(data, function (item){
+                            return {
+                                label: item.account+' - '+item.name,
+                                value: item.id
+                            }
+                        }));
+                    }
+                });
+
+            //Limpiamos datos:
+            }else{
+                $('#accountingAccountId').val('');
+            }
+        },
+        select: function(event,ui){
+            $('#search_accounting_account').val(ui.item.label);
+            $('#accountingAccountId').val(ui.item.value);
+
+            if(ui.item.value == ''){
+                $('#search_accounting_account').val('');
+            }
+            
+            return false;
+        }
+    });
+
+    $('#search_accounting_account2').autocomplete({
+        minLength: 2,
+        source: function(request,response){
+            // Fetch data
+            if(request.term.length > 1){
+                $.ajax({
+                    url: "/api/admin/accounting-accounts-search",
+                    type: "post",
+                    dataType: "json",
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        search: request.term
+                    },
+                    success: function(data){
+                        response($.map(data, function (item){
+                            return {
+                                label: item.account+' - '+item.name,
+                                value: item.id
+                            }
+                        }));
+                    }
+                });
+
+            //Limpiamos datos:
+            }else{
+                $('#accountingAccountId2').val('');
+            }
+        },
+        select: function(event,ui){
+            $('#search_accounting_account2').val(ui.item.label);
+            $('#accountingAccountId2').val(ui.item.value);
+
+            if(ui.item.value == ''){
+                $('#search_accounting_account2').val('');
+            }
+            
+            return false;
+        }
+    });
+
+    // 43. Modal vincular pedidos de terceros.
+    $(document).on('click', '.btnLinkItem', function(e){
+        e.preventDefault();
+        var item_id = $(this).data('id');
+        $('#itemLinkedId').val(item_id);
+
+        var order_id = $('#myOrder').val();
+
+        $.get("/admin/item-linked-orders/"+item_id+"/show", function(response, state){
+            var html = '';
+            if(response.length > 0){
+                for(i=0; i<response.length; i++){
+                    html += '<tr>';
+                        var order_ = response[i].order_num? response[i].order_num:(response[i].order_old_num? response[i].order_old_num:response[i].order_id);
+                        html += '<td><a target="_blank" href="/admin/orders/'+response[i].order_id+'/edit">'+order_+' - '+response[i].name+'</a></td>';
+
+                        var fecha = new Date(response[i].created_at);
+                        var any = fecha.getFullYear();
+                        var mes = (fecha.getMonth() + 1).toString().padStart(2, '0'); // Meses son 0-indexados
+                        var dia = fecha.getDate().toString().padStart(2, '0');
+
+                        // Formatear la fecha en el formato deseado
+                        var formatDate = dia+'/'+mes+'/'+any;
+
+                        html += '<td class="text-right">'+formatDate+'</td>';
+                        html += '<td class="text-right">';
+                            //Eliminar:
+                            html += '<a href="/admin/item-linked-orders/'+response[i].id+'/delete/'+order_id+'" class="btn btn-xs btn-danger btn-confirm" data-msg="'+txtItemVinculadoEliminarConfirm+'" rel="tooltip" title="'+txtDesvincular+'"><i class="fa fa-trash"></i></a>';
+                        html += '</td>';
+                    html += '</tr>';
+                }
+                
+            }else{
+                html += '<tr>';
+                    html += '<td colspan="3" class="text-center text-warning pt-4">'+txtItemsVinculadosSin+'</td>';
+                html += '</tr>';
+            }
+
+            $('#tblItemsLinked tbody').html(html);
+        });
+    });
+
+    // 44. Modal editar nota.
+    $(document).on('click', '.btnEditNote', function(e){
+        e.preventDefault();
+        var id = $(this).data('id');  
+        var title = $(this).closest('.note-content').find('h4').text();
+        var content = $(this).closest('.note-content').find('p').text();
+
+        $('#noteEditId').val(id);
+        $('#noteEditTitle').val(title);
+        $('#noteEditContent').val(content);
+    });
+
+    // 45. Seleccionar efectos para remesa.
+    $('.chkEffect').on('click', function(){
+        var val = $(this).val();
+        if($(this).is(':checked')){
+            var html = '<input type="hidden" class="ef-'+val+'" name="effects[]" value="'+val+'">'; 
+            $('#effects').append(html);
+        }else{
+            $('.ef-'+val).remove();
+        }       
+    });
+
+    //46. Desplegable columnas para DataTables.
+    $('.btn-dt-columns').on('click', function(){
+        $(".dt-columns ul").slideToggle();
     });
 });

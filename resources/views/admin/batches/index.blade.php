@@ -64,4 +64,36 @@
 	</div>
 </div>
 
+@push('scripts')
+<script>
+$(function(){
+	//Tabla Batches:
+    if($('#tblBatches').length > 0){
+        var product_id = $('#myProduct').val();
+
+        $('#tblBatches').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/batches/"+product_id,
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'batch'},
+                {data: 'product'},
+                {data: 'fecha', className: 'text-right'},
+                {data: 'expiry_date', className: 'text-right'},
+                {data: 'work_order'},
+                {data: 'initial_qty', className: 'text-right'},
+                {data: 'acciones', className: 'text-right'}
+            ]
+        });
+    }
+});
+</script>
+@endpush
+
 @endsection

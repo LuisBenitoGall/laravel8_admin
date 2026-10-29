@@ -258,7 +258,7 @@ class BudgetController extends Controller{
         })
         ->addColumn('amount', function($row) use($currency){
             $amount = $row->getAmount();    
-            return $amount['total_amount'].$currency->symbol;
+            return number_format($amount['total_amount'], 2, ',', '.').$currency->symbol;
         })
         // ->addColumn('modalidad', function($row) use($abrev){
         //     return ucfirst($abrev[$row->modality]);
@@ -325,6 +325,7 @@ class BudgetController extends Controller{
             $customers = CustomerProviders::select('companies.id', 'companies.name', 'companies.tradename')
             ->join('companies', 'customer_providers.customer_id', '=', 'companies.id')
             ->where('customer_providers.provider_id', session('currentCompany'))
+            ->where('customer_providers.status', 1)
             ->orderBy('companies.name', 'ASC')
             ->get();
         }
@@ -395,7 +396,7 @@ class BudgetController extends Controller{
     private function setDefaultItems($order){
         //Si el presupuesto es de tipo formulario y éste tiene items por defecto:
         if($order->modality == config('constants.BUDGET_FORM_MODALITY_')){
-            $items = BudgetFormItems::select('budget_form_items.*', 'products.name AS Product', 'products.price', 'products.iva')
+            $items = BudgetFormItems::select('budget_form_items.*', 'products.name AS Product', 'products.price', 'products.iva', 'products.cost_center_id')
             ->join('products', 'budget_form_items.product_id', '=', 'products.id')
             ->where('budget_form_items.form_id', $order->form_id)
             ->where('budget_form_items.fixed_in_budget', 1)
@@ -423,6 +424,7 @@ class BudgetController extends Controller{
                         'discount' => $item->discount, 
                         'calculated_by_percent' => $item->calculated_by_percent,
                         'deposit_used' => NULL, 
+                        'provider_cost_center_id' => $item->cost_center_id,
                         'active' => 1, 
                         'status' => NULL, 
                         'print' => 1, 
@@ -543,6 +545,7 @@ class BudgetController extends Controller{
 
         //Centros de coste del proveedor:
         $provider_cost_centers = CostCenters::where('company_id', $order->provider_id)
+        ->where('status', 1)
         ->get();
 
         //Áreas de negocio del proveedor:
@@ -810,6 +813,13 @@ class BudgetController extends Controller{
         //¿Pedido aprobado?
         if(in_array($request->status, config('constants.BUDGET_STATUS_APPROVED_'))){
             $order->is_order = true;
+            $order->accepted_date = date('Y-m-d');
+            $order->accepted_by = Auth::user()->id;
+
+            //Creamos proyecto, si no existe previamente:
+            if(session('companySettings')->project_required){
+                Project::setProject($order);
+            }
         }
 
         //Actualizando datos:
@@ -1326,6 +1336,11 @@ class BudgetController extends Controller{
     public function status(Request $request, Order $order, $status){
         if($request->ajax()){    
             $order->budget_status = $status;
+            //Modificamos fecha de aceptación para presupuestos aprobados.
+            if(in_array($status, config('constants.BUDGET_STATUS_APPROVED_'))){
+                $order->accepted_date = date('Y-m-d');
+                $order->accepted_by = Auth::user()->id;
+            }
             $order->save();
 
             return response()->json(true);

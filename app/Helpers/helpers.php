@@ -12,6 +12,7 @@ class Helpers{
 	 * 	1.2. Niveles de acceso a los módulos.	
 	 * 	1.3. Popover info.
 	 *  1.4. Avatar.
+	 *  1.5. Desglose de cuenta bancaria.
 	 *
 	 * 2. Fechas y hora:
 	 * 	2.1. Convertir fecha a formato inglés.
@@ -62,8 +63,19 @@ class Helpers{
 	 *  3.27. Estados de envíos.
 	 *  3.28. Estados de protocolos.
 	 *  3.29. Estados de venta por caja.
+	 *  3.30. Modos de cuentas contables.
+	 *  3.30.1. Tipos de cuentas contables.
+	 *  3.30.2. Prefijos de cuentas contables específicas.
+	 *  3.31. Diarios contables.
+	 *  3.32. Tipos líneas de asientos contables.
+	 *  3.33. Conceptos asientos contables.
+	 *  3.34. Métodos contables.
+	 *  3.35. Estados de efectos contables.
+	 *  3.36. Tipos de efectos contables.
+	 *  3.37. Estados de pagos.
+	 *  3.38. Estados de remesas contables.
 	 *
-	 * 4. Strings:
+	 * 4. Strings & Arrays:
 	 * 	4.1. Truncar texto.
 	 * 	4.2. Slug string para archivos.
 	 *  4.3. Customizar CIF.
@@ -71,6 +83,7 @@ class Helpers{
 	 *  4.4. Formato numérico para decimales.
 	 *  4.5. Customizar strings.
 	 *  4.6. Cadena serializada.
+	 *  4.7. Detectar valores repetidos en un array.
 	 *
 	 * 5. Archivos:
 	 *  5.1. Allowed Image Mime Types.
@@ -213,6 +226,26 @@ class Helpers{
 
 		// Generamos el html tag
         return "<span class='avatar' style='background-color: $bg'>$l1 $l2</span>";
+	}
+
+	/**
+	 * 1.5. Desglose de cuenta bancaria.
+	 */
+	public static function splitBankAccount($account){
+		$data = [];
+		$account = trim($account);
+        $account = str_replace(array(" ", "-"), "", $account);
+
+		if(strlen($account) == 24){
+            $data['iban'] = substr($account, 0, 4);
+            $data['entity'] = substr($account, 4, 4);
+            $data['office'] = substr($account, 8, 4);
+            $data['dc'] = substr($account, 12, 2);
+            $data['digits'] = substr($account, 14, 10); 
+            $data['account'] = strtoupper($data['iban']).' '.$data['entity'].' '.$data['office'].' '.$data['dc'].' '.$data['digits'];
+        }
+
+        return $data; 	
 	}
 
 	/**
@@ -591,8 +624,9 @@ class Helpers{
 		//Ajustando fecha de pago:
 		$month = $p[1];	
 		$year = $p[0];
-		$payday = $p[2];
-		if($payday > 0 && $p[2] > $payday){
+		//$day = (int)$payday > (int)$p[2]? $payday:$p[2];
+		$day = (int)$payday > 0? $payday:$p[2];
+		if($payday > 0 && (int)$p[2] > $payday){
 			$month = intval($month) + 1;
 			if($month == 13){
 				$month = 1;
@@ -601,7 +635,7 @@ class Helpers{
 			$month = $month < 10? '0'.$month:$month;
 		}
 
-		return $year.'-'.$month.'-'.$payday;
+		return $year.'-'.$month.'-'.$day;
 	}
 	
 	/**
@@ -769,7 +803,11 @@ class Helpers{
 			10 => ucfirst(trans('textos.administrador'))
 		];
 		if($status){
-			return $data[$status];
+			if(isset($data[$status])){
+				return $data[$status];
+			}else{
+				return false;
+			}
 		}else{
 			return $data;
 		}	
@@ -783,21 +821,25 @@ class Helpers{
 	public static function orderStatus($status = false){
 		$data = [
 			//0 => '',
-			1 => trans('textos.pendiente'),
+			//1 => trans('textos.pendiente'),
 			10 => trans('textos.aprobado'),
 			//15 => trans('textos.cliente_dudas'),
-			20 => trans('textos.trabajando'),
-			25 => trans('textos.porcentaje'),
+			//20 => trans('textos.trabajando'),
+			//25 => trans('textos.porcentaje'),
 			30 => trans('textos.cancelado'),
-			40 => trans('textos.entregado'),
-			50 => trans('textos.incidencia'),
+			//40 => trans('textos.entregado'),
+			//50 => trans('textos.incidencia'),
 			//60 => trans('textos.rondas_cambio'),
 			70 => trans('textos.finalizado'),
 			//80 => trans('textos.pendiente_feedback'),
 			//90 => trans('textos.preparacion_aaff')
 		];
 		if($status){
-			return ucfirst($data[$status]);
+			if(isset($data[$status])){
+				return ucfirst($data[$status]);
+			}else{
+				return false;
+			}
 		}else{
 			return $data;
 		}		
@@ -830,7 +872,11 @@ class Helpers{
 			70 => trans('textos.finalizado')
 		];
 		if($status){
-			return $data[$status];
+			if(isset($data[$status])){
+				return $data[$status];
+			}else{
+				return false;
+			}
 		}else{
 			return $data;
 		}			
@@ -846,7 +892,11 @@ class Helpers{
 			20 => trans('textos.facturado')
 		];
 		if($status){
-			return ucfirst($data[$status]);
+			if(isset($data[$status])){
+				return ucfirst($data[$status]);
+			}else{
+				return false;
+			}
 		}else{
 			return $data;
 		}		
@@ -863,7 +913,11 @@ class Helpers{
 			30 => trans('textos.finalizado')
 		];
 		if($status){
-			return ucfirst($data[$status]);
+			if(isset($data[$status])){
+				return ucfirst($data[$status]);
+			}else{
+				return false;
+			}
 		}else{
 			return $data;
 		}		
@@ -880,7 +934,11 @@ class Helpers{
 			30 => trans('textos.entregado')
 		];
 		if($status){
-			return ucfirst($data[$status]);
+			if(isset($data[$status])){
+				return ucfirst($data[$status]);
+			}else{
+				return false;
+			}
 		}else{
 			return $data;
 		}		
@@ -1169,6 +1227,216 @@ class Helpers{
 	}
 
 	/**
+	 * 3.30. Modos de cuentas contables.
+	 */
+	public static function accountingAccountModes($mode = false){
+		$data = [
+			1 => ucfirst(trans('textos.cliente')),
+			2 => ucfirst(trans('textos.proveedor')),
+			3 => ucfirst(trans('textos.banco')),
+			4 => ucfirst(trans('textos.contabilidad'))
+		];
+		if($mode){
+			return $data[$mode];
+		}else{
+			return $data;
+		}		
+	}
+
+	/**
+	 * 3.30.1. Tipos de cuentas contables.
+	 */
+	public static function accountingAccountTypes($type = false){
+		$data = [
+			'a' => ucfirst(trans('textos.activos')),
+			'p' => ucfirst(trans('textos.pasivos')),
+			'g' => ucfirst(trans('textos.perdidas_ganancias'))
+		];
+		if($type){
+			return $data[$type];
+		}else{
+			return $data;
+		}		
+	}
+
+	/**
+	 * 3.30.2. Prefijos de cuentas contables específicas.
+	 */
+	public static function accountingAccountSpecificPrefixes(){
+		return [
+			'provider' => '4000',
+        	'creditor' => '4100',
+            'customer' => '4300'
+		];
+	}
+
+	/**
+	 * 3.31. Diarios contables.
+	 */
+	public static function accountingDiaries($diary = false){
+		$data = [
+			'dg' => trans('textos.diario_general'),
+			//'PG' => 'Diario Pagos',
+			'dc' => trans('textos.diario_compras'),
+			'dv' => trans('textos.diario_ventas'),
+			//'RB' => 'Remesas Bancarias',
+			//'CB' => 'Diario Cobros',
+			'dj' => trans('textos.diario_caja'),
+			//'IMPAG' => 'Impagados'
+		];
+		if($diary){
+			if(isset($data[$diary])){
+				return $data[$diary];
+			}else{
+				return false;
+			}
+		}else{
+			return $data;
+		}
+	}
+
+	/**
+	 * 3.32. Tipos líneas de asientos contables.
+	 */
+	public static function seatLinesTypes($type = false){
+		$data = [
+			'cp' => trans('textos.cheque_pagare'),
+			'ir' => 'IR',
+			'iv' => 'IV',
+			'tr' => trans('textos.transferencia'),
+			'vc' => trans('textos.venta_contado')
+		];
+		if($type){
+			return ucfirst($data[$type]);
+		}else{
+			return $data;
+		}
+	}
+
+	/**
+	 * 3.33. Conceptos asientos contables.
+	 */
+	public static function seatConcepts($concept = false){
+		$data = [
+			'CF' => trans('textos.cobro_factura'),
+			'IMPAG' => trans('textos.impagado'),
+			'LI' => trans('textos.liquidacion'),
+			'NF' => trans('textos.factura_nuestra'),
+			//'NO' => trans('textos.no'),
+			'NP' => trans('textos.pago_nuestro'),
+			'NR' => trans('textos.remesa_num'),
+			'PYS' => trans('textos.paga_senal'),
+			'SF' => trans('textos.factura_proveedor')
+		];
+		if($concept){
+			if(isset($data[$concept])){
+				return ucfirst($data[$concept]);
+			}else{
+				return false;
+			}
+		}else{
+			return $data;
+		}
+	}
+
+	/**
+	 * 3.34. Métodos contables.
+	 */
+	public static function accountingMethods($method = false){
+		$data = [
+			1 => ucfirst(trans('textos.devengo')),
+			2 => ucfirst(trans('textos.caja')),
+			3 => ucfirst(trans('textos.competencia')),
+			4 => ucfirst(trans('textos.porcentaje_completado')),
+			5 => ucfirst(trans('textos.unidad_produccion')),
+			6 => ucfirst(trans('textos.costo_historico')),
+			7 => ucfirst(trans('textos.revaluacion')),
+			8 => ucfirst(trans('textos.ingresos'))
+		];	
+
+		if($method){
+			if(isset($data[$method])){
+				return ucfirst($data[$method]);
+			}else{
+				return false;
+			}
+		}else{
+			return $data;
+		}
+	}
+
+	/**
+	 * 3.35. Estados de efectos contables.
+	 */
+	public static function effectsStatus($status = false){
+		$data = [
+			1 => trans('textos.aceptado'),
+			10 => trans('textos.aceptado_no')
+			// 20 => trans('textos.cobrado'),
+			// 30 => trans('textos.impagado')
+		];
+		if($status){
+			return ucfirst($data[$status]);
+		}else{
+			return $data;
+		}	
+	}
+
+	/**
+	 * 3.36. Tipos de efectos contables.
+	 */
+	public static function effectTypes($type = false){
+		$data = [
+			10 => ucfirst(trans('textos.efectivo')),
+			20 => ucfirst(trans('textos.cheque')),
+			30 => ucfirst(trans('textos.pagaré'))
+		];	
+
+		if($type){
+			if(isset($data[$type])){
+				return ucfirst($data[$type]);
+			}else{
+				return false;
+			}
+		}else{
+			return $data;
+		}
+	}
+
+	/**
+	 * 3.37. Estados de pagos.
+	 */
+	public static function paymentStatus($status = false){
+		$data = [
+			'A' => ucfirst(trans('textos.aprobado')),
+			'C' => ucfirst(trans('textos.efectivo')),
+			'N' =>  ucfirst(trans('textos.pagado_no')),
+			'R' => 'R'
+		];
+		if($status){
+			return ucfirst($data[$status]);
+		}else{
+			return $data;
+		}
+	}
+
+	/**
+	 * 3.38. Estados de remesas contables.
+	 */
+	public static function remittanceStatus($status = false){
+		$data = [
+			1 => trans('textos.abierta'),
+			10 => trans('textos.enviada'),
+			20 => trans('textos.cobrado')
+		];
+		if($status){
+			return ucfirst($data[$status]);
+		}else{
+			return $data;
+		}	
+	}
+
+	/**
 	 * 4.1. Truncar texto.
 	 */
 	public static function truncate($text, $chars = 120){
@@ -1307,6 +1575,15 @@ class Helpers{
 	 */
 	public static function isSerialized($string) {
     	return (@unserialize($string) !== false || $string == 'b:0;');
+	}
+
+	/**
+	 * 4.7. Detectar valores repetidos en un array.
+	 */
+	public static function getRepeatValues($data){
+		$unique_values = array_unique($data);
+		$comunes = array_diff_assoc($data, $unique_values);
+		return $comunes;
 	}
 
 	/**
@@ -2194,10 +2471,10 @@ class Helpers{
 	 * Para líneas con importe fijo, NO calculado porcentualmente.
 	 */
 	public static function itemAmount($item, $with_iva = false, $with_equivalence_surcharge = false){
-		$amount = $item->price * $item->qty;
+		$amount = round($item->price * $item->qty, 2);
 
 		//Guardamos el precio original antes de descuento:
-		$amount_without_discount = $item->price * $item->qty;
+		$amount_without_discount = $amount;
 
 		if($item->price > 0){
 			//Contabilizando jornadas:
@@ -2224,18 +2501,23 @@ class Helpers{
 
 	    //Descontando IRPF:
         //29/09/23: se modifica la fórmula a base - irpf
+        //14/12/23: nueva modificación de la fórmula: base - irpf, y sobre la base se obtiene también en el IVA, no sobre este resultado.
         $irpf_amount = 0;
         if($item->irpf > 0){
-            $irpf_amount = helpers::percent($amount, $item->irpf);
+            $irpf_amount = helpers::percent($tax_base, $item->irpf);
         }
 
         //IVA:	
+        $iva_amount = 0;
         if($item->iva > 0 && $with_iva){
-        	$percent = ($amount * $item->iva) / 100;
-        	$amount = round($amount + $percent, 2);
+        	$iva_amount = helpers::percent($tax_base, $item->iva);
         }
 
-        $amount = $amount - $irpf_amount;
+        //Importe sin iva:
+        $amount_without_iva = $amount - $irpf_amount;
+
+        //Importe principal: puede llevar IVA o no según se indique en el parámetro $with_iva.
+        $amount = $amount + $iva_amount - $irpf_amount;
 
         //Recargo de equivalencia. Se obtiene sobre la base imponible y se suma al importe total añadido ya el IVA u otros impuestos que pueda haber.
         if($with_equivalence_surcharge && $with_iva && $item->equivalence_surcharge > 0){
@@ -2243,7 +2525,7 @@ class Helpers{
         	$amount = round($amount + $percent, 2);
         }
 
-        $arr = ['amount' => $amount, 'amount_without_discount' => $amount_without_discount];
+        $arr = ['amount' => round($amount,2), 'amount_without_discount' => round($amount_without_discount,2), 'amount_without_iva' => round($amount_without_iva,2), 'iva_amount' => $iva_amount];
         return $arr;
 	}
 
@@ -2262,7 +2544,7 @@ class Helpers{
 	/**
 	 * 7.1. Render galería imágenes.
 	 */
-	public static function renderImg($doc, $gallery = false, $schema){
+	public static function renderImg($doc, $schema, $gallery = false){
 	    $render = '<div class="gallery-item col-sm-3 mb-4">
 	        <div class="gallery-img">';
 	        if($gallery){

@@ -12,7 +12,7 @@
             @endif
 
             <span class="totalAmount">
-                {{ number_format($budget_amount, 2) }}{{ $currency }}
+                {{ number_format($budget_amount, 2, ',', '.') }}{{ $currency }}
             </span>
             <input type="hidden" id="totalAmount_"> 
 
@@ -21,14 +21,14 @@
                 {!! ucfirst(trans('textos.bolsa')) !!}
                 <br>  
                 <b>
-                    {{ number_format($bag_amount, 2) }}{{ $currency }}
+                    {{ number_format($bag_amount, 2, ',', '.') }}{{ $currency }}
                 </b>  
                 <br>
 
                 {!! ucfirst(trans('textos.pendiente')) !!}
                 <br> 
                 <b>
-                    {{ number_format($bag_amount - $budget_amount, 2) }}{{ $currency }}   
+                    {{ number_format($bag_amount - $budget_amount, 2, ',', '.') }}{{ $currency }}   
                 </b>
             @endif
 
@@ -37,7 +37,7 @@
                 {!! trans('textos.importe_sin_descuento') !!}
                 <br>
                 <b>
-                    {{ number_format($budget_amount_without_discount, 2) }}{{ $currency }}
+                    {{ number_format($budget_amount_without_discount, 2, ',', '.') }}{{ $currency }}
                 </b>
             @endif
         </div>

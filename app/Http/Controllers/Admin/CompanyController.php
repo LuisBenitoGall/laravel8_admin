@@ -17,6 +17,7 @@ use File;
 
 //Models:
 use App\Models\Account;
+use App\Models\AccountingAccount;
 use App\Models\Category;
 use App\Models\Company;
 use App\Models\CompanyAccounts;
@@ -61,6 +62,7 @@ class CompanyController extends Controller{
      * 18. Roles por empresa.
      * 19. Empresas para autocomplete.
      * 20. Proveedores para autocomplete.
+     * 21. Cliente para autocomplete.
      */
 
     private $option = 'empresas';
@@ -203,10 +205,14 @@ class CompanyController extends Controller{
             if($request->input('business_relationship') == 'customers'){
                 $customer_id = $request->company_id;
                 $provider_id = session('currentCompany');
+                $account_to = 'customer';
+                $mode = 1;  //Helper: accountingAccountModes();
 
             }else{
                 $customer_id = session('currentCompany');
                 $provider_id = $request->company_id;
+                $account_to = 'provider';
+                $mode = 2;
             }
 
             $exist = CustomerProviders::where('customer_id', $customer_id)
@@ -228,6 +234,15 @@ class CompanyController extends Controller{
             $cp->save();
 
             $company_id = $request->company_id;
+
+            //Creando cuenta contable:
+            $accounting_account_data = [
+                'account_to' => $account_to,
+                'company_target' => $company_id,
+                'mode' => $mode,
+                'with_iva' => 1
+            ];
+            AccountingAccount::setAccountingAccount($accounting_account_data);
 
         //Nueva empresa:
         }else{
@@ -373,15 +388,28 @@ class CompanyController extends Controller{
             if($request->business_relationship == 'customers'){
                 $customer_id = $company->id;
                 $provider_id = session('currentCompany');
+                $account_to = 'customer';
+                $mode = 1;  //Helper: accountingAccountModes();
             }else{
                 $customer_id = session('currentCompany');
                 $provider_id = $company->id;
+                $account_to = 'provider';
+                $mode = 2;  //Helper: accountingAccountModes();
             }
 
             $cp = new CustomerProviders();
             $cp->customer_id = $customer_id;
             $cp->provider_id = $provider_id;
             $cp->save();
+
+            //Creando cuenta contable:
+            $accounting_account_data = [
+                'account_to' => $account_to,
+                'company_target' => $company->id,
+                'mode' => $mode,
+                'with_iva' => 1
+            ];
+            AccountingAccount::setAccountingAccount($accounting_account_data);
         }
 
         //Info de la cuenta suscrita:
@@ -448,6 +476,15 @@ class CompanyController extends Controller{
             }else{
                 $company = $this->saveCompany($request);
             }
+
+            //Creando cuenta contable:
+            $accounting_account_data = [
+                'account_to' => 'provider',
+                'company_target' => $company->id,
+                'mode' => 2,
+                'with_iva' => 1
+            ];
+            AccountingAccount::setAccountingAccount($accounting_account_data);
 
             //Categorías:
             if($request->categories){
@@ -542,6 +579,13 @@ class CompanyController extends Controller{
         }
 
         $company->save();
+
+        //Modificando datos relación comercial:
+        if($request->provider_workplace_id){
+            CustomerProviders::where('provider_id', session('currentCompany'))
+            ->where('customer_id', $company->id)
+            ->update(['provider_workplace_id' => $request->provider_workplace_id]);
+        }
 
         //Modificamos datos en la sesión de empresas:
         if($request->business_relationship == 'companies'){
@@ -830,6 +874,29 @@ class CompanyController extends Controller{
         $data = Company::select('companies.id', 'companies.name', 'companies.tradename', 'companies.nif', 'companies.is_user')
         ->join('customer_providers', 'companies.id', '=', 'customer_providers.provider_id')
         ->where('customer_providers.customer_id', session('currentCompany'))
+        ->where('companies.status', 1)
+        ->where('companies.id', '!=', session('currentCompany')) 
+        ->where(function($query) use ($search){  
+            $query->where('companies.name', 'like', '%'.$search.'%') 
+            ->orWhere('companies.tradename', 'like', '%'.$search.'%')   
+            ->orWhere('companies.nif', 'like', '%'.$search.'%');
+        })
+        ->orderBy('companies.name', 'ASC')
+        ->limit(15)
+        ->get();
+
+        return response()->json($data);
+    }
+
+    /**
+     * 21. Clientes para autocomplete.
+     */
+    public function searchCustomers(Request $request){
+        $search = $request->search;
+
+        $data = Company::select('companies.id', 'companies.name', 'companies.tradename', 'companies.nif', 'companies.is_user')
+        ->join('customer_providers', 'companies.id', '=', 'customer_providers.customer_id')
+        ->where('customer_providers.provider_id', session('currentCompany'))
         ->where('companies.status', 1)
         ->where('companies.id', '!=', session('currentCompany')) 
         ->where(function($query) use ($search){  

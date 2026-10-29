@@ -32,3 +32,36 @@
 		</table>
 	</div>
 </div>
+
+@push('scripts')
+<script>
+$(function(){
+	//Tabla Quiz Edition Questions:
+    if($('#tblQuizEditionQuestions').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        var edition_id = $('#editionId').val();
+        var disabled = $('#editionDisabled').val();
+        
+        $('#tblQuizEditionQuestions').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/quiz-edition-questions/"+edition_id+"/"+disabled,
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'sort', className: 'text-right'},
+                {data: 'name'},
+                {data: 'question'},
+                {data: 'type'},
+                {data: 'points', className: 'text-right'},
+                {data: 'acciones', className: 'text-right'}
+            ]
+        });
+    }
+});
+</script>
+@endpush

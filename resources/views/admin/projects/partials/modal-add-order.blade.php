@@ -17,7 +17,8 @@
                         {{-- Ventas --}}
                         <label for="orders" class="col-12">{{ ucfirst(trans('textos.ventas')) }}*</label>
                         <div class="col-12">
-                            @php
+                            {{-- @php
+                            29/04/2024: se pasa a autocomplete:
                             $orders_ = [];
 
                             foreach($orders as $order){
@@ -27,7 +28,11 @@
                             }
                             @endphp
 
-                            <x-select name="orders[]" class="select2" :options="$orders_" multiple required/>
+                            <x-select name="orders[]" class="select2" :options="$orders_" multiple required/> --}}
+
+                            <x-input type="text" name="order" id="search_order" placeholder="{!! ucfirst(trans('textos.pedido_buscar')) !!}" maxlength="250" required/>
+
+                            <input type="hidden" name="orders[]" id="orderId_">
                         </div>
                     </div>
 

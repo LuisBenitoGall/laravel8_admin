@@ -17,10 +17,12 @@ use Yajra\DataTables\DataTables;
 
 //Models:
 use App\Models\Account;
+use App\Models\AccountingAccount;
 use App\Models\AccountingConcept;
 use App\Models\BankAccounts;
 use App\Models\Bank;
 use App\Models\BusinessAreas;
+use App\Models\Category;
 use App\Models\Company;
 use App\Models\CompanyAccounts;
 use App\Models\CompanySettings;
@@ -68,10 +70,14 @@ class CustomerProvidersController extends Controller{
     private $option = 'empresas';
     private $module = 'companies';
     private $co_currency;
+    private $languages;
     
     public function __construct(){
         //Moneda:
         $this->co_currency = CompanySettings::co_currency(0);
+
+        //Idiomas:
+        $this->languages = helpers::languages();
 
         $this->middleware('management_customers', ['only' => ['customers', 'createCustomer']]);
         $this->middleware('management_providers', ['only' => ['providers', 'createProvider']]);
@@ -300,7 +306,29 @@ class CustomerProvidersController extends Controller{
         ->pluck('name', 'id')
         ->toArray();
 
-        return view('admin.customer_providers.edit')->with(compact('header', 'company', 'tab', 'workplaces', 'areas', 'conditions', 'business_relationship', 'environment', 'company_account', 'banks', 'bank_accounts', 'payment_methods'));     
+        //Cuentas contables:
+        $accounting_accounts = AccountingAccount::where('company_id', session('currentCompany'))
+        ->where('company_target', $company->id)
+        ->where('mode', 1)
+        ->get();
+
+        //Centros de trabajo del proveedor:
+        $provider_workplaces = Workplace::where('company_id', session('currentCompany'))
+        ->pluck('name', 'id')
+        ->toArray();
+
+        //Creando número de cliente si no existe:
+        if(!$conditions->customer_num){
+            //Nº de dígitos configurados por la empresa:
+            $accounting_account_digits = CompanySettings::co_account_digits();
+            //Extraer número de cliente de la cuenta contable.
+            $num_account = substr($accounting_accounts[0]->account, -$accounting_account_digits);
+            $conditions = CustomerProviders::setCustomerProviderNum($company->id, session('currentCompany'), $num_account, 'customer');
+        }
+
+        $languages = $this->languages;
+
+        return view('admin.customer_providers.edit')->with(compact('header', 'company', 'tab', 'workplaces', 'areas', 'conditions', 'business_relationship', 'environment', 'company_account', 'banks', 'bank_accounts', 'payment_methods', 'accounting_accounts', 'provider_workplaces', 'languages'));     
     }
 
     /**
@@ -410,7 +438,24 @@ class CustomerProvidersController extends Controller{
         ->pluck('name', 'id')
         ->toArray();
 
-        return view('admin.customer_providers.edit')->with(compact('header', 'company', 'tab', 'workplaces', 'areas', 'conditions', 'business_relationship', 'environment', 'company_account', 'banks', 'bank_accounts', 'payment_methods'));     
+        //Cuentas contables:
+        $accounting_accounts = AccountingAccount::where('company_id', session('currentCompany'))
+        ->where('company_target', $company->id)
+        ->where('mode', 2)
+        ->get();
+
+        //Creando número de proveedor si no existe:
+        if(!$conditions->provider_num){
+            //Nº de dígitos configurados por la empresa:
+            $accounting_account_digits = CompanySettings::co_account_digits();
+            //Extraer número de proveedor de la cuenta contable.
+            $num_account = substr($accounting_accounts[0]->account, -$accounting_account_digits);
+            $conditions = CustomerProviders::setCustomerProviderNum(session('currentCompany'), $company->id, $num_account, 'provider');
+        }
+
+        $languages = $this->languages;
+
+        return view('admin.customer_providers.edit')->with(compact('header', 'company', 'tab', 'workplaces', 'areas', 'conditions', 'business_relationship', 'environment', 'company_account', 'banks', 'bank_accounts', 'payment_methods', 'accounting_accounts', 'languages'));     
     }
 
     /**
@@ -463,7 +508,7 @@ class CustomerProvidersController extends Controller{
      * 8. Obtener info de empresas por criterio.
      */
     private function getCompaniesData($join, $condition){
-        $data = CustomerProviders::select('customer_providers.id AS cp_id', 'customer_providers.ba_id', 'customer_providers.workplace_id', 'customer_providers.cc_id', 'customer_providers.discount', 'customer_providers.credit_risk', 'customer_providers.budget_access', 'customer_providers.syncro_invoice', 'customer_providers.status AS cp_status', 'customer_providers.accounting_concept_id', 'customer_providers.expense_account_id', 'customer_providers.bank_account_id', 'companies.id', 'companies.name', 'companies.tradename', 'companies.logo', 'companies.nif', 'company_accounts.guardian', 'company_accounts.status')
+        $data = CustomerProviders::select('customer_providers.id AS cp_id', 'customer_providers.ba_id', 'customer_providers.customer_workplace_id', 'customer_providers.cc_id', 'customer_providers.discount', 'customer_providers.credit_risk', 'customer_providers.budget_access', 'customer_providers.syncro_invoice', 'customer_providers.status AS cp_status', 'customer_providers.accounting_concept_id', 'customer_providers.expense_account_id', 'customer_providers.bank_account_id', 'companies.id', 'companies.name', 'companies.tradename', 'companies.logo', 'companies.nif', 'company_accounts.guardian', 'company_accounts.status')
         ->join('companies', 'customer_providers.'.$join, '=', 'companies.id')
         ->leftJoin('company_accounts', 'companies.id', '=', 'company_accounts.company_id')
         ->where('companies.id', '!=', session('currentCompany'))
@@ -597,14 +642,18 @@ class CustomerProvidersController extends Controller{
 
                     $workplace_id = $workplace? $workplace->id:NULL;
 
-
                     //Vínculo cliente - proveedor:
                     if($environment == 'customers'){
                         $customerId = $company->id;
                         $providerId = session('currentCompany');
+                        $account_to = 'customer';
+                        $mode = 1;  //Helper: accountingAccountModes();
+
                     }else{
                         $customerId = session('currentCompany');
                         $providerId = $company->id;
+                        $account_to = 'provider';
+                        $mode = 2;  //Helper: accountingAccountModes();
                     }
 
                     //Verificamos si existe previamente la relación:
@@ -635,7 +684,7 @@ class CustomerProvidersController extends Controller{
                         $cu_pr = new CustomerProviders(); 
                         $cu_pr->customer_id = $customerId;
                         $cu_pr->provider_id = $providerId;
-                        $cu_pr->workplace_id = $workplace_id;
+                        $cu_pr->customer_workplace_id = $workplace_id;
                         $cu_pr->accounting_concept_id = $concept? $concept->id:NULL;
                         $cu_pr->payment_method = $payment_method;
 
@@ -672,6 +721,15 @@ class CustomerProvidersController extends Controller{
                             }
                         }
                     }
+
+                    //Cuenta contable:
+                    $accounting_account_data = [
+                        'account_to' => $account_to,
+                        'company_target' => $company->id,
+                        'mode' => $mode,
+                        'with_iva' => 1
+                    ];
+                    AccountingAccount::setAccountingAccount($accounting_account_data);
                 }
 
             }else{
@@ -711,12 +769,21 @@ class CustomerProvidersController extends Controller{
                             $item->pay_after_days = $row->pay_after_days;
                             $item->payday = $row->payday;
                             $item->ba_id = $row->ba_id;
-                            $item->workplace_id = $row->workplace_id;
+                            $item->customer_workplace_id = $row->workplace_id;
                             $item->cc_id = $row->cc_id;
                             $item->discount = $row->discount;
                             $item->billing_comunication = $row->billing_comunication;
                             $item->status = $row->status;
                             $item->save();
+
+                            //Cuenta contable:
+                            $accounting_account_data = [
+                                'account_to' => 'customer',
+                                'company_target' => $co,
+                                'mode' => 1,
+                                'with_iva' => 1
+                            ];
+                            AccountingAccount::setAccountingAccount($accounting_account_data);
                         }
                     }
                 }
@@ -758,12 +825,21 @@ class CustomerProvidersController extends Controller{
                             $item->pay_after_days = $row->pay_after_days;
                             $item->payday = $row->payday;
                             $item->ba_id = $row->ba_id;
-                            $item->workplace_id = $row->workplace_id;
+                            $item->customer_workplace_id = $row->workplace_id;
                             $item->cc_id = $row->cc_id;
                             $item->discount = $row->discount;
                             $item->billing_comunication = $row->billing_comunication;
                             $item->status = $row->status;
                             $item->save();
+
+                            //Cuenta contable:
+                            $accounting_account_data = [
+                                'account_to' => 'provider',
+                                'company_target' => $co,
+                                'mode' => 2, //Helper: accountingAccountModes();
+                                'with_iva' => 1
+                            ];
+                            AccountingAccount::setAccountingAccount($accounting_account_data);
                         }
                     }
                 }
@@ -910,7 +986,7 @@ class CustomerProvidersController extends Controller{
         ->first();
 
         $cp->ba_id = $request->ba_id;
-        $cp->workplace_id = $request->workplace_id;
+        $cp->customer_workplace_id = $request->workplace_id;
         $cp->cc_id = $request->cc_id;
         $cp->discount = $request->discount;
         $cp->credit_risk = $request->credit_risk;

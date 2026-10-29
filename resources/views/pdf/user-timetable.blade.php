@@ -19,6 +19,13 @@ $provider_phones = false;
 @include('pdf.partials.timetable-footer')
 
 <main>
+
+	@if($timetable_settings && $timetable_settings->timetable_doc_message)
+		<div style="font-size: 12px;">
+			{!! $timetable_settings->timetable_doc_message !!}
+		</div>
+	@endif
+
 	<table class="tblBody">
 		<thead>
 			<tr>
@@ -41,6 +48,8 @@ $provider_phones = false;
 				//Guardamos el siguiente índice para posteriores consultas:
 				$idx = $k+1;
 
+				$acaba = false;
+
 				//Si el concepto tiene una duración fija, se suman los minutos de esa duración al tiempo trabajado:
 				if($row->flag == 1 && $row->fijo > 0){
 					$horasDia = App\Helpers\helpers::sumaHoras($horasDia, App\Helpers\Helpers::getTimeFromMinutes($row->fijo));
@@ -50,6 +59,14 @@ $provider_phones = false;
 					//Tomamos la hora de salida:
 					if(isset($horarios[$idx])){
 						$acaba = $horarios[$idx]->hour;
+
+						//Si se contemplan ajustes de minutos:
+						// if($timetable_settings && $timetable_settings->minute_discount && $timetable_settings->md_from <= $row->date && $timetable_settings->md_to >= $row->date){
+
+						// 	$acaba = strtotime('-'.$timetable_settings->minute_discount.' minute', strtotime($acaba)); // 
+						// 	$acaba = date("H:i:s", $acaba); 
+						// }
+
 						$tiempo = App\Helpers\helpers::getTimeBetweenHours($row->hour, $acaba);
 
 					}else{
@@ -60,7 +77,7 @@ $provider_phones = false;
 
 				//Si el concepto tiene una duración máxima, se suman los minutos de esa duración al tiempo trabajado:
 				}elseif($row->max > 0){
-					$horasDia = App\Helpers\helpers::sumaHoras($horasDia, App\Helpers\Helpers::getTimeFromMinutes($row->max));
+					$horasDia = App\Helpers\helpers::sumaHoras($horasDia, App\Helpers\helpers::getTimeFromMinutes($row->max));
 				}
 
 				$k++;
@@ -75,6 +92,8 @@ $provider_phones = false;
 					</td>
 					<td>
 						@php
+						//Término a pintar:
+						//$hour_ = $row->flag == 1 && $acaba? $acaba:$row->hour;
 						$p = explode(':', $row->hour);
 						@endphp
 						{{ $p[0] }}:{{ $p[1] }}h.

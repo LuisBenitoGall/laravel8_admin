@@ -37,8 +37,18 @@
 					{!! ucfirst(trans('textos.item_nuevo')) !!}
 				</button>
 			@else
-				<label class="text-warning ml-3">{!! trans('textos.crear_bloques_texto') !!}</label>
+				<label class="text-warning ml-3 mr-3">{!! trans('textos.crear_bloques_texto') !!}</label>
 			@endif
+		@endcan
+
+		{{-- Copiar formulario - condiciones: 
+			1. Permisos creación formularios.
+		--}}
+		@can('budget-forms.create')
+			<a href="{{ route('budget-forms.copy', $form->id) }}" class="btn btn-info btn-confirm" data-msg="{{ trans('textos.presupuesto_formulario_copiar_confirm') }}">
+				<i class="fa fa-clone"></i>
+				{!! ucfirst(trans('textos.clonar')) !!}
+			</a>
 		@endcan
     </div>
 </div>
@@ -82,9 +92,9 @@
 			    		<a class="nav-link @if($tab == 'items') active @endif" href="#tab-items" role="tab" data-toggle="tab">Items</a>
 			  		</li>
 
-			  		<li class="nav-item @if($tab == 'journeys') active @endif">
+			  		{{-- <li class="nav-item @if($tab == 'journeys') active @endif">
 			    		<a class="nav-link @if($tab == 'journeys') active @endif" href="#tab-journeys" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.jornadas')) !!}</a>
-			  		</li>
+			  		</li> --}}
 
 			  		<li class="nav-item @if($tab == 'customers') active @endif">
 			    		<a class="nav-link @if($tab == 'customers') active @endif" href="#tab-customers" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.clientes')) !!}</a>
@@ -140,9 +150,12 @@ $(function(){
 	$(document).on('click', '.btnEditFormBlock', function(){
 		var id = $(this).data('id');
 		var name = $(this).data('name');
+		var cost_center = $(this).data('costcenter');
 
 		$('#blockItemsId').val(id);
 		$('#blockItemsName').val(name);
+		$('#blockItemsCostCenter').val(cost_center);
+		$('#blockItemsCostCenter').trigger('change');
 	});
 
 	//Modal editar item de formulario de presupuestos:

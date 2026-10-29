@@ -264,6 +264,7 @@
 				  	@endif
 				</ul>
 
+				{{-- Panels --}}
 				<div class="tab-content pt-4">
 					{{-- Info del proyecto: --}}
 					<div class="tab-pane fade @if(!$tab) show active @endif" role="tabpanel" id="tab-project-info">

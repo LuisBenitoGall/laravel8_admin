@@ -217,6 +217,70 @@
 @push('scripts')
 <script>
 $(function(){
+	//Tabla Countries:
+    if($('#tblCountries').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+
+        $('#tblCountries').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/countries",
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'name'},
+                {data: 'code'},
+                {data: 'alfa2'},
+                {data: 'alfa3'},
+                {data: 'flag'},
+                {data: 'id', className: 'text-right'}
+            ],
+            columnDefs: [
+                {"targets": 0,
+                "render": function(data, type, row){
+                    return row['name'].charAt(0).toUpperCase()+row['name'].slice(1);
+                }
+                },
+                {"targets": -1,
+                "render": function(data, type, row){
+                    var estado = '';
+                    var provinces = '';
+                    var editar = '';
+                    if(row['editar']){
+                        //Estado:
+                        var checked = (row['status'] == 1)? 'checked':'';
+                        estado = '<label class="custom-chk-rdb" rel="tooltip" title="'+txtEstado+'">';
+                            estado += '<input type="checkbox" name="status" '+checked+' ><span class="chk chk-action" data-id="'+row['id']+'" data-ctrl="countries/status"></span>';
+                        estado += '</label>';
+
+                        //Provincias:
+                        provinces = '<a href="/admin/provinces/'+row['id']+'" class="btn btn-xs btn-info btn-module" rel="tooltip" title="'+txtProvincias+'"><i class="fa fa-flag"></i></a>';
+
+                        //Editar:
+                        editar = '<a href="#" class="btn btn-xs btn-info btn-module btnEditCountry" rel="tooltip" title="'+txtEditar+'" data-toggle="modal" data-target="#modal-edit-country" data-id="'+row['id']+'" data-country="'+row['name']+'" data-code="'+row['code']+'" data-alfa2="'+row['alfa2']+'" data-alfa3="'+row['alfa3']+'" data-flag="'+row['flag']+'" data-status="'+row['status']+'"><i class="fa fa-edit"></i></a>';
+                    }
+
+                    //Eliminar:
+                    var eliminar = '';
+                    if(row['eliminar']){
+                        eliminar = '<form method="POST" action="countries/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
+                            eliminar += '<input name="_method" type="hidden" value="DELETE">';
+                            eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
+                            eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtEliminar+'" data-msg="'+txtPaisConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
+                        eliminar += '</form>';
+                    }
+
+                    return estado+' '+provinces+' '+editar+' '+eliminar;
+                }
+                }
+            ]
+        });
+    }
+
 	//Modal editar país:
 	$(document).on('click', '.btnEditCountry', function(){
 		var id = $(this).data('id');

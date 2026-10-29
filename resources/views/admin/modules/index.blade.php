@@ -30,4 +30,34 @@
 	</div> 
 </div>
 
+@push('scripts')
+<script>
+$(function(){
+	//Tabla Modules:
+    if($('#tblModules').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        
+        $('#tblModules').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/modules",
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'module', className: 'capitalize'},
+                {data: 'level'},
+                {data: 'icon', className: 'text-center'},
+                {data: 'color', className: 'text-center'},
+                {data: 'acciones', className: 'text-right'}
+            ]
+        });
+    }
+});
+</script>
+@endpush
+
 @endsection

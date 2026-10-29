@@ -22,6 +22,23 @@
                         </div>
                     </div>
 
+                    {{-- Centros de coste --}}
+                    @if($provider_cost_centers->count())
+                        <div class="form-group row">
+                            <label for="cost_center" class="col-lg-12">{!! ucfirst(trans('textos.centro_coste')) !!}*</label>
+                            <div class="col-lg-12">
+                                @php
+                                $cost_centers = [];
+                                foreach($provider_cost_centers as $pcc){
+                                    $cost_centers[$pcc->id] = $pcc->name;
+                                }
+                                @endphp
+
+                                <x-select name="cost_center" class="select2" id="bfiCostCenter" label="centro_coste_selec" :options="$cost_centers" required/>
+                            </div>
+                        </div>
+                    @endif
+
                     <x-btn-submit name="submit_update_block" label="{{ trans('textos.guardar') }}"/>
                 </form>  
             </div>

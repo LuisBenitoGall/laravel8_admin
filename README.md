@@ -122,12 +122,16 @@ En el archivo config/constants.php se definen constantes personalizadas.
 	- En .env modificar valor de la variable BROADCAST_DRIVER = pusher
 	- Incluir cdn .js en el head: "https://js.pusher.com/7.0/pusher.min.js"
 
+- Factura Electrónica E-Factura:  PARA INVESTIGAR
+	- https://github.com/martinlaregina/Facturae-PHP
+
 - CORS:
 	- https://github.com/fruitcake/laravel-cors
 	- instalar: composer require fruitcake/laravel-cors
 
 - Emails:
-	- SMTP ADN: erp@weareadn.com
+	- SMTP ADN: erp@weareadn.com      
+	- pwd en gmail: ErpAdn2024*
 	- mail host: smtp.gmail.com
 	- pwd email: bwducgbggazgiolz
 	- pwd app (password que utiliza la app para el SMTP): rukjilbsjmylwxzj
@@ -146,7 +150,7 @@ A continuación se ejecuta en consola: composer dump-autoload
 
 
 ## IDIOMAS:
-Se definen en el método languages, en App/Helpers/helpers.php. Sigue las indicaciones descritas en el método (2.1. Idiomas).
+Se definen en el método languages, en App/Helpers/helpers.php. Sigue las indicaciones descritas en el método (3.1. Idiomas).
 
 ## NOTAS:
 - En config/database.php se modifica en el objeto 'mysql' el parámetro 'strict' de true a false. De este modo logramos que funcionen las sentencias groupBy en las consultas mysql.
@@ -192,6 +196,17 @@ SELECT field, count(*) FROM table
     GROUP BY field
     HAVING COUNT(*)>1;
 
+- Eliminar registros repetidos:
+DELETE FROM table
+WHERE company_id = xxx
+and id NOT IN (
+    SELECT MAX(id)
+    FROM table
+    WHERE company_id = xxx
+    GROUP BY field
+    HAVING COUNT(*) > 1
+);
+
 - Listado de configuración datos de pago por clientes:
 SELECT companies.name, customer_providers.pay_after_days, customer_providers.payday
 FROM customer_providers
@@ -211,6 +226,160 @@ on o.customer_id = cc.id
 where o.provider_id in (227,8)
 and i.fiscal_date >= '2023-07-01'
 and i.fiscal_date <= '2023-07-31'
+
+- Líneas de pedidos por cliente:
+select o.order_num, o.created_at, p.name, i.concept, CONCAT(u.name, ' ', u.surname) AS manager, i.qty, i.price, i.discount, 
+(i.qty * i.price) - COALESCE((i.qty * i.price * i.discount) / 100, 0) AS amount
+from items i
+inner join products p
+on i.product_id = p.id
+inner join orders o
+on i.order_id = o.id
+left join users u
+on o.customer_manager_id = u.id
+where o.customer_id = 2
+and o.deleted_at is null
+and o.provider_id = 4
+and o.is_order = 1
+and o.is_budget < 1;
+
+- Comparativa importes pedidos y facturas:
+SELECT
+    o.order_num,
+    c.name AS company,
+    CONCAT(u.name, ' ', u.surname) as manager,
+    FORMAT(
+    	(SELECT SUM(amount) FROM invoices i WHERE i.order_id = o.id AND i.deleted_at IS NULL), 2 
+    ) AS importe_factura,
+    FORMAT(
+        (SELECT SUM((it.qty * it.price) - COALESCE((it.qty * it.price * it.discount) / 100, 0)) 
+         FROM items it 
+         WHERE it.order_id = o.id AND it.deleted_at IS NULL), 2
+    ) AS importe_pedido
+FROM
+    orders o
+    INNER JOIN companies c ON o.customer_id = c.id
+    LEFT JOIN users u ON o.provider_manager_id = u.id
+WHERE
+    o.provider_id = 4
+    AND o.deleted_at IS NULL
+    AND o.is_order = 1
+    AND YEAR(o.created_at) = 2023
+    AND o.invoiced = 1
+ORDER BY
+    o.order_num ASC;
+
+- Consulta pedidos por cliente por intervalo de tiempo:
+SELECT c.name as company, o.order_num, o.name as title, o.created_at
+FROM orders o
+INNER JOIN companies c
+ON o.customer_id = c.id
+WHERE o.is_order = 1
+AND o.provider_id = 4
+AND o.deleted_at IS NULL
+AND o.created_at BETWEEN '2021-01-01' AND '2023-12-31'
+ORDER BY o.created_at ASC
+
+- Items de pedidos:
+SELECT 
+c.name AS provider, o.provider_id,
+c1.name AS customer, o.customer_id,  
+c2.name AS final_customer, o.final_customer_id, 
+o.is_budget, o.is_order, o.id AS order_id, o.order_num, o.name AS title, o.budget_num, 
+bf.name AS form, o.form_id,
+o.accepted_date,
+o.description,
+o.delivery_date,
+o.order_status,
+CONCAT(u.name, ' ', u.surname) AS customer_manager,
+cc.name AS customer_cost_center,
+CONCAT(u1.name, ' ', u1.surname) AS provider_manager,
+cc1.name AS provider_cost_center,
+CONCAT(u2.name, ' ', u2.surname) AS commercial,
+CONCAT(u3.name, ' ', u3.surname) AS final_customer_manager,
+o.bag_amount,
+o.invoiced,
+o.created_at,
+o.updated_at,
+i.id AS item_id,
+p.name AS product,
+i.product_id,
+pp.name AS producto_contable,
+bfi.name AS budget_form_block,
+bfi1.name AS budget_form_item,
+i.concept,
+i.qty,
+i.price,
+i.item_no_price,
+i.iva,
+i.equivalence_surcharge,
+i.irpf,
+i.discount,
+i.calculated_by_percent,
+round( COALESCE(i.qty * i.price, 0) - COALESCE((i.qty * i.price * i.discount) / 100, 0), 2) AS amount,
+i.days,
+i.days_continue,
+i.days_continue_discount,
+cc2.name AS item_provider_cost_center
+FROM items i
+INNER JOIN orders o
+ON i.order_id = o.id
+INNER JOIN companies c
+ON o.provider_id = c.id
+INNER JOIN companies c1
+ON o.customer_id = c1.id
+LEFT JOIN companies c2
+ON o.final_customer_id = c2.id
+LEFT JOIN budget_forms bf
+ON o.form_id = bf.id
+LEFT JOIN users u
+ON o.customer_manager_id = u.id
+LEFT JOIN users u1
+ON o.provider_manager_id = u1.id
+LEFT JOIN users u2
+ON o.commercial_id = u2.id
+LEFT JOIN cost_centers cc
+ON o.customer_cost_center_id = cc.id
+LEFT JOIN cost_centers cc1
+ON o.provider_cost_center_id = cc1.id
+LEFT JOIN users u3
+ON o.final_customer_manager_id = u3.id
+LEFT JOIN products p
+ON i.product_id = p.id
+LEFT JOIN purchase_products pp
+ON i.purchase_product_id = pp.id
+LEFT JOIN budget_form_items bfi
+ON i.budget_form_block_id = bfi.id
+LEFT JOIN budget_form_items bfi1
+ON i.budget_form_block_id = bfi1.id
+LEFT JOIN cost_centers cc2
+ON i.provider_cost_center_id = cc2.id
+WHERE o.provider_id IN (4,8,202,227,275)
+AND i.deleted_at IS NULL
+ORDER BY o.provider_id ASC
+
+- Listado clientes de ADN
+SELECT c.name AS customer, c1.name AS provider FROM customer_providers cp
+JOIN companies c
+ON cp.customer_id = c.id
+JOIN companies c1
+ON cp.provider_id = c1.id
+WHERE cp.provider_id IN (4,8,202,227,275)
+AND cp.customer_id NOT IN (4,8,202,227,275)
+ORDER BY c.name ASC
+
+- Listado clientes de ADN con pedidos
+SELECT c.name AS customer, c1.name AS provider FROM customer_providers cp
+JOIN companies c
+ON cp.customer_id = c.id
+JOIN companies c1
+ON cp.provider_id = c1.id
+JOIN orders o
+ON cp.customer_id = o.customer_id
+WHERE cp.provider_id IN (4,8,202,227,275)
+AND cp.customer_id NOT IN (4,8,202,227,275)
+GROUP BY c.id
+ORDER BY c.name ASC
    
 
 ### Instalación de Sentry

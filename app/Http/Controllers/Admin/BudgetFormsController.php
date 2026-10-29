@@ -16,6 +16,7 @@ use File;
 use App\Models\BudgetFormItems;
 use App\Models\BudgetForms;
 use App\Models\CompanySettings;
+use App\Models\CostCenters;
 use App\Models\CustomerProviders;
 use App\Models\Product;
 
@@ -28,7 +29,7 @@ class BudgetFormsController extends Controller{
      * 4. Actualizar formulario.
      * 5. Activar / desactivar formulario.
      * 6. Eliminar formulario.
-     *
+     * 7. Clonar formulario.
      *
      *
      * 11. Setear formulario para cliente.
@@ -74,7 +75,13 @@ class BudgetFormsController extends Controller{
             'slug' => 'budget-forms'
         ];  
 
-        return view('admin.budget_forms.index')->with(compact('header'));  
+        //Centros de coste:
+        $cost_centers = CostCenters::where('company_id', session('currentCompany'))
+        ->where('status', 1)
+        ->pluck('name', 'id')
+        ->toArray();
+
+        return view('admin.budget_forms.index')->with(compact('header', 'cost_centers'));  
     }
 
     /**
@@ -149,20 +156,27 @@ class BudgetFormsController extends Controller{
         ->toArray();
 
         //Sólo los productos que no pertenezcan al formulario, activos y en venta.
-        $products = Product::select('id', 'name', 'translations', 'price', 'calculated_by_percent')
-        ->where('company_id', session('currentCompany'))
-        ->where('status', 1)
-        ->where('on_sale', 1)
-        ->whereNotIn('id', $products_in)
-        ->orderBy('name', 'ASC')
+        $products = Product::select('products.id', 'products.name', 'products.translations', 'products.price', 'products.calculated_by_percent', 'cost_centers.name AS cost_center')
+        ->leftJoin('cost_centers', 'products.cost_center_id', '=', 'cost_centers.id')
+        ->where('products.company_id', session('currentCompany'))
+        ->where('products.status', 1)
+        ->where('products.on_sale', 1)
+        ->whereNotIn('products.id', $products_in)
+        ->orderBy('products.name', 'ASC')
         ->get();
+
+        //Centros de coste:
+        $cost_centers = CostCenters::where('company_id', session('currentCompany'))
+        ->where('status', 1)
+        ->pluck('name', 'id')
+        ->toArray();
 
         //Moneda:
         $currency = CompanySettings::co_currency(0);
 
         $languages = $this->languages;
 
-        return view('admin.budget_forms.edit')->with(compact('header', 'form', 'tab', 'blocks', 'products', 'currency', 'languages'));
+        return view('admin.budget_forms.edit')->with(compact('header', 'form', 'tab', 'blocks', 'products', 'cost_centers', 'currency', 'languages'));
     }
 
     /**
@@ -249,7 +263,69 @@ class BudgetFormsController extends Controller{
         return redirect()->route('budget-forms.index')->with(compact('msg'));   
     }
 
+    /**
+     * 7. Clonar formulario.
+     */
+    public function copy(BudgetForms $form){
+        //Items del formulario:
+        $items = BudgetFormItems::where('form_id', $form->id)
+        ->orderBy('recid', 'ASC')
+        ->get();
 
+        //Nuevo formulario:
+        $new = new BudgetForms();
+        $new->name = $form->name.' - '.trans('textos.copia');
+        $new->slug = $form->slug.'-'.trans('textos.copia');
+        $new->company_id = $form->company_id;
+        $new->conditions = $form->conditions;
+        $new->labor_journeys = $form->labor_journeys;
+        $new->status = 0;
+        $new->save();
+
+        //Referencia de bloques:
+        $blocks = [];
+
+        //Items del nuevo formulario:
+        foreach($items as $i){
+            //Bloque o item:
+            $recid = 0;
+            
+
+
+            if($i->recid > 0 && array_key_exists($i->recid, $blocks)){
+                $recid = $blocks[$i->recid];
+            }
+
+
+            $ni = new BudgetFormItems();
+            $ni->recid = $recid;
+            $ni->form_id = $new->id;
+            $ni->product_id = $i->product_id;
+            $ni->name = $i->name;
+            $ni->translations = $i->translations;
+            $ni->observations = $i->observations;
+            $ni->qty_min = $i->qty_min;
+            $ni->calculated_by_percent = $i->calculated_by_percent;
+            $ni->sort_block = $i->sort_block;
+            $ni->cost_center_id = $i->cost_center_id;
+            $ni->save();
+
+            //Referencia de bloque:
+            if($i->recid == 0 || !$i->recid){
+                $blocks[$i->id] = $ni->id;
+
+                //Guardamos en el array, si no existe:
+                // if(!in_array($i->id, $blocks)){
+                //     array_push($blocks, $i->id);
+                // }
+
+
+            }
+        }
+
+        $msg = trans('textos.formulario_clonado');
+        return redirect()->route('budget-forms.edit', $new->id)->with(compact('msg'));
+    }
 
 
 

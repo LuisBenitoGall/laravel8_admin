@@ -5,11 +5,13 @@ namespace App\Http\Livewire;
 use Livewire\Component;
 use App\Helpers\helpers;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 
 //Models:
 use App\Models\BudgetFormItems;
 use App\Models\BudgetForms;
 use App\Models\CompanySettings;
+use App\Models\CostCenters;
 use App\Models\Invoice;
 use App\Models\Item;
 use App\Models\IvaType;
@@ -38,6 +40,8 @@ class BudgetItem extends Component{
     public $calculated_by_percent;
     public $concept;
     public $co_iva;
+    public $cost_center_id;
+    public $cost_centers;
     public $currency;
     public $days;
     public $days_continue;
@@ -63,7 +67,8 @@ class BudgetItem extends Component{
         'block' => 'required|integer',
         'concept' => 'required',
         'price' => 'required',
-        'qty' => 'required'
+        'qty' => 'required',
+        'cost_center_id' => 'required|integer'
     ];
 
     public function mount($order){
@@ -101,6 +106,12 @@ class BudgetItem extends Component{
         $this->print = true;
 
         $this->items_no_price = helpers::statusBudgetLinesWithoutPrice();
+
+        $this->cost_centers = CostCenters::select('id', 'name')
+        ->where('company_id', session('currentCompany'))
+        ->where('status', 1)
+        ->orderBy('name', 'ASC')
+        ->get();
     }
 
     /**
@@ -251,13 +262,22 @@ class BudgetItem extends Component{
                 $item->days = $this->days ? $this->days : 0;
                 $item->days_continue = $this->days_continue ? true : false;
                 $item->days_continue_discount = $days_continue_discount;
+                $item->provider_cost_center_id = $this->cost_center_id;
                 $item->print = $this->print;
                 $item->save();
 
             //Insert:
             } elseif ($this->action == 'save') {
                 //IVA:
-                $iva = $this->item ? $this->item['iva'] : $this->co_iva;
+                $iva = $this->item? $this->item['iva'] : $this->co_iva;
+
+                //Centro de coste:
+                $item_ = $this->item? BudgetFormItems::select('id', 'recid')->find($this->item['id']):false;
+                $cost_center_id = $this->item? $this->item['cost_center_id']:NULL;
+                if($item_){
+                    $cost_center = BudgetFormItems::select('cost_center_id')->find($item_->recid);
+                    $cost_center_id = $cost_center && $cost_center->cost_center_id? $cost_center->cost_center_id:NULL;
+                }                
 
                 //Recargo de equivalencia:
                 $equivalence_surcharge = NULL;
@@ -270,7 +290,6 @@ class BudgetItem extends Component{
 
                     $equivalence_surcharge = $es? $es->equivalence_surcharge:NULL;
                 }
-
 
                 $item = new Item();
                 $item->product_id = $this->item ? $this->item['product_id'] : NULL;
@@ -290,7 +309,7 @@ class BudgetItem extends Component{
                 $item->days = $this->days ? $this->days : 0;
                 $item->days_continue = $this->days_continue ? true : false;
                 $item->days_continue_discount = $days_continue_discount;
-                $item->provider_cost_center_id = $this->item ? $this->item['cost_center_id']:NULL;
+                $item->provider_cost_center_id = $this->cost_center_id;
                 $item->print = $this->print ? true : false;
                 $item->user_id = Auth::user()->id;
                 $item->save();
@@ -330,6 +349,7 @@ class BudgetItem extends Component{
         $this->concept = $item['name'];
         $this->observations = '';
         $this->print = true;
+        $this->cost_center_id = $item['cost_center_id'];
 
         //Comprobamos si el item tiene precio neto o porcentual:
         if ($item['calculated_by_percent'] > 0) {
@@ -363,6 +383,7 @@ class BudgetItem extends Component{
      */
     public function hydrate(){
         $this->emit('select2_lw');
+        $this->emit('select2_lw_cc');
     }
 
     /**
@@ -379,6 +400,7 @@ class BudgetItem extends Component{
         $this->concept = $item['concept'];
         $this->observations = $item['observations'];
         $this->print = $item['print'] == 1 ? true : false;
+        $this->cost_center_id = $item['provider_cost_center_id'];
 
         //Comprobamos si el item tiene precio neto o porcentual:
         if ($item['calculated_by_percent'] > 0) {
@@ -415,7 +437,7 @@ class BudgetItem extends Component{
         $this->field_readonly = false;
         $this->print = true;
 
-        $this->reset(['concept', 'block', 'discount', 'price', 'qty', 'days', 'days_continue', 'observations']);
+        $this->reset(['concept', 'block', 'discount', 'price', 'qty', 'days', 'days_continue', 'observations', 'cost_center_id']);
     }
 
     /**

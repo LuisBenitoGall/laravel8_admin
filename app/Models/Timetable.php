@@ -186,7 +186,6 @@ class Timetable extends Model{
 
                 //05/05/23: omitimos por ahora los fines de semana:
                 if($week_day < 6){
-
                     $acumuladoDia = 0;          //Tiempo de trabajo acumulado por el empleado.
                     $arr['valid'] = true;
                     $arr['fecha'] = $date? Carbon::parse($date)->format($languages[session()->get('locale')][4]) : '';
@@ -197,6 +196,7 @@ class Timetable extends Model{
                     //Obtenemos el tiempo de trabajo del día según el calendario de Empresa:
                     if(in_array($date, $arrCompanyWorkCalendar)){
                         $hoursOfWork = $arrCompanyWorkCalendarHours[strval($date)];        //Horas de la jornada laborable.
+
                     }else{
                         //Si son horas trabajadas fuera del calendario de empresa:
                         if(in_array($date, $arrUserWorkedDays)){

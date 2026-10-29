@@ -21,6 +21,7 @@ use App\Models\Item;
 use App\Models\IvaType;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\PurchaseProduct;
 use App\Models\TempImportOrderItems;
 
 //Import XLS:
@@ -86,14 +87,23 @@ class ItemController extends Controller{
             //Borrado definitivo:
             $item->forcedelete();
 
+            //Actualizamos importe de la factura:
+            if($request->environment == 'invoices' && $request->invoice_id){
+                $invoice = Invoice::find($request->invoice_id);
+                $invoice->calculateAmountByItems();
+            }
+
             $msg = trans('textos.linea_deleted');
             if($request->environment == 'budgets'){
                 return redirect()->route('budgets.edit', [$item->order_id, 'items'])->with(compact('msg'));
             }elseif($request->environment == 'cash'){
                 return redirect()->route('cash.edit', $item->cash_id)->with(compact('msg'));
+            }elseif($request->environment == 'invoices'){
+                return redirect()->route('invoices.edit', [$invoice->id, 'items'])->with(compact('msg'));
             }else{
                 return redirect()->route('orders.edit', [$item->order_id, 'items'])->with(compact('msg')); 
             }   
+
         }else{
             $alert = trans('textos.linea_facturada_alert');
             if($request->environment == 'budgets'){
@@ -132,6 +142,7 @@ class ItemController extends Controller{
         $ni->days = $item->days;
         $ni->days_continue = $item->days_continue;
         $ni->days_continue_discount = $item->days_continue_discount;
+        $ni->provider_cost_center_id = $item->provider_cost_center_id;
         $ni->active = $item->active;
         $ni->status = $item->status;
         $ni->print = $item->print;
@@ -223,7 +234,10 @@ class ItemController extends Controller{
         $order = Order::select('id', 'modality', 'from_customer', 'provider_id', 'customer_id')->find($request->order_id);
 
         //Producto:
-        $product = $request->product_id? Product::select('name')->find($request->product_id):false;
+        $product = $request->product_id? Product::select('name', 'cost_center_id')->find($request->product_id):false;
+
+        //Producto contable:
+        $accounting_product = $request->accounting_product? PurchaseProduct::select('id', 'name', 'iva')->find($request->accounting_product):false;
 
         //Bloque al que pertenece el item:
         $budget_form_block_id = NULL;
@@ -277,10 +291,12 @@ class ItemController extends Controller{
 
         $item = new Item();
         $item->product_id = $request->product_id? $request->product_id:NULL;
+        // 17/12/2023: se modifica la nomeclatura de 'producto de compras' a 'producto contable', por lo que se modifican los names y etiquetas en las vistas pero se mantiene en los modelos:
+        $item->purchase_product_id = $request->accounting_product? $request->accounting_product:NULL;
         $item->order_id = $order->id;
         $item->budget_form_block_id = $budget_form_block_id;
         $item->budget_sort = $budget_sort;
-        $item->concept = $product? $product->name:$request->concept;
+        $item->concept = $product? $product->name:($accounting_product? $accounting_product->name:$request->concept);
         $item->observations = $request->observations;
         $item->qty = $request->calculated_by_percent? 1:$request->qty;      //La cantidad siempre es 1 para precios calculados por porcentaje.
         $item->price = $request->price? $request->price:($request->calculated_by_percent? $request->calculated_by_percent:NULL);
@@ -290,17 +306,19 @@ class ItemController extends Controller{
         $item->irpf = $request->irpf? $request->irpf:NULL;
         $item->discount = $request->discount > 0? $request->discount:NULL;
         $item->calculated_by_percent = $request->price? NULL:$request->calculated_by_percent;
-        $item->provider_cost_center_id = $request->provider_cost_center;
+        $item->provider_cost_center_id = $product && $product->cost_center_id? $product->cost_center_id:($request->provider_cost_center? $request->provider_cost_center:NULL);
         $item->user_id = Auth::user()->id;
         $item->save();
 
-        //Si se trata de una inclusión de línea sobre un pedido de compra ya facturado, se genera la línea de factura:
+        //Si se trata de una inclusión de línea sobre un pedido de compra ya facturado pero sin líneas, se genera la línea de factura:
         if($order->customer_id == session('currentCompany') && $order->from_customer){
             //Obtenemos última factura del pedido:
-            $invoice = Invoice::select('id')
+            $invoice = $request->invoice_id? Invoice::find($request->invoice_id):Invoice::select('id')
             ->where('order_id', $order->id)
             ->latest('id')
             ->first();
+
+        //     //$with_iva = $item->iva > 0? true:false;
 
             $amount = helpers::itemAmount($item);
 
@@ -331,8 +349,12 @@ class ItemController extends Controller{
     /**
      * 4. Obtener item por ajax.
      */
-    public function edit(Request $request, Item $item){
+    public function edit(Request $request, $item_id){
         if($request->ajax()){ 
+            $item = Item::select('items.*', 'products.cost_center_id', 'products.company_id')
+            ->leftJoin('products', 'items.product_id', '=', 'products.id')
+            ->find($item_id);
+
             return response()->json($item);    
         }
     }
@@ -372,6 +394,8 @@ class ItemController extends Controller{
         //IVA:
         $iva = $request->iva? $request->iva:($request->without_iva? '0':$item->iva);
 
+        $concept = $request->concept;
+
         //Recargo de equivalencia:
         $equivalence_surcharge = NULL;
         if($iva > 0 && $request->environment != 'cash'){
@@ -384,8 +408,19 @@ class ItemController extends Controller{
             $equivalence_surcharge = $es? $es->equivalence_surcharge:NULL;
         }
 
+        //Concepto del producto:
+        if($item->purchase_product_id != $request->accounting_product){
+            $accounting_product = $request->accounting_product? PurchaseProduct::select('id', 'name', 'iva')->find($request->accounting_product):false;
+
+            if($accounting_product){
+                $iva = $accounting_product->iva;
+                $concept = $accounting_product->name;
+            }
+        }
+
         //Actualizando info:
-        $item->concept = $request->concept;
+        $item->purchase_product_id = $request->accounting_product;
+        $item->concept = $concept;
         $item->qty = $request->qty;
         $item->price = $request->price;
         $item->days = $request->days;
@@ -395,6 +430,9 @@ class ItemController extends Controller{
         $item->discount = $request->discount;
         if($request->provider_cost_center && is_numeric($request->provider_cost_center)){
             $item->provider_cost_center_id = $request->provider_cost_center;
+        }
+        if($request->customer_cost_center && is_numeric($request->customer_cost_center)){
+            $item->customer_cost_center_id = $request->customer_cost_center;
         }
         $item->observations = $request->observations;
         $item->save();

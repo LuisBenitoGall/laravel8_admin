@@ -90,4 +90,51 @@
 	@include('admin.product_attributes.partials.modal-edit-attribute', ['action' => 'products-serials-cards.update', 'serial_id' => $serial->id])
 @endif
 
+@push('scripts')
+<script>
+$(function(){
+	//Tabla Product Serial Attributes:
+    if($('#tblProductSerialAttributes').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        var serial_id = $('#serialId').val();
+
+        //Filters:
+        $('#tblProductSerialAttributes thead tr').clone(true).appendTo('#tblProductSerialAttributes thead');
+        $('#tblProductSerialAttributes thead tr:eq(1) th').each(function(i){
+            var title = $(this).text();
+            $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
+     
+            $('input', this).on('keyup change', function(){
+                if(tableProductSerialAttributes.column(i).search() !== this.value){
+                    tableProductSerialAttributes
+                        .column(i)
+                        .search(this.value)
+                        .draw();
+                }
+            });
+        });
+        
+        var tableProductSerialAttributes = $('#tblProductSerialAttributes').DataTable({
+            serverSide: false,
+            processing: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/product-serials-cards/"+serial_id,
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'name'},
+                {data: 'datatype'},
+                {data: 'description'},
+                {data: 'value'},
+                {data: 'acciones', className: 'text-right'}
+            ]
+        });
+    }
+});
+</script>
+@endpush
+
 @endsection

@@ -95,6 +95,9 @@
     var color_chart_warning = "{{ config('constants.COLOR_CHART_WARNING_') }}";
     var color_chart_danger = "{{ config('constants.COLOR_CHART_DANGER_') }}";
     var color_chart_grey = "{{ config('constants.COLOR_CHART_GREY_') }}";
+    @if(session('currentCompany'))
+        var currentCompany_ = {{ session('currentCompany') }};
+    @endif
     </script>
 
     {{-- JQuery --}}

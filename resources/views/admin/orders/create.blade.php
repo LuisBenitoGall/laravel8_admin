@@ -105,7 +105,7 @@
 								<label for="set_project" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.proyecto_generar')) !!}</label>
 								<div class="col-lg-1 pt-1">
 							        <label class="custom-chk-rdb">
-							        	<input type="checkbox" name="set_project">
+							        	<input type="checkbox" name="set_project" @if(session('companySettings')->project_required) checked @endif>
 							        	<span class="chk"></span>
 							    	</label>
 

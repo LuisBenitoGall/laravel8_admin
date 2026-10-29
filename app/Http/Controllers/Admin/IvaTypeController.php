@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Helpers\helpers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
 
 //Models:
@@ -23,8 +24,19 @@ class IvaTypeController extends Controller{
     
     private $option = 'iva_tipos';  
     private $module = 'settings';
+    private $iva_types;
 
     public function __construct(){
+        $this->ivaTypes = Cache::get('iva_types');
+
+        // Si los datos no están en caché, realizar la consulta y almacenar en caché
+        if ($this->ivaTypes === null) {
+            $this->ivaTypes = IvaType::select('id', 'name', 'iva', 'equivalence_surcharge')
+            ->where('status', 1)
+            ->orderBy('iva', 'ASC')
+            ->get();
+            Cache::put('iva_types', $this->ivaTypes, now()->addMinutes(10));
+        }
     }
 
     //0. Validator:

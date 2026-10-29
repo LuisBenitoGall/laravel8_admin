@@ -12,6 +12,8 @@ use Illuminate\Support\Str;
 //Models:
 use App\Models\Company;
 use App\Models\CostCenters;
+use App\Models\Item;
+use App\Models\Product;
 
 class CostCentersController extends Controller{
     /**
@@ -23,6 +25,7 @@ class CostCentersController extends Controller{
      * 5. Actualizar centro de coste.
      * 6. Eliminar centro de coste.
      * 7. Actualizar estado.
+     * 8. Asignación masiva de centros de coste a items de pedidos.
      */
     
     private $option = 'empresas';  
@@ -243,6 +246,28 @@ class CostCentersController extends Controller{
 
             $resp = ($cost_center)? true:false;
             return response()->json($resp);
+        }
+    }
+
+    /**
+     * 8. Asignación masiva de centros de coste a items de pedidos.
+     */
+    public function setCostCenterToItems(){
+        $items = Item::select('id', 'product_id', 'provider_cost_center_id')
+        ->whereNull('provider_cost_center_id')
+        ->whereNull('deleted_at')
+        ->whereNotNull('product_id')
+        ->get();  
+
+        foreach($items as $it){
+            if($it->product_id){
+                $prod = Product::select('id', 'cost_center_id')->find($it->product_id);
+
+                if($prod && $prod->cost_center_id){
+                    $it->provider_cost_center_id = $prod->cost_center_id;
+                    $it->save();
+                }
+            }
         }
     }
 

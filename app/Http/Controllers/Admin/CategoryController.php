@@ -34,12 +34,16 @@ class CategoryController extends Controller{
 
     public function __construct(){
         $this->modules = [
+            'order-categories' => ['orders', 'pedidos_categorias', 'order-categories'],
             'product-categories' => ['products', 'productos_categorias', 'product-categories'],
+            'project-categories' => ['projects', 'proyectos_categorias', 'project-categories'],
             'user-categories' => ['users', 'usuarios_categorias', 'user-categories'],
             'company-sectors' => ['companies', 'empresas_sectores', 'company-sectors']
         ];
         $this->entities = [
+            'orders' => ['order-categories', 'pedidos_nueva_categoria'],
             'products' => ['product-categories', 'productos_nueva_categoria'],
+            'projects' => ['project-categories', 'proyectos_nueva_categoria'],
             'users' => ['user-categories', 'usuarios_nueva_categoria'],
             'companies' => ['company-sectors', 'sector_nuevo']
         ];
@@ -169,6 +173,9 @@ class CategoryController extends Controller{
         $module = Module::select('id', 'name', 'slug', 'label')->find($request->module_id);
 
         switch($module->slug){
+            case 'orders':
+                $route = 'order-categories';
+                break;
             case 'products':
                 $route = 'product-categories';
                 break;
@@ -177,6 +184,9 @@ class CategoryController extends Controller{
                 break;
             case 'users':
                 $route = 'user-categories';
+                break;
+            case 'projects':
+                $route = 'project-categories';
                 break;
         }
 

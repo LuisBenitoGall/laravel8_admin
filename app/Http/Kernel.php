@@ -198,10 +198,18 @@ class Kernel extends HttpKernel{
 
         'receiving_get' => \App\Http\Middleware\ReceivingGetMiddleware::class,
 
+        'remittance_get' => \App\Http\Middleware\RemittanceGetMiddleware::class,
+
+        'remittance_pattern_get' => \App\Http\Middleware\RemittancePatternGetMiddleware::class,
+
         'role_company' => \App\Http\Middleware\RoleCompanyMiddleware::class,
         'role_get' => \App\Http\Middleware\RoleGetMiddleware::class,
 
         'sat_pattern_get' => \App\Http\Middleware\SatPatternGetMiddleware::class,
+
+        'seat_get' => \App\Http\Middleware\SeatGetMiddleware::class,
+
+        'seat_model_get' => \App\Http\Middleware\SeatModelGetMiddleware::class,
 
         'schedule_event_type_get' => \App\Http\Middleware\ScheduleEventTypeGetMiddleware::class,
 

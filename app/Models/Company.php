@@ -57,7 +57,7 @@ class Company extends Model{
      */
     public function setCompanyRoles($set_permissions = true, $arr = false)
     {
-        $basic_roles = ['manager', 'basic'];
+        $basic_roles = ['basic'];       //18/05/24: temporalmente sólo se genera un rol, por el enorme consumo de recursos para generar todos los permisos necesarios         'manager', 
 
         foreach ($basic_roles as $br) {
             $role = Company::saveCompanyRole($br, $this->id);
@@ -69,6 +69,8 @@ class Company extends Model{
                     $exceptions = config('constants.PERMISSIONS_OFF_');
 
                     $permissions = Permission::all();
+
+                    dd($permissions);
 
                     //Pasamos a un array todos los permisos válidos para el manager:
                     $arr = [];

@@ -203,7 +203,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 			@endphp
 
 			@if($order->provider_id == session('currentCompany'))
-				<x-date-picker name="estimated_delivery_date" id="estimated_delivery_date" value="{{ $estimatedDeliveryDate }}" :format="$languages[config('app.locale')][4]"/>
+				<x-date-picker name="estimated_delivery_date" class="prominent" id="estimated_delivery_date" value="{{ $estimatedDeliveryDate }}" :format="$languages[config('app.locale')][4]"/>
 			@else
 				<x-input type="text" name="estimated_delivery_date" value="{{ $estimatedDeliveryDate }}" autocomplete="off" maxlength="25" readonly/>
 			@endif
@@ -217,7 +217,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 			@endphp
 
 			@if($order->provider_id == session('currentCompany'))
-				<x-date-picker name="delivery_date" id="delivery_date" value="{{ $deliveryDate }}" :format="$languages[config('app.locale')][4]" readonly="{{ $read_only_provider }}"/>
+				<x-date-picker name="delivery_date" id="delivery_date" class="prominent" value="{{ $deliveryDate }}" :format="$languages[config('app.locale')][4]" readonly="{{ $read_only_provider }}"/>
 			@else
 				<x-input type="text" name="delivery_date" value="{{ $deliveryDate }}" autocomplete="off" maxlength="255" readonly/>
 			@endif
@@ -249,19 +249,30 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 				{{-- 18/10/22: resolver estado de pedido para que quede disabled cuando estén todas las previsiones de facturación facturadas --}}
 				{{-- disabled="{{ $disabled }}" --}}
 
-				<x-select name="status" class="select2" label="indica_estado" :options="$estados" value="{{ $order->order_status }}" />
+				<x-select name="status" class="select2 prominent" label="indica_estado" :options="$estados" value="{{ $order->order_status }}" />
 			</div>
 		@else
 			<input type="hidden" name="order_status" value="{{ $order->order_status }}">
 		@endif
 	</div>
+
+	{{-- Categorías --}}
+	@if($order->provider_id == session('currentCompany'))
+		<div class="form-group row">
+			<label for="categories" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.categorias')) !!}</label>
+			<div class="col-lg-8">
+				<x-select name="categories[]" class="select2" multiple :options="$categories" :values="$categories_in"/>
+			</div>
+		</div>
+	@endif
 	<br><hr><br>
 
 	{{-- Facturación prevista - condiciones:
 		1. Exclusivo para el proveedor.
 		2. Para agrupaciones o pedidos simples, NO para pedidos vinculados a agrupación.
+		3. Si el importe del pedido > 0.
 	--}}
-	@if($order->provider_id == session('currentCompany') && !$order->order_parent)
+	@if($order->provider_id == session('currentCompany') && !$order->order_parent && $order_amount > 0)
 		<div class="form-group row">
 			<label class="col-lg-2 col-form-label">
 				{!! ucfirst(trans('textos.facturacion_prevista')) !!}
@@ -270,9 +281,11 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 			</label>
 
 			<div class="col-lg-1 pt-1">
-				<button class="btn btn-warning btn-circle btnAddPrevision" rel="tooltip" title="{{ trans('textos.agregar_prevision') }}">
-					<i class="fa fa-plus"></i>
-				</button>
+				@if($order->blocked == '0')
+					<button class="btn btn-warning btn-circle btnAddPrevision" rel="tooltip" title="{{ trans('textos.agregar_prevision') }}">
+						<i class="fa fa-plus"></i>
+					</button>
+				@endif
 			</div>
 
 			<div class="col-lg-9">
@@ -280,26 +293,31 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 					@php
 					$totalPercent = 0;
 					$accumulatedAmount = 0;			//Importe acumulado de previsiones.
+					$previsionSetted = true;		//Variable para controlar si la última previsión tiene declarado importe y porcentaje.
 					$k = 1;							//Contador de previsiones.
 					@endphp
 
-					@if($previsions->count())
+					@if($previsions && $previsions->count())
 						{{-- La sumas de los porcentajes de las previsiones de facturación no puede superar el 100% --}}
 						@foreach($previsions as $prev)
 							@php
 							$totalPercent = $totalPercent + $prev->percent;
-							$disabled = $prev->invoice_id? 'disabled':'';
+							$disabled = $prev->invoice_id? 'readonly':'';		//Previsiones ya facturadas.
 							$disabled_ = $prev->invoice_id? true:false;
+							$prev_invoiced = $prev->invoice_id? true:false;
+							if(!$prev->amount && !$prev->percent) $previsionSetted = false;
 							@endphp
 
 							<div class="form-group row prevision">
-								@if(!$disabled_)
+								{{-- Si la previsión no está facturada --}}
+								{{-- @if(!$disabled_) --}}
 									<input type="hidden" name="op_id[]" value="{{ $prev->id }}">
-								@endif
+									<input type="hidden" name="invoiced[]" value="{{ $prev_invoiced }}">
+								{{-- @endif --}}
 
 								{{-- Año --}}
 								<label for="year" class="col-md-2 col-lg-1 col-form-label mb-2">{!! ucfirst(trans('textos.any')) !!}</label>
-								<div class="col-md-4 col-lg-2 sinpadding">
+								<div class="col-md-4 col-lg-1 sinpadding">
 									<select name="year[]" class="form-control select2 prevision-data" {{ $disabled }}>
 										@for($y=config('constants.MIN_YEAR_'); $y<=(date('Y')+3); $y++)
 											@php
@@ -319,12 +337,12 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 
 								{{-- Mes --}}
 								<label for="month" class="col-md-2 col-lg-1 col-form-label">{!! ucfirst(trans('textos.mes')) !!}</label>
-								<div class="col-md-4 col-lg-2 sinpadding">
+								<div class="col-md-4 col-lg-1 sinpadding">
 									@php
 									$months = App\Helpers\helpers::yearMonths();
 									@endphp
 
-									<select name="month[]" class="form-control select2 prevision-data" {{ $disabled }}>
+									<select name="month[]" class="form-control select2 prevision-data_" {{ $disabled }}>
 										@if(!$prev->month)
 											<option value="">{{ trans('textos.mes_selec') }}</option>
 										@else
@@ -347,11 +365,21 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 						            @endif
 								</div>
 
+								{{-- Importe --}}
+								<label for="amount" class="col-md-2 col-lg-1 col-form-label">{!! ucfirst(trans('textos.importe')) !!}</label>
+								<div class="col-md-4 col-lg-2 sinpadding text-right">
+									<x-input type="text" name="amount[]" class="text-right set-decimals prevision-amount prevision-data prominent" autocomplete="off" maxlength="10" value="{{ $prev->amount }}" group="right" groupvalue="{{ $currency->symbol }}" required readonly="{{ $disabled }}"/>
+
+									@php
+									$accumulatedAmount = $accumulatedAmount + $prev->amount;
+									@endphp
+								</div>
+
 								{{-- Porcentaje --}}
-								<label for="percent" class="col-md-2 col-lg-2 col-form-label">{!! ucfirst(trans('textos.porcentaje')) !!}</label>
+								<label for="percent" class="col-md-2 col-lg-1 col-form-label">{!! ucfirst(trans('textos.porcentaje')) !!}</label>
 								<div class="col-md-4 col-lg-2 sinpadding text-right">
 									@php
-									$percent = $totalPercent > 100? '':$prev->percent;
+									$percent = $totalPercent > 100.01? '':$prev->percent;
 
 									// Porcentaje del monto total:
 									$orden_w = $prev->amount? $prev->amount:($percent != ''? ($percent * $order_amount) / 100:0);
@@ -361,18 +389,16 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 									if($k = $previsions->count() && $totalPercent >= 100){
 										$orden_w = abs($order_amount - $accumulatedAmount);
 									}
-
-									$accumulatedAmount = $accumulatedAmount + $orden_w;
 									@endphp
 
-									<x-input type="text" name="percent[]" class="text-right set-decimals percent prevision-data" autocomplete="off" maxlength="5" value="{{ $percent }}" group="right" groupvalue="%" required disabled="{{ $disabled_ }}"/>
+									<x-input type="text" name="percent[]" class="text-right set-decimals prevision-percent prevision-data prominent" autocomplete="off" maxlength="10" value="{{ $percent }}" group="right" groupvalue="%" required readonly="{{ $disabled }}"/>
 
 									{{-- Monto de la orden, aplicando el porcentaje de cobro --}}
-									<small data-container="body" data-toggle="popover" data-placement="top" data-content="{{ trans('textos.facturacion_prevista_info_percent') }}">
+									{{-- <small data-container="body" data-toggle="popover" data-placement="top" data-content="{{ trans('textos.facturacion_prevista_info_percent') }}">
 										{{ round($orden_w, 3) }}{{ $currency['symbol'] }} ({{ round($orden_wo, 3) }}{{ $currency['symbol'] }}) <li class="fa fa-info-circle"></li>
-									</small>
+									</small> --}}
 
-						            @if(round($totalPercent, 2) > 100)
+						            @if(round($totalPercent, 2) > 100.01)
 						            	<span class="invalid-feedback" role="alert">
 						                  	<strong>{{ trans('textos.porcentaje_factura_error') }}</strong>
 						                </span>
@@ -382,9 +408,10 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 								{{-- Eliminar previsión --}}
 								@if($previsions->count() > 1 && !$disabled_)
 									<div class="col-md-1 col-lg-1 pt-2">
-										<a href="{{ route('order-prevision.delete', $prev->id) }}" class="btn btn-danger btn-circle btn-circle-mini btn-confirm" rel="tooltip" title="{{ trans('textos.prevision_eliminar') }}" data-msg="{{ trans('textos.prevision_eliminar_aviso') }}">
+										<a href="#" class="btn btn-danger btn-circle btn-circle-mini btnDeletePrevision" rel="tooltip" title="{{ trans('textos.prevision_eliminar') }}" data-prev="{{ $prev->id }}" data-msg="{{ trans('textos.prevision_eliminar_aviso') }}">
 											<i class="fa fa-times"></i>
 										</a>
+										{{-- {{ route('order-prevision.delete', $prev->id) }} --}}
 									</div>
 								@endif
 
@@ -409,11 +436,23 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 						@endforeach
 					@endif
 
-					{{-- Indicador de porcentaje pendiente
-						Pasamos como condición adicional que el porcentaje sea mayor a 0.02, para evitar decimales residuales.
-					--}}
-					@if($totalPercent < 100 && (100 - $totalPercent) > 0.02)
-						<p class="text-warning">{!! trans('textos.facturacion_prevision_pendiente') !!}: <b>{{ round(100 - $totalPercent, 2) }}%</b></p>
+					{{-- Indicador de porcentaje pendiente --}}
+					{{-- Para pedidos bloqueados o con importe pendiente inferior a la tolerancia --}}
+					@if($totalPercent < config('constants.TOLERANCE_INVOICED_') && $order->blocked == 1)
+						<p class="text-warning">{!! trans('textos.pedido_cerrado_aviso') !!}</p>
+
+					{{-- Para pedidos abiertos y con cantidades pendientes de incluir en las previsiones de facturación. Pasamos como condición adicional que el porcentaje sea mayor a 0.02, para evitar decimales residuales. --}}
+					@else
+						<p class="col-md-10 text-warning text-right" id="pending-previsions" @if($totalPercent >= 100) style="display: none;" @endif>
+							{!! trans('textos.facturacion_prevision_pendiente') !!}: 
+							<b class="mr-4 pending-amount">{{ round($order_amount - $accumulatedAmount, 2) }}{{ $currency->symbol }}</b>
+							<b class="mr-4 pending-percent">{{ round(100 - $totalPercent, 6) }}%</b>
+
+							{{-- Copiar valores a la nueva previsión --}}
+							<a href="#" id="copyPrev" @if(!$previsionSetted) style="display: inline-block;" @endif rel="tooltip" title="{{ trans('textos.prevision_copiar_valores') }}" data-amount="{{ round($order_amount - $accumulatedAmount, 2) }}" data-percent="{{ round(100 - $totalPercent, 6) }}">
+								<i class="fa fa-copy"></i>
+							</a>
+						</p>
 					@endif		
 				</div>
 			</div>
@@ -435,7 +474,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 			<div class="form-group row">
 				<label for="customer_manager_id" class="col-lg-3 col-form-label">Manager {!! trans('textos.cliente') !!}</label>
 				<div class="col-lg-9">
-					<x-select name="customer_manager_id" class="select2" label="manager_selec" :options="$customer_managers" value="{{ $order->customer_manager_id }}"/>
+					<x-select name="customer_manager_id" class="select2 prominent" label="manager_selec" :options="$customer_managers" value="{{ $order->customer_manager_id }}"/>
 				</div>
 			</div>
 
@@ -509,7 +548,7 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 				<label for="provider_manager_id" class="col-lg-3 col-form-label">Manager {!! trans('textos.proveedor') !!}</label>
 				<div class="col-lg-9">
 					@if($order->provider_id == session('currentCompany'))
-						<x-select name="provider_manager_id" class="select2" label="manager_selec" :options="$provider_managers" value="{{ $order->provider_manager_id }}"/>
+						<x-select name="provider_manager_id" class="select2 prominent" label="manager_selec" :options="$provider_managers" value="{{ $order->provider_manager_id }}"/>
 					@else
 						@php
 						$provider_manager_id = $order->provider_manager_id && isset($provider_managers[$order->provider_manager_id])? $provider_managers[$order->provider_manager_id]:'';
@@ -647,39 +686,6 @@ $read_only_provider = $order->customer_id == session('currentCompany')? true:fal
 
 	<x-btn-submit name="submit_update" label="{{ trans('textos.guardar') }}"/>
 </form>			
-
-							
-					
-
-					
-				
-		
-
-	
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 	

@@ -248,6 +248,30 @@
 					</div>
 					<hr>
 
+					{{-- Proyectos --}}
+					<div class="form-group row">
+						<label class="col-lg-2 col-form-label">
+							{{ ucfirst(trans('textos.proyectos')) }}
+							<br>
+							<p class="text-warning">
+								{{ trans('textos.proyecto_requerido_text') }}
+							</p>
+						</label>	
+
+						<div class="col-lg-10">
+							<div class="row">
+								<label for="project_required" class="col-lg-2 col-form-label">{!! trans('textos.proyecto_requerido') !!}</label>
+								<div class="col-lg-1">
+									<label class="custom-chk-rdb" rel="tooltip">
+						                <input type="checkbox" name="project_required" value="{{ $i }}" @if($company_settings->project_required) checked @endif>
+						                <span class="chk" style="top: 5px;"></span>
+						            </label>
+								</div>
+							</div>
+						</div>
+					</div>
+					<hr>
+
 					{{-- Contabilidad --}}
 					<div class="form-group row">
 						<label class="col-lg-2 col-form-label">
@@ -255,10 +279,18 @@
 						</label>
 
 						<div class="col-lg-10">
+							{{-- Dígitos cuentas contables --}}
 							<div class="row">
 								<label for="accounting_account_digits" class="col-lg-2 col-form-label">{{ trans('textos.cuenta_contable_digitos') }}</label>
 								<div class="col-lg-1">
 									<x-input type="text" name="accounting_account_digits" class="text-right" value="{{ $company_settings->accounting_account_digits }}" info="company-settings-accounting-account-digits"/>
+								</div>
+							
+
+								{{-- Métodos contables --}}
+								<label for="accounting_method" class="col-lg-2 col-form-label">{{ trans('textos.metodos_contables') }}</label>
+								<div class="col-lg-3">
+									<x-select name="accounting_method" class="select2" label="metodo_selec" :options="$accounting_methods" value="{{ $company_settings->accounting_method }}"/>
 								</div>
 							</div>
 						</div>

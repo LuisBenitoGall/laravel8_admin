@@ -46,12 +46,24 @@
 					</div>
 
 					<div class="form-group row">
-						{{-- Cuenta --}}
+                    	{{-- Cuenta contable --}}
+                    	<label for="accounting_account" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.cuenta_contable')) !!}</label>
+                    	<div class="col-lg-4">
+							<x-select name="accounting_account" class="select2" label="cuenta_contable_selec" :options="$accounting_accounts" required/>
+						</div>
+                    </div>
+                    <br>
+
+					{{-- Cuenta --}}
+					{{-- <div class="form-group row">
 						<label for="account" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.cuenta')) !!}*</label>
 						<div class="col-lg-10">
 							<x-input type="text" name="account" autocomplete="off" maxlength="25" required/>
                         </div>
-                    </div>
+                    </div> --}}
+
+                    {{-- Cuenta bancaria --}}
+                    @include('admin.bank_accounts.partials.component-account')
 
                     <x-btn-submit name="submit_save" label="{{ trans('textos.guardar') }}"/>
 				</form>

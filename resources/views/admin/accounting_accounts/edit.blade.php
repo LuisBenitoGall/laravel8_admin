@@ -2,6 +2,8 @@
 
 @section('content')
 
+<input type="hidden" id="myAccountingAccountId" value="{{ $account->id }}">
+
 <div class="row mb-3">
 	{{-- Acciones: --}}
 	<div class="col-sm-12">
@@ -23,7 +25,7 @@
 		<div class="card mb-3">
 			<div class="card-body">
 				<h3 class="mb-3">
-					{{ trans('textos.cuenta_contable') }} <b>{{ $account->name }}</b>
+					{{ trans('textos.cuenta_contable') }} <b>{{ $account->account }} - {{ $account->name }}</b>
 				</h3>
 
 				{{-- Info --}}
@@ -47,6 +49,9 @@
 					{{-- Tipo de cuenta --}}
 					<label class="mr-5">
 						{!! ucfirst(trans('textos.cuenta_tipo')) !!}:
+						@php
+						$type = '';
+						@endphp
 						@if($account->type == 'a')
 							@php
 							$type = ucfirst(trans('textos.activos'));
@@ -55,9 +60,19 @@
 							@php
 							$type = ucfirst(trans('textos.pasivos'));
 							@endphp
+						@elseif($account->type == 'g')
+							@php
+							$type = ucfirst(trans('textos.ganancias_perdidas'));
+							@endphp
 						@endif
 
 						<b>{{ $type }}</b>
+					</label>
+
+					{{-- Modalidad --}}
+					<label class="mr-5">
+						{!! ucfirst(trans('textos.modalidad')) !!}:
+						<b>{!! $modes[$account->mode] !!}</b>
 					</label>
 
 					{{-- Aplica IVA --}}
@@ -73,49 +88,29 @@
 					</label>
 				</div>
 
-				<form method="post" autocomplete="off" action="{{ route('accounting-accounts.update', $account) }}" accept-charset="utf-8" enctype="multipart/form-data" role="form">
-					@method('PUT')
-					{{ csrf_field() }}
+				{{-- Tabs: --}}
+				<ul class="nav nav-tabs" role="tablist">
+					<li class="nav-item @if(!$tab) active @endif">
+					<a class="nav-link @if(!$tab) active @endif" href="#tab-info" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.datos_generales')) !!}</a>
+					</li>
 
-					<div class="form-group row">
-						{{-- Cuenta --}}
-						<label for="account" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.cuenta')) !!}*</label>
-						<div class="col-lg-3">
-							<x-input type="text" name="account" placeholder="{!! trans('textos.cuenta') !!}" autocomplete="off" required value="{{ $account->account }}" readonly/>
-						</div>
+					<li class="nav-item @if($tab == 'seats') active @endif">
+						<a class="nav-link @if($tab == 'seats') active @endif" href="#tab-seats" role="tab" data-toggle="tab">{!! ucfirst(trans('textos.asientos_contables')) !!}</a>	
+					</li>
+				</ul>
 
-						{{-- Nombre --}}
-						<label for="name" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.nombre')) !!}*</label>
-						<div class="col-lg-3">
-							<x-input type="text" name="name" placeholder="{!! trans('textos.nombre') !!}" autocomplete="off" required value="{{ $account->name }}"/>
-						</div>
+				{{-- Panels --}}
+				<div class="tab-content pt-4">
+					{{-- Cabecera --}}
+					<div class="tab-pane fade @if(!$tab) show active @endif" role="tabpanel" id="tab-info">
+						@include('admin.accounting_accounts.partials.accounting-info')	
+					</div>
 
-						{{-- Status --}}
-						<label for="status" class="col-lg-1 col-form-label">{!! ucfirst(trans('textos.activo')) !!}</label>
-						<div class="col-lg-1">
-							<label class="custom-chk-rdb" rel="tooltip" title="{!! trans('textos.sede_on_off') !!}">
-								<input type="checkbox" name="status" @if($account->status == 1) checked @endif>
-								<span class="chk" style="top: 5px;"></span>
-							</label>
-						</div>
-					</div>	 
-
-					{{-- <div class="form-group row"> --}}
-						{{-- Tipo --}}
-						{{-- <label for="type" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.tipo')) !!}*</label>
-						<div class="col-lg-3">
-							<x-select name="type" class="select2" :options="$types" label="tipo_selec" required value="{{ $account->type }}" disabled/>
-						</div> --}}
-
-						{{-- Empresa --}}
-						{{-- <label for="company" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.empresa')) !!}</label>
-						<div class="col-lg-5 position-relative">
-							<x-input type="text" name="company" autocomplete="off" required value="{{ $company->name }}" disabled/>
-						</div> 
-					</div>  --}}
-		
-					<x-btn-submit name="submit_update" label="{{ trans('textos.guardar') }}"/>
-				</form>
+					{{-- Items --}}
+					<div class="tab-pane fade @if($tab == 'seats') show active @endif" role="tabpanel" id="tab-seats">
+						@include('admin.accounting_accounts.partials.accounting-seats')	
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>

@@ -59,8 +59,8 @@
 </div>
 
 <div class="form-group row">
-	{{-- Pie de página --}}
-	<label for="footer_legend" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.pie_pagina')) !!}</label>
+	{{-- Condiciones especiales --}}
+	<label for="footer_legend" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.condiciones_especiales')) !!}</label>
 	<div class="col-lg-10">
 		@php
 		$footer_legend = $action == 'update'? $template->footer_legend:'';

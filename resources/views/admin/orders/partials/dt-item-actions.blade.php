@@ -9,6 +9,14 @@
 	{{-- Ver --}}
     <a href="#" class="btn btn-xs btn-info btnSeeItem" rel="tooltip" title="{{ ucfirst(trans('textos.observaciones_ver')) }}"><i class="fa fa-eye"></i></a>
 
+    {{-- Vincular línea de compra a pedido de terceros - condiciones 
+		1. Para pedidos de compra.
+		...
+    --}}
+    @if($order->customer_id == session('currentCompany'))
+    	<a href="#" class="btn btn-xs btn-info btnLinkItem" data-id="{{ $item->id }}" data-toggle="modal" data-target="#modal-link-item" rel="tooltip" title="{{ ucfirst(trans('textos.pedido_vincular')) }}"><i class="fa fa-link"></i></a>	
+    @endif
+
     {{-- Editar - condiciones 
 		1. Disponer de permisos.
 		2. Exclusivo proveedor o para cliente con facturas de proveedores sin cuenta en el ERP:
@@ -47,6 +55,9 @@
 		    <input name="_method" type="hidden" value="DELETE">
 		    {{ csrf_field() }}
 		    <input type="hidden" name="environment" value="{{ $environment }}">
+		    @if($invoice_id)
+	    		<input type="hidden" name="invoice_id" value="{{ $invoice_id }}">
+	    	@endif
 		    <button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="{{ ucfirst(trans('textos.eliminar')) }}" data-msg="{{ ucfirst(trans('textos.pedido_item_confirm_eliminar')) }}"><i class="fa fa-trash"></i></button>
 		</form>
 	@endif

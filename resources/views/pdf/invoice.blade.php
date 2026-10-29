@@ -1,15 +1,16 @@
 @php
 $invoiceNum = $invoice->invoice_num? $invoice->invoice_num:$invoice->id;
 $bg_color = $bn? '#000':($company_settings->base_color_invoices? $company_settings->base_color_invoices:'#10172C');
+$text_doc = $invoice->refund > 0? 'abono':'factura';
 @endphp
 
-@include('pdf.partials.head', ['header_title' => ucfirst(trans('textos.factura')).' #'.$invoiceNum])
+@include('pdf.partials.head', ['header_title' => ucfirst(trans('textos.'.$text_doc)).' #'.$invoiceNum])
 
 @include('pdf.partials.header', [
 	'standard' => true,
 	'company_settings' => $company_settings, 
 	'bg_color' => $bg_color, 
-	'left_h1' => ucfirst(trans('textos.factura')).' Nº '.$invoiceNum,
+	'left_h1' =>  ucfirst(trans('textos.'.$text_doc)).' Nº '.$invoiceNum,
 	'left_title' => false,
 	'left_manager' => false,
 	'right_h1' => ucfirst(trans('textos.cliente')),
@@ -27,6 +28,7 @@ $bg_color = $bn? '#000':($company_settings->base_color_invoices? $company_settin
 		$colspan = 3;
 		foreach($items as $row){
 			$line_amount = $row->qty * $row->price;
+			//Aplicando descuento:
 			if($row->discount){
 				$percentage = App\Helpers\Helpers::percent($line_amount, $row->discount);
 				$line_amount = $line_amount - $percentage;
@@ -48,8 +50,10 @@ $bg_color = $bn? '#000':($company_settings->base_color_invoices? $company_settin
 		$arrIva = array_unique($arrIva);
 		//Generamos los arrays de la suma de los distintos tipos de IVA:
 		$sumIva = [];
+		$baseIva = [];
 		foreach($arrIva as $ai){
 			$sumIva[$ai] = [];
+			$baseIva[$ai] = [];
 		}
 		@endphp
 
@@ -70,12 +74,25 @@ $bg_color = $bn? '#000':($company_settings->base_color_invoices? $company_settin
 							{{ ucfirst(trans('textos.importe_modificado')) }}	
 						</th>	
 					@endif --}}
+
+					{{-- Porcentaje facturado para facturas parciales --}}
+					@if($amount_invoiced && $amount_invoiced->percent < config('constants.TOLERANCE_INVOICED_'))
+						<th style="background-color: {{ $bg_color }}; text-align: center;">
+							{{ ucfirst(trans('textos.facturado')) }}
+						</th>	
+
+						@php
+						$colspan = $colspan+1;
+						@endphp
+					@endif
+
 					<th style="background-color: {{ $bg_color }}; text-align: center;">
 						{{ ucfirst(trans('textos.descuento')) }}
 					</th>
-					<th style="background-color: {{ $bg_color }}; text-align: center;">
+					{{-- 23/11/23: se desactiva la columna de IVA para cada registro, y se incluirán en la parte inferior, en los sumatorios --}}
+					{{-- <th style="background-color: {{ $bg_color }}; text-align: center;">
 						IVA
-					</th>
+					</th> --}}
 					<th style="background-color: {{ $bg_color }}; text-align: center;">
 						{{ ucfirst(trans('textos.total')) }}({{ $currency->symbol }})
 					</th>
@@ -86,7 +103,7 @@ $bg_color = $bn? '#000':($company_settings->base_color_invoices? $company_settin
 				<tr>
 					<td style="background-color: #efefef; text-align: right;"></td>
 					<td style="background-color: #efefef;"></td>
-					<td colspan="{{ $colspan }}" style="background-color: #efefef;">
+					<td colspan="{{ $colspan - 1 }}" style="background-color: #efefef;">
 						<b>{{ $invoice_order->name }}</b>	
 					</td>
 					<td style="background-color: #efefef; text-align: right;">
@@ -96,7 +113,10 @@ $bg_color = $bn? '#000':($company_settings->base_color_invoices? $company_settin
 
 				{{-- Líneas de la factura --}}
 				@php
-				$total = 0;
+				$totalInvoice = 0;
+				$j = 1;
+				//Importe total por suma de items:
+				$sum_items = 0;
 				@endphp
 
 				@foreach($items as $row)
@@ -115,6 +135,13 @@ $bg_color = $bn? '#000':($company_settings->base_color_invoices? $company_settin
 							@endif
 						</td>
 
+						{{-- Facturado --}}
+						@if($amount_invoiced && $amount_invoiced->percent < config('constants.TOLERANCE_INVOICED_'))
+							<td class="text-right" style="text-align: right;">
+								{{ number_format($amount_invoiced->percent, 2) }}%
+							</td>
+						@endif
+
 						{{-- Precio modificado --}}
 						{{-- @if($modified_amount)
 							<td style="text-align: right;">
@@ -124,49 +151,68 @@ $bg_color = $bn? '#000':($company_settings->base_color_invoices? $company_settin
 							</td>
 						@endif --}}
 
+						{{-- Descuento --}}
 						<td style="text-align: right;">
 							@if($row->discount)
 								{{ $row->discount }}%
 							@endif
 						</td>
 
-						<td style="text-align: right;">@if($invoice->with_iva > 0) {{ $row->iva }}% @endif</td>
+						{{-- <td style="text-align: right;">@if($invoice->with_iva > 0) {{ $row->iva }}% @endif</td> --}}
 
+						{{-- Total línea --}}
 						<td style="text-align: right;">
 							@php
-							$amount = $row->amount? $row->amount:$row->qty * $row->price;
+							$arr_order_amount = App\Helpers\helpers::itemAmount($row, false);
+							$amount = $arr_order_amount['amount'];
+							//$amount = $row->amount? $row->amount:round($row->qty * $row->price, 2);
+
+
 							
 							//Descuento. Sólo si el importe de factura por línea no viniera declarado:
-							if($row->discount && !$row->amount){
-								$discount = App\Helpers\Helpers::percent($amount, $row->discount);	
-								$amount = $amount - $discount;	
+							// if($row->discount && !$row->amount){
+							// 	$discount = App\Helpers\helpers::percent($amount, $row->discount);	
+							// 	$amount = round($amount - $discount, 2);	
+							// }
+
+							//Facturación parcial:
+							$partial_amount = $amount;
+							if($amount_invoiced && $amount_invoiced->percent < config('constants.TOLERANCE_INVOICED_')){
+								$partial_amount = ($amount * $amount_invoiced->percent) / 100;
+								//$amount = App\Helpers\helpers::percent(round($amount, 2), $amount_invoiced->percent);
 							}
 
+							//Total de la factura:
+							$totalInvoice = $totalInvoice + round($amount, 2);
+
 							//IVA:
-							$iva_amount = App\Helpers\Helpers::percent($amount, $row->iva);
-							$amount = $amount + $iva_amount;
+							//23/11/23: se desactiva la columna de IVA para cada registro, y se incluirán en la parte inferior, en los sumatorios
+							$iva_amount = App\Helpers\helpers::percent($amount, $row->iva);
+
+							//Suma por items:
+							$sum_items = $sum_items + round($partial_amount, 2);
+
+							//Al alcanzar la última línea, la suma de los items debe ser igual al importe de la factura. En caso negativo, ajustamos la última línea para cuadrar decimales.
+							if($j == $items->count()){
+								$diff = $invoice->amount - $sum_items;
+								if($diff != 0){
+									$partial_amount = $partial_amount + $diff;
+								}
+							}
 
 							//Sumando importes de IVA:
-							array_push($sumIva[$row->iva], $iva_amount);
+							array_push($sumIva[$row->iva], round($iva_amount,2));
+							//Sumando bases por cada tipo de IVA:
+							array_push($baseIva[$row->iva], round($partial_amount,2));
 							@endphp
-							{{ number_format($amount, 2) }}{{$currency->symbol }}
+							{{ number_format($partial_amount, 2) }}{{$currency->symbol }}
 						</td>
 					</tr>
-				@endforeach
 
-				{{-- Indicamos descuento sobre el total para facturas que NO sean de abono --}}
-				@if($invoice_order->discount && !$invoice->refund && $invoice->discount_amount)
-					<tr>
-						<td></td>
-						<td colspan="2">
-							<b>{{ trans('textos.descuento_pedido') }}</b>
-						</td>
-						<td style="text-align: right;">
-							{{ $invoice_order->discount }}%
-						</td>
-						<td colspan="2"></td>
-					</tr>
-				@endif
+					@php
+					$j++;
+					@endphp
+				@endforeach
 
 				{{-- Avances de facturas --}}
 				{{-- @if($advance_invoices->count() > 0)
@@ -222,6 +268,7 @@ $bg_color = $bn? '#000':($company_settings->base_color_invoices? $company_settin
 
 			@php
 			$j = 1;
+			$group_iva_amount = 0;
 			@endphp
 
 			<tbody>
@@ -245,6 +292,10 @@ $bg_color = $bn? '#000':($company_settings->base_color_invoices? $company_settin
 						<td style="text-align: right">
 							@php
 							$amount = $row->getAmount();
+
+							//IVA acumulado:
+							$group_iva_amount = $group_iva_amount + ($amount['invoice_amount'] - $amount['total_amount']);
+
 							@endphp
 							{{ $amount['total_amount'] }}{{ $currency->symbol }}
 						</td>

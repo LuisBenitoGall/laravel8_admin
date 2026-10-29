@@ -1,30 +1,106 @@
+	<div style="page-break-after:always;"></div>
 	<footer>
 		<table class="tblFooter">
 			<thead>
+				{{-- Subtotal: importe neto sin IVA --}}
 				<tr>
 					<th style="background-color: #efefef; text-align: right; width: 80%;">
 						{{ strtoupper(trans('textos.subtotal')) }}	
 					</th>
+					<th style="background-color: #efefef;"></th>
 					<th style="background-color: #efefef; text-align: right;">
 						<b>{{ $invoice->amount }}{{ $currency->symbol }}</b>
 					</th>
 				</tr>
 
-				{{-- Importes de IVA --}}
-				{{-- @if(isset($sumIva) && count($sumIva) > 0)
+				{{-- Descuentos aplicados sobre el pedido: indicamos descuento sobre el total para facturas que NO sean de abono --}}
+				@if($invoice_order->discount && !$invoice->refund && $invoice->discount_amount)
+					<tr>
+						<th style="background-color: #efefef; text-align: right; width: 80%;">
+							<b>{{ strtoupper(trans('textos.descuento')) }}</b>
+						</th>
+						<th style="background-color: #efefef; text-align: right;">
+							{{ $invoice_order->discount }}%
+						</th>
+						<th style="background-color: #efefef; text-align: right;">
+							{{ $invoice_order->discount_amount }}{{ $currency->symbol }}
+						</th>
+					</tr>
+				@endif
+
+				{{-- Importes de IVA facturas simple --}}
+				{{-- 27/11/2023: se reestablece el IVA desglosado según tipo aplicado --}}
+				@if(isset($sumIva) && count($sumIva) > 0)
+					{{-- Cantidad de IVA distintos aplicados --}}
+					@php
+					$amount_accumulated = $invoice->amount;		//Acumulamos los importes parciales para comprobar que cuadran con el importe final.
+					$j = 1;
+					$num_ivas = count($sumIva);
+					@endphp
+
 					@foreach($sumIva as $i => $si)
+						{{-- Facturación parcial: --}}
+						@if($amount_invoiced && $amount_invoiced->percent < config('constants.TOLERANCE_INVOICED_'))
+							@php
+							$base_ = App\Helpers\helpers::percent(array_sum($baseIva[$i]), $amount_invoiced->percent);
+							$iva_ = App\Helpers\helpers::percent(array_sum($si), $amount_invoiced->percent);
+							@endphp
+						@endif
+						
+						{{-- Para facturas con un único tipo de IVA, se toman los valores de la factura. Evitamos posibles desajustes de decimales --}}
+						@if($num_ivas == 1)
+							@php
+							$base_ = $invoice->amount;
+							$iva_ = $invoice->amount_with_iva - $invoice->amount; 
+							@endphp
+						@endif
+
+						@php
+						$amount_accumulated = $amount_accumulated + $iva_;
+						@endphp
+
+						{{-- Ajuste del último importe de IVA para cuadrar importes --}}
+						@if($num_ivas == $j && $amount_accumulated != $invoice->amount_with_iva)
+							@php
+							$iva_ = $iva_ + ($invoice->amount_with_iva - $amount_accumulated);
+							@endphp
+						@endif
+
 						<tr>
 							<th style="background-color: #efefef; text-align: right; width: 80%;">
-								IVA ({{ $i }}%)	
+								IVA ({{ $i }}%)
+							</th>
+							<th style="background-color: #efefef;">
+								{{-- <b>{{ array_sum($baseIva[$i]) }}{{ $currency->symbol }}</b>	 --}}
+								{{-- <b>{{ $base_ }}{{ $currency->symbol }}</b> --}}
 							</th>
 							<th style="background-color: #efefef; text-align: right;">
-								<b>{{ array_sum($si) }}{{ $currency->symbol }}</b>
+								{{-- <b>{{ array_sum($si) }}{{ $currency->symbol }}</b> --}}
+								<b>{{ $iva_ }}{{ $currency->symbol }}</b>
 							</th>
 						</tr>
-					@endforeach
-				@endif --}}
 
-				<tr>
+						@php
+						$j++;
+						@endphp
+					@endforeach
+				@endif
+
+				{{-- Importes de IVA facturas agrupadas --}}
+				@if(isset($group_iva_amount))
+					<tr>
+						<th style="background-color: #efefef; text-align: right;">
+							IVA ({{ config('constants.IVA_DEFAULT_') }}%)	
+						</th>
+						<th style="background-color: #efefef;"></th>
+						<th style="background-color: #efefef; text-align: right;">
+							{{-- <b>{{ array_sum($si) }}{{ $currency->symbol }}</b> --}}
+							<b>{{ $group_iva_amount }}{{ $currency->symbol }}</b>
+						</th>
+					</tr>
+				@endif
+
+				{{-- <tr>
 					<th style="background-color: #efefef; text-align: right; width: 80%;">
 						IVA	
 					</th>
@@ -35,13 +111,14 @@
 
 						<b>{{ $iva_amount }}{{ $currency->symbol }}</b>
 					</th>
-				</tr>
+				</tr> --}}
 			</thead>
 
 			<tbody>
+				{{-- Total factura --}}
 				<tr>
-					<td style="background-color: {{ $bg_color }}; text-align: right;">
-						{{ strtoupper(trans('textos.total')) }}
+					<td colspan="2" style="background-color: {{ $bg_color }}; text-align: right;">
+						{{ strtoupper(trans('textos.factura_total')) }}
 					</td>
 					<td style="background-color: {{ $bg_color }}; text-align: right;">
 						<b>{{ $invoice->amount_with_iva }}{{ $currency->symbol }}</b>

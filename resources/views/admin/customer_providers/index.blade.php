@@ -78,6 +78,113 @@ $modal_action = $tabla == 'tblCustomers'? 'customers.export':'providers.export';
 @push('scripts')
 <script>
 $(document).ready(function(){
+    //Tabla Customers:
+    if($('#tblCustomers').length > 0){ 
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+
+        //Filters:
+
+        // Load data from localstorage
+        var jsonData = JSON.parse(localStorage.getItem('DataTables_tblCustomers_'+window.location.pathname));
+        
+        $('#tblCustomers thead tr').clone(true).appendTo('#tblCustomers thead');
+        $('#tblCustomers thead tr:eq(1) th').each(function(i){
+            var title = $(this).text();
+            if(i == 3){
+                $(this).html('');
+            }else{
+                // Check field on json of localstorage
+                let value = jsonData && jsonData.columns[i].search.search ? jsonData.columns[i].search.search : '';
+                let htmlRaw = `<input type="text" class="DTsearch" placeholder="${txtBuscar+' '+title}" value="${value}" />`
+                $(this).html(htmlRaw);
+
+                //$(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'" '+htmlvalue+'/>');        
+            }
+     
+            $('input', this).on('keyup change', function(){
+                if(tableCustomers.column(i).search() !== this.value){
+                    tableCustomers
+                        .column(i)
+                        .search(this.value)
+                        .draw();
+                }
+            });
+        });
+        var tableCustomers = $('#tblCustomers').DataTable({
+            order: [[ 0, "desc" ]],
+            serverSide: true,
+            processing: true,
+            stateSave: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/customers",
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'name', name: 'companies.name'},
+                {data: 'tradename', name: 'companies.tradename'},
+                {data: 'nif', name: 'companies.nif'},
+                {data: 'acciones', className: 'text-right'}
+            ]
+        });
+    }
+
+    //Tabla Providers:
+    if($('#tblProviders').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+
+        //Filters:
+        
+        // Load data from localstorage
+        var jsonData = JSON.parse(localStorage.getItem('DataTables_tblProviders_'+window.location.pathname));
+
+        $('#tblProviders thead tr').clone(true).appendTo('#tblProviders thead');
+        $('#tblProviders thead tr:eq(1) th').each(function(i){
+            var title = $(this).text();
+            if(i == 3){
+                $(this).html('');
+            }else{
+
+                // Check field on json of localstorage
+                let value = jsonData && jsonData.columns[i].search.search ? jsonData.columns[i].search.search : '';
+                let htmlRaw = `<input type="text" class="DTsearch" placeholder="${txtBuscar+' '+title}" value="${value}" />`
+                $(this).html(htmlRaw);
+
+                // $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
+            }
+     
+            $('input', this).on('keyup change', function(){
+                if(tableProviders.column(i).search() !== this.value){
+                    tableProviders
+                        .column(i)
+                        .search(this.value)
+                        .draw();
+                }
+            });
+        });
+        
+        var tableProviders = $('#tblProviders').DataTable({
+            serverSide: true,
+            processing: true,
+            stateSave: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/providers",
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'name', name: 'companies.name'},
+                {data: 'tradename', name: 'companies.tradename'},
+                {data: 'nif', name: 'companies.nif'},
+                {data: 'acciones', className: 'text-right'}
+            ]
+        });
+    }
+    
     //Modal nuevo responsable cliente o proveedor.
     $(document).on('click', '.btnAddManager', function(){
         var id = $(this).data('id');

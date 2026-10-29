@@ -188,7 +188,7 @@ class WorkCalendarController extends Controller{
      */
     public function store($data){
         //Comprobamos si la fecha existe:
-        $exist = WorkCalendar::select('work_calendars.id', 'work_calendars.day_type_id', 'work_calendars.hours', 'day_types.is_working')
+        $exist = WorkCalendar::select('work_calendars.id', 'work_calendars.workplace_id', 'work_calendars.day_type_id', 'work_calendars.date', 'work_calendars.hours', 'day_types.is_working')
         ->leftJoin('day_types', 'work_calendars.day_type_id', '=', 'day_types.id')
         ->where('work_calendars.workplace_id', $data['workplace_id'])
         ->where('work_calendars.date', $data['date'])
@@ -203,20 +203,15 @@ class WorkCalendarController extends Controller{
         //Insertamos o actualizamos según exista:
         if($exist){
             //Se mantienen las horas originales salvo que la jornada no sea laborable:
-            $hours = $exist->hours;
+            //$hours = $exist->hours;
+            //26/02/2024: se actualiza a las horas recibidas.
+            $hours = $data['hours'];
             if($day_type && !$day_type->is_working){
                 $hours = NULL;
             }
 
-
-
-
             //$exist->is_working && $data['hours']? $data['hours']:(!$exist->day_type_id? $data['hours']:NULL);
             //dd($exist, $hours);
-           
-
-
-
 
             //Sólo en los días especificados en el array weekdays:
             if(in_array($data['weekDay'], $data['weekdays'])){

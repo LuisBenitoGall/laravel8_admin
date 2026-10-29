@@ -54,7 +54,7 @@ class CompanyStaffPicksController extends Controller
             'name' => ['required', 'max:255', 'string'],
             'surname' => ['required', 'max:255', 'string'],
             'email' => ['required', 'email'],
-            'process_id' => ['required', 'max:8', 'numeric'],
+            'process_id' => ['required', 'max:99999999', 'numeric'],
             'observations' => ['required', 'string'],
             'doc' => ['required', 'mimes:pdf,jpeg,png'],
         ]);
@@ -88,7 +88,15 @@ class CompanyStaffPicksController extends Controller
         //   $this->saveImage($request, $user_id);
 
         //Guardamos documento:
-        $this->saveDoc($request, $user->id);
+        $doc_data = $this->saveDoc($request, $user->id);
+
+        if( $request->has('with_doc_data') && $request->with_doc_data == true ) {
+            $result_data = [
+                'user' => $user,
+                'doc' => $doc_data,
+            ];
+            return response()->json($result_data, 201);
+        }
 
         return new StaffPickResource($user);
     }
@@ -105,7 +113,23 @@ class CompanyStaffPicksController extends Controller
             $doc->doc = $fileName;
             $doc->user_id = $user_id;
             $doc->type = 'cv';
-            $doc->save();
+            $save_success = $doc->save();
+
+            // si el guardado ha sido correcto, devolvemos la información del documento
+            if ($save_success) {
+                return [
+                    'success' => true,
+                    'file' => $fileName,
+                    'url' => url('/docs/users/' . $fileName),
+                ];
+            }
         }
+
+        // si no se encuentra el archivo, devolvemos un array vacío
+        return [
+            'success' => false,
+            'file' => '',
+            'url' => '',
+        ];
     }
 }

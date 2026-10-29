@@ -19,7 +19,8 @@
                     	{{-- Item --}}
                         <label for="name_" class="col-lg-12">Item *</label>
                         <div class="col-lg-12">
-                        	<x-input type="text" name="name" id="ItemsName" maxlength="255" readonly="true"/>
+                        	<x-input type="text" name="name" id="ItemsName" maxlength="255"/>
+                        	{{-- readonly="true" --}}
                         </div>
                     </div>
 

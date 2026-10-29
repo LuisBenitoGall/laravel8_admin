@@ -2,6 +2,7 @@
 
 @section('content')
 
+{{-- Filtro --}}
 <div class="row">
 	<div class="col-12">						
 		<div class="card mb-3">
@@ -44,16 +45,33 @@
 					@foreach($months as $i => $m)
 						{{-- Sólo para meses y años anteriores a la fecha actual --}}
 						@if(strtotime($year.'-'.$i.'-31') < strtotime(date('Y-m-d')))
+							{{-- Firmas pendientes --}}
+							@php
+							$pendents = App\Models\TimetableSigned::getPendentSigns($year, $i);
+							@endphp
+
 							<div class="col-6 col-lg-4 col-xl-3">
 								<div class="card text-white bg-info mb-3" style="max-width: 20rem;">
 								  	<div class="card-body">
 										<h4 class="card-title">{{ ucfirst($m) }} {{ $year }}</h4>
 
 										@if(in_array($i, $timetables))
+											{{-- Informe --}}
+											<a href="{{ route('timetable-signed.report', [$year, $i]) }}" class="btn btn-xs btn-warning mr-3 position-relative" rel="tooltip" title="{{ trans('textos.informe_ver') }}">
+												<i class="fa fa-file"></i>
+
+												@if($pendents > 0)
+													<span class="sup-circle bg-danger">
+														{{ $pendents }}
+													</span>	
+												@endif
+											</a>
+
 											<span>
 												<b>{{ trans('textos.firma_horarios_validada') }}</b>
 												<i class="fa fa-check ml-2" style="color: #FFF;"></i>
 											</span>
+											
 										@else
 											<a href="{{ route('timetable-signed.validate', [$year, $i]) }}" class="btn btn-light btn-confirm" data-msg="{{ trans('textos.firma_horarios_validar_confirm') }}">
 												<i class="fa fa-calendar mr-1"></i>

@@ -14,6 +14,7 @@ use App\Models\Note;
 class NoteController extends Controller{
     /**
      * 1. Guardar nota.
+     * 2. Actualizar nota.
      */
     
     private $languages;
@@ -39,5 +40,16 @@ class NoteController extends Controller{
         }else{
             return response()->json(false);
         }    
+    }
+
+    /**
+     * 2. Actualizar nota.
+     */
+    public function update(Request $request){
+        Note::where('id', $request->id)
+        ->update(['title' => $request->title, 'note' => $request->note]);
+
+        $msg = trans('textos.nota_actualizada');
+        return redirect()->route('dashboard')->with(compact('msg'));
     }
 }

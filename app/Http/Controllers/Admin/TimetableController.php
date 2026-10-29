@@ -19,6 +19,8 @@ use PDF;
 use App\Models\Company;
 use App\Models\CompanySettings;
 use App\Models\Employee;
+use App\Models\Group;
+use App\Models\GroupMembers;
 use App\Models\Timetable;
 use App\Models\TimetableItems;
 use App\Models\User;
@@ -89,6 +91,22 @@ class TimetableController extends Controller{
             }
         }
 
+        //Condicionamos el grupo para usuarios sin permisos suficientes:
+        if($request->group && Auth::user()->can('groups.edit') && !Auth::user()->can('employees-timetable.destroy')){
+            $in_group = GroupMembers::select('id')
+            ->where('group_id', $request->group)
+            ->where('user_id', Auth::user()->id)
+            ->where('responsible', 1)
+            ->first();
+
+            //El usuario debe liderar el grupo:
+            if(!$in_group){
+                $alert = trans('textos.no_permisos_accion');
+                return redirect()->route('employees-timetable.index')->with(compact('alert'));
+                exit;
+            }
+        }
+
         $header = [
             'option' => $this->option, 
             'suboption' => 'textos.horarios_empleados',
@@ -99,9 +117,13 @@ class TimetableController extends Controller{
         $workplace = $request->workplace_id? Workplace::find($request->workplace_id):false;
         $from = $request->from != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->from):$request->from:Date('Y-m-d');
         $to = $request->to != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->to):$request->to:Date('Y-m-d');
+        $group = $request->group? $request->group:'';
 
         //La fecha de finalización no puede ser inferior a la de inicio:
         if($to < $from) $to = $from;
+
+        //Status:
+        $status = $request->status? $request->status:1;
 
         //Centros de trabajo:
         $workplaces = Workplace::select('workplaces.id', 'workplaces.name', 'towns.name AS Town')
@@ -111,15 +133,21 @@ class TimetableController extends Controller{
         ->orderBy('workplaces.name', 'ASC')
         ->get();
 
+        //Grupos:
+        $groups = Group::where('company_id', session('currentCompany'))
+        ->where('status', 1)
+        ->pluck('name', 'id')
+        ->toArray();
+
         $languages = $this->languages;
 
-        return view('admin.timetables.index')->with(compact('header', 'workplace', 'from', 'to', 'workplaces', 'languages'));
+        return view('admin.timetables.index')->with(compact('header', 'workplace', 'from', 'to', 'group', 'status', 'workplaces', 'groups', 'languages'));
     }
 
     /**
      * 1.1. Listado de horarios por empleados para DataTable.
      */
-    public function getEmployeesTimetablesDT($workplace_id = false, $from = false, $to = false){
+    public function getEmployeesTimetablesDT($workplace_id = false, $from = false, $to = false, $status = false, $group = false){
         if(!$workplace_id || !$from || !$to){
             return false;
             exit;
@@ -128,9 +156,16 @@ class TimetableController extends Controller{
         $data = User::select('users.id', 'users.name', 'users.surname')
         ->leftJoin('employees', 'users.id', '=', 'employees.user_id')
         ->leftJoin('user_workplaces', 'users.id', '=', 'user_workplaces.user_id')
+        ->leftJoin('group_members', 'users.id', '=', 'group_members.user_id')
         ->where('employees.status', 1)
         ->where('employees.time_control', 1)
         ->where('user_workplaces.workplace_id', $workplace_id)
+        ->when($status && $status == 1, function($q) use($status){
+            return $q->where('users.status', $status);
+        })
+        ->when($group, function($q) use($group){
+            return $q->where('group_members.group_id', $group);
+        })
         ->orderBy('users.name')
         ->groupBy('users.id')
         ->get();   
@@ -333,7 +368,12 @@ class TimetableController extends Controller{
                 $this->mailRevision(Auth::user(), $hour, 'Concepto revisable', $item->name);
             }
 
-            return redirect()->route('users.timetables', Auth::user()->id);
+            //Redirección en función de los permisos del usuarios:
+            if(Auth::user()->can('employees-timetable.show')){
+                return redirect()->route('users.timetables', Auth::user()->id);        
+            }else{
+                return redirect()->route('dashboard');
+            }
 
         }else{
             return redirect('/');
@@ -469,6 +509,7 @@ class TimetableController extends Controller{
         //Enviamos email:
         $data = [
             'comments' => $comments,
+            'user_id' => $user->id,
             'nombre' => $user->name,
             'apellidos' => $user->surname,
             'fecha' => $hour->date,

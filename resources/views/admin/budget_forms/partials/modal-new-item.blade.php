@@ -24,11 +24,11 @@
 
 	                        	@foreach($products as $product)
 	                        		@php
-	                        		$products_[$product->id] = $product->name;
+	                        		$products_[$product->id] = $product->name.' ('.$product->cost_center.')';
 	                        		@endphp
 	                        	@endforeach
 
-	                        	<x-select name="product_id" id="product_id" class="select2" label="producto_selec" required :options="$products_" />
+	                        	<x-select name="product_id[]" id="product_id" class="select2" multiple required :options="$products_" />
 	                        </div>
 	                    </div>
 

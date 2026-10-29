@@ -30,7 +30,16 @@
 	<div class="col-12">
 		<div class="card mb-3">
 			<div class="card-body">	
-				<h3 class="mb-3"><u>{{ ucfirst($company->name) }}</u></h3>	
+				<h3 class="mb-3">
+					<u>
+						{{ ucfirst($company->name) }}
+						@if($business_relationship == 'customers' && $conditions->customer_num)
+							- {{ $conditions->customer_num}}
+						@elseif($business_relationship == 'providers' && $conditions->provider_num)
+							- {{ $conditions->provider_num}}
+						@endif
+					</u>
+				</h3>	
 
 				{{-- Tabs: --}}
 				<ul class="nav nav-tabs" role="tablist">
@@ -55,6 +64,10 @@
 
 			  		<li class="nav-item @if($tab == 'conditions') active @endif">
 			  			<a class="nav-link @if($tab == 'conditions') active @endif" href="#tab-conditions" role="tab" data-toggle="tab">@if($business_relationship == 'customers') {{ ucfirst(trans('textos.condiciones_cobro')) }} @else {{ ucfirst(trans('textos.condiciones_pago')) }} @endif</a>
+			  		</li>
+
+			  		<li class="nav-item @if($tab == 'accounting-accounts') active @endif">
+			  			<a class="nav-link @if($tab == 'accounting-accounts') active @endif" href="#tab-accounting-accounts" role="tab" data-toggle="tab">{{ ucfirst(trans('textos.cuentas_contables')) }}</a>
 			  		</li>
 			  	</ul>
 
@@ -83,6 +96,11 @@
 					<div class="tab-pane fade @if($tab == 'conditions') show active @endif" role="tabpanel" id="tab-conditions">
 						@include('admin.customer_providers.partials.customer-providers-pay-conditions')
 					</div>
+
+					{{-- Cuentas contables --}}
+					<div class="tab-pane fade @if($tab == 'accounting-accounts') show active @endif" role="tabpanel" id="tab-accounting-accounts">
+						@include('admin.customer_providers.partials.customer-providers-accounting-accounts')
+					</div>
 				</div>				
 			</div>
 		</div>
@@ -104,10 +122,12 @@ $(function(){
 		var id = $(this).data('id');
 		var account = $(this).data('account');
 		var bank = $(this).data('bank');
+		var route = '/admin/bank-accounts/'+id+'/update';
 
 		$('#accountId').val(id);
 		$('#accountNumber').val(account);
 		$('#accountBank').val(bank).trigger('change');
+		$('#frmEditBankAccount').attr('action', route);
 	});
 });
 </script>

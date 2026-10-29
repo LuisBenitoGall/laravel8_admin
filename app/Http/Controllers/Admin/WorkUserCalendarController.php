@@ -167,6 +167,7 @@ class WorkUserCalendarController extends Controller{
         $receivers = array_unique($receivers);
 
         $emailFrom = $user->email;
+        $data['user_id'] = $user->id;
         $data['usuario'] = $user->name.' '.$user->surname;
         $company = Company::find(session('currentCompany'));
         $data['company'] = $company;

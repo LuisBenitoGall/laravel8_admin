@@ -217,6 +217,11 @@ class FunctionalitiesTableSeeder extends Seeder{
             'label' => 'atributos',
             'module' => 'products'
             ],
+            ['name' => 'purchase products',
+            'slug' => 'purchase-products',
+            'label' => 'productos_contables',
+            'module' => 'products'
+            ],
 
             ['name' => 'stores',
             'slug' => 'stores',
@@ -326,6 +331,16 @@ class FunctionalitiesTableSeeder extends Seeder{
             'label' => 'pedidos_configuracion_',
             'module' => 'orders'
             ],
+            ['name' => 'order categories',
+            'slug' => 'order-categories',
+            'label' => 'pedidos_categorias',
+            'module' => 'orders'
+            ],
+            ['name' => 'order queries',
+            'slug' => 'order-queries',
+            'label' => 'consultas',
+            'module' => 'orders'
+            ],
 
             ['name' => 'sat',
             'slug' => 'sat',
@@ -341,6 +356,11 @@ class FunctionalitiesTableSeeder extends Seeder{
             ['name' => 'projects',
             'slug' => 'projects',
             'label' => 'proyectos',
+            'module' => 'projects'
+            ],
+            ['name' => 'project categories',
+            'slug' => 'project-categories',
+            'label' => 'proyectos_categorias',
             'module' => 'projects'
             ],
             ['name' => 'project patterns',
@@ -395,6 +415,11 @@ class FunctionalitiesTableSeeder extends Seeder{
             'label' => 'gastos',
             'module' => 'accounting'
             ],
+            ['name' => 'amortizations',
+            'slug' => 'amortizations',
+            'label' => 'amortizaciones',
+            'module' => 'accounting'
+            ],
             ['name' => 'invoice-patterns',
             'slug' => 'invoice-patterns',
             'label' => 'facturas_patrones_',
@@ -429,6 +454,26 @@ class FunctionalitiesTableSeeder extends Seeder{
             'slug' => 'payment-methods',
             'label' => 'metodos_pago',
             'module' => 'accounting'            
+            ],
+            ['name' => 'seats',
+            'slug' => 'seats',
+            'label' => 'asientos_contables',
+            'module' => 'accounting'            
+            ],
+            ['name' => 'effects',
+            'slug' => 'effects',
+            'label' => 'efectos',
+            'module' => 'accounting'
+            ],
+            ['name' => 'remittances',
+            'slug' => 'remittances',
+            'label' => 'remesas',
+            'module' => 'accounting'
+            ],
+            ['name' => 'remittance patterns',
+            'slug' => 'remittance-patterns',
+            'label' => 'remesa_patrones',
+            'module' => 'accounting'
             ],
 
             ['name' => 'incidences',

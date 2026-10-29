@@ -178,9 +178,10 @@
 	}
 
 	footer{
-		bottom: 0px;
+/*		bottom: 0px;*/
 		height: auto;
 		left: 0;
+		margin-top: 60px;
 		padding: 10px 25px;
 		position: absolute;
 		right: 0;

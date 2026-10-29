@@ -13,6 +13,7 @@ class Item extends Model{
      * 2. Ordenar items presupuestos de la migración desde Admin6.
      * 3. Marcar líneas como facturadas.
      * 4. Centro de coste del proveedor.
+     * 5. Centro de coste del cliente.
      */
      
     use HasFactory;
@@ -23,7 +24,7 @@ class Item extends Model{
     protected $dates = ['deleted_at']; 
 
     protected $fillable = [
-        'product_id', 'order_id', 'budget_form_block_id', 'budget_form_item_id', 'budget_sort', 'concept', 'qty', 'price', 'item_no_price', 'iva', 'discount', 'calculated_by_percent', 'deposit_used', 'observations', 'days', 'days_continue', 'days_continue_discount', 'provider_cost_center_id', 'active', 'status', 'print', 'user_id'
+        'product_id', 'order_id', 'budget_form_block_id', 'budget_form_item_id', 'budget_sort', 'concept', 'qty', 'price', 'item_no_price', 'iva', 'discount', 'calculated_by_percent', 'deposit_used', 'observations', 'days', 'days_continue', 'days_continue_discount', 'provider_cost_center_id', 'active', 'status', 'print', 'user_id', 'created_at', 'updated_at'
     ];
 
     /**
@@ -109,6 +110,13 @@ class Item extends Model{
      */
     public function cost_center_provider(){
         return $this->belongsTo(CostCenters::class, 'provider_cost_center_id');
+    }
+
+    /**
+     * 5. Centro de coste del cliente.
+     */
+    public function cost_center_customer(){
+        return $this->belongsTo(CostCenters::class, 'customer_cost_center_id');
     }
 
 }

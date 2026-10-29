@@ -37,28 +37,29 @@ class ProjectGetMiddleware{
         }
 
         //Permisos del usuario:
-        $members = $project->team? explode(',', $project->team):[];
-        array_push($members, $project->owner);
+        //07/05/2024: desactivo el filtro por pertenencia al proyecto, hasta dar con opción más dinámica.
+        // $members = $project->team? explode(',', $project->team):[];
+        // array_push($members, $project->owner);
 
         //Si el usuario en session tiene permisos de SuperAdmin, puede acceder:
-        if(Auth::user()->hasRole(config('constants.SUPER_ADMIN_'))){
-            array_push($members, Auth::user()->id);    
-        }
+        // if(Auth::user()->hasRole(config('constants.SUPER_ADMIN_'))){
+        //     array_push($members, Auth::user()->id);    
+        // }
 
         //Equipos:
-        $groups = $project->groups? explode(',', $project->groups):[];
+        // $groups = $project->groups? explode(',', $project->groups):[];
 
-        $group_members = GroupMembers::join('users', 'group_members.user_id', '=', 'users.id')
-        ->where('users.status', 1)
-        ->whereIn('group_members.group_id', $groups)
-        ->pluck('group_members.user_id')
-        ->toArray();
+        // $group_members = GroupMembers::join('users', 'group_members.user_id', '=', 'users.id')
+        // ->where('users.status', 1)
+        // ->whereIn('group_members.group_id', $groups)
+        // ->pluck('group_members.user_id')
+        // ->toArray();
 
-        if(!in_array(Auth::user()->id, $members) && !in_array(Auth::user()->id, $group_members)){
-            $alert = trans('textos.no_permisos_accion');   
-            return redirect()->route('projects.index')->with(compact('alert'));
-            exit;     
-        }
+        // if(!in_array(Auth::user()->id, $members) && !in_array(Auth::user()->id, $group_members)){
+        //     $alert = trans('textos.no_permisos_accion');   
+        //     return redirect()->route('projects.index')->with(compact('alert'));
+        //     exit;     
+        // }
 
         return $next($request);
     }

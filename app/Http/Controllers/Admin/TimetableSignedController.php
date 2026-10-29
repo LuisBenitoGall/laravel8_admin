@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Helpers\Helpers;
+use App\Helpers\helpers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
@@ -11,12 +11,14 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
+use File;
 use PDF;
 
 //Models:
 use App\Models\Company;
 use App\Models\Employee;
 use App\Models\Timetable;
+use App\Models\TimetableSetting;
 use App\Models\TimetableSigned;
 use App\Models\User;
 use App\Models\Workplace;
@@ -29,6 +31,8 @@ class TimetableSignedController extends Controller{
      * 3. Validar firma de horarios.
      * 4. Firmar horario.
      * 5. Descargar horario en .pdf.
+     * 6. Informe horarios firmados.
+     * 7. Eliminar firma.
      */
     
     private $option = 'horarios'; 
@@ -207,12 +211,15 @@ class TimetableSignedController extends Controller{
             ->where('workplaces.featured', 1)
             ->first();
 
+            //Configuraciones horarios empresa:
+            $timetable_settings = TimetableSetting::where('company_id', $company->id)->first();
+
             //Color corporativo:
             $bg_color = $company_settings->primary_color? $company_settings->primary_color:'#10172C';
 
             $languages = $this->languages;
 
-            $pdf = PDF::loadView('pdf/user-timetable', compact('ts', 'user', 'horarios', 'desde', 'hasta', 'company_settings', 'provider', 'company', 'workplace', 'bg_color', 'languages'));
+            $pdf = PDF::loadView('pdf/user-timetable', compact('ts', 'user', 'horarios', 'desde', 'hasta', 'company_settings', 'provider', 'company', 'workplace', 'timetable_settings', 'bg_color', 'languages'));
             $pdf->setPaper('L', 'portrait');
 
             //Guardar o imprimir .pdf:
@@ -238,6 +245,47 @@ class TimetableSignedController extends Controller{
             $alert = trans('textos.no_permisos_edicion');
             return redirect()->route('timetable-signed.show', Auth::user()->id)->with(compact('alert'));
         }   
+    }
+
+    /**
+     * 6. Informe horarios firmados.
+     */
+    public function report($year, $month){
+        $header = [
+            'option' => $this->option, 
+            'suboption' => 'textos.firma_horarios_informe',
+            'module' => $this->module,
+            'slug' => 'timetable-signed'
+        ]; 
+
+        $month_ = $month? helpers::yearMonths($month):'';
+
+        $data = TimetableSigned::select('timetable_signed.id', 'timetable_signed.user_id', 'timetable_signed.signed', 'timetable_signed.doc', 'timetable_signed.updated_at', 'users.name', 'users.surname')
+        ->join('users', 'timetable_signed.user_id', '=', 'users.id')
+        ->where('company_id', session('currentCompany'))
+        ->where('year', $year)
+        ->where('month', $month)
+        ->orderBy('timetable_signed.signed', 'ASC')
+        ->orderBy('users.name', 'ASC')
+        ->get();
+
+        $languages = $this->languages;
+        
+        return view('admin.timetable_signed.report')->with(compact('year', 'month_', 'header', 'data', 'languages'));
+    }
+
+    /**
+     * 7. Eliminar firma.
+     */
+    public function destroy(TimetableSigned $ts){
+        File::delete(public_path().'/docs/timetables_signed/'.$ts->doc);
+
+        $ts->signed = false;
+        $ts->doc = NULL;
+        $ts->save();
+
+        $msg = trans('textos.firma_eliminada');
+        return redirect()->route('timetable-signed.report', [$ts->year, $ts->month])->with(compact('msg'));
     }
 
 }

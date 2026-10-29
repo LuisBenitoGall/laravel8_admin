@@ -17,7 +17,9 @@ use PDF;
 use Carbon\Carbon;
 
 //Models:
+use App\Models\AccountingAccount;
 use App\Models\BusinessAreas;
+use App\Models\Category;
 use App\Models\Company;
 use App\Models\CompanyAccounts;
 use App\Models\CompanySettings;
@@ -26,9 +28,13 @@ use App\Models\CustomerProviders;
 use App\Models\Delivery;
 use App\Models\DeliveryOrders;
 use App\Models\Employee;
+use App\Models\Group;
+use App\Models\GroupMembers;
 use App\Models\Invoice;
 use App\Models\Item;
+use App\Models\Module;
 use App\Models\Order;
+use App\Models\OrderCategory;
 use App\Models\OrderDocs;
 use App\Models\OrderPatterns;
 use App\Models\OrderPrevisions;
@@ -90,6 +96,10 @@ class OrderController extends Controller{
      * 23. Eliminar miembro de equipo.
      * 24. Pedidos según proveedor.
      * 25. Exportar .xls pedidos por rango de fecha.
+     * 26. Pedidos para autocomplete.
+     * 26.1. Pedidos de compra para autocomplete.
+     * 27. Cerrar pedido.
+     * 28. Recálculo previsiones en pedidos pendientes.
      */
     
     private $option = 'pedidos';
@@ -101,7 +111,7 @@ class OrderController extends Controller{
         $this->languages = helpers::languages();
 
         $this->middleware('module_setted:orders');
-        $this->middleware('order_get', ['only' => ['orderFromBudget', 'edit', 'update', 'destroy', 'print', 'setOrderDelivery', 'resetNum', 'removePurchaseDoc']]);
+        $this->middleware('order_get', ['only' => ['orderFromBudget', 'edit', 'update', 'destroy', 'print', 'setOrderDelivery', 'resetNum', 'removePurchaseDoc', 'close']]);
         $this->middleware('project_purchases', ['only' => ['addPurchaseToProject']]);
     }
 
@@ -225,7 +235,7 @@ class OrderController extends Controller{
     /**
      * 1. Pedidos por cliente o proveedor.
      */
-    public function index($year = false, $customer_id = false, $provider_id = false, $owner = false, $status = false, $from = '', $to = '', $order_buy = false){
+    public function index($year = false, $customer_id = false, $provider_id = false, $owner = false, $groups_ = false, $status = false, $from = '', $to = '', $order_buy = false){
         //Si se cambia la empresa en sesión se toman los pedidos relativos a ésta:
         if($customer_id 
             && $customer_id != session('currentCompany') 
@@ -272,6 +282,12 @@ class OrderController extends Controller{
         //Propietarios de pedidos (sólo usuarios activos):
         $owners = UserCompanies::getCompanyUsers(session('currentCompany'), 1);
 
+        //Grupos:
+        $groups = Group::where('company_id', session('currentCompany'))
+        ->where('status', 1)
+        ->pluck('name', 'id')
+        ->toArray();
+
         //Estados de pedido:
         $order_status = helpers::orderStatus();
 
@@ -296,7 +312,7 @@ class OrderController extends Controller{
 
         $languages = $this->languages;
 
-        return view('admin.orders.index')->with(compact('header', 'year', 'owner', 'status', 'from', 'to', 'customer_id', 'provider_id', 'customer', 'provider', 'ordersType', 'customers', 'providers', 'owners', 'order_status', 'module_accounting', 'order_buy', 'languages'));
+        return view('admin.orders.index')->with(compact('header', 'year', 'owner', 'status', 'from', 'to', 'customer_id', 'provider_id', 'customer', 'provider', 'ordersType', 'customers', 'providers', 'owners', 'groups_', 'groups', 'order_status', 'module_accounting', 'order_buy', 'languages'));
     }
 
     /**
@@ -393,8 +409,10 @@ class OrderController extends Controller{
 
         //Estado:
         $status = $request->status? $request->status:'0';
+
+        $groups = $request->groups? implode('-', $request->groups):'0';
         
-        return redirect()->route('orders.index', [$request->year, $customer_id, $provider_id, $request->owner, $status, $from, $to, $request->order_buy]);
+        return redirect()->route('orders.index', [$request->year, $customer_id, $provider_id, $request->owner, $groups, $status, $from, $to, $request->order_buy]);
     }
 
     /**
@@ -412,7 +430,7 @@ class OrderController extends Controller{
      * 
      * @return json
      */
-    public function getOrdersDT(Request $request, $year = false, $customer = false, $provider = false, $owner = false, $status = false, $from = false, $to = false, $order_buy = false){
+    public function getOrdersDT(Request $request, $year = false, $customer = false, $provider = false, $owner = false, $groups = false, $status = false, $from = false, $to = false, $order_buy = false){
         //La empresa en sesión debe ser cliente o proveedor del pedido.
         if($customer && $customer != session('currentCompany') && $provider && $provider != session('currentCompany')){
             return false;
@@ -424,6 +442,18 @@ class OrderController extends Controller{
         /* $order_buy = "%4700480218%"; */
         // Se comrpueba que el campo no sea false
         $order_buy = $order_buy == 'false' ? false : $order_buy;
+
+        $owners = [];
+        //Usuarios de los grupos:
+        if($groups && $groups != '0'){
+            $arr_groups = explode('-', $groups);
+
+            $owners = GroupMembers::distinct('user_id')
+            ->whereIn('group_id', $arr_groups)
+            ->pluck('user_id')
+            ->toArray();
+        }
+        if($owner && !in_array($owner, $owners)) array_push($owners, $owner);
 
         //Obtenemos pedidos simples, no agrupaciones:
         $fields_order = [
@@ -449,7 +479,7 @@ class OrderController extends Controller{
             'users.name AS nombre', 
             'users.surname'
         ];
-        $data = $this->buildOrdersQuery($company_field, $from, $to, $status, $order_buy, $owner, $customer, $provider, $year, $fields_order);
+        $data = $this->buildOrdersQuery($company_field, $from, $to, $status, $order_buy, $owners, $customer, $provider, $year, $fields_order);
 
         // $arrIds = [];
         // foreach($data as $r){
@@ -457,7 +487,7 @@ class OrderController extends Controller{
         //     //$arrIds .= $r->id.',';
         // }
 
-        $total = $this->getOrdersTotal($company_field, $from, $to, $status, $order_buy, $owner, $customer, $provider, $year, $request->all());
+        $total = $this->getOrdersTotal($company_field, $from, $to, $status, $order_buy, $owners, $customer, $provider, $year, $request->all());
 
         $estados = helpers::orderStatus();
 
@@ -548,7 +578,7 @@ class OrderController extends Controller{
      * 
      * @return Eloquent<Order> Query de eloquent para obtener los pedidos.
      */
-    public function buildOrdersQuery($company_field, $from, $to, $status, $order_buy, $owner, $customer, $provider, $year, $fields){
+    public function buildOrdersQuery($company_field, $from, $to, $status, $order_buy, $owners, $customer, $provider, $year, $fields){
         //Obtenemos pedidos simples, no agrupaciones:
         $data = Order::select($fields)
         ->join('companies', 'orders.'.$company_field.'_id', '=', 'companies.id')
@@ -578,8 +608,8 @@ class OrderController extends Controller{
             return $q->whereBetween('orders.finished_at', [$from, $to]);
         })
         // Por manager:
-        ->when($owner && $owner > 0, function($q) use($owner){
-            return $q->where('orders.provider_manager_id', $owner);
+        ->when(count($owners), function($q) use($owners){
+            return $q->whereIn('orders.provider_manager_id', $owners);
         })
         ->when($customer && $provider, function($q) use($customer, $provider){
             if(is_numeric($customer) && is_numeric($provider)){
@@ -623,7 +653,7 @@ class OrderController extends Controller{
      * 
      * @return array
      */
-    public function getOrdersTotal($company_field, $from, $to, $status, $order_buy, $owner, $customer, $provider, $year, $request_all_data){
+    public function getOrdersTotal($company_field, $from, $to, $status, $order_buy, $owners, $customer, $provider, $year, $request_all_data){
 
         // Filtro de campos explicitos:
         $filter_data_raw = [];
@@ -644,8 +674,10 @@ class OrderController extends Controller{
         // Campos minimos para que la consulta funcione:
         $fields = ['orders.id', 'orders.discount'];
 
+        //$owners = [$owner];
+
         // Obtenemos la consulta:
-        $data = $this->buildOrdersQuery($company_field, $from, $to, $status, $order_buy, $owner, $customer, $provider, $year, $fields);
+        $data = $this->buildOrdersQuery($company_field, $from, $to, $status, $order_buy, $owners, $customer, $provider, $year, $fields);
 
         // Filtro global:
         $data->where(function($q) use ($filter_data_raw_or) {
@@ -702,6 +734,7 @@ class OrderController extends Controller{
             $companies = CustomerProviders::select('companies.id', 'companies.name', 'companies.tradename')
             ->join('companies', 'customer_providers.customer_id', '=', 'companies.id')
             ->where('customer_providers.provider_id', session('currentCompany'))
+            ->where('customer_providers.status', 1)
             ->where('companies.id', '!=', session('currentCompany'))
             ->orderBy('companies.name', 'ASC')
             ->get();
@@ -712,6 +745,7 @@ class OrderController extends Controller{
             $companies = CustomerProviders::select('companies.id', 'companies.name', 'companies.tradename')
             ->join('companies', 'customer_providers.provider_id', '=', 'companies.id')
             ->where('customer_providers.customer_id', session('currentCompany'))
+            ->where('customer_providers.status', 1)
             ->where('companies.id', '!=', session('currentCompany'))
             ->orderBy('companies.name', 'ASC')
             ->get();
@@ -850,6 +884,11 @@ class OrderController extends Controller{
 
         //Guardamos previsión de facturación por defecto:
         OrderPrevisions::store($order->id);
+
+        //Creamos proyecto:
+        // if(session('companySettings')->project_required){
+        //     Project::setProject($order);
+        // }
 
         $msg = trans('textos.pedido_creado');
         return redirect()->route('orders.edit', $order)->with(compact('msg'));
@@ -1144,14 +1183,15 @@ class OrderController extends Controller{
         }
         if($invoices->count()) $permitted = false;
 
-        //Previsiones de facturación del pedido:      
-        $previsions = OrderPrevisions::previsions($order->id);
+        //Previsiones de facturación del pedido:    
+        $generate = $order->blocked == 1? false:true;  
+        $previsions = OrderPrevisions::previsions($order->id, $order_amount);
 
         //Debe existir siempre al menos una previsión:
-        if(!$previsions->count()){
+        if($previsions && !$previsions->count()){
             OrderPrevisions::store($order->id);
 
-            $previsions = OrderPrevisions::previsions($order->id);
+            $previsions = OrderPrevisions::previsions($order->id, $order_amount);
         }
 
         //Productos. Activos y aptos para venta:
@@ -1237,6 +1277,23 @@ class OrderController extends Controller{
         //IVA:
         $iva = CompanySettings::co_iva();
 
+        //Tipos de IVA:
+        $ivaTypeController = new IvaTypeController();
+        $ivaTypes = $ivaTypeController->ivaTypes;
+
+        //Cuenta contable de ventas del proveedor:
+        $provider_accounting_account = AccountingAccount::select('id')
+        ->where('company_id', $order->provider_id)
+        ->where('featured', config('constants.ACCOUNT_DEFAULT_SALES_'))
+        ->first();
+
+        //Cuentas contables de cliente:
+        $customer_accounting_accounts = AccountingAccount::select('id', 'account', 'name')
+        ->where('company_id', $order->provider_id)
+        ->where('company_target', $order->customer_id)
+        ->where('mode', 1)
+        ->get();
+
         //Servicio de Asistencia Técnica (SAT), según sea la venta o la compra:
         $sat = $order->provider_id == session('currentCompany')? Sat::select('id', 'sat_num')
         ->where('sale_id', $order->id)->first():Sat::select('id', 'sat_num')
@@ -1267,7 +1324,16 @@ class OrderController extends Controller{
             $order->save();
         }
 
+        //Categorías vinculadas al proyecto:
+        $categories_in = OrderCategory::where('order_id', $order->id)
+        ->pluck('category_id')
+        ->toArray();
+
         $languages = $this->languages;
+
+        //Categorías:
+        $module_ = Module::select('id')->where('slug', $this->module)->first();
+        $categories = Category::getModuleCategoriesStatic($module_->id, session('currentCompany'));
 
         //Módulos activos:
         $module_accounting = $this->settedModule('accounting');
@@ -1277,7 +1343,7 @@ class OrderController extends Controller{
         $module_projects = $this->settedModule('projects');
         $module_rrhh = $this->settedModule('rrhh');
         
-        return view('admin.orders.edit')->with(compact('header', 'order', 'tab', 'patterns', 'purchase_patterns', 'provider', 'provider_account', 'provider_managers', 'provider_business_areas', 'provider_cost_centers', 'provider_workplaces', 'default_workplace', 'customer', 'final_customer', 'customer_managers', 'customer_business_areas', 'customer_cost_centers', 'customer_workplaces', 'customer_products', 'customer_settings', 'confirmed_by', 'customers', 'order_amount', 'order_amount_without_discount', 'order_amount_without_discount_in_lines', 'order_groups', 'ordersInGroup', 'orders_off', 'group_amount', 'invoiced', 'invoices', 'previsions', 'products', 'projects', 'project', 'project_purchases', 'customer_projects', 'deliveries', 'receivings', 'currency', 'items', 'author', 'owner', 'commercial', 'iva', 'sat', 'order_type', 'templates', 'languages', 'permitted', 'module_accounting', 'module_budgets', 'module_products', 'module_projects', 'module_rrhh', 'module_logistics'));
+        return view('admin.orders.edit')->with(compact('header', 'order', 'tab', 'patterns', 'purchase_patterns', 'provider', 'provider_account', 'provider_managers', 'provider_business_areas', 'provider_cost_centers', 'provider_workplaces', 'default_workplace', 'customer', 'final_customer', 'customer_managers', 'customer_business_areas', 'customer_cost_centers', 'customer_workplaces', 'customer_products', 'customer_settings', 'confirmed_by', 'customers', 'order_amount', 'order_amount_without_discount', 'order_amount_without_discount_in_lines', 'order_groups', 'ordersInGroup', 'orders_off', 'group_amount', 'invoiced', 'invoices', 'previsions', 'products', 'projects', 'project', 'project_purchases', 'customer_projects', 'deliveries', 'receivings', 'currency', 'items', 'author', 'owner', 'commercial', 'iva', 'ivaTypes', 'provider_accounting_account', 'customer_accounting_accounts', 'sat', 'order_type', 'templates', 'categories', 'categories_in', 'languages', 'permitted', 'module_accounting', 'module_budgets', 'module_products', 'module_projects', 'module_rrhh', 'module_logistics'));
     }
 
     /**
@@ -1382,6 +1448,8 @@ class OrderController extends Controller{
 
         //Slug:
         $slug = Str::slug($request->name);
+
+        $alert = false;
 
         //Formateando fechas:
         $estimated_delivery_date = $request->estimated_delivery_date != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->estimated_delivery_date):$request->estimated_delivery_date:NULL;
@@ -1497,17 +1565,22 @@ class OrderController extends Controller{
 
         //Guardamos previsiones:
         if($request->year){
+            $order_amount = $order->getAmount(true, false, true); 
+
             for($i=0; $i<count($request->year); $i++){
-                //Validamos datos:
-                if(is_numeric($request->year[$i])){
+                //Validamos datos si es previsión NO facturada:
+                if(is_numeric($request->year[$i]) && !$request->invoiced[$i]){
                     //Actualizar o...
+                    //29/12/2023: trasladamos la actualización de las previsiones a la edición del pedido.  Como primer paso se recalcularán cada vez importes y porcentajes de las previsiones de facturación.
                     if(isset($request->op_id[$i])){
                         $op = OrderPrevisions::find($request->op_id[$i]);
+
                         //Actualizamos si no se encuentra facturado:
                         if(!$op->invoice_id){
                             $op->year = $request->year[$i];
-                            $op->month = $request->month[$i]? $request->month[$i]:NULL;
-                            $op->percent = $request->percent[$i];
+                            $op->month = isset($request->month[$i])? $request->month[$i]:NULL;
+                            $op->amount = isset($request->amount[$i])? $request->amount[$i]:NULL;
+                            $op->percent = isset($request->percent[$i])? $request->percent[$i]:NULL;
                             $op->save();
                         }
 
@@ -1516,8 +1589,9 @@ class OrderController extends Controller{
                         $op = new OrderPrevisions();
                         $op->order_id = $order->id;
                         $op->year = $request->year[$i];
-                        $op->month = $request->month[$i]? $request->month[$i]:NULL;
-                        $op->percent = $request->percent[$i];
+                        $op->month = isset($request->month[$i])? $request->month[$i]:NULL;
+                        $op->amount = isset($request->amount[$i])? $request->amount[$i]:NULL;
+                        $op->percent = isset($request->percent[$i])? $request->percent[$i]:NULL;
                         $op->save();
                     }
                 }
@@ -1554,6 +1628,7 @@ class OrderController extends Controller{
                                 $op_->order_id = $first_provider_order->id;
                                 $op_->year = $cp->year;
                                 $op_->month = $cp->month;
+                                $op_->amount = $cp->amount;
                                 $op_->percent = $cp->percent;
                                 $op_->save();
                             }
@@ -1563,8 +1638,25 @@ class OrderController extends Controller{
             }
         }
 
+        //Categorías. Limpiamos las existentes y volvemos a generarlas:
+        OrderCategory::where('order_id', $order->id)->delete();  
+        if($request->categories && count($request->categories)){
+            foreach($request->categories as $ctg){
+                //Comprobamos que el valor recibido sea categoría:
+                $categ = Category::select('id')->find($ctg);
+                if($categ){
+                    OrderCategory::create([
+                        'order_id' => $order->id,
+                        'category_id' => $categ->id
+                    ]);
+                }else{
+                    $alert = trans('textos.categoria_selec_aviso');
+                }
+            }
+        }
+
         $msg = trans('textos.pedido_updated');
-        return redirect()->route('orders.edit', [$order->id, false])->with(compact('msg')); 
+        return redirect()->route('orders.edit', [$order->id, false])->with(compact('msg', 'alert')); 
     }
 
     /**
@@ -1674,8 +1766,8 @@ class OrderController extends Controller{
     /**
      * 9. Obtener líneas de pedido.
      */
-    public function getItemsDT(Order $order, $environment){
-        $items = Item::where('order_id', $order->id)->get();
+    public function getItemsDT(Order $order, $environment, $invoice_id = false){
+        $items = Item::where('order_id', $order->id);
 
         //Moneda:
         $currency = CompanySettings::co_currency(0);
@@ -1700,7 +1792,7 @@ class OrderController extends Controller{
         return DataTables::of($items)
         ->addColumn('price', function($item) use($currency){
             if($item->price > 0){
-                $price = round($item->price, 2).$currency->symbol;
+                $price = number_format($item->price,2 , ',', '.').$currency->symbol;
                 //IRPF:
                 if($item->irpf > 0){
                     $price .= '<br><small>-'.$item->irpf.'% IRPF</small>';
@@ -1739,6 +1831,7 @@ class OrderController extends Controller{
         ->addColumn('amount', function($item) use($currency, $order_amount, $environment){
             $amount = '';
             if($item->price != 0){
+                //Cálculo importe por porcentaje:
                 if($item->calculated_by_percent > 0){
                     $amount = helpers::itemAmountPercentage($item->price, $order_amount['total_amount']);
                     return $amount.$currency->symbol.'<br><small>('.trans('textos.precio_porcentual').')</small>';
@@ -1751,12 +1844,12 @@ class OrderController extends Controller{
                         if($item->iva > 0){
                             $amount_with_iva = helpers::itemAmount($item, true);
 
-                            return round($amount, 2).$currency->symbol.'<br><small>+iva '.$amount_with_iva['amount'].$currency->symbol.'</small>';
+                            return number_format($amount,2 , ',', '.').$currency->symbol.'<br><small>+iva '.number_format($amount_with_iva['amount'],2 , ',', '.').$currency->symbol.'</small>';
                         }else{
                             return $amount.$currency->symbol.'<br><small>'.trans('textos.iva_exento').'</small>';    
                         }
                     }else{
-                        return $amount.$currency->symbol;    
+                        return number_format($amount,2 , ',', '.').$currency->symbol;    
                     }
                 }            
             }else{
@@ -1764,8 +1857,25 @@ class OrderController extends Controller{
             }              
         })
         ->addColumn('cost_center', function($item){
-            if($item->provider_cost_center_id){
+            if($item->provider_cost_center_id && $item->cost_center_provider){
                 return $item->cost_center_provider->name;    
+            }elseif($item->customer_cost_center_id && $item->cost_center_customer){
+                return $item->cost_center_customer->name;;
+            }
+        })
+        ->addColumn('linked_orders', function($item){
+            $orders_ = Order::select('orders.id', 'orders.order_num', 'orders.order_old_num')
+            ->join('item_linked_orders', 'orders.id', '=', 'item_linked_orders.order_id')
+            ->where('item_linked_orders.item_id', $item->id)
+            ->get();
+
+            if($orders_->count()){
+                $html = '';
+                foreach($orders_ as $o){
+                    $o_ = $o->order_num? $o->order_num:($o->order_old_num? $o->order_old_num:$o->id);
+                    $html .= '<a target="_blank" href="/admin/orders/'.$o->id.'/edit">'.$o_.'</a> ';
+                }
+                return $html;
             }else{
                 return '';
             }
@@ -1776,10 +1886,10 @@ class OrderController extends Controller{
         ->addColumn('observations', function($item){
             return $item->observations;
         })
-        ->addColumn('acciones', function($item) use($estados, $order, $environment, $provider_account, $invoices){
-            return view('admin.orders.partials.dt-item-actions', compact('item', 'estados', 'order', 'environment', 'provider_account', 'invoices'));    
+        ->addColumn('acciones', function($item) use($estados, $order, $environment, $provider_account, $invoices, $invoice_id){
+            return view('admin.orders.partials.dt-item-actions', compact('item', 'estados', 'order', 'environment', 'provider_account', 'invoices', 'invoice_id'));    
         })
-        ->rawColumns(['price', 'amount', 'observations'])
+        ->rawColumns(['price', 'amount', 'linked_orders', 'observations'])
         ->make(true);
     }
 
@@ -1874,8 +1984,6 @@ class OrderController extends Controller{
         ->orderBy('orders.id', 'DESC')
         ->orderBy('orders.created_at', 'DESC');
         //->get();
-
-        //dd($data);
 
         return DataTables::of($data)
         ->addColumn('fecha', function($row){
@@ -2662,6 +2770,84 @@ class OrderController extends Controller{
         }
 
         return (new OrdersExport($temp_num))->download('orders.xlsx');
+    }
+
+    /**
+     * 26. Pedidos para autocomplete.
+     */
+    public function searchOrders(Request $request) {
+        $search = $request->search;
+
+        $data = Order::select('id', 'name', 'order_num', 'order_old_num')  
+        ->where('is_order', 1)
+        ->where('provider_id', session('currentCompany'))
+        ->where(function($q) use ($search){  
+            $q->where('order_num', 'like', '%'.$search.'%') 
+            ->orWhere('order_old_num', 'like', '%'.$search.'%')   
+            ->orWhere('name', 'like', '%'.$search.'%');
+        })
+        ->orderBy('name', 'ASC')
+        ->limit(15)
+        ->get(); 
+
+        return response()->json($data);
+    }
+
+    /**
+     * 26.1. Pedidos de compra para autocomplete.
+     */
+    public function searchPurchases(Request $request) {
+        $search = $request->search;
+
+        $data = Order::select('id', 'name', 'purchase_num', 'purchase_old_num')  
+        ->where('is_order', 1)
+        ->where('customer_id', session('currentCompany'))
+        ->where(function($q) use ($search){  
+            $q->where('purchase_num', 'like', '%'.$search.'%') 
+            ->orWhere('purchase_old_num', 'like', '%'.$search.'%')   
+            ->orWhere('name', 'like', '%'.$search.'%');
+        })
+        ->orderBy('name', 'ASC')
+        ->limit(15)
+        ->get(); 
+
+        return response()->json($data);
+    }
+
+    /**
+     * 27. Cerrar pedido.
+     */
+    public function close(Order $order){
+        //Eliminamos las previsiones no facturadas.
+        OrderPrevisions::where('order_id', $order->id)
+        ->whereNull('invoice_id')
+        ->delete();
+
+        //Bloqueamos pedido:
+        $order->blocked = 1;
+        $order->save();
+
+        $msg = trans('textos.pedido_cerrado');
+        return redirect()->route('orders.edit', $order)->with(compact('msg'));
+    }
+
+    /**
+     * 28. Recálculo previsiones en pedidos pendientes.
+     */
+    public function resetPrevisions(){
+        if(env('RESET_PREV_') == true){
+            $data = Order::select('id')
+            ->where('is_order', 1)
+            ->whereIn('provider_id', [3,4,8,202,227,275])
+            ->where('created_at', '>', '2023-01-01')
+            ->get();
+
+            foreach($data as $r){
+                $arr_amounts = $r->getAmount();    
+
+                OrderPrevisions::previsions($r->id, $arr_amounts['total_amount']);
+            }
+        }
     }
     
 }

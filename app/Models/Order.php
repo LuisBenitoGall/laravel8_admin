@@ -130,6 +130,14 @@ class Order extends Model{
         $invoice_amount = 0;                    //Importe con impuestos.
             
         $amounts_by_iva = [];                   //Array que agrupa la suma de importes según tipo de IVA.
+        $iva_amounts = [];                      //Array que agrupa el importe de cada tipo de IVA.
+
+        $arr_invoice_amount = [
+            'amount' => '',
+            'amount_without_discount' => '',
+            'amount_with_iva' => '',
+            'iva_amount' => ''
+        ];
 
         foreach($items as $row){
             //Omitimos los items que se calculan porcentualmente:
@@ -144,13 +152,11 @@ class Order extends Model{
                 //     $arr_order_amount['amount'] = $arr_order_amount['amount'] - $percentage_;    
                 // }
 
-                
 
                 // if($apply_row_discount && $row->discount && $row->discount > 0){
                 //     $percentage_ = helpers::percent($arr_order_amount['amount'], $row->discount);    
                 //     $arr_order_amount['amount'] = $arr_order_amount['amount'] - $percentage_;         
                 // }
-
 
 
                 $order_amount = $order_amount + $arr_order_amount['amount'];
@@ -161,6 +167,8 @@ class Order extends Model{
                 $invoice_amount = $invoice_amount + $arr_invoice_amount['amount'];
 
                 $amounts_by_iva[$row->iva] = isset($amounts_by_iva[$row->iva])? $amounts_by_iva[$row->iva] + $arr_invoice_amount['amount']:$arr_invoice_amount['amount'];
+
+                $iva_amounts[$row->iva] = isset($iva_amounts[$row->iva])? $iva_amounts[$row->iva] + $arr_invoice_amount['iva_amount']:$arr_invoice_amount['iva_amount'];
 
                 //11/12/22: QUEDA PENDIENTE EL CÁLCULO DEL RECARGO DE EQUIVALENCIA.
             }
@@ -188,6 +196,8 @@ class Order extends Model{
 
                     $amounts_by_iva[$row->iva] = isset($amounts_by_iva[$row->iva])? $amounts_by_iva[$row->iva] + $amount_with_iva:$amount_with_iva;
 
+                    $iva_amounts[$row->iva] = isset($iva_amounts[$row->iva])? $iva_amounts[$row->iva] + $arr_invoice_amount['iva_amount']:$arr_invoice_amount['iva_amount'];
+
                     //11/12/22: QUEDA PENDIENTE EL CÁLCULO DEL RECARGO DE EQUIVALENCIA.
                 }
             }
@@ -197,7 +207,8 @@ class Order extends Model{
             'total_amount' => round($order_amount, 2), 
             'total_amount_without_discounts' => round($order_amount_without_discounts, 2),
             'invoice_amount' => round($invoice_amount, 2),
-            'amounts_by_iva' => $amounts_by_iva
+            'amounts_by_iva' => $amounts_by_iva,        //Desglose importe total separado por IVA.
+            'iva_amounts' => $iva_amounts               //Importe de cada tipo de IVA.
         ];
 
         return $data;
@@ -285,6 +296,13 @@ class Order extends Model{
                 $this->save();
             }
         }
+    }
+
+    /**
+     * 10. Proyectos asociados.
+     */
+    public function projects(){
+        return $this->belongsToMany(Project::class, 'project_orders');
     }
 
     public function budgetPattern()

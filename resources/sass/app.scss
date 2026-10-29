@@ -3221,7 +3221,10 @@ div.dt-button-info {
   width: 200px;
 }
 .form-control {
-  font-size: 0.85rem;
+    font-size: 0.85rem;
+    // &.prominent{
+    //     border: 1px solid $blue_prominent !important; 
+    // }
 }
 select.form-control:not([size]):not([multiple]) {
   /*height: 2.30rem;*/
@@ -5252,6 +5255,9 @@ body.body-small .footer.fixed {
     background-color: $yellow_light;
     font-weight: bold;
 }
+.table > tbody > tr.featured td{
+  background-color: $yellow_light !important; 
+}
 .table td.no-border{
     border: none !important;
 }
@@ -5266,6 +5272,9 @@ body.body-small .footer.fixed {
     &.modal-table{
         table-layout:fixed;
 
+        .wdt25{
+            width: 25px !important;
+        }
         .wdt50{
             width: 50px !important;
         }
@@ -5309,6 +5318,13 @@ body.body-small .footer.fixed {
             padding-right: 8px;
         }  
     }  
+    &.dtabla{
+        th.nowrap, 
+        td.nowrap{
+            white-space: nowrap !important;
+        }
+    }
+
     tbody {
       .btn {
         min-width: 30px;
@@ -5366,6 +5382,12 @@ body.body-small .footer.fixed {
                 padding: .75rem !important;
             }
         }
+    }
+}
+
+.tbl-subrows{
+    th, td{
+      background-color: #FFF;
     }
 }
 
@@ -10539,6 +10561,7 @@ ul{
 .typeColor,
 .productForm,
 #addChangeRound,
+#copyPrev,
 #economicBalanceWarning,
 #isUte,
 #setValues,
@@ -10547,6 +10570,10 @@ ul{
 #customerRef,
 #movementForm{
     display: none;
+}
+
+.line-titles{
+    visibility: hidden;
 }
 
 .typeColor{
@@ -11743,7 +11770,7 @@ ul{
 }
 
 ul.ui-autocomplete {
-    z-index: 1100;
+    z-index: 2300;
 }
 
 #quiz{
@@ -11866,6 +11893,67 @@ ul.ui-autocomplete {
         position: absolute;
         top: 0;
         width: 100%;
+    }
+}
+
+.sup-circle{
+    border-radius: 50%;
+    color: #FFF;
+    font-size: 9px;
+    height: 16px;
+    position: absolute;
+    right: -8px;
+    text-align: center;
+    top: -8px;
+    width: 16px;
+}
+
+.border-right3{
+    border-right: 3px solid #DDDDDD !important;
+}
+
+.dt-columns{
+    border-radius: 4px;
+    position: relative;
+    .ibox-content{
+        height: auto;
+        left: 0;
+        padding: 5px 0;
+        position: absolute;
+        width: 100%;
+        z-index: 200;
+        ul{
+            background-color: #FFF;
+            margin: 0;
+            width: 100%;
+
+            li{
+                border-bottom: 1px solid $grey-light2;
+                display: block;
+                position: relative;
+                width: 100%;
+                &:hover{
+                    background-color: $grey-light2;
+                }
+
+                a{
+                    color: $info;
+                    display: inline-block;
+                    padding: 5px 12px;
+                    width: 85%;
+                }
+
+                .fa{
+                    float: right;
+                    margin: 8px 15px 0 0;
+                }
+
+                .column-ok{
+                    position: absolute;
+                    right: 12px;
+                }
+            }
+        }
     }
 }
 

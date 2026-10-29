@@ -16,6 +16,7 @@ use File;
 use App\Models\Employee;
 use App\Models\Group;
 use App\Models\GroupMembers;
+use App\Models\User;
 
 class GroupController extends Controller{
     /**
@@ -138,10 +139,20 @@ class GroupController extends Controller{
         ->pluck('user_id')
         ->toArray();
 
-        $employees = Employee::select('users.id', 'users.name', 'users.surname')
-        ->join('users', 'employees.user_id', '=', 'users.id')
-        ->join('contracts', 'employees.contract_id', '=', 'contracts.id')
-        ->where('contracts.company_id', session('currentCompany'))
+        // $employees = Employee::select('users.id', 'users.name', 'users.surname')
+        // ->join('users', 'employees.user_id', '=', 'users.id')
+        // ->join('contracts', 'employees.contract_id', '=', 'contracts.id')
+        // ->where('contracts.company_id', session('currentCompany'))
+        // ->where('users.status', 1)
+        // ->whereNotIn('users.id', $members_in)
+        // ->groupBy('users.id')
+        // ->get();
+
+        //12/01/2024: se modifica la consulta de los usuarios:
+        $employees = User::select('users.id', 'users.name', 'users.surname')
+        ->join('user_companies', 'users.id', '=', 'user_companies.user_id')
+        //->join('contracts', 'employees.contract_id', '=', 'contracts.id')
+        ->where('user_companies.company_id', session('currentCompany'))
         ->where('users.status', 1)
         ->whereNotIn('users.id', $members_in)
         ->groupBy('users.id')

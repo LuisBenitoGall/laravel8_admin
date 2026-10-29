@@ -90,4 +90,65 @@
 	</div>	
 @endif
 
+@push('scripts')
+<script>
+$(function(){
+	//Tabla Order Groups:
+    if($('#tblOrderGroups').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        var customer = $('#myCustomer').val();
+        var year = $('#myYear').val();
+
+        //Filters:
+        // $('#tblOrderGroups thead tr').clone(true).appendTo('#tblOrderGroups thead');
+        // $('#tblOrderGroups thead tr:eq(1) th').each(function(i){
+        //     var title = $(this).text();
+        //     if(i == 7){
+        //         $(this).html('');
+        //     }else{
+        //         $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
+        //     }
+     
+        //     $('input', this).on('keyup change', function(){
+        //         if(tableOrderGroups.column(i).search() !== this.value){
+        //             tableOrderGroups
+        //                 .column(i)
+        //                 .search(this.value)
+        //                 .draw();
+        //         }
+        //     });
+        // });
+        
+        var tableOrderGroups = $('#tblOrderGroups').DataTable({
+            serverSide: true,
+            processing: true,
+            // drawCallback: function() {
+            //     $('.select2-dt').select2();
+            // },
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/order-groups/"+customer+"/"+year,
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'num', name: 'num', className: 'text-right'},
+                {data: 'order_old_num', name: 'order_old_num', className: 'text-right'},
+                {data: 'name', name: 'orders.name'},
+                {data: 'purchase', name: 'purchase'},
+                {data: 'alta', name: 'alta', className: 'text-right'},
+                {data: 'group_amount', className: 'text-right'},
+                {data: 'bag_amount', className: 'text-right'},
+                //{data: 'costCenter'},
+                //{data: 'workplace'},
+                {data: 'estado', name: 'estado'},
+                {data: 'acciones', name: 'acciones', className: 'text-right'}
+            ]
+        });
+    }
+});
+</script>
+@endpush
+
 @endsection

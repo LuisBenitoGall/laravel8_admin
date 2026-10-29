@@ -93,4 +93,215 @@
 	</div>
 </div>
 
+@push('scripts')
+<script>
+$(function(){
+	//Tabla Deliveries:
+    if($('#tblDeliveries').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+        var customer = $('#myCustomer').val() != ''? $('#myCustomer').val():false;
+        var year = $('#myYear').val();
+        var status = $('#myStatus').val() && $('#myStatus').val() != ''? $('#myStatus').val():false;
+
+        //Filters:
+        $('#tblDeliveries thead tr').clone(true).appendTo('#tblDeliveries thead');
+        $('#tblDeliveries thead tr:eq(1) th').each(function(i){
+            var title = $(this).text(); 
+            if(i == 2 || i == 5){
+                $(this).html('');
+            }else{
+                $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
+                // aquí el código retirado
+            }
+
+            $('input', this).on('keyup change', function(){
+                if(tableDeliveries.column(i).search() !== this.value){
+                    tableDeliveries
+                        .column(i)
+                        .search(this.value)
+                        .draw();
+                }
+            });
+        });
+        
+        var tableDeliveries = $('#tblDeliveries').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/deliveries/"+year+"/"+customer+"/"+status,
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'num', className: 'text-right'},
+                {data: 'name'},
+                {data: 'amount', className: 'text-right'},
+                {data: 'date', className: 'text-right'},
+                {data: 'status'},
+                {data: 'acciones', className: 'text-right'}
+            ]
+            // columnDefs: [
+            //     {"targets": 0,
+            //     "render": function(data, type, row){
+            //         var num = row['id'];
+            //         if(row['delivery_num']){
+            //             num = row['delivery_num'];
+            //         }else if(row['delivery_old_num']){
+            //             num = row['delivery_old_num'];
+            //         }
+
+            //         var html = '';
+            //         if(row['editar']){
+            //             html += '<a href="/admin/deliveries/'+row['id']+'/edit">';
+            //         }
+            //         html += num;
+            //         if(row['editar']){
+            //             html += '</a>';
+            //         }
+            //         return html;
+            //     }
+            //     },
+            //     {"targets": -2,
+            //     "render": function(data, type, row){
+            //         return '<span class="xoption-'+row['id']+'">'+row['estado']+'</span>'; 
+            //     }
+            //     }, 
+            //     {"targets": -1,
+            //     "render": function(data, type, row){
+            //         var estado = '';
+            //         var editar = '';
+            //         var eliminar = '';
+            //         if(row['editar']){
+            //             //Estado múltiple:
+            //             estado = multipleStatus(row['estados'], row['status'], row['id']);
+
+            //             //Editar:
+            //             editar = '<a href="/admin/deliveries/'+row['id']+'/edit" class="btn btn-xs btn-info" rel="tooltip" title="'+txtEditar+'"><i class="fa fa-edit"></i></a>';
+
+            //             //Eliminar:
+            //             eliminar = '<form method="POST" action="/admin/deliveries/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
+            //                 eliminar += '<input name="_method" type="hidden" value="DELETE">';
+            //                 eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
+            //                 eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtEliminar+'" data-msg="'+txtEntregaConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
+            //             eliminar += '</form>';
+
+            //             return estado+' '+editar+' '+eliminar;
+            //         }
+            //     }
+            //     }
+            // ]
+        });
+    }
+
+    //Tabla Deliveries Orders:
+    if($('#tblDeliveriesOrders').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+
+        //Filters:
+        $('#tblDeliveriesOrders thead tr').clone(true).appendTo('#tblDeliveriesOrders thead');
+        $('#tblDeliveriesOrders thead tr:eq(1) th').each(function(i){
+            var title = $(this).text(); 
+            if(i == 4){
+                $(this).html('');
+            }else{
+                $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
+                // aquí el código retirado
+            }
+
+            $('input', this).on('keyup change', function(){
+                if(tableDeliveriesOrders.column(i).search() !== this.value){
+                    tableDeliveriesOrders
+                        .column(i)
+                        .search(this.value)
+                        .draw();
+                }
+            });
+        });
+
+        var tableDeliveriesOrders = $('#tblDeliveriesOrders').DataTable({
+            serverSide: true,
+            processing: true,
+            drawCallback: function() {
+                $('.select2-dt').select2();
+            },
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/deliveries-orders",
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'num', className: 'text-right'},
+                {data: 'name'},
+                {data: 'company'},
+                {data: 'id'},
+                {data: 'id', className: 'text-right'}
+            ],
+            columnDefs: [
+                {"targets": 0,
+                "render": function(data, type, row){
+                    var num = row['id'];
+                    if(row['order_num']){
+                        num = row['order_num'];
+                    }else if(row['order_old_num']){
+                        num = row['order_old_num'];
+                    }
+
+                    var html = '';
+                    if(row['editar']){
+                        html += '<a target="_blank" href="/admin/orders/'+row['id']+'/edit">';
+                    }
+                    html += num;
+                    if(row['editar']){
+                        html += '</a>';
+                    }
+                    return html;
+                }
+                },
+                {"targets": -2,
+                "render": function(data, type, row){
+                    console.log(row['deliveries']); 
+                    var estado = '<select class="form-control select-xs comboEstadoGroup select2-dt">';
+                        estado += '<option value="">'+txtEntregaSelec+'</option>';
+                        for(j=0; j<row['deliveries'].length; j++){
+                            estado += '<option value="" data-id="'+row['deliveries'][j].id+'">'+row['deliveries'][j].id+'</option>';
+                        }
+                    estado += '</select>';
+
+                    return estado;
+                }
+                }, 
+                {"targets": -1,
+                "render": function(data, type, row){
+                    var estado = '';
+                    var editar = '';
+                    var eliminar = '';
+                    if(row['editar']){
+                        //Estado múltiple:
+                        //estado = multipleStatus(row['estados'], row['status'], row['id']);
+
+                        //Editar:
+                        editar = '<a target="_blank" href="/admin/orders/'+row['id']+'/edit" class="btn btn-xs btn-info" rel="tooltip" title="'+txtEditar+'"><i class="fa fa-edit"></i></a>';
+
+                        //Eliminar:
+                        eliminar = '<form method="POST" action="/admin/deliveries/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
+                            eliminar += '<input name="_method" type="hidden" value="DELETE">';
+                            eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
+                            eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtEliminar+'" data-msg="'+txtEntregaConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
+                        eliminar += '</form>';
+
+                        return editar+' '+eliminar;
+                    }
+                }
+                }
+            ]
+        });
+    }
+});
+</script>
+@endpush
+
 @endsection

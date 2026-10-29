@@ -32,6 +32,26 @@
 						</div>
 					</div>
 
+					{{-- Opciones de cliente: --}}
+					@if(session('currentCompany') == $order->customer_id)
+						{{-- Producto contable --}}
+						@if(isset($accounting_products) && $accounting_products->count())
+							@php
+							$accounting_products_arr = [];
+							foreach($accounting_products as $ap){
+								$accounting_products_arr[$ap->id] = $ap->name;	
+							}
+							@endphp
+
+							<div class="form-group row">
+								<label for="accounting_product" class="col-md-2 col-form-label sinpadding-left">{!! ucfirst(trans('textos.producto_contable')) !!}</label>	
+								<div class="col-md-10">
+									<x-select name="accounting_product" class="select2" id="itemAccountingProduct_" label="producto_contable_selec" :options="$accounting_products_arr"/>
+								</div>
+							</div>
+						@endif
+					@endif
+
 					<div class="form-group row">
 						{{-- Cantidad --}}
                     	<label for="qty" class="col-lg-2 col-form-label price-fixed_">{!! ucfirst(trans('textos.cantidad')) !!} *</label>
@@ -66,7 +86,20 @@
 						@if($environment_ == 'orders' || $environment_ == 'invoices')
 							<label for="iva" class="col-lg-2 col-form-label">IVA</label>
 							<div class="col-lg-2">
-								<x-input type="text" name="iva" class="text-right set-decimals iva0" id="itemIva_" autocomplete="off" maxlength="5" group="right" groupvalue="%" readonly="{{ $readonly }}"/>
+								@if($readonly)
+									<x-input type="text" name="iva" class="text-right set-decimals" id="itemIva_" autocomplete="off" maxlength="5" group="right" groupvalue="%" readonly="{{ $readonly }}"/>	
+
+								@else
+									{{-- 04/01/2023: se sustituye el input por un select con los tipos de IVA disponibles. --}}
+									@php
+									$iva_types = [];
+									foreach($ivaTypes as $it){
+										$iva_types[$it->iva] = $it->iva.'%'; 
+									}
+									@endphp
+
+									<x-select name="iva" class="select2 iva0" id="itemIva_" label="iva_selec" :options="$iva_types"/>
+								@endif								
 							</div>
 
 							{{-- Exento IVA --}}
@@ -130,16 +163,21 @@
 								<x-input type="text" name="calculated_by_percent" class="text-right set-decimals" autocomplete="off" maxlength="8" id="itemCalculatedByPercent_" value="0.00" group="right" groupvalue="%" readonly="{{ $readonly }}" info="item-price-by-percent_"/>
 							</div>
 						</div>
+					@endif
 
-						@if(isset($provider_cost_centers) && is_array($provider_cost_centers))
-							<div class="form-group row">
-								{{-- Centro de coste --}}
-								<label for="provider_cost_center" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.centro_coste')) !!}</label>
-								<div class="col-lg-4">
-									<x-select name="provider_cost_center" class="select2" id="itemCostCenter_" label="centro_coste_selec" :options="$provider_cost_centers"/>
-								</div>
+					{{-- Centro de coste --}}
+					@if(isset($provider_cost_centers) && is_array($provider_cost_centers))
+						@php
+						//Nombre de name según sea venta o compra:
+						$name_ = $order->provider_id == session('currentCompany')? 'provider_cost_center':'customer_cost_center';
+						@endphp
+
+						<div class="form-group row">
+							<label for="provider_cost_center" class="col-lg-2 col-form-label">{!! ucfirst(trans('textos.centro_coste')) !!}</label>
+							<div class="col-lg-4">
+								<x-select name="{{ $name_ }}" class="select2" id="itemCostCenter_" label="centro_coste_selec" :options="$provider_cost_centers"/>
 							</div>
-						@endif
+						</div>
 					@endif
 
 					<div class="form-group row">

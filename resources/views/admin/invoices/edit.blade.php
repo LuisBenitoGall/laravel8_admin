@@ -3,11 +3,28 @@
 @section('content')
 
 @php
-
 //Campos que se bloquean ante factura bloqueada o para compras, campos que son gestionados por el proveedor.
 $disabled = $invoice->blocked || ($order->customer_id == session('currentCompany') && $provider_account)? true:false;
 $readonly = $invoice->blocked && !$is_sale || ($order->customer_id == session('currentCompany') && $provider_account)? true:false;
 @endphp
+
+{{-- Aviso asientos contables no completados --}}
+@if($seat_error)
+	@php
+	$types_arr = $seat_error->iva_types? unserialize($seat_error->iva_types):false;
+	foreach($types_arr as &$ta){		//Atención a la sintaxis de la variable para que se guarde con el signo concatenado.
+		$ta .= '%';
+	}
+	$iva_types_ = $types_arr? '('.implode(', ', $types_arr).')':'';
+	@endphp
+	<div class="alert alert-danger" role="alert">
+        {{ trans('textos.asiento_contable_pendiente_aviso', ['iva_types' => $iva_types_]) }} 
+        <a target="_blank" class="btn btn-info btn-xs ml-3" href="{{ route('accounting-accounts.iva-accounts') }}"><i class="fa fa-file-invoice-dollar"></i> {!! ucfirst(trans('textos.cuentas_iva')) !!}</a>
+        <br>
+        {{ trans('textos.asiento_contable_pendiente_aviso2') }} 
+        <a target="_blank" class="btn btn-info btn-xs ml-3 btn-confirm" href="{{ route('invoices.complete', $invoice) }}" data-msg="{{ trans('textos.factura_registrar_confirm') }}"><i class="fa fa-file-invoice"></i> {!! ucfirst(trans('textos.factura_registrar')) !!}</a>
+    </div>
+@endif
 
 <div class="row mb-3">
 	{{-- Acciones: --}}
@@ -106,17 +123,24 @@ $readonly = $invoice->blocked && !$is_sale || ($order->customer_id == session('c
 		--}}
 		@if($module_projects && !$is_sale)
 			@can('projects.edit')
-				<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-link-project">
-					<i class="fa fa-rocket"></i>
-					{{ ucfirst(trans('textos.factura_asociar_proyecto')) }}
-				</a>
+				@if($project)
+					<a target="_blank" href="{{ route('projects.edit', $project->id) }}" class="btn btn-info">
+						<i class="fa fa-rocket"></i>
+						{{ ucfirst(trans('textos.proyecto')) }}
+					</a>
+				@else
+					<a href="#" class="btn btn-info" data-toggle="modal" data-target="#modal-link-project">
+						<i class="fa fa-rocket"></i>
+						{{ ucfirst(trans('textos.factura_asociar_proyecto')) }}
+					</a>	
+				@endif
 			@endcan	
 		@endif
 
 		{{-- Imprimir - condiciones 
 			1. Para facturas simples.
 		--}}
-		@if(!$order->is_group)
+		{{-- @if(!$order->is_group) --}}
 			<a href="{{ route('invoices.print', $invoice) }}" class="btn btn-info close-animation" rel="tooltip" title="{!! ucfirst(trans('textos.imprimir')) !!}">
 				<i class="fa fa-print"></i>
 			</a>
@@ -124,6 +148,14 @@ $readonly = $invoice->blocked && !$is_sale || ($order->customer_id == session('c
 			<a href="{{ route('invoices.print', [$invoice, true]) }}" class="btn btn-info close-animation" rel="tooltip" title="{!! ucfirst(trans('textos.imprimir_bn')) !!}">
 				<i class="fa fa-print"></i> B/N
 			</a>
+		{{-- @endif --}}
+
+		{{-- Asiento contable --}}
+		@if($seat)
+			<a target="_blank" href="{{ route('seats.edit', $seat) }}" class="btn btn-info">
+				<i class="fa fa-edit"></i>
+				{!! ucfirst(trans('textos.asiento_contable_editar')) !!}
+			</a>	
 		@endif
 
 		{{-- Cancelar factura - condiciones:
@@ -166,6 +198,7 @@ $readonly = $invoice->blocked && !$is_sale || ($order->customer_id == session('c
 <input type="hidden" id="dtController" value="items">
 <input type="hidden" id="myEnvironment" value="invoices">
 <input type="hidden" id="myOrder" value="{{ $order->id }}">
+<input type="hidden" id="myInvoice" value="{{ $invoice->id }}">
 
 <div class="row">
 	<div class="col-12">						
@@ -173,6 +206,24 @@ $readonly = $invoice->blocked && !$is_sale || ($order->customer_id == session('c
 			<div class="card-body">
 				{{-- Componente importe pedido flotante: --}}
 				@livewire('budget-amount', ['budget_amount' => $invoice->amount_with_iva, 'currency' => $currency->symbol, 'budget_amount_without_discount' => false, 'environment' => 'invoices'])
+
+				{{-- Registro de factura. Genera su asiento y efecto contable - condiciones: 
+					1. Factura de compra.
+					2. No existe el asiento contable.
+					3. Importe de la factura > 0.
+					...	
+				--}}
+				@if(!$is_sale && !$seat && $invoice->amount > 0)
+					<div class="float-fixed-div" style="top: 290px;">
+	                    <div class="row">
+	                        <div class="col-12">
+	                            <a href="{{ route('invoices.register', $invoice) }}" class="btn btn-info btn-confirm" data-msg="{{ trans('textos.factura_registrar_aviso') }}">
+	                        		{{ trans('textos.factura_registrar') }}
+	                            </a>
+	                        </div>
+	                    </div>
+	                </div>
+	            @endif
 
 				<h3 class="mb-3">
 					{{-- Factura abono --}}
@@ -312,6 +363,7 @@ $readonly = $invoice->blocked && !$is_sale || ($order->customer_id == session('c
 			  		</li>
 			  	</ul>
 
+			  	{{-- Panels: --}}
 			  	<div class="tab-content pt-4">
 					{{-- Cabecera: --}}
 					<div class="tab-pane fade @if(!$tab) show active @endif" role="tabpanel" id="tab-info">
@@ -369,11 +421,13 @@ $readonly = $invoice->blocked && !$is_sale || ($order->customer_id == session('c
 {{-- Link project --}}
 @include('admin.invoices.partials.modal-link-project')
 
+{{-- Link item to order --}}
+@include('admin.orders.partials.modal-link-item', ['environment' => 'invoices'])
+
 @push('scripts')
 <script>
 $(function(){
 	var payments = {!! json_encode($payments) !!}
-	console.log(payments);
 
 	//Activar - desactivar IVA en factura.
     $('.btnWithIva').on('click', function(){

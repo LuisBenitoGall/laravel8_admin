@@ -22,6 +22,7 @@ $bloques = '';
 $totalAmount = 0;
 $totalAmountWithoutDiscounts = 0;
 $discount_in_lines = false;
+$arr = [];
 @endphp
 
 <main>
@@ -40,34 +41,73 @@ $discount_in_lines = false;
 			$itemsWithQty = false;
 
 			foreach($itemsSelected as $its){
-				//Sólo items con $print == 1
-				if($its->print == 1){
-					//19/10/22 código obsoleto. Se sustituye por el de abajo.
-					// if($its->budget_form_item_id == 1 || !$its->budget_form_item_id){
-					// 	//$p = explode('|', $its->free_field);
-					// 	//$block_id = $p[0];	
-					// 	$block_id = $its->budget_form_block_id;
-					// }else{
-					// 	$block_id = $its->recid;
-					// }
+				//19/10/22 código obsoleto. Se sustituye por el de abajo.
+				// if($its->budget_form_item_id == 1 || !$its->budget_form_item_id){
+				// 	//$p = explode('|', $its->free_field);
+				// 	//$block_id = $p[0];	
+				// 	$block_id = $its->budget_form_block_id;
+				// }else{
+				// 	$block_id = $its->recid;
+				// }
 
-					//Buscando el bloque al que pertenece el item:
-					// if($its->budget_form_item_id == 1){
-					// 	$block_id = $its->recid;
-					// }else{
-					// 	$block_id = $its->budget_form_block_id;	
-					// }
-					// 
-					// 20/10/22 REVISAR A FONDO ESTA LÓGICA:
-					
-					if($its->budget_form_block_id){
-						$block_id = $its->budget_form_block_id;	
-					}else{
-						$block_id =	$its->recid;
+				//Buscando el bloque al que pertenece el item:
+				// if($its->budget_form_item_id == 1){
+				// 	$block_id = $its->recid;
+				// }else{
+				// 	$block_id = $its->budget_form_block_id;	
+				// }
+				// 
+				// 20/10/22 REVISAR A FONDO ESTA LÓGICA:
+				
+				if($its->budget_form_block_id){
+					$block_id = $its->budget_form_block_id;	
+				}else{
+					$block_id =	$its->recid;
+				}
+
+				//Si el item pertenece al bloque:
+				if($block->id == $block_id){
+					//Cálculo de importe y descuento:
+					$amount = $its->getItemAmount($its);
+
+					//Cálculo importe sin ningún descuento:
+					$amountWithoutDiscount = $its->getItemAmount($its, false);
+
+					//Subtotal para importe porcentual:
+					if($its->calculated_by_percent && $its->calculated_by_percent > 0){
+						$amount = $amountWithoutPercentItems * $its->price;	
+
+						if($its->discount && $its->discount > 0){
+							$percentage_ = App\Helpers\helpers::percent($amount, $its->discount);	
+							$amount = $amount - $percentage_;
+						}
+						$amount = round($amount, 2);
+						$amountWithoutDiscount = $amountWithoutDiscount + $amount;
 					}
 
-					//Si el item pertenece al bloque:
-					if($block->id == $block_id){
+					if($its->discount){
+						$discount = $its->discount? ' <span style="font-size: 9px;">('.$its->discount.'%)</span>':'';
+						$discount_in_lines = true;
+					}else{
+						$discount = '';	
+					}
+
+					//Texto alternativo para líneas a coste 0:
+					if($its->item_no_price){
+						$precio = $noPriceLinesTexts[$its->item_no_price];
+						$importe = $noPriceLinesTexts[$its->item_no_price];
+						$amount = 0;
+					}else{
+						$precio = $its->calculated_by_percent > 0? $its->price.'%':$its->price.$currency->symbol.$discount;
+						$importe = $amount.$currency->symbol;
+					}
+
+					//Cálculo del importe del bloque:
+					$blockAmount = $blockAmount + $amount;
+					$blockAmountWithoutDiscount = $blockAmountWithoutDiscount + $amountWithoutDiscount;
+
+					//Sólo items con $print == 1
+					if($its->print == 1){
 						$htmlItems .= '<tr>';	
 							//Item:
 							$concept = $its->concept? $its->concept:$its->name;
@@ -84,51 +124,11 @@ $discount_in_lines = false;
 								}	
 							$htmlItems .= '</td>';
 
-							//Cálculo de importe y descuento:
-							$amount = $its->getItemAmount($its);
-
-							//Cálculo importe sin ningún descuento:
-							$amountWithoutDiscount = $its->getItemAmount($its, false);
-
-							if($its->discount){
-								$discount = $its->discount? ' <span style="font-size: 9px;">('.$its->discount.'%)</span>':'';
-								$discount_in_lines = true;
-							}else{
-								$discount = '';	
-							}
-
-							//Subtotal para importe porcentual:
-							if($its->calculated_by_percent && $its->calculated_by_percent > 0){
-								$amount = $amountWithoutPercentItems * $its->price;	
-
-								if($its->discount && $its->discount > 0){
-									$percentage_ = App\Helpers\helpers::percent($amount, $its->discount);	
-									$amount = $amount - $percentage_;
-								}
-								$amount = round($amount, 2);
-								$amountWithoutDiscount = $amountWithoutDiscount + $amount;
-							}
-
-							//Texto alternativo para líneas a coste 0:
-							if($its->item_no_price){
-								$precio = $noPriceLinesTexts[$its->item_no_price];
-								$importe = $noPriceLinesTexts[$its->item_no_price];
-								$amount = 0;
-							}else{
-								$precio = $its->calculated_by_percent > 0? $its->price.'%':$its->price.$currency->symbol.$discount;
-								$importe = $amount.$currency->symbol;
-							}
-
 							//Precio:
 							$htmlItems .= '<td style="text-align: right;">'.$precio.'</td>';	
 
 							//Importe:
 							$htmlItems .= '<td style="text-align: right;">'.$importe.'</td>';
-
-							//Cálculo del importe del bloque:
-							$blockAmount = $blockAmount + $amount;
-
-							$blockAmountWithoutDiscount = $blockAmountWithoutDiscount + $amountWithoutDiscount;
 
 							//Observaciones:
 							//Manipulamos el font-size de las observations (hasta que encontrar una solución más estable en Trumbowyg):
@@ -140,13 +140,8 @@ $discount_in_lines = false;
 
 						$itemsWithQty = true;
 					}
-				}	
+				}
 			}
-
-
-			//if($block_name == 'SHOOTING'){
-				//dd($its, $block, $block_name, $block_id, $itemsWithQty);	
-			//}
 
 			//Si el bloque tiene items con cantidad, se muestra:
 			if($itemsWithQty){
@@ -175,6 +170,7 @@ $discount_in_lines = false;
 				$resumen .= '</tr>';
 			}
 
+			array_push($arr, $blockAmount);
 			$totalAmount = $totalAmount + $blockAmount;
 			$totalAmountWithoutDiscounts = $totalAmountWithoutDiscounts + $blockAmountWithoutDiscount;
 			@endphp

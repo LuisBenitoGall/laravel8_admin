@@ -257,7 +257,7 @@
 
                                     <td 
                                         class="d-{{ $date }} {{ $weekend }}" 
-                                        @if($selected_date) style="background-color: {!! $selectedDates[$date]['color'] !!};" @endif
+                                        @if($selected_date && isset($selectedDates[$date])) style="background-color: {!! $selectedDates[$date]['color'] !!};" @endif
                                     >
                                         {{-- Colocando el primer día de mes en la celda correcta --}}
                                         @if($isMonthDay)

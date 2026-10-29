@@ -385,7 +385,22 @@ $order_amount_without_discount = $order_amount_without_discount_in_lines > $orde
 					@if($order->provider_id == session('currentCompany'))
 						<label class="mr-5">
 							{{ ucfirst(trans('textos.modalidad')) }}:
-	  					    <b>@if($order->modality) {!! App\Helpers\helpers::budgetModalities($order->modality) !!} @endif</b>
+							<b>
+								@if($order->modality == 10)
+									@php
+									$form_selected = '';
+									foreach($forms as $f){
+										if($f->id == $order->form_id){
+											$form_selected = $f->name;	
+										}
+									}
+									@endphp
+
+									{{ trans('textos.formulario') }} <u>{{ $form_selected }}</u>
+								@else
+	  					    		{!! App\Helpers\helpers::budgetModalities($order->modality) !!} 
+	  					   		@endif
+	  					   	</b>
 						</label>
 					@endif
 
@@ -615,9 +630,12 @@ $(function(){
     $('.editBlockName').on('click', function(){
     	var id = $(this).data('id');
     	var name = $(this).data('name');
+    	var cost_center = $(this).data('costcenter');
 
     	$('#bfiId').val(id);
     	$('#bfiName').val(name);
+    	$('#bfiCostCenter').val(cost_center);
+    	$('#bfiCostCenter').trigger('change');
     }); 
 });
 </script>

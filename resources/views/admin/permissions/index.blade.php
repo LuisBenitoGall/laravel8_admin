@@ -74,4 +74,71 @@
     </div>
 </div>
 
+@push('scripts')
+<script>
+$(function(){
+    //Tabla Permissions:
+    if($('#tblPermissions').length > 0){
+        var tokenDT = $('meta[name="csrf-token"]').attr('content');
+
+        //Filters:
+        $('#tblPermissions thead tr').clone(true).appendTo('#tblPermissions thead');
+        $('#tblPermissions thead tr:eq(1) th').each(function(i){
+            var title = $(this).text();
+            if(i == 2){
+                $(this).html('');
+            }else{
+                $(this).html('<input type="text" class="DTsearch" placeholder="'+txtBuscar+' '+title+'"/>');
+            }
+     
+            $('input', this).on('keyup change', function(){
+                if(tablePermissions.column(i).search() !== this.value){
+                    tablePermissions
+                        .column(i)
+                        .search(this.value)
+                        .draw();
+                }
+            });
+        });
+        
+        var tablePermissions = $('#tblPermissions').DataTable({
+            serverSide: true,
+            processing: true, 
+            //scrollX: true,
+            //fixedColumns: true,
+            ajax: {
+                "type": "GET",
+                "url": "/api/admin/permissions",
+                "error": function(reason){
+                    console.log(reason);
+                }
+            },
+            columns: [
+                {data: 'name'},
+                {data: 'permission'},
+                {data: 'id', className: 'text-right'}
+            ],
+            columnDefs: [
+                {"targets": -1,
+                "render": function(data, type, row){
+                    //Eliminar:
+                    var eliminar = '';
+                    if(row['permissions_destroy']){
+                        eliminar = '<form method="POST" action="/admin/permissions/'+row['id']+'" class="frm-inline" role="form" accept-charset="UTF-8">';
+                            eliminar += '<input name="_method" type="hidden" value="DELETE">';
+                            eliminar += '<input type="hidden" name="_token" value="'+tokenDT+'">';
+                            eliminar += '<button type="submit" class="btn btn-xs btn-danger frm-confirm" rel="tooltip" title="'+txtEliminar+'" data-msg="'+txtPermisoConfirmEliminar+'"><i class="fa fa-trash"></i></button>';
+                        eliminar += '</form>';
+                    }
+
+                    return eliminar;
+                }
+                }
+            ]
+        });
+    }
+});
+</script>
+@endpush
+
 @endsection

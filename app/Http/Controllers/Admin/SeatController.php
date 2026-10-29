@@ -1,0 +1,557 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Helpers\helpers;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
+use Yajra\DataTables\DataTables;
+use Carbon\Carbon;
+use File;
+
+//Models:
+use App\Models\AccountingAccount;
+use App\Models\AccountingAccountYearBalance;
+use App\Models\Company;
+use App\Models\CompanySettings;
+use App\Models\Invoice;
+use App\Models\Seat;
+use App\Models\SeatLines;
+use App\Models\SeatModel;
+use App\Models\SeatModelLine;
+use App\Models\User;
+
+class SeatController extends Controller{
+    /**
+     * 1. Relación de asientos contables.
+     * 1.1. Listado de asientos contables para DataTable.
+     * 1.2. Filtro de asientos contables.
+     * 2. Formulario nuevo asiento.
+     * 3. Guardar nuevo asiento.
+     * 4. Editar asiento contable.
+     * 5. Actualizar asiento contable.
+     * 6. Validación importes.
+     * 7. Eliminar asiento contable.
+     * 8. Eliminar documento de asiento contable.
+     * 9. Detalle de asiento contable.
+     */
+    
+    private $option = 'contabilidad';
+    private $module = 'accounting';
+    private $languages;
+    private $currency;
+
+    public function __construct(){
+        //Idiomas:
+        $this->languages = helpers::languages();
+
+        //Moneda:
+        $this->currency = CompanySettings::co_currency(0);
+
+        $this->middleware('module_setted:accounting');
+        $this->middleware('seat_get', ['only' => ['edit', 'update', 'destroy', 'deleteDoc']]);
+    }
+
+    //0. Validator:
+    protected function validator(array $data){
+        //Validación create:
+        if(isset($data['submit_save'])) {
+            return Validator::make($data, [
+                'seat_date' => 'required',
+                'concept' => 'required'
+            ]);
+
+        //Validación update:
+        } elseif (isset($data['submit_update'])) {
+            return Validator::make($data, [
+                'seat_date' => 'required',
+                'concept' => 'required'
+            ]);
+        }
+    }
+
+    /**
+     * 1. Relación de asientos contables.
+     */
+    public function index($year = false, $accounting_account_id = false, $from = false, $to = false){
+        $header = [
+            'option' => $this->option,
+            'suboption' => 'textos.asientos_contables',
+            'module' => $this->module,
+            'slug' => 'seats'
+        ];  
+
+        $year = $year? $year:date('Y');
+        $from = $from? $from:date('Y').'-01-01';
+        $to = $to? $to:date('Y').'-12-31';
+
+        //Cuenta contable:
+        $accounting_account = $accounting_account_id && $accounting_account_id != 'x'? AccountingAccount::select('id', 'account', 'name')->find($accounting_account_id):false;
+
+        $seat_lines = false;
+        $balance = [];
+        if($accounting_account){
+            //Obtención del saldo para los tipos de cuenta distinto de 6 y 7:
+            $no_balance = [6,7];
+            $first_char = $accounting_account->account[0];
+            if(!in_array($first_char, $no_balance)){
+                //Año de la fecha de inicio:
+                $p_from = explode('-', $from);
+                $p_to = explode('-', $to);
+                $year_from = $p_from[0] < date('Y')? $p_from[0]:(int)$p_from[0];
+
+                //1. Obtenemos el saldo de la cuenta del año al inicio del intervalo.
+                $prev_balance = AccountingAccountYearBalance::select('id', 'balance', 'year', 'status')
+                ->where('accounting_account_id', $accounting_account->id)
+                ->where('year', $year_from)
+                ->first();
+
+                //2. Calculamos el saldo de no existir:
+                if(!$prev_balance){
+                    $prev_balance = AccountingAccountYearBalance::setBalanceByYear($accounting_account->id, $year_from);
+                }
+
+                //3. Obtenemos saldo entre 01-01- del año del fin del intervalo y el día anterior al inicio del intervalo buscado:
+                $from_ = $p_to[0].'-01-01';
+                $to_ = Carbon::parse($from)->subDay()->format('Y-m-d');
+
+                $prev_seat_lines = SeatLines::select(
+                    DB::raw('sum(seat_lines.debit) as debit_'),
+                    DB::raw('sum(seat_lines.credit) as credit_')
+                )
+                ->join('seats', 'seat_lines.seat_id', '=', 'seats.id')
+                ->where('seat_lines.accounting_account_id', $accounting_account->id)
+                ->where('seats.seat_date', '>=', $from_)
+                ->where('seats.seat_date', '<=', $to_)
+                ->first(); 
+
+                $current_balance = $prev_seat_lines->debit_ - $prev_seat_lines->credit_;  
+
+                $balance = [
+                    'amount' => $prev_balance->balance + $current_balance,
+                    'year' => $prev_balance->year,
+                    'status' => $prev_balance->status
+                ];
+            } 
+
+            $seat_lines = SeatLines::select('seat_lines.*', 'seats.seat_date', 'seats.year', 'seats.description', 'seats.doc_num')
+            ->join('seats', 'seat_lines.seat_id', '=', 'seats.id')
+            ->where('seat_lines.accounting_account_id', $accounting_account_id)
+            ->where('seats.seat_date', '>=', $from)
+            ->where('seats.seat_date', '<=', $to)
+            ->orderBy('seats.seat_date', 'ASC')
+            ->orderBy('seats.id', 'ASC')
+            ->get();
+        }
+
+        $company = Company::find(session('currentCompany'));
+
+        //Tipos de líneas de asientos contables:
+        $seat_lines_types = helpers::seatLinesTypes();
+
+        $languages = $this->languages;
+
+        return view('admin.seats.index')->with(compact('header', 'year', 'accounting_account', 'from', 'to', 'balance', 'seat_lines', 'company', 'seat_lines_types', 'languages'));
+    }
+
+    /**
+     * 1.1. Listado de asientos contables para DataTable.
+     */
+    public function getSeatsDT($from = false, $to = false, $accounting_account_id = false){
+        $data = Seat::select('seats.*', 'companies.name AS company')
+        ->leftJoin('companies', 'seats.company_target', '=', 'companies.id')
+        ->leftJoin('seat_lines', 'seats.id', '=', 'seat_lines.seat_id')
+        ->where('seats.company_id', session('currentCompany'))
+        ->when($from && $to, function($q) use($from, $to){
+            return $q->whereBetween('seats.created_at', [$from, $to]);
+        })
+        ->groupBy('seats.id')
+        ->orderBy('seats.seat_date', 'DESC');
+
+        //Obtenemos la situación de los años comprendidos en el intervalo buscado:
+        $p_year = explode('-', $from);
+        $year_start = (int)$p_year[0];
+        $years = [];
+        while($year_start <= date('Y')){
+            array_push($years, $year_start);
+            $year_start++;
+        }
+
+        $open_balances = AccountingAccountYearBalance::join('accounting_accounts', 'accounting_account_year_balances.accounting_account_id', '=', 'accounting_accounts.id')
+        ->where('accounting_accounts.company_id', session('currentCompany'))
+        ->whereIn('accounting_account_year_balances.year', $years)
+        ->where('accounting_account_year_balances.status', '0')
+        ->groupBy('accounting_account_year_balances.year')
+        ->pluck('accounting_account_year_balances.year')
+        ->toArray();
+
+        $currency = $this->currency;
+
+        return DataTables::of($data)
+        ->addColumn('num', function ($row){
+            return $row->id;
+        })
+        ->addColumn('seat_date', function ($row){
+            return Carbon::parse($row->seat_date)->format($this->languages[session()->get('locale')][4]);
+        })
+        ->addColumn('company_target', function($row){
+            if($row->company_target){
+                return $row->company;
+            }else{
+                return '';
+            }
+        })
+        ->addColumn('doc', function ($row){
+            if($row->doc && file_exists('docs/seats/'.$row->doc)){
+                return '<a target="_blank" class="btn btn-xs btn-info" href="'.asset('docs/seats/'.$row->doc).'" rel="tooltip" title="'.trans('textos.documento_ver').'"><i class="fa fa-file"></i></a>';
+            }else{
+                return '';
+            }
+        })
+        ->addColumn('acciones', function ($row) use($open_balances){
+            return view('admin.seats.partials.dt-actions', compact('row', 'open_balances'));
+        })
+        ->rawColumns(['doc'])
+        ->make(true);  
+    }  
+
+    /**
+     * 1.2. Filtro de asientos contables.
+     */
+    public function getSeatsBy(Request $request){
+        $year = $request->year;
+        $accounting_account_id = $request->accounting_account_id? $request->accounting_account_id:'x';
+        //Formateando fechas:
+        $from = $request->from != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->from):$request->from:$year.'-01-01';
+        $to = $request->to != ''? (session()->get('locale') != 'en')? helpers::convertFecha($request->to):$request->to:$year.'-12-31';
+
+        //La fecha final no puede ser inferior a la fecha inicial:
+        if(strtotime($to) < strtotime($from)){
+            $alert = 'La fecha fin no puede ser inferior a la fecha de inicio.';
+            return redirect()->route('seats.index')->with(compact('alert'));
+            exit;
+        }
+
+        return redirect()->route('seats.index', [$request->year, $accounting_account_id, $from, $to]);    
+    }  
+
+    /**
+     * 2. Formulario nuevo asiento.
+     */
+    public function create($model_id = false){
+        $header = [
+            'option' => $this->option,
+            'suboption' => 'textos.asiento_nuevo',
+            'module' => $this->module,
+            'slug' => 'seats'
+        ]; 
+
+        $diaries = helpers::accountingDiaries();
+
+        //$concepts = helpers::seatConcepts();
+        $concepts = [];
+
+        //Tipos de líneas de asientos contables:
+        $seat_lines_types = helpers::seatLinesTypes();
+
+        //Series:
+        // $series = InvoiceSerie::select('code')
+        // ->where('company_id', session('currentCompany'))
+        // ->orderBy('code', 'ASC')
+        // ->get();
+        $series = [];
+
+        $company = Company::select('id', 'name')->find(session('currentCompany'));
+
+        //Modelos:
+        $models = SeatModel::select('id', 'name')
+        ->where('company_id', session('currentCompany'))
+        ->get();
+
+        $model = $model_id? SeatModel::find($model_id):false;
+        $model_lines = $model_id? SeatModelLine::select('seat_model_lines.*', 'accounting_accounts.account', 'accounting_accounts.name')
+            ->join('accounting_accounts', 'seat_model_lines.accounting_account_id', '=', 'accounting_accounts.id')
+            ->where('seat_model_lines.model_id', $model_id)
+            ->orderBy('seat_model_lines.line_num')
+            ->get():false;
+
+        $languages = $this->languages;
+
+        $currency = $this->currency;
+
+        return view('admin.seats.create')->with(compact('header', 'diaries', 'concepts', 'seat_lines_types', 'series', 'company', 'models', 'model', 'model_lines', 'languages', 'currency'));    
+    }
+
+    /**
+     * 3. Guardar nuevo asiento.
+     */
+    public function store(Request $request){
+        $validator = $this->validator($request->all());
+        if ($validator->fails()) {
+            return redirect('/admin/seats/create')
+                ->withErrors($validator)
+                ->withInput();
+        }   
+
+        //Validando importes del asiento:
+        $amounts = $this->validateAmounts($request);
+
+        //Si los importes difieren devolvemos error:
+        if($amounts['debit'] != $amounts['credit']){
+            $alert = trans('textos.asiento_contable_discrepancia');
+            return redirect()->route('seats.create')->with(compact('alert'));
+            exit;
+        }
+
+        //Formateando fechas:
+        $seat_date = $request->seat_date != '' ? (session()->get('locale') != 'en') ? helpers::convertFecha($request->seat_date) : $request->seat_date : NULL;
+        $invoice_date = $request->invoice_date != '' ? (session()->get('locale') != 'en') ? helpers::convertFecha($request->invoice_date) : $request->invoice_date : NULL;
+
+        //Documento:
+        $fileName = NULL;
+        if($request->hasFile('doc')){
+            $file = $request->file('doc');
+            $path = public_path().'/docs/seats';
+            $fileName = uniqid().$file->getClientOriginalName();
+            $moved = $file->move($path, $fileName);
+        }
+
+        //Líneas:
+        $seat_lines = [];
+        if($request->accounting_account_id){
+            $seat_lines['accounting_account_id'] = $request->accounting_account_id;
+            $seat_lines['type'] = $request->type;
+            $seat_lines['debit'] = $request->debit;
+            $seat_lines['credit'] = $request->credit;
+        }
+
+        //Generando asiento contable:
+        $data = [
+            'company_id' => session('currentCompany'),
+            'seat_num' => NULL,
+            'seat_type' => $request->seat_type,
+            'seat_date' => $seat_date,
+            'operation_type' => NULL,
+            'diary' => $request->diary,
+            'concept' => $request->concept,
+            'description' => $request->description,
+            'serie' => $request->serie,
+            'doc_num' => $request->doc_num,
+            'doc' => $fileName,
+            'sort_num' => '',
+            'company_target' => $request->company_id,
+            'mode' => $request->mode,
+            'currency_id' => $this->currency->id,
+            'invoice_id' => NULL,
+            'invoice_date' => $invoice_date,
+            'invoice_num' => $request->invoice_num,
+            'invoice_amount' => NULL,
+            'invoice_amount_iva' => NULL,
+            'provider_doc' => $request->provider_doc,
+            'cash_id' => NULL,
+            'pay_sign' => $request->pay_sign,
+            'accounting_sale_id' => NULL,
+            'seat_lines' => $seat_lines
+        ];
+        $seat = Seat::saveSeat($data);
+
+        $msg = trans('textos.asiento_creado');
+        return redirect()->route('seats.edit', $seat)->with(compact('msg'));
+    }
+
+    /**
+     * 4. Editar asiento contable.
+     */
+    public function edit(Seat $seat){
+        $header = [
+            'option' => $this->option,
+            'suboption' => 'textos.asiento_editar',
+            'module' => $this->module,
+            'slug' => 'seats'
+        ]; 
+
+        $diaries = helpers::accountingDiaries();
+
+        $lines = SeatLines::select('seat_lines.id', 'seat_lines.line_num', 'seat_lines.debit', 'seat_lines.credit', 'seat_lines.accounting_account_id', 'seat_lines.type', 'seat_lines.currency_id', 'accounting_accounts.account', 'accounting_accounts.name')
+        ->leftJoin('accounting_accounts', 'seat_lines.accounting_account_id', '=', 'accounting_accounts.id')
+        ->where('seat_lines.seat_id', $seat->id)
+        ->orderBy('seat_lines.line_num', 'ASC')
+        ->get();
+
+        //Tipos de líneas de asientos contables:
+        $seat_lines_types = helpers::seatLinesTypes();
+
+        $company = $seat->company_target? Company::select('id', 'name')->find($seat->company_target):false;
+
+        $author = User::select('name', 'surname')->find($seat->created_by);
+
+        //Factura:
+        $invoice = $seat->invoice_id? Invoice::select('id', 'invoice_num', 'invoice_old_num')->find($seat->invoice_id):false;
+
+        $languages = $this->languages;
+
+        $currency = $this->currency;
+
+        return view('admin.seats.edit')->with(compact('header', 'seat', 'diaries', 'lines', 'seat_lines_types', 'company', 'author', 'invoice', 'languages', 'currency'));    
+    }
+
+    /**
+     * 5. Actualizar asiento contable.
+     */
+    public function update(Request $request, Seat $seat){
+        $validator = $this->validator($request->all());
+        if ($validator->fails()) {
+            return redirect('/admin/seats/'.$seat->id.'/edit')
+                ->withErrors($validator)
+                ->withInput();
+        }   
+
+        //Validando importes del asiento:
+        $amounts = $this->validateAmounts($request);
+
+        //Si los importes difieren devolvemos error:
+        if($amounts['debit'] != $amounts['credit']){
+            $alert = trans('textos.asiento_discrepancia');
+            return redirect()->route('seats.edit', $seat)->with(compact('alert'));
+            exit;
+        }
+
+        //Formateando fechas:
+        $seat_date = $request->seat_date != '' ? (session()->get('locale') != 'en') ? helpers::convertFecha($request->seat_date) : $request->seat_date : NULL;
+        $invoice_date = $request->invoice_date != '' ? (session()->get('locale') != 'en') ? helpers::convertFecha($request->invoice_date) : $request->invoice_date : NULL;
+
+        $seat->year = date('Y');
+        //$seat->seat_type = $request->seat_type;
+        $seat->seat_date = $seat_date;
+        //$seat->operation_type = NULL;
+        $seat->diary = $request->diary;
+        $seat->concept = $request->concept;
+        $seat->description = $request->description;
+        //$seat->serie = $request->serie;
+        $seat->doc_num = $request->doc_num;
+        $seat->company_target = $request->company_id;
+        $seat->mode = $request->mode;
+        //$seat->currency_id = $this->currency->id;
+        $seat->updated_by = Auth::user()->id;
+        //$seat->invoice_date = $invoice_date;
+        //$seat->invoice_num = $request->invoice_num;
+        $seat->provider_doc = $request->provider_doc;
+        $seat->pay_sign = $request->pay_sign;
+        $seat->save();
+
+        //Líneas del asiento:
+        if($request->accounting_account_id){
+            //Eliminamos las líneas previas y se insertan por completo:
+            SeatLines::where('seat_id', $seat->id)->delete();
+
+            $i = 0;
+            $line_num = 1;
+            foreach($request->accounting_account_id as $aa){
+                $sl = new SeatLines();
+                $sl->seat_id = $seat->id;
+                $sl->line_num = $line_num;
+                $sl->accounting_account_id = $request->accounting_account_id[$i];
+                $sl->debit = $request->debit[$i];
+                $sl->credit = $request->credit[$i];
+                $sl->code_auto = NULL;
+                $sl->type = $request->type[$i]? $request->type[$i]:NULL;
+                $sl->currency_id = $this->currency->id;
+                $sl->save();
+
+                $i++;
+                $line_num++;
+            }
+        }
+
+        $msg = trans('textos.asiento_updated');
+        return redirect()->route('seats.edit', $seat)->with(compact('msg'));
+    }
+
+    /**
+     * 6. Validación importes.
+     */
+    public function validateAmounts($request){
+        $debit = 0;
+        $credit = 0;
+
+        foreach($request->debit as $d){
+            if($d > 0){
+                $debit = $debit + $d;
+            }
+        }
+        foreach($request->credit as $h){
+            if($h > 0){
+                $credit = $credit + $h;
+            }
+        }
+
+        $data['debit'] = $debit;
+        $data['credit'] = $credit;
+        return $data;
+    }
+
+    /**
+     * 7. Eliminar asiento contable.
+     */
+    public function destroy(Seat $seat){
+        //Documento:
+        if($seat->doc){
+            File::delete(public_path().'/docs/seats/'.$seat->doc);
+        }
+
+        //Líneas:
+        SeatLines::where('seat_id', $seat->id)
+        ->delete();
+
+        $seat->delete();
+
+        $msg = trans('textos.asiento_deleted');
+        return redirect()->route('seats.index')->with(compact('msg'));
+    }
+
+    /**
+     * 8. Eliminar documento de asiento contable.
+     */
+    public function deleteDoc(Seat $seat){
+        File::delete(public_path().'/docs/seats/'.$seat->doc);
+
+        $seat->doc = NULL;
+        $seat->save();
+
+        $msg = trans('textos.documento_deleted');
+        return redirect()->route('seats.edit', $seat)->with(compact('msg'));
+    }
+
+    /**
+     * 9. Detalle de asiento contable.
+     */
+    public function show(Request $request, Seat $seat){
+        if($request->ajax()){
+            $diary = $seat->diary? helpers::accountingDiaries($seat->diary):false;
+            $concept = $seat->concept? helpers::seatConcepts($seat->concept):false;
+            $lines = SeatLines::select('seat_lines.debit', 'seat_lines.credit', 'seat_lines.code_auto', 'seats.invoice_id', 'accounting_accounts.account', 'accounting_accounts.name', 'invoices.invoice_num', 'invoices.invoice_old_num', 'currencies.symbol')
+            ->join('seats', 'seat_lines.seat_id', '=', 'seats.id')
+            ->leftJoin('accounting_accounts', 'seat_lines.accounting_account_id', '=', 'accounting_accounts.id')
+            ->leftJoin('invoices', 'seats.invoice_id', '=', 'invoices.id')
+            ->leftJoin('currencies', 'seat_lines.currency_id', '=', 'currencies.id')
+            ->where('seat_lines.seat_id', $seat->id)
+            ->orderBy('seat_lines.line_num', 'ASC')
+            ->get();
+
+            $data = [
+                'seat' => $seat,
+                'diary' => $diary,
+                'concept' => $concept,
+                'lines' => $lines
+            ];
+
+            return response()->json($data);
+        }    
+    }
+
+}

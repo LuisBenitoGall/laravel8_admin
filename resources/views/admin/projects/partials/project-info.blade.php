@@ -180,6 +180,14 @@
 					<x-input type="text" name="hours_worked" value="{{ $project->hours_worked }}" class="text-right" autocomplete="off" readonly="true"/>
 				</div>
 			</div>
+
+			<div class="form-group row">
+				{{-- Categorías --}}
+				<label for="categories" class="col-lg-3 col-form-label">{!! ucfirst(trans('textos.categorias')) !!}</label>
+				<div class="col-lg-9">
+					<x-select name="categories[]" class="select2 prominent" multiple :options="$categories" :values="$categories_in"/>
+				</div>
+			</div>
 		</div>
 
 		{{-- Charts --}}
